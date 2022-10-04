@@ -1,0 +1,41 @@
+-- add to clipboard from file
+set milefile to (the POSIX path of (path to home folder)) & "books/_utils/math_toc_add_page.txt"
+set theFileContents to read milefile
+set the clipboard to theFileContents
+tell application "System Events" to keystroke "v" using command down
+
+
+
+-- update the image
+on run {input, parameters}
+	tell application "System Events" to set frontmost of process "Preview" to true
+	tell application "Preview" to save the front document
+	tell application "Preview" to set myfile to path of front document
+	set my text item delimiters to "/"
+	set pathlist to words of myfile -- convert string to list of words
+	set oldDelimiters to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to "/"
+	set pathlist to every text item of myfile
+	set AppleScript's text item delimiters to oldDelimiters
+	set dir to item -2 of pathlist
+	set item -1 of pathlist to ""
+	set item -2 of pathlist to ""
+	set item -3 of pathlist to ""
+	set item -3 of pathlist to dir & ".tex"
+	set text item delimiters to "/"
+	set texPath to pathlist as text
+	
+	set mynewfile to open for access "/Users/ashum048/books/test copy 2.txt" with write permission
+	-- repeat with aword in pathlist
+	-- write aword & return to mynewfile
+	-- end repeat
+	-- close access mynewfile
+	
+	tell application "System Events" to set frontmost of process "Skim" to true
+	do shell script "\"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code\" -r /" & texPath
+	tell application "System Events" 
+		set frontmost of process "Code" to true
+		keystroke "s" using command down
+	end tell
+	return input
+end run

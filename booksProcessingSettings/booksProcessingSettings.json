@@ -1,0 +1,22 @@
+{
+    "currentSettings": {
+        "currentBookPath": "/Users/ashum048/books/b_analysis_test/whole_book/whole_book.pdf",
+        "currentBookFolderName": "b_analysis_test",
+        "currentPage": "47",
+        "currChapterFull": "2.14",
+        "currChapter": "ch2"
+    },
+    "startup": {
+        "startupLayout": "whole_book"
+    },
+    "imageGeneration": {
+        "currImageID": "2",
+        "currImageName": "adv",
+        "currLinkName": "adv"
+    },
+    "Layouts": [
+        "Main",
+        "Chapter",
+        "WholeVSCode"
+    ]
+}

@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+{
+    \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+    \tl_trim_spaces:N \l_tmpa_tl
+    \IfNoValueTF { #1 }
+    {
+        \tl_use:N \l_tmpa_tl
+    }
+    {
+        \tl_set_eq:NN #1 \l_tmpa_tl
+    }
+}
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+
+\def\currch{[_PLACEHOLDER_CHAPTER_]}
+\def\currImagesPath{../../[_PLACEHOLDER_CHAPTER_]_images/}
+
+\graphicspath{ {\currImagesPath} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+
+    \newcommand{\TOC}{
+        % BEFORE_LOCAL_LINKS_MARKER
+        
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../TOC_[_PLACEHOLDER_CHAPTER_].tex}
+        % BEFORE_TOC_MARKER
+
+    % AFTER_TOC_MARKER
+    }
+
+% BEFORE_PIC_MARKER
+
+% AFTER_PIC_MARKER
+\input{{\utPath}end.tex}
+\end{document}

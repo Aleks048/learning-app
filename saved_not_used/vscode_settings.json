@@ -1,0 +1,48 @@
+{
+    "security.workspace.trust.untrustedFiles": "open",
+    "latex-workshop.latex.autoBuild.run": "never",
+    // "latex-workshop.latex.tools": [{
+    //     "name": "latexmk",
+    //     "command": "pdflatex",
+    //     "args": [
+    //         "--shell-escape",
+    //         "-xelatex",
+    //         "-synctex=1",
+    //         "-interaction=nonstopmode",
+    //         "-file-line-error",
+    //         "-output-directory=``",
+    //         "%DOC%"
+    //     ]
+    // }],
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.message.update.show": true,
+    "workbench.editorAssociations": {
+        "*.pdf": "default"
+    },
+    "explorer.confirmDragAndDrop": false,
+    "[latex]": {
+        "editor.autoClosingBrackets": "never",
+    },
+    "emeraldwalk.runonsave": {
+        "commands": [
+               {
+                   "match": "[TOC_]*.tex",
+                   "cmd": "temp=${fileBasenameNoExt}; cd ./${temp:4}; for f in *.tex; do pdflatex -xelatex -synctex=1 -interaction=nonstopmode -file-line-error $f; done"
+               },
+               {
+                   "match": ".tex",
+                   "cmd": "pdflatex  --shell-escape -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory=${fileDirname}/pdf ${file}"
+               },
+            //    ,{
+            //     "match": "[1-9].[1-9]*.tex",
+            //     // "cmd": "mkdir ${fileDirname}/test"
+            //     "cmd": "cd ${fileDirname}; pdflatex -xelatex -synctex=1 -interaction=nonstopmode -file-line-error ${file}"
+            //     }
+                {
+                    "match": "ImagesAndLinks.tex",
+                    // "cmd": "source ${HOME}/.zprofile && cd $BOOKS_PROCESS_TEX_PATH/math_excercises/ && python3 create_excercises_tex.py ${fileDirname}/images/excercises/"
+                    "cmd": "source ${HOME}/.zprofile && cd $BOOKS_PROCESS_TEX_PATH/math_excercises/ && python3 create_excercises_tex.py ${file}"
+                },
+        ]
+    } 
+}

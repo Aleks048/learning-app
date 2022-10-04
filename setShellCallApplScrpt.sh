@@ -1,0 +1,1 @@
+source ~/.zprofile && osascript -e "do shell script \"/usr/local/bin/python3\" & (do shell script \"echo $BOOKS_UTILS_PATH\") & \"/input.python3\" do shell script (do shell script \"echo $BOOKS_UTILS_PATH\")/screenShot_format.sh\""

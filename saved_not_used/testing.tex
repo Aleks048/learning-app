@@ -1,0 +1,11 @@
+% adding a link to the video and open it at specified timecode
+\def\mVideoStart{555 }
+\def\mVideoLength{10 }
+\immediate\write18{cat /Users/ashum048/books/_utils/killvlc.sh > /Users/ashum048/books/test.sh; echo "; open -a /Applications/VLC.app /Users/ashum048/books/test.mp4 --args --start-time=\mVideoStart --stop-time=\mVideoLength ;exit" >> /Users/ashum048/books/test.sh}
+\\\href{run:../test.sh}{tedpdt}
+
+
+% show env variable
+\getenv{BOOKS_PROCESS_TEX_PATH}
+
+
