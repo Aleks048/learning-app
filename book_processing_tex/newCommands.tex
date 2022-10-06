@@ -20,9 +20,8 @@
 \def\subch{\currfilebase}
 
 \newcommand{\image}[2][0.6]{
-    \href{run:\currImagesPath/#2.jpg}{
-    % \href{#2.jpg}{
-        \includegraphics[scale = #1]{#2.jpg}
+    \href{run:\currImagesPath/#2.png}{
+        \includegraphics[scale = #1]{#2.png}
     }
 }
 
@@ -39,15 +38,14 @@
     \myStIm{#1}
 }
 
-\newcommand{\myCorollary}{
-    \\\textbf{Corollary:}
-    \\\image{\imnum_\imname_corollary}
-}
+% \newcommand{\myCorollary}{
+%     \\\textbf{Corollary:}
+%     \\\image{\imnum_\imname_corollary}
+% }
 
 \newcommand{\myStIm}[1]{
-    % \\\image{\imnum_\imname_#1}
-    \href{file:#1.jpg}{
-        \includegraphics[scale = 0.6]{#1.jpg}
+    \href{file:#1.png}{
+        \includegraphics[scale = 0.6]{#1}
     }
 }
 

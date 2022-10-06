@@ -1,9 +1,11 @@
 from asyncore import read
 from dataclasses import dataclass
+from genericpath import isfile
 import sys, os, json
 from time import sleep
 import tkinter as tk
 from tkinter import messagebox
+import tkinter
 from typing import Set
 from webbrowser import get
 from layouts import layouts_main
@@ -214,6 +216,7 @@ class UIWidgets:
 
     #tk primvars
     class tkVariables:
+        needRebuild = None
         buttonText = None
         createTOCVar = None
         TOCWithImageVar = None
@@ -236,6 +239,33 @@ class UIWidgets:
         win.bind("<Enter>", win.destroy())
 
         win.mainloop()
+
+    def confirmationWindow(inText, onYesFunction, *args):
+        root = tk.Tk()
+        root.title("Confirmation")
+
+        def onYesCallback():
+            root.destroy()
+            Thread(target=lambda: onYesFunction(*args)).start()
+    
+    
+        l1=tk.Label(root, image="::tk::icons::question")
+        l1.grid(row=0, column=0, pady=(7, 0), padx=(10, 30), sticky="e")
+        l2=tk.Label(root,text= inText)
+        l2.grid(row=0, column=1, columnspan=3, pady=(7, 10), sticky="w")
+    
+        b1=tk.Button(root,text="Yes",command = onYesCallback, width = 10)
+        b1.grid(row=1, column=1, padx=(2, 35), sticky="e")
+        b2=tk.Button(root,text="No",command=root.destroy,width = 10)
+        b2.grid(row=1, column=2, padx=(2, 35), sticky="e")
+        
+        def onYesCallbackWrapper(e):
+            onYesCallback()
+        root.bind("<Return>", onYesCallbackWrapper)
+        root.bind("<Escape>", lambda e: root.destroy())
+
+        root.mainloop()
+        
 
     '''
     hide all of the widgets in the mainWinRoot
@@ -468,19 +498,28 @@ class UIWidgets:
     def getAddImage_BTN(cls, mainWinRoot, prefixName = ""):
         def addImBTNcallback():
             currImID = str(int(Settings.readProperty(Settings.currImageID_ID)) - 1)
-            # currImName = Settings.readProperty(Settings.currImageName_ID)
-            # Settings.updateProperty(Settings.currLinkName_ID, dataFromUser[2])
             currentSubchapter = Settings.readProperty(Settings.currChapterFull_ID)
             
             # screenshot
             imName = ""
+
+            # get name of the image from the text field
             for w in mainWinRoot.winfo_children():
                 if "_imageGeneration_" + cls.entryWidget_ID in w._name:
                     imName = w.get()
+            
             extraImagePath = getCurrentScreenshotDir() \
                                 + currImID + "_" + currentSubchapter \
                                 + "_" + imName
-            os.system("screencapture -ix " + extraImagePath + ".jpg")
+            
+            if os.path.isfile(extraImagePath + ".png"):
+                def takeScreencapture(savePath):
+                    os.system("screencapture -ix " + savePath)
+                    UIWidgets.tkVariables.needRebuild.set(True)
+                cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, extraImagePath + ".png")
+            else:
+                os.system("screencapture -ix " + extraImagePath + ".png")
+                UIWidgets.tkVariables.needRebuild.set(True)
 
             # update the content file
             marker = "THIS IS CONTENT id: " + currImID
@@ -548,7 +587,7 @@ osascript -  $conIDX <<EOF\n\
                 keystroke \"1\" using {command down}\n\
                 delay 0.1\n\
                 keystroke \"g\" using {control down}\n\
-                keystroke item 1 of argv + 7\n\
+                keystroke item 1 of argv + 20\n\
                 keystroke return\n\
             end tell\n\
         end tell\n\
@@ -598,7 +637,7 @@ end tell'"
     \n\
     % TEXT BEFORE MAIN IMAGE\n\
     \\def\\imnum{" + dataFromUser[0] + "}\n\
-    \\def\\linkname{" + dataFromUser[2] + "}\n\
+    \\def\\linkname{" + dataFromUser[1] + "}\n\
     \\hyperdef{TOC}{\\linkname}{}\n\
     \myTarget{" + extraImagePath + "}{\\linkname\\imnum}\n\
     % TEXT AFTER MAIN IMAGE\n\
@@ -628,7 +667,7 @@ end tell'"
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
     \\link[" + dataFromUser[0] + \
-    "]{" + dataFromUser[2] + "} \\image[0.5]{" + \
+    "]{" + dataFromUser[1] + "} \\image[0.5]{" + \
     dataFromUser[0] + "_" + currentSubchapter + "_" + dataFromUser[1] + "}\n\
 }\n\n\n"
                         f.write(toc_add_image)
@@ -638,7 +677,7 @@ end tell'"
                         toc_add_text = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
-    \\link[" + dataFromUser[0] + "]{" + dataFromUser[2] + "} \\textbf{!}\n\
+    \\link[" + dataFromUser[0] + "]{" + dataFromUser[1] + "} \\textbf{!}\n\
 }\n\n\n"
                         f.write(toc_add_text)
             
@@ -649,32 +688,47 @@ end tell'"
 
             # STOTE IMNUM, IMNAME AND LINK
             Settings.updateProperty(Settings.currImageID_ID, dataFromUser[0])
-            Settings.updateProperty(Settings.currImageName_ID, dataFromUser[1])
-            Settings.updateProperty(Settings.currLinkName_ID, dataFromUser[2])
+            Settings.updateProperty(Settings.currLinkName_ID, dataFromUser[1])
             
             # POPULATE THE MAIN FILE
             TexFile._populateMainFile()
             
             
             # take a screenshot
-            os.system("screencapture -ix " + imageAnscriptPath + ".jpg")
-            
-            #create a sript associated with image
-            with open(imageAnscriptPath + ".sh", "w+") as f:
-                for l in _createImageScript():
-                    f.write(l)
-            os.system("chmod +x " + imageAnscriptPath + ".sh")
-            
-            #update curr image index for the chapter
-            nextImNum = str(int(dataFromUser[0]) + 1)
-            Chapters.ChapterProperties.updateChapterImageIndex(Settings.readProperty(Settings.currChapter_ID)[2:],
-                                                                nextImNum)
-            Settings.updateProperty(Settings.currImageID_ID, nextImNum)
-            cls.tkVariables.imageGenerationEntryText.set(nextImNum)
+            if os.path.isfile(imageAnscriptPath + ".png"):
+                def takeScreencapture(savePath):
+                    os.system("screencapture -ix " + savePath + ".png")
+                    UIWidgets.tkVariables.needRebuild.set(True)
+                        #create a sript associated with image
+                    with open(savePath + ".sh", "w+") as f:
+                        for l in _createImageScript():
+                            f.write(l)
+                    os.system("chmod +x " + savePath + ".sh")
+                    #update curr image index for the chapter
+                    nextImNum = str(int(dataFromUser[0]) + 1)
+                    Chapters.ChapterProperties.updateChapterImageIndex(Settings.readProperty(Settings.currChapter_ID)[2:],
+                                                                        nextImNum)
+                    Settings.updateProperty(Settings.currImageID_ID, nextImNum)
+                    cls.tkVariables.imageGenerationEntryText.set(nextImNum)
+                    UIWidgets.tkVariables.buttonText.set("imNum")
+                
+                cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
+            else:
+                os.system("screencapture -ix " + imageAnscriptPath + ".png")
+                UIWidgets.tkVariables.needRebuild.set(True)
+                #create a sript associated with image
+                with open(imageAnscriptPath + ".sh", "w+") as f:
+                    for l in _createImageScript():
+                        f.write(l)
+                os.system("chmod +x " + imageAnscriptPath + ".sh")
+                #update curr image index for the chapter
+                nextImNum = str(int(dataFromUser[0]) + 1)
+                Chapters.ChapterProperties.updateChapterImageIndex(Settings.readProperty(Settings.currChapter_ID)[2:],
+                                                                    nextImNum)
+                Settings.updateProperty(Settings.currImageID_ID, nextImNum)
+                cls.tkVariables.imageGenerationEntryText.set(nextImNum)
 
-
-        buttonNamesToFunc = {"imNum": lambda *args: cls.tkVariables.imageGenerationEntryText.set(""), 
-                            "imName": lambda *args: None, 
+        buttonNamesToFunc = {"imNum": lambda *args: cls.tkVariables.imageGenerationEntryText.set(""),
                             "imLink":_createTexForTheProcessedImage}
         buttonNames = list(buttonNamesToFunc.keys())
        
@@ -1311,10 +1365,5 @@ class TexFile:
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
+        UIWidgets.tkVariables.needRebuild.set(False)
 
-'''
-updating tex files
-'''
-def updatingContentTexFile(filepath):
-    texFile = readFile(filepath)
-    pass

@@ -10,9 +10,8 @@
         "startupLayout": "whole_book"
     },
     "imageGeneration": {
-        "currImageID": "2",
-        "currImageName": "adv",
-        "currLinkName": "adv"
+        "currImageID": "14",
+        "currLinkName": "sd"
     },
     "Layouts": [
         "Main",

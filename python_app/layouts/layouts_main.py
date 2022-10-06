@@ -8,6 +8,7 @@ sys.path.append(os.getenv("BOOKS_PY_APP_PATH"))
 sys.path.append(os.getenv("BOOKS_PY_APP_PATH") + "/layouts/")
 from _utils import _utils
 import _layouts_utils
+from threading import Thread
 
 
 '''
@@ -38,7 +39,6 @@ class ChapterLayout(Layout):
         #       skim chapter to the right 
         #       vscode to the left
         '''
-
         # set menu dimensions
         mainWinRoot.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
        
@@ -75,9 +75,14 @@ class ChapterLayout(Layout):
         #move vscode into position
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
-    
+
+        if _utils.UIWidgets.tkVariables.needRebuild.get() == True:
+            Thread(target = _utils.TexFile.buildCurrentSubchapterPdf).start()
+
     @classmethod
     def setUIElements(cls, winMainRoot):
+        _utils.UIWidgets.tkVariables.needRebuild = tk.BooleanVar()
+
         layoutOM = _utils.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
         layoutOM.grid(column=0, row=0, padx=0, pady=0)
         layoutOM.update()
@@ -107,6 +112,8 @@ class MainLayout(Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
+        _utils.UIWidgets.tkVariables.needRebuild.set(False)
+
         #close the chapter vscode if it open
         _, windowID = _layouts_utils.getOwnersName_windowID_ofApp("vscode", _utils.Settings.readProperty(_utils.Settings.currChapterFull_ID))
         if (windowID != None):
