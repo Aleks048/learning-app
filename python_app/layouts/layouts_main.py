@@ -1,4 +1,3 @@
-from re import L
 import sys
 import os
 from time import sleep
@@ -8,6 +7,7 @@ from threading import Thread
 import _utils._utils_main as _u
 import UI.widgets as ui
 import layouts._layouts_utils as _layouts_utils
+import tex_file.create_tex_file as t
 
 
 '''
@@ -15,22 +15,27 @@ Note: layout classes names are used to compare with json and and m_main to add U
         so change with caution
 '''
 
+
 class Layout:
     @classmethod
     def clsInit(cls):
         raise NotImplementedError()
 
+
     @classmethod
     def set(cls, mainWinRoot):
         raise NotImplementedError()
-   
+
+ 
     def setUIElements(winMainRoot):
         raise NotImplementedError()
+
 
 class ChapterLayout(Layout):
     layoutUInames = []
     pyAppDimensions = [None, None]
     
+
     @classmethod
     def set(cls, mainWinRoot):
         '''
@@ -49,8 +54,7 @@ class ChapterLayout(Layout):
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currChapterFull)
         
         if ownerName == None or windowID == None:
-            
-            _u.TexFile.buildCurrentSubchapterPdf()
+            t.TexFile.buildCurrentSubchapterPdf()
 
             # if the pdf was not opened in Skim already   
             pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + "/" + currChapter + "/subchapters/ch_" + currChapterFull + "/" + currChapterFull + "_main.pdf"
@@ -58,11 +62,13 @@ class ChapterLayout(Layout):
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, currChapterFull)
         
+
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height - cls.pyAppDimensions[1] - 100, cls.pyAppDimensions[0], cls.pyAppDimensions[1] + 54])
     
         # open chapter source in vscode
         pathToSourceFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + "/" + currChapter + "/subchapters/ch_" + currChapterFull #+ ".tex"
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currChapterFull)
+        
         if (windowID == None):
             _waitDummy = os.system("code -n " + pathToSourceFolder)
             ownerName = None
@@ -76,7 +82,8 @@ class ChapterLayout(Layout):
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
 
         if ui.UItkVariables.needRebuild.get() == True:
-            Thread(target = _u.TexFile.buildCurrentSubchapterPdf).start()
+            Thread(target = t.TexFile.buildCurrentSubchapterPdf).start()
+
 
     @classmethod
     def setUIElements(cls, winMainRoot):
@@ -105,6 +112,7 @@ class ChapterLayout(Layout):
         cls.pyAppDimensions[0] = int(mon_width / 2)
         cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
 
+
 class MainLayout(Layout):
     layoutUInames = []
     pyAppDimensions = [None, None]
@@ -120,6 +128,7 @@ class MainLayout(Layout):
 
         #close the chapter vscode if it open
         _, windowID = _u.getOwnersName_windowID_ofApp("vscode", _u.Settings.readProperty(_u.Settings.currChapterFull_ID))
+        
         if (windowID != None):
             osascript = "osascript -e '\
     tell application \"System Events\" to tell process \""  + _u.Settings.vsCode_ID + "\"\n\
@@ -141,18 +150,23 @@ class MainLayout(Layout):
         # currChapter images folder
         currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currChapter + "_images")
+        
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + "/" + currChapter + "/" + currChapter + "_images"
+            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + \
+                                    "/" + currChapter + "/" + currChapter + "_images"
             _waitDummy = _layouts_utils.openChapterFolderInFinder(pathToChapterFolder)
-            # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder",currChapter + "_images")
+        
         if ownerName == None or windowID == None: 
             print("setMainLayout - Something went wrong. Finder could not open the folder")
         else:
-            _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height - cls.pyAppDimensions[1], cls.pyAppDimensions[0], cls.pyAppDimensions[1] + 54])
+            _layouts_utils.moveApplicationsWindow(ownerName, 
+                                            windowID, 
+                                            [mon_halfWidth, mon_height - cls.pyAppDimensions[1], cls.pyAppDimensions[0], cls.pyAppDimensions[1] + 54])
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClass_ID, "")
+
 
     @classmethod
     def setUIElements(cls, winMainRoot):
@@ -192,7 +206,6 @@ class MainLayout(Layout):
         chooseSubChapterMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
 
 
-
 class WholeVSCodeLayout(Layout):
     layoutUInames = []
     pyAppDimensions = [None, None]
@@ -205,7 +218,8 @@ class WholeVSCodeLayout(Layout):
         # vscode open
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode")
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_windth, mon_height , 0 , 0])
-    
+
+   
     @classmethod
     def setUIElements(cls, winMainRoot):
         layoutOM = ui.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
@@ -213,6 +227,7 @@ class WholeVSCodeLayout(Layout):
         layoutOM.update()
         cls.pyAppDimensions[0] = layoutOM.winfo_width()
         cls.pyAppDimensions[1] = layoutOM.winfo_height()
+
 
 def vsCodeManipulation(clearWindows, collapseFolders, hide):
     osascript = "osascript -e '\
@@ -230,6 +245,7 @@ def vsCodeManipulation(clearWindows, collapseFolders, hide):
     osascript +="end tell'"
     return osascript
 
+
 def openWholeBook(dimentions, position):
     # whole book in skim
     ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, _u.Settings.wholeBook_ID + ".pdf")
@@ -241,12 +257,13 @@ def openWholeBook(dimentions, position):
         print("openWholeBook - Something went wrong. Skim could not open the document")
     else:
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
-        # _layouts_utils.movePdfToPage(_u.Settings.wholeBook_ID + ".pdf", _u.Settings.readProperty(_u.Settings.currPage_ID))
+
 
 def getCurrLayoutClass():
     layoutStr = _u.Settings.currLayout
     layouts_main = sys.modules[__name__]
     return getattr(layouts_main, layoutStr + _u.Settings.layoutClass_ID)
+
 
 def moveWholeBookToChapter():
     currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
@@ -255,16 +272,12 @@ def moveWholeBookToChapter():
         ui.UIWidgets.showMessage(message)
         print("moveWholeBookToChapter -" + message)
     else:
-        chapterPage = _u.Chapters.readProperty(_u.Chapters.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
+        chapterPage = _u.ChaptersSettings.readProperty(_u.ChaptersSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
+        
         if chapterPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
             ui.UIWidgets.showMessage(message)
             print("moveWholeBookToChapter - " + message)   
         else:
             _layouts_utils.movePdfToPage(_u.Settings.wholeBook_ID + ".pdf", chapterPage)
-
-
-
-
-
 

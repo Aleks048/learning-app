@@ -2,22 +2,24 @@
 \newcommand\HREF[2]{\hyper@linkurl{#2}{#1}}
 \makeatother
 
-% \newcommand{\utPath}[1]{{\uti}#1}
 
 \newcommand{\utPathFull}[1]{\utPath#1}
+
 
 \newcommand{\link}[2][]{
     \hyperlink{#2#1}{\underline{#2:}\hspace*{0.2cm}}
 }
 
+
 \newcommand{\TOCline}[2]{
     \href{run:#2.pdf}{#2 #1 } \hfill source: \href{run:../#2.tex}{#2}\\
 }
 
+
 \newcommand{\target}[1]{
     \hypertarget{#1}{\textbf{}}
 }
-\def\subch{\currfilebase}
+
 
 \newcommand{\image}[2][0.6]{
     \href{run:\currImagesPath/#2.png}{
@@ -25,11 +27,16 @@
     }
 }
 
+
 \newcommand{\mybox}[1]{
     \\\fbox{\parbox{\linewidth}{#1}}
 }
 
-\newcommand{\mds}{\textbf{// }}
+
+\newcommand{\mds}{
+    \textbf{// }
+}
+
 
 \newcommand{\myTarget}[2]{
     \target{#2}
@@ -38,10 +45,6 @@
     \myStIm{#1}
 }
 
-% \newcommand{\myCorollary}{
-%     \\\textbf{Corollary:}
-%     \\\image{\imnum_\imname_corollary}
-% }
 
 \newcommand{\myStIm}[1]{
     \href{file:#1.png}{
@@ -49,25 +52,18 @@
     }
 }
 
-% \newcommand{\addProofs}[1]{
-%     \ifproofs
-%         \\Proof:\\
-%         \mybox{
-%             \ifnum #1=1
-%                 \foreach \n in {1,...,#1}{ \image{\imnum_\imsubchapter_proof}}
-%             \else
-%                 \foreach \n in {1,...,#1}{ \image{\imnum_\imsubchapter_proof_\n}}
-%             \fi
-%         }
-%     \fi
-% }
 
-\newcommand{\mySpace}{\hspace*{1cm}}
+\newcommand{\mySpace}{
+    \hspace*{1cm}
+}
+
 
 \newcommand{\myGlLink}[2]{
     \hyperref{#1.pdf}{TOC}{#2}{#2}
 }
 
+
 \newcommand{\myGlLinks}[1]{
     \\Global links: #1
 }
+

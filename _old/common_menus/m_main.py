@@ -1,16 +1,11 @@
-import os
 from _utils._utils_main import Settings, getPathToBooks, getMonitorSize
 import tkinter as tk
 from layouts import layouts_main
 
 import UI.widgets as ui
-# import imageProcessing.m_processImage
-
-
 
 
 def createMainWindow(position):
-
     mainWinRoot = tk.Tk()
 
     listOfLayouts = Settings.readProperty(Settings.layouts_ID)

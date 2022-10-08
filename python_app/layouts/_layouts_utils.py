@@ -1,10 +1,9 @@
-# import sys
-# sys.path.append(os.getenv("BOOKS_PY_APP_PATH"))
+import Quartz
+from AppKit import NSWorkspace
+
 import os
 import _utils._utils_main as u
 
-import Quartz
-from AppKit import NSWorkspace
 
 def moveApplicationsWindow(appName, windowID, bounds):
     bounds = [str(i) for i in bounds]
@@ -18,6 +17,7 @@ def moveApplicationsWindow(appName, windowID, bounds):
     end tell'"
     os.system(osascript2)
 
+
 def hideApplicationsWindow(appName, windowID):
     osascript = "osascript -e '\
     tell application \"" + appName + "\"\n\
@@ -25,6 +25,7 @@ def hideApplicationsWindow(appName, windowID):
         set visible of window id " + windowID + " to false\n\
     end tell'"
     os.system(osascript)
+
 
 def openPdfInSkim(pathToChapterFolder):
     print("Opening in " + u.Settings.skim_ID + " pdf: " + pathToChapterFolder)
@@ -34,6 +35,7 @@ def openPdfInSkim(pathToChapterFolder):
     end tell\n\
     '"
     _waitDummy = os.system(osascript)
+
 
 def movePdfToPage(filename, page):
     osascript = "osascript -e '\n\
@@ -45,6 +47,7 @@ def movePdfToPage(filename, page):
     print("movePdfToPage - moving to page " + str(page))
     os.system(osascript)
 
+
 def openChapterFolderInFinder(pathToChapterFolder):
     print("Opening in Finder chapter: " + pathToChapterFolder)
     osascript = "osascript -e '\n\
@@ -53,6 +56,7 @@ def openChapterFolderInFinder(pathToChapterFolder):
     end tell\n\
     '"
     _waitDummy = os.system(osascript)
+
 
 '''
 osascript to manipulate windows:

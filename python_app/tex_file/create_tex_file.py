@@ -1,10 +1,10 @@
+import os
 
 import _utils._utils_main as _u
 import UI.widgets as ui
-import os
+
 
 class TexFile:
-
     def _getCurrTexFilesDir(currSubchapter):
         currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
         return _u.Settings.getBookFolderPath(_u.Settings.readProperty(_u.Settings.currBookName_ID)) + \
@@ -12,20 +12,24 @@ class TexFile:
                 _u.Settings.relToSubchapters_Path + \
                 "/ch_" + currSubchapter
     
+
     @classmethod
     def _getCurrContentFilepath(cls):
         currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_con.tex"
     
+
     @classmethod
     def _getCurrTOCFilepath(cls):
         currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_toc.tex"
     
+
     @classmethod      
     def _getCurrMainFilepath(cls):
         currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_main.tex"
+
 
     def _populateMainFile():
         contentFile = []
@@ -111,6 +115,7 @@ class TexFile:
             # writeToMainFile
             for line in outFileList:
                 outFile.write(line)
+
 
     @classmethod 
     def buildCurrentSubchapterPdf(cls):
