@@ -1,8 +1,10 @@
 import os
-from _utils._utils import Settings, UIWidgets, getPathToBooks, getMonitorSize
+from _utils._utils_main import Settings, getPathToBooks, getMonitorSize
 import tkinter as tk
 from layouts import layouts_main
-import imageProcessing.m_processImage
+
+import UI.widgets as ui
+# import imageProcessing.m_processImage
 
 
 
@@ -19,12 +21,12 @@ def createMainWindow(position):
         layoutClass.setUIElements(mainWinRoot)
     
     print("* createMainWindow - setting up Chapters UI")
-    UIWidgets.Chapters.setChaptersUI(mainWinRoot)
+    ui.ChaptersUI.setChaptersUI(mainWinRoot)
 
 
-    UIWidgets.hideAllWidgets(mainWinRoot)
+    ui.UIWidgets.hideAllWidgets(mainWinRoot)
     
-    UIWidgets.getOptionsMenu_Layouts(mainWinRoot).grid(row=0,column=0)
+    ui.UIWidgets.getOptionsMenu_Layouts(mainWinRoot).grid(row=0,column=0)
 
     #move menu to the top center
     # mainWinRoot.geometry(str(position[0]) + "x100" + "+" + str(position[0]) + "+" + str(position[1]))

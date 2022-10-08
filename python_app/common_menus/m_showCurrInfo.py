@@ -1,5 +1,5 @@
 import tkinter as tk
-from _utils._utils import _BookChoosingMenus
+from _utils._utils_main import _BookChoosingMenus
 
 # create UI
 master = tk.Tk()

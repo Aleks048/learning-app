@@ -1,3 +1,6 @@
+from UI.widgets import *
+from layouts.layouts_main import *
+
 from common_menus.m_main import *
 
 #startof the application

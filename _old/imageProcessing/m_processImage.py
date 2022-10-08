@@ -2,7 +2,7 @@ import os
 import subprocess
 import tkinter as tk
 from pathlib import Path
-from _utils._utils import UIWidgets, Settings
+from _utils._utils_main import UIWidgets, Settings
 import json
 # from tkinter import 
 
