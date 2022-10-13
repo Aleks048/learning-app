@@ -219,14 +219,14 @@ class UIWidgets:
                 
                 _u.Settings.updateProperty(_u.Settings.currChapter_ID , chapter.get())
 
-                chapterImIndex = _u.ChaptersSettings.ChapterProperties.getCurrChapterImIndex()
+                chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
                 UItkVariables.imageGenerationEntryText.set(chapterImIndex)
 
                 UIWidgets.Screenshot.setScreenshotLoaction()
                 
                 subchaptersList = cls._getSubchaptersListForCurrChapter()
                 cls._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subchaptersList)
-                currSubchapter = _u.ChaptersSettings.ChapterProperties.getChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:])
+                currSubchapter = _u.BookSettings.ChapterProperties.getChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:])
                 UItkVariables.subchapter.set(currSubchapter)
                 _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, subchaptersList[0])
 
@@ -257,7 +257,7 @@ class UIWidgets:
 
             def subchapterChoosingCallback(value):
                 UItkVariables.subchapter.set(value)
-                _u.ChaptersSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
                                                                         value)
                 _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, value)
 
@@ -282,7 +282,7 @@ class UIWidgets:
         @classmethod
         def getOptionMenu_ChooseSubchapter(cls, mainWinRoot, namePrefix = ""):
             def subchapterChoosingCallback(subchapter):
-                _u.ChaptersSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
                                                                         subchapter.get())
                 _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, subchapter.get())
             
@@ -314,7 +314,7 @@ class UIWidgets:
     def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
         def restartBTNcallback():
             UItkVariables.buttonText.set("imNum")
-            chapterImIndex = _u.ChaptersSettings.ChapterProperties.getCurrChapterImIndex()
+            chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
             UItkVariables.imageGenerationEntryText.set(chapterImIndex)
         
 
@@ -389,7 +389,7 @@ class UIWidgets:
                                     textvariable =  UItkVariables.imageGenerationEntryText,
                                     name=prefixName.lower() + "_imageGeneration_" + cls.entryWidget_ID)
 
-        chapterImIndex = _u.ChaptersSettings.ChapterProperties.getCurrChapterImIndex()
+        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
         UItkVariables.imageGenerationEntryText.set(chapterImIndex)
 
         dataFromUser = [-1, -1, -1]
@@ -542,7 +542,7 @@ end tell'"
                     os.system("chmod +x " + savePath + ".sh")
                     #update curr image index for the chapter
                     nextImNum = str(int(dataFromUser[0]) + 1)
-                    _u.ChaptersSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                    _u.BookSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
                                                                         nextImNum)
                     _u.Settings.updateProperty(_u.Settings.currImageID_ID, nextImNum)
                     UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -559,7 +559,7 @@ end tell'"
                 os.system("chmod +x " + imageAnscriptPath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                _u.ChaptersSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
                                                                     nextImNum)
                 _u.Settings.updateProperty(_u.Settings.currImageID_ID, nextImNum)
                 UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -811,7 +811,7 @@ class ChaptersUI:
                     chName = e.get()
                 elif "_setChapterStartPage_" + UIWidgets.entryWidget_ID in e._name:
                     chStartPage = e.get()
-            _u.ChaptersSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
+            _u.BookSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
         
         return tk.Button(mainWinRoot, name = prefixName.lower() + "_createNewChapterBTN", text="New", command = createNewChapterBTNcallback)
     
@@ -824,7 +824,7 @@ class ChaptersUI:
                 if  "_setCurrChapter_" + UIWidgets.entryWidget_ID in e._name:
                     chNum = e.get()
                     break
-            _u.ChaptersSettings.ChapterProperties.removeChapter(chNum)
+            _u.BookSettings.ChapterProperties.removeChapter(chNum)
         
         return tk.Button(mainWinRoot, name = prefixName.lower() + "_removeChapterBTN", text="Del", command = removeBTNcallback)
     
@@ -845,7 +845,7 @@ class ChaptersUI:
                 elif "_setSubchapterStartPage_" + UIWidgets.entryWidget_ID in e._name:
                     subchStartPage = e.get()
             
-            _u.ChaptersSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
+            _u.BookSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewSubchapterBTN", 
@@ -862,7 +862,7 @@ class ChaptersUI:
                     subchNum = e.get()
                     chNum = subchNum.split(".")[0]
             
-            _u.ChaptersSettings.SubchaptersProperties.removeSubchapter(chNum, subchNum)
+            _u.BookSettings.SubchaptersProperties.removeSubchapter(chNum, subchNum)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_removeSubchapterBTN", 

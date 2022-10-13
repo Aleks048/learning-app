@@ -6,6 +6,21 @@ import Quartz
 import UI.widgets as ui
 
 
+def replaceMarkerInFile(filepath, marker, value):
+    if not os.path.exists(filepath):
+        print("replaceMarkerInFile - filepath does not exist.")
+        return None
+    with open(filepath, "r") as f:
+        fLines = f.readlines()
+    
+    for i in range(len(fLines)):
+        if  marker in fLines[i]:
+            fLines[i] = fLines[i].replace(marker, value)
+    
+    with open(filepath, "w") as f:
+        f.writelines(fLines)
+
+
 def getMonitorSize():
     for m in get_monitors():
        return(m.width,m.height)
@@ -86,12 +101,6 @@ def readFile(fp):
         lines = file.readlines()
         lines = [line.rstrip() for line in lines]
         return lines
-
-
-def readOpenFile(file):
-    lines = file.readlines()
-    lines = [line.rstrip() for line in lines]
-    return lines
 
 
 def getPositionsOfMarker(lines, marker):
@@ -258,9 +267,8 @@ class Settings:
 '''
 chapters and subchapters data 
 '''
-class ChaptersSettings:
+class BookSettings:
     chaptersSettingsRelPath = "/bookInfo/chaptersInfo.json"
-
 
     class ChapterProperties:
         ch_ID = "ch"
@@ -268,7 +276,8 @@ class ChaptersSettings:
         ch_latestSubchapter_ID = "_latestSubchapter"
         ch_startPage_ID = "_startPage"
         ch_imageIndex_ID = "_imIndex"
-        ch_subchapters_ID = "_subChapters"
+        ch_subchapters_ID = "_subSections"
+        ch_sections_prefix_ID = "sections_prefix"
 
 
         @classmethod
@@ -298,7 +307,7 @@ class ChaptersSettings:
 
         @classmethod
         def _getEmptyChapter(cls, chNum):
-            chString = ChaptersSettings.ChapterProperties.ch_ID + chNum
+            chString = BookSettings.ChapterProperties.ch_ID + chNum
             outChDict = {}
             outChDict[cls.getChapterNamePropertyID(chNum)] = ""
             outChDict[cls.getChapterLatestSubchapterPropertyID(chNum)] = ""
@@ -312,7 +321,7 @@ class ChaptersSettings:
         def addChapter(cls, chNum, chName, chStartPage):
             if chNum != None:
                 emptyChName, emptyChapter = cls._getEmptyChapter(chNum)
-                jsonData = readJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath())
+                jsonData = readJSONfile(BookSettings.getCurrBookChapterInfoJSONPath())
                 if chName != None:
                     emptyChapter[cls.getChapterNamePropertyID(chNum)] = chName
                 if chStartPage != None:
@@ -320,7 +329,7 @@ class ChaptersSettings:
                 
                 if emptyChName not in jsonData:
                     jsonData[emptyChName] = emptyChapter
-                    writeJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath(), jsonData)
+                    writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                     
                     message = "created chapter: " + chNum + "\nwith Name: " + chName + "\nwith starting page: " + chStartPage
                     ui.UIWidgets.showMessage(message)
@@ -338,10 +347,10 @@ class ChaptersSettings:
         @classmethod
         def removeChapter(cls, chNum):
             if chNum != None:
-                jsonData = readJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath())
+                jsonData = readJSONfile(BookSettings.getCurrBookChapterInfoJSONPath())
                 if cls.ch_ID + chNum in jsonData:
                     jsonData.pop(cls.ch_ID + chNum)
-                    writeJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath(), jsonData)
+                    writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                     message = "removed chapter: " + chNum
                     ui.UIWidgets.showMessage(message)
                     print("removeChapter - " + message)
@@ -358,38 +367,38 @@ class ChaptersSettings:
         @classmethod
         def getChapterName(cls, chapterNum):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            return readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
 
 
         @classmethod
         def getChapterLatestSubchapter(cls, chapterNum):
             propertyName = cls.getChapterLatestSubchapterPropertyID(chapterNum)
-            return readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
 
 
         @classmethod
         def getChapterName(cls, chapterNum):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            return readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
 
 
         @classmethod
         def getCurrChapterImIndex(cls):
             chapterNum = Settings.readProperty(Settings.currChapter_ID)[2:]
             propertyName = cls.getChapterImIndexPropertyID(chapterNum)
-            return readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
         
 
         @classmethod
         def getChapterStartPage(cls, chapterNum):
             propertyName = cls.ch_ID + chapterNum + cls.ch_startPage_ID
-            return readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
         
 
         @classmethod
         def updateChapterName(cls, chapterNum, chName):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, chName)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chName)
             
             message = "Updated " + propertyName + " to: " + chName
             ui.UIWidgets.showMessage(message)
@@ -399,7 +408,7 @@ class ChaptersSettings:
         @classmethod
         def updateChapterLatestSubchapter(cls, chapterNum, latestSubchapter):
             propertyName = cls.getChapterLatestSubchapterPropertyID(chapterNum)
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, latestSubchapter)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, latestSubchapter)
             
             message = "Updated " + propertyName + " to: " + latestSubchapter
             # ui.UIWidgets.showMessage(message)
@@ -409,7 +418,7 @@ class ChaptersSettings:
         @classmethod
         def updateChapterStartPage(cls, chapterNum, chStartPage):
             propertyName = cls.ch_ID + chapterNum + cls.ch_startPage_ID
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, chStartPage)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chStartPage)  
 
             message = "Updated " + propertyName + " to: " + chStartPage
             ui.UIWidgets.showMessage(message)
@@ -419,7 +428,7 @@ class ChaptersSettings:
         @classmethod
         def updateChapterImageIndex(cls, chapterNum, chimIndex):
             propertyName = cls.ch_ID + chapterNum + cls.ch_imageIndex_ID
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, chimIndex)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chimIndex)  
 
             message = "Updated " + propertyName + " to: " + chimIndex
             # ui.UIWidgets.showMessage(message)
@@ -433,7 +442,7 @@ class ChaptersSettings:
 
         @classmethod
         def _getEmptySubchapter(cls, subchNum):
-            subchString = ChaptersSettings.SubchaptersProperties.subch_ID + subchNum
+            subchString = BookSettings.SubchaptersProperties.subch_ID + subchNum
             outSubchDict = {}
             outSubchDict[cls.getSubchapterNamePropertyID(subchNum)] = ""
             outSubchDict[cls.getSubchapterStartPagePropertyID(subchNum)] = ""
@@ -441,7 +450,7 @@ class ChaptersSettings:
 
         @classmethod
         def addSubchapter(cls, chNum, subchNum, subchName, subchStartPage):
-            chString = ChaptersSettings.ChapterProperties.ch_ID + chNum
+            chString = BookSettings.ChapterProperties.ch_ID + chNum
             if chNum != None and subchNum != None:
                 emptySubchName, emptySubchapter = cls._getEmptySubchapter(subchNum)
                 if subchName != None:
@@ -449,12 +458,12 @@ class ChaptersSettings:
                 if subchStartPage != None:
                     emptySubchapter[cls.getSubchapterStartPagePropertyID(subchNum)] = subchStartPage
                 
-                jsonData = readJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath())
-                chString = ChaptersSettings.ChapterProperties.ch_ID + chNum
+                jsonData = readJSONfile(BookSettings.getCurrBookChapterInfoJSONPath())
+                chString = BookSettings.ChapterProperties.ch_ID + chNum
                 if chString in jsonData:
-                    if emptySubchName not in jsonData[chString][chString + ChaptersSettings.ChapterProperties.ch_subchapters_ID]:
-                        jsonData[ChaptersSettings.ChapterProperties.ch_ID + chNum][chString + ChaptersSettings.ChapterProperties.ch_subchapters_ID][emptySubchName] = emptySubchapter
-                        writeJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath(), jsonData)
+                    if emptySubchName not in jsonData[chString][chString + BookSettings.ChapterProperties.ch_subchapters_ID]:
+                        jsonData[BookSettings.ChapterProperties.ch_ID + chNum][chString + BookSettings.ChapterProperties.ch_subchapters_ID][emptySubchName] = emptySubchapter
+                        writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                         
                         message = "Created subchapter: " + subchNum + "\nwith Name: " + subchName + "\nwith starting page: " + subchStartPage
                         ui.UIWidgets.showMessage(message)
@@ -481,13 +490,13 @@ class ChaptersSettings:
 
         @classmethod
         def removeSubchapter(cls, chNum, subchNum):
-            chString = ChaptersSettings.ChapterProperties.ch_ID + chNum
+            chString = BookSettings.ChapterProperties.ch_ID + chNum
             if chNum != None and subchNum != None:
-                jsonData = readJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath())
+                jsonData = readJSONfile(BookSettings.getCurrBookChapterInfoJSONPath())
                 if chString in jsonData:
-                    if cls.subch_ID + subchNum in  jsonData[chString][ChaptersSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)]:
-                            jsonData[chString][ChaptersSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)].pop(cls.subch_ID + subchNum)
-                            writeJSONfile(ChaptersSettings.getCurrBookChapterInfoJSONPath(), jsonData)
+                    if cls.subch_ID + subchNum in  jsonData[chString][BookSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)]:
+                            jsonData[chString][BookSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)].pop(cls.subch_ID + subchNum)
+                            writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                             message = "removed subchapter: " + subchNum
                             ui.UIWidgets.showMessage(message)
                             print("removeChapter - " + message)
@@ -511,7 +520,7 @@ class ChaptersSettings:
         @classmethod
         def updateSubchapterName(cls, subchapterNum, subchName):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_name_ID
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchName)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchName)
 
             message = "Updated " + propertyName + " to: " + subchName
             ui.UIWidgets.showMessage(message)
@@ -521,13 +530,13 @@ class ChaptersSettings:
         @classmethod
         def getSubchapterStartPage(cls, subchapterNum):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_startPage_ID
-            readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
         
 
         @classmethod
         def updateSubchapterStartPage(cls, subchapterNum, subchStartPage):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_startPage_ID
-            updateJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchStartPage)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchStartPage)  
 
             message = "Updated " + propertyName + " to: " + subchStartPage
             ui.UIWidgets.showMessage(message)
@@ -547,7 +556,7 @@ class ChaptersSettings:
         @classmethod
         def getSubchapterName(cls, subchapterNum):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_name_ID
-            readJSONProperty(ChaptersSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
     
 
     @classmethod 

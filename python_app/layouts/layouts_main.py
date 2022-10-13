@@ -272,7 +272,7 @@ def moveWholeBookToChapter():
         ui.UIWidgets.showMessage(message)
         print("moveWholeBookToChapter -" + message)
     else:
-        chapterPage = _u.ChaptersSettings.readProperty(_u.ChaptersSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
+        chapterPage = _u.BookSettings.readProperty(_u.BookSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
         
         if chapterPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
