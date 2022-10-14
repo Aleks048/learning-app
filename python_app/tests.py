@@ -2,7 +2,7 @@ import tkinter as tk
 
 from UI.widgets import *
 import file_system
-from file_system.file_system_main import BookInfoStructure, TOCStructure
+from file_system.file_system_main import BookInfoStructure, SectionInfoStructure, TOCStructure
 from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
@@ -27,7 +27,6 @@ class Test_BookInfoStructure(unittest.TestCase):
         """
         createBookInfoStrunture
         """
-        # create bookInfo file
         expectedFilePath = testBookPath + BookInfoStructure._getRelFilepath()
         
         expectedFileDir = "/".join(expectedFilePath.split("/")[:-1])
@@ -37,15 +36,35 @@ class Test_BookInfoStructure(unittest.TestCase):
 
         # we created file at the expected path
         self.assertTrue(os.path.isfile(expectedFilePath))
-
+    
+    def test_updateProperties(self):
+        BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te")
+        prefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        self.assertEqual(prefix, "te")
         
 
 
-class Test_TOCStructure(unittest.TestCase):
+class Test_SectionsInfoStructure(unittest.TestCase):
 
-    def test_createTOCStructure(self):
+    def test_createStructure(self):    
+        """
+        createSectionsInfoStructure
+        """
+        BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te")
+        SectionInfoStructure.createStructure("2.1")
+    
+    def test_updateProperties(self):
+        SectionInfoStructure.updateProperty("2.1", "_imIndex", "1")
+        imId = SectionInfoStructure.readProperty("2.1", "_imIndex")
+        self.assertEqual(imId, "1")
+        
 
-        TOCStructure.createTOCStructure(str(2), testBookPath)
+
+# class Test_TOCStructure(unittest.TestCase):
+
+#     def test_createTOCStructure(self):
+
+#         TOCStructure.createTOCStructure(str(2), testBookPath)
 
 
 # Different kinds of asserts we can have: 

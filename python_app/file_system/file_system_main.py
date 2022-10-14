@@ -1,9 +1,9 @@
+import csv
 import os
 import sys
 import json
 
 sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
-import bookInfo_template as bi_t
 
 import _utils._utils_main as _u
 
@@ -61,14 +61,17 @@ class BookInfoStructure:
     The stucture keeps the info about the book
     '''
 
-    bookInfoFoldefRelPath = "/bookInfo/"
+    bookInfoFoldefRelPath= "/bookInfo/"
     bookInfoFilename = "bookInfo.json"
+    sectionsInfoBaseRelPath = "/subsections/"
+    sectionsInfoFilename = "sectionsInfo.json"
 
     currSectionFull_ID= "currChapterFull"# need to be removed
     currSection_ID = "currChapter"
     
     version_ID = "version"
     sections_prefix_ID = "sections_prefix"
+    sections_path_separator_ID = "sections_path_separator"
     sections_ID = "sections"
     
     #currState
@@ -80,6 +83,7 @@ class BookInfoStructure:
     bookInfoTemplate = {
         version_ID: "0.1",
         sections_prefix_ID: "",
+        sections_path_separator_ID: ".",
         sections_ID: {
         },
         currentState_ID: {
@@ -99,10 +103,10 @@ class BookInfoStructure:
         if not os.path.exists(expectedFileDir):
             print("BookInfoStructure.createBookInfoStrunture - the bookInfo structure was not present will create it.")
             _waitDummy = os.system("mkdir -p " + expectedFileDir)
-            _waitDummy = os.system("touch " + bookInfoFilepath)
-        elif os.path.isfile(bookInfoFilepath):
-            print("BookInfoStructure.createBookInfoStrunture - the bookInfo file was not present will create it.")
-            _waitDummy = os.system("touch " + bookInfoFilepath)
+            # _waitDummy = os.system("touch " + bookInfoFilepath)
+        # elif os.path.isfile(bookInfoFilepath):
+        #     print("BookInfoStructure.createBookInfoStrunture - the bookInfo file was not present will create it.")
+        #     _waitDummy = os.system("touch " + bookInfoFilepath)
         
         with open(bookInfoFilepath, "w+") as f:
             jsonObj = json.dumps(cls.bookInfoTemplate, indent = 4)
@@ -123,9 +127,8 @@ class BookInfoStructure:
 
     @classmethod
     def updateProperty(cls, propertyName, newValue):
-        print("updateBookInfoStructureProperty - updating property: '" + propertyName +"' with value :'" + newValue + "'.")
-        _u.updateJSONProperty(cls._getAsbFilepath(), property, newValue)
-
+        print("BookInfoStructure.updatingProperty - '" + propertyName +"' with value :'" + newValue + "'.")
+        _u.updateJSONProperty(cls._getAsbFilepath(), propertyName, newValue)
 
 
 class SectionInfoStructure:
@@ -137,14 +140,84 @@ class SectionInfoStructure:
     currImageName_ID = "currImageName"
     currLinkName_ID = "currLinkName"
 
-    def createStructure(structuresPath):
-        pass
 
-    def readProperty():
-        pass
+    sectionPrefixForTemplate = ""
+    sectionPathForTemplate = ""
 
-    def updateProperty():
-        pass
+    @classmethod
+    def _getTemplate(cls):
+        sectionInfo_template = {
+                cls.sectionPrefixForTemplate + cls.sectionPathForTemplate + "_name": "",
+                cls.sectionPrefixForTemplate + cls.sectionPathForTemplate + "_startPage": "",
+                cls.sectionPrefixForTemplate + cls.sectionPathForTemplate + "_latestSubchapter": "",
+                cls.sectionPrefixForTemplate + cls.sectionPathForTemplate + "_imIndex": "",
+                cls.sectionPrefixForTemplate + cls.sectionPathForTemplate + "_subSections": {}
+        }
+        return sectionInfo_template
+
+    @classmethod
+    def createStructure(cls, sectionPath):
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+        
+        cls.sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        cls.sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
+
+        pathToSection = cls._getSectionFilepath(sectionPath)
+
+        if not os.path.exists(pathToSection):
+            print("SectionInfoStructure.createStructure - the sections structure was not present will create it.")
+            print("Creating path: " + pathToSection)
+            _waitDummy = os.system("mkdir -p " + pathToSection)
+        
+        # create the json file file 
+        sectionFilepath = pathToSection + "/" + BookInfoStructure.sectionsInfoFilename
+        with open(sectionFilepath, "w+") as f:
+            jsonObj = json.dumps(cls._getTemplate(), indent = 4)
+            f.write(jsonObj)
+
+        # create tex files structure
+        # create images structure
+
+    @classmethod
+    def _getSectionFilepath(cls, sectionPath):
+        sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        sectionsPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+
+        pathList = sectionPath.split(sectionsPathSeparator)
+        pathList[0] = sectionPrefix + "_" + pathList[0]
+        for i in range(len(pathList)):
+            pathList[i] = ".".join(pathList[:i+1])
+        sectionFullPath = pathList
+        sectionFullPath = "/".join(sectionFullPath)
+        pathToSection = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        pathToSection += "/" + BookInfoStructure.sectionsInfoBaseRelPath
+        pathToSection += "/" + sectionFullPath
+
+        return pathToSection
+    
+    @classmethod
+    def readProperty(cls, sectionPath, propertyName):
+        print("SectionInfoStructure.readProperty - '" + propertyName)
+        fullPathToSection = cls._getSectionFilepath(sectionPath)
+        fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
+
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+        
+        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
+        return _u.readJSONProperty(fullPathToSection, sectionPrefixForTemplate + sectionPathForTemplate + propertyName)
+
+    @classmethod
+    def updateProperty(cls, sectionPath, propertyName, newValue):
+        print("SectionInfoStructure.updateProperty - '" + propertyName +"' with value :'" + newValue + "'.")
+        
+        fullPathToSection = cls._getSectionFilepath(sectionPath)
+        fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
+
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
+        _u.updateJSONProperty(fullPathToSection, sectionPrefixForTemplate + sectionPathForTemplate + propertyName, newValue)
 
 
 class WholeBookStructure:
