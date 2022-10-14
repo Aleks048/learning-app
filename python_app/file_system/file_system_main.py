@@ -45,8 +45,7 @@ class TOCStructure:
         # with open(cls._getTOCFilePath(bookPath, section), "w") as f:
         #     f.writelines(TOCTemplateLines)
     
-    def updateTOCfile():
-        pass
+    
 
     def _getTOCFilePath(bookPath, sectionName):
         tocFolderPath = bookPath + "/" + "TOC"
@@ -58,36 +57,95 @@ class TOCStructure:
             return tocFolderPath + "/TOC_sec" + sectionName + ".tex"
 
 class BookInfoStructure:
+    '''
+    The stucture keeps the info about the book
+    '''
+
     bookInfoFoldefRelPath = "/bookInfo/"
     bookInfoFilename = "bookInfo.json"
 
+    currSectionFull_ID= "currChapterFull"# need to be removed
+    currSection_ID = "currChapter"
+    
+    version_ID = "version"
+    sections_prefix_ID = "sections_prefix"
+    sections_ID = "sections"
+    
+    #currState
+    currentState_ID = "currentState"
+    currentPage_ID = "currentPage"
+    currSection_ID = "currSection"
+    currSubsectionsPath_ID = "currSubsectionsPath"
+
+    bookInfoTemplate = {
+        version_ID: "0.1",
+        sections_prefix_ID: "",
+        sections_ID: {
+        },
+        currentState_ID: {
+            currentPage_ID: "",
+            currSection_ID: "",
+            currSubsectionsPath_ID: ""
+        }
+    }
+
     @classmethod
-    def createBookInfoStrunture(cls, bookPath):
-        expectedFileDir = "/".join((bookPath + cls._getBookInfoRelFilepath()).split("/")[:-1])
+    def createStructure(cls, bookInfoFilepath = ""):
+        if bookInfoFilepath == "":
+            bookInfoFilepath = cls._getAsbFilepath()
+        
+        expectedFileDir = "/".join((bookInfoFilepath).split("/")[:-1])
+        
         if not os.path.exists(expectedFileDir):
             print("BookInfoStructure.createBookInfoStrunture - the bookInfo structure was not present will create it.")
             _waitDummy = os.system("mkdir -p " + expectedFileDir)
-            _waitDummy = os.system("touch " + bookPath + cls._getBookInfoRelFilepath())
-        elif os.path.isfile(bookPath + cls._getBookInfoRelFilepath()):
+            _waitDummy = os.system("touch " + bookInfoFilepath)
+        elif os.path.isfile(bookInfoFilepath):
             print("BookInfoStructure.createBookInfoStrunture - the bookInfo file was not present will create it.")
-            _waitDummy = os.system("touch " + bookPath + cls._getBookInfoRelFilepath())
-
+            _waitDummy = os.system("touch " + bookInfoFilepath)
         
-        with open(bookPath + cls._getBookInfoRelFilepath(), "w+") as f:
-            jsonObj = json.dumps(bi_t.bookInfo_template, indent = 4)
+        with open(bookInfoFilepath, "w+") as f:
+            jsonObj = json.dumps(cls.bookInfoTemplate, indent = 4)
             f.write(jsonObj)
 
     @classmethod
-    def _getBookInfoRelFilepath(cls):
+    def _getRelFilepath(cls):
         return cls.bookInfoFoldefRelPath + cls.bookInfoFilename
+    
+    @classmethod
+    def _getAsbFilepath(cls):
+        bookPath = _u.Settings.getCurrBookFolderPath()
+        return bookPath + cls._getRelFilepath()
 
     @classmethod
-    def updateBookInfoStructureProperty(bookPath, propertyName, newValue):
-        _u.updateJSONProperty(bookPath, propertyName, newValue)
+    def readProperty(cls, property):
+        return _u.readJSONProperty(cls._getAsbFilepath(), property)
+
+    @classmethod
+    def updateProperty(cls, propertyName, newValue):
+        print("updateBookInfoStructureProperty - updating property: '" + propertyName +"' with value :'" + newValue + "'.")
+        _u.updateJSONProperty(cls._getAsbFilepath(), property, newValue)
+
+
+
+class SectionInfoStructure:
+    currStucturePath = ""
+
+    # for later: add if the section should generate the pdf.
+    currPage_ID = "currentPage"
+    currImageID_ID = "currImageID"
+    currImageName_ID = "currImageName"
+    currLinkName_ID = "currLinkName"
+
+    def createStructure(structuresPath):
+        pass
+
+    def readProperty():
+        pass
+
+    def updateProperty():
+        pass
 
 
 class WholeBookStructure:
-    pass
-
-class SubsectionsStructure:
     pass

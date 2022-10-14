@@ -4,6 +4,7 @@ from AppKit import NSWorkspace
 import Quartz
 
 import UI.widgets as ui
+import file_system.file_system_main as fs
 
 
 def replaceMarkerInFile(filepath, marker, value):
@@ -62,9 +63,9 @@ def readJSONProperty(jsonFilepath, propertyName):
 
 
 def getCurrentScreenshotDir():
-    return Settings.getBookFolderPath(Settings.readProperty(Settings.currBookName_ID)) + "/" \
-        + Settings.readProperty(Settings.currChapter_ID) + "/"\
-        + Settings.readProperty(Settings.currChapter_ID) + "_images/"
+    return Settings.getBookFolderPath(Settings.readProperty(Settings.getCurrentBookFolderName())) + "/" \
+        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
+        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
 
 
 def updateJSONProperty(jsonFilepath, propertyName, newValue):
@@ -187,7 +188,7 @@ def getpageOfcurrentDoc():
         return -1
     
     windowList = getWindowsFromApp(app)
-    currChapter = Settings.readProperty(Settings.currChapterFull_ID)
+    currChapter = BookSettings.readProperty(BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
     
     for window in windowList:
         if window["kCGWindowOwnerName"] == app.localizedName():
@@ -205,16 +206,10 @@ class Settings:
     #current settings
     currSettings_ID = "currentSettings"
     currBookPath_ID = "currentBookPath"
-    currBookName_ID = "currentBookFolderName"
-    wholeBook_ID= "whole_book"
-    currChapterFull_ID= "currChapterFull"
-    currChapter_ID= "currChapter"
-    currPage_ID = "currentPage"
 
+    wholeBook_ID= "whole_book"
+    
     #image generation
-    currImageID_ID = "currImageID"
-    currImageName_ID = "currImageName"
-    currLinkName_ID = "currLinkName"
     
     #common
     booksSettingsName = "booksProcessingSettings.json"
@@ -237,12 +232,15 @@ class Settings:
     
     @classmethod
     def getWholeBookPath(cls):
-        return getPathToBooks() +  cls.readProperty(cls.currBookName_ID) + "/" + cls.wholeBook_ID + "/" + cls.wholeBook_ID + ".pdf"
+        return getPathToBooks() +  cls.readProperty(cls.getCurrentBookFolderName()) + "/" + cls.wholeBook_ID + "/" + cls.wholeBook_ID + ".pdf"
     
+    @classmethod
+    def getCurrBookFolderPath(cls):
+        return cls.readProperty(cls.currBookPath_ID)
     
-    def getBookFolderPath(bookName):
-        return os.environ['BOOKS_ROOT_PATH'] + "/" + bookName
-    
+    @classmethod
+    def getCurrentBookFolderName(cls):
+        return cls.getCurrBookFolderPath().split("/")[-1]
     
     @classmethod
     def getSettingsFileFilepath(cls):
@@ -269,6 +267,7 @@ chapters and subchapters data
 '''
 class BookSettings:
     chaptersSettingsRelPath = "/bookInfo/chaptersInfo.json"
+        
 
     class ChapterProperties:
         ch_ID = "ch"
@@ -277,8 +276,7 @@ class BookSettings:
         ch_startPage_ID = "_startPage"
         ch_imageIndex_ID = "_imIndex"
         ch_subchapters_ID = "_subSections"
-        ch_sections_prefix_ID = "sections_prefix"
-
+        sec_sections_prefix_ID = "sections_prefix"
 
         @classmethod
         def getChapterNamePropertyID(cls, chapterNum):
@@ -384,7 +382,7 @@ class BookSettings:
 
         @classmethod
         def getCurrChapterImIndex(cls):
-            chapterNum = Settings.readProperty(Settings.currChapter_ID)[2:]
+            chapterNum = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:]
             propertyName = cls.getChapterImIndexPropertyID(chapterNum)
             return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
         
@@ -561,7 +559,7 @@ class BookSettings:
 
     @classmethod 
     def getCurrBookChapterInfoJSONPath(cls):
-        currBookName = Settings.readProperty(Settings.currBookName_ID)
+        currBookName = Settings.readProperty(Settings.getCurrentBookFolderName())
         bookFolderPath = Settings.getBookFolderPath(currBookName)
         return cls._getBookChapterInfoJSONPath(bookFolderPath)
     
@@ -574,4 +572,8 @@ class BookSettings:
     @classmethod
     def readProperty(cls, property):
         return readJSONProperty(cls.getCurrBookChapterInfoJSONPath(), property)
+    
+    # @classmethod
+    # def updateProperty(cls, property, value):
+    #     return updateJSONProperty(cls.getCurrBookChapterInfoJSONPath(), property, value)
 

@@ -6,6 +6,7 @@ from threading import Thread
 import layouts.layouts_main as layouts_main
 import _utils._utils_main  as _u
 import tex_file.create_tex_file as t 
+import file_system.file_system_main as fs
 
 '''
 UI tk primvars
@@ -137,7 +138,7 @@ class UIWidgets:
             layouts_main.openWholeBook([wholeBookDimensions[2], wholeBookDimensions[3]], [wholeBookDimensions[0], wholeBookDimensions[1]])
         
         openFullTextButtonText = tk.StringVar()
-        openFullTextButtonText.set("Current book is :\n" +  _u.Settings.readProperty(_u.Settings.currBookName_ID))
+        openFullTextButtonText.set("Current book is :\n" +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()))
         
         return tk.Button(mainWinRoot, name = "openFullBook_button", textvariable = openFullTextButtonText, width = 10, command = openFullTextButtonCallback)
 
@@ -217,7 +218,7 @@ class UIWidgets:
             def chapterChoosingCallback(chapter):
                 print("chapterChoosingCallback - switching to chapter: " + chapter.get())
                 
-                _u.Settings.updateProperty(_u.Settings.currChapter_ID , chapter.get())
+                fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSection_ID , chapter.get())
 
                 chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
                 UItkVariables.imageGenerationEntryText.set(chapterImIndex)
@@ -226,9 +227,9 @@ class UIWidgets:
                 
                 subchaptersList = cls._getSubchaptersListForCurrChapter()
                 cls._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subchaptersList)
-                currSubchapter = _u.BookSettings.ChapterProperties.getChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:])
+                currSubchapter = _u.BookSettings.ChapterProperties.getChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:])
                 UItkVariables.subchapter.set(currSubchapter)
-                _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, subchaptersList[0])
+                _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID, subchaptersList[0])
 
                 currLayoutClass = layouts_main.getCurrLayoutClass()
                 currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
@@ -237,9 +238,9 @@ class UIWidgets:
 
 
             chapter = tk.StringVar()
-            chapter.set(_u.Settings.readProperty(_u.Settings.currChapter_ID))
+            chapter.set(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID))
 
-            book_name = _u.Settings.readProperty(_u.Settings.currBookName_ID)
+            book_name = _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName())
 
             pathToBooks = _u.getPathToBooks()
             chaptersList = []
@@ -257,9 +258,9 @@ class UIWidgets:
 
             def subchapterChoosingCallback(value):
                 UItkVariables.subchapter.set(value)
-                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
                                                                         value)
-                _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, value)
+                _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID, value)
 
 
             for e in mainWinRoot.winfo_children():
@@ -274,22 +275,22 @@ class UIWidgets:
 
         def _getSubchaptersListForCurrChapter():
             pathToBooks = _u.getPathToBooks()
-            currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
-            currBookName = _u.Settings.readProperty(_u.Settings.currBookName_ID)
+            currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
+            currBookName = _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName())
             return [i[3:] for i in os.listdir(pathToBooks + "/" + currBookName + "/" + currChapter + "/" + _u.Settings.relToSubchapters_Path) if "ch_" in i]
 
        
         @classmethod
         def getOptionMenu_ChooseSubchapter(cls, mainWinRoot, namePrefix = ""):
             def subchapterChoosingCallback(subchapter):
-                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
                                                                         subchapter.get())
-                _u.Settings.updateProperty(_u.Settings.currChapterFull_ID, subchapter.get())
+                _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID, subchapter.get())
             
 
             UItkVariables.subchapter  = tk.StringVar()
             subchapter = UItkVariables.subchapter
-            subchapter.set(_u.Settings.readProperty(_u.Settings.currChapterFull_ID))
+            subchapter.set(_u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID))
             
             subchaptersList = cls._getSubchaptersListForCurrChapter()
 
@@ -329,8 +330,8 @@ class UIWidgets:
     @classmethod
     def getAddImage_BTN(cls, mainWinRoot, prefixName = ""):
         def addImBTNcallback():
-            currImID = str(int(_u.Settings.readProperty(_u.Settings.currImageID_ID)) - 1)
-            currentSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+            currImID = str(int(_u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID)) - 1)
+            currentSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
             
             # screenshot
             imName = ""
@@ -448,7 +449,7 @@ EOF\n\
 fi\n"
             scriptFile += "osascript -e '\
 tell application \"" + _u.Settings.skim_ID + "\"\n\
-    tell document \"" + _u.Settings.readProperty(_u.Settings.currChapterFull_ID) + "_main.pdf" + "\"\n\
+    tell document \"" + _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID) + "_main.pdf" + "\"\n\
         delay 0.1\n\
         go to page " + str(dataFromUser[0]) + "\n\
         end tell\n\
@@ -458,7 +459,7 @@ end tell'"
 
 
         def _createTexForTheProcessedImage():
-            currentSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+            currentSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
 
             extraImagePath = _u.getCurrentScreenshotDir() \
                                 + dataFromUser[0] + "_" + currentSubchapter \
@@ -523,8 +524,8 @@ end tell'"
                                 "_" + currentSubchapter + "_" + dataFromUser[1]
 
             # STOTE IMNUM, IMNAME AND LINK
-            _u.Settings.updateProperty(_u.Settings.currImageID_ID, dataFromUser[0])
-            _u.Settings.updateProperty(_u.Settings.currLinkName_ID, dataFromUser[1])
+            _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, dataFromUser[0])
+            _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currLinkName_ID, dataFromUser[1])
             
             # POPULATE THE MAIN FILE
             t.TexFile._populateMainFile()
@@ -542,9 +543,9 @@ end tell'"
                     os.system("chmod +x " + savePath + ".sh")
                     #update curr image index for the chapter
                     nextImNum = str(int(dataFromUser[0]) + 1)
-                    _u.BookSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                    _u.BookSettings.ChapterProperties.updateChapterImageIndex(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
                                                                         nextImNum)
-                    _u.Settings.updateProperty(_u.Settings.currImageID_ID, nextImNum)
+                    _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, nextImNum)
                     UItkVariables.imageGenerationEntryText.set(nextImNum)
                     UItkVariables.buttonText.set("imNum")
                 
@@ -559,9 +560,9 @@ end tell'"
                 os.system("chmod +x " + imageAnscriptPath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                _u.BookSettings.ChapterProperties.updateChapterImageIndex(_u.Settings.readProperty(_u.Settings.currChapter_ID)[2:],
+                _u.BookSettings.ChapterProperties.updateChapterImageIndex(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
                                                                     nextImNum)
-                _u.Settings.updateProperty(_u.Settings.currImageID_ID, nextImNum)
+                _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, nextImNum)
                 UItkVariables.imageGenerationEntryText.set(nextImNum)
 
         buttonNamesToFunc = {"imNum": lambda *args: UItkVariables.imageGenerationEntryText.set(""),

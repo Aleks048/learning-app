@@ -2,12 +2,13 @@ import os
 
 import _utils._utils_main as _u
 import UI.widgets as ui
+import file_system.file_system_main as fs
 
 
 class TexFile:
     def _getCurrTexFilesDir(currSubchapter):
-        currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
-        return _u.Settings.getBookFolderPath(_u.Settings.readProperty(_u.Settings.currBookName_ID)) + \
+        currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
+        return _u.Settings.getBookFolderPath(_u.Settings.readProperty(_u.Settings.getCurrentBookFolderName())) + \
                 "/" + currChapter + "/" + \
                 _u.Settings.relToSubchapters_Path + \
                 "/ch_" + currSubchapter
@@ -15,19 +16,19 @@ class TexFile:
 
     @classmethod
     def _getCurrContentFilepath(cls):
-        currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_con.tex"
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
-        currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_toc.tex"
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
-        currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
         return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_main.tex"
 
 
@@ -66,7 +67,7 @@ class TexFile:
                 
         with open(os.getenv("BOOKS_PROCESS_TEX_PATH") + "/template.tex", 'r') as templateF:
             templateFile = templateF.readlines()
-            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", _u.Settings.readProperty(_u.Settings.currChapter_ID)) for i in templateFile]
+            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)) for i in templateFile]
 
         with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
 
@@ -119,7 +120,7 @@ class TexFile:
 
     @classmethod 
     def buildCurrentSubchapterPdf(cls):
-        currSubchapter = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
         currTexFilesFolder = cls._getCurrTexFilesDir(currSubchapter)
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)

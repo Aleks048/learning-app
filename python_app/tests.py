@@ -23,25 +23,29 @@ import unittest
 
 class Test_BookInfoStructure(unittest.TestCase):
 
-    def test_createBookInfoStrunture(self):
+    def test_createStructure(self):
         """
         createBookInfoStrunture
         """
         # create bookInfo file
-        expectedFilePath = testBookPath + BookInfoStructure._getBookInfoRelFilepath()
+        expectedFilePath = testBookPath + BookInfoStructure._getRelFilepath()
         
         expectedFileDir = "/".join(expectedFilePath.split("/")[:-1])
         os.system("rm -rf " + expectedFileDir)
         
-        BookInfoStructure.createBookInfoStrunture(testBookPath)
+        BookInfoStructure.createStructure(expectedFilePath)
 
         # we created file at the expected path
         self.assertTrue(os.path.isfile(expectedFilePath))
 
+        
+
+
 class Test_TOCStructure(unittest.TestCase):
 
     def test_createTOCStructure(self):
-        TOCStructure.createTOCStructure(2, testBookPath)
+
+        TOCStructure.createTOCStructure(str(2), testBookPath)
 
 
 # Different kinds of asserts we can have: 

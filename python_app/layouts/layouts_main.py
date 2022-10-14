@@ -8,6 +8,7 @@ import _utils._utils_main as _u
 import UI.widgets as ui
 import layouts._layouts_utils as _layouts_utils
 import tex_file.create_tex_file as t
+import file_system.file_system_main as fs
 
 
 '''
@@ -49,15 +50,15 @@ class ChapterLayout(Layout):
         # Open chapter pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
-        currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
-        currChapterFull = _u.Settings.readProperty(_u.Settings.currChapterFull_ID)
+        currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
+        currChapterFull = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSectionFull_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currChapterFull)
         
         if ownerName == None or windowID == None:
             t.TexFile.buildCurrentSubchapterPdf()
 
             # if the pdf was not opened in Skim already   
-            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + "/" + currChapter + "/subchapters/ch_" + currChapterFull + "/" + currChapterFull + "_main.pdf"
+            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + "/" + currChapter + "/subchapters/ch_" + currChapterFull + "/" + currChapterFull + "_main.pdf"
             _waitDummy = _layouts_utils.openPdfInSkim(pathToChapterFolder)
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, currChapterFull)
@@ -66,7 +67,7 @@ class ChapterLayout(Layout):
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height - cls.pyAppDimensions[1] - 100, cls.pyAppDimensions[0], cls.pyAppDimensions[1] + 54])
     
         # open chapter source in vscode
-        pathToSourceFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + "/" + currChapter + "/subchapters/ch_" + currChapterFull #+ ".tex"
+        pathToSourceFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + "/" + currChapter + "/subchapters/ch_" + currChapterFull #+ ".tex"
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currChapterFull)
         
         if (windowID == None):
@@ -127,7 +128,7 @@ class MainLayout(Layout):
         ui.UItkVariables.needRebuild.set(False)
 
         #close the chapter vscode if it open
-        _, windowID = _u.getOwnersName_windowID_ofApp("vscode", _u.Settings.readProperty(_u.Settings.currChapterFull_ID))
+        _, windowID = _u.getOwnersName_windowID_ofApp("vscode", _u.Settings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID))
         
         if (windowID != None):
             osascript = "osascript -e '\
@@ -148,12 +149,12 @@ class MainLayout(Layout):
         openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
+        currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currChapter + "_images")
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.currBookName_ID) + \
+            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + \
                                     "/" + currChapter + "/" + currChapter + "_images"
             _waitDummy = _layouts_utils.openChapterFolderInFinder(pathToChapterFolder)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder",currChapter + "_images")
@@ -266,7 +267,7 @@ def getCurrLayoutClass():
 
 
 def moveWholeBookToChapter():
-    currChapter = _u.Settings.readProperty(_u.Settings.currChapter_ID)
+    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
     if currChapter == "":
         message = "Could not move the book to page. currChapter is empty."
         ui.UIWidgets.showMessage(message)
