@@ -1,1 +1,10 @@
 *.pyc
+*.out
+*.log
+*.aux
+*.output
+*.gz
+*.ilg
+*.pdf
+*.jpg
+*.png

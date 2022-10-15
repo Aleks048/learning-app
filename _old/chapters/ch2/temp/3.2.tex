@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {./images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{3.5} \textbf{Def:} subsequence // subsequential limit
+        }
+        \mybox{
+            \link{3.6} \image[0.5]{2_3.6_thm}
+        }
+        \mybox{
+            \link{3.7} \image[0.5]{3_3.7_thm}
+        }
+    }
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{3.5_def}
+    \def\linkname{3.5}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.6_thm}
+    \def\linkname{3.6}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \myCorollary
+    \hyperdef{categoryname}{labelname}{this text}
+    \TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{3}
+    \def\imname{3.7_thm}
+    \def\linkname{3.7}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \TOC
+    \\\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+cument}

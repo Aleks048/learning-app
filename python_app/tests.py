@@ -51,11 +51,14 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         createSectionsInfoStructure
         """
         BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te")
-        SectionInfoStructure.createStructure("2.1")
+        SectionInfoStructure.createStructure("2.intro.pass")
     
     def test_updateProperties(self):
-        SectionInfoStructure.updateProperty("2.1", "_imIndex", "1")
-        imId = SectionInfoStructure.readProperty("2.1", "_imIndex")
+        SectionInfoStructure.updateProperty("2.intro", "_imIndex", "1")
+        imId = SectionInfoStructure.readProperty("2.intro", "_imIndex")
+        self.assertEqual(imId, "1")
+        SectionInfoStructure.updateProperty("2.intro.pass", "_imIndex", "1")
+        imId = SectionInfoStructure.readProperty("2.intro.pass", "_imIndex")
         self.assertEqual(imId, "1")
         
 

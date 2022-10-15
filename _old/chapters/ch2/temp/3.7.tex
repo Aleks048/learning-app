@@ -1,0 +1,132 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{3.26} \image[0.5]{1_3.26_thm}
+        }
+        \mybox{
+            \link{3.27} \image[0.5]{2_3.27_thm}
+        }
+        \mybox{
+            \link{3.28} \image[0.5]{3_3.28_thm}
+        }
+        \mybox{
+            \link{3.29} \image[0.5]{4_3.29_thm}
+        }
+        \mybox{
+            \link{5-note} \textbf{Note:} even when terms are close in the
+              sequence we can not say whether the sequence  converges or
+              diverges
+        }
+    }
+
+    % THE ACTUAL PAGES ARE HERE
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{3.26_thm}
+    \def\linkname{3.26}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \myGlLinks{
+        \link{3.28}
+        \href{https://en.wikipedia.org/wiki/Geometric_series}{geometric series}
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.27_thm}
+    \def\linkname{3.27}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{2}
+    \myGlLinks{
+        \myGlLink{3.6}{3.24},
+        \link{3.28},\link{3.29}
+    }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{3}
+    \def\imname{3.28_thm}
+    \def\linkname{3.28}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \myGlLinks{
+        \\ \myGlLink{3.6}{3.23}Note: since the sequence diverges the series can't converge
+        \\\link{3.27}, \link{3.26}
+    }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{4}
+    \def\imname{3.29_thm}
+    \def\linkname{3.29}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \\remark:\myStIm{remark}
+    \myGlLinks{
+        \link{3.27}
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{5}
+    \def\imname{note}
+    \def\linkname{5-note}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \myGlLinks{
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+d{document}

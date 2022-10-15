@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link[1]{3.45} \image[0.5]{1_3.45_thm}
+            \addToList{test\imnum}{\link[1]{3.45}}
+        }
+        \mybox{
+            \link[2]{3.46} \image[0.5]{2_3.46_remarks}
+            \addToList{test\imnum}{\link[2]{3.46}}
+        }
+    }
+
+    % THE ACTUAL PAGES ARE HERE
+    \hypertarget{top}{\textbf{}}
+    % \\\\\\\\\\\TOC
+    \\\newpage
+    % \proofsflse
+    \def\imnum{1}
+    \def\imname{3.45_thm}
+    \def\linkname{3.45}
+    \defineList{test\imnum}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    % \myStIm{2}
+    \addProofs{1}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: \printList{test\imnum}
+    \TOC\newpage
+    % \proofsflse
+    \def\imnum{2}
+    \def\imname{3.46_remarks}
+    \def\linkname{3.46}
+    \defineList{test\imnum}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    % \myStIm{2}
+    % \addProofs{1}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: \printList{test\imnum}
+    \TOC\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+nt}

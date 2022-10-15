@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{intro} \textbf{intro}
+        }
+        \mybox{
+            \link{3.20} \image[0.5]{2_3.20_thm}
+        }
+    }
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{intro}
+    \def\linkname{intro}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    % \myGlLinks{
+        % \myGlLink{}{}
+    % }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.20_thm}
+    \def\linkname{3.20}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{2}
+    \myGlLinks{
+        \href{https://www.google.com/search?q=archimedean+property+of+real+numbers&newwindow=1&ei=XOVuYqmpL6qdptQPnKWEqAo&oq=archimedean+property+of+real&gs_lcp=Cgdnd3Mtd2l6EAMYADIFCAAQgAQyBQgAEIAEMgUIABCABDIGCAAQFhAeMgYIABAWEB46BwgAEEcQsANKBAhBGABKBAhGGABQqwFYrhtgiiJoAXABeACAAUSIAbAIkgECMTeYAQCgAQHIAQjAAQE&sclient=gws-wiz}{archimedean property},
+        \href{https://www.google.com/search?q=binomial+theorem&oq=binomial+theorem&aqs=chrome..69i57j0i512l9.5154j0j7&sourceid=chrome&ie=UTF-8}{binomial theorem},
+        \href[pdfnewwindow=true]{https://en.wikipedia.org/wiki/Multiplicative_inverse}{reciprocals}
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+\input{{\utPath}end.tex}
+\end{document}
+cument}

@@ -1,0 +1,129 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+}
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    \newcommand{\TOC}{
+    % TOC IS HERE before this line is auto generated
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link[1]{3.47} \image[0.5]{1_3.47_thm}
+        }
+        \mybox{
+            \link[2]{3.48} \textbf{Def:} product of the series.
+        }
+        \mybox{
+            \link[3]{3.49} \textbf{Example:}
+        }
+        \mybox{
+            \link[4]{3.50} \image[0.5]{4_3.50_thm}
+        }
+        \mybox{
+            \link[5]{3.51} \image[0.5]{5_3.51_thm}
+        }
+    }
+
+    % THE ACTUAL PAGES ARE HERE
+    \hypertarget{top}{\textbf{}}
+    % \\\\\\\\\\\TOC
+    \\\newpage
+    % \proofsflse
+    AB
+    \def\imnum{1}
+    \def\imname{3.47_thm}
+    \def\linkname{3.47}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    \addProofs{1}
+    \\Note: addition and multiplication by constant are simple.
+        Multiplication is more complicated:\myStIm{note}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+\\Local links:[\link[1]{3.47},\link[2]{3.48},\link[3]{3.49},\link[4]{3.50},\link[5]{3.51}] %LOCAL_LINKS
+    \TOC\newpage
+    % \proofsflse
+    \def\imnum{2}
+    \def\imname{3.48_def}
+    \def\linkname{3.48}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    % \addProofs{1}
+    % \myStIm{2}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+\\Local links:[\link[1]{3.47},\link[2]{3.48},\link[3]{3.49},\link[4]{3.50},\link[5]{3.51}] %LOCAL_LINKS
+    \TOC\newpage
+    % \proofsflse
+    \def\imnum{3}
+    \def\imname{3.49_example}
+    \def\linkname{3.49}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    % \addProofs{1}
+    \myStIm{2}
+    \\\myGlLinks{
+        \myGlLink{3.11}{3.43}
+    }
+\\Local links:[\link[1]{3.47},\link[2]{3.48},\link[3]{3.49},\link[4]{3.50},\link[5]{3.51}] %LOCAL_LINKS
+    \TOC\newpage
+    % \proofsflse
+    \def\imnum{4}
+    \def\imname{3.50_thm}
+    \def\linkname{3.50}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    \addProofs{2}
+    % \myStIm{2}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+\\Local links:[\link[1]{3.47},\link[2]{3.48},\link[3]{3.49},\link[4]{3.50},\link[5]{3.51}] %LOCAL_LINKS
+    \TOC\newpage
+
+    % \proofsflse
+    \def\imnum{5}
+    \def\imname{3.51_thm}
+    \def\linkname{3.51}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname\imnum}
+    % \addProofs{1}
+    \myStIm{note}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+\\Local links:[\link[1]{3.47},\link[2]{3.48},\link[3]{3.49},\link[4]{3.50},\link[5]{3.51}] %LOCAL_LINKS
+    \TOC\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}

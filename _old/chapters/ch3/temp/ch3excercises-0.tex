@@ -1,0 +1,152 @@
+% This template is used for creation of the
+% excercises documents and documents from the chapters of the book
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    % show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    % show solutions or not
+    \newif\ifsolutions
+    \solutionstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \hyperlink{ch301}{ch301}\hspace*{0.2cm}
+        \hyperlink{ch302}{ch302}\hspace*{0.2cm}
+        \hyperlink{ch303}{ch303}\hspace*{0.2cm}
+        \hyperlink{ch304}{ch304}\hspace*{0.2cm}
+        \hyperlink{ch305}{ch305}\hspace*{0.2cm}
+        \hyperlink{ch306}{ch306}\hspace*{0.2cm}
+        \hyperlink{ch307}{ch307}\\
+        \hyperlink{ch308}{ch308}\hspace*{0.2cm}
+        \hyperlink{ch309}{ch309}\hspace*{0.2cm}
+        \hyperlink{ch310}{ch310}\hspace*{0.2cm}
+        \hyperlink{ch311}{ch311}\hspace*{0.2cm}
+        \hyperlink{ch312}{ch312}\hspace*{0.2cm}
+        \hyperlink{ch313}{ch313}\hspace*{0.2cm}
+        \hyperlink{ch314}{ch314}\\
+        \hyperlink{ch315}{ch315}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch316}{ch316}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch317}{ch317}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch318}{ch318}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch319}{ch319}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch320}{ch320}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch321}{ch321}\\
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch322}{ch322}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch323}{ch323}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch324}{ch324}\hspace*{0.2cm}
+        \hyperref{ch3excercises-1.pdf}{TOC}{ch325}{ch325}\hspace*{0.2cm}
+    }
+
+    % THE ACTUAL PAGES ARE HERE
+    \hypertarget{top}{\textbf{}}
+    % \\\\\\\\\\\TOC
+    % \\\newpage
+
+    % LINKS START HERE
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch301}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch302}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch303}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch304}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch305}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch306}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch307}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch308}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch309}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch310}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch311}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch312}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch313}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch314}
+    \TOC
+    \newpage
+
+    % \solutionsfalse
+    \ExecuteMetaData[../ch3excercisesImagesAndLinks.tex]{ch315}
+    \TOC
+    \newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}

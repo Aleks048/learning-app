@@ -1,0 +1,536 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+{
+    \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+    \tl_trim_spaces:N \l_tmpa_tl
+    \IfNoValueTF { #1 }
+    {
+        \tl_use:N \l_tmpa_tl
+    }
+    {
+        \tl_set_eq:NN #1 \l_tmpa_tl
+    }
+}
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+
+\def\currch{ch2}
+\def\currImagesPath{../../ch2_images/}
+
+\graphicspath{ {\currImagesPath} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+
+    \newcommand{\TOC}{
+        % BEFORE_LOCAL_LINKS_MARKER
+        [
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/1_2.14_te.sh}{te},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/2_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/3_2.14_ads.sh}{ads},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/4_2.14_zc.sh}{zc},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/5_2.14_sf.sh}{sf},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/6_2.14_s.sh}{a},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/7_2.14_ad.sh}{ad},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/8_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/9_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/10_2.14_ads.sh}{ads},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/11_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/12_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/13_2.14_sd.sh}{sd},
+        \href{file:/Users/ashum048/books//b_analysis_test/ch2/ch2_images/14_2.14_sd.sh}{sd},
+        ]
+        
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../TOC_ch2.tex}
+        % BEFORE_TOC_MARKER
+        
+        % THIS IS CONTENT id: 1 
+        \mybox{
+            \link[1]{te} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 2 
+        \mybox{
+            \link[2]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 3 
+        \mybox{
+            \link[3]{ads} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 4 
+        \mybox{
+            \link[4]{zc} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 5 
+        \mybox{
+            \link[5]{sf} \image[0.5]{5_2.14_sf}
+        }
+        
+        
+        % THIS IS CONTENT id: 6 
+        \mybox{
+            \link[6]{a} \image[0.5]{6_2.14_s}
+        }
+        
+        
+        % THIS IS CONTENT id: 7 
+        \mybox{
+            \link[7]{ad} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 8 
+        \mybox{
+            \link[8]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 9 
+        \mybox{
+            \link[9]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 10 
+        \mybox{
+            \link[10]{ads} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 11 
+        \mybox{
+            \link[11]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 12 
+        \mybox{
+            \link[12]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 13 
+        \mybox{
+            \link[13]{sd} \textbf{!}
+        }
+        
+        
+        % THIS IS CONTENT id: 14 
+        \mybox{
+            \link[14]{sd} \textbf{!}
+        }
+        
+        
+    % AFTER_TOC_MARKER
+    }
+
+% BEFORE_PIC_MARKER
+
+% THIS IS CONTENT id: 1 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{1}
+    \def\linkname{te}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/1_2.14_te}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 2 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{2}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/2_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/2_2.14_2}
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 3 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{3}
+    \def\linkname{ads}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/3_2.14_ads}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/3_2.14_ad}
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 4 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{4}
+    \def\linkname{zc}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/4_2.14_zc}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/4_2.14_eq}
+    \\\myStIm{/Users/ashum048/books//b_analysis_te dst/ch2/ch2_images/4_2.14_proof}
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 5 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{5}
+    \def\linkname{sf}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/5_2.14_sf}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 6 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{6}
+    \def\linkname{a}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/6_2.14_s}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 7 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{7}
+    \def\linkname{ad}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/7_2.14_ad}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/7_2.14_as}
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 8 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{8}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/8_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 9 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{9}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/9_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 10 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{10}
+    \def\linkname{ads}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/10_2.14_ads}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 11 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{11}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/11_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 12 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{12}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/12_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 13 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{13}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/13_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% THIS IS CONTENT id: 14 
+    % TEXT BEFORE MAIN IMAGE
+    
+    
+    % TEXT BEFORE MAIN IMAGE
+    \def\imnum{14}
+    \def\linkname{sd}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/14_2.14_sd}{\linkname\imnum}
+    % TEXT AFTER MAIN IMAGE
+    
+    
+    % TEXT AFTER MAIN IMAGE
+    % \EXTRA IMAGES START
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/14_2.14_sd}
+    \\\myStIm{/Users/ashum048/books//b_analysis_test/ch2/ch2_images/14_2.14_as}
+    % \EXTRA IMAGES END
+    % TEXT AFTER EXTRA IMAGES
+    
+    
+    % TEXT AFTER EXTRA IMAGES
+    \\\rule{\textwidth}{0.4pt}
+    \\\myGlLinks{
+        % \myGlLink{}{}
+    }
+    \\Local links: 
+    \TOC\newpage
+
+
+% AFTER_PIC_MARKER
+\input{{\utPath}end.tex}
+\end{document}

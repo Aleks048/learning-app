@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \\Local links: \foreach \n in {3.38,3.39,3.40} {\link{3.\n}}
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{3.38} \textbf{Def:} power series
+        }
+        \mybox{
+            \link{3.39} \image[0.5]{2_3.39_thm}
+        }
+        \mybox{
+            \link{3.40} \textbf{Examples}
+        }
+    }
+
+    % THE ACTUAL PAGES ARE HERE
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{3.38_def}
+    \def\linkname{3.38}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \myGlLinks{
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.39_thm}
+    \def\linkname{3.39}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \myGlLinks{
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+    % \proofsfalse
+    \def\imnum{3}
+    \def\imname{3.40_examples}
+    \def\linkname{3.40}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \myStIm{2}
+    % \addProofs{1}
+    \myGlLinks{
+        % \myGlLink{}{}
+    }
+    \TOC\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+ent}

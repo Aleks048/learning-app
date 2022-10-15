@@ -1,0 +1,103 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{3.1} \textbf{Def:} sequence conveges // sequence diverges
+                                    // bounded sequence // range of a sequence
+        }
+        \mybox{
+            \link{3.2} \image[0.5]{2_3.2_thm}
+        }
+        \mybox{
+            \link{3.3} \image[0.5]{3_3.3_thm}
+        }
+        \mybox{
+            \link{3.4} \image[0.5]{4_3.4_thm}
+                    \\ \mySpace\image[0.5]{4_3.4_thm_2}
+        }
+    }
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{3.1_def}
+    \def\linkname{3.1}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \\\image{1_3.1_def_2}
+    % \addProofs{1}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.2_thm}
+    \def\linkname{3.2}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{2}
+    \TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{3}
+    \def\imname{3.3_thm}
+    \def\linkname{3.3}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{3}
+    \TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{4}
+    \def\imname{3.4_thm}
+    \def\linkname{3.4}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \mySpace\image{4_3.4_thm_2}
+    \addProofs{1}
+    \TOC
+    \\\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+nt}

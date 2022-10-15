@@ -1,0 +1,145 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{3.8} \textbf{Def:} Cauchy sequence
+        }
+        \mybox{
+            \link{3.9} \textbf{Def:} Diameter of a subset of metric space
+                                    // another definition of Cauchy sequence
+        }
+        \mybox{
+            \link{3.10} \image[0.5]{3_3.10_thm}
+        }
+        \mybox{
+            \link{3.11} \image[0.5]{4_3.11_thm}
+        }
+        \mybox{
+            \link{3.12} \textbf{Def:} Complete spaces
+        }
+        \mybox{
+            \link{3.13} \textbf{Def:} Monotonically increasing sequence
+                                    // Monotonically decreasing sequence
+        }
+        \mybox{
+            \link{3.14} \image[0.5]{7_3.14_thm}
+        }
+    }
+    \hypertarget{top}{\textbf{}}
+    \\\\\\\\\\\TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{1}
+    \def\imname{3.8_def}
+    \def\linkname{3.8}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{2}
+    \def\imname{3.9_def}
+    \def\linkname{3.9}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \myStIm{2}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{3}
+    \def\imname{3.10_thm}
+    \def\linkname{3.10}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{4}
+    \def\imname{3.11_thm}
+    \def\linkname{3.11}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \mySpace\myStIm{note}
+    \mySpace\myStIm{note_2}
+    \addProofs{1}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{5}
+    \def\imname{3.12_def}
+    \def\linkname{3.12}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \myStIm{remark}
+    \myStIm{remark_2}
+    % \addProofs{1}
+    \TOC
+    \\\newpage
+
+
+    % \proofsfalse
+    \def\imnum{6}
+    \def\imname{3.13_def}
+    \def\linkname{3.13}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    % \addProofs{1}
+    \TOC
+    \\\newpage
+
+    % \proofsfalse
+    \def\imnum{7}
+    \def\imname{3.14_thm}
+    \def\linkname{3.14}
+    \hyperdef{TOC}{\linkname}{}
+    \myTarget{\imnum}{\imname}{\linkname}
+    \addProofs{1}
+    \TOC
+    \\\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+cument}

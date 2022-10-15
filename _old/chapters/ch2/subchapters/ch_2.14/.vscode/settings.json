@@ -1,0 +1,36 @@
+{
+    "workbench.editor.enablePreview":false,
+    "workbench.editorAssociations": {
+        "*.pdf": "default"
+    },
+    "explorer.confirmDragAndDrop": false,
+    "[latex]": {
+        "editor.autoClosingBrackets": "never",
+    },
+    "emeraldwalk.runonsave": {
+        "commands": [
+                // {
+                //     "match": "[TOC_]*.tex",
+                //     "cmd": "temp=${fileBasenameNoExt}; cd ./${temp:4}; for f in *.tex; do pdflatex -xelatex -synctex=1 -interaction=nonstopmode -file-line-error $f; done"
+                // },
+                {
+                    "match": "(_toc|_con).tex",
+                    "cmd": "${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh ${file} ${fileDirname}"
+                },
+                // {
+                //     "match": "ImagesAndLinks.tex",
+                //     "cmd": "source ${HOME}/.zprofile && cd $BOOKS_PROCESS_TEX_PATH/math_excercises/ && python3 create_excercises_tex.py ${file}"
+                // },
+        ]
+    },
+    "python.languageServer": "Pylance",
+    "python.analysis.extraPaths": [
+        "./utils/python_app",
+        "/opt/homebrew/lib/python3.9/site-packages/",
+        "/opt/homebrew/lib/python3.9/site-packages/*",
+        "/opt/homebrew/lib/python3.9/site-packages/AppKit/",
+        "/opt/homebrew/lib/python3.9/site-packages/objc",
+        "/opt/homebrew/lib/python3.9/site-packages/CoreFoundation",
+        "/opt/homebrew/Cellar/python@3.9/3.9.13_1/Frameworks/Python.framework/Versions/3.9/lib/python3.9"
+    ]
+}

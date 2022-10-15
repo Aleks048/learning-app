@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage{import}
+
+\ExplSyntaxOn
+
+\NewDocumentCommand{\getenv}{om}
+ {
+  \sys_get_shell:nnN { kpsewhich ~ --var-value ~ #2 } { } \l_tmpa_tl
+  \tl_trim_spaces:N \l_tmpa_tl
+  \IfNoValueTF { #1 }
+   {
+    \tl_use:N \l_tmpa_tl
+   }
+   {
+    \tl_set_eq:NN #1 \l_tmpa_tl
+   }
+ }
+
+\ExplSyntaxOff
+\getenv[\utPath]{BOOKS_PROCESS_TEX_PATH}
+
+\input{{\utPath}start.tex}
+\graphicspath{ {../images/\currfilebase/} }
+\title{\currfilebase}
+\begin{document}
+
+    %show proofs or not
+    \newif\ifproofs
+    \proofstrue
+
+    \input{{\utPath}newCommands.tex}
+    % TOC IS HERE
+    \newcommand{\TOC}{
+        \hyperlink{top}{\textbf{\\\\\\TOC: METRIC SPACES\\}}
+        \input{../../TOC/TOC_ch3.tex}
+        \mybox{
+            \link{intro} \textbf{intro}
+        }
+        \mybox{
+            \link{3.21} \textbf{Def:} infinite sseries \mds partial sums \mds
+                                        series converges \mds series diverges
+        }
+        \mybox{
+            \link{3.22} \image[0.5]{3_3.22_thm}
+        }
+        \mybox{
+            \link{3.23} \image[0.5]{4_3.23_thm}
+        }
+        \mybox{
+            \link{3.24} \image[0.5]{5_3.24_thm}
+        }
+        \mybox{
+            \link{3.25} \image[0.5]{6_3.25_thm}
+        }
+    }
+\hypertarget{top}{\textbf{}}
+\\\\\\\\\\\TOC
+\\\newpage
+
+
+% \proofsfalse
+\def\imnum{1}
+\def\imname{intro}
+\def\linkname{intro}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+% \addProofs{1}
+% \myGlLinks{
+    % \myGlLink{}{}
+% }
+\TOC\newpage
+
+
+% \proofsfalse
+\def\imnum{2}
+\def\imname{3.21_def}
+\def\linkname{3.21}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+\myStIm{2}
+% \addProofs{1}
+% \myGlLinks{
+    % \myGlLink{}{}
+% }
+\TOC\newpage
+
+% \proofsfalse
+\def\imnum{3}
+\def\imname{3.22_thm}
+\def\linkname{3.22}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+\myStIm{2}
+% \addProofs{1}
+% \myGlLinks{
+    % \myGlLink{}{}
+% }
+\TOC\newpage
+
+% \proofsfalse
+\def\imnum{4}
+\def\imname{3.23_thm}
+\def\linkname{3.23}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+% \addProofs{1}
+\myGlLinks{
+    \myGlLink{3.7}{3.28}
+}
+\TOC\newpage
+
+% \proofsfalse
+\def\imnum{5}
+\def\imname{3.24_thm}
+\def\linkname{3.24}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+% \addProofs{1}
+\myGlLinks{
+    \myGlLink{3.3}{3.14}
+}
+\TOC\newpage
+
+% \proofsfalse
+\def\imnum{6}
+\def\imname{3.25_thm}
+\def\linkname{3.25}
+\hyperdef{TOC}{\linkname}{}
+\myTarget{\imnum}{\imname}{\linkname}
+\addProofs{1}
+\\nes:\myStIm{note}
+% \myGlLinks{
+    % \myGlLink{}{}
+% }
+\TOC\newpage
+
+
+\input{{\utPath}end.tex}
+\end{document}
+cument}
