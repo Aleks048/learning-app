@@ -67,6 +67,34 @@ def getCurrentScreenshotDir():
         + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
         + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
 
+def readDictProperty(dictToReadFrom, propertyName):
+    if propertyName in dictToReadFrom:
+        return dictToReadFrom[propertyName]
+    for _, v in dictToReadFrom.items():
+        if type(v) is list:
+            for i in v:
+                property = readDictProperty(i, propertyName)
+                if property != None:
+                    return property
+        elif type(v) is dict:
+            property = readDictProperty(v, propertyName)
+            if property != None:
+                return property
+
+def updateDictProperty(dictToUpdate, propertyName, newValue):
+    if propertyName in dictToUpdate:
+        if type(newValue) != type(dictToUpdate[propertyName]):
+                print("ERROR: updateJSONProperty - did not update the json file. Type of new value does not match the type of the property")
+        else:
+            dictToUpdate[propertyName] = newValue
+    else:
+        for k, v in dictToUpdate.items():
+            if type(v) is list:
+                for i in range(len(v)):
+                    if v[i] is dict or v[i] is list:
+                        updateDictProperty(v[i], propertyName, newValue)
+            elif type(v) is dict:
+                updateDictProperty(v, propertyName, newValue)
 
 def updateJSONProperty(jsonFilepath, propertyName, newValue):
     # print("updateJSONProperty - updating property " + propertyName + " in settings file")

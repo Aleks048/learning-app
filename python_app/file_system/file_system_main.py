@@ -1,5 +1,6 @@
 import csv
 import os
+from re import template
 import sys
 import json
 
@@ -7,54 +8,37 @@ sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
 
 import _utils._utils_main as _u
 
-# class File:
-#     def __init__(self, name, path, content = "") -> None:
-#         self.name = name
-#         self.path = path
-#         self.content = content
-
-# class Folder:
-#     def __init__(self, name, path, files = []) -> None:
-#         self.name = name
-#         self.path = path
-#         self.files = files
-
-
-# chapterInfoJSON = File("sectionsInfo.json")
-# bookInfo = Folder("bookInfo", [chapterInfoJSON])
-
 class TOCStructure:
     TOC_MARKERS = ["[ENTRY_START]", "[ENTRY_FINISH]", "[SECTION_NAME]"]
+
+
+    INTEMEDIATE_LINE = "[SECTION_NAME]:\\\\"
+    bottomLine = ""
     
     @classmethod
-    def createTOCStructure(cls, section, bookPath):
+    def createTOCStructure(cls):
         pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
 
+        sectionsList = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
 
-        _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(bookPath, section))
-
-        _u.replaceMarkerInFile(cls._getTOCFilePath(bookPath, section), cls.TOC_MARKERS[2], section)
-        
-        # with open(pathToTemplates + "TOC_template.tex", "r") as f:
-        #     TOCTemplateLines = f.readlines()
-        
-        # for i in range(len(TOCTemplateLines)):
-        #     if  cls.TOC_MARKERS[2] in TOCTemplateLines[i]:
-        #         TOCTemplateLines[i] = TOCTemplateLines[i].replace(cls.TOC_MARKERS[2], section)
-        
-        # with open(cls._getTOCFilePath(bookPath, section), "w") as f:
-        #     f.writelines(TOCTemplateLines)
-    
+        sectionsListNames = sectionsList.keys()
+        for section in sectionsListNames:
+            _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(section))
+            _u.replaceMarkerInFile(cls._getTOCFilePath(section), cls.TOC_MARKERS[2], section)      
     
 
-    def _getTOCFilePath(bookPath, sectionName):
-        tocFolderPath = bookPath + "/" + "TOC"
+
+    def _getTOCFilePath(sectionName):
+        bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        tocFolderPath = bookPath + BookInfoStructure.TOCbaseRelPath
         if (os.path.isdir(tocFolderPath)):
-            return tocFolderPath + "/TOC_sec" + sectionName + ".tex"
+            return tocFolderPath + "/TOC_" + sectionName + ".tex"
         else:
-            print("_getTOCFilePath - " + "the TOC filepath is not present. Will create: " + tocFolderPath)
+            print("_getTOCFilePath - " + "the TOC filepath is not present.")
+            print("Will create: " + tocFolderPath)
             _waitDummy = os.system("mkdir " + tocFolderPath)
-            return tocFolderPath + "/TOC_sec" + sectionName + ".tex"
+            return tocFolderPath + "/TOC_" + sectionName + ".tex"
+
 
 class BookInfoStructure:
     '''
@@ -65,6 +49,10 @@ class BookInfoStructure:
     bookInfoFilename = "bookInfo.json"
     sectionsInfoBaseRelPath = "/subsections/"
     sectionsInfoFilename = "sectionInfo.json"
+    
+    originalMaterialBaseRelPath = "/original_material/"
+
+    TOCbaseRelPath = "/TOC/"
 
     currSectionFull_ID= "currChapterFull"# need to be removed
     currSection_ID = "currChapter"
@@ -123,7 +111,13 @@ class BookInfoStructure:
 
     @classmethod
     def updateProperty(cls, propertyName, newValue):
-        print("BookInfoStructure.updatingProperty - '" + propertyName +"' with value :'" + newValue + "'.")
+        # if type(newValue) != dict and type(newValue) != list :
+        #     print("BookInfoStructure.updateProperty - '" + propertyName + 
+        #             "' with value :'" + newValue + "'.")
+        # else:
+        #     print("BookInfoStructure.updateProperty - '" + propertyName +"' with value :'")
+        #     print(newValue)
+        #     print("'.")
         _u.updateJSONProperty(cls._getAsbFilepath(), propertyName, newValue)
 
 
@@ -141,12 +135,12 @@ class SectionInfoStructure:
     sectionPathForTemplate = ""
 
     @classmethod
-    def _getTemplate(cls):
+    def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPrefixForTemplate + "_" + cls.sectionPathForTemplate
         sectionInfo_template = {
                 sectionInfoEntryPrefix + "_level":{
-                    sectionInfoEntryPrefix + "_depth": "",
-                    sectionInfoEntryPrefix + "_level": "",
+                    sectionInfoEntryPrefix + "_depth": str(depth),
+                    sectionInfoEntryPrefix + "_level": str(level),
                 },
                 sectionInfoEntryPrefix + "_name": "",
                 sectionInfoEntryPrefix + "_startPage": "",
@@ -160,6 +154,8 @@ class SectionInfoStructure:
     def createStructure(cls, sectionPath):
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID) 
 
+        numLevels = len(sectionPath.split(sectionPathSeparator))
+
         dirPathToSection = cls._getSectionFilepath(sectionPath)
 
         if not os.path.exists(dirPathToSection):
@@ -170,17 +166,17 @@ class SectionInfoStructure:
             # create files and folders
             _waitDummy = os.system("mkdir -p " + dirPathToSection)
             _waitDummy = os.system("mkdir " + dirPathToSection + "/images")
-            _waitDummy = os.system("mkdir " + dirPathToSection + "/pdf")
             
             sectionFolderName = dirPathToSection.split("/")[-1]
             print(dirPathToSection)
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_toc.tex")
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_pic.tex")
         
-        # create the json file file 
+        # create the json file file, _out folder, main.tex
         relSectionPath = ""
-        for p in sectionPath.split(sectionPathSeparator):
-            
+        sectionPathList = sectionPath.split(sectionPathSeparator)
+        for i,p in enumerate(sectionPathList):
+            prevRelSectionPath = relSectionPath
             relSectionPath += p if relSectionPath == "" else "." + p
             
             cls.sectionPathForTemplate = relSectionPath.replace(sectionPathSeparator, "_")
@@ -189,14 +185,30 @@ class SectionInfoStructure:
             pathToTopSection = cls._getSectionFilepath(relSectionPath)
             sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
             with open(sectionFilepath, "w+") as f:
-                jsonObj = json.dumps(cls._getTemplate(), indent = 4)
+                jsonObj = json.dumps(cls._getTemplate(numLevels, i + 1), indent = 4)
                 f.write(jsonObj)
             
             sectionFolderName = pathToTopSection.split("/")[-1]
             mainTemplateFile = os.getenv("BOOKS_TEMPLATES_PATH") + "/" + "main_template.tex"
+            _waitDummy = os.system("mkdir " + pathToTopSection + "/_out")
             _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
 
-        # create tex files
+            # update the book info
+            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
+            if i == 0:
+                if relSectionPath not in bookInfoSections.keys():
+                    bookInfoSections[relSectionPath] = {}
+            else:
+                parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
+                print(bookInfoSections)
+                if (relSectionPath not in parentProperty.keys()) and (type(parentProperty) == dict):
+                    parentProperty[relSectionPath] = {}
+                else:
+                    print("SectionInfoStructure.createStructure - parent property is not a dict. Did not update")
+                _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
+            BookInfoStructure.updateProperty(BookInfoStructure.sections_ID, bookInfoSections)
+        
+
 
     @classmethod
     def _getSectionFilepath(cls, sectionPath):
@@ -218,7 +230,7 @@ class SectionInfoStructure:
     
     @classmethod
     def readProperty(cls, sectionPath, propertyName):
-        print("SectionInfoStructure.readProperty - '" + propertyName)
+        # print("SectionInfoStructure.readProperty - '" + propertyName + "'")
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
 
@@ -230,7 +242,13 @@ class SectionInfoStructure:
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):
-        print("SectionInfoStructure.updateProperty - '" + propertyName +"' with value :'" + newValue + "'.")
+        # if type(newValue) != dict and type(newValue) != list :
+        #     print("SectionInfoStructure.updateProperty - '" + propertyName + 
+        #             "' with value :'" + newValue + "'.")
+        # else:
+        #     print("SectionInfoStructure.updateProperty - '" + propertyName +"' with value :'")
+        #     print(newValue)
+        #     print("'.")
         
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
@@ -241,5 +259,22 @@ class SectionInfoStructure:
         _u.updateJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName, newValue)
 
 
-class WholeBookStructure:
-    pass
+class OriginalMaterialStructure:
+    
+    @classmethod
+    def createOriginalMaterialStructure(cls):
+        getAbsPath = cls._getBaseAbsPath()
+        if not os.path.exists(getAbsPath):
+            print("OriginalMaterialStructure.createOriginalMaterialStructure - the structure was not present. Will create it.")
+            print("Creating path: " + getAbsPath)
+            _waitDummy = os.system("mkdir -p " + getAbsPath)
+
+    def _getBaseAbsPath():
+        bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        return bookPath + "/" + BookInfoStructure.originalMaterialBaseRelPath
+
+    def addOriginalMaterialFolder(relPath):
+        pass
+
+    def addOriginalMaterialMainPDF():
+        pass

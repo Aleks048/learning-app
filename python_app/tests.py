@@ -1,13 +1,13 @@
 import tkinter as tk
 
 from UI.widgets import *
-import file_system
 from file_system.file_system_main import BookInfoStructure, SectionInfoStructure, TOCStructure
 from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
 from file_system import *
 
+import unittest
 
 
 # filesystem
@@ -19,7 +19,6 @@ bookInfo structure
 
 testBookPath = os.getenv("BOOKS_ROOT_PATH") + "/b_analysis_test/"
 
-import unittest
 
 class Test_BookInfoStructure(unittest.TestCase):
 
@@ -51,7 +50,17 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         createSectionsInfoStructure
         """
         BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te")
+        
+        
+        os.system("rm -rf " + testBookPath + BookInfoStructure.sectionsInfoBaseRelPath)
+        
         SectionInfoStructure.createStructure("2.intro.pass")
+        SectionInfoStructure.createStructure("2.intro.pass2")
+        SectionInfoStructure.createStructure("2.intro2.pass")
+        SectionInfoStructure.createStructure("3.intro.pass")
+        SectionInfoStructure.createStructure("3.intro.3pass")
+        SectionInfoStructure.createStructure("4.intro.pass")
+        SectionInfoStructure.createStructure("4.intro.2pass")
     
     def test_updateProperties(self):
         SectionInfoStructure.updateProperty("2.intro", "_imIndex", "1")
@@ -63,11 +72,13 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         
 
 
-# class Test_TOCStructure(unittest.TestCase):
+class Test_TOCStructure(unittest.TestCase):
 
-#     def test_createTOCStructure(self):
+    def test_createTOCStructure(self):
 
-#         TOCStructure.createTOCStructure(str(2), testBookPath)
+        os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath)
+
+        TOCStructure.createTOCStructure()
 
 
 # Different kinds of asserts we can have: 
