@@ -185,7 +185,7 @@ class SectionInfoStructure:
 
     @classmethod
     def _getTemplate(cls, depth, level):
-        sectionInfoEntryPrefix = cls.sectionPrefixForTemplate + "_" + cls.sectionPathForTemplate
+        sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
                 sectionInfoEntryPrefix + "_level":{
                     sectionInfoEntryPrefix + "_depth": str(depth),
@@ -195,9 +195,20 @@ class SectionInfoStructure:
                 sectionInfoEntryPrefix + "_startPage": "",
                 sectionInfoEntryPrefix + "_latestSubchapter": "",
                 sectionInfoEntryPrefix + "_imIndex": "",
-                sectionInfoEntryPrefix + "_subSections": {}
+                sectionInfoEntryPrefix + "_subSections": [],
+                sectionInfoEntryPrefix + "_tocInfo":{
+                    "TOC_text":"",
+                    "TOC_sectionStart":""
+                    "TOC_sectionEnd"
+                }
         }
         return sectionInfo_template
+
+    def getSectionJSONKeyPrefixFormPath(path):
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID) 
+        secPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+        return secPrefix + "_" + path.replace(sectionPathSeparator, "_")
+        
 
     @classmethod
     def createStructure(cls, sectionPath):
@@ -228,50 +239,53 @@ class SectionInfoStructure:
             prevRelSectionPath = relSectionPath
             relSectionPath += p if relSectionPath == "" else "." + p
             
-            cls.sectionPathForTemplate = relSectionPath.replace(sectionPathSeparator, "_")
-            cls.sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+            cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
+            sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
             
             pathToTopSection = cls._getSectionFilepath(relSectionPath)
             sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
+            
             with open(sectionFilepath, "w+") as f:
                 jsonObj = json.dumps(cls._getTemplate(numLevels, i + 1), indent = 4)
                 f.write(jsonObj)
+            
             
             sectionFolderName = pathToTopSection.split("/")[-1]
             mainTemplateFile = os.getenv("BOOKS_TEMPLATES_PATH") + "/" + "main_template.tex"
             _waitDummy = os.system("mkdir " + pathToTopSection + "/_out")
             _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
 
-
-
             # update the book info
             bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
             
-            def addBookInfoSection():
+            def addBookInfoSection(parentProperty):
                 if i != len(sectionPathList) - 1:
                     parentProperty[relSectionPath] = {
                         "path": sectionFilepath,
-                        "isBottom": False
+                        "isBottom": False,
+                        "sections": {}
                     }
                 else:
                     parentProperty[relSectionPath] = {
                         "path": sectionFilepath,
-                        "isBottom": True
+                        "isBottom": True,
+                        "sections": {}
                     }
             
             if i == 0:
                 if relSectionPath not in bookInfoSections.keys():
                     parentProperty = bookInfoSections
-                    addBookInfoSection()
+                    addBookInfoSection(parentProperty)
             else:
                 parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
-                print(sectionFilepath)
-                print()
-                if (relSectionPath not in parentProperty.keys()) and (type(parentProperty) == dict):
-                    addBookInfoSection()
-                else:
-                    print("SectionInfoStructure.createStructure - parent property is not a dict. Did not update")
+                
+                if (relSectionPath not in parentProperty.keys()) \
+                and (type(parentProperty) == dict \
+                and "sections" in parentProperty.keys()):
+                    addBookInfoSection(parentProperty["sections"])
+                
                 _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
+            
             BookInfoStructure.updateProperty(BookInfoStructure.sections_ID, bookInfoSections)
         
 
@@ -307,15 +321,7 @@ class SectionInfoStructure:
         return _u.readJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
 
     @classmethod
-    def updateProperty(cls, sectionPath, propertyName, newValue):
-        # if type(newValue) != dict and type(newValue) != list :
-        #     print("SectionInfoStructure.updateProperty - '" + propertyName + 
-        #             "' with value :'" + newValue + "'.")
-        # else:
-        #     print("SectionInfoStructure.updateProperty - '" + propertyName +"' with value :'")
-        #     print(newValue)
-        #     print("'.")
-        
+    def updateProperty(cls, sectionPath, propertyName, newValue):        
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
 

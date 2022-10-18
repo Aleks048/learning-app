@@ -72,13 +72,13 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         
 
 
-class Test_TOCStructure(unittest.TestCase):
+# class Test_TOCStructure(unittest.TestCase):
 
-    def test_createTOCStructure(self):
+#     def test_createTOCStructure(self):
 
-        os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
+#         # os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
 
-        TOCStructure.createTOCStructure()
+#         TOCStructure.createTOCStructure()
 
 
 # Different kinds of asserts we can have: 
