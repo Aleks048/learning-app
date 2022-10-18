@@ -11,6 +11,11 @@ import _utils._utils_main as _u
 class TOCStructure:
     TOC_MARKERS = ["[ENTRY_START]", "[ENTRY_FINISH]", "[SECTION_NAME]","[CONTENT_MARKER]"]
 
+    text_ID = "text"
+
+    TOCInfoTemplate = {
+
+    }
 
     @classmethod
     def createTOCStructure(cls):
@@ -18,18 +23,37 @@ class TOCStructure:
 
         sectionsList = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
 
-        # print("Hip")
-        # print(sectionsList)
-        # print(sectionsTOCLines[0])
-
-        sectionsListNames = sectionsList.keys()
         for sectionName, sectionData in sectionsList.items():
             sectionsTOCLines = [""]
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
             _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(sectionName))
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[2], sectionName)      
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[3], sectionsTOCLines[0])      
+        
+        # crate TOCinfo.json
+        print(cls._getTOCDirPath() + BookInfoStructure.TOCFilename)
+
+        with open(cls._getTOCinfoFilepath(), "w+") as f:
+            jsonObj = json.dumps(sectionsList, indent = 4)
+            f.write(jsonObj)
+
+    @classmethod
+    def updateProperty(cls, sectionPath, propertyName, newValue):
+        sectionList = _u.readJSONProperty(cls._getTOCinfoFilepath(), sectionPath)
+        sectionList[propertyName] = newValue
     
+    @classmethod
+    def readProperty(cls, sectionPath, propertyName):
+        section = _u.readJSONProperty(cls._getTOCinfoFilepath(), sectionPath)
+        if propertyName in section.keys():
+            return section[propertyName]
+        else: 
+            return None
+
+    @classmethod
+    def _getTOCinfoFilepath(cls):
+        return cls._getTOCDirPath() + BookInfoStructure.TOCFilename
+
     @classmethod
     def _getTOCLines(cls, sectionsList, outLines, level):
         INTEMEDIATE_LINE = "[SECTION_NAME]:\\\\\n"
@@ -47,10 +71,14 @@ class TOCStructure:
                     lineToAdd = DEFAULT_PREFIX_SPACES + level * " " * 4 + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS[2], name)
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
-
-    def _getTOCFilePath(sectionName):
+    
+    def _getTOCDirPath():
         bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
-        tocFolderPath = bookPath + BookInfoStructure.TOCbaseRelPath
+        return bookPath + BookInfoStructure.TOCbaseRelPath
+
+    @classmethod
+    def _getTOCFilePath(cls, sectionName):
+        tocFolderPath = cls._getTOCDirPath()
         if (os.path.isdir(tocFolderPath)):
             return tocFolderPath + "/TOC_" + sectionName + ".tex"
         else:
@@ -73,6 +101,7 @@ class BookInfoStructure:
     originalMaterialBaseRelPath = "/original_material/"
 
     TOCbaseRelPath = "/TOC/"
+    TOCFilename = "TOCinfo.json"
 
     currSectionFull_ID= "currChapterFull"# need to be removed
     currSection_ID = "currChapter"

@@ -56,7 +56,7 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         
         SectionInfoStructure.createStructure("2.intro.pass")
         SectionInfoStructure.createStructure("2.intro.pass2")
-        SectionInfoStructure.createStructure("2.intro2.pass")
+        SectionInfoStructure.createStructure("2.intro2.pass.ando")
         SectionInfoStructure.createStructure("3.intro.pass")
         SectionInfoStructure.createStructure("3.intro.3pass")
         SectionInfoStructure.createStructure("4.intro.pass")
@@ -76,7 +76,7 @@ class Test_TOCStructure(unittest.TestCase):
 
     def test_createTOCStructure(self):
 
-        os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath)
+        os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
 
         TOCStructure.createTOCStructure()
 
