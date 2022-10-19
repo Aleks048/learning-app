@@ -28,14 +28,9 @@ class TOCStructure:
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
             _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(sectionName))
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[2], sectionName)      
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[3], sectionsTOCLines[0])      
-        
-        # crate TOCinfo.json
-        print(cls._getTOCDirPath() + BookInfoStructure.TOCFilename)
+            # print(sectionsTOCLines)
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[3], sectionsTOCLines[0])
 
-        with open(cls._getTOCinfoFilepath(), "w+") as f:
-            jsonObj = json.dumps(sectionsList, indent = 4)
-            f.write(jsonObj)
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):
@@ -51,24 +46,20 @@ class TOCStructure:
             return None
 
     @classmethod
-    def _getTOCinfoFilepath(cls):
-        return cls._getTOCDirPath() + BookInfoStructure.TOCFilename
-
-    @classmethod
-    def _getTOCLines(cls, sectionsList, outLines, level):
+    def _getTOCLines(cls, sectionsData, outLines, level):
         INTEMEDIATE_LINE = "[SECTION_NAME]:\\\\\n"
         BOTTOM_LINE = "\TOCline{Text [SECTION_NAME]// [ENTRY_START] - [ENTRY_FINISH]}{[ENTRY_START]}\\\\\n"
 
-        DEFAULT_PREFIX_SPACES = " " * 4
+        DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
     
-        for name, section in sectionsList.items():
+        for name, section in sectionsData["sections"].items():
             if type(section) == dict:
-                if section["isBottom"] == True:
+                if section["sections"] == {}:
                     # add line
-                    lineToAdd = DEFAULT_PREFIX_SPACES + level * " " * 4 + BOTTOM_LINE.replace(cls.TOC_MARKERS[2], name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TOC_MARKERS[2], name)
                     outLines[0] = outLines[0] + lineToAdd
                 else:
-                    lineToAdd = DEFAULT_PREFIX_SPACES + level * " " * 4 + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS[2], name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS[2], name)
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
     
@@ -197,9 +188,9 @@ class SectionInfoStructure:
                 sectionInfoEntryPrefix + "_imIndex": "",
                 sectionInfoEntryPrefix + "_subSections": [],
                 sectionInfoEntryPrefix + "_tocInfo":{
-                    "TOC_text":"",
-                    "TOC_sectionStart":""
-                    "TOC_sectionEnd"
+                    sectionInfoEntryPrefix + "TOC_text":"",
+                    sectionInfoEntryPrefix + "TOC_sectionStart":"",
+                    sectionInfoEntryPrefix + "TOC_sectionEnd":""
                 }
         }
         return sectionInfo_template
@@ -259,18 +250,10 @@ class SectionInfoStructure:
             bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
             
             def addBookInfoSection(parentProperty):
-                if i != len(sectionPathList) - 1:
-                    parentProperty[relSectionPath] = {
-                        "path": sectionFilepath,
-                        "isBottom": False,
-                        "sections": {}
-                    }
-                else:
-                    parentProperty[relSectionPath] = {
-                        "path": sectionFilepath,
-                        "isBottom": True,
-                        "sections": {}
-                    }
+                parentProperty[relSectionPath] = {
+                    "path": sectionFilepath,
+                    "sections": {}
+                }
             
             if i == 0:
                 if relSectionPath not in bookInfoSections.keys():
@@ -279,9 +262,10 @@ class SectionInfoStructure:
             else:
                 parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
                 
-                if (relSectionPath not in parentProperty.keys()) \
-                and (type(parentProperty) == dict \
-                and "sections" in parentProperty.keys()):
+                print(relSectionPath)
+                if (relSectionPath not in parentProperty["sections"].keys()) \
+                    and (type(parentProperty) == dict \
+                    and "sections" in parentProperty.keys()):
                     addBookInfoSection(parentProperty["sections"])
                 
                 _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)

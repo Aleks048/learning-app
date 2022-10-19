@@ -57,6 +57,8 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         SectionInfoStructure.createStructure("2.intro.pass")
         SectionInfoStructure.createStructure("2.intro.pass2")
         SectionInfoStructure.createStructure("2.intro2.pass.ando")
+        SectionInfoStructure.createStructure("2.intro2.pass2.ando")
+        SectionInfoStructure.createStructure("2.intro2.pass2.anda")
         SectionInfoStructure.createStructure("3.intro.pass")
         SectionInfoStructure.createStructure("3.intro.3pass")
         SectionInfoStructure.createStructure("4.intro.pass")
@@ -68,17 +70,18 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         self.assertEqual(imId, "1")
         SectionInfoStructure.updateProperty("2.intro.pass", "_imIndex", "1")
         imId = SectionInfoStructure.readProperty("2.intro.pass", "_imIndex")
+        SectionInfoStructure.createStructure("4.intro.2passta")
         self.assertEqual(imId, "1")
         
 
 
-# class Test_TOCStructure(unittest.TestCase):
+class Test_TOCStructure(unittest.TestCase):
 
-#     def test_createTOCStructure(self):
+    def test_createTOCStructure(self):
 
-#         # os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
+        os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
 
-#         TOCStructure.createTOCStructure()
+        TOCStructure.createTOCStructure()
 
 
 # Different kinds of asserts we can have: 
