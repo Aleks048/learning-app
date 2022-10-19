@@ -9,13 +9,22 @@ sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
 import _utils._utils_main as _u
 
 class TOCStructure:
-    TOC_MARKERS = ["[ENTRY_START]", "[ENTRY_FINISH]", "[SECTION_NAME]","[CONTENT_MARKER]"]
+    class TOC_MARKERS:
+        SECTION_TEXT = "[SECTION_TEXT]"
+        SECTION_START = "[SECTION_START]" 
+        SECTION_FINISH = "[SECTION_FINISH]"
+        SECTION_NAME = "[SECTION_NAME]"
+        CONTENT_MARKER = "[CONTENT_MARKER]"
 
-    text_ID = "text"
-
-    TOCInfoTemplate = {
-
-    }
+    class TOC_SECTION_PROPERTIES:
+        TOC_text_ID = "TOC_text"
+        TOC_sectionStart_ID = "TOC_sectionStart"
+        TOC_sectionEnd_ID = "TOC_sectionEnd"
+ 
+        def getPropertyFormPath(path, propertyName):
+            separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+            return sectionPrefix + "_" + path.replace(separator, "_") + propertyName
 
     @classmethod
     def createTOCStructure(cls):
@@ -27,28 +36,29 @@ class TOCStructure:
             sectionsTOCLines = [""]
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
             _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(sectionName))
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[2], sectionName)      
-            # print(sectionsTOCLines)
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS[3], sectionsTOCLines[0])
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS.SECTION_NAME, sectionName)
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS.CONTENT_MARKER, sectionsTOCLines[0])
 
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):
-        sectionList = _u.readJSONProperty(cls._getTOCinfoFilepath(), sectionPath)
-        sectionList[propertyName] = newValue
+        sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
+        fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+        print(sectionJSONPath)
+        print(fullPropertyName)
+        _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
     
     @classmethod
     def readProperty(cls, sectionPath, propertyName):
-        section = _u.readJSONProperty(cls._getTOCinfoFilepath(), sectionPath)
-        if propertyName in section.keys():
-            return section[propertyName]
-        else: 
-            return None
+        sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
+        fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+        return _u.readJSONProperty(sectionJSONPath, fullPropertyName)
 
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
-        INTEMEDIATE_LINE = "[SECTION_NAME]:\\\\\n"
-        BOTTOM_LINE = "\TOCline{Text [SECTION_NAME]// [ENTRY_START] - [ENTRY_FINISH]}{[ENTRY_START]}\\\\\n"
+        INTEMEDIATE_LINE = cls.TOC_MARKERS.SECTION_NAME + ":\\\\\n"
+        BOTTOM_LINE = "\TOCline{" + cls.TOC_MARKERS.SECTION_TEXT + " " + cls.TOC_MARKERS.SECTION_NAME + "// " + cls.TOC_MARKERS.SECTION_START + \
+                    " - " + cls.TOC_MARKERS.SECTION_FINISH + "}{" + cls.TOC_MARKERS.SECTION_START + "}\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
     
@@ -56,10 +66,10 @@ class TOCStructure:
             if type(section) == dict:
                 if section["sections"] == {}:
                     # add line
-                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TOC_MARKERS[2], name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TOC_MARKERS.SECTION_NAME, name)
                     outLines[0] = outLines[0] + lineToAdd
                 else:
-                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS[2], name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS.SECTION_NAME, name)
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
     
@@ -151,13 +161,6 @@ class BookInfoStructure:
 
     @classmethod
     def updateProperty(cls, propertyName, newValue):
-        # if type(newValue) != dict and type(newValue) != list :
-        #     print("BookInfoStructure.updateProperty - '" + propertyName + 
-        #             "' with value :'" + newValue + "'.")
-        # else:
-        #     print("BookInfoStructure.updateProperty - '" + propertyName +"' with value :'")
-        #     print(newValue)
-        #     print("'.")
         _u.updateJSONProperty(cls._getAsbFilepath(), propertyName, newValue)
 
 
@@ -219,7 +222,6 @@ class SectionInfoStructure:
             _waitDummy = os.system("mkdir " + dirPathToSection + "/images")
             
             sectionFolderName = dirPathToSection.split("/")[-1]
-            print(dirPathToSection)
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_toc.tex")
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_pic.tex")
         
@@ -262,7 +264,6 @@ class SectionInfoStructure:
             else:
                 parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
                 
-                print(relSectionPath)
                 if (relSectionPath not in parentProperty["sections"].keys()) \
                     and (type(parentProperty) == dict \
                     and "sections" in parentProperty.keys()):
@@ -294,7 +295,6 @@ class SectionInfoStructure:
     
     @classmethod
     def readProperty(cls, sectionPath, propertyName):
-        # print("SectionInfoStructure.readProperty - '" + propertyName + "'")
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
 
