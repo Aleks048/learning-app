@@ -84,11 +84,11 @@ class Test_TOCStructure(unittest.TestCase):
         TOCStructure.createTOCStructure()
 
     def test_updateProperties(self):
-        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.TOC_text_ID
+        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
         TOCStructure.updateProperty("2.intro.pass", propertyName, "test")
         self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "test")
-
-
+        TOCStructure.updateProperty("2.intro.pass", propertyName, "testa")
+        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "testa")
 
 # Different kinds of asserts we can have: 
 #     self.assertEqual('foo'.upper(), 'FOO')

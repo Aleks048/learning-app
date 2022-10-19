@@ -9,17 +9,24 @@ sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
 import _utils._utils_main as _u
 
 class TOCStructure:
-    class TOC_MARKERS:
-        SECTION_TEXT = "[SECTION_TEXT]"
-        SECTION_START = "[SECTION_START]" 
-        SECTION_FINISH = "[SECTION_FINISH]"
-        SECTION_NAME = "[SECTION_NAME]"
-        CONTENT_MARKER = "[CONTENT_MARKER]"
-
     class TOC_SECTION_PROPERTIES:
-        TOC_text_ID = "TOC_text"
-        TOC_sectionStart_ID = "TOC_sectionStart"
-        TOC_sectionEnd_ID = "TOC_sectionEnd"
+        TEXT_MARKER = "[SECTION_TEXT]"
+        START_MARKER = "[SECTION_START]" 
+        FINISH_MARKER = "[SECTION_FINISH]"
+        NAME_MARKER = "[SECTION_NAME]"
+        CONTENT_MARKER = "[CONTENT_MARKER]"
+        
+        text_ID = "TOC_text"
+        sectionStart_ID = "TOC_sectionStart"
+        sectionFinish_ID = "TOC_sectionFinish"
+        name_ID = "TOC_text"
+        
+        proipertyToMarker = {
+            text_ID: TEXT_MARKER,
+            sectionStart_ID: START_MARKER,
+            sectionFinish_ID: FINISH_MARKER,
+            name_ID: NAME_MARKER
+        }
  
         def getPropertyFormPath(path, propertyName):
             separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
@@ -36,17 +43,32 @@ class TOCStructure:
             sectionsTOCLines = [""]
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
             _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(sectionName))
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS.SECTION_NAME, sectionName)
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_MARKERS.CONTENT_MARKER, sectionsTOCLines[0])
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_SECTION_PROPERTIES.NAME_MARKER, sectionName)
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_SECTION_PROPERTIES.CONTENT_MARKER, sectionsTOCLines[0])
 
+    def _getTOCSectionNameFromSectionPath(sectionPath):
+        separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+        return sectionPath.split(separator)[0]
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):
+        oldPropertyValue = cls.readProperty(sectionPath, propertyName)
+
         sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
         fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
         print(sectionJSONPath)
         print(fullPropertyName)
         _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
+
+        # update the
+        sectionName = cls._getTOCSectionNameFromSectionPath(sectionPath)
+        print(oldPropertyValue)
+        if oldPropertyValue != "":
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), oldPropertyValue, newValue, "[" + sectionPath + "]")
+        else:
+            marker = cls.TOC_SECTION_PROPERTIES.proipertyToMarker[propertyName]
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), marker, newValue,  "[" + sectionPath + "]")
+        
     
     @classmethod
     def readProperty(cls, sectionPath, propertyName):
@@ -56,9 +78,13 @@ class TOCStructure:
 
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
-        INTEMEDIATE_LINE = cls.TOC_MARKERS.SECTION_NAME + ":\\\\\n"
-        BOTTOM_LINE = "\TOCline{" + cls.TOC_MARKERS.SECTION_TEXT + " " + cls.TOC_MARKERS.SECTION_NAME + "// " + cls.TOC_MARKERS.SECTION_START + \
-                    " - " + cls.TOC_MARKERS.SECTION_FINISH + "}{" + cls.TOC_MARKERS.SECTION_START + "}\\\\\n"
+        INTEMEDIATE_LINE = cls.TOC_SECTION_PROPERTIES.NAME_MARKER + ":\\\\\n"
+        BOTTOM_LINE = "\TOCline{" + cls.TOC_SECTION_PROPERTIES.TEXT_MARKER + \
+            " [" + cls.TOC_SECTION_PROPERTIES.NAME_MARKER + "]// " + \
+            cls.TOC_SECTION_PROPERTIES.START_MARKER + \
+            " - " + cls.TOC_SECTION_PROPERTIES.FINISH_MARKER + "}{" + \
+            cls.TOC_SECTION_PROPERTIES.START_MARKER + "}" + \
+            "%\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
     
@@ -66,10 +92,10 @@ class TOCStructure:
             if type(section) == dict:
                 if section["sections"] == {}:
                     # add line
-                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TOC_MARKERS.SECTION_NAME, name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TOC_SECTION_PROPERTIES.NAME_MARKER, name)
                     outLines[0] = outLines[0] + lineToAdd
                 else:
-                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TOC_MARKERS.SECTION_NAME, name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TOC_SECTION_PROPERTIES.NAME_MARKER, name)
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
     

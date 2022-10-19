@@ -7,7 +7,7 @@ import UI.widgets as ui
 import file_system.file_system_main as fs
 
 
-def replaceMarkerInFile(filepath, marker, value):
+def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     if not os.path.exists(filepath):
         print("replaceMarkerInFile - filepath does not exist.")
         return None
@@ -15,7 +15,7 @@ def replaceMarkerInFile(filepath, marker, value):
         fLines = f.readlines()
     
     for i in range(len(fLines)):
-        if  marker in fLines[i]:
+        if  marker in fLines[i] and lineToken in fLines[i]:
             fLines[i] = fLines[i].replace(marker, value)
     
     with open(filepath, "w") as f:
