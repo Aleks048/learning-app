@@ -9,23 +9,12 @@ from file_system import *
 
 import unittest
 
-
-# filesystem
-
-'''
-bookInfo structure
-'''
-
-
 testBookPath = os.getenv("BOOKS_ROOT_PATH") + "/b_analysis_test/"
 
 
 class Test_BookInfoStructure(unittest.TestCase):
 
     def test_createStructure(self):
-        """
-        createBookInfoStrunture
-        """
         expectedFilePath = testBookPath + BookInfoStructure._getRelFilepath()
         
         expectedFileDir = "/".join(expectedFilePath.split("/")[:-1])
@@ -45,12 +34,8 @@ class Test_BookInfoStructure(unittest.TestCase):
 
 class Test_SectionsInfoStructure(unittest.TestCase):
 
-    def test_createStructure(self):    
-        """
-        createSectionsInfoStructure
-        """
-        BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te")
-        
+    def test_createStructure(self):
+        BookInfoStructure.updateProperty(BookInfoStructure.sections_prefix_ID, "te") 
         
         os.system("rm -rf " + testBookPath + BookInfoStructure.sectionsInfoBaseRelPath)
         
@@ -77,11 +62,13 @@ class Test_SectionsInfoStructure(unittest.TestCase):
 
 class Test_TOCStructure(unittest.TestCase):
 
-    def test_createTOCStructure(self):
+    def test_createStructure(self):
 
         os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
 
         TOCStructure.createStructure()
+
+        #TODO: need to check that files with expected names and content are created
 
     def test_updateProperties(self):
         propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
@@ -100,10 +87,11 @@ class Test_TOCStructure(unittest.TestCase):
         TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
         self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
 
+        #TODO: We need to check that the TOC files are updated correctly
 
 class Test_OriginalMaterialStructure(unittest.TestCase):
 
-    def test_createOriginalMaterialStructure(self):
+    def test_createStructure(self):
 
         originalMaterialStructurePath = testBookPath + BookInfoStructure.originalMaterialBaseRelPath
         os.system("rm -rf " + originalMaterialStructurePath)
