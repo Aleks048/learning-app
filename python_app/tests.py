@@ -90,6 +90,16 @@ class Test_TOCStructure(unittest.TestCase):
         TOCStructure.updateProperty("2.intro.pass", propertyName, "testa")
         self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "testa")
 
+        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionStart_ID
+        TOCStructure.updateProperty("2.intro.pass", propertyName, "1")
+        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "1")
+
+        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionFinish_ID
+        TOCStructure.updateProperty("2.intro.pass", propertyName, "3")
+        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "3")
+        TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
+        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
+
 # Different kinds of asserts we can have: 
 #     self.assertEqual('foo'.upper(), 'FOO')
 #     self.assertTrue('FOO'.isupper())

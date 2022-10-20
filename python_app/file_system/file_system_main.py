@@ -19,13 +19,11 @@ class TOCStructure:
         text_ID = "TOC_text"
         sectionStart_ID = "TOC_sectionStart"
         sectionFinish_ID = "TOC_sectionFinish"
-        name_ID = "TOC_text"
         
         proipertyToMarker = {
             text_ID: TEXT_MARKER,
             sectionStart_ID: START_MARKER,
-            sectionFinish_ID: FINISH_MARKER,
-            name_ID: NAME_MARKER
+            sectionFinish_ID: FINISH_MARKER
         }
  
         def getPropertyFormPath(path, propertyName):
@@ -56,18 +54,19 @@ class TOCStructure:
 
         sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
         fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
-        print(sectionJSONPath)
-        print(fullPropertyName)
         _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
         # update the
         sectionName = cls._getTOCSectionNameFromSectionPath(sectionPath)
+        print("hi")
+        print(sectionJSONPath)
+        print(fullPropertyName)
         print(oldPropertyValue)
         if oldPropertyValue != "":
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), oldPropertyValue, newValue, "[" + sectionPath + "]")
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + oldPropertyValue + "]", "[" + newValue + "]", "[" + sectionPath + "]")
         else:
             marker = cls.TOC_SECTION_PROPERTIES.proipertyToMarker[propertyName]
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), marker, newValue,  "[" + sectionPath + "]")
+            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + marker  + "]","[" + newValue + "]",  "[" + sectionPath + "]")
         
     
     @classmethod
@@ -80,11 +79,11 @@ class TOCStructure:
     def _getTOCLines(cls, sectionsData, outLines, level):
         INTEMEDIATE_LINE = cls.TOC_SECTION_PROPERTIES.NAME_MARKER + ":\\\\\n"
         BOTTOM_LINE = "\TOCline{" + cls.TOC_SECTION_PROPERTIES.TEXT_MARKER + \
-            " [" + cls.TOC_SECTION_PROPERTIES.NAME_MARKER + "]// " + \
+            " [" + cls.TOC_SECTION_PROPERTIES.NAME_MARKER + "]// [" + \
             cls.TOC_SECTION_PROPERTIES.START_MARKER + \
-            " - " + cls.TOC_SECTION_PROPERTIES.FINISH_MARKER + "}{" + \
-            cls.TOC_SECTION_PROPERTIES.START_MARKER + "}" + \
-            "%\\\\\n"
+            "] - [" + cls.TOC_SECTION_PROPERTIES.FINISH_MARKER + "]}{[" + \
+            cls.TOC_SECTION_PROPERTIES.START_MARKER + "]}" + \
+            "\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
     
@@ -219,7 +218,7 @@ class SectionInfoStructure:
                 sectionInfoEntryPrefix + "_tocInfo":{
                     sectionInfoEntryPrefix + "TOC_text":"",
                     sectionInfoEntryPrefix + "TOC_sectionStart":"",
-                    sectionInfoEntryPrefix + "TOC_sectionEnd":""
+                    sectionInfoEntryPrefix + "TOC_sectionFinish":""
                 }
         }
         return sectionInfo_template
