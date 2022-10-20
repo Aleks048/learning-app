@@ -9,6 +9,10 @@ sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
 import _utils._utils_main as _u
 
 class TOCStructure:
+    '''
+    Keeps the toc for the sections and links to them.
+    '''
+
     class TOC_SECTION_PROPERTIES:
         TEXT_MARKER = "[SECTION_TEXT]"
         START_MARKER = "[SECTION_START]" 
@@ -32,7 +36,7 @@ class TOCStructure:
             return sectionPrefix + "_" + path.replace(separator, "_") + propertyName
 
     @classmethod
-    def createTOCStructure(cls):
+    def createStructure(cls):
         pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
 
         sectionsList = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
@@ -56,12 +60,8 @@ class TOCStructure:
         fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
         _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
-        # update the
+        # update the TOC files
         sectionName = cls._getTOCSectionNameFromSectionPath(sectionPath)
-        print("hi")
-        print(sectionJSONPath)
-        print(fullPropertyName)
-        print(oldPropertyValue)
         if oldPropertyValue != "":
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + oldPropertyValue + "]", "[" + newValue + "]", "[" + sectionPath + "]")
         else:
@@ -124,7 +124,7 @@ class BookInfoStructure:
     sectionsInfoBaseRelPath = "/subsections/"
     sectionsInfoFilename = "sectionInfo.json"
     
-    originalMaterialBaseRelPath = "/original_material/"
+    originalMaterialBaseRelPath = "/originalMaterial/"
 
     TOCbaseRelPath = "/TOC/"
     TOCFilename = "TOCinfo.json"
@@ -190,6 +190,10 @@ class BookInfoStructure:
 
 
 class SectionInfoStructure:
+    '''
+    Structure to store sections and .tex files and images
+    '''
+
     currStucturePath = ""
 
     # for later: add if the section should generate the pdf.
@@ -341,9 +345,12 @@ class SectionInfoStructure:
 
 
 class OriginalMaterialStructure:
+    '''
+    Structure to store the original pdf and other required material.
+    '''
     
     @classmethod
-    def createOriginalMaterialStructure(cls):
+    def createStructure(cls):
         getAbsPath = cls._getBaseAbsPath()
         if not os.path.exists(getAbsPath):
             print("OriginalMaterialStructure.createOriginalMaterialStructure - the structure was not present. Will create it.")
@@ -353,9 +360,3 @@ class OriginalMaterialStructure:
     def _getBaseAbsPath():
         bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
         return bookPath + "/" + BookInfoStructure.originalMaterialBaseRelPath
-
-    def addOriginalMaterialFolder(relPath):
-        pass
-
-    def addOriginalMaterialMainPDF():
-        pass

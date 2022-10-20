@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from UI.widgets import *
-from file_system.file_system_main import BookInfoStructure, SectionInfoStructure, TOCStructure
+from file_system.file_system_main import BookInfoStructure, OriginalMaterialStructure, SectionInfoStructure, TOCStructure
 from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
@@ -81,7 +81,7 @@ class Test_TOCStructure(unittest.TestCase):
 
         os.system("rm -rf " + testBookPath + BookInfoStructure.TOCbaseRelPath + "/*.tex")
 
-        TOCStructure.createTOCStructure()
+        TOCStructure.createStructure()
 
     def test_updateProperties(self):
         propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
@@ -99,6 +99,19 @@ class Test_TOCStructure(unittest.TestCase):
         self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "3")
         TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
         self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
+
+
+class Test_OriginalMaterialStructure(unittest.TestCase):
+
+    def test_createOriginalMaterialStructure(self):
+
+        originalMaterialStructurePath = testBookPath + BookInfoStructure.originalMaterialBaseRelPath
+        os.system("rm -rf " + originalMaterialStructurePath)
+
+        OriginalMaterialStructure.createStructure()
+
+        self.assertTrue(os.path.exists(originalMaterialStructurePath))
+
 
 # Different kinds of asserts we can have: 
 #     self.assertEqual('foo'.upper(), 'FOO')
