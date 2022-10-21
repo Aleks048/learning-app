@@ -234,6 +234,7 @@ class Settings:
     #current settings
     currSettings_ID = "currentSettings"
     currBookPath_ID = "currentBookPath"
+    currBookName_ID = "currentBookName"
 
     wholeBook_ID= "whole_book"
     
@@ -257,6 +258,12 @@ class Settings:
 
     #paths
     relToSubchapters_Path = "/subchapters/"
+
+    @classmethod
+    def setCurrentBook(cls, bookName, bookPath):
+        cls.updateProperty(cls.currBookPath_ID, bookPath)
+        cls.updateProperty(cls.currBookName_ID, bookName)
+
     
     @classmethod
     def getWholeBookPath(cls):

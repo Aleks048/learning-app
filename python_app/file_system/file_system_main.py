@@ -37,17 +37,42 @@ class TOCStructure:
 
     @classmethod
     def createStructure(cls):
-        pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
+        os.system("mkdir -p " + cls._getTOCDirPath())
+        
+    @classmethod
+    def addSection(cls, sectionPath):
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
 
-        sectionsList = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
+        sectionPathList = sectionPath.split(sectionPathSeparator)
+        relSectionPath = ""
+        for i,sectionName in enumerate(sectionPathList):
+            sectionsList = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
+            sectionData = BookInfoStructure.readProperty(sectionName)
+            if sectionData == None:
+                continue
+            # for sectionName, sectionData in sectionsList.items():
 
-        for sectionName, sectionData in sectionsList.items():
+            separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
+            topSectionName = sectionPrefix + "_" + sectionName.split(separator)[0]
+            
+            print("hi")
+            print(sectionName)
+            print(sectionName)
+            print(topSectionName)
             sectionsTOCLines = [""]
+            
+            if i == 0:
+                pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
+                _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(topSectionName))
+            
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
-            _waitDummy = os.system("cp " + pathToTemplates + "/TOC_template.tex " + cls._getTOCFilePath(sectionName))
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_SECTION_PROPERTIES.NAME_MARKER, sectionName)
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), cls.TOC_SECTION_PROPERTIES.CONTENT_MARKER, sectionsTOCLines[0])
 
+            
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.TOC_SECTION_PROPERTIES.NAME_MARKER, topSectionName)
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.TOC_SECTION_PROPERTIES.CONTENT_MARKER, sectionsTOCLines[0])
+
+    
     def _getTOCSectionNameFromSectionPath(sectionPath):
         separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
         return sectionPath.split(separator)[0]
@@ -145,7 +170,7 @@ class BookInfoStructure:
 
     bookInfoTemplate = {
         version_ID: "0.1",
-        sections_prefix_ID: "",
+        sections_prefix_ID: "sec",
         sections_path_separator_ID: ".",
         sections_ID: {
         },
@@ -170,6 +195,44 @@ class BookInfoStructure:
         with open(bookInfoFilepath, "w+") as f:
             jsonObj = json.dumps(cls.bookInfoTemplate, indent = 4)
             f.write(jsonObj)
+
+    @classmethod
+    def addSection(cls, sectionPath):
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
+
+        sectionPathList = sectionPath.split(sectionPathSeparator)
+        relSectionPath = ""
+        for i,p in enumerate(sectionPathList):
+            prevRelSectionPath = relSectionPath
+            relSectionPath += p if relSectionPath == "" else "." + p
+
+            pathToTopSection = SectionInfoStructure._getSectionFilepath(relSectionPath)
+            sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
+
+            # update the book info
+            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
+            
+            def addBookInfoSection(parentProperty):
+                parentProperty[relSectionPath] = {
+                    "path": sectionFilepath,
+                    "sections": {}
+                }
+            
+            if i == 0:
+                if relSectionPath not in bookInfoSections.keys():
+                    parentProperty = bookInfoSections
+                    addBookInfoSection(parentProperty)
+            else:
+                parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
+                
+                if (relSectionPath not in parentProperty["sections"].keys()) \
+                    and (type(parentProperty) == dict \
+                    and "sections" in parentProperty.keys()):
+                    addBookInfoSection(parentProperty["sections"])
+                
+                _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
+            
+            BookInfoStructure.updateProperty(BookInfoStructure.sections_ID, bookInfoSections)
 
     @classmethod
     def _getRelFilepath(cls):
@@ -234,7 +297,13 @@ class SectionInfoStructure:
         
 
     @classmethod
-    def createStructure(cls, sectionPath):
+    def createStructure(cls):
+        print("SectionInfoStructure.create structure - empty sectionPath given. Will only crerate the top folder.")
+        os.system("mkdir -p " + cls._getPathToSectionsFolder())
+        return
+
+    @classmethod
+    def addSection(cls, sectionPath):
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID) 
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
@@ -243,7 +312,7 @@ class SectionInfoStructure:
 
         if not os.path.exists(dirPathToSection):
 
-            print("SectionInfoStructure.createStructure - the sections structure was not present will create it.")
+            print("SectionInfoStructure.addSection - the sections structure was not present will create it.")
             print("Creating path: " + dirPathToSection)
             
             # create files and folders
@@ -258,11 +327,9 @@ class SectionInfoStructure:
         relSectionPath = ""
         sectionPathList = sectionPath.split(sectionPathSeparator)
         for i,p in enumerate(sectionPathList):
-            prevRelSectionPath = relSectionPath
             relSectionPath += p if relSectionPath == "" else "." + p
             
             cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
-            sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
             
             pathToTopSection = cls._getSectionFilepath(relSectionPath)
             sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
@@ -276,33 +343,12 @@ class SectionInfoStructure:
             mainTemplateFile = os.getenv("BOOKS_TEMPLATES_PATH") + "/" + "main_template.tex"
             _waitDummy = os.system("mkdir " + pathToTopSection + "/_out")
             _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
-
-            # update the book info
-            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.sections_ID)
-            
-            def addBookInfoSection(parentProperty):
-                parentProperty[relSectionPath] = {
-                    "path": sectionFilepath,
-                    "sections": {}
-                }
-            
-            if i == 0:
-                if relSectionPath not in bookInfoSections.keys():
-                    parentProperty = bookInfoSections
-                    addBookInfoSection(parentProperty)
-            else:
-                parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
-                
-                if (relSectionPath not in parentProperty["sections"].keys()) \
-                    and (type(parentProperty) == dict \
-                    and "sections" in parentProperty.keys()):
-                    addBookInfoSection(parentProperty["sections"])
-                
-                _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
-            
-            BookInfoStructure.updateProperty(BookInfoStructure.sections_ID, bookInfoSections)
         
 
+    def _getPathToSectionsFolder():
+        pathToSectionFolder = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        pathToSectionFolder += "/" + BookInfoStructure.sectionsInfoBaseRelPath
+        return pathToSectionFolder
 
     @classmethod
     def _getSectionFilepath(cls, sectionPath):
@@ -316,8 +362,7 @@ class SectionInfoStructure:
             pathList[i] = ".".join(pathList[:i + 1])
         sectionFullPath = pathList
         sectionFullPath = "/".join(sectionFullPath)
-        pathToSection = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
-        pathToSection += "/" + BookInfoStructure.sectionsInfoBaseRelPath
+        pathToSection = cls._getPathToSectionsFolder()
         pathToSection += "/" + sectionFullPath
 
         return pathToSection
@@ -353,7 +398,7 @@ class OriginalMaterialStructure:
     def createStructure(cls):
         getAbsPath = cls._getBaseAbsPath()
         if not os.path.exists(getAbsPath):
-            print("OriginalMaterialStructure.createOriginalMaterialStructure - the structure was not present. Will create it.")
+            print("OriginalMaterialStructure.createStructure - the structure was not present. Will create it.")
             print("Creating path: " + getAbsPath)
             _waitDummy = os.system("mkdir -p " + getAbsPath)
 
