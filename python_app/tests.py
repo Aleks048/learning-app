@@ -2,11 +2,12 @@ import tkinter as tk
 
 from UI.widgets import *
 from file_system.file_system_main import BookInfoStructure, OriginalMaterialStructure, SectionInfoStructure, TOCStructure
-from file_system.file_system_manager import createNewBook
+from file_system.file_system_manager import addSectionForCurrBook, createNewBook
 from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
 from file_system import *
+from file_system import file_system_manager as fsm
 
 import unittest
 
@@ -104,24 +105,25 @@ class Test_TOCStructure(unittest.TestCase):
 
         #TODO: need to check that files with expected names and content are created
 
-    def test_updateProperties(self):
-        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
-        TOCStructure.updateProperty("2.intro.pass", propertyName, "test")
-        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "test")
-        TOCStructure.updateProperty("2.intro.pass", propertyName, "testa")
-        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "testa")
+    # TODO: turned off since update now only happens in TOC structure
+    # def test_updateProperties(self):
+    #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
+    #     TOCStructure.updateProperty("2.intro.pass", propertyName, "test")
+    #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "test")
+    #     TOCStructure.updateProperty("2.intro.pass", propertyName, "testa")
+    #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "testa")
 
-        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionStart_ID
-        TOCStructure.updateProperty("2.intro.pass", propertyName, "1")
-        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "1")
+    #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionStart_ID
+    #     TOCStructure.updateProperty("2.intro.pass", propertyName, "1")
+    #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "1")
 
-        propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionFinish_ID
-        TOCStructure.updateProperty("2.intro.pass", propertyName, "3")
-        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "3")
-        TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
-        self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
+    #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionFinish_ID
+    #     TOCStructure.updateProperty("2.intro.pass", propertyName, "3")
+    #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "3")
+    #     TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
+    #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
 
-        #TODO: We need to check that the TOC files are updated correctly
+    #     #TODO: We need to check that the TOC files are updated correctly
 
 class Test_OriginalMaterialStructure(unittest.TestCase):
 
@@ -140,14 +142,13 @@ class Test_OriginalMaterialStructure(unittest.TestCase):
 
 class Test_FileSystemManager(unittest.TestCase):
 
-
     def setUp(self):
         Settings.setCurrentBook(test2BookName, test2BookPath)
 
     def test_CreateNewBook(self):
         os.system("rm -rf " +  test2BookPath)
 
-        createNewBook(test2BookName)
+        fsm.createNewBook(test2BookName)
 
         self.assertTrue(os.path.exists(test2BookPath))
 
@@ -156,6 +157,14 @@ class Test_FileSystemManager(unittest.TestCase):
 
         allAncestors = [x[0] for x in os.walk(test2BookPath)]
         self.assertEqual(len(allAncestors), 5)
+
+
+    def test_Section(self):
+        sectionPath = "1.ser.per"
+        fsm.addSectionForCurrBook(sectionPath)
+        fsm.changeSectionStartPage(sectionPath, "2")
+        fsm.changeSectionFinishPage(sectionPath, "5")
+
 
 # # Different kinds of asserts we can have:
 # #     self.assertEqual('foo'.upper(), 'FOO')

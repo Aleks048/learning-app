@@ -35,7 +35,7 @@ def createNewBook(bookName):
     # create originalMaterialStructure
     fs.OriginalMaterialStructure.createStructure()
 
-def createSectionForCurrBook(sectionPath):
+def addSectionForCurrBook(sectionPath):
     # add to Sections structure
     fs.SectionInfoStructure.addSection(sectionPath)
     
@@ -43,15 +43,39 @@ def createSectionForCurrBook(sectionPath):
     fs.BookInfoStructure.addSection(sectionPath)
 
     # add to TOC structure
-    # fs.SectionInfoStructure.addSection(sectionPath)
+    fs.TOCStructure.addSection(sectionPath)
 
+def _changeSectionProperty(sectionPath, propertyName, newValue):
+    # change the section.json
+    sectionJSONPath = fs.BookInfoStructure.readProperty(sectionPath)["path"]
+    fullPropertyName =fs.TOCStructure.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+    _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
+    # thange the TOC
+    fs.TOCStructure.updateTOCMarker(sectionPath, propertyName, newValue)
     pass
 
+def changeSectionStartPage(sectionPath, newValue):
+    _changeSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.sectionStart_ID, newValue)
+
+def changeSectionFinishPage(sectionPath, newValue):
+    _changeSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.sectionFinish_ID, newValue)
+
 def removeSection():
+    # # remove to Sections structure
+    # fs.SectionInfoStructure.removeSection(sectionPath)
+    
+    # # remove BookInfo structure
+    # fs.BookInfoStructure.removeSection(sectionPath)
+
+    # # remove TOC structure
+    # fs.SectionInfoStructure.removeSection(sectionPath)
     pass
 
 def passMarerialToBook():
+    # original structure add material
+
+    # add to original material list
     pass
 
 def backupBookToDB():

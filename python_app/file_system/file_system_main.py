@@ -50,16 +50,11 @@ class TOCStructure:
             sectionData = BookInfoStructure.readProperty(sectionName)
             if sectionData == None:
                 continue
-            # for sectionName, sectionData in sectionsList.items():
 
             separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
             sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
             topSectionName = sectionPrefix + "_" + sectionName.split(separator)[0]
             
-            print("hi")
-            print(sectionName)
-            print(sectionName)
-            print(topSectionName)
             sectionsTOCLines = [""]
             
             if i == 0:
@@ -78,12 +73,11 @@ class TOCStructure:
         return sectionPath.split(separator)[0]
 
     @classmethod
-    def updateProperty(cls, sectionPath, propertyName, newValue):
-        oldPropertyValue = cls.readProperty(sectionPath, propertyName)
-
-        sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
+    def updateTOCMarker(cls, sectionPath, propertyName, newValue):
         fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
-        _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
+        print("hi")
+        print(fullPropertyName)
+        oldPropertyValue = SectionInfoStructure.readProperty(sectionPath, propertyName)
 
         # update the TOC files
         sectionName = cls._getTOCSectionNameFromSectionPath(sectionPath)
@@ -94,11 +88,11 @@ class TOCStructure:
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + marker  + "]","[" + newValue + "]",  "[" + sectionPath + "]")
         
     
-    @classmethod
-    def readProperty(cls, sectionPath, propertyName):
-        sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
-        fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
-        return _u.readJSONProperty(sectionJSONPath, fullPropertyName)
+    # @classmethod
+    # def readProperty(cls, sectionPath, propertyName):
+    #     sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
+    #     fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+    #     return _u.readJSONProperty(sectionJSONPath, fullPropertyName)
 
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
@@ -293,8 +287,7 @@ class SectionInfoStructure:
     def getSectionJSONKeyPrefixFormPath(path):
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID) 
         secPrefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
-        return secPrefix + "_" + path.replace(sectionPathSeparator, "_")
-        
+        return secPrefix + "_" + path.replace(sectionPathSeparator, "_")   
 
     @classmethod
     def createStructure(cls):
@@ -343,7 +336,6 @@ class SectionInfoStructure:
             mainTemplateFile = os.getenv("BOOKS_TEMPLATES_PATH") + "/" + "main_template.tex"
             _waitDummy = os.system("mkdir " + pathToTopSection + "/_out")
             _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
-        
 
     def _getPathToSectionsFolder():
         pathToSectionFolder = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
