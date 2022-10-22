@@ -10,6 +10,7 @@ import file_system.file_system_main as fs
 def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     if not os.path.exists(filepath):
         print("replaceMarkerInFile - filepath does not exist.")
+        print("filepath: " + filepath)
         return None
     with open(filepath, "r") as f:
         fLines = f.readlines()

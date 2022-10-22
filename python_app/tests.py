@@ -158,11 +158,12 @@ class Test_FileSystemManager(unittest.TestCase):
         allAncestors = [x[0] for x in os.walk(test2BookPath)]
         self.assertEqual(len(allAncestors), 5)
 
-
     def test_Section(self):
+        print("hi")
         sectionPath = "1.ser.per"
         fsm.addSectionForCurrBook(sectionPath)
         fsm.changeSectionStartPage(sectionPath, "2")
+        fsm.changeSectionStartPage(sectionPath, "3")
         fsm.changeSectionFinishPage(sectionPath, "5")
 
 

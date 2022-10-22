@@ -69,14 +69,13 @@ class TOCStructure:
 
     
     def _getTOCSectionNameFromSectionPath(sectionPath):
+        prefix = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
         separator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
-        return sectionPath.split(separator)[0]
+        return prefix + "_" + sectionPath.split(separator)[0]
 
     @classmethod
     def updateTOCMarker(cls, sectionPath, propertyName, newValue):
         fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
-        print("hi")
-        print(fullPropertyName)
         oldPropertyValue = SectionInfoStructure.readProperty(sectionPath, propertyName)
 
         # update the TOC files

@@ -46,13 +46,14 @@ def addSectionForCurrBook(sectionPath):
     fs.TOCStructure.addSection(sectionPath)
 
 def _changeSectionProperty(sectionPath, propertyName, newValue):
+    # thange the TOC
+    fs.TOCStructure.updateTOCMarker(sectionPath, propertyName, newValue)
+    
     # change the section.json
     sectionJSONPath = fs.BookInfoStructure.readProperty(sectionPath)["path"]
     fullPropertyName =fs.TOCStructure.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
     _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
-    # thange the TOC
-    fs.TOCStructure.updateTOCMarker(sectionPath, propertyName, newValue)
     pass
 
 def changeSectionStartPage(sectionPath, newValue):
