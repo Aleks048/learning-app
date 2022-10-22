@@ -21,13 +21,13 @@ class TOCStructure:
         CONTENT_MARKER = "[CONTENT_MARKER]"
         
         text_ID = "TOC_text"
-        sectionStart_ID = "TOC_sectionStart"
-        sectionFinish_ID = "TOC_sectionFinish"
+        start_ID = "TOC_sectionStart"
+        finish_ID = "TOC_sectionFinish"
         
         proipertyToMarker = {
             text_ID: TEXT_MARKER,
-            sectionStart_ID: START_MARKER,
-            sectionFinish_ID: FINISH_MARKER
+            start_ID: START_MARKER,
+            finish_ID: FINISH_MARKER
         }
  
         def getPropertyFormPath(path, propertyName):
@@ -74,8 +74,7 @@ class TOCStructure:
         return prefix + "_" + sectionPath.split(separator)[0]
 
     @classmethod
-    def updateTOCMarker(cls, sectionPath, propertyName, newValue):
-        fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+    def updateTOCfiles(cls, sectionPath, propertyName, newValue):
         oldPropertyValue = SectionInfoStructure.readProperty(sectionPath, propertyName)
 
         # update the TOC files
@@ -85,19 +84,12 @@ class TOCStructure:
         else:
             marker = cls.TOC_SECTION_PROPERTIES.proipertyToMarker[propertyName]
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + marker  + "]","[" + newValue + "]",  "[" + sectionPath + "]")
-        
-    
-    # @classmethod
-    # def readProperty(cls, sectionPath, propertyName):
-    #     sectionJSONPath = BookInfoStructure.readProperty(sectionPath)["path"]
-    #     fullPropertyName = cls.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
-    #     return _u.readJSONProperty(sectionJSONPath, fullPropertyName)
 
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
         INTEMEDIATE_LINE = cls.TOC_SECTION_PROPERTIES.NAME_MARKER + ":\\\\\n"
-        BOTTOM_LINE = "\TOCline{" + cls.TOC_SECTION_PROPERTIES.TEXT_MARKER + \
-            " [" + cls.TOC_SECTION_PROPERTIES.NAME_MARKER + "]// [" + \
+        BOTTOM_LINE = "\TOCline{[" + cls.TOC_SECTION_PROPERTIES.TEXT_MARKER + \
+            "] [" + cls.TOC_SECTION_PROPERTIES.NAME_MARKER + "]// [" + \
             cls.TOC_SECTION_PROPERTIES.START_MARKER + \
             "] - [" + cls.TOC_SECTION_PROPERTIES.FINISH_MARKER + "]}{[" + \
             cls.TOC_SECTION_PROPERTIES.START_MARKER + "]}" + \

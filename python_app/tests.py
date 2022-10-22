@@ -165,6 +165,7 @@ class Test_FileSystemManager(unittest.TestCase):
         fsm.changeSectionStartPage(sectionPath, "2")
         fsm.changeSectionStartPage(sectionPath, "3")
         fsm.changeSectionFinishPage(sectionPath, "5")
+        fsm.changeSectionTOCText(sectionPath, "testi")
 
 
 # # Different kinds of asserts we can have:
