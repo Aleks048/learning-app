@@ -11,6 +11,13 @@ Facade for Filesystem
 class SectionProperties_IDs(fs.SectionInfoStructure.SecPubProp):
     pass
 
+class BookProperties_IDs(fs.BookInfoStructure.BookInfoPubProp):
+    pass
+
+class TOCProperties_IDs(fs.TOCStructure.TocPubPro):
+    pass
+
+
 
 def createNewBook(bookName):
     # check if a book with name exists and ask
@@ -58,17 +65,17 @@ def _updateSectionProperty(sectionPath, propertyName, newValue):
     
     # change the section.json
     sectionJSONPath = fs.BookInfoStructure.readProperty(sectionPath)["path"]
-    fullPropertyName =fs.TOCStructure.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
+    fullPropertyName =fs.TOCStructure.TocPubPro.getPropertyFormPath(sectionPath, propertyName)
     _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
 def updateSectionStartPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.start_ID, newValue)
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TocPubPro.start_ID, newValue)
 
 def updateSectionFinishPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.finish_ID, newValue)
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TocPubPro.finish_ID, newValue)
 
 def updateSectionTOCText(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.text_ID, newValue)
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TocPubPro.text_ID, newValue)
 
 def updateSectionProperty(sectionPath, propertyName, newValue):
     print("propertyName")
@@ -84,6 +91,9 @@ def removeSection():
 
     # # remove TOC structure
     # fs.SectionInfoStructure.removeSection(sectionPath)
+    pass
+
+def moveSection():
     pass
 
 def passMarerialToBook():
