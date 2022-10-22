@@ -245,11 +245,17 @@ class SectionInfoStructure:
     currStucturePath = ""
 
     # for later: add if the section should generate the pdf.
-    currPage_ID = "currentPage"
-    currImageID_ID = "currImageID"
-    currImageName_ID = "currImageName"
-    currLinkName_ID = "currLinkName"
+    # currPage_ID = "currentPage"
+    # currImageID_ID = "currImageID"
+    # currImageName_ID = "currImageName"
+    # currLinkName_ID = "currLinkName"
 
+    class SecPubProp:
+        name_ID = "_name"
+        startPage_ID = "_startPage"
+        latestSubchapter_ID = "_latestSubchapter"
+        imIndex_ID = "_imIndex"
+        subSections_ID = "_subSections"
 
     sectionPrefixForTemplate = ""
     sectionPathForTemplate = ""
@@ -258,15 +264,15 @@ class SectionInfoStructure:
     def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
+                sectionInfoEntryPrefix + cls.SecPubProp.name_ID: "",
+                sectionInfoEntryPrefix + cls.SecPubProp.startPage_ID: "",
+                sectionInfoEntryPrefix + cls.SecPubProp.latestSubchapter_ID: "",
+                sectionInfoEntryPrefix + cls.SecPubProp.imIndex_ID: "",
+                sectionInfoEntryPrefix + cls.SecPubProp.subSections_ID: [],
                 sectionInfoEntryPrefix + "_level":{
                     sectionInfoEntryPrefix + "_depth": str(depth),
                     sectionInfoEntryPrefix + "_level": str(level),
                 },
-                sectionInfoEntryPrefix + "_name": "",
-                sectionInfoEntryPrefix + "_startPage": "",
-                sectionInfoEntryPrefix + "_latestSubchapter": "",
-                sectionInfoEntryPrefix + "_imIndex": "",
-                sectionInfoEntryPrefix + "_subSections": [],
                 sectionInfoEntryPrefix + "_tocInfo":{
                     sectionInfoEntryPrefix + "TOC_text":"",
                     sectionInfoEntryPrefix + "TOC_sectionStart":"",
@@ -369,6 +375,8 @@ class SectionInfoStructure:
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.sections_path_separator_ID)
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
+        print("hop")
+        print(sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
         _u.updateJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName, newValue)
 
 

@@ -162,10 +162,12 @@ class Test_FileSystemManager(unittest.TestCase):
         print("hi")
         sectionPath = "1.ser.per"
         fsm.addSectionForCurrBook(sectionPath)
-        fsm.changeSectionStartPage(sectionPath, "2")
-        fsm.changeSectionStartPage(sectionPath, "3")
-        fsm.changeSectionFinishPage(sectionPath, "5")
-        fsm.changeSectionTOCText(sectionPath, "testi")
+        fsm.updateSectionStartPage(sectionPath, "2")
+        fsm.updateSectionStartPage(sectionPath, "3")
+        fsm.updateSectionFinishPage(sectionPath, "5")
+        fsm.updateSectionTOCText(sectionPath, "testi")
+
+        fsm.updateSectionProperty(sectionPath, fsm.SectionProperties_IDs.name_ID, "testName")
 
 
 # # Different kinds of asserts we can have:

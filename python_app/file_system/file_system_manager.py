@@ -4,6 +4,13 @@ from unicodedata import name
 import _utils._utils_main as _u
 import file_system.file_system_main as fs
 
+'''
+Facade for Filesystem
+'''
+
+class SectionProperties_IDs(fs.SectionInfoStructure.SecPubProp):
+    pass
+
 
 def createNewBook(bookName):
     # check if a book with name exists and ask
@@ -45,7 +52,7 @@ def addSectionForCurrBook(sectionPath):
     # add to TOC structure
     fs.TOCStructure.addSection(sectionPath)
 
-def _changeSectionProperty(sectionPath, propertyName, newValue):
+def _updateSectionProperty(sectionPath, propertyName, newValue):
     # thange the TOC
     fs.TOCStructure.updateTOCfiles(sectionPath, propertyName, newValue)
     
@@ -54,14 +61,19 @@ def _changeSectionProperty(sectionPath, propertyName, newValue):
     fullPropertyName =fs.TOCStructure.TOC_SECTION_PROPERTIES.getPropertyFormPath(sectionPath, propertyName)
     _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
 
-def changeSectionStartPage(sectionPath, newValue):
-    _changeSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.start_ID, newValue)
+def updateSectionStartPage(sectionPath, newValue):
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.start_ID, newValue)
 
-def changeSectionFinishPage(sectionPath, newValue):
-    _changeSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.finish_ID, newValue)
+def updateSectionFinishPage(sectionPath, newValue):
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.finish_ID, newValue)
 
-def changeSectionTOCText(sectionPath, newValue):
-    _changeSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.text_ID, newValue)
+def updateSectionTOCText(sectionPath, newValue):
+    _updateSectionProperty(sectionPath, fs.TOCStructure.TOC_SECTION_PROPERTIES.text_ID, newValue)
+
+def updateSectionProperty(sectionPath, propertyName, newValue):
+    print("propertyName")
+    print(propertyName)
+    fs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
 
 def removeSection():
     # # remove to Sections structure
