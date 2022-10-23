@@ -109,7 +109,7 @@ class TOCStructure:
                     cls._getTOCLines(section, outLines, level +1)
     
     def _getTOCDirPath():
-        bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         return bookPath + BookInfoStructure.TOCbaseRelPath
 
     @classmethod
@@ -345,7 +345,7 @@ class SectionInfoStructure:
             _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
 
     def _getPathToSectionsFolder():
-        pathToSectionFolder = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        pathToSectionFolder = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         pathToSectionFolder += "/" + BookInfoStructure.sectionsInfoBaseRelPath
         return pathToSectionFolder
 
@@ -402,5 +402,5 @@ class OriginalMaterialStructure:
             _waitDummy = os.system("mkdir -p " + getAbsPath)
 
     def _getBaseAbsPath():
-        bookPath = _u.Settings.readProperty(_u.Settings.currBookPath_ID)
+        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         return bookPath + "/" + BookInfoStructure.originalMaterialBaseRelPath

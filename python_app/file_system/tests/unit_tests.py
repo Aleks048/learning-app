@@ -1,9 +1,9 @@
 import tkinter as tk
 
-from UI.widgets import *
+# from UI.widgets_collection import *
 from file_system.file_system_main import BookInfoStructure, OriginalMaterialStructure, SectionInfoStructure, TOCStructure
 from file_system.file_system_manager import addSectionForCurrBook, createNewBook
-from layouts.layouts_main import *
+# from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
 from file_system import *
@@ -11,10 +11,12 @@ from file_system import file_system_manager as fsm
 
 import unittest
 
-testBookName = "/b_analysis_test/"
+testBookName = "b_analysis_test"
 testBookPath = os.getenv("BOOKS_ROOT_PATH") + testBookName
-test2BookName = "/newBook_test/"
+test2BookName = "b_newBook_test"
 test2BookPath = os.getenv("BOOKS_ROOT_PATH") + "/" + test2BookName + "/"
+test3BookName = "b_newBook2_test"
+test3BookPath = os.getenv("BOOKS_ROOT_PATH") + "/" + test3BookName + "/"
 
 
 class Test_BookInfoStructure(unittest.TestCase):
@@ -147,8 +149,10 @@ class Test_FileSystemManager(unittest.TestCase):
 
     def test_CreateNewBook(self):
         os.system("rm -rf " +  test2BookPath)
+        os.system("rm -rf " +  test3BookPath)
 
         fsm.createNewBook(test2BookName)
+        fsm.createNewBook(test3BookName)
 
         self.assertTrue(os.path.exists(test2BookPath))
 

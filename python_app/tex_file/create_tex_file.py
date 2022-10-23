@@ -1,7 +1,7 @@
 import os
 
 import _utils._utils_main as _u
-import UI.widgets as ui
+import UI.widgets_manager as ui
 import file_system.file_system_main as fs
 
 

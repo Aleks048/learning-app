@@ -27,13 +27,14 @@ def createNewBook(bookName):
 
     if os.path.exists(bookPath):
         print("createNewBook - the book path exists")
+        print("bookPath:" + bookPath)
         # TODO: ask the user we we should proceed.
         raise
 
     os.system("mkdir -p " + bookPath)
 
     #set the current book in Settings
-    _u.Settings.setCurrentBook(bookName, bookPath)
+    _u.Settings.addNewBook(bookName, bookPath)
 
     #
     #create bookInfo structure

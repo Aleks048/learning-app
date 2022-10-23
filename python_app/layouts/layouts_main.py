@@ -5,7 +5,7 @@ import tkinter as tk
 from threading import Thread
 
 import _utils._utils_main as _u
-import UI.widgets as ui
+import UI.widgets_main as ui
 import layouts._layouts_utils as _layouts_utils
 import tex_file.create_tex_file as t
 import file_system.file_system_main as fs

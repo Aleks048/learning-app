@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from UI.widgets import *
+from UI.widgets_main import *
 import file_system
 from file_system.file_system_main import BookInfoStructure
 from layouts.layouts_main import *

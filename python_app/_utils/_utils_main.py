@@ -3,7 +3,7 @@ from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
 
-import UI.widgets as ui
+import UI.widgets_collection as ui
 import file_system.file_system_main as fs
 
 
@@ -27,20 +27,25 @@ def getMonitorSize():
     for m in get_monitors():
        return(m.width,m.height)
 
+def getCurrentScreenshotDir():
+    return Settings.getBookFolderPath(Settings.readProperty(Settings.getCurrentBookFolderName())) + "/" \
+        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
+        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
 
+'''
+JSON
+'''
 def readJSONfile(filePath):
     # print("readJSONfile - reading json file: " + filePath)
     with open(filePath, 'r') as f:
         outputList = json.loads(f.read())
         return outputList
 
-
 def writeJSONfile(filePath, dataTowrite):
     # print("writeJSONfile - writing to json file: " + filePath)
     with open(filePath, 'w') as f:
         jsonObj = json.dumps(dataTowrite, indent=4)
         f.write(jsonObj)
-
 
 def readJSONProperty(jsonFilepath, propertyName):
     jsonData = readJSONfile(jsonFilepath)
@@ -62,12 +67,32 @@ def readJSONProperty(jsonFilepath, propertyName):
     
     return property
 
+def updateJSONProperty(jsonFilepath, propertyName, newValue):
+    # print("updateJSONProperty - updating property " + propertyName + " in settings file")
+   
+    def _updateProperty(jsonData, newValue):
+        if propertyName in jsonData:
+            if type(newValue) != type(jsonData[propertyName]):
+                 print("ERROR: updateJSONProperty - did not update the json file. Type of new value does not match the type of the property")
+            else:
+                jsonData[propertyName] = newValue
+        else:
+            for k, v in jsonData.items():
+                if type(v) is list:
+                    for i in range(len(v)):
+                        if v[i] is dict or v[i] is list:
+                            _updateProperty(v[i], newValue)
+                elif type(v) is dict:
+                    _updateProperty(v, newValue)
+    
+    jsonData = readJSONfile(jsonFilepath)
+    _updateProperty(jsonData, newValue)
+    writeJSONfile(jsonFilepath, jsonData)
 
-def getCurrentScreenshotDir():
-    return Settings.getBookFolderPath(Settings.readProperty(Settings.getCurrentBookFolderName())) + "/" \
-        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
-        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
 
+'''
+manipulate dict
+'''
 def readDictProperty(dictToReadFrom, propertyName):
     if propertyName in dictToReadFrom:
         return dictToReadFrom[propertyName]
@@ -97,27 +122,8 @@ def updateDictProperty(dictToUpdate, propertyName, newValue):
             elif type(v) is dict:
                 updateDictProperty(v, propertyName, newValue)
 
-def updateJSONProperty(jsonFilepath, propertyName, newValue):
-    # print("updateJSONProperty - updating property " + propertyName + " in settings file")
-   
-    def _updateProperty(jsonData, newValue):
-        if propertyName in jsonData:
-            if type(newValue) != type(jsonData[propertyName]):
-                 print("ERROR: updateJSONProperty - did not update the json file. Type of new value does not match the type of the property")
-            else:
-                jsonData[propertyName] = newValue
-        else:
-            for k, v in jsonData.items():
-                if type(v) is list:
-                    for i in range(len(v)):
-                        if v[i] is dict or v[i] is list:
-                            _updateProperty(v[i], newValue)
-                elif type(v) is dict:
-                    _updateProperty(v, newValue)
-    
-    jsonData = readJSONfile(jsonFilepath)
-    _updateProperty(jsonData, newValue)
-    writeJSONfile(jsonFilepath, jsonData)
+
+
 
 
 def readFile(fp):
@@ -232,38 +238,49 @@ def getpageOfcurrentDoc():
 working with Settings
 '''
 class Settings:
-    #current settings
-    currSettings_ID = "currentSettings"
-    currBookPath_ID = "currentBookPath"
-    currBookName_ID = "currentBookName"
 
-    wholeBook_ID= "whole_book"
-    
-    #image generation
+    class PubProp:
+        #current settings
+        currState_ID = "currentState"
+        currBookPath_ID = "BookPath"
+        currBookName_ID = "BookName"
+        currLayout_ID = "Layout"        
+
+        wholeBook_ID= "whole_book"
+
+        booksPaths_ID = "booksPaths"
     
     #common
     booksSettingsName = "booksProcessingSettings.json"
     
     #app IDs
-    skim_ID = "skim"
-    vsCode_ID = "Code"
-    finder_ID = "Finder"
+    class _appsIDs:
+        skim_ID = "skim"
+        vsCode_ID = "Code"
+        finder_ID = "Finder"
 
     #layouts
-    layouts_ID = "Layouts"
     #NOTE: it is used to cut the layout class name
     layoutClass_ID = "Layout"
     currLayout = ""
     mon_windth, mon_height  = getMonitorSize()
 
 
-    #paths
+    #paths # need to be imported from bookInfoStructuere
     relToSubchapters_Path = "/subchapters/"
 
     @classmethod
+    def addNewBook(cls, bookName, bookPath):
+        cls.setCurrentBook(bookName, bookPath)
+        booksPaths = cls.readProperty(cls.PubProp.booksPaths_ID)
+        booksPaths[bookName] = bookPath
+        cls.updateProperty(cls.PubProp.booksPaths_ID, booksPaths)
+
+
+    @classmethod
     def setCurrentBook(cls, bookName, bookPath):
-        cls.updateProperty(cls.currBookPath_ID, bookPath)
-        cls.updateProperty(cls.currBookName_ID, bookName)
+        cls.updateProperty(cls.PubProp.currBookPath_ID, bookPath)
+        cls.updateProperty(cls.PubProp.currBookName_ID, bookName)
 
     
     @classmethod
@@ -272,7 +289,7 @@ class Settings:
     
     @classmethod
     def getCurrBookFolderPath(cls):
-        return cls.readProperty(cls.currBookPath_ID)
+        return cls.readProperty(cls.PubProp.currBookPath_ID)
     
     @classmethod
     def getCurrentBookFolderName(cls):
