@@ -234,6 +234,8 @@ def getpageOfcurrentDoc():
                 return pageNum
 
 
+
+
 '''
 working with Settings
 '''
@@ -242,9 +244,10 @@ class Settings:
     class PubProp:
         #current settings
         currState_ID = "currentState"
-        currBookPath_ID = "BookPath"
-        currBookName_ID = "BookName"
-        currLayout_ID = "Layout"        
+        currBookPath_ID = currState_ID + "_BookPath"
+        currBookName_ID = currState_ID + "_BookName"
+        currLayout_ID = currState_ID + "_Layout"        
+        currScreenshotLocation_ID = currState_ID + "_ScreenshotLocation"        
 
         wholeBook_ID= "whole_book"
 
@@ -261,7 +264,8 @@ class Settings:
 
     #layouts
     #NOTE: it is used to cut the layout class name
-    layoutClass_ID = "Layout"
+    layoutsList = ["Chapter", "Main", "WholeVSCode"]
+    layoutClassToken = "Layout"
     currLayout = ""
     mon_windth, mon_height  = getMonitorSize()
 
@@ -269,31 +273,37 @@ class Settings:
     #paths # need to be imported from bookInfoStructuere
     relToSubchapters_Path = "/subchapters/"
 
-    @classmethod
-    def addNewBook(cls, bookName, bookPath):
-        cls.setCurrentBook(bookName, bookPath)
-        booksPaths = cls.readProperty(cls.PubProp.booksPaths_ID)
-        booksPaths[bookName] = bookPath
-        cls.updateProperty(cls.PubProp.booksPaths_ID, booksPaths)
+    class Layout:
+        def getCurrLayoutClass():
+            layoutStr = Settings.readProperty(Settings.PubProp.currLayout_ID)
+            layouts_main = sys.modules["layouts_main"]
+            return getattr(layouts_main, layoutStr + Settings.layoutClassToken)
 
+    class Book:
+        @classmethod
+        def addNewBook(cls, bookName, bookPath):
+            cls.setCurrentBook(bookName, bookPath)
+            booksPaths = Settings.readProperty(Settings.PubProp.booksPaths_ID)
+            booksPaths[bookName] = bookPath
+            Settings.updateProperty(Settings.PubProp.booksPaths_ID, booksPaths)
 
-    @classmethod
-    def setCurrentBook(cls, bookName, bookPath):
-        cls.updateProperty(cls.PubProp.currBookPath_ID, bookPath)
-        cls.updateProperty(cls.PubProp.currBookName_ID, bookName)
+        def setCurrentBook(bookName, bookPath):
+            Settings.updateProperty(Settings.PubProp.currBookPath_ID, bookPath)
+            Settings.updateProperty(Settings.PubProp.currBookName_ID, bookName)
+        
+        @classmethod
+        def getWholeBookPath(cls):
+            return getPathToBooks() \
+                +  Settings.readProperty(cls.getCurrentBookFolderName()) \
+                + "/" + Settings.PubProp.wholeBook_ID \
+                + "/" + Settings.PubProp.wholeBook_ID + ".pdf"
 
-    
-    @classmethod
-    def getWholeBookPath(cls):
-        return getPathToBooks() +  cls.readProperty(cls.getCurrentBookFolderName()) + "/" + cls.wholeBook_ID + "/" + cls.wholeBook_ID + ".pdf"
-    
-    @classmethod
-    def getCurrBookFolderPath(cls):
-        return cls.readProperty(cls.PubProp.currBookPath_ID)
-    
-    @classmethod
-    def getCurrentBookFolderName(cls):
-        return cls.getCurrBookFolderPath().split("/")[-1]
+        def getCurrBookFolderPath():
+            return Settings.readProperty(Settings.PubProp.currBookPath_ID)
+        
+        @classmethod
+        def getCurrentBookFolderName(cls):
+            return cls.getCurrBookFolderPath().split("/")[-1]
     
     @classmethod
     def getSettingsFileFilepath(cls):

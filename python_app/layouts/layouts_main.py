@@ -5,7 +5,7 @@ import tkinter as tk
 from threading import Thread
 
 import _utils._utils_main as _u
-import UI.widgets_main as ui
+import UI.widgets_manager as uim
 import layouts._layouts_utils as _layouts_utils
 import tex_file.create_tex_file as t
 import file_system.file_system_main as fs
@@ -229,56 +229,4 @@ class WholeVSCodeLayout(Layout):
         cls.pyAppDimensions[0] = layoutOM.winfo_width()
         cls.pyAppDimensions[1] = layoutOM.winfo_height()
 
-
-def vsCodeManipulation(clearWindows, collapseFolders, hide):
-    osascript = "osascript -e '\
-            tell application \"System Events\" \n\
-                tell process \"" + _u.Settings.vsCode_ID + "\" to tell window 1\n\
-                    perform action \"AXRaise\"\n\
-                end tell\n\
-                activate  application \"" + _u.Settings.vsCode_ID + "\"\n"
-    if clearWindows:
-        osascript += "keystroke \"kw\" using {command down}\n"
-    if collapseFolders:
-        osascript += "keystroke \"op\" using {command down}\n"
-    if hide:
-        osascript += "keystroke \"m\" using {command down}\n"
-    osascript +="end tell'"
-    return osascript
-
-
-def openWholeBook(dimentions, position):
-    # whole book in skim
-    ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, _u.Settings.wholeBook_ID + ".pdf")
-    if ownerName == None or windowID == None:
-        # if the book was not opened in Skim already    
-        _layouts_utils.openPdfInSkim(_u.Settings.getWholeBookPath())
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, _u.Settings.wholeBook_ID + ".pdf")
-    if ownerName == None or windowID == None: 
-        print("openWholeBook - Something went wrong. Skim could not open the document")
-    else:
-        _layouts_utils.moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
-
-
-def getCurrLayoutClass():
-    layoutStr = _u.Settings.currLayout
-    layouts_main = sys.modules[__name__]
-    return getattr(layouts_main, layoutStr + _u.Settings.layoutClass_ID)
-
-
-def moveWholeBookToChapter():
-    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
-    if currChapter == "":
-        message = "Could not move the book to page. currChapter is empty."
-        ui.UIWidgets.showMessage(message)
-        print("moveWholeBookToChapter -" + message)
-    else:
-        chapterPage = _u.BookSettings.readProperty(_u.BookSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
-        
-        if chapterPage == "":
-            message = "Could not move the book to page. could not read chapterPage."  
-            ui.UIWidgets.showMessage(message)
-            print("moveWholeBookToChapter - " + message)   
-        else:
-            _layouts_utils.movePdfToPage(_u.Settings.wholeBook_ID + ".pdf", chapterPage)
 

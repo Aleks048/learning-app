@@ -6,13 +6,21 @@ import unittest
 import UI.widgets_manager as wm
 
 
-class Test_WidgetsManager(unittest.TestCase):
+class Test_WidgetsManager_StartupMenu(unittest.TestCase):
 
-    def setUp(self):
-        pass
+    def test_Menus(self):
 
-    def test_StartupMenu(self):
-            wm.StartupMenu.createMenu()
+        _waitDummy = wm.ConfirmationMenu.createMenu("tests", lambda *args: None)
+
+        _waitDummy = wm.ShowMessageMenu.createMenu("tetst")
+        
+        _waitDummy = wm.StartupMenu.createMenu()
+
+
+# class Test_WidgetsManager_WarningMessage(unittest.TestCase):
+    
+#     def test_ShowMessagemenu(self):
+
 
 # # Different kinds of asserts we can have:
 # #     self.assertEqual('foo'.upper(), 'FOO')
