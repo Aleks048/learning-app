@@ -6,7 +6,7 @@ from threading import Thread
 
 import _utils._utils_main as _u
 import UI.widgets_manager as uim
-import layouts._layouts_utils as _layouts_utils
+import layouts.layouts_utils as _layouts_utils
 import tex_file.create_tex_file as t
 import file_system.file_system_main as fs
 
@@ -86,32 +86,32 @@ class ChapterLayout(Layout):
             Thread(target = t.TexFile.buildCurrentSubchapterPdf).start()
 
 
-    @classmethod
-    def setUIElements(cls, winMainRoot):
-        ui.UItkVariables.needRebuild = tk.BooleanVar()
+    # @classmethod
+    # def setUIElements(cls, winMainRoot):
+    #     ui.UItkVariables.needRebuild = tk.BooleanVar()
 
-        layoutOM = ui.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-        layoutOM.grid(column=0, row=0, padx=0, pady=0)
-        layoutOM.update()
+    #     layoutOM = ui.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+    #     layoutOM.grid(column=0, row=0, padx=0, pady=0)
+    #     layoutOM.update()
         
-        showProofsBTN = ui.UIWidgets.getShowProofs_BTN(winMainRoot, cls.__name__)
-        showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
+    #     showProofsBTN = ui.UIWidgets.getShowProofs_BTN(winMainRoot, cls.__name__)
+    #     showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
 
-        dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.__name__.lower() + "_dummyFocusEntry")
-        dummyEntry.grid(column=2, row=0, padx=0, pady=0)
-        dummyEntry.focus_set()
+    #     dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.__name__.lower() + "_dummyFocusEntry")
+    #     dummyEntry.grid(column=2, row=0, padx=0, pady=0)
+    #     dummyEntry.focus_set()
 
-        saveImageBTN = ui.UIWidgets.getSaveImage_BTN(winMainRoot, cls.__name__)
-        saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
+    #     saveImageBTN = ui.UIWidgets.getSaveImage_BTN(winMainRoot, cls.__name__)
+    #     saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
 
-        createGlLinkBTN, createGlLinkETR = ui.UIWidgets.getGlobalLinksAdd_Widgets(winMainRoot, cls.__name__)
-        createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
-        createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
+    #     createGlLinkBTN, createGlLinkETR = ui.UIWidgets.getGlobalLinksAdd_Widgets(winMainRoot, cls.__name__)
+    #     createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
+    #     createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
 
 
-        mon_width, _ = _u.getMonitorSize()
-        cls.pyAppDimensions[0] = int(mon_width / 2)
-        cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
+    #     mon_width, _ = _u.getMonitorSize()
+    #     cls.pyAppDimensions[0] = int(mon_width / 2)
+    #     cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
 
 
 class MainLayout(Layout):
@@ -169,42 +169,42 @@ class MainLayout(Layout):
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClass_ID, "")
 
 
-    @classmethod
-    def setUIElements(cls, winMainRoot):
-        mon_width, _ = _u.getMonitorSize()
-        cls.pyAppDimensions = [int(mon_width / 2), 90]
+    # @classmethod
+    # def setUIElements(cls, winMainRoot):
+    #     mon_width, _ = _u.getMonitorSize()
+    #     cls.pyAppDimensions = [int(mon_width / 2), 90]
 
-        chooseBookOM = ui.UIWidgets.ChooseBookChapter.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
-        chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
+    #     chooseBookOM = ui.UIWidgets.ChooseBookChapter.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
+    #     chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
 
-        layoutOM = ui.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-        layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
+    #     layoutOM = ui.UIWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+    #     layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
 
-        imageGenerationUI = ui.UIWidgets.getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
-        imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
-        imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
+    #     imageGenerationUI = ui.UIWidgets.getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
+    #     imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
+    #     imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-        addExtraImage = ui.UIWidgets.getAddImage_BTN(winMainRoot, cls.__name__)
-        addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
+    #     addExtraImage = ui.UIWidgets.getAddImage_BTN(winMainRoot, cls.__name__)
+    #     addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
 
-        imageGenerationRestartBTN = ui.UIWidgets.getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-        imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
+    #     imageGenerationRestartBTN = ui.UIWidgets.getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+    #     imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
 
-        TOCcreate_CB, TOCWithImage_CB = ui.UIWidgets.getCheckboxes_TOC(winMainRoot, cls.__name__)
-        TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
-        TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
+    #     TOCcreate_CB, TOCWithImage_CB = ui.UIWidgets.getCheckboxes_TOC(winMainRoot, cls.__name__)
+    #     TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
+    #     TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
         
-        currScrShotDirText = ui.UIWidgets.Screenshot.getText_CurrentScreenshotDir(winMainRoot, cls.__name__)
-        currScrShotDirText.grid(columnspan = 2,row = 2)
+    #     currScrShotDirText = ui.UIWidgets.Screenshot.getText_CurrentScreenshotDir(winMainRoot, cls.__name__)
+    #     currScrShotDirText.grid(columnspan = 2,row = 2)
 
-        chooseChapterOptionMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseChapter(winMainRoot, cls.__name__)
-        chooseChapterOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
+    #     chooseChapterOptionMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseChapter(winMainRoot, cls.__name__)
+    #     chooseChapterOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
 
-        chooseChapterMenusAndbackBtn = ui.ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
-        chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
+    #     chooseChapterMenusAndbackBtn = ui.ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
+    #     chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
 
-        chooseSubChapterMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
-        chooseSubChapterMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
+    #     chooseSubChapterMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
+    #     chooseSubChapterMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
 
 
 class WholeVSCodeLayout(Layout):

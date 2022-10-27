@@ -36,8 +36,8 @@ class Test_BookInfoStructure(unittest.TestCase):
         self.assertTrue(os.path.isfile(expectedFilePath))
 
     def test_updateProperties(self):
-        BookInfoStructure.updateProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID, "te")
-        prefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_prefix_ID, "te")
+        prefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         self.assertEqual(prefix, "te")
 
 
@@ -47,7 +47,7 @@ class Test_SectionsInfoStructure(unittest.TestCase):
         Settings.setCurrentBook(testBookName, testBookPath)
     
     def test_createStructure(self):
-        BookInfoStructure.updateProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID, "te")
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_prefix_ID, "te")
 
         os.system("rm -rf " + testBookPath + BookInfoStructure.sectionsInfoBaseRelPath)
 

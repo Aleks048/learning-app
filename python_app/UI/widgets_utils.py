@@ -59,3 +59,16 @@ def _getSubchaptersListForCurrChapter():
     currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
     currBookName = _u.Settings.readProperty(_u.Settings.Book.getCurrentBookFolderName())
     return [i[3:] for i in os.listdir(pathToBooks + "/" + currBookName + "/" + currChapter + "/" + _u.Settings.relToSubchapters_Path) if "ch_" in i]
+
+entryWidget_ID = "ETR"
+
+def hideAllWidgets(mainWinRoot):
+    '''
+    hide all widgets. clear all entries
+    '''
+    for e in mainWinRoot.winfo_children():
+        # clear all entries
+        if (entryWidget_ID in e._name):
+            if ("_imageGeneration_" not in e._name):
+                e.delete(0, 'end')
+        e.grid_remove()

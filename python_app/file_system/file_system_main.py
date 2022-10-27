@@ -31,8 +31,8 @@ class TOCStructure:
         }
  
         def getPropertyFormPath(path, propertyName):
-            separator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
-            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+            separator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
+            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
             return sectionPrefix + "_" + path.replace(separator, "_") + propertyName
 
     @classmethod
@@ -41,18 +41,18 @@ class TOCStructure:
         
     @classmethod
     def addSection(cls, sectionPath):
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         
         for i,sectionName in enumerate(sectionPathList):
-            sectionsList = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_ID)
+            sectionsList = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_ID)
             sectionData = BookInfoStructure.readProperty(sectionName)
             if sectionData == None:
                 continue
 
-            separator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
-            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+            separator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
+            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
             topSectionName = sectionPrefix + "_" + sectionName.split(separator)[0]
             
             sectionsTOCLines = [""]
@@ -69,8 +69,8 @@ class TOCStructure:
 
     
     def _getTOCSectionNameFromSectionPath(sectionPath):
-        prefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
-        separator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
+        prefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
+        separator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
         return prefix + "_" + sectionPath.split(separator)[0]
 
     @classmethod
@@ -142,7 +142,7 @@ class BookInfoStructure:
     currSectionFull_ID= "currChapterFull"# need to be removed
     currSection_ID = "currChapter"
     
-    class BookInfoPubProp:
+    class PubProp:
         version_ID = "version"
         sections_prefix_ID = "sections_prefix"
         sections_path_separator_ID = "sections_path_separator"
@@ -155,15 +155,15 @@ class BookInfoStructure:
         currSubsectionsPath_ID = "currSubsectionsPath"
 
     bookInfoTemplate = {
-        BookInfoPubProp.version_ID: "0.1",
-        BookInfoPubProp.sections_prefix_ID: "sec",
-        BookInfoPubProp.sections_path_separator_ID: ".",
-        BookInfoPubProp.sections_ID: {
+        PubProp.version_ID: "0.1",
+        PubProp.sections_prefix_ID: "sec",
+        PubProp.sections_path_separator_ID: ".",
+        PubProp.sections_ID: {
         },
-        BookInfoPubProp.currentState_ID: {
-            BookInfoPubProp.currentPage_ID: "",
-            BookInfoPubProp.currSection_ID: "",
-            BookInfoPubProp.currSubsectionsPath_ID: ""
+        PubProp.currentState_ID: {
+            PubProp.currentPage_ID: "",
+            PubProp.currSection_ID: "",
+            PubProp.currSubsectionsPath_ID: ""
         }
     }
 
@@ -184,7 +184,7 @@ class BookInfoStructure:
 
     @classmethod
     def addSection(cls, sectionPath):
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         relSectionPath = ""
@@ -196,7 +196,7 @@ class BookInfoStructure:
             sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
 
             # update the book info
-            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_ID)
+            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_ID)
             
             def addBookInfoSection(parentProperty):
                 parentProperty[relSectionPath] = {
@@ -218,7 +218,7 @@ class BookInfoStructure:
                 
                 _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
             
-            BookInfoStructure.updateProperty(BookInfoStructure.BookInfoPubProp.sections_ID, bookInfoSections)
+            BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_ID, bookInfoSections)
 
     @classmethod
     def _getRelFilepath(cls):
@@ -292,8 +292,8 @@ class SectionInfoStructure:
         return sectionInfo_template
 
     def getSectionJSONKeyPrefixFormPath(path):
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID) 
-        secPrefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID) 
+        secPrefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         return secPrefix + "_" + path.replace(sectionPathSeparator, "_")   
 
     @classmethod
@@ -304,7 +304,7 @@ class SectionInfoStructure:
 
     @classmethod
     def addSection(cls, sectionPath):
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID) 
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID) 
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
@@ -351,8 +351,8 @@ class SectionInfoStructure:
 
     @classmethod
     def _getSectionFilepath(cls, sectionPath):
-        sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
-        sectionsPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
+        sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
+        sectionsPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
 
         pathList = sectionPath.split(sectionsPathSeparator)
         pathList[0] = sectionPrefix + "_" + pathList[0]
@@ -371,9 +371,9 @@ class SectionInfoStructure:
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
 
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
         
-        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         return _u.readJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
 
@@ -382,8 +382,8 @@ class SectionInfoStructure:
         fullPathToSection = cls._getSectionFilepath(sectionPath)
         fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
 
-        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_path_separator_ID)
-        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.BookInfoPubProp.sections_prefix_ID)
+        sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
+        sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         _u.updateJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName, newValue)
 

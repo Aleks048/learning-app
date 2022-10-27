@@ -11,7 +11,7 @@ Facade for Filesystem
 class SectionProperties_IDs(fs.SectionInfoStructure.SecPubProp):
     pass
 
-class BookProperties_IDs(fs.BookInfoStructure.BookInfoPubProp):
+class BookProperties_IDs(fs.BookInfoStructure.PubProp):
     pass
 
 class TOCProperties_IDs(fs.TOCStructure.TocPubPro):

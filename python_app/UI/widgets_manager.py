@@ -50,58 +50,65 @@ class StartupMenu:
         # cls.winRoot.bind("<Return>", lambda e: cls.winRoot.destroy())
 
 
-class ShowMessageMenu:
-    @classmethod
-    def createMenu(cls, text):
-         # Create an instance of tkinter frame or window
-        cls.winRoot = tk.Tk()
+class LayoutsMenus:
+    def ChaptersLayoutUI(winMainRoot):
+        wv.UItkVariables.needRebuild = tk.BooleanVar()
 
-        messagebox.showinfo('Processing knoledge', text)
-
-        cls._bindKeys()
-        cls.winRoot.mainloop()
-
-    @classmethod
-    def _bindKeys(cls):
-        cls.winRoot.bind("<Enter>", lambda e: cls.winRoot.destroy())
-        cls.winRoot.bind("<Escape>", lambda e: cls.winRoot.destroy())
-
-
-class ConfirmationMenu:
-
-    @classmethod
-    def createMenu(cls, text, onYesFunc, *args):
-        cls.winRoot = tk.Tk()
+        layoutOM = wc.Layout.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+        layoutOM.grid(column=0, row=0, padx=0, pady=0)
+        layoutOM.update()
         
-        def onYesCallback():
-            cls.winRoot.destroy()
-            Thread(target=lambda: onYesFunc(*args)).start()
+        showProofsBTN = wc.getShowProofs_BTN(winMainRoot, cls.__name__)
+        showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
 
-        cls.onYesCallBack = onYesCallback
+        dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.__name__.lower() + "_dummyFocusEntry")
+        dummyEntry.grid(column=2, row=0, padx=0, pady=0)
+        dummyEntry.focus_set()
 
-        cls.winRoot.title("Confirmation")
+        saveImageBTN = wc.getSaveImage_BTN(winMainRoot, cls.__name__)
+        saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
 
-        l1, l2, b1, b2 = wc.addConfirmationWidgets(cls.winRoot, text, onYesCallback)
+        createGlLinkBTN, createGlLinkETR = wc.getGlobalLinksAdd_Widgets(winMainRoot, cls.__name__)
+        createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
+        createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
 
-        # layout
-        l1.grid(row=0, column=0, pady=(7, 0), padx=(10, 30), sticky="e")
-        l2.grid(row=0, column=1, columnspan=3, pady=(7, 10), sticky="w")
 
-        b1.grid(row=1, column=1, padx=(2, 35), sticky="e")
-        b2.grid(row=1, column=2, padx=(2, 35), sticky="e")
-
-        cls._bindKeys()
-
-        cls.winRoot.mainloop()
+        mon_width, _ = _u.getMonitorSize()
+        cls.pyAppDimensions[0] = int(mon_width / 2)
+        cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
     
-    @classmethod
-    def _bindKeys(cls):
-        def onYesCallbackWrapper(e):
-            cls.onYesCallBack()
-        cls.winRoot.bind("<Return>", onYesCallbackWrapper)
-        cls.winRoot.bind("<Escape>", lambda e: cls.winRoot.destroy())
+    def mainLayoutUI(winMainRoot):
+        mon_width, _ = _u.getMonitorSize()
+        cls.pyAppDimensions = [int(mon_width / 2), 90]
 
+        chooseBookOM = wc.ChooseBookSection.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
+        chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
 
+        layoutOM = wc.Layout.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+        layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
 
-class MainMenu:
-    pass
+        imageGenerationUI = wc.getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
+        imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
+        imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
+
+        addExtraImage = ui.UIWidgets.getAddImage_BTN(winMainRoot, cls.__name__)
+        addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
+
+        imageGenerationRestartBTN = ui.UIWidgets.getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+        imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
+
+        TOCcreate_CB, TOCWithImage_CB = ui.UIWidgets.getCheckboxes_TOC(winMainRoot, cls.__name__)
+        TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
+        TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
+        
+        currScrShotDirText = ui.UIWidgets.Screenshot.getText_CurrentScreenshotDir(winMainRoot, cls.__name__)
+        currScrShotDirText.grid(columnspan = 2,row = 2)
+
+        chooseChapterOptionMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseChapter(winMainRoot, cls.__name__)
+        chooseChapterOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
+
+        chooseChapterMenusAndbackBtn = ui.ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
+        chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
+
+        chooseSubChapterMenu = ui.UIWidgets.ChooseBookChapter.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
+        chooseSubChapterMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
