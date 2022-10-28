@@ -37,13 +37,11 @@ class Screenshot:
         return canvas
 
 def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions):
-
     def subchapterChoosingCallback(value):
         wv.UItkVariables.subchapter.set(value)
         _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
                                                                 value)
         fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSectionFull_ID, value)
-
 
     for e in mainWinRoot.winfo_children():
         if menuID in e._name:

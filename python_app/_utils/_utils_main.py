@@ -3,7 +3,8 @@ from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
 
-import UI.widgets_collection as ui
+# import UI.widgets_collection as ui
+import UI.widgets_messages as wm
 import file_system.file_system_main as fs
 
 
@@ -28,7 +29,7 @@ def getMonitorSize():
        return(m.width,m.height)
 
 def getCurrentScreenshotDir():
-    return Settings.getBookFolderPath(Settings.readProperty(Settings.getCurrentBookFolderName())) + "/" \
+    return Settings.readProperty(Settings.PubProp.currBookPath_ID) + "/" \
         + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
         + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
 
@@ -223,7 +224,7 @@ def getpageOfcurrentDoc():
         return -1
     
     windowList = getWindowsFromApp(app)
-    currChapter = BookSettings.readProperty(BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
+    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
     
     for window in windowList:
         if window["kCGWindowOwnerName"] == app.localizedName():
@@ -261,6 +262,9 @@ class Settings:
         skim_ID = "skim"
         vsCode_ID = "Code"
         finder_ID = "Finder"
+
+    class UI:
+        showChapterWidgets = False
 
     #layouts
     #NOTE: it is used to cut the layout class name
@@ -392,16 +396,20 @@ class BookSettings:
                     jsonData[emptyChName] = emptyChapter
                     writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                     
-                    message = "created chapter: " + chNum + "\nwith Name: " + chName + "\nwith starting page: " + chStartPage
-                    ui.UIWidgets.showMessage(message)
+                    message = "created chapter: " \
+                            + chNum + "\nwith Name: " \
+                            + chName + "\nwith starting page: " + chStartPage
+                    wm.ShowMessageMenu.createMenu(message)
                     print("addChapter - " + message)
                 else:
-                    message = "Did not create chapter: " + chNum + ". It is already in the data."
-                    ui.UIWidgets.showMessage(message)
+                    message = "Did not create chapter: " \
+                            + chNum \
+                            + ". It is already in the data."
+                    wm.ShowMessageMenu.createMenu(message)
                     print("addChapter - " + message)
             else:
                 message = "Did not add chapter since the chapter num is empty."
-                ui.UIWidgets.showMessage(message)
+                wm.ShowMessageMenu.createMenu(message)
                 print("addChapter - " + message)
         
 
@@ -428,48 +436,57 @@ class BookSettings:
         @classmethod
         def getChapterName(cls, chapterNum):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(),
+                                    propertyName)
 
 
         @classmethod
         def getChapterLatestSubchapter(cls, chapterNum):
             propertyName = cls.getChapterLatestSubchapterPropertyID(chapterNum)
-            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                    propertyName)
 
 
         @classmethod
         def getChapterName(cls, chapterNum):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                    propertyName)
 
 
         @classmethod
         def getCurrChapterImIndex(cls):
             chapterNum = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:]
             propertyName = cls.getChapterImIndexPropertyID(chapterNum)
-            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                    propertyName)
         
 
         @classmethod
         def getChapterStartPage(cls, chapterNum):
             propertyName = cls.ch_ID + chapterNum + cls.ch_startPage_ID
-            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            return readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                    propertyName)
         
 
         @classmethod
         def updateChapterName(cls, chapterNum, chName):
             propertyName = cls.getChapterNamePropertyID(chapterNum)
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chName)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                chName)
             
             message = "Updated " + propertyName + " to: " + chName
-            ui.UIWidgets.showMessage(message)
+            wm.ShowMessageMenu.createMenu(message)
             print("updateChapterName - " + message)
         
 
         @classmethod
         def updateChapterLatestSubchapter(cls, chapterNum, latestSubchapter):
             propertyName = cls.getChapterLatestSubchapterPropertyID(chapterNum)
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, latestSubchapter)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                latestSubchapter)
             
             message = "Updated " + propertyName + " to: " + latestSubchapter
             # ui.UIWidgets.showMessage(message)
@@ -479,17 +496,21 @@ class BookSettings:
         @classmethod
         def updateChapterStartPage(cls, chapterNum, chStartPage):
             propertyName = cls.ch_ID + chapterNum + cls.ch_startPage_ID
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chStartPage)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                chStartPage)  
 
             message = "Updated " + propertyName + " to: " + chStartPage
-            ui.UIWidgets.showMessage(message)
+            wm.ShowMessageMenu.createMenu(message)
             print("updateChapterStartPage - " + message)
         
 
         @classmethod
         def updateChapterImageIndex(cls, chapterNum, chimIndex):
             propertyName = cls.ch_ID + chapterNum + cls.ch_imageIndex_ID
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, chimIndex)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                chimIndex)  
 
             message = "Updated " + propertyName + " to: " + chimIndex
             # ui.UIWidgets.showMessage(message)
@@ -526,26 +547,30 @@ class BookSettings:
                         jsonData[BookSettings.ChapterProperties.ch_ID + chNum][chString + BookSettings.ChapterProperties.ch_subchapters_ID][emptySubchName] = emptySubchapter
                         writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                         
-                        message = "Created subchapter: " + subchNum + "\nwith Name: " + subchName + "\nwith starting page: " + subchStartPage
-                        ui.UIWidgets.showMessage(message)
+                        message = "Created subchapter: "\
+                                    + subchNum + "\nwith Name: " \
+                                    + subchName + "\nwith starting page: " \
+                                    + subchStartPage
+                        wm.ShowMessageMenu.createMenu(message)
                         print("addSubchapter - " + message)
                     else:
-                        message = "Did not create subchapter: " + subchNum + ". It is already in the data."
-                        ui.UIWidgets.showMessage(message)
+                        message = "Did not create subchapter: " + subchNum\
+                                    + ". It is already in the data."
+                        wm.ShowMessageMenu.createMenu(message)
                         print("addSubchapter - " + message)
                 else:
                     message = "Did not add subchchapter since the chapter does not exist."
-                    ui.UIWidgets.showMessage(message)
+                    wm.ShowMessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
             else: #subch or ch are None
                 if chNum == None:
                     message = "Did not add subchchapter since the chapter num is empty."
-                    ui.UIWidgets.showMessage(message)
+                    wm.ShowMessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
                 else:
                     # subchNum is None
                     message = "Did not add subchchapter since the subchNum num is empty."
-                    ui.UIWidgets.showMessage(message)
+                    wm.ShowMessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
         
 
@@ -559,48 +584,53 @@ class BookSettings:
                             jsonData[chString][BookSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)].pop(cls.subch_ID + subchNum)
                             writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                             message = "removed subchapter: " + subchNum
-                            ui.UIWidgets.showMessage(message)
+                            wm.ShowMessageMenu.createMenu(message)
                             print("removeChapter - " + message)
                     else:
                         message = "Did not remove subchapter: " + subchNum + ". It was not in the chapter settings data."
-                        ui.UIWidgets.showMessage(message)
+                        wm.ShowMessageMenu.createMenu(message)
                         print("removeSubchapter - " + message)
                 else:
                     message = "Did not remove subchapter: " + subchNum + ". Chapter was not in the chapter settings data."
-                    ui.UIWidgets.showMessage(message)
+                    wm.ShowMessageMenu.createMenu(message)
                     print("removeSubhcapter - " + message)
             else:
                 if (chNum == None):
                     message = "Did not remove chapter since the chapter num is empty."
                 else: #subch is None
                     message = "Did not remove chapter since the subchapter num is empty."
-                ui.UIWidgets.showMessage(message)
+                wm.ShowMessageMenu.createMenu(message)
                 print("removeSubchapter - " + message)
 
 
         @classmethod
         def updateSubchapterName(cls, subchapterNum, subchName):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_name_ID
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchName)
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                subchName)
 
             message = "Updated " + propertyName + " to: " + subchName
-            ui.UIWidgets.showMessage(message)
+            wm.ShowMessageMenu.createMenu(message)
             print("updateSubchapterName - " + message)
         
         
         @classmethod
         def getSubchapterStartPage(cls, subchapterNum):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_startPage_ID
-            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                            propertyName)
         
 
         @classmethod
         def updateSubchapterStartPage(cls, subchapterNum, subchStartPage):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_startPage_ID
-            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName, subchStartPage)  
+            updateJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                                propertyName, 
+                                subchStartPage)  
 
             message = "Updated " + propertyName + " to: " + subchStartPage
-            ui.UIWidgets.showMessage(message)
+            wm.ShowMessageMenu.createMenu(message)
             print("updateSubchapterStartPage - " + message)
         
 
@@ -617,7 +647,8 @@ class BookSettings:
         @classmethod
         def getSubchapterName(cls, subchapterNum):
             propertyName = cls.subch_ID + subchapterNum + cls.subch_name_ID
-            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), propertyName)
+            readJSONProperty(BookSettings.getCurrBookChapterInfoJSONPath(), 
+                            propertyName)
     
 
     @classmethod 

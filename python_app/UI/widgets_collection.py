@@ -13,6 +13,32 @@ import tex_file.create_tex_file as t
 
 
 
+def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
+    wv.UItkVariables.createTOCVar = tk.IntVar()
+    wv.UItkVariables.createTOCVar.set(1)
+    createTOC_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_create_toc", text = "TOC cr",
+                                variable = wv.UItkVariables.createTOCVar, onvalue = 1, offvalue = 0)
+    wv.UItkVariables.TOCWithImageVar = tk.IntVar()
+    TOCWithImage_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_toc_w_image",  text = "TOC w i",
+                                variable = wv.UItkVariables.TOCWithImageVar, onvalue = 1, offvalue = 0)
+    
+    return createTOC_CB, TOCWithImage_CB
+
+
+def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
+    def restartBTNcallback():
+        wv.UItkVariables.buttonText.set("imNum")
+        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
+        wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
+    
+
+    restart_BTN = tk.Button(mainWinRoot,
+                            name = namePrefix.lower() + "_imageGenerationRestartBTN",
+                            text= "restart", 
+                            command = restartBTNcallback)
+    
+    return restart_BTN
+
 
 def getShowProofs_BTN(mainWinRoot, prefixName = ""):
     showProofsVar = tk.StringVar()
@@ -488,4 +514,222 @@ class ChooseBookSection:
         subchapter_menu = tk.OptionMenu(frame, subchapter, *subchaptersList, command= lambda x: subchapterChoosingCallback(subchapter))
         subchapter_menu.grid(row = 0, column = 0)
         return frame
+   
+
+'''
+chapters menu widgets
+'''
+class ChaptersUI:
+    chaptersPrefix = "chaptersID"
+
+    @classmethod
+    def setChaptersUI(cls, mainWinRoot):
+        chooseChapter_MenusBtn = cls.getButton_chooseChaptersMenusAndBack(mainWinRoot, cls.chaptersPrefix)
+        chooseChapter_MenusBtn.grid(row = 2, column = 3)
+        entry_setChapterName, button_setChapterName = cls.getWidgets_setChapterName(mainWinRoot,  cls.chaptersPrefix)
+        entry_setChapterName.grid(row = 0, column = 0)
+        button_setChapterName.grid(row = 0, column = 1)
+        entry_setChapterStartPage, button_setChapterStartPage = cls.getWidgets_setChapterStartPage(mainWinRoot,  cls.chaptersPrefix)
+        entry_setChapterStartPage.grid(row = 1, column = 0)
+        button_setChapterStartPage.grid(row = 1, column = 1)
+        entry_setSubchapterName, button_setSubchapterName = cls.getWidgets_setSubchapterName(mainWinRoot,  cls.chaptersPrefix)
+        entry_setSubchapterName.grid(row = 0, column = 2)
+        button_setSubchapterName.grid(row = 0, column = 3)
+        entry_setSubchapterStartpage, button_setSubchapterStartPage = cls.getWidgets_setSubchapterStartPage(mainWinRoot,  cls.chaptersPrefix)
+        entry_setSubchapterStartpage.grid(row = 1, column = 2)
+        button_setSubchapterStartPage.grid(row = 1, column = 3)
+        
+        wv.UItkVariables.currCh = tk.StringVar()
+        wv.UItkVariables.currSubch = tk.StringVar()
+        currCh_ETR, currSubch_ETR = cls.getEntries_currChAndSubchapter(mainWinRoot, cls.chaptersPrefix)
+        currCh_ETR.grid(row = 2, column = 0, sticky = tk.N)
+        currSubch_ETR.grid(row = 2, column = 2, sticky = tk.N)
+
+
+        addCh_BTN = cls.getButton_createNewChapter(mainWinRoot, cls.chaptersPrefix)
+        removeCh_BTN = cls.getButton_removeChapter(mainWinRoot, cls.chaptersPrefix)
+        addCh_BTN.grid(row = 2, column = 0,sticky = tk.W)
+        removeCh_BTN.grid(row = 2, column = 0, sticky = tk.E)
+        
+        addSubch_BTN = cls.getButton_createNewSubchapter(mainWinRoot, cls.chaptersPrefix)
+        removeSubch_BTN = cls.getButton_removeSubchapter(mainWinRoot, cls.chaptersPrefix)
+        addSubch_BTN.grid(row = 2, column = 2,sticky = tk.W)
+        removeSubch_BTN.grid(row = 2, column = 2,sticky = tk.E)
+
+
+    @classmethod
+    def getButton_chooseChaptersMenusAndBack(cls, mainWinRoot, prefixName = ""):
+        def chooseChaptersMenusAndBackCallback():
+            # hide all of the menus
+            wu.hideAllWidgets(mainWinRoot)
+
+            if _u.Settings.UI.showChapterWidgets:
+                mainWinRoot.columnconfigure(0, weight = 1)
+                mainWinRoot.columnconfigure(1, weight = 3)
+                mainWinRoot.columnconfigure(2, weight = 1)
+                mainWinRoot.columnconfigure(3, weight = 3)
+                
+                for w in mainWinRoot.winfo_children():
+                    if cls.chaptersPrefix.lower() in w._name:
+                        w.grid()
+                chooseChapter_MenusBtn_Label.set("chapters")
+                _u.Settings.UI.showChapterWidgets = not _u.Settings.UI.showChapterWidgets
+            else:
+                mainWinRoot.columnconfigure(0, weight = 1)
+                mainWinRoot.columnconfigure(1, weight = 1)
+                mainWinRoot.columnconfigure(2, weight = 1)
+                mainWinRoot.columnconfigure(2, weight = 0)
+                Layout.showCurrentLayout(mainWinRoot)  
+                chooseChapter_MenusBtn_Label.set("layout") 
+                _u.Settings.UI.showChapterWidgets = not _u.Settings.UI.showChapterWidgets
+
+        
+        # show getBack Button
+        chooseChapter_MenusBtn_Label = tk.StringVar()
+        chooseChapter_MenusBtn_Label.set("chapters") 
+        chooseChapter_MenusBtn = tk.Button(mainWinRoot, name = prefixName.lower() + "_chooseChapterLayoutBtn", textvariable = chooseChapter_MenusBtn_Label, command = chooseChaptersMenusAndBackCallback)
+        
+        return chooseChapter_MenusBtn
+
+
+    @classmethod
+    def getEntries_currChAndSubchapter(cls, mainWinRoot, prefixName = ""):
+        currCh_ETR = tk.Entry(mainWinRoot, 
+                            width = 5,
+                            textvariable = wv.UItkVariables.currCh, 
+                            name = prefixName.lower() +  "_setCurrChapter_" + wu.entryWidget_ID)
+        currSubch_ETR = tk.Entry(mainWinRoot, 
+                            width = 5, 
+                            textvariable = wv.UItkVariables.currSubch, 
+                            name = prefixName.lower() +  "_setCurrSubchapter_" + wu.entryWidget_ID)
+        
+        return currCh_ETR, currSubch_ETR
+
+
+    @classmethod
+    def getWidgets_setChapterName(cls, mainWinRoot, prefixName = ""):
+        entry_setChapterName = tk.Entry(mainWinRoot, name = prefixName.lower() +  "_setChapterName_" + wu.entryWidget_ID)
+        button_setChapterName = tk.Button(mainWinRoot, 
+                                name = prefixName.lower() +  "_setChapterNameBTN", 
+                                text="setChapterName", 
+                                command = lambda *args: _u.BookSettings.ChapterProperties.updateChapterName(wv.UItkVariables.currCh.get(), entry_setChapterName.get()))
+        
+        return entry_setChapterName, button_setChapterName            
+
+
+    @classmethod
+    def getWidgets_setChapterStartPage(cls, mainWinRoot, prefixName = ""):
+        entry_setChapterStartPage = tk.Entry(mainWinRoot, name = prefixName.lower() +  "_setChapterStartPage_" + wu.entryWidget_ID)
+        button_setChapterStartPage = tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_setChapterStartPageBTN", 
+                        text="setChapterStartPage", 
+                        command = lambda *args: _u.BookSettings.ChapterProperties.updateChapterStartPage(wv.UItkVariables.currCh.get(), 
+                        entry_setChapterStartPage.get()))
+        
+        return entry_setChapterStartPage, button_setChapterStartPage 
+
+
+    @classmethod
+    def getWidgets_setSubchapterName(cls, mainWinRoot, prefixName = ""):
+        entry_setSubchapterName = tk.Entry(mainWinRoot, name = prefixName.lower() + "_setSubchapterName_" + wu.entryWidget_ID)
+        button_setSubchapterName = tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_setSubchapterNameBTN", 
+                        text="setSubhapterName", 
+                        command = lambda *args: _u.BookSettings.SubchaptersProperties.updateSubchapterName(wv.UItkVariables.currSubch.get(), entry_setSubchapterName.get()))
+        
+        return entry_setSubchapterName, button_setSubchapterName
+
+
+    @classmethod
+    def getWidgets_setSubchapterStartPage(cls, mainWinRoot, prefixName = ""):
+        entry_setSubchapterStartpage = tk.Entry(mainWinRoot, 
+                                                name = prefixName.lower() 
+                                                    + "_setSubchapterStartPage_" 
+                                                    + wu.entryWidget_ID
+                                                )
+        button_setSubchapterStartPage = tk.Button(mainWinRoot, 
+                                                name = prefixName.lower() 
+                                                    + "_setSubchapterStartPageBTN", 
+                                                text="setSubhapterStartName", 
+                                                command = lambda *args : _u.BookSettings.SubchaptersProperties.updateSubchapterStartPage(wv.UItkVariables.currSubch.get(), entry_setSubchapterStartpage.get()))
+        
+        return entry_setSubchapterStartpage, button_setSubchapterStartPage
+
+
+    @classmethod
+    def getButton_createNewChapter(cls, mainWinRoot, prefixName = ""):
+        def createNewChapterBTNcallback():
+            chNum = None
+            chName = None
+            chStartPage = None
+            for e in mainWinRoot.winfo_children():
+                if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+                    chNum = e.get()
+                elif "_setChapterName_" + wu.entryWidget_ID in e._name:
+                    chName = e.get()
+                elif "_setChapterStartPage_" + wu.entryWidget_ID in e._name:
+                    chStartPage = e.get()
+            _u.BookSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
+        
+        return tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_createNewChapterBTN", 
+                        text="New", 
+                        command = createNewChapterBTNcallback)
     
+
+    @classmethod
+    def getButton_removeChapter(cls, mainWinRoot, prefixName = ""):
+        def removeBTNcallback():
+            chNum = None
+            for e in mainWinRoot.winfo_children():
+                if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+                    chNum = e.get()
+                    break
+            _u.BookSettings.ChapterProperties.removeChapter(chNum)
+        
+        return tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_removeChapterBTN", 
+                        text="Del", 
+                        command = removeBTNcallback)
+    
+
+    @classmethod
+    def getButton_createNewSubchapter(cls, mainWinRoot, prefixName = ""):
+        def createNewChapterBTNcallback():
+            chNum = None
+            subchNum = None
+            subchName = None
+            subchStartPage = None
+            for e in mainWinRoot.winfo_children():
+                if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+                    subchNum = e.get()
+                    chNum = subchNum.split(".")[0]
+                elif "_setSubchapterName_" + wu.entryWidget_ID in e._name:
+                    subchName = e.get()
+                elif "_setSubchapterStartPage_" + wu.entryWidget_ID in e._name:
+                    subchStartPage = e.get()
+            
+            _u.BookSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
+        
+        return tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_createNewSubchapterBTN", 
+                        text="New", 
+                        command = createNewChapterBTNcallback)
+
+
+    @classmethod
+    def getButton_removeSubchapter(cls, mainWinRoot, prefixName = ""):
+        def removeBTNcallback():
+            chNum = None
+            for e in mainWinRoot.winfo_children():
+                if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+                    subchNum = e.get()
+                    chNum = subchNum.split(".")[0]
+            
+            _u.BookSettings.SubchaptersProperties.removeSubchapter(chNum, subchNum)
+        
+        return tk.Button(mainWinRoot, 
+                        name = prefixName.lower() + "_removeSubchapterBTN", 
+                        text="Del", 
+                        command = removeBTNcallback)
+
