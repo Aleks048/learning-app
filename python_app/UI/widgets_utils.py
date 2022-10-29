@@ -21,7 +21,7 @@ class Screenshot:
 
 
     @classmethod
-    def getText_CurrentScreenshotDir(cls, mainWinRoot, namePref = ""):
+    def getText_CurrentScreenshotDirWidget(cls, mainWinRoot, namePref = ""):
         canvas= tk.Canvas(mainWinRoot,name = namePref.lower() + "_showCurrScreenshotLocation_text", width=520, height= 25)
 
         wv.UItkVariables.scrshotPath = tk.StringVar()

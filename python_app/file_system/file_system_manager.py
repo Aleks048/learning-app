@@ -84,36 +84,41 @@ def updateSectionProperty(sectionPath, propertyName, newValue):
     fs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
 
 def getSubsectionsList(sectionPath = ""):
+    sections_ID = fs.BookInfoStructure.PubProp.sections_ID
     outSubsectionsList = []
 
     if sectionPath == "":
-        subsections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+        subsections = fs.BookInfoStructure.readProperty(sections_ID)
     else:
-        subsections = fs.BookInfoStructure.readProperty(sectionPath)["sections"]
+        subsections = fs.BookInfoStructure.readProperty(sectionPath)[sections_ID]
     
 
     subsectionsNamesList = list(subsections.keys())
     subsectionsList = list(subsections.values())
-    print("Hop:")
-    print(subsections)
-    print(subsectionsNamesList)
-    print(subsectionsList)
     while subsectionsList != []:
         section = subsectionsList[0]
         sectionName = subsectionsNamesList[0]
         print(section)
         print(sectionName)
 
-        for subSecName, subSec in section["sections"].items():
+        bottomSubsection = True
+        for subSecName, subSec in section[sections_ID].items():
+            bottomSubsection = False
             subsectionsList.append(subSec)
             subsectionsNamesList.append(subSecName)
         
-        outSubsectionsList.append(sectionName)
+        if bottomSubsection:
+            outSubsectionsList.append(sectionName)
+        
         subsectionsList.pop(0)
         subsectionsNamesList.pop(0)
     
     return outSubsectionsList
     
+def getTopSectionsList():
+    sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+
+    return list(sections.keys())
 
 def removeSection():
     # # remove to Sections structure

@@ -29,9 +29,11 @@ def getMonitorSize():
        return(m.width,m.height)
 
 def getCurrentScreenshotDir():
-    return Settings.readProperty(Settings.PubProp.currBookPath_ID) + "/" \
-        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
-        + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
+    bookPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
+    # return bookPath + "/" \
+    #     + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "/"\
+    #     + fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID) + "_images/"
+    return "testing text"
 
 '''
 JSON
@@ -234,7 +236,10 @@ def getpageOfcurrentDoc():
                 pageNum = pageNum.split(" ")[0]
                 return pageNum
 
-
+def getCurrSecImIdx():
+    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+    imIndex_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
+    return fs.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
 
 
 '''

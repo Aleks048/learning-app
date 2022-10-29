@@ -185,8 +185,7 @@ class Test_FileSystemManager(unittest.TestCase):
         fsm.addSectionForCurrBook(self.sectionPath4)
         # Settings.Book.setCurrentBook(testBookName, testBookPath)
         namesList = fsm.getSubsectionsList()
-        self.assertEqual(namesList, ['1','2', '1.ser', '1.ser2', '2.ser',
-                                    '1.ser.per', '1.ser.per2', '1.ser2.per', '2.ser.per'])
+        self.assertEqual(namesList, ['1.ser.per', '1.ser.per2', '1.ser2.per', '2.ser.per'])
 
         namesList = fsm.getSubsectionsList(self.middleSectionPath)
         self.assertEqual(namesList, ["1.ser.per", "1.ser.per2"])
@@ -194,6 +193,10 @@ class Test_FileSystemManager(unittest.TestCase):
         namesList = fsm.getSubsectionsList(self.endSectionPath)
         self.assertEqual(namesList, [])
 
+    def test_getTopSections(self):
+
+        topSections = fsm.getTopSectionsList()
+        self.assertEqual(topSections, ["1", "2"])
 
 # # Different kinds of asserts we can have:
 # #     self.assertEqual('foo'.upper(), 'FOO')

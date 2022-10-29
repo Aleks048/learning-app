@@ -5,6 +5,7 @@ from threading import Thread
 
 import _utils._utils_main as _u
 import file_system.file_system_main as fs
+import file_system.file_system_manager as fsm
 import UI.widgets_vars as wv
 import UI.widgets_utils as wu
 import layouts.layouts_utils as lu
@@ -78,7 +79,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                     command = getShowProofsCallBack)
 
 
-def getAddImage_BTN(cls, mainWinRoot, prefixName = ""):
+def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
         currImID = str(int(_u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID)) - 1)
         currentSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
@@ -146,7 +147,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
                     command = saveImageCallBack)
 
 
-def getGlobalLinksAdd_Widgets(cls, mainWinRoot, prefixName = ""):
+def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     def addClLinkCallback():
         sections = targetSections.get()
         sectionsStringSeparator = " "
@@ -181,15 +182,17 @@ def getGlobalLinksAdd_Widgets(cls, mainWinRoot, prefixName = ""):
     return createGlLinkBTN, createGlLinkETR
 
 
-def getTextEntryButton_imageGeneration(cls, mainWinRoot, prefixName = ""):
+def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     wv.UItkVariables.imageGenerationEntryText = tk.StringVar()
+    print("hi")
+    print(type(mainWinRoot))
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
                                 name=prefixName.lower() + "_imageGeneration_" + wu.entryWidget_ID)
 
-    chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
-    wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
+    secImIndex = _u.getCurrSecImIdx()
+    wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
     dataFromUser = [-1, -1, -1]
     wv.UItkVariables.buttonText = tk.StringVar()
@@ -370,11 +373,12 @@ end tell'"
     wv.UItkVariables.buttonText.set(buttonNames[0])
 
     def buttonCallback():
-        for i in range(len(buttonNames)):
-            if buttonNames[i] == wv.UItkVariables.buttonText.get():
-                _storeInputDataAndChange(buttonNames[(i+1)%len(buttonNames)], 
-                                        buttonNamesToFunc[buttonNames[i]], i)
-                break
+        pass
+        # for i in range(len(buttonNames)):
+        #     if buttonNames[i] == wv.UItkVariables.buttonText.get():
+        #         _storeInputDataAndChange(buttonNames[(i+1)%len(buttonNames)], 
+        #                                 buttonNamesToFunc[buttonNames[i]], i)
+        #         break
 
     processButton = tk.Button(mainWinRoot, 
                             name = prefixName.lower() + "_imageGeneration_processButton",
@@ -437,28 +441,28 @@ class LayoutsMenus:
             #
             # image generation:
             #
-            # imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
-            # imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
-            # imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
+            imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
+            imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
+            imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            # addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
-            # addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
+            addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
+            addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
 
-            # imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-            # imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
+            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+            imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
 
-            # TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
-            # TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
-            # TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
+            TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
+            TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
+            TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
             
-            # currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDir(winMainRoot, cls.__name__)
-            # currScrShotDirText.grid(columnspan = 2,row = 2)
+            currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.__name__)
+            currScrShotDirText.grid(columnspan = 2,row = 2)
 
-            # chooseChapterOptionMenu = ChooseBookSection.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
-            # chooseChapterOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
+            chooseTopSectionOptionMenu = ChooseBookSection.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
+            chooseTopSectionOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
 
-            # chooseChapterMenusAndbackBtn = ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
-            # chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
+            chooseChapterMenusAndbackBtn = ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
+            chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
 
             chooseSubsectionMenu = ChooseBookSection.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
             chooseSubsectionMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
@@ -546,7 +550,7 @@ class ChooseBookSection:
             
             wu.Screenshot.setValueScreenshotLoaction()
             
-            subchaptersList = wu._getSubchaptersListForCurrChapter()
+            subchaptersList = wu._getSubsectionsListForCurrSection()
             wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subchaptersList)
             currSubchapter = _u.BookSettings.ChapterProperties.getChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:])
             wv.UItkVariables.subchapter.set(currSubchapter)
@@ -557,19 +561,13 @@ class ChooseBookSection:
             currLayoutClass.set(mainWinRoot)
             lu.moveWholeBookToChapter()
 
-
         chapter = tk.StringVar()
         chapter.set(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID))
 
-        book_name = _u.Settings.readProperty(_u.Settings.Book.getCurrentBookFolderName())
-
-        pathToBooks = _u.getPathToBooks()
-        chaptersList = []
-        chaptersList.extend([i for i in os.listdir(pathToBooks + "/" + book_name) if i[:2]=="ch"])
-        chaptersList.sort(key=lambda x: -1 if x[2:]=="" else int(x[2:]))
+        topSectionsList = fsm.getTopSectionsList()
         
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseChapter_optionMenu", background="Blue")
-        chapter_menu = tk.OptionMenu(frame, chapter, *chaptersList, command= lambda x: chapterChoosingCallback(chapter))
+        chapter_menu = tk.OptionMenu(frame, chapter, *topSectionsList, command= lambda x: chapterChoosingCallback(chapter))
         chapter_menu.grid(row = 0, column = 0)
 
         return frame
