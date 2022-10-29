@@ -83,6 +83,24 @@ def updateSectionProperty(sectionPath, propertyName, newValue):
     print(propertyName)
     fs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
 
+def getSubsectionsList(sectionPath = ""):
+    outSubsectionsList = []
+
+    if sectionPath == "":
+        subsections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+    else:
+        subsections = fs.BookInfoStructure.readProperty(sectionPath)
+    
+    subsectionsList = subsections
+    while subsectionsList != []:
+        for section in subsectionsList:
+            subsectionsList.pop(sectionName, None)
+            
+
+
+    
+    
+
 def removeSection():
     # # remove to Sections structure
     # fs.SectionInfoStructure.removeSection(sectionPath)

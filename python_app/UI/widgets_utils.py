@@ -4,6 +4,7 @@ import os
 import UI.widgets_vars as wv
 import _utils._utils_main as _u
 import file_system.file_system_main as fs
+import layouts.layouts_manager as lm
 
 class Screenshot:
         
@@ -52,11 +53,19 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions):
                                         command= lambda value=choice: subchapterChoosingCallback(value))
                     wv.UItkVariables.subchapter.set(newMenuOptions[0])
 
-def _getSubchaptersListForCurrChapter():
-    pathToBooks = _u.getPathToBooks()
-    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
-    currBookName = _u.Settings.readProperty(_u.Settings.Book.getCurrentBookFolderName())
-    return [i[3:] for i in os.listdir(pathToBooks + "/" + currBookName + "/" + currChapter + "/" + _u.Settings.relToSubchapters_Path) if "ch_" in i]
+def _getSubsectionsListForCurrSection():
+    # read sections from bookInfo
+    sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+
+    # create list of subsections from the dictionary
+    sectionsList = 
+
+
+
+    # pathToBooks = _u.getPathToBooks()
+    # currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
+    # currBookName = _u.Settings.readProperty(_u.Settings.Book.getCurrentBookFolderName())
+    return None#[i[3:] for i in os.listdir(pathToBooks + "/" + currBookName + "/" + currChapter + "/" + _u.Settings.relToSubchapters_Path) if "ch_" in i]
 
 entryWidget_ID = "ETR"
 
@@ -70,3 +79,17 @@ def hideAllWidgets(mainWinRoot):
             if ("_imageGeneration_" not in e._name):
                 e.delete(0, 'end')
         e.grid_remove()
+
+
+def showCurrentLayout(mainWinRoot):
+    #TODO: need to be reworked
+    l_Name = _u.Settings.readProperty(_u.Settings.PubProp.currLayout_ID)
+    layoutClass = [i for i in lm.listOfLayoutClasses if i.__name__.replace(_u.Settings.PubProp.currLayout_ID,"") == l_Name][0]
+    layoutClass.set(mainWinRoot)
+    hideAllWidgets(mainWinRoot)
+
+    for e in mainWinRoot.winfo_children():
+        if layoutClass.__name__.lower() in e._name:
+            if (entryWidget_ID in e._name):
+                e.focus_set()
+            e.grid()

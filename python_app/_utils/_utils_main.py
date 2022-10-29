@@ -333,7 +333,7 @@ class Settings:
 chapters and subchapters data 
 '''
 class BookSettings:
-    chaptersSettingsRelPath = "/bookInfo/chaptersInfo.json"
+    chaptersSettingsRelPath = "/bookInfo/bookInfo.json"
         
 
     class ChapterProperties:
@@ -653,8 +653,8 @@ class BookSettings:
 
     @classmethod 
     def getCurrBookChapterInfoJSONPath(cls):
-        currBookName = Settings.readProperty(Settings.getCurrentBookFolderName())
-        bookFolderPath = Settings.getBookFolderPath(currBookName)
+        currBookName = Settings.readProperty(Settings.PubProp.currBookName_ID)
+        bookFolderPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
         return cls._getBookChapterInfoJSONPath(bookFolderPath)
     
 

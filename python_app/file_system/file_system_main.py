@@ -226,7 +226,7 @@ class BookInfoStructure:
     
     @classmethod
     def _getAsbFilepath(cls):
-        bookPath = _u.Settings.getCurrBookFolderPath()
+        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         return bookPath + cls._getRelFilepath()
 
     @classmethod

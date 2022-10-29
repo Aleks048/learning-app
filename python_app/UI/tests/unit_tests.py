@@ -4,17 +4,26 @@ import unittest
 import unittest
 
 import UI.widgets_manager as wm
+import UI.widgets_messages as wmes
 
 
 class Test_WidgetsManager_StartupMenu(unittest.TestCase):
 
-    def test_Menus(self):
+    # def test_StartupMenu(self):
 
-        _waitDummy = wm.ConfirmationMenu.createMenu("tests", lambda *args: None)
+    #     # _waitDummy = wmes.ConfirmationMenu.createMenu("tests", lambda *args: None)
 
-        _waitDummy = wm.ShowMessageMenu.createMenu("tetst")
+    #     # _waitDummy = wmes.ShowMessageMenu.createMenu("tetst")
         
-        _waitDummy = wm.StartupMenu.createMenu()
+    #     _waitDummy = wm.StartupMenu.createMenu()
+
+    def test_MainMenu(self):
+
+        # _waitDummy = wmes.ConfirmationMenu.createMenu("tests", lambda *args: None)
+
+        # _waitDummy = wmes.ShowMessageMenu.createMenu("tetst")
+        
+        _waitDummy = wm.MainMenu.createMenu()
 
 
 # class Test_WidgetsManager_WarningMessage(unittest.TestCase):

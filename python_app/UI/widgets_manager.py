@@ -48,89 +48,13 @@ class StartupMenu:
     @classmethod
     def _bindKeys(cls):
         cls.winRoot.bind("<Escape>", lambda e: cls.winRoot.destroy())
-        # cls.winRoot.bind("<Return>", lambda e: cls.winRoot.destroy())
+        cls.winRoot.bind("<Return>", lambda e: cls.winRoot.destroy())
 
 
-class LayoutsMenus:
+class MainMenu:
 
-    class ChaptersLayoutUI:
-        pyAppDimensions = [None, None]
+    @classmethod
+    def createMenu(cls):
+        winRoot = tk.Tk()
 
-        @classmethod
-        def __call__(cls, winMainRoot):
-            wv.UItkVariables.needRebuild = tk.BooleanVar()
-
-            layoutOM = wc.Layout.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-            layoutOM.grid(column=0, row=0, padx=0, pady=0)
-            layoutOM.update()
-            
-            showProofsBTN = wc.getShowProofs_BTN(winMainRoot, cls.__name__)
-            showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
-
-            dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.__name__.lower() + "_dummyFocusEntry")
-            dummyEntry.grid(column=2, row=0, padx=0, pady=0)
-            dummyEntry.focus_set()
-
-            saveImageBTN = wc.getSaveImage_BTN(winMainRoot, cls.__name__)
-            saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
-
-            createGlLinkBTN, createGlLinkETR = wc.getGlobalLinksAdd_Widgets(winMainRoot, cls.__name__)
-            createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
-            createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
-
-
-            mon_width, _ = _u.getMonitorSize()
-            cls.pyAppDimensions[0] = int(mon_width / 2)
-            cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
-    
-    class mainLayoutUI:
-        pyAppDimensions = [None, None]
-
-        @classmethod
-        def __call__(cls,winMainRoot):
-            mon_width, _ = _u.getMonitorSize()
-            cls.pyAppDimensions = [int(mon_width / 2), 90]
-
-            chooseBookOM = wc.ChooseBookSection.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
-            chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
-
-            layoutOM = wc.Layout.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-            layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
-
-            imageGenerationUI = wc.getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
-            imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
-            imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
-
-            addExtraImage =wc.getAddImage_BTN(winMainRoot, cls.__name__)
-            addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
-
-            imageGenerationRestartBTN = wc.getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-            imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
-
-            TOCcreate_CB, TOCWithImage_CB = wc.getCheckboxes_TOC(winMainRoot, cls.__name__)
-            TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
-            TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
-            
-            currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDir(winMainRoot, cls.__name__)
-            currScrShotDirText.grid(columnspan = 2,row = 2)
-
-            chooseChapterOptionMenu = wc.ChooseBookSection.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
-            chooseChapterOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
-
-            chooseChapterMenusAndbackBtn = wc.ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
-            chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
-
-            chooseSubChapterMenu = wc.ChooseBookSection.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
-            chooseSubChapterMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
-    
-
-    class wholeVSCodeLayoutUI:
-        pyAppDimensions = [None, None]
-
-        @classmethod
-        def __call__(cls, winMainRoot):
-            layoutOM = wc.Layout.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-            layoutOM.grid(column=0, row=0, padx=0, pady=0)
-            layoutOM.update()
-            cls.pyAppDimensions[0] = layoutOM.winfo_width()
-            cls.pyAppDimensions[1] = layoutOM.winfo_height()
+        wc.LayoutsMenus.MainLayoutUI.addWidgets(winRoot)
