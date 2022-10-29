@@ -58,3 +58,5 @@ class MainMenu:
         winRoot = tk.Tk()
 
         wc.LayoutsMenus.MainLayoutUI.addWidgets(winRoot)
+
+        winRoot.mainloop()

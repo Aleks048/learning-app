@@ -4,6 +4,7 @@ import os
 import UI.widgets_vars as wv
 import _utils._utils_main as _u
 import file_system.file_system_main as fs
+import file_system.file_system_manager as fsm
 import layouts.layouts_manager as lm
 
 class Screenshot:
@@ -54,18 +55,9 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions):
                     wv.UItkVariables.subchapter.set(newMenuOptions[0])
 
 def _getSubsectionsListForCurrSection():
-    # read sections from bookInfo
-    sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
-
-    # create list of subsections from the dictionary
-    sectionsList = 
-
-
-
-    # pathToBooks = _u.getPathToBooks()
-    # currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
-    # currBookName = _u.Settings.readProperty(_u.Settings.Book.getCurrentBookFolderName())
-    return None#[i[3:] for i in os.listdir(pathToBooks + "/" + currBookName + "/" + currChapter + "/" + _u.Settings.relToSubchapters_Path) if "ch_" in i]
+    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+    childrensList = fsm.getSubsectionsList(currSectionPath)
+    return childrensList
 
 entryWidget_ID = "ETR"
 

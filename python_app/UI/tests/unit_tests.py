@@ -1,13 +1,20 @@
 import unittest
-
+import os
 
 import unittest
 
 import UI.widgets_manager as wm
 import UI.widgets_messages as wmes
+import file_system.file_system_main as fs
+import _utils._utils_main as _u
 
+
+testBookName = "b_analysis_test"
+testBookPath = os.getenv("BOOKS_ROOT_PATH") + testBookName
 
 class Test_WidgetsManager_StartupMenu(unittest.TestCase):
+    def setUp(self):
+        _u.Settings.Book.setCurrentBook(testBookName, testBookPath)
 
     # def test_StartupMenu(self):
 
@@ -22,6 +29,8 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         # _waitDummy = wmes.ConfirmationMenu.createMenu("tests", lambda *args: None)
 
         # _waitDummy = wmes.ShowMessageMenu.createMenu("tetst")
+        currentSectionPath = "2"
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, currentSectionPath)
         
         _waitDummy = wm.MainMenu.createMenu()
 

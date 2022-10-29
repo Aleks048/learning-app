@@ -434,6 +434,9 @@ class LayoutsMenus:
             layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
             layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
 
+            #
+            # image generation:
+            #
             # imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
             # imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
             # imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
@@ -481,7 +484,7 @@ class LayoutsMenus:
                 _u.Settings.currLayout = layout_name_vatying.get()
                 wu.showCurrentLayout(mainWinRoot)
             
-            listOfLayouts = lm.listOfLayoutClasses
+            listOfLayouts = _u.Settings.layoutsList
             layout_name_vatying = tk.StringVar()
             layout_name_vatying.set(listOfLayouts[0])
 
@@ -584,7 +587,7 @@ class ChooseBookSection:
         subchapter =wv.UItkVariables.subchapter
         subchapter.set(_u.BookSettings.readProperty(fs.BookInfoStructure.PubProp.currSection_ID))
         
-        subchaptersList = wu._getSubchaptersListForCurrChapter()
+        subchaptersList = wu._getSubsectionsListForCurrSection()
 
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
         subchapter_menu = tk.OptionMenu(frame, subchapter, *subchaptersList, command= lambda x: subchapterChoosingCallback(subchapter))

@@ -34,7 +34,7 @@ def createNewBook(bookName):
     os.system("mkdir -p " + bookPath)
 
     #set the current book in Settings
-    _u.Settings.addNewBook(bookName, bookPath)
+    _u.Settings.Book.addNewBook(bookName, bookPath)
 
     #
     #create bookInfo structure
@@ -89,16 +89,30 @@ def getSubsectionsList(sectionPath = ""):
     if sectionPath == "":
         subsections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
     else:
-        subsections = fs.BookInfoStructure.readProperty(sectionPath)
+        subsections = fs.BookInfoStructure.readProperty(sectionPath)["sections"]
     
-    subsectionsList = subsections
+
+    subsectionsNamesList = list(subsections.keys())
+    subsectionsList = list(subsections.values())
+    print("Hop:")
+    print(subsections)
+    print(subsectionsNamesList)
+    print(subsectionsList)
     while subsectionsList != []:
-        for section in subsectionsList:
-            subsectionsList.pop(sectionName, None)
-            
+        section = subsectionsList[0]
+        sectionName = subsectionsNamesList[0]
+        print(section)
+        print(sectionName)
 
-
+        for subSecName, subSec in section["sections"].items():
+            subsectionsList.append(subSec)
+            subsectionsNamesList.append(subSecName)
+        
+        outSubsectionsList.append(sectionName)
+        subsectionsList.pop(0)
+        subsectionsNamesList.pop(0)
     
+    return outSubsectionsList
     
 
 def removeSection():

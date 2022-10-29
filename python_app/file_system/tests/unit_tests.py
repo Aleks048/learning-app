@@ -22,7 +22,7 @@ test3BookPath = os.getenv("BOOKS_ROOT_PATH") + "/" + test3BookName + "/"
 class Test_BookInfoStructure(unittest.TestCase):
 
     def setUp(self):
-        Settings.setCurrentBook(testBookName, testBookPath)
+        Settings.Book.setCurrentBook(testBookName, testBookPath)
 
     def test_createStructure(self):
         expectedFilePath = testBookPath + BookInfoStructure._getRelFilepath()
@@ -44,7 +44,7 @@ class Test_BookInfoStructure(unittest.TestCase):
 class Test_SectionsInfoStructure(unittest.TestCase):
 
     def setUp(self):
-        Settings.setCurrentBook(testBookName, testBookPath)
+        Settings.Book.setCurrentBook(testBookName, testBookPath)
     
     def test_createStructure(self):
         BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_prefix_ID, "te")
@@ -87,7 +87,7 @@ class Test_SectionsInfoStructure(unittest.TestCase):
 class Test_TOCStructure(unittest.TestCase):
 
     def setUp(self):
-        Settings.setCurrentBook(testBookName, testBookPath)
+        Settings.Book.setCurrentBook(testBookName, testBookPath)
 
     def test_createStructure(self):
 
@@ -130,7 +130,7 @@ class Test_TOCStructure(unittest.TestCase):
 class Test_OriginalMaterialStructure(unittest.TestCase):
 
     def setUp(self):
-        Settings.setCurrentBook(testBookName, testBookPath)
+        Settings.Book.setCurrentBook(testBookName, testBookPath)
 
     def test_createStructure(self):
 
@@ -143,9 +143,15 @@ class Test_OriginalMaterialStructure(unittest.TestCase):
 
 
 class Test_FileSystemManager(unittest.TestCase):
+    sectionPath = "1.ser.per"
+    sectionPath2 = "1.ser.per2"
+    sectionPath3 = "1.ser2.per"
+    sectionPath4 = "2.ser.per"
+    middleSectionPath = "1.ser"
+    endSectionPath = "1.ser.per"
 
     def setUp(self):
-        Settings.setCurrentBook(test2BookName, test2BookPath)
+        Settings.Book.setCurrentBook(test2BookName, test2BookPath)
 
     def test_CreateNewBook(self):
         os.system("rm -rf " +  test2BookPath)
@@ -163,15 +169,30 @@ class Test_FileSystemManager(unittest.TestCase):
         self.assertEqual(len(allAncestors), 5)
 
     def test_Section(self):
-        print("hi")
-        sectionPath = "1.ser.per"
-        fsm.addSectionForCurrBook(sectionPath)
-        fsm.updateSectionStartPage(sectionPath, "2")
-        fsm.updateSectionStartPage(sectionPath, "3")
-        fsm.updateSectionFinishPage(sectionPath, "5")
-        fsm.updateSectionTOCText(sectionPath, "testi")
+        
+        fsm.addSectionForCurrBook(self.sectionPath)
+        fsm.updateSectionStartPage(self.sectionPath, "2")
+        fsm.updateSectionStartPage(self.sectionPath, "3")
+        fsm.updateSectionFinishPage(self.sectionPath, "5")
+        fsm.updateSectionTOCText(self.sectionPath, "testi")
 
-        fsm.updateSectionProperty(sectionPath, fsm.SectionProperties_IDs.name_ID, "testName")
+        fsm.updateSectionProperty(self.sectionPath, fsm.SectionProperties_IDs.name_ID, "testName")
+
+    def test_getSubsectionsList(self):
+        
+        fsm.addSectionForCurrBook(self.sectionPath2)
+        fsm.addSectionForCurrBook(self.sectionPath3)
+        fsm.addSectionForCurrBook(self.sectionPath4)
+        # Settings.Book.setCurrentBook(testBookName, testBookPath)
+        namesList = fsm.getSubsectionsList()
+        self.assertEqual(namesList, ['1','2', '1.ser', '1.ser2', '2.ser',
+                                    '1.ser.per', '1.ser.per2', '1.ser2.per', '2.ser.per'])
+
+        namesList = fsm.getSubsectionsList(self.middleSectionPath)
+        self.assertEqual(namesList, ["1.ser.per", "1.ser.per2"])
+        
+        namesList = fsm.getSubsectionsList(self.endSectionPath)
+        self.assertEqual(namesList, [])
 
 
 # # Different kinds of asserts we can have:
