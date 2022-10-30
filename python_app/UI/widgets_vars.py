@@ -3,7 +3,8 @@ class UItkVariables:
     buttonText = None
     createTOCVar = None
     TOCWithImageVar = None
-    subchapter = None
+    topSection = None
+    subsection = None
     imageGenerationEntryText = None
     scrshotPath = None
     currCh = None

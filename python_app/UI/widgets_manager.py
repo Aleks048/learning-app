@@ -28,7 +28,7 @@ class StartupMenu:
 
 
         # get chooseBookOptionMenu
-        books_OM = wc.ChooseBookSection.getOptionsMenu_ChooseBook(cls.winRoot)
+        books_OM = wc.ChooseMaterial.getOptionsMenu_ChooseBook(cls.winRoot)
         books_OM.pack()
 
         # get confirmation button

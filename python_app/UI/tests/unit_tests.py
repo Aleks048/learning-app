@@ -24,13 +24,24 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         
     #     _waitDummy = wm.StartupMenu.createMenu()
 
+    #
+    # TEST WIDGETS
+    #
+    
+
     def test_MainMenu(self):
 
         # _waitDummy = wmes.ConfirmationMenu.createMenu("tests", lambda *args: None)
 
         # _waitDummy = wmes.ShowMessageMenu.createMenu("tetst")
-        currentSectionPath = "2"
-        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, currentSectionPath)
+        currentTopSectionPath = "2"
+        currentSectionPath = "2.intro.pass"
+        currImIdx_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID, 
+                                            currentTopSectionPath)
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, 
+                                            currentSectionPath)
+        fs.SectionInfoStructure.updateProperty(currentSectionPath, currImIdx_ID, "3")
         
         _waitDummy = wm.MainMenu.createMenu()
 

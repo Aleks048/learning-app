@@ -17,6 +17,7 @@ class Screenshot:
 
 
     def setValueScreenshotLoaction():
+        print()
         wv.UItkVariables.scrshotPath.set(_u.getCurrentScreenshotDir())
 
 
@@ -38,12 +39,10 @@ class Screenshot:
 
         return canvas
 
-def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions):
-    def subchapterChoosingCallback(value):
-        wv.UItkVariables.subchapter.set(value)
-        _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
-                                                                value)
-        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSectionFull_ID, value)
+def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
+    def subsectionChoosingCallback(value):
+        wv.UItkVariables.subsection.set(value)
+        callback()
 
     for e in mainWinRoot.winfo_children():
         if menuID in e._name:
@@ -51,11 +50,13 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions):
                 om['menu'].delete(0, 'end')
                 for choice in newMenuOptions:
                     om['menu'].add_command(label=choice, 
-                                        command= lambda value=choice: subchapterChoosingCallback(value))
-                    wv.UItkVariables.subchapter.set(newMenuOptions[0])
+                                        command= lambda value=choice: subsectionChoosingCallback(value))
+                    wv.UItkVariables.subsection.set(newMenuOptions[0])
 
-def _getSubsectionsListForCurrSection():
-    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+def _getSubsectionsListForCurrTopSection():
+    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID)
+    print("hop")
+    print(currSectionPath)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
 

@@ -140,7 +140,6 @@ class BookInfoStructure:
     TOCFilename = "TOCinfo.json"
 
     currSectionFull_ID= "currChapterFull"# need to be removed
-    currSection_ID = "currChapter"
     
     class PubProp:
         version_ID = "version"
@@ -151,6 +150,7 @@ class BookInfoStructure:
         #currState
         currentState_ID = "currentState"
         currentPage_ID = "currentPage"
+        currTopSection_ID = "currTopSection"
         currSection_ID = "currSection"
         currSubsectionsPath_ID = "currSubsectionsPath"
 
@@ -163,6 +163,7 @@ class BookInfoStructure:
         PubProp.currentState_ID: {
             PubProp.currentPage_ID: "",
             PubProp.currSection_ID: "",
+            PubProp.currTopSection_ID: "",
             PubProp.currSubsectionsPath_ID: ""
         }
     }

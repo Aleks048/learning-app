@@ -98,8 +98,6 @@ def getSubsectionsList(sectionPath = ""):
     while subsectionsList != []:
         section = subsectionsList[0]
         sectionName = subsectionsNamesList[0]
-        print(section)
-        print(sectionName)
 
         bottomSubsection = True
         for subSecName, subSec in section[sections_ID].items():

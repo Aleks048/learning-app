@@ -29,7 +29,7 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
         wv.UItkVariables.buttonText.set("imNum")
-        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
+        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
         wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
     
 
@@ -432,9 +432,9 @@ class LayoutsMenus:
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions = [int(mon_width / 2), 90]
 
-            chooseBookOM = ChooseBookSection.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
-            chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
-
+            #
+            # layout: 
+            #
             layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
             layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
 
@@ -455,18 +455,29 @@ class LayoutsMenus:
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
             TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
             
+            #
+            # screenshot:
+            #
             currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.__name__)
             currScrShotDirText.grid(columnspan = 2,row = 2)
 
-            chooseTopSectionOptionMenu = ChooseBookSection.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
+            #
+            # choose book/top section/subsections
+            #
+            chooseBookOM = ChooseMaterial.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
+            chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
+
+            chooseTopSectionOptionMenu = ChooseMaterial.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
             chooseTopSectionOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
 
-            chooseChapterMenusAndbackBtn = ChaptersUI.getButton_chooseChaptersMenusAndBack(winMainRoot, cls.__name__)
-            chooseChapterMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
-
-            chooseSubsectionMenu = ChooseBookSection.getOptionMenu_ChooseSubchapter(winMainRoot, cls.__name__)
+            chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.__name__)
             chooseSubsectionMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
     
+            #
+            # switch to sections menus
+            #
+            chooseSectionsMenusAndbackBtn = ChaptersUI.getButton_chooseSectionsMenusAndBack(winMainRoot, cls.__name__)
+            chooseSectionsMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
 
     class wholeVSCodeLayoutUI:
         pyAppDimensions = [None, None]
@@ -504,7 +515,7 @@ class LayoutsMenus:
 
 
 
-class ChooseBookSection:
+class ChooseMaterial:
 
     def getOptionsMenu_ChooseBook(mainWinRoot, namePrefix = ""):
         def bookMenuChooseCallback(bookNameStVar):
@@ -532,63 +543,75 @@ class ChooseBookSection:
         book_menu.grid(row=0, column = 0)
         
         return frame
-
     
     @classmethod
     def getOptionMenu_ChooseTopSection(cls, mainWinRoot, namePrefix = ""):
         '''
         functions that retrun options menus for choosing chapter
         '''
-        def chapterChoosingCallback(chapter):
-            print("chapterChoosingCallback - switching to chapter: " + chapter.get())
+        def sectionChoosingCallback():
+            topSection = wv.UItkVariables.topSection
+            print("chapterChoosingCallback - switching to chapter: " + topSection.get())
             
-            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSection_ID , chapter.get())
+            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID , topSection.get())
 
-            chapterImIndex = _u.BookSettings.ChapterProperties.getCurrChapterImIndex()
+            chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
+            
             wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
-
             
-            wu.Screenshot.setValueScreenshotLoaction()
-            
-            subchaptersList = wu._getSubsectionsListForCurrSection()
-            wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subchaptersList)
-            currSubchapter = _u.BookSettings.ChapterProperties.getChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:])
-            wv.UItkVariables.subchapter.set(currSubchapter)
-            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSectionFull_ID, subchaptersList[0])
+            #
+            # Update other widgets
+            #
+            subsectionsList = wu._getSubsectionsListForCurrTopSection()
+            wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
+            # currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+            # fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSectionFull_ID, subsectionsList[0])
 
-            currLayoutClass = _u.Settings.Layout.getCurrLayoutClass()
-            currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
-            currLayoutClass.set(mainWinRoot)
-            lu.moveWholeBookToChapter()
+            #
+            # update Layout
+            #
+            # currLayoutClass = _u.Settings.Layout.getCurrLayoutClass()
+            # currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
+            # currLayoutClass.set(mainWinRoot)
+            # lu.moveWholeBookToChapter()
 
-        chapter = tk.StringVar()
-        chapter.set(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID))
+        wv.UItkVariables.topSection = tk.StringVar()
+        wv.UItkVariables.topSection.set(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID))
 
         topSectionsList = fsm.getTopSectionsList()
         
-        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseChapter_optionMenu", background="Blue")
-        chapter_menu = tk.OptionMenu(frame, chapter, *topSectionsList, command= lambda x: chapterChoosingCallback(chapter))
-        chapter_menu.grid(row = 0, column = 0)
+        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
+        topSection_menu = tk.OptionMenu(frame, 
+                                        wv.UItkVariables.topSection , 
+                                        *topSectionsList, 
+                                        command= lambda x: sectionChoosingCallback())
+        topSection_menu.grid(row = 0, column = 0)
 
         return frame
-
     
+    def _subsectionChoosingCallback():
+            subsection = wv.UItkVariables.subsection
+            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID , subsection.get())
+            print("hippo")
+            wu.Screenshot.setValueScreenshotLoaction()
+            wv.UItkVariables.subsection.set(subsection.get())
+
     @classmethod
-    def getOptionMenu_ChooseSubchapter(cls, mainWinRoot, namePrefix = ""):
-        def subchapterChoosingCallback(subchapter):
-            _u.BookSettings.ChapterProperties.updateChapterLatestSubchapter(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
-                                                                    subchapter.get())
-            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, subchapter.get())
+    def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
         
 
-        wv.UItkVariables.subchapter  = tk.StringVar()
-        subchapter =wv.UItkVariables.subchapter
-        subchapter.set(_u.BookSettings.readProperty(fs.BookInfoStructure.PubProp.currSection_ID))
+        wv.UItkVariables.subsection  = tk.StringVar()
+        subsection =wv.UItkVariables.subsection
+        subsection.set(_u.BookSettings.readProperty(fs.BookInfoStructure.PubProp.currSection_ID))
         
-        subchaptersList = wu._getSubsectionsListForCurrSection()
+        subsectionsList = wu._getSubsectionsListForCurrTopSection()
 
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
-        subchapter_menu = tk.OptionMenu(frame, subchapter, *subchaptersList, command= lambda x: subchapterChoosingCallback(subchapter))
+        subchapter_menu = tk.OptionMenu(frame, 
+                                        subsection, 
+                                        *subsectionsList, 
+                                        command = lambda *args: cls._subsectionChoosingCallback(),
+                                        )
         subchapter_menu.grid(row = 0, column = 0)
         return frame
    
@@ -601,7 +624,7 @@ class ChaptersUI:
 
     @classmethod
     def setChaptersUI(cls, mainWinRoot):
-        chooseChapter_MenusBtn = cls.getButton_chooseChaptersMenusAndBack(mainWinRoot, cls.chaptersPrefix)
+        chooseChapter_MenusBtn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.chaptersPrefix)
         chooseChapter_MenusBtn.grid(row = 2, column = 3)
         entry_setChapterName, button_setChapterName = cls.getWidgets_setChapterName(mainWinRoot,  cls.chaptersPrefix)
         entry_setChapterName.grid(row = 0, column = 0)
@@ -635,7 +658,7 @@ class ChaptersUI:
 
 
     @classmethod
-    def getButton_chooseChaptersMenusAndBack(cls, mainWinRoot, prefixName = ""):
+    def getButton_chooseSectionsMenusAndBack(cls, mainWinRoot, prefixName = ""):
         def chooseChaptersMenusAndBackCallback():
             # hide all of the menus
             wu.hideAllWidgets(mainWinRoot)
