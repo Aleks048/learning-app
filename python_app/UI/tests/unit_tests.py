@@ -39,6 +39,12 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         currImIdx_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
         fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID, 
                                             currentTopSectionPath)
+        sections_ID = fs.BookInfoStructure.PubProp.sections_ID
+        sections = fs.BookInfoStructure.readProperty(sections_ID)
+        sections["2"]["prevSubsectionPath"] = "2.intro.pass"
+        sections["3"]["prevSubsectionPath"] = "3.intro.3pass"  
+        sections["4"]["prevSubsectionPath"] = "4.intro.2pass"
+        fs.BookInfoStructure.updateProperty(sections_ID, sections)
         fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, 
                                             currentSectionPath)
         fs.SectionInfoStructure.updateProperty(currentSectionPath, currImIdx_ID, "3")

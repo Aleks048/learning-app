@@ -552,20 +552,22 @@ class ChooseMaterial:
         def sectionChoosingCallback():
             topSection = wv.UItkVariables.topSection
             print("chapterChoosingCallback - switching to chapter: " + topSection.get())
-            
             fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID , topSection.get())
-
             chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
-            
-            wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
+            wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
             
             #
             # Update other widgets
             #
             subsectionsList = wu._getSubsectionsListForCurrTopSection()
             wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
-            # currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-            # fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.currSectionFull_ID, subsectionsList[0])
+            
+            sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+            prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
+            wv.UItkVariables.subsection.set(prevSubsectionPath)
+
+            # screenshot
+            wu.Screenshot.setValueScreenshotLoaction()
 
             #
             # update Layout
@@ -591,10 +593,13 @@ class ChooseMaterial:
     
     def _subsectionChoosingCallback():
             subsection = wv.UItkVariables.subsection
+            sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+            sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
+            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.sections_ID , sections)
+            
             fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID , subsection.get())
-            print("hippo")
+            
             wu.Screenshot.setValueScreenshotLoaction()
-            wv.UItkVariables.subsection.set(subsection.get())
 
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):

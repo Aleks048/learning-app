@@ -204,11 +204,17 @@ class BookInfoStructure:
                     "path": sectionFilepath,
                     "sections": {}
                 }
+            def addBookInfoTopSection(parentProperty):
+                parentProperty[relSectionPath] = {
+                    "path": sectionFilepath,
+                    "prevSubsectionPath":"",
+                    "sections": {}
+                }
             
             if i == 0:
                 if relSectionPath not in bookInfoSections.keys():
                     parentProperty = bookInfoSections
-                    addBookInfoSection(parentProperty)
+                    addBookInfoTopSection(parentProperty)
             else:
                 parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
                 
