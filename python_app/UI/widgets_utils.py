@@ -10,10 +10,11 @@ import layouts.layouts_manager as lm
 class Screenshot:
         
     def getValueScreenshotLocation():
+        prefix = "dir: "
         if wv.UItkVariables.scrshotPath.get() == "":
-            return "Current screenshot dir: " + _u.getCurrentScreenshotDir()
+            return prefix + _u.getCurrentScreenshotDir()
         else:
-            return "Current screenshot dir: " + wv.UItkVariables.scrshotPath.get()
+            return prefix + wv.UItkVariables.scrshotPath.get()
 
 
     def setValueScreenshotLoaction():

@@ -152,7 +152,6 @@ class BookInfoStructure:
         currentPage_ID = "currentPage"
         currTopSection_ID = "currTopSection"
         currSection_ID = "currSection"
-        currSubsectionsPath_ID = "currSubsectionsPath"
 
     bookInfoTemplate = {
         PubProp.version_ID: "0.1",
@@ -163,8 +162,7 @@ class BookInfoStructure:
         PubProp.currentState_ID: {
             PubProp.currentPage_ID: "",
             PubProp.currSection_ID: "",
-            PubProp.currTopSection_ID: "",
-            PubProp.currSubsectionsPath_ID: ""
+            PubProp.currTopSection_ID: ""
         }
     }
 

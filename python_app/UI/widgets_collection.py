@@ -373,12 +373,11 @@ end tell'"
     wv.UItkVariables.buttonText.set(buttonNames[0])
 
     def buttonCallback():
-        pass
-        # for i in range(len(buttonNames)):
-        #     if buttonNames[i] == wv.UItkVariables.buttonText.get():
-        #         _storeInputDataAndChange(buttonNames[(i+1)%len(buttonNames)], 
-        #                                 buttonNamesToFunc[buttonNames[i]], i)
-        #         break
+        for i in range(len(buttonNames)):
+            if buttonNames[i] == wv.UItkVariables.buttonText.get():
+                _storeInputDataAndChange(buttonNames[(i+1)%len(buttonNames)], 
+                                        buttonNamesToFunc[buttonNames[i]], i)
+                break
 
     processButton = tk.Button(mainWinRoot, 
                             name = prefixName.lower() + "_imageGeneration_processButton",
@@ -443,23 +442,23 @@ class LayoutsMenus:
             #
             imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
             imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
-            imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
+            # imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
-            addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
+            # addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
+            # addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
 
-            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-            imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
+            # imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+            # imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
 
-            TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
-            TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
-            TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
+            # TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
+            # TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
+            # TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
             
             #
             # screenshot:
             #
             currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.__name__)
-            currScrShotDirText.grid(columnspan = 2,row = 2)
+            currScrShotDirText.grid(columnspan = 3,row = 2, column = 1)
 
             #
             # choose book/top section/subsections
@@ -471,7 +470,7 @@ class LayoutsMenus:
             chooseTopSectionOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
 
             chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.__name__)
-            chooseSubsectionMenu.grid(column = 3, row = 2, padx = 0, pady = 0)
+            chooseSubsectionMenu.grid(column = 0, row = 2, padx = 0, pady = 0)
     
             #
             # switch to sections menus
@@ -524,6 +523,14 @@ class ChooseMaterial:
             bookPath = bookPaths[bookName]
             _u.Settings.Book.setCurrentBook(bookName, bookPath)
 
+            # set UI variables
+            wv.UItkVariables.topSection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID)
+            wv.UItkVariables.subsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+            # wv.UItkVariables.imageGenerationEntryText = \
+            #     fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(),
+            #                                         fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+            # wv.UItkVariables.currPage = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currentPage_ID)
+
 
         default_book_name="Select a a book"
 
@@ -545,38 +552,44 @@ class ChooseMaterial:
         return frame
     
     @classmethod
+    def _topSectionChoosingCallback(cls, mainWinRoot):
+        topSection = wv.UItkVariables.topSection
+        print("chapterChoosingCallback - switching to chapter: " + topSection.get())
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID , topSection.get())
+        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
+        wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
+        
+        #
+        # Update other widgets
+        #
+        subsectionsList = wu._getSubsectionsListForCurrTopSection()
+        wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
+        
+        sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+        prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
+        wv.UItkVariables.subsection.set(prevSubsectionPath)
+
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, prevSubsectionPath)
+        # screenshot
+        wu.Screenshot.setValueScreenshotLoaction()
+
+        wv.UItkVariables.imageGenerationEntryText.set(
+                fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
+                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+        )
+
+        # update Layout
+        #
+        # currLayoutClass = _u.Settings.Layout.getCurrLayoutClass()
+        # currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
+        # currLayoutClass.set(mainWinRoot)
+        # lu.moveWholeBookToChapter()
+
+    @classmethod
     def getOptionMenu_ChooseTopSection(cls, mainWinRoot, namePrefix = ""):
         '''
         functions that retrun options menus for choosing chapter
         '''
-        def sectionChoosingCallback():
-            topSection = wv.UItkVariables.topSection
-            print("chapterChoosingCallback - switching to chapter: " + topSection.get())
-            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID , topSection.get())
-            chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
-            wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
-            
-            #
-            # Update other widgets
-            #
-            subsectionsList = wu._getSubsectionsListForCurrTopSection()
-            wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
-            
-            sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
-            prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
-            wv.UItkVariables.subsection.set(prevSubsectionPath)
-
-            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, prevSubsectionPath)
-            # screenshot
-            wu.Screenshot.setValueScreenshotLoaction()
-
-            #
-            # update Layout
-            #
-            # currLayoutClass = _u.Settings.Layout.getCurrLayoutClass()
-            # currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
-            # currLayoutClass.set(mainWinRoot)
-            # lu.moveWholeBookToChapter()
 
         wv.UItkVariables.topSection = tk.StringVar()
         wv.UItkVariables.topSection.set(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID))
@@ -587,7 +600,7 @@ class ChooseMaterial:
         topSection_menu = tk.OptionMenu(frame, 
                                         wv.UItkVariables.topSection , 
                                         *topSectionsList, 
-                                        command= lambda x: sectionChoosingCallback())
+                                        command= lambda x: cls._topSectionChoosingCallback(mainWinRoot))
         topSection_menu.grid(row = 0, column = 0)
 
         return frame
@@ -600,6 +613,11 @@ class ChooseMaterial:
             
             fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID , subsection.get())
             
+            wv.UItkVariables.imageGenerationEntryText.set(
+                fs.SectionInfoStructure.readProperty(subsection.get(), 
+                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+            )
+
             wu.Screenshot.setValueScreenshotLoaction()
 
     @classmethod

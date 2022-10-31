@@ -35,7 +35,9 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
 
         # _waitDummy = wmes.ShowMessageMenu.createMenu("tetst")
         currentTopSectionPath = "2"
-        currentSectionPath = "2.intro.pass"
+        currentSection2Path = "2.intro.pass"
+        currentSection3Path = "3.intro.3pass"
+        currentSection4Path = "4.intro.2pass"
         currImIdx_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
         fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID, 
                                             currentTopSectionPath)
@@ -45,9 +47,9 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         sections["3"]["prevSubsectionPath"] = "3.intro.3pass"  
         sections["4"]["prevSubsectionPath"] = "4.intro.2pass"
         fs.BookInfoStructure.updateProperty(sections_ID, sections)
-        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, 
-                                            currentSectionPath)
-        fs.SectionInfoStructure.updateProperty(currentSectionPath, currImIdx_ID, "3")
+        fs.SectionInfoStructure.updateProperty(currentSection2Path, currImIdx_ID, "2")
+        fs.SectionInfoStructure.updateProperty(currentSection3Path, currImIdx_ID, "3")
+        fs.SectionInfoStructure.updateProperty(currentSection4Path, currImIdx_ID, "4")
         
         _waitDummy = wm.MainMenu.createMenu()
 
