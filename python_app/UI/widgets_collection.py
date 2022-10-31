@@ -526,9 +526,11 @@ class ChooseMaterial:
             # set UI variables
             wv.UItkVariables.topSection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID)
             wv.UItkVariables.subsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-            # wv.UItkVariables.imageGenerationEntryText = \
-            #     fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(),
-            #                                         fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+            
+            wv.UItkVariables.imageGenerationEntryText.set(
+                fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
+                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+            )
             # wv.UItkVariables.currPage = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currentPage_ID)
 
 
@@ -573,6 +575,7 @@ class ChooseMaterial:
         # screenshot
         wu.Screenshot.setValueScreenshotLoaction()
 
+        # update image index 
         wv.UItkVariables.imageGenerationEntryText.set(
                 fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
                                                     fs.SectionInfoStructure.SecPubProp.imIndex_ID)
