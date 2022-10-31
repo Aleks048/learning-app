@@ -566,6 +566,7 @@ class ChooseMaterial:
             prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
             wv.UItkVariables.subsection.set(prevSubsectionPath)
 
+            fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, prevSubsectionPath)
             # screenshot
             wu.Screenshot.setValueScreenshotLoaction()
 
