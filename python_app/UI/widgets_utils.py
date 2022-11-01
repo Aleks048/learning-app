@@ -56,8 +56,6 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
 
 def _getSubsectionsListForCurrTopSection():
     currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID)
-    print("hop")
-    print(currSectionPath)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
 

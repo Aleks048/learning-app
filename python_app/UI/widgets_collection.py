@@ -8,6 +8,7 @@ import file_system.file_system_main as fs
 import file_system.file_system_manager as fsm
 import UI.widgets_vars as wv
 import UI.widgets_utils as wu
+import UI.widgets_messages as wm
 import layouts.layouts_utils as lu
 import layouts.layouts_manager as lm
 import tex_file.create_tex_file as t
@@ -81,8 +82,8 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
 
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
-        currImID = str(int(_u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID)) - 1)
-        currentSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
+        currentSubsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currImID = fs.SectionInfoStructure.readProperty(currentSubsection, fs.SectionInfoStructure.PubProp.imIndex_ID)
         
         # screenshot
         imName = ""
@@ -92,15 +93,15 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             if "_imageGeneration_" + wu.entryWidget_ID in w._name:
                 imName = w.get()
         
-        extraImagePath = _u.getCurrentScreenshotRelDir() \
-                            + currImID + "_" + currentSubchapter \
+        extraImagePath = _u.getCurrentScreenshotAbsDir() \
+                            + currImID + "_" + currentSubsection \
                             + "_" + imName
         
         if os.path.isfile(extraImagePath + ".png"):
             def takeScreencapture(savePath):
                 os.system("screencapture -ix " + savePath)
                 wv.UItkVariables.needRebuild.set(True)
-            cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, extraImagePath + ".png")
+            wm.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, extraImagePath + ".png")
         else:
             os.system("screencapture -ix " + extraImagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
@@ -387,9 +388,6 @@ end tell'"
     return [imageProcessingETR, processButton]
 
 
-
-
-
 class LayoutsMenus:
 
 
@@ -448,11 +446,11 @@ class LayoutsMenus:
             imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
             imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            # addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
-            # addExtraImage.grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.E)
+            addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
+            addExtraImage.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.E)
 
-            # imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-            # imageGenerationRestartBTN.grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.W)
+            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+            imageGenerationRestartBTN.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.W)
 
             TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
@@ -548,7 +546,6 @@ class ChooseMaterial:
 
         # Create the list of books we have
         listOfBooksNames = _u.getListOfBooks()
-        print(listOfBooksNames)
 
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseBook_optionMenu", background="Blue")
         book_menu = tk.OptionMenu(frame, book_name, 

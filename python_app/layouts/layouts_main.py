@@ -32,7 +32,7 @@ class Layout:
         raise NotImplementedError()
 
 
-class ChapterLayout(Layout):
+class SectionLayout(Layout):
     layoutUInames = []
     pyAppDimensions = [None, None]
     
@@ -40,8 +40,8 @@ class ChapterLayout(Layout):
     @classmethod
     def set(cls, mainWinRoot):
         '''
-        # chapter: 
-        #       skim chapter to the right 
+        # Section: 
+        #       skim Section to the right 
         #       vscode to the left
         '''
         # set menu dimensions

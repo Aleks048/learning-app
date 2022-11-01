@@ -35,7 +35,6 @@ def getCurrentSectionAbsDir():
 
 def getCurrentSectionRelDir():
     currSec = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-    print(currSec)
     filepath = fs.BookInfoStructure.readProperty(currSec)["path"]
     bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
@@ -252,8 +251,6 @@ def getpageOfcurrentDoc():
 
 def getCurrSecImIdx():
     currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-    print("hi")
-    print(currSectionPath)
     imIndex_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
     return fs.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
 
@@ -289,7 +286,7 @@ class Settings:
 
     #layouts
     #NOTE: it is used to cut the layout class name
-    layoutsList = ["Chapter", "Main", "WholeVSCode"]
+    layoutsList = ["Section", "Main", "WholeVSCode"]
     layoutClassToken = "Layout"
     currLayout = ""
     mon_windth, mon_height  = getMonitorSize()

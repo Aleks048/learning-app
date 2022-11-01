@@ -236,7 +236,6 @@ class BookInfoStructure:
 
     @classmethod
     def readProperty(cls, property):
-        print(property)
         return _u.readJSONProperty(cls._getAsbFilepath(), property)
 
     @classmethod
