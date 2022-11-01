@@ -6,30 +6,24 @@ import file_system.file_system_main as fs
 
 
 class TexFile:
-    def _getCurrTexFilesDir(currSubchapter):
-        currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
-        return _u.Settings.getBookFolderPath(_u.Settings.readProperty(_u.Settings.getCurrentBookFolderName())) + \
-                "/" + currChapter + "/" + \
-                _u.Settings.relToSubchapters_Path + \
-                "/ch_" + currSubchapter
-    
+    sectionPrefix = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_prefix_ID) + "_"
 
     @classmethod
     def _getCurrContentFilepath(cls):
-        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
-        return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_con.tex"
+        currSubsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
-        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
-        return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_toc.tex"
+        currSusection = _u.BookSettings.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
-        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
-        return cls._getCurrTexFilesDir(currSubchapter) + "/" + currSubchapter + "_main.tex"
+        currSussection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
 
 
     def _populateMainFile():
@@ -67,7 +61,7 @@ class TexFile:
                 
         with open(os.getenv("BOOKS_PROCESS_TEX_PATH") + "/template.tex", 'r') as templateF:
             templateFile = templateF.readlines()
-            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)) for i in templateFile]
+            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)) for i in templateFile]
 
         with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
 
@@ -119,9 +113,8 @@ class TexFile:
 
 
     @classmethod 
-    def buildCurrentSubchapterPdf(cls):
-        currSubchapter = _u.BookSettings.readProperty(_u.BookSettings.CurrentStateProperties.Book.currSectionFull_ID)
-        currTexFilesFolder = cls._getCurrTexFilesDir(currSubchapter)
+    def buildCurrentSubsectionPdf(cls):
+        currTexFilesFolder = _u.getCurrentSectionAbsDir()
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)

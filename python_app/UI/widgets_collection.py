@@ -67,11 +67,11 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
         if showProofsVar.get() == "Show Proofs":
             showProofsVar.set("Hide Proofs")
             _changeProofsVisibility(True)
-            Thread(target=t.TexFile.buildCurrentSubchapterPdf).start()
+            Thread(target=t.TexFile.buildCurrentSubsectionPdf).start()
         elif showProofsVar.get() == "Hide Proofs":
             showProofsVar.set("Show Proofs")
             _changeProofsVisibility(False)
-            Thread(target=t.TexFile.buildCurrentSubchapterPdf).start()
+            Thread(target=t.TexFile.buildCurrentSubsectionPdf).start()
     
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_showProofsBTN",
@@ -92,7 +92,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             if "_imageGeneration_" + wu.entryWidget_ID in w._name:
                 imName = w.get()
         
-        extraImagePath = _u.getCurrentScreenshotDir() \
+        extraImagePath = _u.getCurrentScreenshotRelDir() \
                             + currImID + "_" + currentSubchapter \
                             + "_" + imName
         
@@ -140,7 +140,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
             end tell\n\
         end tell\
         '")
-        t.TexFile.buildCurrentSubchapterPdf()
+        t.TexFile.buildCurrentSubsectionPdf()
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_saveImgBTN",
                     text = "saveIM",
@@ -184,8 +184,6 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
 def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     wv.UItkVariables.imageGenerationEntryText = tk.StringVar()
-    print("hi")
-    print(type(mainWinRoot))
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
@@ -260,10 +258,10 @@ end tell'"
 
 
     def _createTexForTheProcessedImage():
-        currentSubchapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currsubsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
 
-        extraImagePath = _u.getCurrentScreenshotDir() \
-                            + dataFromUser[0] + "_" + currentSubchapter \
+        extraImagePath = _u.getCurrentScreenshotAbsDir() \
+                            + dataFromUser[0] + "_" + currsubsection \
                             + "_" + dataFromUser[1]
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
@@ -306,7 +304,7 @@ end tell'"
 \\mybox{\n\
     \\link[" + dataFromUser[0] + \
     "]{" + dataFromUser[1] + "} \\image[0.5]{" + \
-    dataFromUser[0] + "_" + currentSubchapter + "_" + dataFromUser[1] + "}\n\
+    dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1] + "}\n\
 }\n\n\n"
                     f.write(toc_add_image)
             else:  
@@ -321,12 +319,12 @@ end tell'"
             
 
         #create a script to run on page change
-        imageAnscriptPath = _u.getCurrentScreenshotDir() + dataFromUser[0] + \
-                            "_" + currentSubchapter + "_" + dataFromUser[1]
+        imageAnscriptPath = _u.getCurrentScreenshotAbsDir() + dataFromUser[0] + \
+                            "_" + currsubsection + "_" + dataFromUser[1]
 
         # STOTE IMNUM, IMNAME AND LINK
-        fs.BookInfoStructure.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, dataFromUser[0])
-        _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currLinkName_ID, dataFromUser[1])
+        fs.SectionInfoStructure.updateProperty(currsubsection, fs.SectionInfoStructure.PubProp.imIndex_ID, dataFromUser[0])
+        fs.SectionInfoStructure.updateProperty(currsubsection, fs.SectionInfoStructure.PubProp.imLinkName_ID, dataFromUser[1])
         
         # POPULATE THE MAIN FILE
         t.TexFile._populateMainFile()
@@ -344,13 +342,14 @@ end tell'"
                 os.system("chmod +x " + savePath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                _u.BookSettings.ChapterProperties.updateChapterImageIndex(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
-                                                                    nextImNum)
-                _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, nextImNum)
+                fs.SectionInfoStructure.updateProperty(
+                        currsubsection, 
+                        fs.SectionInfoStructure.PubProp.imIndex_ID,
+                        nextImNum)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wv.UItkVariables.buttonText.set("imNum")
             
-            cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
+            # cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
         else:
             os.system("screencapture -ix " + imageAnscriptPath + ".png")
             wv.UItkVariables.needRebuild.set(True)
@@ -361,9 +360,10 @@ end tell'"
             os.system("chmod +x " + imageAnscriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
-            _u.BookSettings.ChapterProperties.updateChapterImageIndex(fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)[2:],
-                                                                nextImNum)
-            _u.BookSettings.updateProperty(_u.BookSettings.CurrentStateProperties.Section.currImageID_ID, nextImNum)
+            fs.SectionInfoStructure.updateProperty(
+                        currsubsection, 
+                        fs.SectionInfoStructure.PubProp.imIndex_ID,
+                        nextImNum)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
 
     buttonNamesToFunc = {"imNum": lambda *args: wv.UItkVariables.imageGenerationEntryText.set(""),
@@ -398,7 +398,8 @@ class LayoutsMenus:
 
         @classmethod
         def addWidgets(cls, winMainRoot):
-            wv.UItkVariables.needRebuild = tk.BooleanVar()
+            if wv.UItkVariables.needRebuild == None:
+                wv.UItkVariables.needRebuild = tk.BooleanVar()
 
             layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
             layoutOM.grid(column=0, row=0, padx=0, pady=0)
@@ -428,6 +429,9 @@ class LayoutsMenus:
 
         @classmethod
         def addWidgets(cls, winMainRoot):
+            if wv.UItkVariables.needRebuild == None:
+                wv.UItkVariables.needRebuild = tk.BooleanVar()
+            
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions = [int(mon_width / 2), 90]
 
@@ -441,18 +445,18 @@ class LayoutsMenus:
             # image generation:
             #
             imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
-            imageGenerationUI[0].grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.N)
-            # imageGenerationUI[1].grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.N)
+            imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
+            imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
             # addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
-            # addExtraImage.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.E)
+            # addExtraImage.grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.E)
 
             # imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
-            # imageGenerationRestartBTN.grid(column = 1, row = 0, padx = 0, pady = 0, sticky = tk.W)
+            # imageGenerationRestartBTN.grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.W)
 
-            # TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
-            # TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
-            # TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
+            TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
+            TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
+            TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
             
             #
             # screenshot:
@@ -467,7 +471,7 @@ class LayoutsMenus:
             chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
 
             chooseTopSectionOptionMenu = ChooseMaterial.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
-            chooseTopSectionOptionMenu.grid(column = 2, row = 0, padx = 0, pady = 0)
+            chooseTopSectionOptionMenu.grid(column = 1, row = 0, padx = 0, pady = 0)
 
             chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.__name__)
             chooseSubsectionMenu.grid(column = 0, row = 2, padx = 0, pady = 0)
@@ -529,7 +533,7 @@ class ChooseMaterial:
             
             wv.UItkVariables.imageGenerationEntryText.set(
                 fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
-                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+                                                    fs.SectionInfoStructure.PubProp.imIndex_ID)
             )
             # wv.UItkVariables.currPage = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currentPage_ID)
 
@@ -578,7 +582,7 @@ class ChooseMaterial:
         # update image index 
         wv.UItkVariables.imageGenerationEntryText.set(
                 fs.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
-                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+                                                    fs.SectionInfoStructure.PubProp.imIndex_ID)
         )
 
         # update Layout
@@ -618,7 +622,7 @@ class ChooseMaterial:
             
             wv.UItkVariables.imageGenerationEntryText.set(
                 fs.SectionInfoStructure.readProperty(subsection.get(), 
-                                                    fs.SectionInfoStructure.SecPubProp.imIndex_ID)
+                                                    fs.SectionInfoStructure.PubProp.imIndex_ID)
             )
 
             wu.Screenshot.setValueScreenshotLoaction()

@@ -55,7 +55,7 @@ class ChapterLayout(Layout):
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currChapterFull)
         
         if ownerName == None or windowID == None:
-            t.TexFile.buildCurrentSubchapterPdf()
+            t.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
             pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + "/" + currChapter + "/subchapters/ch_" + currChapterFull + "/" + currChapterFull + "_main.pdf"
@@ -83,7 +83,7 @@ class ChapterLayout(Layout):
         _layouts_utils.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
 
         if ui.UItkVariables.needRebuild.get() == True:
-            Thread(target = t.TexFile.buildCurrentSubchapterPdf).start()
+            Thread(target = t.TexFile.buildCurrentSubsectionPdf).start()
 
 
 class MainLayout(Layout):

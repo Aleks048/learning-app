@@ -38,9 +38,11 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         currentSection2Path = "2.intro.pass"
         currentSection3Path = "3.intro.3pass"
         currentSection4Path = "4.intro.2pass"
-        currImIdx_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
+        currImIdx_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
         fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currTopSection_ID, 
                                             currentTopSectionPath)
+        fs.BookInfoStructure.updateProperty(fs.BookInfoStructure.PubProp.currSection_ID, 
+                                            currentSection2Path)
         sections_ID = fs.BookInfoStructure.PubProp.sections_ID
         sections = fs.BookInfoStructure.readProperty(sections_ID)
         sections["2"]["prevSubsectionPath"] = "2.intro.pass"

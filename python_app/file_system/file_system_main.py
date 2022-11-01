@@ -13,7 +13,7 @@ class TOCStructure:
     Keeps the toc for the sections and links to them.
     '''
 
-    class TocPubPro:
+    class PubPro:
         TEXT_MARKER = "[SECTION_TEXT]"
         START_MARKER = "[SECTION_START]" 
         FINISH_MARKER = "[SECTION_FINISH]"
@@ -64,8 +64,8 @@ class TOCStructure:
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
 
             
-            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.TocPubPro.NAME_MARKER, topSectionName)
-            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.TocPubPro.CONTENT_MARKER, sectionsTOCLines[0])
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.PubPro.NAME_MARKER, topSectionName)
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), cls.PubPro.CONTENT_MARKER, sectionsTOCLines[0])
 
     
     def _getTOCSectionNameFromSectionPath(sectionPath):
@@ -82,17 +82,17 @@ class TOCStructure:
         if oldPropertyValue != "":
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + oldPropertyValue + "]", "[" + newValue + "]", "[" + sectionPath + "]")
         else:
-            marker = cls.TocPubPro.propertyToMarker[propertyName]
+            marker = cls.PubPro.propertyToMarker[propertyName]
             _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), "[" + marker  + "]","[" + newValue + "]",  "[" + sectionPath + "]")
 
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
-        INTEMEDIATE_LINE = cls.TocPubPro.NAME_MARKER + ":\\\\\n"
-        BOTTOM_LINE = "\TOCline{[" + cls.TocPubPro.TEXT_MARKER + \
-            "] [" + cls.TocPubPro.NAME_MARKER + "]// [" + \
-            cls.TocPubPro.START_MARKER + \
-            "] - [" + cls.TocPubPro.FINISH_MARKER + "]}{[" + \
-            cls.TocPubPro.START_MARKER + "]}" + \
+        INTEMEDIATE_LINE = cls.PubPro.NAME_MARKER + ":\\\\\n"
+        BOTTOM_LINE = "\TOCline{[" + cls.PubPro.TEXT_MARKER + \
+            "] [" + cls.PubPro.NAME_MARKER + "]// [" + \
+            cls.PubPro.START_MARKER + \
+            "] - [" + cls.PubPro.FINISH_MARKER + "]}{[" + \
+            cls.PubPro.START_MARKER + "]}" + \
             "\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
@@ -101,10 +101,10 @@ class TOCStructure:
             if type(section) == dict:
                 if section["sections"] == {}:
                     # add line
-                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.TocPubPro.NAME_MARKER, name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, name)
                     outLines[0] = outLines[0] + lineToAdd
                 else:
-                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.TocPubPro.NAME_MARKER, name)
+                    lineToAdd = DEFAULT_PREFIX_SPACES + INTEMEDIATE_LINE.replace(cls.PubPro.NAME_MARKER, name)
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
     
@@ -236,6 +236,7 @@ class BookInfoStructure:
 
     @classmethod
     def readProperty(cls, property):
+        print(property)
         return _u.readJSONProperty(cls._getAsbFilepath(), property)
 
     @classmethod
@@ -256,14 +257,15 @@ class SectionInfoStructure:
     # currImageName_ID = "currImageName"
     # currLinkName_ID = "currLinkName"
 
-    class SecPubProp:
+    class PubProp:
         name_ID = "_name"
         startPage_ID = "_startPage"
         latestSubchapter_ID = "_latestSubchapter"
         imIndex_ID = "_imIndex"
         subSections_ID = "_subSections"
+        imLinkName_ID = ""
 
-    class SecPrivateProp:
+    class PrivProp:
         tocData_ID = "_tocData"
 
         level_ID = "_level"
@@ -279,19 +281,20 @@ class SectionInfoStructure:
     def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
-                sectionInfoEntryPrefix + cls.SecPubProp.name_ID: "",
-                sectionInfoEntryPrefix + cls.SecPubProp.startPage_ID: "",
-                sectionInfoEntryPrefix + cls.SecPubProp.latestSubchapter_ID: "",
-                sectionInfoEntryPrefix + cls.SecPubProp.imIndex_ID: "",
-                sectionInfoEntryPrefix + cls.SecPubProp.subSections_ID: [],
-                sectionInfoEntryPrefix + cls.SecPrivateProp.levelData_ID:{
-                    sectionInfoEntryPrefix + cls.SecPrivateProp.levelData_depth_ID: str(depth),
-                    sectionInfoEntryPrefix + cls.SecPrivateProp.levelData_level_ID: str(level),
+                sectionInfoEntryPrefix + cls.PubProp.name_ID: "",
+                sectionInfoEntryPrefix + cls.PubProp.startPage_ID: "",
+                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter_ID: "",
+                sectionInfoEntryPrefix + cls.PubProp.imIndex_ID: "",
+                sectionInfoEntryPrefix + cls.PubProp.imLinkName_ID: "",
+                sectionInfoEntryPrefix + cls.PubProp.subSections_ID: [],
+                sectionInfoEntryPrefix + cls.PrivProp.levelData_ID:{
+                    sectionInfoEntryPrefix + cls.PrivProp.levelData_depth_ID: str(depth),
+                    sectionInfoEntryPrefix + cls.PrivProp.levelData_level_ID: str(level),
                 },
-                sectionInfoEntryPrefix + cls.SecPrivateProp.tocData_ID:{
-                    sectionInfoEntryPrefix + TOCStructure.TocPubPro.text_ID: "",
-                    sectionInfoEntryPrefix + TOCStructure.TocPubPro.start_ID: "",
-                    sectionInfoEntryPrefix + TOCStructure.TocPubPro.finish_ID: ""
+                sectionInfoEntryPrefix + cls.PrivProp.tocData_ID:{
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.text_ID: "",
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.start_ID: "",
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.finish_ID: ""
                 }
         }
         return sectionInfo_template

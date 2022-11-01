@@ -28,15 +28,26 @@ def getMonitorSize():
     for m in get_monitors():
        return(m.width,m.height)
 
-def getCurrentScreenshotDir():
+def getCurrentSectionAbsDir():
+    relFilepath = getCurrentSectionRelDir()
+    bookPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
+    return bookPath + "/" + relFilepath
+
+def getCurrentSectionRelDir():
     currSec = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
     print(currSec)
     filepath = fs.BookInfoStructure.readProperty(currSec)["path"]
     bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
     relFilepath = filepath.replace(bookpath, "")
-    relFilepath = "/".join(relFilepath.split("/")[:-1]) + "/images"
+    relFilepath = "/".join(relFilepath.split("/")[:-1])
     return relFilepath
+
+def getCurrentScreenshotRelDir():
+    return  getCurrentSectionRelDir() + "/images/"
+
+def getCurrentScreenshotAbsDir():
+    return  getCurrentSectionAbsDir() + "/images/"
 
 '''
 JSON
@@ -241,7 +252,9 @@ def getpageOfcurrentDoc():
 
 def getCurrSecImIdx():
     currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-    imIndex_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
+    print("hi")
+    print(currSectionPath)
+    imIndex_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
     return fs.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
 
 
@@ -465,7 +478,7 @@ class BookSettings:
         @classmethod
         def getCurrSectionImIndex(cls):
             sectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-            imIndex_ID = fs.SectionInfoStructure.SecPubProp.imIndex_ID
+            imIndex_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
             imIndex = fs.SectionInfoStructure.readProperty(sectionPath, imIndex_ID)
             return imIndex
         
