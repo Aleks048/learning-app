@@ -20,7 +20,7 @@ def createMainWindow(position):
         layoutClass.setUIElements(mainWinRoot)
     
     print("* createMainWindow - setting up Chapters UI")
-    ChaptersUI.setChaptersUI(mainWinRoot)
+    SectionsUI.setSectionsUI(mainWinRoot)
 
 
     UIWidgets.hideAllWidgets(mainWinRoot)

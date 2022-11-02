@@ -18,7 +18,6 @@ class Screenshot:
 
 
     def setValueScreenshotLoaction():
-        print()
         wv.UItkVariables.scrshotPath.set(_u.getCurrentScreenshotRelDir())
 
 
@@ -73,11 +72,14 @@ def hideAllWidgets(mainWinRoot):
         e.grid_remove()
 
 
-def showCurrentLayout(mainWinRoot):
+def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     #TODO: need to be reworked
     l_Name = _u.Settings.readProperty(_u.Settings.PubProp.currLayout_ID)
-    layoutClass = [i for i in lm.listOfLayoutClasses if i.__name__.replace(_u.Settings.PubProp.currLayout_ID,"") == l_Name][0]
-    layoutClass.set(mainWinRoot)
+    
+    layoutClass = [i for i in lm.listOfLayoutClasses if i.__name__.replace(_u.Settings.layoutClassToken,"") == l_Name][0]
+    print("showCurrentLayout - Showing layout: " + layoutClass.__name__)
+    
+    layoutClass.set(mainWinRoot, menuWidth, menuHeight)
     hideAllWidgets(mainWinRoot)
 
     for e in mainWinRoot.winfo_children():

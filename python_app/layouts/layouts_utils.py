@@ -30,9 +30,9 @@ def hideApplicationsWindow(appName, windowID):
 
 
 def openPdfInSkim(pathToChapterFolder):
-    print("Opening in " + u.Settings.skim_ID + " pdf: " + pathToChapterFolder)
+    print("Opening in " + _u.Settings._appsIDs.skim_ID + " pdf: " + pathToChapterFolder)
     osascript = "osascript -e '\n\
-    tell application \"" + u.Settings.skim_ID + "\"\n\
+    tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
         open \"" + pathToChapterFolder + "\"\n\
     end tell\n\
     '"

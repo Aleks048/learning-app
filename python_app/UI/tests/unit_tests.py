@@ -52,6 +52,8 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         fs.SectionInfoStructure.updateProperty(currentSection2Path, currImIdx_ID, "2")
         fs.SectionInfoStructure.updateProperty(currentSection3Path, currImIdx_ID, "3")
         fs.SectionInfoStructure.updateProperty(currentSection4Path, currImIdx_ID, "4")
+
+        _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
         
         _waitDummy = wm.MainMenu.createMenu()
 

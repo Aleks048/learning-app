@@ -14,7 +14,6 @@ import layouts.layouts_manager as lm
 import tex_file.create_tex_file as t
 
 
-
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     wv.UItkVariables.createTOCVar = tk.IntVar()
     wv.UItkVariables.createTOCVar.set(1)
@@ -389,8 +388,6 @@ end tell'"
 
 
 class LayoutsMenus:
-
-
     class ChaptersLayoutUI:
         pyAppDimensions = [None, None]
 
@@ -437,7 +434,7 @@ class LayoutsMenus:
             # layout: 
             #
             layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
-            layoutOM.grid(column = 0, row = 1, padx = 0, pady = 0)
+            layoutOM.grid(column = 1, row = 0, padx = 0, pady = 0)
 
             #
             # image generation:
@@ -469,7 +466,7 @@ class LayoutsMenus:
             chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
 
             chooseTopSectionOptionMenu = ChooseMaterial.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
-            chooseTopSectionOptionMenu.grid(column = 1, row = 0, padx = 0, pady = 0)
+            chooseTopSectionOptionMenu.grid(column = 0, row = 1, padx = 0, pady = 0)
 
             chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.__name__)
             chooseSubsectionMenu.grid(column = 0, row = 2, padx = 0, pady = 0)
@@ -477,10 +474,10 @@ class LayoutsMenus:
             #
             # switch to sections menus
             #
-            chooseSectionsMenusAndbackBtn = ChaptersUI.getButton_chooseSectionsMenusAndBack(winMainRoot, cls.__name__)
+            chooseSectionsMenusAndbackBtn = SectionsUI.getButton_chooseSectionsMenusAndBack(winMainRoot, cls.__name__)
             chooseSectionsMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
 
-    class wholeVSCodeLayoutUI:
+    class WholeVSCodeLayoutUI:
         pyAppDimensions = [None, None]
 
         @classmethod
@@ -498,7 +495,9 @@ class LayoutsMenus:
 
             def layoutOptionMenuCallback(layout_name_vatying):
                 _u.Settings.currLayout = layout_name_vatying.get()
-                wu.showCurrentLayout(mainWinRoot)
+                wu.showCurrentLayout(mainWinRoot, 
+                                    LayoutsMenus.MainLayoutUI.pyAppDimensions[0],
+                                    LayoutsMenus.MainLayoutUI.pyAppDimensions[1])
             
             listOfLayouts = _u.Settings.layoutsList
             layout_name_vatying = tk.StringVar()
@@ -513,7 +512,6 @@ class LayoutsMenus:
             layouts_optionMenu.grid(row=0, column=0)
             
             return frame
-
 
 
 class ChooseMaterial:
@@ -647,11 +645,11 @@ class ChooseMaterial:
 '''
 chapters menu widgets
 '''
-class ChaptersUI:
+class SectionsUI:
     chaptersPrefix = "chaptersID"
 
     @classmethod
-    def setChaptersUI(cls, mainWinRoot):
+    def setSectionsUI(cls, mainWinRoot):
         chooseChapter_MenusBtn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.chaptersPrefix)
         chooseChapter_MenusBtn.grid(row = 2, column = 3)
         entry_setChapterName, button_setChapterName = cls.getWidgets_setChapterName(mainWinRoot,  cls.chaptersPrefix)

@@ -1,4 +1,5 @@
 import sys, os, json
+from telnetlib import SE
 from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
@@ -315,10 +316,11 @@ class Settings:
         
         @classmethod
         def getWholeBookPath(cls):
-            return getPathToBooks() \
-                +  Settings.readProperty(cls.getCurrentBookFolderName()) \
-                + "/" + Settings.PubProp.wholeBook_ID \
+            path = Settings.readProperty(Settings.PubProp.currBookPath_ID) \
+                + fs.BookInfoStructure.originalMaterialBaseRelPath \
                 + "/" + Settings.PubProp.wholeBook_ID + ".pdf"
+            print(path)
+            return path
 
         def getCurrBookFolderPath():
             return Settings.readProperty(Settings.PubProp.currBookPath_ID)
