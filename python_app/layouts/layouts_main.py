@@ -113,12 +113,13 @@ class MainLayout(Layout):
     end tell'"
             os.system(osascript)
 
-        # change the manu size
-        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight))
 
         # whole book in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
+        
+        # change the manu size
+        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
 
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
@@ -128,10 +129,9 @@ class MainLayout(Layout):
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            # pathToChapterFolder =  _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID) + \
-            #                         "/" + currSection + "/" + currSection + "_images"
             currScreenshotDir = _u.getCurrentScreenshotAbsDir()
             _waitDummy = lu.openChapterFolderInFinder(currScreenshotDir)
+            # TODO: this needs to change
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", "images")
         
         if ownerName == None or windowID == None: 
