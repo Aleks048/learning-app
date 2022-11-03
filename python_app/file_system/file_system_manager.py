@@ -8,14 +8,32 @@ import file_system.file_system_main as fs
 Facade for Filesystem
 '''
 
-class SectionProperties_IDs(fs.SectionInfoStructure.PubProp):
+class Data:
     pass
 
-class BookProperties_IDs(fs.BookInfoStructure.PubProp):
-    pass
+class Wrappers:
+    class BookInfoStructure(fs.BookInfoStructure):
+        pass
 
-class TOCProperties_IDs(fs.TOCStructure.PubPro):
-    pass
+    class SectionInfoStructure(fs.SectionInfoStructure):
+        pass
+
+    class TOCStructure(fs.TOCStructure):
+        pass
+
+    class OriginalMaterialStructure(fs.OriginalMaterialStructure):
+        pass
+
+
+class PropIDs:
+    class SectionProperties_IDs(fs.SectionInfoStructure.PubProp):
+        pass
+
+    class BookProperties_IDs(fs.BookInfoStructure.PubProp):
+        pass
+
+    class TOCProperties_IDs(fs.TOCStructure.PubPro):
+        pass
 
 
 

@@ -4,9 +4,8 @@ from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
 
-# import UI.widgets_collection as ui
-import UI.widgets_messages as wm
-import file_system.file_system_main as fs
+import UI.widgets_manager as wm
+import file_system.file_system_manager as fsm
 
 
 def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
@@ -35,8 +34,8 @@ def getCurrentSectionAbsDir():
     return bookPath + "/" + relFilepath
 
 def getCurrentSectionRelDir():
-    currSec = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-    filepath = fs.BookInfoStructure.readProperty(currSec)["path"]
+    currSec = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+    filepath = fsm.Wrappers.BookInfoStructure.readProperty(currSec)["path"]
     bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
     relFilepath = filepath.replace(bookpath, "")
@@ -240,7 +239,7 @@ def getpageOfcurrentDoc():
         return -1
     
     windowList = getWindowsFromApp(app)
-    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+    currChapter = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
     
     for window in windowList:
         if window["kCGWindowOwnerName"] == app.localizedName():
@@ -251,9 +250,9 @@ def getpageOfcurrentDoc():
                 return pageNum
 
 def getCurrSecImIdx():
-    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-    imIndex_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
-    return fs.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
+    currSectionPath = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+    imIndex_ID = fsm.Wrappers.SectionInfoStructure.PubProp.imIndex_ID
+    return fsm.Wrappers.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
 
 
 '''
@@ -317,7 +316,7 @@ class Settings:
         @classmethod
         def getWholeBookPath(cls):
             path = Settings.readProperty(Settings.PubProp.currBookPath_ID) \
-                + fs.BookInfoStructure.originalMaterialBaseRelPath \
+                + fsm.Wrappers.BookInfoStructure.originalMaterialBaseRelPath \
                 + "/" + Settings.PubProp.wholeBook_ID + ".pdf"
             print(path)
             return path
@@ -419,17 +418,17 @@ class BookSettings:
                     message = "created chapter: " \
                             + chNum + "\nwith Name: " \
                             + chName + "\nwith starting page: " + chStartPage
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("addChapter - " + message)
                 else:
                     message = "Did not create chapter: " \
                             + chNum \
                             + ". It is already in the data."
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("addChapter - " + message)
             else:
                 message = "Did not add chapter since the chapter num is empty."
-                wm.ShowMessageMenu.createMenu(message)
+                wm.Wrappers.MessageMenu.createMenu(message)
                 print("addChapter - " + message)
         
 
@@ -476,9 +475,9 @@ class BookSettings:
 
         @classmethod
         def getCurrSectionImIndex(cls):
-            sectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-            imIndex_ID = fs.SectionInfoStructure.PubProp.imIndex_ID
-            imIndex = fs.SectionInfoStructure.readProperty(sectionPath, imIndex_ID)
+            sectionPath = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+            imIndex_ID = fsm.PropIDs.SectionProperties_IDs.imIndex_ID
+            imIndex = fsm.Wrappers.SectionInfoStructure.readProperty(sectionPath, imIndex_ID)
             return imIndex
         
 
@@ -497,7 +496,7 @@ class BookSettings:
                                 chName)
             
             message = "Updated " + propertyName + " to: " + chName
-            wm.ShowMessageMenu.createMenu(message)
+            wm.Wrappers.MessageMenu.createMenu(message)
             print("updateChapterName - " + message)
         
 
@@ -521,7 +520,7 @@ class BookSettings:
                                 chStartPage)  
 
             message = "Updated " + propertyName + " to: " + chStartPage
-            wm.ShowMessageMenu.createMenu(message)
+            wm.Wrappers.MessageMenu.createMenu(message)
             print("updateChapterStartPage - " + message)
         
 
@@ -571,26 +570,26 @@ class BookSettings:
                                     + subchNum + "\nwith Name: " \
                                     + subchName + "\nwith starting page: " \
                                     + subchStartPage
-                        wm.ShowMessageMenu.createMenu(message)
+                        wm.Wrappers.MessageMenu.createMenu(message)
                         print("addSubchapter - " + message)
                     else:
                         message = "Did not create subchapter: " + subchNum\
                                     + ". It is already in the data."
-                        wm.ShowMessageMenu.createMenu(message)
+                        wm.Wrappers.MessageMenu.createMenu(message)
                         print("addSubchapter - " + message)
                 else:
                     message = "Did not add subchchapter since the chapter does not exist."
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
             else: #subch or ch are None
                 if chNum == None:
                     message = "Did not add subchchapter since the chapter num is empty."
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
                 else:
                     # subchNum is None
                     message = "Did not add subchchapter since the subchNum num is empty."
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("addSubchapter - " + message)
         
 
@@ -604,22 +603,22 @@ class BookSettings:
                             jsonData[chString][BookSettings.ChapterProperties.getChapterSubchaptersPropertyID(chNum)].pop(cls.subch_ID + subchNum)
                             writeJSONfile(BookSettings.getCurrBookChapterInfoJSONPath(), jsonData)
                             message = "removed subchapter: " + subchNum
-                            wm.ShowMessageMenu.createMenu(message)
+                            wm.Wrappers.MessageMenu.createMenu(message)
                             print("removeChapter - " + message)
                     else:
                         message = "Did not remove subchapter: " + subchNum + ". It was not in the chapter settings data."
-                        wm.ShowMessageMenu.createMenu(message)
+                        wm.Wrappers.MessageMenu.createMenu(message)
                         print("removeSubchapter - " + message)
                 else:
                     message = "Did not remove subchapter: " + subchNum + ". Chapter was not in the chapter settings data."
-                    wm.ShowMessageMenu.createMenu(message)
+                    wm.Wrappers.MessageMenu.createMenu(message)
                     print("removeSubhcapter - " + message)
             else:
                 if (chNum == None):
                     message = "Did not remove chapter since the chapter num is empty."
                 else: #subch is None
                     message = "Did not remove chapter since the subchapter num is empty."
-                wm.ShowMessageMenu.createMenu(message)
+                wm.Wrappers.MessageMenu.createMenu(message)
                 print("removeSubchapter - " + message)
 
 
@@ -631,7 +630,7 @@ class BookSettings:
                                 subchName)
 
             message = "Updated " + propertyName + " to: " + subchName
-            wm.ShowMessageMenu.createMenu(message)
+            wm.Wrappers.MessageMenu.createMenu(message)
             print("updateSubchapterName - " + message)
         
         
@@ -650,7 +649,7 @@ class BookSettings:
                                 subchStartPage)  
 
             message = "Updated " + propertyName + " to: " + subchStartPage
-            wm.ShowMessageMenu.createMenu(message)
+            wm.Wrappers.MessageMenu.createMenu(message)
             print("updateSubchapterStartPage - " + message)
         
 

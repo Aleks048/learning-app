@@ -3,7 +3,7 @@ import tkinter as tk
 from threading import Thread
 
 
-class ShowMessageMenu:
+class MessageMenu:
     @classmethod
     def createMenu(cls, text):
          # Create an instance of tkinter frame or window

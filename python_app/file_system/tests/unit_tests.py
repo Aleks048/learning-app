@@ -3,7 +3,6 @@ import tkinter as tk
 # from UI.widgets_collection import *
 from file_system.file_system_main import BookInfoStructure, OriginalMaterialStructure, SectionInfoStructure, TOCStructure
 from file_system.file_system_manager import addSectionForCurrBook, createNewBook
-# from layouts.layouts_main import *
 from _utils._utils_main import *
 from layouts import *
 from file_system import *
@@ -176,7 +175,7 @@ class Test_FileSystemManager(unittest.TestCase):
         fsm.updateSectionFinishPage(self.sectionPath, "5")
         fsm.updateSectionTOCText(self.sectionPath, "testi")
 
-        fsm.updateSectionProperty(self.sectionPath, fsm.SectionProperties_IDs.name_ID, "testName")
+        fsm.updateSectionProperty(self.sectionPath, fsm.PropIDs.SectionProperties_IDs.name_ID, "testName")
 
     def test_getSubsectionsList(self):
         

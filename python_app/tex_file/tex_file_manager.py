@@ -1,0 +1,9 @@
+import tex_file.tex_file_create as tf
+
+
+class Data:
+    pass
+
+class Wrappers:
+    class TexFile(tf.TexFile):
+        pass

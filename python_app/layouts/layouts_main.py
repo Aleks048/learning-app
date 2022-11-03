@@ -5,10 +5,10 @@ import tkinter as tk
 from threading import Thread
 
 import _utils._utils_main as _u
-import UI.widgets_vars as wv
+import UI.widgets_manager as wm
 import layouts.layouts_utils as lu
-import tex_file.create_tex_file as t
-import file_system.file_system_main as fs
+import tex_file.tex_file_manager as t
+import file_system.file_system_manager as fsm
 
 
 '''
@@ -48,14 +48,14 @@ class SectionLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # set menu dimensions
-        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.Wrappers.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
        
-        currSection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
-        secPrefix = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_prefix_ID)
+        currSection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        secPrefix = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_prefix_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
-            t.TexFile.buildCurrentSubsectionPdf()
+            t.Wrappers.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
             pathToChapterFolder = _u.getCurrentSectionAbsDir() + "/" + secPrefix + "_" + currSection + "_main.pdf"
@@ -84,8 +84,8 @@ class SectionLayout(Layout):
         lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
         lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
 
-        if wv.UItkVariables.needRebuild.get() == True:
-            Thread(target = t.TexFile.buildCurrentSubsectionPdf).start()
+        if wm.Data.UItkVariables.needRebuild.get() == True:
+            Thread(target = t.Wrappers.TexFile.buildCurrentSubsectionPdf).start()
 
 
 class MainLayout(Layout):
@@ -99,12 +99,12 @@ class MainLayout(Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
-        wv.UItkVariables.needRebuild.set(False)
+        wm.Data.UItkVariables.needRebuild.set(False)
 
         #close the chapter vscode if it open
         _, windowID = _u.getOwnersName_windowID_ofApp(
                             "vscode",
-                             fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID))
+                             fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID))
         
         if (windowID != None):
             osascript = "osascript -e '\
@@ -121,12 +121,12 @@ class MainLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # change the manu size
-        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.Wrappers.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
 
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currSection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currSection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSection + "_images")
         
         if ownerName == None or windowID == None:
@@ -152,7 +152,7 @@ class WholeVSCodeLayout(Layout):
    
     @classmethod
     def set(cls, mainWinRoot):
-        mainWinRoot.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
+        mainWinRoot.Wrappers.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
 
         mon_windth, mon_height = _u.getMonitorSize()
         # vscode open

@@ -5,9 +5,19 @@ from threading import Thread
 
 import UI.widgets_collection as wc
 import UI.widgets_utils as wu
-import _utils._utils_main as _u
 import UI.widgets_vars as wv
-import layouts.layouts_main as lm
+import UI.widgets_messages as wmes
+import _utils._utils_main as _u
+
+class Data:
+    UItkVariables = wv.UItkVariables
+
+class Wrappers:
+    class ConfirmationMenu(wmes.ConfirmationMenu):
+        pass
+    
+    class MessageMenu(wmes.MessageMenu):
+        pass
 
 class StartupMenu:
     prefix = "_" + __name__

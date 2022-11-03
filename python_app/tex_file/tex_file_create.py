@@ -1,28 +1,28 @@
 import os
 
 import _utils._utils_main as _u
-import UI.widgets_vars as wv
-import file_system.file_system_main as fs
+import UI.widgets_manager as wm
+import file_system.file_system_manager as fsm
 
 
 class TexFile:
-    sectionPrefix = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_prefix_ID) + "_"
+    sectionPrefix = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_prefix_ID) + "_"
 
     @classmethod
     def _getCurrContentFilepath(cls):
-        currSubsection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currSubsection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
-        currSusection = _u.BookSettings.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currSusection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
-        currSussection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        currSussection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
 
 
@@ -61,7 +61,7 @@ class TexFile:
                 
         with open(os.getenv("BOOKS_PROCESS_TEX_PATH") + "/template.tex", 'r') as templateF:
             templateFile = templateF.readlines()
-            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)) for i in templateFile]
+            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)) for i in templateFile]
 
         with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
 
@@ -118,5 +118,5 @@ class TexFile:
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
-        wv.UItkVariables.needRebuild.set(False)
+        wm.Data.UItkVariables.needRebuild.set(False)
 

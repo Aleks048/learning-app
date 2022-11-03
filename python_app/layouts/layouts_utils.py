@@ -3,7 +3,7 @@ from AppKit import NSWorkspace
 
 import os
 import _utils._utils_main as _u
-import file_system.file_system_main as fs
+import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
 
 
@@ -94,18 +94,18 @@ def openWholeBook(dimentions, position):
 
 
 def moveWholeBookToChapter():
-    currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
+    currChapter = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
     
     if currChapter == "":
         message = "Could not move the book to page. currChapter is empty."
-        uim.ShowMessageMenu.createMenu(message)
+        uim.Wrappers.MessageMenu.createMenu(message)
         print("moveWholeBookToChapter -" + message)
     else:
         chapterPage = _u.BookSettings.readProperty(_u.BookSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
         
         if chapterPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
-            uim.ShowMessageMenu.createMenu(message)
+            uim.Wrappers.MessageMenu.createMenu(message)
             print("moveWholeBookToChapter - " + message)   
         else:
             movePdfToPage(_u.Settings.PubProp.wholeBook_ID + ".pdf", chapterPage)

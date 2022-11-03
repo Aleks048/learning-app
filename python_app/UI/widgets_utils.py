@@ -3,7 +3,6 @@ import os
 
 import UI.widgets_vars as wv
 import _utils._utils_main as _u
-import file_system.file_system_main as fs
 import file_system.file_system_manager as fsm
 import layouts.layouts_manager as lm
 
@@ -54,7 +53,7 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
                     wv.UItkVariables.subsection.set(newMenuOptions[0])
 
 def _getSubsectionsListForCurrTopSection():
-    currSectionPath = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currTopSection_ID)
+    currSectionPath = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
 
@@ -76,13 +75,13 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     #TODO: need to be reworked
     l_Name = _u.Settings.readProperty(_u.Settings.PubProp.currLayout_ID)
     
-    layoutClass = [i for i in lm.listOfLayoutClasses if i.__name__.replace(_u.Settings.layoutClassToken,"") == l_Name][0]
+    layoutClass = [i for i in lm.Data.listOfLayoutClasses if i.__name__.replace(_u.Settings.layoutClassToken,"") == l_Name][0]
     print("showCurrentLayout - Showing layout: " + layoutClass.__name__)
     
     layoutClass.set(mainWinRoot, menuWidth, menuHeight)
     hideAllWidgets(mainWinRoot)
 
-    
+
     for e in mainWinRoot.winfo_children():
         if layoutClass.__name__.lower() in e._name:
             if (entryWidget_ID in e._name):
