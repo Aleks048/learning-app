@@ -501,7 +501,6 @@ class LayoutsMenus:
                 _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, layout_name_vatying.get())
                 
                 for cl in LayoutsMenus.listOfLayoutClasses:
-                    print(layout_name_vatying.get())
                     if layout_name_vatying.get().lower() in cl.__name__.lower():
                         wu.showCurrentLayout(mainWinRoot, 
                                             cl.pyAppDimensions[0],

@@ -66,7 +66,7 @@ class SectionLayout(Layout):
 
         lu.moveApplicationsWindow(ownerName, 
                                 windowID, 
-                                [mon_halfWidth, mon_height - menuHeight - 100, menuWidth, menuHeight + 54])
+                                [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
         pathToSourceFolder = _u.getCurrentSectionAbsDir()
@@ -108,7 +108,7 @@ class MainLayout(Layout):
         
         if (windowID != None):
             osascript = "osascript -e '\
-    tell application \"System Events\" to tell process \""  + _u.Settings.vsCode_ID + "\"\n\
+    tell application \"System Events\" to tell process \""  + _u.Settings._appsIDs.vsCode_ID + "\"\n\
 	    tell window " + windowID + "\n\
             click button 1\n\
 	    end tell\n\
@@ -140,8 +140,8 @@ class MainLayout(Layout):
             print("setMainLayout - Something went wrong. Finder could not open the folder")
         else:
             lu.moveApplicationsWindow(ownerName, 
-                                            windowID, 
-                                            [mon_halfWidth, mon_height - appHeight, appWidth, appHeight + 54])
+                                    windowID, 
+                                    [mon_halfWidth, mon_height - appHeight - 105, appWidth, appHeight + 54])
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
 
