@@ -1,7 +1,7 @@
 import os
 
 import _utils._utils_main as _u
-import UI.widgets_manager as ui
+import UI.widgets_vars as wv
 import file_system.file_system_main as fs
 
 
@@ -118,5 +118,5 @@ class TexFile:
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
-        ui.UItkVariables.needRebuild.set(False)
+        wv.UItkVariables.needRebuild.set(False)
 

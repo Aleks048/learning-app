@@ -82,6 +82,7 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     layoutClass.set(mainWinRoot, menuWidth, menuHeight)
     hideAllWidgets(mainWinRoot)
 
+    
     for e in mainWinRoot.winfo_children():
         if layoutClass.__name__.lower() in e._name:
             if (entryWidget_ID in e._name):

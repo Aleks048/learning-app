@@ -388,29 +388,32 @@ end tell'"
 
 
 class LayoutsMenus:
-    class ChaptersLayoutUI:
+    
+
+    class SectionLayoutUI:
         pyAppDimensions = [None, None]
+        classPrefix = "sectionlayout"
 
         @classmethod
         def addWidgets(cls, winMainRoot):
             if wv.UItkVariables.needRebuild == None:
                 wv.UItkVariables.needRebuild = tk.BooleanVar()
 
-            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
             layoutOM.grid(column=0, row=0, padx=0, pady=0)
             layoutOM.update()
             
-            showProofsBTN = getShowProofs_BTN(winMainRoot, cls.__name__)
+            showProofsBTN = getShowProofs_BTN(winMainRoot, cls.classPrefix)
             showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
 
-            dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.__name__.lower() + "_dummyFocusEntry")
+            dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.classPrefix + "_dummyFocusEntry")
             dummyEntry.grid(column=2, row=0, padx=0, pady=0)
             dummyEntry.focus_set()
 
-            saveImageBTN = getSaveImage_BTN(winMainRoot, cls.__name__)
+            saveImageBTN = getSaveImage_BTN(winMainRoot, cls.classPrefix)
             saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
 
-            createGlLinkBTN, createGlLinkETR = getGlobalLinksAdd_Widgets(winMainRoot, cls.__name__)
+            createGlLinkBTN, createGlLinkETR = getGlobalLinksAdd_Widgets(winMainRoot, cls.classPrefix)
             createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
             createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
 
@@ -421,6 +424,7 @@ class LayoutsMenus:
     
     class MainLayoutUI:
         pyAppDimensions = [None, None]
+        classPrefix = "mainlayout"
 
         @classmethod
         def addWidgets(cls, winMainRoot):
@@ -433,48 +437,48 @@ class LayoutsMenus:
             #
             # layout: 
             #
-            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.__name__)
+            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
             layoutOM.grid(column = 1, row = 0, padx = 0, pady = 0)
 
             #
             # image generation:
             #
-            imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.__name__)
+            imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.classPrefix)
             imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
             imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            addExtraImage = getAddImage_BTN(winMainRoot, cls.__name__)
+            addExtraImage = getAddImage_BTN(winMainRoot, cls.classPrefix)
             addExtraImage.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.E)
 
-            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.__name__)
+            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.classPrefix)
             imageGenerationRestartBTN.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.W)
 
-            TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.__name__)
+            TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.classPrefix)
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)
             TOCWithImage_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.E)
             
             #
             # screenshot:
             #
-            currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.__name__)
+            currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.classPrefix)
             currScrShotDirText.grid(columnspan = 3,row = 2, column = 1)
 
             #
             # choose book/top section/subsections
             #
-            chooseBookOM = ChooseMaterial.getOptionsMenu_ChooseBook(winMainRoot, cls.__name__)
+            chooseBookOM = ChooseMaterial.getOptionsMenu_ChooseBook(winMainRoot, cls.classPrefix)
             chooseBookOM.grid(column = 0, row = 0, padx = 0, pady = 0)
 
-            chooseTopSectionOptionMenu = ChooseMaterial.getOptionMenu_ChooseTopSection(winMainRoot, cls.__name__)
+            chooseTopSectionOptionMenu = ChooseMaterial.getOptionMenu_ChooseTopSection(winMainRoot, cls.classPrefix)
             chooseTopSectionOptionMenu.grid(column = 0, row = 1, padx = 0, pady = 0)
 
-            chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.__name__)
+            chooseSubsectionMenu = ChooseMaterial.getOptionMenu_ChooseSubsection(winMainRoot, cls.classPrefix)
             chooseSubsectionMenu.grid(column = 0, row = 2, padx = 0, pady = 0)
     
             #
             # switch to sections menus
             #
-            chooseSectionsMenusAndbackBtn = SectionsUI.getButton_chooseSectionsMenusAndBack(winMainRoot, cls.__name__)
+            chooseSectionsMenusAndbackBtn = SectionsUI.getButton_chooseSectionsMenusAndBack(winMainRoot, cls.classPrefix)
             chooseSectionsMenusAndbackBtn.grid(column = 3, row = 0, padx = 0, pady = 0)
 
     class WholeVSCodeLayoutUI:
@@ -491,13 +495,17 @@ class LayoutsMenus:
     class _commonWidgets:
         @classmethod
         def getOptionsMenu_Layouts(cls, mainWinRoot, namePrefix = ""):
-
-
             def layoutOptionMenuCallback(layout_name_vatying):
                 _u.Settings.currLayout = layout_name_vatying.get()
-                wu.showCurrentLayout(mainWinRoot, 
-                                    LayoutsMenus.MainLayoutUI.pyAppDimensions[0],
-                                    LayoutsMenus.MainLayoutUI.pyAppDimensions[1])
+               
+                _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, layout_name_vatying.get())
+                
+                for cl in LayoutsMenus.listOfLayoutClasses:
+                    print(layout_name_vatying.get())
+                    if layout_name_vatying.get().lower() in cl.__name__.lower():
+                        wu.showCurrentLayout(mainWinRoot, 
+                                            cl.pyAppDimensions[0],
+                                            cl.pyAppDimensions[1])
             
             listOfLayouts = _u.Settings.layoutsList
             layout_name_vatying = tk.StringVar()
@@ -513,6 +521,7 @@ class LayoutsMenus:
             
             return frame
 
+    listOfLayoutClasses = [MainLayoutUI, SectionLayoutUI]
 
 class ChooseMaterial:
 

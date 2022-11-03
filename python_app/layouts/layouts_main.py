@@ -34,48 +34,50 @@ class Layout:
 
 class SectionLayout(Layout):
     layoutUInames = []
-    pyAppDimensions = [None, None]
-    
+    pyAppDimensions = [None, None]    
 
     @classmethod
-    def set(cls, mainWinRoot):
+    def set(cls, mainWinRoot, menuWidth, menuHeight):
         '''
         # Section: 
         #       skim Section to the right 
         #       vscode to the left
         '''
-        # set menu dimensions
-        mainWinRoot.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
-       
         # Open chapter pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
-        currChapter = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSection_ID)
-        currChapterFull = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.currSectionFull_ID)
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currChapterFull)
+        
+        # set menu dimensions
+        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+       
+        currSection = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.currSection_ID)
+        secPrefix = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_prefix_ID)
+        ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
             t.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
-            pathToChapterFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + "/" + currChapter + "/subchapters/ch_" + currChapterFull + "/" + currChapterFull + "_main.pdf"
+            pathToChapterFolder = _u.getCurrentSectionAbsDir() + "/" + secPrefix + "_" + currSection + "_main.pdf"
             _waitDummy = lu.openPdfInSkim(pathToChapterFolder)
             # sleep(0.5)
-            ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings.skim_ID, currChapterFull)
+            ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
         
 
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height - cls.pyAppDimensions[1] - 100, cls.pyAppDimensions[0], cls.pyAppDimensions[1] + 54])
+        lu.moveApplicationsWindow(ownerName, 
+                                windowID, 
+                                [mon_halfWidth, mon_height - menuHeight - 100, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
-        pathToSourceFolder = _u.getPathToBooks() +  _u.Settings.readProperty(_u.Settings.getCurrentBookFolderName()) + "/" + currChapter + "/subchapters/ch_" + currChapterFull #+ ".tex"
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currChapterFull)
+        pathToSourceFolder = _u.getCurrentSectionAbsDir()
+        ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
         
         if (windowID == None):
             _waitDummy = os.system("code -n " + pathToSourceFolder)
             ownerName = None
             windowID = None
             while windowID == None:
-                ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currChapterFull)
+                ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
                 sleep(0.1)
         
         #move vscode into position

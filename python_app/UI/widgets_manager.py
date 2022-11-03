@@ -7,6 +7,7 @@ import UI.widgets_collection as wc
 import UI.widgets_utils as wu
 import _utils._utils_main as _u
 import UI.widgets_vars as wv
+import layouts.layouts_main as lm
 
 class StartupMenu:
     prefix = "_" + __name__
@@ -57,6 +58,8 @@ class MainMenu:
     def createMenu(cls):
         winRoot = tk.Tk()
 
+        wc.LayoutsMenus.SectionLayoutUI.addWidgets(winRoot)
+        wu.hideAllWidgets(winRoot)
         wc.LayoutsMenus.MainLayoutUI.addWidgets(winRoot)
 
         winRoot.mainloop()
