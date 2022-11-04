@@ -175,7 +175,7 @@ class Test_FileSystemManager(unittest.TestCase):
         fsm.updateSectionFinishPage(self.sectionPath, "5")
         fsm.updateSectionTOCText(self.sectionPath, "testi")
 
-        fsm.updateSectionProperty(self.sectionPath, fsm.PropIDs.SectionProperties_IDs.name_ID, "testName")
+        fsm.updateSectionProperty(self.sectionPath, fsm.PropIDs.Sec.name_ID, "testName")
 
     def test_getSubsectionsList(self):
         

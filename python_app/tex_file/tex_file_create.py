@@ -1,28 +1,29 @@
 import os
 
 import _utils._utils_main as _u
+
 import UI.widgets_manager as wm
 import file_system.file_system_manager as fsm
 
 
 class TexFile:
-    sectionPrefix = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_prefix_ID) + "_"
+    sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID) + "_"
 
     @classmethod
     def _getCurrContentFilepath(cls):
-        currSubsection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
-        currSusection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        currSusection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
-        currSussection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        currSussection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
 
 
@@ -61,7 +62,7 @@ class TexFile:
                 
         with open(os.getenv("BOOKS_PROCESS_TEX_PATH") + "/template.tex", 'r') as templateF:
             templateFile = templateF.readlines()
-            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)) for i in templateFile]
+            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)) for i in templateFile]
 
         with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
 

@@ -1,18 +1,17 @@
 import os
 import tkinter as tk
-from tkinter import messagebox
-from threading import Thread
 
 import UI.widgets_collection as wc
 import UI.widgets_utils as wu
 import UI.widgets_vars as wv
 import UI.widgets_messages as wmes
+
 import _utils._utils_main as _u
 
 class Data:
     UItkVariables = wv.UItkVariables
 
-class Wrappers:
+class Wr:
     class ConfirmationMenu(wmes.ConfirmationMenu):
         pass
     

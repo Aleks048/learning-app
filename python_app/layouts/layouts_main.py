@@ -1,13 +1,12 @@
-import sys
 import os
 from time import sleep
-import tkinter as tk
 from threading import Thread
+
+import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
 import UI.widgets_manager as wm
-import layouts.layouts_utils as lu
-import tex_file.tex_file_manager as t
+import tex_file.tex_file_manager as tm
 import file_system.file_system_manager as fsm
 
 
@@ -48,14 +47,14 @@ class SectionLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # set menu dimensions
-        mainWinRoot.Wrappers.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
        
-        currSection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
-        secPrefix = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_prefix_ID)
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
-            t.Wrappers.TexFile.buildCurrentSubsectionPdf()
+            tm.Wr.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
             pathToChapterFolder = _u.getCurrentSectionAbsDir() + "/" + secPrefix + "_" + currSection + "_main.pdf"
@@ -85,7 +84,7 @@ class SectionLayout(Layout):
         lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
 
         if wm.Data.UItkVariables.needRebuild.get() == True:
-            Thread(target = t.Wrappers.TexFile.buildCurrentSubsectionPdf).start()
+            Thread(target = tm.Wr.TexFile.buildCurrentSubsectionPdf).start()
 
 
 class MainLayout(Layout):
@@ -104,7 +103,7 @@ class MainLayout(Layout):
         #close the chapter vscode if it open
         _, windowID = _u.getOwnersName_windowID_ofApp(
                             "vscode",
-                             fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID))
+                             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
         
         if (windowID != None):
             osascript = "osascript -e '\
@@ -121,12 +120,12 @@ class MainLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # change the manu size
-        mainWinRoot.Wrappers.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
 
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currSection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSection + "_images")
         
         if ownerName == None or windowID == None:
@@ -152,7 +151,7 @@ class WholeVSCodeLayout(Layout):
    
     @classmethod
     def set(cls, mainWinRoot):
-        mainWinRoot.Wrappers.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
+        mainWinRoot.geometry(str(cls.pyAppDimensions[0]) + "x" + str(cls.pyAppDimensions[1]))
 
         mon_windth, mon_height = _u.getMonitorSize()
         # vscode open

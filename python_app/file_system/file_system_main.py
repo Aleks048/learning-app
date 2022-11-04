@@ -1,12 +1,8 @@
-import csv
 import os
-from re import template
-import sys
 import json
 
-sys.path.insert(1, os.getenv("BOOKS_TEMPLATES_PATH"))
-
 import _utils._utils_main as _u
+
 
 class TOCStructure:
     '''

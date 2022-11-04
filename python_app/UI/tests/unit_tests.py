@@ -38,20 +38,20 @@ class Test_WidgetsManager_StartupMenu(unittest.TestCase):
         currentSection2Path = "2.intro.pass"
         currentSection3Path = "3.intro.3pass"
         currentSection4Path = "4.intro.2pass"
-        currImIdx_ID = fsm.PropIDs.SectionProperties_IDs.imIndex_ID
-        fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID, 
+        currImIdx_ID = fsm.PropIDs.Sec.imIndex_ID
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, 
                                             currentTopSectionPath)
-        fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID, 
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, 
                                             currentSection2Path)
-        sections_ID = fsm.PropIDs.BookProperties_IDs.sections_ID
-        sections = fsm.Wrappers.BookInfoStructure.readProperty(sections_ID)
+        sections_ID = fsm.PropIDs.Book.sections_ID
+        sections = fsm.Wr.BookInfoStructure.readProperty(sections_ID)
         sections["2"]["prevSubsectionPath"] = "2.intro.pass"
         sections["3"]["prevSubsectionPath"] = "3.intro.3pass"  
         sections["4"]["prevSubsectionPath"] = "4.intro.2pass"
-        fsm.Wrappers.BookInfoStructure.updateProperty(sections_ID, sections)
-        fsm.Wrappers.SectionInfoStructure.updateProperty(currentSection2Path, currImIdx_ID, "2")
-        fsm.Wrappers.SectionInfoStructure.updateProperty(currentSection3Path, currImIdx_ID, "3")
-        fsm.Wrappers.SectionInfoStructure.updateProperty(currentSection4Path, currImIdx_ID, "4")
+        fsm.Wr.BookInfoStructure.updateProperty(sections_ID, sections)
+        fsm.Wr.SectionInfoStructure.updateProperty(currentSection2Path, currImIdx_ID, "2")
+        fsm.Wr.SectionInfoStructure.updateProperty(currentSection3Path, currImIdx_ID, "3")
+        fsm.Wr.SectionInfoStructure.updateProperty(currentSection4Path, currImIdx_ID, "4")
 
         _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
         

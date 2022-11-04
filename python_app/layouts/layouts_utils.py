@@ -1,11 +1,9 @@
-import Quartz
 from AppKit import NSWorkspace
-
 import os
+
 import _utils._utils_main as _u
 import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
-
 
 def moveApplicationsWindow(appName, windowID, bounds):
     bounds = [str(i) for i in bounds]
@@ -19,7 +17,6 @@ def moveApplicationsWindow(appName, windowID, bounds):
     end tell'"
     os.system(osascript2)
 
-
 def hideApplicationsWindow(appName, windowID):
     osascript = "osascript -e '\
     tell application \"" + appName + "\"\n\
@@ -27,7 +24,6 @@ def hideApplicationsWindow(appName, windowID):
         set visible of window id " + windowID + " to false\n\
     end tell'"
     os.system(osascript)
-
 
 def openPdfInSkim(pathToChapterFolder):
     print("Opening in " + _u.Settings._appsIDs.skim_ID + " pdf: " + pathToChapterFolder)
@@ -37,7 +33,6 @@ def openPdfInSkim(pathToChapterFolder):
     end tell\n\
     '"
     _waitDummy = os.system(osascript)
-
 
 def movePdfToPage(filename, page):
     osascript = "osascript -e '\n\
@@ -49,7 +44,6 @@ def movePdfToPage(filename, page):
     print("movePdfToPage - moving to page " + str(page))
     os.system(osascript)
 
-
 def openChapterFolderInFinder(pathToChapterFolder):
     print("Opening in Finder chapter: " + pathToChapterFolder)
     osascript = "osascript -e '\n\
@@ -58,8 +52,6 @@ def openChapterFolderInFinder(pathToChapterFolder):
     end tell\n\
     '"
     _waitDummy = os.system(osascript)
-
-
 
 def vsCodeManipulation(clearWindows, collapseFolders, hide):
     osascript = "osascript -e '\
@@ -77,7 +69,6 @@ def vsCodeManipulation(clearWindows, collapseFolders, hide):
     osascript +="end tell'"
     return osascript
 
-
 def openWholeBook(dimentions, position):
     # whole book in skim
     ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
@@ -92,24 +83,22 @@ def openWholeBook(dimentions, position):
     else:
         moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
 
-
 def moveWholeBookToChapter():
-    currChapter = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+    currChapter = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
     
     if currChapter == "":
         message = "Could not move the book to page. currChapter is empty."
-        uim.Wrappers.MessageMenu.createMenu(message)
+        uim.Wr.MessageMenu.createMenu(message)
         print("moveWholeBookToChapter -" + message)
     else:
         chapterPage = _u.BookSettings.readProperty(_u.BookSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
         
         if chapterPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
-            uim.Wrappers.MessageMenu.createMenu(message)
+            uim.Wr.MessageMenu.createMenu(message)
             print("moveWholeBookToChapter - " + message)   
         else:
             movePdfToPage(_u.Settings.PubProp.wholeBook_ID + ".pdf", chapterPage)
-
 
 '''
 osascript to manipulate windows:

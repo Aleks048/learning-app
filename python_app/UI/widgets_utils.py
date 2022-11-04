@@ -2,9 +2,11 @@ import tkinter as tk
 import os
 
 import UI.widgets_vars as wv
-import _utils._utils_main as _u
+
 import file_system.file_system_manager as fsm
 import layouts.layouts_manager as lm
+
+import _utils._utils_main as _u
 
 class Screenshot:
         
@@ -53,7 +55,7 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
                     wv.UItkVariables.subsection.set(newMenuOptions[0])
 
 def _getSubsectionsListForCurrTopSection():
-    currSectionPath = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID)
+    currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
 

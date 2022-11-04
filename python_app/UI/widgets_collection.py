@@ -3,13 +3,14 @@ import tkinter as tk
 from tkinter import messagebox
 from threading import Thread
 
-import _utils._utils_main as _u
-import file_system.file_system_manager as fsm
 import UI.widgets_manager as wm
 import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
+
+import file_system.file_system_manager as fsm
 import tex_file.tex_file_manager as t
 
+import _utils._utils_main as _u
 
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     wm.Data.UItkVariables.createTOCVar = tk.IntVar()
@@ -42,7 +43,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
     showProofsVar = tk.StringVar()
     showProofsVar.set("Hide Proofs")
     def _changeProofsVisibility(hideProofs):
-        with open(t.Wrappers.TexFile._getCurrContentFilepath(),"r") as conF:
+        with open(t.Wr.TexFile._getCurrContentFilepath(),"r") as conF:
             contentLines = conF.readlines()
         extraImagesStartToken = "% \EXTRA IMAGES START"
         extraImagesEndToken = "% \EXTRA IMAGES END"
@@ -57,18 +58,18 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                         else:
                             contentLines[i] = "% " + line
                 break
-        with open(t.Wrappers.TexFile._getCurrContentFilepath(),"w") as conF:
+        with open(t.Wr.TexFile._getCurrContentFilepath(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
     
     def getShowProofsCallBack():
         if showProofsVar.get() == "Show Proofs":
             showProofsVar.set("Hide Proofs")
             _changeProofsVisibility(True)
-            Thread(target= t.Wrappers.TexFile.buildCurrentSubsectionPdf).start()
+            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
         elif showProofsVar.get() == "Hide Proofs":
             showProofsVar.set("Show Proofs")
             _changeProofsVisibility(False)
-            Thread(target= t.Wrappers.TexFile.buildCurrentSubsectionPdf).start()
+            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
     
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_showProofsBTN",
@@ -78,8 +79,8 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
 
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
-        currentSubsection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
-        currImID = fsm.Wrappers.SectionInfoStructure.readProperty(currentSubsection, fsm.PropIDs.SectionProperties_IDs.imIndex_ID)
+        currentSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        currImID = fsm.Wr.SectionInfoStructure.readProperty(currentSubsection, fsm.PropIDs.Sec.imIndex_ID)
         
         # screenshot
         imName = ""
@@ -104,7 +105,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
 
         # update the content file
         marker = "THIS IS CONTENT id: " + currImID
-        with open(t.Wrappers.TexFile._getCurrContentFilepath(), "r+") as f:
+        with open(t.Wr.TexFile._getCurrContentFilepath(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
             extraImagesMarker = "% \\EXTRA IMAGES END"
@@ -119,7 +120,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             f.seek(0)
             f.writelines(outLines)
         
-        t.Wrappers.TexFile._populateMainFile()
+        t.Wr.TexFile._populateMainFile()
     
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_imageGenerationAddImBTN",
@@ -137,7 +138,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
             end tell\n\
         end tell\
         '")
-        t.Wrappers.TexFile.buildCurrentSubsectionPdf()
+        t.Wr.TexFile.buildCurrentSubsectionPdf()
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_saveImgBTN",
                     text = "saveIM",
@@ -204,9 +205,9 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
         scriptFile = ""
         scriptFile += "#!/bin/bash\n"
         scriptFile += "\
-conIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wrappers.TexFile._getCurrContentFilepath() + "\" | cut -d: -f1`\n"
+conIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrContentFilepath() + "\" | cut -d: -f1`\n"
         scriptFile += "\
-tocIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wrappers.TexFile._getCurrTOCFilepath() + "\" | cut -d: -f1`\n"
+tocIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrTOCFilepath() + "\" | cut -d: -f1`\n"
         scriptFile += "\
 if [ \"$conIDX\" != \"\" ]\n\
 then\n\
@@ -245,7 +246,7 @@ EOF\n\
 fi\n"
         scriptFile += "osascript -e '\
 tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
-    tell document \"" + fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID) + "_main.pdf" + "\"\n\
+    tell document \"" + fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID) + "_main.pdf" + "\"\n\
         delay 0.1\n\
         go to page " + str(dataFromUser[0]) + "\n\
         end tell\n\
@@ -255,14 +256,14 @@ end tell'"
 
 
     def _createTexForTheProcessedImage():
-        currsubsection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+        currsubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
 
         extraImagePath = _u.getCurrentScreenshotAbsDir() \
                             + dataFromUser[0] + "_" + currsubsection \
                             + "_" + dataFromUser[1]
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-        with open(t.Wrappers.TexFile._getCurrContentFilepath(), 'a') as f:
+        with open(t.Wr.TexFile._getCurrContentFilepath(), 'a') as f:
             add_page = "\n\n\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
     % TEXT BEFORE MAIN IMAGE\n\
@@ -295,7 +296,7 @@ end tell'"
         if wm.Data.UItkVariables.createTOCVar.get():
             if wm.Data.UItkVariables.TOCWithImageVar.get():
                 # TOC ADD ENTRY WITH IMAGE
-                with open(t.Wrappers.TexFile._getCurrTOCFilepath(), 'a') as f:
+                with open(t.Wr.TexFile._getCurrTOCFilepath(), 'a') as f:
                     toc_add_image = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -306,7 +307,7 @@ end tell'"
                     f.write(toc_add_image)
             else:  
                 # TOC ADD ENTRY WITHOUT IMAGE
-                with open(t.Wrappers.TexFile._getCurrTOCFilepath(), 'a') as f:
+                with open(t.Wr.TexFile._getCurrTOCFilepath(), 'a') as f:
                     toc_add_text = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -320,11 +321,11 @@ end tell'"
                             "_" + currsubsection + "_" + dataFromUser[1]
 
         # STOTE IMNUM, IMNAME AND LINK
-        fsm.Wrappers.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.SectionProperties_IDs.imIndex_ID, dataFromUser[0])
-        fsm.Wrappers.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.SectionProperties_IDs.imLinkName_ID, dataFromUser[1])
+        fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imIndex_ID, dataFromUser[0])
+        fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imLinkName_ID, dataFromUser[1])
         
         # POPULATE THE MAIN FILE
-        t.Wrappers.TexFile._populateMainFile()
+        t.Wr.TexFile._populateMainFile()
         
         
         # take a screenshot
@@ -339,9 +340,9 @@ end tell'"
                 os.system("chmod +x " + savePath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                fsm.Wrappers.SectionInfoStructure.updateProperty(
+                fsm.Wr.SectionInfoStructure.updateProperty(
                         currsubsection, 
-                        fsm.PropIDs.SectionProperties_IDs.imIndex_ID,
+                        fsm.PropIDs.Sec.imIndex_ID,
                         nextImNum)
                 wm.Data.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wm.Data.UItkVariables.buttonText.set("imNum")
@@ -357,9 +358,9 @@ end tell'"
             os.system("chmod +x " + imageAnscriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
-            fsm.Wrappers.SectionInfoStructure.updateProperty(
+            fsm.Wr.SectionInfoStructure.updateProperty(
                         currsubsection, 
-                        fsm.PropIDs.SectionProperties_IDs.imIndex_ID,
+                        fsm.PropIDs.Sec.imIndex_ID,
                         nextImNum)
             wm.Data.UItkVariables.imageGenerationEntryText.set(nextImNum)
 
@@ -529,14 +530,14 @@ class ChooseMaterial:
             _u.Settings.Book.setCurrentBook(bookName, bookPath)
 
             # set UI variables
-            wm.Data.UItkVariables.topSection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID)
-            wm.Data.UItkVariables.subsection = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID)
+            wm.Data.UItkVariables.topSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            wm.Data.UItkVariables.subsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
             
             wm.Data.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wrappers.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
-                                                    fsm.PropIDs.SectionProperties_IDs.imIndex_ID)
+                fsm.Wr.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
+                                                    fsm.PropIDs.Sec.imIndex_ID)
             )
-            # wm.Data.UItkVariables.currPage = fsm.Wrappers.BookInfoStructure.readProperty(fsm.BookInfoStructure.PubProp.currentPage_ID)
+            # wm.Data.UItkVariables.currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.BookInfoStructure.PubProp.currentPage_ID)
 
 
         default_book_name="Select a a book"
@@ -561,7 +562,7 @@ class ChooseMaterial:
     def _topSectionChoosingCallback(cls, mainWinRoot):
         topSection = wm.Data.UItkVariables.topSection
         print("chapterChoosingCallback - switching to chapter: " + topSection.get())
-        fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID , topSection.get())
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , topSection.get())
         chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
         wm.Data.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
         
@@ -571,18 +572,18 @@ class ChooseMaterial:
         subsectionsList = wu._getSubsectionsListForCurrTopSection()
         wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
         
-        sections = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_ID)
+        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
         prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
         wm.Data.UItkVariables.subsection.set(prevSubsectionPath)
 
-        fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID, prevSubsectionPath)
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
         # screenshot
         wu.Screenshot.setValueScreenshotLoaction()
 
         # update image index 
         wm.Data.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wrappers.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
-                                                    fsm.PropIDs.SectionProperties_IDs.imIndex_ID)
+                fsm.Wr.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
+                                                    fsm.PropIDs.Sec.imIndex_ID)
         )
 
         # update Layout
@@ -599,7 +600,7 @@ class ChooseMaterial:
         '''
 
         wm.Data.UItkVariables.topSection = tk.StringVar()
-        wm.Data.UItkVariables.topSection.set(fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currTopSection_ID))
+        wm.Data.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
 
         topSectionsList = fsm.getTopSectionsList()
         
@@ -614,15 +615,15 @@ class ChooseMaterial:
     
     def _subsectionChoosingCallback():
             subsection = wm.Data.UItkVariables.subsection
-            sections = fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.sections_ID)
+            sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
             sections[wm.Data.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
-            fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.sections_ID , sections)
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID , sections)
             
-            fsm.Wrappers.BookInfoStructure.updateProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID , subsection.get())
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
             
             wm.Data.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wrappers.SectionInfoStructure.readProperty(subsection.get(), 
-                                                    fsm.PropIDs.SectionProperties_IDs.imIndex_ID)
+                fsm.Wr.SectionInfoStructure.readProperty(subsection.get(), 
+                                                    fsm.PropIDs.Sec.imIndex_ID)
             )
 
             wu.Screenshot.setValueScreenshotLoaction()
@@ -633,7 +634,7 @@ class ChooseMaterial:
 
         wm.Data.UItkVariables.subsection  = tk.StringVar()
         subsection =wm.Data.UItkVariables.subsection
-        subsection.set(fsm.Wrappers.BookInfoStructure.readProperty(fsm.PropIDs.BookProperties_IDs.currSection_ID))
+        subsection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
         
         subsectionsList = wu._getSubsectionsListForCurrTopSection()
 

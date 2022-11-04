@@ -11,7 +11,7 @@ Facade for Filesystem
 class Data:
     pass
 
-class Wrappers:
+class Wr:
     class BookInfoStructure(fs.BookInfoStructure):
         pass
 
@@ -26,13 +26,13 @@ class Wrappers:
 
 
 class PropIDs:
-    class SectionProperties_IDs(fs.SectionInfoStructure.PubProp):
+    class Sec(fs.SectionInfoStructure.PubProp):
         pass
 
-    class BookProperties_IDs(fs.BookInfoStructure.PubProp):
+    class Book(fs.BookInfoStructure.PubProp):
         pass
 
-    class TOCProperties_IDs(fs.TOCStructure.PubPro):
+    class TOC(fs.TOCStructure.PubPro):
         pass
 
 
