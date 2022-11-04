@@ -1,5 +1,4 @@
 import sys, os, json
-from telnetlib import SE
 from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
@@ -22,7 +21,6 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     
     with open(filepath, "w") as f:
         f.writelines(fLines)
-
 
 def getMonitorSize():
     for m in get_monitors():
@@ -89,7 +87,9 @@ def updateJSONProperty(jsonFilepath, propertyName, newValue):
     def _updateProperty(jsonData, newValue):
         if propertyName in jsonData:
             if type(newValue) != type(jsonData[propertyName]):
-                 print("ERROR: updateJSONProperty - did not update the json file. Type of new value does not match the type of the property")
+                 print("\
+ERROR: updateJSONProperty - did not update the json file. \
+Type of new value does not match the type of the property")
             else:
                 jsonData[propertyName] = newValue
         else:
@@ -105,9 +105,8 @@ def updateJSONProperty(jsonFilepath, propertyName, newValue):
     _updateProperty(jsonData, newValue)
     writeJSONfile(jsonFilepath, jsonData)
 
-
 '''
-manipulate dict
+DICT
 '''
 def readDictProperty(dictToReadFrom, propertyName):
     if propertyName in dictToReadFrom:
@@ -126,7 +125,9 @@ def readDictProperty(dictToReadFrom, propertyName):
 def updateDictProperty(dictToUpdate, propertyName, newValue):
     if propertyName in dictToUpdate:
         if type(newValue) != type(dictToUpdate[propertyName]):
-                print("ERROR: updateJSONProperty - did not update the json file. Type of new value does not match the type of the property")
+                print("\
+ERROR: updateJSONProperty - did not update the json file. \
+Type of new value does not match the type of the property")
         else:
             dictToUpdate[propertyName] = newValue
     else:
