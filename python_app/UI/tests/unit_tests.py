@@ -1,8 +1,6 @@
 import unittest
 import os
 
-import unittest
-
 import UI.widgets_manager as wm
 import UI.widgets_messages as wmes
 import file_system.file_system_manager as fsm
