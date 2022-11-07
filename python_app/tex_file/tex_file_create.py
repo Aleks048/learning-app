@@ -12,19 +12,19 @@ class TexFile:
     @classmethod
     def _getCurrContentFilepath(cls):
         currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
+        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
         currSusection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
+        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
         currSussection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.getCurrentSectionAbsDir() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
+        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
 
 
     def _populateMainFile():
@@ -115,7 +115,7 @@ class TexFile:
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
-        currTexFilesFolder = _u.getCurrentSectionAbsDir()
+        currTexFilesFolder = _u.DIR.Section.getCurrentAbs()
         currTexMainFile = cls._getCurrContentFilepath()
         print("ChapterLayout.set - " + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)

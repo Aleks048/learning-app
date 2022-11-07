@@ -13,13 +13,13 @@ class Screenshot:
     def getValueScreenshotLocation():
         prefix = "dir: "
         if wv.UItkVariables.scrshotPath.get() == "":
-            return prefix + _u.getCurrentScreenshotRelDir()
+            return prefix + _u.DIR.Screenshot.getCurrentRel()
         else:
             return prefix + wv.UItkVariables.scrshotPath.get()
 
 
     def setValueScreenshotLoaction():
-        wv.UItkVariables.scrshotPath.set(_u.getCurrentScreenshotRelDir())
+        wv.UItkVariables.scrshotPath.set(_u.DIR.Screenshot.getCurrentRel())
 
 
     @classmethod

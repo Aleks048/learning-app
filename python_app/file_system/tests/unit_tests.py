@@ -179,14 +179,7 @@ class Test_OriginalMaterialStructure(unittest.TestCase):
         expectedFileLocation = "\
 /Users/ashum048/books/b_analysis_test/originalMaterial/book/whole_book.pdf"
         
-        self.assertTrue(os.path.exists(expectedFileLocation))   
-    
-    # TODO: turned off since when its on the book is removed for SOME reason
-    #
-    # def test_createStructure(self):
-    #     fsmain.OriginalMaterialStructure.createStructure()
-
-    #     self.assertTrue(os.path.exists(self.originalMaterialStructurePath))
+        self.assertTrue(os.path.exists(expectedFileLocation))
 
 
 class Test_FileSystemManager(unittest.TestCase):

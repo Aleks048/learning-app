@@ -85,7 +85,7 @@ def _updateSectionProperty(sectionPath, propertyName, newValue):
     # change the section.json
     sectionJSONPath = fs.BookInfoStructure.readProperty(sectionPath)["path"]
     fullPropertyName =fs.TOCStructure.PubPro.getPropertyFormPath(sectionPath, propertyName)
-    _u.updateJSONProperty(sectionJSONPath, fullPropertyName, newValue)
+    _u.JSON.updateProperty(sectionJSONPath, fullPropertyName, newValue)
 
 def updateSectionStartPage(sectionPath, newValue):
     _updateSectionProperty(sectionPath, fs.TOCStructure.PubPro.start_ID, newValue)

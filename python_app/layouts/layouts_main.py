@@ -57,7 +57,7 @@ class SectionLayout(Layout):
             tm.Wr.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
-            pathToChapterFolder = _u.getCurrentSectionAbsDir() + "/" + secPrefix + "_" + currSection + "_main.pdf"
+            pathToChapterFolder = _u.DIR.Section.getCurrentAbs() + "/" + secPrefix + "_" + currSection + "_main.pdf"
             _waitDummy = lu.openPdfInSkim(pathToChapterFolder)
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
@@ -68,7 +68,7 @@ class SectionLayout(Layout):
                                 [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
-        pathToSourceFolder = _u.getCurrentSectionAbsDir()
+        pathToSourceFolder = _u.DIR.Section.getCurrentAbs()
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
         
         if (windowID == None):
@@ -125,12 +125,12 @@ class MainLayout(Layout):
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSection + "_images")
+        currSectionWPrefix = _u.getCurrentSectionNameWprefix()
+        ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images/")
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            currScreenshotDir = _u.getCurrentScreenshotAbsDir()
+            currScreenshotDir = _u.DIR.Screenshot.getCurrentAbs()
             _waitDummy = lu.openChapterFolderInFinder(currScreenshotDir)
             # TODO: this needs to change
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", "images")

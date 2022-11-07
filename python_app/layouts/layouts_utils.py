@@ -91,14 +91,14 @@ def moveWholeBookToChapter():
         uim.Wr.MessageMenu.createMenu(message)
         print("moveWholeBookToChapter -" + message)
     else:
-        chapterPage = _u.BookSettings.readProperty(_u.BookSettings.ChapterProperties.getChapterStartPagePropertyID(currChapter[2:]))
+        sectionPage = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.startPage_ID)
         
-        if chapterPage == "":
+        if sectionPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
             uim.Wr.MessageMenu.createMenu(message)
             print("moveWholeBookToChapter - " + message)   
         else:
-            movePdfToPage(_u.Settings.PubProp.wholeBook_ID + ".pdf", chapterPage)
+            movePdfToPage(_u.Settings.PubProp.wholeBook_ID + ".pdf", sectionPage)
 
 '''
 osascript to manipulate windows:

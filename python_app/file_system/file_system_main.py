@@ -209,14 +209,14 @@ class BookInfoStructure:
                     parentProperty = bookInfoSections
                     addBookInfoTopSection(parentProperty)
             else:
-                parentProperty = _u.readDictProperty(bookInfoSections, prevRelSectionPath)
+                parentProperty = _u.DICT.readProperty(bookInfoSections, prevRelSectionPath)
                 
                 if (relSectionPath not in parentProperty["sections"].keys()) \
                     and (type(parentProperty) == dict \
                     and "sections" in parentProperty.keys()):
                     addBookInfoSection(parentProperty["sections"])
                 
-                _u.updateDictProperty(bookInfoSections, prevRelSectionPath, parentProperty)
+                _u.DICT.updateProperty(bookInfoSections, prevRelSectionPath, parentProperty)
             
             BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_ID, bookInfoSections)
 
@@ -231,11 +231,11 @@ class BookInfoStructure:
 
     @classmethod
     def readProperty(cls, property):
-        return _u.readJSONProperty(cls._getAsbFilepath(), property)
+        return _u.JSON.readProperty(cls._getAsbFilepath(), property)
 
     @classmethod
     def updateProperty(cls, propertyName, newValue):
-        _u.updateJSONProperty(cls._getAsbFilepath(), propertyName, newValue)
+        _u.JSON.updateProperty(cls._getAsbFilepath(), propertyName, newValue)
 
 
 class SectionInfoStructure:
@@ -318,10 +318,10 @@ class SectionInfoStructure:
             print("Creating path: " + dirPathToSection)
             
             # create files and folders
-            _waitDummy = os.system("mkdir -p " + dirPathToSection)
-            _waitDummy = os.system("mkdir " + dirPathToSection + "/images")
-            
             sectionFolderName = dirPathToSection.split("/")[-1]
+            _waitDummy = os.system("mkdir -p " + dirPathToSection)
+            _waitDummy = os.system("mkdir " + dirPathToSection + "/" + sectionFolderName + "_images")
+            
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_toc.tex")
             _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_pic.tex")
         
@@ -377,7 +377,7 @@ class SectionInfoStructure:
         
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
-        return _u.readJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
+        return _u.JSON.readProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):        
@@ -387,7 +387,7 @@ class SectionInfoStructure:
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
-        _u.updateJSONProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName, newValue)
+        _u.JSON.updateProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName, newValue)
 
 
 class OriginalMaterialStructure:

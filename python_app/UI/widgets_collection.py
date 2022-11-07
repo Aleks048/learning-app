@@ -27,8 +27,8 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
         wm.Data.UItkVariables.buttonText.set("imNum")
-        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
-        wm.Data.UItkVariables.imageGenerationEntryText.set(chapterImIndex)
+        sectionImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
+        wm.Data.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
     
 
     restart_BTN = tk.Button(mainWinRoot,
@@ -90,7 +90,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             if "_imageGeneration_" + wu.entryWidget_ID in w._name:
                 imName = w.get()
         
-        extraImagePath = _u.getCurrentScreenshotAbsDir() \
+        extraImagePath = _u.DIR.Screenshot.getCurrentAbs() \
                             + currImID + "_" + currentSubsection \
                             + "_" + imName
         
@@ -244,9 +244,10 @@ osascript - $tocIDX <<EOF\n\
     end run\n\
 EOF\n\
 fi\n"
+        pdfName = _u.getCurrentSectionPdfName()
         scriptFile += "osascript -e '\
 tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
-    tell document \"" + fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID) + "_main.pdf" + "\"\n\
+    tell document \"" + pdfName + "\"\n\
         delay 0.1\n\
         go to page " + str(dataFromUser[0]) + "\n\
         end tell\n\
@@ -258,7 +259,7 @@ end tell'"
     def _createTexForTheProcessedImage():
         currsubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
 
-        extraImagePath = _u.getCurrentScreenshotAbsDir() \
+        extraImagePath = _u.DIR.Screenshot.getCurrentAbs() \
                             + dataFromUser[0] + "_" + currsubsection \
                             + "_" + dataFromUser[1]
 
@@ -317,7 +318,7 @@ end tell'"
             
 
         #create a script to run on page change
-        imageAnscriptPath = _u.getCurrentScreenshotAbsDir() + dataFromUser[0] + \
+        imageAnscriptPath = _u.DIR.Screenshot.getCurrentAbs() + dataFromUser[0] + \
                             "_" + currsubsection + "_" + dataFromUser[1]
 
         # STOTE IMNUM, IMNAME AND LINK
@@ -563,7 +564,7 @@ class ChooseMaterial:
         topSection = wm.Data.UItkVariables.topSection
         print("chapterChoosingCallback - switching to chapter: " + topSection.get())
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , topSection.get())
-        chapterImIndex = _u.BookSettings.ChapterProperties.getCurrSectionImIndex()
+        chapterImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
         wm.Data.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
         
         #
@@ -719,7 +720,11 @@ class SectionsUI:
         # show getBack Button
         chooseChapter_MenusBtn_Label = tk.StringVar()
         chooseChapter_MenusBtn_Label.set("chapters") 
-        chooseChapter_MenusBtn = tk.Button(mainWinRoot, name = prefixName.lower() + "_chooseChapterLayoutBtn", textvariable = chooseChapter_MenusBtn_Label, command = chooseChaptersMenusAndBackCallback)
+        chooseChapter_MenusBtn = tk.Button(mainWinRoot,
+                                         name = prefixName.lower() 
+                                                + "_chooseChapterLayoutBtn", 
+                                        textvariable = chooseChapter_MenusBtn_Label, 
+                                        command = chooseChaptersMenusAndBackCallback)
         
         return chooseChapter_MenusBtn
 
@@ -740,50 +745,83 @@ class SectionsUI:
 
     @classmethod
     def getWidgets_setChapterName(cls, mainWinRoot, prefixName = ""):
-        entry_setChapterName = tk.Entry(mainWinRoot, name = prefixName.lower() +  "_setChapterName_" + wu.entryWidget_ID)
+        def setChapterNameCallback():
+            currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
+                                                    fsm.PropIDs.Sec.name_ID, 
+                                                    entry_setChapterName.get())
+        
+        entry_setChapterName = tk.Entry(mainWinRoot, 
+                                        name = prefixName.lower() 
+                                            +  "_setChapterName_"
+                                            + wu.entryWidget_ID
+                                        )
         button_setChapterName = tk.Button(mainWinRoot, 
-                                name = prefixName.lower() +  "_setChapterNameBTN", 
-                                text="setChapterName", 
-                                command = lambda *args: _u.BookSettings.ChapterProperties.updateChapterName(wm.Data.UItkVariables.currCh.get(), entry_setChapterName.get()))
+            name = prefixName.lower() +  "_setChapterNameBTN", 
+            text="setChapterName", 
+            command = setChapterNameCallback)
         
         return entry_setChapterName, button_setChapterName            
 
 
     @classmethod
     def getWidgets_setChapterStartPage(cls, mainWinRoot, prefixName = ""):
-        entry_setChapterStartPage = tk.Entry(mainWinRoot, name = prefixName.lower() +  "_setChapterStartPage_" + wu.entryWidget_ID)
+        def setChapterStartPageCallback():
+            currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
+                                                    fsm.PropIDs.Sec.startPage_ID, 
+                                                    entry_setChapterStartPage.get()
+                                                    )
+
+        entry_setChapterStartPage = tk.Entry(mainWinRoot, 
+                                            name = prefixName.lower() 
+                                                +  "_setChapterStartPage_" 
+                                                + wu.entryWidget_ID
+                                            )
         button_setChapterStartPage = tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_setChapterStartPageBTN", 
                         text="setChapterStartPage", 
-                        command = lambda *args: _u.BookSettings.ChapterProperties.updateChapterStartPage(wm.Data.UItkVariables.currCh.get(), 
-                        entry_setChapterStartPage.get()))
+                        command = setChapterStartPageCallback)
         
         return entry_setChapterStartPage, button_setChapterStartPage 
 
 
     @classmethod
     def getWidgets_setSubchapterName(cls, mainWinRoot, prefixName = ""):
+        def setSubchapterNameCallback():
+            currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            fsm.Wr.SectionInfoStructure.updateProperty(currSubsection, 
+                                                    fsm.PropIDs.Sec.imLinkName_ID, 
+                                                    entry_setSubchapterName.get())
+            
         entry_setSubchapterName = tk.Entry(mainWinRoot, name = prefixName.lower() + "_setSubchapterName_" + wu.entryWidget_ID)
         button_setSubchapterName = tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_setSubchapterNameBTN", 
                         text="setSubhapterName", 
-                        command = lambda *args: _u.BookSettings.SubchaptersProperties.updateSubchapterName(wm.Data.UItkVariables.currSubch.get(), entry_setSubchapterName.get()))
+                        command = setSubchapterNameCallback)
         
         return entry_setSubchapterName, button_setSubchapterName
 
 
     @classmethod
     def getWidgets_setSubchapterStartPage(cls, mainWinRoot, prefixName = ""):
+        def setSubchapterStartpagecallback():
+            currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            fsm.Wr.SectionInfoStructure.updateProperty(currSubsection, 
+                                                    fsm.PropIDs.Sec.startPage_ID,
+                                                    entry_setSubchapterStartpage.get())
+        
         entry_setSubchapterStartpage = tk.Entry(mainWinRoot, 
                                                 name = prefixName.lower() 
                                                     + "_setSubchapterStartPage_" 
                                                     + wu.entryWidget_ID
                                                 )
+        
         button_setSubchapterStartPage = tk.Button(mainWinRoot, 
                                                 name = prefixName.lower() 
                                                     + "_setSubchapterStartPageBTN", 
                                                 text="setSubhapterStartName", 
-                                                command = lambda *args : _u.BookSettings.SubchaptersProperties.updateSubchapterStartPage(wm.Data.UItkVariables.currSubch.get(), entry_setSubchapterStartpage.get()))
+                                                command = setSubchapterStartpagecallback)
         
         return entry_setSubchapterStartpage, button_setSubchapterStartPage
 
@@ -791,17 +829,18 @@ class SectionsUI:
     @classmethod
     def getButton_createNewChapter(cls, mainWinRoot, prefixName = ""):
         def createNewChapterBTNcallback():
-            chNum = None
-            chName = None
-            chStartPage = None
-            for e in mainWinRoot.winfo_children():
-                if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
-                    chNum = e.get()
-                elif "_setChapterName_" + wu.entryWidget_ID in e._name:
-                    chName = e.get()
-                elif "_setChapterStartPage_" + wu.entryWidget_ID in e._name:
-                    chStartPage = e.get()
-            _u.BookSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
+            pass
+            # chNum = None
+            # chName = None
+            # chStartPage = None
+            # for e in mainWinRoot.winfo_children():
+            #     if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+            #         chNum = e.get()
+            #     elif "_setChapterName_" + wu.entryWidget_ID in e._name:
+            #         chName = e.get()
+            #     elif "_setChapterStartPage_" + wu.entryWidget_ID in e._name:
+            #         chStartPage = e.get()
+            # _u.BookSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewChapterBTN", 
@@ -811,13 +850,15 @@ class SectionsUI:
 
     @classmethod
     def getButton_removeChapter(cls, mainWinRoot, prefixName = ""):
+        # TODO: the remove functionality is not yet implemented
         def removeBTNcallback():
-            chNum = None
-            for e in mainWinRoot.winfo_children():
-                if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
-                    chNum = e.get()
-                    break
-            _u.BookSettings.ChapterProperties.removeChapter(chNum)
+            pass
+            # chNum = None
+            # for e in mainWinRoot.winfo_children():
+            #     if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+            #         chNum = e.get()
+            #         break
+            # _u.BookSettings.ChapterProperties.removeChapter(chNum)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_removeChapterBTN", 
@@ -828,20 +869,21 @@ class SectionsUI:
     @classmethod
     def getButton_createNewSubchapter(cls, mainWinRoot, prefixName = ""):
         def createNewChapterBTNcallback():
-            chNum = None
-            subchNum = None
-            subchName = None
-            subchStartPage = None
-            for e in mainWinRoot.winfo_children():
-                if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
-                    subchNum = e.get()
-                    chNum = subchNum.split(".")[0]
-                elif "_setSubchapterName_" + wu.entryWidget_ID in e._name:
-                    subchName = e.get()
-                elif "_setSubchapterStartPage_" + wu.entryWidget_ID in e._name:
-                    subchStartPage = e.get()
+            pass
+            # chNum = None
+            # subchNum = None
+            # subchName = None
+            # subchStartPage = None
+            # for e in mainWinRoot.winfo_children():
+            #     if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+            #         subchNum = e.get()
+            #         chNum = subchNum.split(".")[0]
+            #     elif "_setSubchapterName_" + wu.entryWidget_ID in e._name:
+            #         subchName = e.get()
+            #     elif "_setSubchapterStartPage_" + wu.entryWidget_ID in e._name:
+            #         subchStartPage = e.get()
             
-            _u.BookSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
+            # _u.BookSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewSubchapterBTN", 
@@ -852,13 +894,14 @@ class SectionsUI:
     @classmethod
     def getButton_removeSubchapter(cls, mainWinRoot, prefixName = ""):
         def removeBTNcallback():
-            chNum = None
-            for e in mainWinRoot.winfo_children():
-                if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
-                    subchNum = e.get()
-                    chNum = subchNum.split(".")[0]
+            pass
+            # chNum = None
+            # for e in mainWinRoot.winfo_children():
+            #     if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+            #         subchNum = e.get()
+            #         chNum = subchNum.split(".")[0]
             
-            _u.BookSettings.SubchaptersProperties.removeSubchapter(chNum, subchNum)
+            # _u.BookSettings.SubchaptersProperties.removeSubchapter(chNum, subchNum)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_removeSubchapterBTN", 
