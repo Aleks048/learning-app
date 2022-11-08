@@ -69,6 +69,9 @@ class MainMenu:
 
         wc.LayoutsMenus.SectionLayoutUI.addWidgets(winRoot)
         wu.hideAllWidgets(winRoot)
+        wc.SectionsUI.setSectionsUI(winRoot)
+        wu.hideAllWidgets(winRoot)
         wc.LayoutsMenus.MainLayoutUI.addWidgets(winRoot)
+        _u.Settings.UI.showMainWidgets = True
 
         winRoot.mainloop()

@@ -290,7 +290,7 @@ class Settings:
         finder_ID = "Finder"
 
     class UI:
-        showChapterWidgets = False
+        showMainWidgets = False
 
     #layouts
     #NOTE: it is used to cut the layout class name

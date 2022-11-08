@@ -10,6 +10,7 @@ import UI.widgets_messages as wmes
 import file_system.file_system_manager as fsm
 import tex_file.tex_file_manager as t
 
+import _utils.logging as log
 import _utils._utils_main as _u
 
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
@@ -653,39 +654,39 @@ class ChooseMaterial:
 chapters menu widgets
 '''
 class SectionsUI:
-    chaptersPrefix = "chaptersID"
+    sectionsPrefix = "sectionsID"
 
     @classmethod
     def setSectionsUI(cls, mainWinRoot):
-        chooseChapter_MenusBtn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.chaptersPrefix)
+        chooseChapter_MenusBtn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.sectionsPrefix)
         chooseChapter_MenusBtn.grid(row = 2, column = 3)
-        entry_setChapterName, button_setChapterName = cls.getWidgets_setChapterName(mainWinRoot,  cls.chaptersPrefix)
+        entry_setChapterName, button_setChapterName = cls.getWidgets_setChapterName(mainWinRoot,  cls.sectionsPrefix)
         entry_setChapterName.grid(row = 0, column = 0)
         button_setChapterName.grid(row = 0, column = 1)
-        entry_setChapterStartPage, button_setChapterStartPage = cls.getWidgets_setChapterStartPage(mainWinRoot,  cls.chaptersPrefix)
+        entry_setChapterStartPage, button_setChapterStartPage = cls.getWidgets_setChapterStartPage(mainWinRoot,  cls.sectionsPrefix)
         entry_setChapterStartPage.grid(row = 1, column = 0)
         button_setChapterStartPage.grid(row = 1, column = 1)
-        entry_setSubchapterName, button_setSubchapterName = cls.getWidgets_setSubchapterName(mainWinRoot,  cls.chaptersPrefix)
+        entry_setSubchapterName, button_setSubchapterName = cls.getWidgets_setSubchapterName(mainWinRoot,  cls.sectionsPrefix)
         entry_setSubchapterName.grid(row = 0, column = 2)
         button_setSubchapterName.grid(row = 0, column = 3)
-        entry_setSubchapterStartpage, button_setSubchapterStartPage = cls.getWidgets_setSubchapterStartPage(mainWinRoot,  cls.chaptersPrefix)
+        entry_setSubchapterStartpage, button_setSubchapterStartPage = cls.getWidgets_setSubchapterStartPage(mainWinRoot,  cls.sectionsPrefix)
         entry_setSubchapterStartpage.grid(row = 1, column = 2)
         button_setSubchapterStartPage.grid(row = 1, column = 3)
         
         wm.Data.UItkVariables.currCh = tk.StringVar()
         wm.Data.UItkVariables.currSubch = tk.StringVar()
-        currCh_ETR, currSubch_ETR = cls.getEntries_currChAndSubchapter(mainWinRoot, cls.chaptersPrefix)
+        currCh_ETR, currSubch_ETR = cls.getEntries_currChAndSubchapter(mainWinRoot, cls.sectionsPrefix)
         currCh_ETR.grid(row = 2, column = 0, sticky = tk.N)
         currSubch_ETR.grid(row = 2, column = 2, sticky = tk.N)
 
 
-        addCh_BTN = cls.getButton_createNewChapter(mainWinRoot, cls.chaptersPrefix)
-        removeCh_BTN = cls.getButton_removeChapter(mainWinRoot, cls.chaptersPrefix)
+        addCh_BTN = cls.getButton_createNewChapter(mainWinRoot, cls.sectionsPrefix)
+        removeCh_BTN = cls.getButton_removeChapter(mainWinRoot, cls.sectionsPrefix)
         addCh_BTN.grid(row = 2, column = 0,sticky = tk.W)
         removeCh_BTN.grid(row = 2, column = 0, sticky = tk.E)
         
-        addSubch_BTN = cls.getButton_createNewSubchapter(mainWinRoot, cls.chaptersPrefix)
-        removeSubch_BTN = cls.getButton_removeSubchapter(mainWinRoot, cls.chaptersPrefix)
+        addSubch_BTN = cls.getButton_createNewSubchapter(mainWinRoot, cls.sectionsPrefix)
+        removeSubch_BTN = cls.getButton_removeSubchapter(mainWinRoot, cls.sectionsPrefix)
         addSubch_BTN.grid(row = 2, column = 2,sticky = tk.W)
         removeSubch_BTN.grid(row = 2, column = 2,sticky = tk.E)
 
@@ -696,25 +697,31 @@ class SectionsUI:
             # hide all of the menus
             wu.hideAllWidgets(mainWinRoot)
 
-            if _u.Settings.UI.showChapterWidgets:
+            log.autolog("hoppo: " + str(_u.Settings.UI.showMainWidgets))
+            if _u.Settings.UI.showMainWidgets:
                 mainWinRoot.columnconfigure(0, weight = 1)
                 mainWinRoot.columnconfigure(1, weight = 3)
                 mainWinRoot.columnconfigure(2, weight = 1)
                 mainWinRoot.columnconfigure(3, weight = 3)
                 
                 for w in mainWinRoot.winfo_children():
-                    if cls.chaptersPrefix.lower() in w._name:
+                    if cls.sectionsPrefix.lower() in w._name:
+                        log.autolog(w._name)
                         w.grid()
                 chooseChapter_MenusBtn_Label.set("chapters")
-                _u.Settings.UI.showChapterWidgets = not _u.Settings.UI.showChapterWidgets
+                _u.Settings.UI.showMainWidgets = not _u.Settings.UI.showMainWidgets
             else:
                 mainWinRoot.columnconfigure(0, weight = 1)
                 mainWinRoot.columnconfigure(1, weight = 1)
                 mainWinRoot.columnconfigure(2, weight = 1)
                 mainWinRoot.columnconfigure(2, weight = 0)
-                wu.showCurrentLayout(mainWinRoot)  
+                for w in mainWinRoot.winfo_children():
+                    if LayoutsMenus.MainLayoutUI.classPrefix in w._name:
+                        log.autolog("hippo")
+                        w.grid()
+                wu.showCurrentLayout(mainWinRoot, *LayoutsMenus.MainLayoutUI.pyAppDimensions)  
                 chooseChapter_MenusBtn_Label.set("layout") 
-                _u.Settings.UI.showChapterWidgets = not _u.Settings.UI.showChapterWidgets
+                _u.Settings.UI.showMainWidgets = not _u.Settings.UI.showMainWidgets
 
         
         # show getBack Button
