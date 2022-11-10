@@ -5,10 +5,9 @@
         "currentState_Layout": "Main"
     },
     "booksPaths": {
-        "/b_newBook_test/": "/Users/ashum048/books///b_newBook_test/",
-        "/b_newBook2_test/": "/Users/ashum048/books///b_newBook2_test/",
-        "b_newBook_test": "/Users/ashum048/books//b_newBook_test",
-        "b_newBook2_test": "/Users/ashum048/books//b_newBook2_test"
+        "b_analysis_test": "/Users/ashum048/books/b_analysis_test",
+        "b_newBook_test": "/Users/ashum048/books/b_newBook_test/",
+        "b_newBook2_test": "/Users/ashum048/books/b_newBook2_test/"
     },
     "startup": {
         "startupLayout": "whole_book"

@@ -26,7 +26,6 @@ class Screenshot:
     def getText_CurrentScreenshotDirWidget(cls, mainWinRoot, namePref = ""):
         canvas= tk.Canvas(mainWinRoot,name = namePref.lower() + "_showCurrScreenshotLocation_text", width=520, height= 25)
 
-        wv.UItkVariables.scrshotPath = tk.StringVar()
         currScrshDir = wv.UItkVariables.scrshotPath
 
         currScrshDir.set(cls.getValueScreenshotLocation())
@@ -89,3 +88,21 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
             if (entryWidget_ID in e._name):
                 e.focus_set()
             e.grid()
+
+
+def initUIvars():
+    wv.UItkVariables.needRebuild = tk.BooleanVar()
+
+    wv.UItkVariables.buttonText = tk.StringVar()
+    wv.UItkVariables.imageGenerationEntryText = tk.StringVar()
+
+    wv.UItkVariables.createTOCVar = tk.BooleanVar()
+    wv.UItkVariables.TOCWithImageVar = tk.BooleanVar()
+    
+    wv.UItkVariables.topSection = tk.StringVar()
+    wv.UItkVariables.subsection = tk.StringVar()
+
+    wv.UItkVariables.scrshotPath = tk.StringVar()
+    
+    wv.UItkVariables.currCh = tk.StringVar()
+    wv.UItkVariables.currSubch = tk.StringVar()

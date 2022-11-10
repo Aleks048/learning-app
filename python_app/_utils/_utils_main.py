@@ -196,8 +196,8 @@ def getPathToBooks():
 
 
 def getListOfBooks():
-    pathToBooks = getPathToBooks()
-    return [i for i in os.listdir(pathToBooks) if i[:2]=="b_"]
+    booksPathsDict = Settings.readProperty(Settings.PubProp.booksPaths_ID)
+    return booksPathsDict.keys()
 
 
 def getAllRunningApps():

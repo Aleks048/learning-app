@@ -14,11 +14,11 @@ import _utils.logging as log
 import _utils._utils_main as _u
 
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
-    wm.Data.UItkVariables.createTOCVar = tk.IntVar()
-    wm.Data.UItkVariables.createTOCVar.set(1)
+    wm.Data.UItkVariables.createTOCVar.set(True)
+    
     createTOC_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_create_toc", text = "TOC cr",
                                 variable = wm.Data.UItkVariables.createTOCVar, onvalue = 1, offvalue = 0)
-    wm.Data.UItkVariables.TOCWithImageVar = tk.IntVar()
+    
     TOCWithImage_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_toc_w_image",  text = "TOC w i",
                                 variable = wm.Data.UItkVariables.TOCWithImageVar, onvalue = 1, offvalue = 0)
     
@@ -152,7 +152,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         sectionsStringSeparator = " "
         sections = sections.split(sectionsStringSeparator)
         if len(sections) < 3:
-            cls.showMessage("The sections and name should be in a '" + sectionsStringSeparator + "' separated string.")
+            wmes.MessageMenu.createMenu("The sections and name should be in a '" + sectionsStringSeparator + "' separated string.")
         else:
             linkName = sections[-1]
             targetSection = sections[0]
@@ -182,7 +182,6 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
 
 def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
-    wm.Data.UItkVariables.imageGenerationEntryText = tk.StringVar()
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wm.Data.UItkVariables.imageGenerationEntryText,
@@ -192,7 +191,6 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     wm.Data.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
     dataFromUser = [-1, -1, -1]
-    wm.Data.UItkVariables.buttonText = tk.StringVar()
 
     def _storeInputDataAndChange(nextButtonName, f = lambda *args: None, i = 0):
         # NOTE: not sure what is going on but "dataFromUser" refused to clean 
@@ -349,7 +347,7 @@ end tell'"
                 wm.Data.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wm.Data.UItkVariables.buttonText.set("imNum")
             
-            # cls.confirmationWindow("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
+            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
         else:
             os.system("screencapture -ix " + imageAnscriptPath + ".png")
             wm.Data.UItkVariables.needRebuild.set(True)
@@ -387,6 +385,44 @@ end tell'"
     return [imageProcessingETR, processButton]
 
 
+class StartupMenu:
+    def getStartup_BTN(winRoot, callback):
+        return tk.Button(winRoot,
+                        name = "_startupConfirmBTN",
+                        text= "start", 
+                        command = callback)
+
+    def getBookChoosing_OM(winRoot, callback):
+        default_book_name="Select a a book"
+
+        '''
+        functions that retrun options menus for choosing book
+        '''
+        book_name = tk.StringVar()
+        book_name.set(default_book_name)
+
+        # Create the list of books we have
+        listOfBooksNames = _u.getListOfBooks()
+
+        frame = tk.Frame(winRoot, name = "chooseBook_optionMenu", background="Blue")
+        book_menu = tk.OptionMenu(frame, book_name, 
+                                *listOfBooksNames, command= lambda x: callback)
+        book_menu.grid(row=0, column = 0)
+        return frame
+
+    def getAddNewBookOriginalMaterial_ETR(winRoot):
+        pass
+
+    def getAddNewBookLocation_ETR(winRoot):
+        pass
+
+    def addNewBook_BTN(winRoot, callback):
+        return tk.Button(winRoot,
+                        name = "_addBookBTN",
+                        text= "addBook", 
+                        command = callback)
+
+
 class LayoutsMenus:
     
 
@@ -396,9 +432,6 @@ class LayoutsMenus:
 
         @classmethod
         def addWidgets(cls, winMainRoot):
-            if wm.Data.UItkVariables.needRebuild == None:
-                wm.Data.UItkVariables.needRebuild = tk.BooleanVar()
-
             layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
             layoutOM.grid(column=0, row=0, padx=0, pady=0)
             layoutOM.update()
@@ -427,10 +460,7 @@ class LayoutsMenus:
         classPrefix = "mainlayout"
 
         @classmethod
-        def addWidgets(cls, winMainRoot):
-            if wm.Data.UItkVariables.needRebuild == None:
-                wm.Data.UItkVariables.needRebuild = tk.BooleanVar()
-            
+        def addWidgets(cls, winMainRoot):            
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions = [int(mon_width / 2), 90]
 
@@ -532,15 +562,16 @@ class ChooseMaterial:
             _u.Settings.Book.setCurrentBook(bookName, bookPath)
 
             # set UI variables
-            wm.Data.UItkVariables.topSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
-            wm.Data.UItkVariables.subsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            
+            wm.Data.UItkVariables.topSection.set(
+                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            )
+            wm.Data.UItkVariables.subsection.set(
+                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            )
             wm.Data.UItkVariables.imageGenerationEntryText.set(
                 fsm.Wr.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
-                                                    fsm.PropIDs.Sec.imIndex_ID)
+                                                        fsm.PropIDs.Sec.imIndex_ID)
             )
-            # wm.Data.UItkVariables.currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.BookInfoStructure.PubProp.currentPage_ID)
-
 
         default_book_name="Select a a book"
 
@@ -600,8 +631,6 @@ class ChooseMaterial:
         '''
         functions that retrun options menus for choosing chapter
         '''
-
-        wm.Data.UItkVariables.topSection = tk.StringVar()
         wm.Data.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
 
         topSectionsList = fsm.getTopSectionsList()
@@ -632,9 +661,6 @@ class ChooseMaterial:
 
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
-        
-
-        wm.Data.UItkVariables.subsection  = tk.StringVar()
         subsection =wm.Data.UItkVariables.subsection
         subsection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
         
@@ -672,9 +698,7 @@ class SectionsUI:
         entry_setSubchapterStartpage, button_setSubchapterStartPage = cls.getWidgets_setSubchapterStartPage(mainWinRoot,  cls.sectionsPrefix)
         entry_setSubchapterStartpage.grid(row = 1, column = 2)
         button_setSubchapterStartPage.grid(row = 1, column = 3)
-        
-        wm.Data.UItkVariables.currCh = tk.StringVar()
-        wm.Data.UItkVariables.currSubch = tk.StringVar()
+
         currCh_ETR, currSubch_ETR = cls.getEntries_currChAndSubchapter(mainWinRoot, cls.sectionsPrefix)
         currCh_ETR.grid(row = 2, column = 0, sticky = tk.N)
         currSubch_ETR.grid(row = 2, column = 2, sticky = tk.N)

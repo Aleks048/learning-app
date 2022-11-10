@@ -1,11 +1,15 @@
 import os
 import tkinter as tk
+import threading
 
 import UI.widgets_collection as wc
 import UI.widgets_utils as wu
 import UI.widgets_vars as wv
 import UI.widgets_messages as wmes
 
+import layouts.layouts_manager as lm
+
+import _utils.logging as log
 import _utils._utils_main as _u
 
 class Data:
@@ -25,10 +29,6 @@ class StartupMenu:
     
     @classmethod
     def createMenu(cls):
-        def _confirmationButtonCallback():
-            # TODO:start the main layout for the chosen book
-
-            cls.winRoot.destroy()
 
         cls.winRoot = tk.Tk()
 
@@ -38,16 +38,30 @@ class StartupMenu:
 
 
         # get chooseBookOptionMenu
-        books_OM = wc.ChooseMaterial.getOptionsMenu_ChooseBook(cls.winRoot)
+        def bookMenuChooseCallback(bookNameStVar):
+            bookName = bookNameStVar.get()
+            bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
+            bookPath = bookPaths[bookName]
+            _u.Settings.Book.setCurrentBook(bookName, bookPath)
+        
+        books_OM = wc.StartupMenu.getBookChoosing_OM(cls.winRoot, bookMenuChooseCallback)
         books_OM.pack()
 
         # get confirmation button
-        confirm_BTN = tk.Button(cls.winRoot,
-                                name = "_startupConfirmBTN",
-                                text= "start", 
-                                command = _confirmationButtonCallback)
+        def startup_BTN_callback():
+            cls.winRoot.destroy()
+            MainMenu.createMenu()
+        confirm_BTN = wc.StartupMenu.getStartup_BTN(cls.winRoot, startup_BTN_callback)
         
         confirm_BTN.pack()
+        
+        # get confirmation button
+        confirm_BTN.pack()
+        
+        def addBookCallback():
+            pass
+
+        addbook_BTN = wc.StartupMenu.addNewBook_BTN(cls.winRoot, addBookCallback)
         
         # assign the keys
         cls._bindKeys()
@@ -63,15 +77,22 @@ class StartupMenu:
 
 class MainMenu:
 
+
     @classmethod
     def createMenu(cls):
-        winRoot = tk.Tk()
+        cls.winRoot = tk.Tk()
+        wu.initUIvars()
 
-        wc.LayoutsMenus.SectionLayoutUI.addWidgets(winRoot)
-        wu.hideAllWidgets(winRoot)
-        wc.SectionsUI.setSectionsUI(winRoot)
-        wu.hideAllWidgets(winRoot)
-        wc.LayoutsMenus.MainLayoutUI.addWidgets(winRoot)
+        wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
+        wu.hideAllWidgets(cls.winRoot)
+        wc.SectionsUI.setSectionsUI(cls.winRoot)
+        wu.hideAllWidgets(cls.winRoot)
+        wc.LayoutsMenus.MainLayoutUI.addWidgets(cls.winRoot)
         _u.Settings.UI.showMainWidgets = True
 
-        winRoot.mainloop()
+        #set Layout
+        menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
+        lm.Wr.MainLayout.set(MainMenu.winRoot, *menuDimensions)
+
+        cls.winRoot.mainloop()
+        
