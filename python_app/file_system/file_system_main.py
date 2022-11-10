@@ -170,7 +170,7 @@ class BookInfoStructure:
         
         if not os.path.exists(expectedFileDir):
             print("BookInfoStructure.createBookInfoStrunture - the bookInfo structure was not present will create it.")
-            _waitDummy = os.system("mkdir -p " + expectedFileDir)
+            _waitDummy = os.makedirs(expectedFileDir)
         
         with open(bookInfoFilepath, "w+") as f:
             jsonObj = json.dumps(cls.bookInfoTemplate, indent = 4)
@@ -300,8 +300,7 @@ class SectionInfoStructure:
 
     @classmethod
     def createStructure(cls):
-        print("SectionInfoStructure.create structure - empty sectionPath given. Will only crerate the top folder.")
-        os.system("mkdir -p " + cls._getPathToSectionsFolder())
+        os.makedirs(cls._getPathToSectionsFolder())
         return
 
     @classmethod

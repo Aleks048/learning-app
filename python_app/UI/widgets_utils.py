@@ -89,20 +89,26 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
                 e.focus_set()
             e.grid()
 
+class initVars:
+    def MainUI():
+        wv.UItkVariables.needRebuild = tk.BooleanVar()
 
-def initUIvars():
-    wv.UItkVariables.needRebuild = tk.BooleanVar()
+        wv.UItkVariables.buttonText = tk.StringVar()
+        wv.UItkVariables.imageGenerationEntryText = tk.StringVar()
 
-    wv.UItkVariables.buttonText = tk.StringVar()
-    wv.UItkVariables.imageGenerationEntryText = tk.StringVar()
+        wv.UItkVariables.createTOCVar = tk.BooleanVar()
+        wv.UItkVariables.TOCWithImageVar = tk.BooleanVar()
+        
+        wv.UItkVariables.topSection = tk.StringVar()
+        wv.UItkVariables.subsection = tk.StringVar()
 
-    wv.UItkVariables.createTOCVar = tk.BooleanVar()
-    wv.UItkVariables.TOCWithImageVar = tk.BooleanVar()
-    
-    wv.UItkVariables.topSection = tk.StringVar()
-    wv.UItkVariables.subsection = tk.StringVar()
+        wv.UItkVariables.scrshotPath = tk.StringVar()
+        
+        wv.UItkVariables.currCh = tk.StringVar()
+        wv.UItkVariables.currSubch = tk.StringVar()
 
-    wv.UItkVariables.scrshotPath = tk.StringVar()
-    
-    wv.UItkVariables.currCh = tk.StringVar()
-    wv.UItkVariables.currSubch = tk.StringVar()
+    def StartupUI():
+        wv.StartupUItkVariables.newBookLocation = tk.StringVar()
+        wv.StartupUItkVariables.newBookName = tk.StringVar()
+        wv.StartupUItkVariables.originalMaterialLocation = tk.StringVar()
+        wv.StartupUItkVariables.originalMaterialName= tk.StringVar()

@@ -9,3 +9,9 @@ class UItkVariables:
     scrshotPath = None
     currCh = None
     currSubch = None
+
+class StartupUItkVariables:
+    newBookLocation = None
+    newBookName = None
+    originalMaterialLocation = None
+    originalMaterialName= None

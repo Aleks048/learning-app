@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 from threading import Thread
 
-import UI.widgets_manager as wm
+import UI.widgets_vars as wv 
 import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
 
@@ -14,22 +14,22 @@ import _utils.logging as log
 import _utils._utils_main as _u
 
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
-    wm.Data.UItkVariables.createTOCVar.set(True)
+    wv.UItkVariables.createTOCVar.set(True)
     
     createTOC_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_create_toc", text = "TOC cr",
-                                variable = wm.Data.UItkVariables.createTOCVar, onvalue = 1, offvalue = 0)
+                                variable = wv.UItkVariables.createTOCVar, onvalue = 1, offvalue = 0)
     
     TOCWithImage_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_toc_w_image",  text = "TOC w i",
-                                variable = wm.Data.UItkVariables.TOCWithImageVar, onvalue = 1, offvalue = 0)
+                                variable = wv.UItkVariables.TOCWithImageVar, onvalue = 1, offvalue = 0)
     
     return createTOC_CB, TOCWithImage_CB
 
 
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
-        wm.Data.UItkVariables.buttonText.set("imNum")
+        wv.UItkVariables.buttonText.set("imNum")
         sectionImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
-        wm.Data.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
+        wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
     
 
     restart_BTN = tk.Button(mainWinRoot,
@@ -98,11 +98,11 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
         if os.path.isfile(extraImagePath + ".png"):
             def takeScreencapture(savePath):
                 os.system("screencapture -ix " + savePath)
-                wm.Data.UItkVariables.needRebuild.set(True)
+                wv.UItkVariables.needRebuild.set(True)
             wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, extraImagePath + ".png")
         else:
             os.system("screencapture -ix " + extraImagePath + ".png")
-            wm.Data.UItkVariables.needRebuild.set(True)
+            wv.UItkVariables.needRebuild.set(True)
 
         # update the content file
         marker = "THIS IS CONTENT id: " + currImID
@@ -184,11 +184,11 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
-                                textvariable =  wm.Data.UItkVariables.imageGenerationEntryText,
+                                textvariable =  wv.UItkVariables.imageGenerationEntryText,
                                 name=prefixName.lower() + "_imageGeneration_" + wu.entryWidget_ID)
 
     secImIndex = _u.getCurrSecImIdx()
-    wm.Data.UItkVariables.imageGenerationEntryText.set(secImIndex)
+    wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
     dataFromUser = [-1, -1, -1]
 
@@ -197,7 +197,7 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
         # so had to pass i to set the position explicitly and set it to [-1, -1, -1] before
         dataFromUser[i] = imageProcessingETR.get()
         f()
-        wm.Data.UItkVariables.buttonText.set(nextButtonName)
+        wv.UItkVariables.buttonText.set(nextButtonName)
 
 
     def _createImageScript():
@@ -293,8 +293,8 @@ end tell'"
                 
             f.write(add_page)
 
-        if wm.Data.UItkVariables.createTOCVar.get():
-            if wm.Data.UItkVariables.TOCWithImageVar.get():
+        if wv.UItkVariables.createTOCVar.get():
+            if wv.UItkVariables.TOCWithImageVar.get():
                 # TOC ADD ENTRY WITH IMAGE
                 with open(t.Wr.TexFile._getCurrTOCFilepath(), 'a') as f:
                     toc_add_image = "\
@@ -332,7 +332,7 @@ end tell'"
         if os.path.isfile(imageAnscriptPath + ".png"):
             def takeScreencapture(savePath):
                 os.system("screencapture -ix " + savePath + ".png")
-                wm.Data.UItkVariables.needRebuild.set(True)
+                wv.UItkVariables.needRebuild.set(True)
                     #create a sript associated with image
                 with open(savePath + ".sh", "w+") as f:
                     for l in _createImageScript():
@@ -344,13 +344,13 @@ end tell'"
                         currsubsection, 
                         fsm.PropIDs.Sec.imIndex_ID,
                         nextImNum)
-                wm.Data.UItkVariables.imageGenerationEntryText.set(nextImNum)
-                wm.Data.UItkVariables.buttonText.set("imNum")
+                wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
+                wv.UItkVariables.buttonText.set("imNum")
             
             wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
         else:
             os.system("screencapture -ix " + imageAnscriptPath + ".png")
-            wm.Data.UItkVariables.needRebuild.set(True)
+            wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
             with open(imageAnscriptPath + ".sh", "w+") as f:
                 for l in _createImageScript():
@@ -362,24 +362,24 @@ end tell'"
                         currsubsection, 
                         fsm.PropIDs.Sec.imIndex_ID,
                         nextImNum)
-            wm.Data.UItkVariables.imageGenerationEntryText.set(nextImNum)
+            wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
 
-    buttonNamesToFunc = {"imNum": lambda *args: wm.Data.UItkVariables.imageGenerationEntryText.set(""),
+    buttonNamesToFunc = {"imNum": lambda *args: wv.UItkVariables.imageGenerationEntryText.set(""),
                         "imLink":_createTexForTheProcessedImage}
     buttonNames = list(buttonNamesToFunc.keys())
     
-    wm.Data.UItkVariables.buttonText.set(buttonNames[0])
+    wv.UItkVariables.buttonText.set(buttonNames[0])
 
     def buttonCallback():
         for i in range(len(buttonNames)):
-            if buttonNames[i] == wm.Data.UItkVariables.buttonText.get():
+            if buttonNames[i] == wv.UItkVariables.buttonText.get():
                 _storeInputDataAndChange(buttonNames[(i+1)%len(buttonNames)], 
                                         buttonNamesToFunc[buttonNames[i]], i)
                 break
 
     processButton = tk.Button(mainWinRoot, 
                             name = prefixName.lower() + "_imageGeneration_processButton",
-                            textvariable = wm.Data.UItkVariables.buttonText, 
+                            textvariable = wv.UItkVariables.buttonText, 
                             command= buttonCallback)
     
     return [imageProcessingETR, processButton]
@@ -410,11 +410,33 @@ class StartupMenu:
         book_menu.grid(row=0, column = 0)
         return frame
 
-    def getAddNewBookOriginalMaterial_ETR(winRoot):
-        pass
+    def getAddNewBookOriginalMaterialLocation_ETR(winRoot):        
+        originalMaterialLocation_ETR = tk.Entry(winRoot, 
+                            width = 50,
+                            textvariable = wv.StartupUItkVariables.originalMaterialLocation, 
+                            name = "originalMaterialLocation" + wu.entryWidget_ID)
+        return originalMaterialLocation_ETR
+    
+    def getAddNewBookOriginalMaterialName_ETR(winRoot):        
+        originalMaterialLocation_ETR = tk.Entry(winRoot, 
+                            width = 50,
+                            textvariable = wv.StartupUItkVariables.originalMaterialName, 
+                            name = "originalMaterialName" + wu.entryWidget_ID)
+        return originalMaterialLocation_ETR
 
+    def getAddNewBookName_ETR(winRoot):
+        bookName_ETR = tk.Entry(winRoot, 
+                            width = 50,
+                            textvariable = wv.StartupUItkVariables.newBookName, 
+                            name = "bookName" + wu.entryWidget_ID)
+        return bookName_ETR
+    
     def getAddNewBookLocation_ETR(winRoot):
-        pass
+        bookLocation_ETR = tk.Entry(winRoot, 
+                            width = 50,
+                            textvariable = wv.StartupUItkVariables.newBookLocation, 
+                            name = "bookLocation" + wu.entryWidget_ID)
+        return bookLocation_ETR
 
     def addNewBook_BTN(winRoot, callback):
         return tk.Button(winRoot,
@@ -562,14 +584,14 @@ class ChooseMaterial:
             _u.Settings.Book.setCurrentBook(bookName, bookPath)
 
             # set UI variables
-            wm.Data.UItkVariables.topSection.set(
+            wv.UItkVariables.topSection.set(
                 fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
             )
-            wm.Data.UItkVariables.subsection.set(
+            wv.UItkVariables.subsection.set(
                 fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
             )
-            wm.Data.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wr.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
+            wv.UItkVariables.imageGenerationEntryText.set(
+                fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
                                                         fsm.PropIDs.Sec.imIndex_ID)
             )
 
@@ -593,11 +615,11 @@ class ChooseMaterial:
     
     @classmethod
     def _topSectionChoosingCallback(cls, mainWinRoot):
-        topSection = wm.Data.UItkVariables.topSection
+        topSection = wv.UItkVariables.topSection
         print("chapterChoosingCallback - switching to chapter: " + topSection.get())
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , topSection.get())
         chapterImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
-        wm.Data.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
+        wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
         
         #
         # Update other widgets
@@ -607,15 +629,15 @@ class ChooseMaterial:
         
         sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
         prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
-        wm.Data.UItkVariables.subsection.set(prevSubsectionPath)
+        wv.UItkVariables.subsection.set(prevSubsectionPath)
 
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
         # screenshot
         wu.Screenshot.setValueScreenshotLoaction()
 
         # update image index 
-        wm.Data.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wr.SectionInfoStructure.readProperty(wm.Data.UItkVariables.subsection.get(), 
+        wv.UItkVariables.imageGenerationEntryText.set(
+                fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
                                                     fsm.PropIDs.Sec.imIndex_ID)
         )
 
@@ -631,13 +653,13 @@ class ChooseMaterial:
         '''
         functions that retrun options menus for choosing chapter
         '''
-        wm.Data.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
+        wv.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
 
         topSectionsList = fsm.getTopSectionsList()
         
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
         topSection_menu = tk.OptionMenu(frame, 
-                                        wm.Data.UItkVariables.topSection , 
+                                        wv.UItkVariables.topSection , 
                                         *topSectionsList, 
                                         command= lambda x: cls._topSectionChoosingCallback(mainWinRoot))
         topSection_menu.grid(row = 0, column = 0)
@@ -645,14 +667,14 @@ class ChooseMaterial:
         return frame
     
     def _subsectionChoosingCallback():
-            subsection = wm.Data.UItkVariables.subsection
+            subsection = wv.UItkVariables.subsection
             sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
-            sections[wm.Data.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
+            sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID , sections)
             
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
             
-            wm.Data.UItkVariables.imageGenerationEntryText.set(
+            wv.UItkVariables.imageGenerationEntryText.set(
                 fsm.Wr.SectionInfoStructure.readProperty(subsection.get(), 
                                                     fsm.PropIDs.Sec.imIndex_ID)
             )
@@ -661,7 +683,7 @@ class ChooseMaterial:
 
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
-        subsection =wm.Data.UItkVariables.subsection
+        subsection =wv.UItkVariables.subsection
         subsection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
         
         subsectionsList = wu._getSubsectionsListForCurrTopSection()
@@ -764,11 +786,11 @@ class SectionsUI:
     def getEntries_currChAndSubchapter(cls, mainWinRoot, prefixName = ""):
         currCh_ETR = tk.Entry(mainWinRoot, 
                             width = 5,
-                            textvariable = wm.Data.UItkVariables.currCh, 
+                            textvariable = wv.UItkVariables.currCh, 
                             name = prefixName.lower() +  "_setCurrChapter_" + wu.entryWidget_ID)
         currSubch_ETR = tk.Entry(mainWinRoot, 
                             width = 5, 
-                            textvariable = wm.Data.UItkVariables.currSubch, 
+                            textvariable = wv.UItkVariables.currSubch, 
                             name = prefixName.lower() +  "_setCurrSubchapter_" + wu.entryWidget_ID)
         
         return currCh_ETR, currSubch_ETR

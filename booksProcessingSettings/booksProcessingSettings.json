@@ -1,13 +1,14 @@
 {
     "currentState": {
-        "currentState_BookPath": "/Users/ashum048/books/b_analysis_test",
-        "currentState_BookName": "b_analysis_test",
+        "currentState_BookPath": "/Users/ashum048/books/book_test",
+        "currentState_BookName": "bookTest",
         "currentState_Layout": "Main"
     },
     "booksPaths": {
         "b_analysis_test": "/Users/ashum048/books/b_analysis_test",
         "b_newBook_test": "/Users/ashum048/books/b_newBook_test/",
-        "b_newBook2_test": "/Users/ashum048/books/b_newBook2_test/"
+        "b_newBook2_test": "/Users/ashum048/books/b_newBook2_test/",
+        "bookTest": "/Users/ashum048/books/book_test"
     },
     "startup": {
         "startupLayout": "whole_book"

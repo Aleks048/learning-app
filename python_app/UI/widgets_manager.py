@@ -9,6 +9,8 @@ import UI.widgets_messages as wmes
 
 import layouts.layouts_manager as lm
 
+import file_system.file_system_manager as fsm
+
 import _utils.logging as log
 import _utils._utils_main as _u
 
@@ -31,6 +33,7 @@ class StartupMenu:
     def createMenu(cls):
 
         cls.winRoot = tk.Tk()
+        wu.initVars.StartupUI()
 
         cls.winRoot.geometry("+" + str(int(cls.monitorSize[0] / 2)) \
                     + "+" \
@@ -55,14 +58,48 @@ class StartupMenu:
         
         confirm_BTN.pack()
         
-        # get confirmation button
-        confirm_BTN.pack()
-        
+        bookName_ETR = wc.StartupMenu.getAddNewBookName_ETR(cls.winRoot)
+        bookName_ETR.pack()
+        bookLoacation_ETR = wc.StartupMenu.getAddNewBookLocation_ETR(cls.winRoot)
+        bookLoacation_ETR.pack()
+        originalMaterialName= wc.StartupMenu.getAddNewBookOriginalMaterialName_ETR(cls.winRoot)
+        originalMaterialName.pack()
+        originalMaterialLocation = wc.StartupMenu.getAddNewBookOriginalMaterialLocation_ETR(cls.winRoot)
+        originalMaterialLocation.pack()
+
         def addBookCallback():
-            pass
+            bookPath = wv.StartupUItkVariables.newBookLocation.get()
+            bookName = wv.StartupUItkVariables.newBookName.get()
+            originalMaterialLocation = wv.StartupUItkVariables.originalMaterialLocation.get()
+            originalMaterialName = wv.StartupUItkVariables.originalMaterialName.get()
+
+            # create a directory
+            try:
+                os.makedirs(bookPath)
+            except:
+                message = "Could not create a filepath for new book: " + bookPath
+                log.autolog(message)
+                wmes.messagebox(message)
+                return
+            
+            # update settings
+            _u.Settings.Book.addNewBook(bookName, bookPath)
+            # set as current book
+            _u.Settings.Book.setCurrentBook(bookName, bookPath)
+
+            # create structures
+            fsm.Wr.BookInfoStructure.createStructure()
+            fsm.Wr.SectionInfoStructure.createStructure()
+            fsm.Wr.TOCStructure.createStructure()
+            fsm.Wr.OriginalMaterialStructure.createStructure()
+
+            # add original material
+            fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, originalMaterialLocation, "")
+            
 
         addbook_BTN = wc.StartupMenu.addNewBook_BTN(cls.winRoot, addBookCallback)
-        
+        addbook_BTN.pack()
+
         # assign the keys
         cls._bindKeys()
         
@@ -81,7 +118,7 @@ class MainMenu:
     @classmethod
     def createMenu(cls):
         cls.winRoot = tk.Tk()
-        wu.initUIvars()
+        wu.initVars.MainUI()
 
         wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
         wu.hideAllWidgets(cls.winRoot)
