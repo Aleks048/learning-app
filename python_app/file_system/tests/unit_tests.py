@@ -20,9 +20,9 @@ import _utils.logging as log
 testBookName = "b_analysis_test"
 testBookPath = os.getenv("BOOKS_ROOT_PATH") + testBookName
 test2BookName = "b_newBook_test"
-test2BookPath = os.getenv("BOOKS_ROOT_PATH") + "/" + test2BookName + "/"
+test2BookPath = os.getenv("BOOKS_ROOT_PATH") + "/testBooks/" + test2BookName + "/"
 test3BookName = "b_newBook2_test"
-test3BookPath = os.getenv("BOOKS_ROOT_PATH") + "/" + test3BookName + "/"
+test3BookPath = os.getenv("BOOKS_ROOT_PATH") + "/testBooks/" + test3BookName + "/"
 
 class BookSetup:
     def addOriginalMaterialWholePDF():
@@ -177,7 +177,7 @@ class Test_OriginalMaterialStructure(unittest.TestCase):
         self.assertTrue(os.path.exists(self.originalMaterialStructurePath))
 
         expectedFileLocation = "\
-/Users/ashum048/books/b_analysis_test/originalMaterial/book/whole_book.pdf"
+/Users/ashum048/books/testBooks/b_analysis_test/originalMaterial/book/whole_book.pdf"
         
         self.assertTrue(os.path.exists(expectedFileLocation))
 
