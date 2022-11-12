@@ -58,12 +58,20 @@ class StartupMenu:
         
         confirm_BTN.pack()
         
+        bookName_LBL = tk.Label(cls.winRoot, text = "bookName")
+        bookName_LBL.pack()
         bookName_ETR = wc.StartupMenu.getAddNewBookName_ETR(cls.winRoot)
         bookName_ETR.pack()
+        bookLocation_LBL = tk.Label(cls.winRoot, text = "bookLocation")
+        bookLocation_LBL.pack()
         bookLoacation_ETR = wc.StartupMenu.getAddNewBookLocation_ETR(cls.winRoot)
         bookLoacation_ETR.pack()
+        originalMaterialName_LBL = tk.Label(cls.winRoot, text = "Original Material Name")
+        originalMaterialName_LBL.pack()
         originalMaterialName= wc.StartupMenu.getAddNewBookOriginalMaterialName_ETR(cls.winRoot)
         originalMaterialName.pack()
+        originalMaterialLocation_LBL = tk.Label(cls.winRoot, text = "Original Material Locattion")
+        originalMaterialLocation_LBL.pack()
         originalMaterialLocation = wc.StartupMenu.getAddNewBookOriginalMaterialLocation_ETR(cls.winRoot)
         originalMaterialLocation.pack()
 
