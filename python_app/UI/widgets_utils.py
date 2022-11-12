@@ -7,6 +7,12 @@ import file_system.file_system_manager as fsm
 import layouts.layouts_manager as lm
 
 import _utils._utils_main as _u
+import _utils.logging as log
+
+class Data:
+    class ENT:
+        regularTextColor = "white"
+        defaultTextColor = "blue"
 
 class Screenshot:
         
@@ -57,6 +63,17 @@ def _getSubsectionsListForCurrTopSection():
     currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
+
+def addDefaultTextToETR(entry, dataVar, defaultText):
+    current = dataVar.get()
+    
+    if current == defaultText:
+        entry.configure(fg = Data.ENT.regularTextColor)
+        dataVar.set("")
+    elif current == "":
+        entry.configure(fg = Data.ENT.defaultTextColor)
+        dataVar.set(defaultText)
+
 
 entryWidget_ID = "ETR"
 
@@ -109,7 +126,7 @@ class initVars:
 
     def StartupUI():
         wv.StartupUItkVariables.bookChoice = tk.StringVar()
-        wv.StartupUItkVariables.newBookLocation = tk.StringVar()
         wv.StartupUItkVariables.newBookName = tk.StringVar()
+        wv.StartupUItkVariables.newBookLocation = tk.StringVar()
         wv.StartupUItkVariables.originalMaterialLocation = tk.StringVar()
         wv.StartupUItkVariables.originalMaterialName= tk.StringVar()

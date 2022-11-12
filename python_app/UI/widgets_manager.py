@@ -58,22 +58,16 @@ class StartupMenu:
         
         confirm_BTN.pack()
         
-        bookName_LBL = wc.getLabel(cls.winRoot, "bookName")
-        bookName_LBL.pack()
-        bookName_ETR = wc.StartupMenu.getAddNewBookName_ETR(cls.winRoot)
-        bookName_ETR.pack()
-        bookLocation_LBL = wc.getLabel(cls.winRoot, "bookLocation")
-        bookLocation_LBL.pack()
-        bookLoacation_ETR = wc.StartupMenu.getAddNewBookLocation_ETR(cls.winRoot)
-        bookLoacation_ETR.pack()
-        originalMaterialName_LBL = wc.getLabel(cls.winRoot, "Original Material Name")
-        originalMaterialName_LBL.pack()
-        originalMaterialName= wc.StartupMenu.getAddNewBookOriginalMaterialName_ETR(cls.winRoot)
-        originalMaterialName.pack()
-        originalMaterialLocation_LBL = wc.getLabel(cls.winRoot, "Original Material Locattion")
-        originalMaterialLocation_LBL.pack()
-        originalMaterialLocation = wc.StartupMenu.getAddNewBookOriginalMaterialLocation_ETR(cls.winRoot)
-        originalMaterialLocation.pack()
+        entriesData = [
+            ["bookName", wv.StartupUItkVariables.newBookName, "Book name"],
+            ["bookLocation", wv.StartupUItkVariables.newBookLocation, "Book location"],
+            ["originalMaterialName", wv.StartupUItkVariables.originalMaterialName, "Original Material Name"],
+            ["originalMaterialLocattion", wv.StartupUItkVariables.originalMaterialLocation, "Original Material Locattion"]
+        ]
+        textEntries = []
+        for entryData in entriesData:
+            textEntry = wc.StartupMenu.getTextEntry_ETR(cls.winRoot, *entryData)
+            textEntry.pack()
 
         def addBookCallback():
             bookPath = wv.StartupUItkVariables.newBookLocation.get()

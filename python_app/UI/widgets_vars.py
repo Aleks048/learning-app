@@ -12,7 +12,7 @@ class UItkVariables:
 
 class StartupUItkVariables:
     bookChoice = None
-    newBookLocation = None
     newBookName = None
+    newBookLocation = None
     originalMaterialLocation = None
     originalMaterialName= None

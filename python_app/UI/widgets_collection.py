@@ -414,34 +414,20 @@ class StartupMenu:
                                 command= lambda x: callback)
         book_menu.grid(row=0, column = 0)
         return frame
-
-    def getAddNewBookOriginalMaterialLocation_ETR(winRoot):        
-        originalMaterialLocation_ETR = tk.Entry(winRoot, 
-                            width = 50,
-                            textvariable = wv.StartupUItkVariables.originalMaterialLocation, 
-                            name = "originalMaterialLocation" + wu.entryWidget_ID)
-        return originalMaterialLocation_ETR
     
-    def getAddNewBookOriginalMaterialName_ETR(winRoot):        
-        originalMaterialLocation_ETR = tk.Entry(winRoot, 
-                            width = 50,
-                            textvariable = wv.StartupUItkVariables.originalMaterialName, 
-                            name = "originalMaterialName" + wu.entryWidget_ID)
-        return originalMaterialLocation_ETR
+    def getTextEntry_ETR(winRoot, entryNname, dataVar, defaultText):
+        dataVar.set(defaultText)
+        entry = tk.Entry(winRoot, 
+                        width = 50,
+                        textvariable = dataVar, 
+                        fg = wu.Data.ENT.defaultTextColor,
+                        name = entryNname + wu.entryWidget_ID)
 
-    def getAddNewBookName_ETR(winRoot):
-        bookName_ETR = tk.Entry(winRoot, 
-                            width = 50,
-                            textvariable = wv.StartupUItkVariables.newBookName, 
-                            name = "bookName" + wu.entryWidget_ID)
-        return bookName_ETR
-    
-    def getAddNewBookLocation_ETR(winRoot):
-        bookLocation_ETR = tk.Entry(winRoot, 
-                            width = 50,
-                            textvariable = wv.StartupUItkVariables.newBookLocation, 
-                            name = "bookLocation" + wu.entryWidget_ID)
-        return bookLocation_ETR
+        entry.bind("<FocusIn>",  
+                        lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
+        entry.bind("<FocusOut>", 
+                            lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
+        return entry
 
     def addNewBook_BTN(winRoot, callback):
         return tk.Button(winRoot,
