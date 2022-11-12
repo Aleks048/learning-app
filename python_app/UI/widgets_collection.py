@@ -92,7 +92,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
 
         # get name of the image from the text field
         for w in mainWinRoot.winfo_children():
-            if "_imageGeneration_" + wu.entryWidget_ID in w._name:
+            if "_imageGeneration_" + wu.Data.ENT.entryWidget_ID in w._name:
                 imName = w.get()
         
         extraImagePath = _u.DIR.Screenshot.getCurrentAbs() \
@@ -180,7 +180,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     createGlLinkETR = tk.Entry(mainWinRoot,
                             width = 5,
                             textvariable = targetSections,
-                            name = prefixName.lower() + "addGlobalLink" + wu.entryWidget_ID)
+                            name = prefixName.lower() + "addGlobalLink" + wu.Data.ENT.entryWidget_ID)
     
     return createGlLinkBTN, createGlLinkETR
 
@@ -189,7 +189,7 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
-                                name=prefixName.lower() + "_imageGeneration_" + wu.entryWidget_ID)
+                                name=prefixName.lower() + "_imageGeneration_" + wu.Data.ENT.entryWidget_ID)
 
     secImIndex = _u.getCurrSecImIdx()
     wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
@@ -421,7 +421,7 @@ class StartupMenu:
                         width = 50,
                         textvariable = dataVar, 
                         fg = wu.Data.ENT.defaultTextColor,
-                        name = entryNname + wu.entryWidget_ID)
+                        name = entryNname + wu.Data.ENT.entryWidget_ID)
 
         entry.bind("<FocusIn>",  
                         lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
@@ -615,8 +615,8 @@ class ChooseMaterial:
         #
         # Update other widgets
         #
-        subsectionsList = wu._getSubsectionsListForCurrTopSection()
-        wu._updateOptionMenuOptionsList(mainWinRoot, 
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        wu.updateOptionMenuOptionsList(mainWinRoot, 
                                         "_chooseSubchapter_optionMenu", 
                                         subsectionsList, 
                                         wv.UItkVariables.subsection,
@@ -681,7 +681,7 @@ class ChooseMaterial:
         subsection =wv.UItkVariables.subsection
         subsection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
         
-        subsectionsList = wu._getSubsectionsListForCurrTopSection()
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
 
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
         subchapter_menu = tk.OptionMenu(frame, 
@@ -782,11 +782,11 @@ class SectionsUI:
         currCh_ETR = tk.Entry(mainWinRoot, 
                             width = 5,
                             textvariable = wv.UItkVariables.currCh, 
-                            name = prefixName.lower() +  "_setCurrChapter_" + wu.entryWidget_ID)
+                            name = prefixName.lower() +  "_setCurrChapter_" + wu.Data.ENT.entryWidget_ID)
         currSubch_ETR = tk.Entry(mainWinRoot, 
                             width = 5, 
                             textvariable = wv.UItkVariables.currSubch, 
-                            name = prefixName.lower() +  "_setCurrSubchapter_" + wu.entryWidget_ID)
+                            name = prefixName.lower() +  "_setCurrSubchapter_" + wu.Data.ENT.entryWidget_ID)
         
         return currCh_ETR, currSubch_ETR
 
@@ -802,7 +802,7 @@ class SectionsUI:
         entry_setChapterName = tk.Entry(mainWinRoot, 
                                         name = prefixName.lower() 
                                             +  "_setChapterName_"
-                                            + wu.entryWidget_ID
+                                            + wu.Data.ENT.entryWidget_ID
                                         )
         button_setChapterName = tk.Button(mainWinRoot, 
             name = prefixName.lower() +  "_setChapterNameBTN", 
@@ -824,7 +824,7 @@ class SectionsUI:
         entry_setChapterStartPage = tk.Entry(mainWinRoot, 
                                             name = prefixName.lower() 
                                                 +  "_setChapterStartPage_" 
-                                                + wu.entryWidget_ID
+                                                + wu.Data.ENT.entryWidget_ID
                                             )
         button_setChapterStartPage = tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_setChapterStartPageBTN", 
@@ -842,7 +842,7 @@ class SectionsUI:
                                                     fsm.PropIDs.Sec.imLinkName_ID, 
                                                     entry_setSubchapterName.get())
             
-        entry_setSubchapterName = tk.Entry(mainWinRoot, name = prefixName.lower() + "_setSubchapterName_" + wu.entryWidget_ID)
+        entry_setSubchapterName = tk.Entry(mainWinRoot, name = prefixName.lower() + "_setSubchapterName_" + wu.Data.ENT.entryWidget_ID)
         button_setSubchapterName = tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_setSubchapterNameBTN", 
                         text="setSubhapterName", 
@@ -862,7 +862,7 @@ class SectionsUI:
         entry_setSubchapterStartpage = tk.Entry(mainWinRoot, 
                                                 name = prefixName.lower() 
                                                     + "_setSubchapterStartPage_" 
-                                                    + wu.entryWidget_ID
+                                                    + wu.Data.ENT.entryWidget_ID
                                                 )
         
         button_setSubchapterStartPage = tk.Button(mainWinRoot, 
@@ -882,11 +882,11 @@ class SectionsUI:
             # chName = None
             # chStartPage = None
             # for e in mainWinRoot.winfo_children():
-            #     if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+            #     if  "_setCurrChapter_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         chNum = e.get()
-            #     elif "_setChapterName_" + wu.entryWidget_ID in e._name:
+            #     elif "_setChapterName_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         chName = e.get()
-            #     elif "_setChapterStartPage_" + wu.entryWidget_ID in e._name:
+            #     elif "_setChapterStartPage_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         chStartPage = e.get()
             # _u.BookSettings.ChapterProperties.addChapter(chNum, chName, chStartPage)
         
@@ -903,7 +903,7 @@ class SectionsUI:
             pass
             # chNum = None
             # for e in mainWinRoot.winfo_children():
-            #     if  "_setCurrChapter_" + wu.entryWidget_ID in e._name:
+            #     if  "_setCurrChapter_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         chNum = e.get()
             #         break
             # _u.BookSettings.ChapterProperties.removeChapter(chNum)
@@ -923,12 +923,12 @@ class SectionsUI:
             # subchName = None
             # subchStartPage = None
             # for e in mainWinRoot.winfo_children():
-            #     if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+            #     if  "_setCurrSubchapter_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         subchNum = e.get()
             #         chNum = subchNum.split(".")[0]
-            #     elif "_setSubchapterName_" + wu.entryWidget_ID in e._name:
+            #     elif "_setSubchapterName_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         subchName = e.get()
-            #     elif "_setSubchapterStartPage_" + wu.entryWidget_ID in e._name:
+            #     elif "_setSubchapterStartPage_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         subchStartPage = e.get()
             
             # _u.BookSettings.SubchaptersProperties.addSubchapter(chNum, subchNum, subchName, subchStartPage)
@@ -945,7 +945,7 @@ class SectionsUI:
             pass
             # chNum = None
             # for e in mainWinRoot.winfo_children():
-            #     if  "_setCurrSubchapter_" + wu.entryWidget_ID in e._name:
+            #     if  "_setCurrSubchapter_" + wu.Data.ENT.entryWidget_ID in e._name:
             #         subchNum = e.get()
             #         chNum = subchNum.split(".")[0]
             

@@ -11,6 +11,8 @@ import _utils.logging as log
 
 class Data:
     class ENT:
+        entryWidget_ID = "ETR"
+
         regularTextColor = "white"
         defaultTextColor = "blue"
 
@@ -45,7 +47,7 @@ class Screenshot:
 
         return canvas
 
-def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, callback):
+def updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, callback):
     def subsectionChoosingCallback(value):
         choiceVar.set(value)
         callback()
@@ -59,10 +61,12 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar,
                                         command= lambda value=choice: subsectionChoosingCallback(value))
                     choiceVar.set(newMenuOptions[0])
 
-def _getSubsectionsListForCurrTopSection():
+
+def getSubsectionsListForCurrTopSection():
     currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
     childrensList = fsm.getSubsectionsList(currSectionPath)
     return childrensList
+
 
 def addDefaultTextToETR(entry, dataVar, defaultText):
     current = dataVar.get()
@@ -75,15 +79,13 @@ def addDefaultTextToETR(entry, dataVar, defaultText):
         dataVar.set(defaultText)
 
 
-entryWidget_ID = "ETR"
-
 def hideAllWidgets(mainWinRoot):
     '''
     hide all widgets. clear all entries
     '''
     for e in mainWinRoot.winfo_children():
         # clear all entries
-        if (entryWidget_ID in e._name):
+        if (Data.ENT.entryWidget_ID in e._name):
             if ("_imageGeneration_" not in e._name):
                 e.delete(0, 'end')
         e.grid_remove()
@@ -102,7 +104,7 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
 
     for e in mainWinRoot.winfo_children():
         if layoutClass.__name__.lower() in e._name:
-            if (entryWidget_ID in e._name):
+            if (Data.ENT.entryWidget_ID in e._name):
                 e.focus_set()
             e.grid()
 

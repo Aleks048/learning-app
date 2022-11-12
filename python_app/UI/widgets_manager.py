@@ -99,7 +99,7 @@ class StartupMenu:
             fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, originalMaterialLocation, "")
             
             booksNames = list(_u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID).keys()) 
-            wu._updateOptionMenuOptionsList(cls.winRoot, 
+            wu.updateOptionMenuOptionsList(cls.winRoot, 
                                             "chooseBook_optionMenu", 
                                             booksNames, 
                                             wv.StartupUItkVariables.bookChoice,
