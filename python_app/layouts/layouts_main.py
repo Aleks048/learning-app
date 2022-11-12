@@ -42,7 +42,7 @@ class SectionLayout(Layout):
         #       skim Section to the right 
         #       vscode to the left
         '''
-        # Open chapter pdf in skim
+        # Open section pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
         
@@ -126,7 +126,7 @@ class MainLayout(Layout):
 
         # currChapter images folder
         currSectionWPrefix = _u.getCurrentSectionNameWprefix()
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images/")
+        ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder

@@ -327,7 +327,7 @@ class Settings:
         def getWholeBookPath(cls):
             path = os.path.join(Settings.readProperty(Settings.PubProp.currBookPath_ID),
                             fsm.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath,
-                            "/" + Settings.PubProp.wholeBook_ID + ".pdf")
+                            Settings.PubProp.wholeBook_ID + ".pdf")
             print(path)
             return path
 
