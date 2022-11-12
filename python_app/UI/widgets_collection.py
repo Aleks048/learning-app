@@ -652,7 +652,13 @@ class ChooseMaterial:
 
         topSectionsList = fsm.getTopSectionsList()
         
+
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
+        
+        if topSectionsList == []:
+            #return empty frame if there is not top sections yet
+            return frame
+        
         topSection_menu = tk.OptionMenu(frame, 
                                         wv.UItkVariables.topSection , 
                                         *topSectionsList, 
@@ -683,13 +689,19 @@ class ChooseMaterial:
         
         subsectionsList = wu.getSubsectionsListForCurrTopSection()
 
+
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
+        
+        if subsectionsList == []:
+            return frame
+            
         subchapter_menu = tk.OptionMenu(frame, 
                                         subsection, 
                                         *subsectionsList, 
                                         command = lambda *args: cls._subsectionChoosingCallback(),
                                         )
         subchapter_menu.grid(row = 0, column = 0)
+        
         return frame
    
 

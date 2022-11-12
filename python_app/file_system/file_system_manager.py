@@ -2,6 +2,7 @@ import os
 from unicodedata import name
 
 import _utils._utils_main as _u
+import _utils.logging as log
 import file_system.file_system_main as fs
 
 '''
@@ -104,12 +105,14 @@ def updateSectionProperty(sectionPath, propertyName, newValue):
 def getSubsectionsList(sectionPath = ""):
     sections_ID = fs.BookInfoStructure.PubProp.sections_ID
     outSubsectionsList = []
+    
+    if sectionPath == "0":
+        return []
 
     if sectionPath == "":
         subsections = fs.BookInfoStructure.readProperty(sections_ID)
     else:
         subsections = fs.BookInfoStructure.readProperty(sectionPath)[sections_ID]
-    
 
     subsectionsNamesList = list(subsections.keys())
     subsectionsList = list(subsections.values())
