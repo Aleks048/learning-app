@@ -41,8 +41,8 @@ class StartupMenu:
 
 
         # get chooseBookOptionMenu
-        def bookMenuChooseCallback(bookNameStVar):
-            bookName = bookNameStVar.get()
+        def bookMenuChooseCallback():
+            bookName = wv.StartupUItkVariables.bookChoice.get()
             bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
             bookPath = bookPaths[bookName]
             _u.Settings.Book.setCurrentBook(bookName, bookPath)
@@ -58,19 +58,19 @@ class StartupMenu:
         
         confirm_BTN.pack()
         
-        bookName_LBL = tk.Label(cls.winRoot, text = "bookName")
+        bookName_LBL = wc.getLabel(cls.winRoot, "bookName")
         bookName_LBL.pack()
         bookName_ETR = wc.StartupMenu.getAddNewBookName_ETR(cls.winRoot)
         bookName_ETR.pack()
-        bookLocation_LBL = tk.Label(cls.winRoot, text = "bookLocation")
+        bookLocation_LBL = wc.getLabel(cls.winRoot, "bookLocation")
         bookLocation_LBL.pack()
         bookLoacation_ETR = wc.StartupMenu.getAddNewBookLocation_ETR(cls.winRoot)
         bookLoacation_ETR.pack()
-        originalMaterialName_LBL = tk.Label(cls.winRoot, text = "Original Material Name")
+        originalMaterialName_LBL = wc.getLabel(cls.winRoot, "Original Material Name")
         originalMaterialName_LBL.pack()
         originalMaterialName= wc.StartupMenu.getAddNewBookOriginalMaterialName_ETR(cls.winRoot)
         originalMaterialName.pack()
-        originalMaterialLocation_LBL = tk.Label(cls.winRoot, text = "Original Material Locattion")
+        originalMaterialLocation_LBL = wc.getLabel(cls.winRoot, "Original Material Locattion")
         originalMaterialLocation_LBL.pack()
         originalMaterialLocation = wc.StartupMenu.getAddNewBookOriginalMaterialLocation_ETR(cls.winRoot)
         originalMaterialLocation.pack()
@@ -104,6 +104,13 @@ class StartupMenu:
             # add original material
             fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, originalMaterialLocation, "")
             
+            booksNames = list(_u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID).keys()) 
+            wu._updateOptionMenuOptionsList(cls.winRoot, 
+                                            "chooseBook_optionMenu", 
+                                            booksNames, 
+                                            wv.StartupUItkVariables.bookChoice,
+                                            bookMenuChooseCallback)
+
 
         addbook_BTN = wc.StartupMenu.addNewBook_BTN(cls.winRoot, addBookCallback)
         addbook_BTN.pack()

@@ -39,9 +39,9 @@ class Screenshot:
 
         return canvas
 
-def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
+def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, callback):
     def subsectionChoosingCallback(value):
-        wv.UItkVariables.subsection.set(value)
+        choiceVar.set(value)
         callback()
 
     for e in mainWinRoot.winfo_children():
@@ -51,7 +51,7 @@ def _updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, callback):
                 for choice in newMenuOptions:
                     om['menu'].add_command(label=choice, 
                                         command= lambda value=choice: subsectionChoosingCallback(value))
-                    wv.UItkVariables.subsection.set(newMenuOptions[0])
+                    choiceVar.set(newMenuOptions[0])
 
 def _getSubsectionsListForCurrTopSection():
     currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
@@ -108,6 +108,7 @@ class initVars:
         wv.UItkVariables.currSubch = tk.StringVar()
 
     def StartupUI():
+        wv.StartupUItkVariables.bookChoice = tk.StringVar()
         wv.StartupUItkVariables.newBookLocation = tk.StringVar()
         wv.StartupUItkVariables.newBookName = tk.StringVar()
         wv.StartupUItkVariables.originalMaterialLocation = tk.StringVar()

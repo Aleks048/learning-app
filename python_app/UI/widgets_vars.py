@@ -11,6 +11,7 @@ class UItkVariables:
     currSubch = None
 
 class StartupUItkVariables:
+    bookChoice = None
     newBookLocation = None
     newBookName = None
     originalMaterialLocation = None

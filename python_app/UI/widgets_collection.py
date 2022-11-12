@@ -13,6 +13,10 @@ import tex_file.tex_file_manager as t
 import _utils.logging as log
 import _utils._utils_main as _u
 
+def getLabel(mainWinRoot, text):
+    return tk.Label(mainWinRoot, text = text)
+
+
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     wv.UItkVariables.createTOCVar.set(True)
     
@@ -398,15 +402,16 @@ class StartupMenu:
         '''
         functions that retrun options menus for choosing book
         '''
-        book_name = tk.StringVar()
-        book_name.set(default_book_name)
+        wv.StartupUItkVariables.bookChoice.set(default_book_name)
 
         # Create the list of books we have
         listOfBooksNames = _u.getListOfBooks()
 
         frame = tk.Frame(winRoot, name = "chooseBook_optionMenu", background="Blue")
-        book_menu = tk.OptionMenu(frame, book_name, 
-                                *listOfBooksNames, command= lambda x: callback)
+        book_menu = tk.OptionMenu(frame, 
+                                wv.StartupUItkVariables.bookChoice, 
+                                *listOfBooksNames, 
+                                command= lambda x: callback)
         book_menu.grid(row=0, column = 0)
         return frame
 
@@ -625,7 +630,11 @@ class ChooseMaterial:
         # Update other widgets
         #
         subsectionsList = wu._getSubsectionsListForCurrTopSection()
-        wu._updateOptionMenuOptionsList(mainWinRoot, "_chooseSubchapter_optionMenu", subsectionsList, cls._subsectionChoosingCallback)
+        wu._updateOptionMenuOptionsList(mainWinRoot, 
+                                        "_chooseSubchapter_optionMenu", 
+                                        subsectionsList, 
+                                        wv.UItkVariables.subsection,
+                                        cls._subsectionChoosingCallback)
         
         sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
         prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
