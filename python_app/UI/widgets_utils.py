@@ -19,11 +19,7 @@ class Data:
 class Screenshot:
         
     def getValueScreenshotLocation():
-        prefix = "dir: "
-        if wv.UItkVariables.scrshotPath.get() == "":
-            return prefix + _u.DIR.Screenshot.getCurrentRel()
-        else:
-            return prefix + wv.UItkVariables.scrshotPath.get()
+        return "dir: " + _u.DIR.Screenshot.getCurrentRel()
 
 
     def setValueScreenshotLoaction():

@@ -301,6 +301,9 @@ class SectionInfoStructure:
     @classmethod
     def createStructure(cls):
         os.makedirs(cls._getPathToSectionsFolder())
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currentPage_ID, "0")
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currSection_ID, "0")
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currTopSection_ID, "0")
         return
 
     @classmethod
@@ -347,7 +350,7 @@ class SectionInfoStructure:
 
     def _getPathToSectionsFolder():
         pathToSectionFolder = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-        pathToSectionFolder += "/" + BookInfoStructure.sectionsInfoBaseRelPath
+        pathToSectionFolder = os.path.join(pathToSectionFolder, BookInfoStructure.sectionsInfoBaseRelPath)
         return pathToSectionFolder
 
     @classmethod
@@ -361,27 +364,30 @@ class SectionInfoStructure:
         for i in range(len(pathList) - 1, 0, -1):
             pathList[i] = ".".join(pathList[:i + 1])
         sectionFullPath = pathList
-        sectionFullPath = "/".join(sectionFullPath)
+        sectionFullPath = os.path.join(*sectionFullPath)
         pathToSection = cls._getPathToSectionsFolder()
-        pathToSection += "/" + sectionFullPath
+        pathToSection = os.path.join(pathToSection, sectionFullPath)
 
         return pathToSection
     
     @classmethod
     def readProperty(cls, sectionPath, propertyName):
         fullPathToSection = cls._getSectionFilepath(sectionPath)
-        fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
+        fullPathToSection = os.path.join(fullPathToSection, BookInfoStructure.sectionsInfoFilename)
 
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
         
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
-        return _u.JSON.readProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
+        if sectionPathForTemplate == "0":
+            return "0"
+        else:
+            return _u.JSON.readProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue):        
         fullPathToSection = cls._getSectionFilepath(sectionPath)
-        fullPathToSection += "/" + BookInfoStructure.sectionsInfoFilename
+        fullPathToSection = os.path.join(fullPathToSection, BookInfoStructure.sectionsInfoFilename)
 
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)

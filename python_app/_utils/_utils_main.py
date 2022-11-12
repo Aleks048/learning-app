@@ -39,6 +39,8 @@ class DIR:
 
         def getCurrentRel():
             currSec = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            if currSec == "0":
+                return "_"
             filepath = fsm.Wr.BookInfoStructure.readProperty(currSec)["path"]
             bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
@@ -50,12 +52,12 @@ class DIR:
         @classmethod
         def getCurrentRel(cls):
             currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            return  DIR.Section.getCurrentRel() + "/" + getCurrentSectionNameWprefix() + "_images/"
+            return  os.path.join(DIR.Section.getCurrentRel(),getCurrentSectionNameWprefix() + "_images")
 
         @classmethod
         def getCurrentAbs(cls):
             currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            return  DIR.Section.getCurrentAbs() + "/" + getCurrentSectionNameWprefix() + "_images/"
+            return  os.path.join(DIR.Section.getCurrentAbs(), getCurrentSectionNameWprefix() + "_images")
 
 '''
 JSON

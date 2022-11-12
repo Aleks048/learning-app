@@ -31,7 +31,6 @@ class StartupMenu:
     
     @classmethod
     def createMenu(cls):
-
         cls.winRoot = tk.Tk()
         wu.initVars.StartupUI()
 
@@ -122,8 +121,6 @@ class StartupMenu:
 
 
 class MainMenu:
-
-
     @classmethod
     def createMenu(cls):
         cls.winRoot = tk.Tk()
