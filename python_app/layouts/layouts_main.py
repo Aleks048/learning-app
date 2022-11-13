@@ -57,7 +57,8 @@ class SectionLayout(Layout):
             tm.Wr.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
-            pathToChapterFolder = _u.DIR.Section.getCurrentAbs() + "/" + secPrefix + "_" + currSection + "_main.pdf"
+            pathToChapterFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
+                                                secPrefix + "_" + currSection + "_main.pdf")
             _waitDummy = lu.openPdfInSkim(pathToChapterFolder)
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)

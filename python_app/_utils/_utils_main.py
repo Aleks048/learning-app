@@ -35,7 +35,7 @@ class DIR:
         def getCurrentAbs(cls):
             relFilepath = cls.getCurrentRel()
             bookPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
-            return bookPath + "/" + relFilepath
+            return os.path.join(bookPath, relFilepath)
 
         def getCurrentRel():
             currSec = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
@@ -45,7 +45,7 @@ class DIR:
             bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
             relFilepath = filepath.replace(bookpath, "")
-            relFilepath = "/".join(relFilepath.split("/")[:-1])
+            relFilepath = os.path.join(*relFilepath.split("/")[:-1])
             return relFilepath
 
     class Screenshot:
@@ -190,7 +190,7 @@ def filePathToParentDir(fp):
     '''
     returns path to the parrent directory from the fp
     '''
-    return "/".join(fp.split("/")[:-1])
+    return os.path.join(*fp.split("/")[:-1])
 
 
 def getPathToBooks():

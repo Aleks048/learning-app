@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 
 import _utils._utils_main as _u
 import _utils.logging as log
@@ -166,7 +167,7 @@ class BookInfoStructure:
         if bookInfoFilepath == "":
             bookInfoFilepath = cls._getAsbFilepath()
         
-        expectedFileDir = "/".join((bookInfoFilepath).split("/")[:-1])
+        expectedFileDir = os.path.join(*bookInfoFilepath.split("/")[:-1])
         
         if not os.path.exists(expectedFileDir):
             print("BookInfoStructure.createBookInfoStrunture - the bookInfo structure was not present will create it.")
@@ -187,7 +188,7 @@ class BookInfoStructure:
             relSectionPath += p if relSectionPath == "" else "." + p
 
             pathToTopSection = SectionInfoStructure._getSectionFilepath(relSectionPath)
-            sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
+            sectionFilepath = os.path.join(pathToTopSection, BookInfoStructure.sectionsInfoFilename)
 
             # update the book info
             bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_ID)
@@ -322,10 +323,10 @@ class SectionInfoStructure:
             # create files and folders
             sectionFolderName = dirPathToSection.split("/")[-1]
             _waitDummy = os.system("mkdir -p " + dirPathToSection)
-            _waitDummy = os.system("mkdir " + dirPathToSection + "/" + sectionFolderName + "_images")
+            _waitDummy = os.makedirs(os.path.join(dirPathToSection, sectionFolderName + "_images"))
             
-            _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_toc.tex")
-            _waitDummy = os.system("touch " + dirPathToSection + "/" + sectionFolderName + "_pic.tex")
+            _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
+            _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_pic.tex"), "w").close()
         
         # create the json file file, _out folder, main.tex
         relSectionPath = ""
@@ -336,7 +337,7 @@ class SectionInfoStructure:
             cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
             
             pathToTopSection = cls._getSectionFilepath(relSectionPath)
-            sectionFilepath = pathToTopSection + "/" + BookInfoStructure.sectionsInfoFilename
+            sectionFilepath = os.path.join(pathToTopSection, BookInfoStructure.sectionsInfoFilename)
             
             with open(sectionFilepath, "w+") as f:
                 jsonObj = json.dumps(cls._getTemplate(numLevels, i + 1), indent = 4)
@@ -344,9 +345,9 @@ class SectionInfoStructure:
             
             
             sectionFolderName = pathToTopSection.split("/")[-1]
-            mainTemplateFile = os.getenv("BOOKS_TEMPLATES_PATH") + "/" + "main_template.tex"
-            _waitDummy = os.system("mkdir " + pathToTopSection + "/_out")
-            _waitDummy = os.system("cp "+ mainTemplateFile + " " + pathToTopSection + "/" + sectionFolderName + "_main.tex")
+            mainTemplateFile = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex")
+            _waitDummy = os.mkdir(os.path.join(pathToTopSection,"_out"))
+            _waitDummy = shutil.copy(mainTemplateFile, os.path.join(pathToTopSection, sectionFolderName + "_main.tex"))
 
     def _getPathToSectionsFolder():
         pathToSectionFolder = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)

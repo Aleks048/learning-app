@@ -20,9 +20,9 @@ import _utils.logging as log
 testBookName = "b_analysis_test"
 testBookPath = os.getenv("BOOKS_ROOT_PATH") + testBookName
 test2BookName = "b_newBook_test"
-test2BookPath = os.getenv("BOOKS_ROOT_PATH") + "/testBooks/" + test2BookName + "/"
+test2BookPath = os.path.join(os.getenv("BOOKS_ROOT_PATH"), "testBooks", test2BookName)
 test3BookName = "b_newBook2_test"
-test3BookPath = os.getenv("BOOKS_ROOT_PATH") + "/testBooks/" + test3BookName + "/"
+test3BookPath = os.path.join(os.getenv("BOOKS_ROOT_PATH"), "testBooks", test3BookName)
 
 class BookSetup:
     def addOriginalMaterialWholePDF():
@@ -42,7 +42,7 @@ class Test_BookInfoStructure(unittest.TestCase):
     def test_createStructure(self):
         expectedFilePath = testBookPath + fsmain.BookInfoStructure._getRelFilepath()
 
-        expectedFileDir = "/".join(expectedFilePath.split("/")[:-1])
+        expectedFileDir = os.path.join(*expectedFilePath.split("/")[:-1])
         os.system("rm -rf " + expectedFileDir)
 
         fsmain.BookInfoStructure.createStructure(expectedFilePath)

@@ -12,19 +12,19 @@ class TexFile:
     @classmethod
     def _getCurrContentFilepath(cls):
         currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSubsection + "_con.tex"
+        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSubsection + "_con.tex")
     
 
     @classmethod
     def _getCurrTOCFilepath(cls):
         currSusection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSusection + "_toc.tex"
+        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSusection + "_toc.tex")
     
 
     @classmethod      
     def _getCurrMainFilepath(cls):
         currSussection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return _u.DIR.Section.getCurrentAbs() + "/" + cls.sectionPrefix + currSussection + "_main.tex"
+        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSussection + "_main.tex")
 
 
     def _populateMainFile():

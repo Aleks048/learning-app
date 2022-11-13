@@ -42,7 +42,7 @@ def createNewBook(bookName):
     # check if a book with name exists and ask
     # if we want to delete and proceed
     booksPath = _u.getPathToBooks()
-    bookPath = booksPath + "/" + bookName
+    bookPath = os.path.join(booksPath, bookName)
 
     if os.path.exists(bookPath):
         print("createNewBook - the book path exists")

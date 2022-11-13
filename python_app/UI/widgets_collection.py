@@ -168,7 +168,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
             # get target tex file position
             currBookPath = _u.Settings.Book.getCurrBookFolderPath()
-            with open(currBookPath + "/" + sections[0] + "/subchapters" + "/".join(subsections)) as f:
+            subsectionPath = os.path.join(currBookPath, sections[0], "subchapters", *subsections)
+            with open(subsectionPath) as f:
                 targetLines = f.readlines()
 
     
