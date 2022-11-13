@@ -19,7 +19,9 @@ class Data:
 class Screenshot:
         
     def getValueScreenshotLocation():
-        return "dir: " + _u.DIR.Screenshot.getCurrentRel()
+        relPath =  _u.DIR.Screenshot.getCurrentRel()
+        log.autolog(relPath)
+        return "dir: " + relPath if relPath != "" else "No direction yet."
 
 
     def setValueScreenshotLoaction():

@@ -26,6 +26,8 @@ def getMonitorSize():
     for m in get_monitors():
        return(m.width,m.height)
 
+notDefinedToken = "-1"
+
 '''
 DIR
 '''
@@ -39,8 +41,10 @@ class DIR:
 
         def getCurrentRel():
             currSec = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            if currSec == "0":
-                return "_"
+            
+            if currSec == notDefinedToken:              
+                return ""
+            
             filepath = fsm.Wr.BookInfoStructure.readProperty(currSec)["path"]
             bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
 
@@ -52,7 +56,10 @@ class DIR:
         @classmethod
         def getCurrentRel(cls):
             currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            return  os.path.join(DIR.Section.getCurrentRel(),getCurrentSectionNameWprefix() + "_images")
+            if currSection == notDefinedToken:
+                return "Screenshot location not defined yet."
+            else:
+                return  os.path.join(DIR.Section.getCurrentRel(),getCurrentSectionNameWprefix() + "_images")
 
         @classmethod
         def getCurrentAbs(cls):

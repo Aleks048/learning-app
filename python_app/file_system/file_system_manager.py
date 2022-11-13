@@ -106,7 +106,7 @@ def getSubsectionsList(sectionPath = ""):
     sections_ID = fs.BookInfoStructure.PubProp.sections_ID
     outSubsectionsList = []
     
-    if sectionPath == "0":
+    if sectionPath == _u.notDefinedToken:
         return []
 
     if sectionPath == "":

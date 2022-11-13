@@ -302,9 +302,9 @@ class SectionInfoStructure:
     @classmethod
     def createStructure(cls):
         os.makedirs(cls._getPathToSectionsFolder())
-        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currentPage_ID, "0")
-        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currSection_ID, "0")
-        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currTopSection_ID, "0")
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currentPage_ID, _u.notDefinedToken)
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currSection_ID, _u.notDefinedToken)
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currTopSection_ID, _u.notDefinedToken)
         return
 
     @classmethod
@@ -380,8 +380,8 @@ class SectionInfoStructure:
         
         sectionPrefixForTemplate = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
-        if sectionPathForTemplate == "0":
-            return "0"
+        if sectionPathForTemplate == _u.notDefinedToken:
+            return ""
         else:
             return _u.JSON.readProperty(fullPathToSection, sectionPrefixForTemplate + "_" + sectionPathForTemplate + propertyName)
 

@@ -657,7 +657,11 @@ class ChooseMaterial:
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
         
         if topSectionsList == []:
-            #return empty frame if there is not top sections yet
+            #return text if there is not top sections yet
+            text = tk.Text(frame, width=15, height=1, name = namePrefix.lower() + "_noSectionText")
+            text.insert("1.0", "No top sec yet.")
+            text.grid(row = 0, column = 0)
+            
             return frame
         
         topSection_menu = tk.OptionMenu(frame, 
@@ -694,6 +698,10 @@ class ChooseMaterial:
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
         
         if subsectionsList == []:
+            text = tk.Text(frame, width=18, height=1, name = namePrefix.lower() + "_noSubsectionText")
+            text.insert("1.0", "No top subsec yet.")
+            text.grid(row = 0, column = 0)
+            
             return frame
             
         subchapter_menu = tk.OptionMenu(frame, 
