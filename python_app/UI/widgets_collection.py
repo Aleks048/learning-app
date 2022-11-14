@@ -733,7 +733,7 @@ class SectionsUI:
     @classmethod
     def setSectionsUI(cls, mainWinRoot):
         chooseSectionMenus_Btn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.sectionsPrefix)
-        chooseSectionMenus_Btn.grid(row = 2, column = 3)
+        chooseSectionMenus_Btn.grid(row = 1, column = 2)
         entry_setSectionName, button_setSectionName = cls.getWidgets_setSectionName(mainWinRoot,  cls.sectionsPrefix)
         entry_setSectionName.grid(row = 0, column = 0)
         button_setSectionName.grid(row = 0, column = 1)
@@ -742,7 +742,7 @@ class SectionsUI:
         button_setSectionStartPage.grid(row = 1, column = 1)
 
         sectionPath_ETR = cls.getEntrie_setNewSectionPath(mainWinRoot, cls.sectionsPrefix)
-        sectionPath_ETR.grid(row = 2, column = 0, sticky = tk.N)     
+        sectionPath_ETR.grid(row = 0, column = 2, sticky = tk.N)     
         addSec_BTN = cls.getButton_createNewSection(mainWinRoot, cls.sectionsPrefix)
         removeSec_BTN = cls.getButton_removeTopSection(mainWinRoot, cls.sectionsPrefix)
         addSec_BTN.grid(row = 0, column = 2,sticky = tk.W)
@@ -754,29 +754,29 @@ class SectionsUI:
         def chooseChaptersMenusAndBackCallback():
             # hide all of the menus
             wu.hideAllWidgets(mainWinRoot)
-            if _u.Settings.UI.showMainWidgets:
+            if not _u.Settings.UI.showMainWidgets:
                 mainWinRoot.columnconfigure(0, weight = 1)
-                mainWinRoot.columnconfigure(1, weight = 3)
-                mainWinRoot.columnconfigure(2, weight = 1)
-                mainWinRoot.columnconfigure(3, weight = 3)
+                mainWinRoot.columnconfigure(1, weight = 1)
+                mainWinRoot.columnconfigure(2, weight = 3)
+                mainWinRoot.columnconfigure(3, weight = 1)
                 
                 for w in mainWinRoot.winfo_children():
                     if cls.sectionsPrefix.lower() in w._name:
                         log.autolog(w._name)
                         w.grid()
                 chooseChapter_MenusBtn_Label.set("sections")
-                _u.Settings.UI.showMainWidgets = not _u.Settings.UI.showMainWidgets
+                _u.Settings.UI.showMainWidgets = True
             else:
                 mainWinRoot.columnconfigure(0, weight = 1)
-                mainWinRoot.columnconfigure(1, weight = 1)
+                mainWinRoot.columnconfigure(1, weight = 3)
                 mainWinRoot.columnconfigure(2, weight = 1)
-                mainWinRoot.columnconfigure(2, weight = 0)
+                mainWinRoot.columnconfigure(3, weight = 3)
                 for w in mainWinRoot.winfo_children():
                     if LayoutsMenus.MainLayoutUI.classPrefix in w._name:
                         w.grid()
                 wu.showCurrentLayout(mainWinRoot, *LayoutsMenus.MainLayoutUI.pyAppDimensions)  
                 chooseChapter_MenusBtn_Label.set("layout") 
-                _u.Settings.UI.showMainWidgets = not _u.Settings.UI.showMainWidgets
+                _u.Settings.UI.showMainWidgets = False
 
         
         # show getBack Button
