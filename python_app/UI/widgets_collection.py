@@ -848,26 +848,29 @@ class SectionsUI:
     def getButton_createNewSection(cls, mainWinRoot, prefixName = ""):
         def createNewBTNcallback():
             
-            topSecPath = None
-            topSecName = None
-            topSecStartPage = None
+            secPath = None
+            secName = None
+            secStartPage = None
             
             for e in mainWinRoot.winfo_children():
                 if  cls.WidgetNames.Top.Section + wu.Data.ENT.entryWidget_ID in e._name:
-                    topSecPath = e.get()
+                    secPath = e.get()
                 elif cls.WidgetNames.Top.Name + wu.Data.ENT.entryWidget_ID in e._name:
-                    topSecName = e.get()
+                    secName = e.get()
                 elif cls.WidgetNames.Top.StPage + wu.Data.ENT.entryWidget_ID in e._name:
-                    topSecStartPage = e.get()
+                    secStartPage = e.get()
             
             # TODO: check that the structure exists and ask user if we should proceed
-            fsm.addSectionForCurrBook(topSecPath)
+            fsm.addSectionForCurrBook(secPath)
+            topSection = secPath.split(fsm.PropIDs.Book.sections_path_separator_ID)[0]
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
 
-            if topSecName != _u.notDefinedToken:
-                fsm.Wr.SectionInfoStructure.updateProperty(topSecPath, fsm.PropIDs.Sec.name_ID, topSecName)
+            if secName != _u.notDefinedToken:
+                fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)
             
-            if topSecStartPage != _u.notDefinedToken:
-                fsm.Wr.SectionInfoStructure.updateProperty(topSecPath, fsm.PropIDs.Sec.startPage_ID, topSecStartPage)
+            if secStartPage != _u.notDefinedToken:
+                fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 
