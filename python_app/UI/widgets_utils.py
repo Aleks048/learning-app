@@ -50,6 +50,7 @@ def updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, 
         choiceVar.set(value)
         callback()
 
+    newMenuOptions.sort()
     for e in mainWinRoot.winfo_children():
         if menuID in e._name:
             for om in e.winfo_children():
