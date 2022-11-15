@@ -864,19 +864,30 @@ class SectionsUI:
                     secStartPage = e.get()
             
             # TODO: check that the structure exists and ask user if we should proceed
-            log.autolog(secPath)
             fsm.addSectionForCurrBook(secPath)
             separator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
             topSection = secPath.split(separator)[0]
-            log.autolog(topSection)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
 
-            if secName != _u.notDefinedToken:
-                fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)
-            
-            if secStartPage != _u.notDefinedToken:
-                fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
+            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
+            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
+
+            # update ui
+            topSections = list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
+            subsections = wu.getSubsectionsListForCurrTopSection()
+            wu.updateOptionMenuOptionsList(mainWinRoot, 
+                                        "_chooseSection_optionMenu",
+                                        topSections, 
+                                        wv.UItkVariables.topSection,
+                                        ChooseMaterial._topSectionChoosingCallback
+                                        ) 
+            wu.updateOptionMenuOptionsList(mainWinRoot, 
+                                        "_chooseSubchapter_optionMenu",
+                                        subsections,
+                                        wv.UItkVariables.subsection,
+                                        ChooseMaterial._subsectionChoosingCallback
+                                        ) 
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 
