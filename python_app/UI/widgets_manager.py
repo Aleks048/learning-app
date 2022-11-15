@@ -30,8 +30,8 @@ class StartupMenu:
     monitorSize = _u.getMonitorSize()
     
     @classmethod
-    def createMenu(cls):
-        cls.winRoot = tk.Tk()
+    def createMenu(cls, winRoot):
+        cls.winRoot = tk.Toplevel(winRoot)
         wu.initVars.StartupUI()
 
         cls.winRoot.geometry("+" + str(int(cls.monitorSize[0] / 2)) \
@@ -51,8 +51,8 @@ class StartupMenu:
 
         # get confirmation button
         def startup_BTN_callback():
-            cls.winRoot.destroy()
-            MainMenu.createMenu()
+            cls.winRoot.withdraw()
+            MainMenu.createMenu(winRoot)
         confirm_BTN = wc.StartupMenu.getStartup_BTN(cls.winRoot, startup_BTN_callback)
         
         confirm_BTN.pack()
@@ -122,8 +122,8 @@ class StartupMenu:
 
 class MainMenu:
     @classmethod
-    def createMenu(cls):
-        cls.winRoot = tk.Tk()
+    def createMenu(cls, winRoot):
+        cls.winRoot = tk.Toplevel(winRoot)
         wu.initVars.MainUI()
 
         wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
@@ -131,11 +131,11 @@ class MainMenu:
         wc.SectionsUI.setSectionsUI(cls.winRoot)
         wu.hideAllWidgets(cls.winRoot)
         wc.LayoutsMenus.MainLayoutUI.addWidgets(cls.winRoot)
-        _u.Settings.UI.showMainWidgets = True
+        _u.Settings.UI.showMainWidgetsNext = False
 
         #set Layout
         menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
-        lm.Wr.MainLayout.set(MainMenu.winRoot, *menuDimensions)
+        lm.Wr.MainLayout.set(cls.winRoot, *menuDimensions)
 
         cls.winRoot.mainloop()
         

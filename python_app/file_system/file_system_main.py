@@ -346,7 +346,7 @@ class SectionInfoStructure:
             
             sectionFolderName = pathToTopSection.split("/")[-1]
             mainTemplateFile = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex")
-            _waitDummy = os.mkdir(os.path.join(pathToTopSection,"_out"))
+            _waitDummy = os.makedirs(os.path.join(pathToTopSection,"_out"))
             _waitDummy = shutil.copy(mainTemplateFile, os.path.join(pathToTopSection, sectionFolderName + "_main.tex"))
 
     def _getPathToSectionsFolder():

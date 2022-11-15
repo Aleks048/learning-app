@@ -299,7 +299,7 @@ class Settings:
         finder_ID = "Finder"
 
     class UI:
-        showMainWidgets = False
+        showMainWidgetsNext = False
 
     #layouts
     #NOTE: it is used to cut the layout class name

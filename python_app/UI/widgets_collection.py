@@ -607,11 +607,12 @@ class ChooseMaterial:
     
     @classmethod
     def _topSectionChoosingCallback(cls, mainWinRoot):
-        topSection = wv.UItkVariables.topSection
-        print("chapterChoosingCallback - switching to chapter: " + topSection.get())
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , topSection.get())
-        chapterImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
-        wv.UItkVariables.imageGenerationEntryText.set(chapterImIndex)         
+        log.autolog("switching to top section: " + wv.UItkVariables.topSection.get())
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , wv.UItkVariables.topSection.get())
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        secionImIndex = fsm.Wr.SectionInfoStructure.readProperty(currSection, fsm.PropIDs.Sec.imIndex_ID)
+        wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
+        
         
         #
         # Update other widgets
@@ -622,9 +623,9 @@ class ChooseMaterial:
                                         subsectionsList, 
                                         wv.UItkVariables.subsection,
                                         cls._subsectionChoosingCallback)
-        
+    
         sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
-        prevSubsectionPath = sections[topSection.get()]["prevSubsectionPath"]
+        prevSubsectionPath = sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"]
         wv.UItkVariables.subsection.set(prevSubsectionPath)
 
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
@@ -657,12 +658,13 @@ class ChooseMaterial:
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
         
         if topSectionsList == []:
-            #return text if there is not top sections yet
-            text = tk.Text(frame, width=15, height=1, name = namePrefix.lower() + "_noSectionText")
-            text.insert("1.0", "No top sec yet.")
-            text.grid(row = 0, column = 0)
+            topSectionsList = ["No top sec yet."]
+            # #return text if there is not top sections yet
+            # text = tk.Text(frame, width=15, height=1, name = namePrefix.lower() + "_noSectionText")
+            # text.insert("1.0", "No top sec yet.")
+            # text.grid(row = 0, column = 0)
             
-            return frame
+            # return frame
         
         topSection_menu = tk.OptionMenu(frame, 
                                         wv.UItkVariables.topSection , 
@@ -673,19 +675,19 @@ class ChooseMaterial:
         return frame
     
     def _subsectionChoosingCallback():
-            subsection = wv.UItkVariables.subsection
-            sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
-            sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
-            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID , sections)
-            
-            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
-            
-            wv.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wr.SectionInfoStructure.readProperty(subsection.get(), 
-                                                    fsm.PropIDs.Sec.imIndex_ID)
-            )
+        subsection = wv.UItkVariables.subsection
+        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+        sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID , sections)
+        
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
+        
+        wv.UItkVariables.imageGenerationEntryText.set(
+            fsm.Wr.SectionInfoStructure.readProperty(subsection.get(), 
+                                                fsm.PropIDs.Sec.imIndex_ID)
+        )
 
-            wu.Screenshot.setValueScreenshotLoaction()
+        wu.Screenshot.setValueScreenshotLoaction()
 
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
@@ -698,11 +700,12 @@ class ChooseMaterial:
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
         
         if subsectionsList == []:
-            text = tk.Text(frame, width=18, height=1, name = namePrefix.lower() + "_noSubsectionText")
-            text.insert("1.0", "No top subsec yet.")
-            text.grid(row = 0, column = 0)
+            subsectionsList = ["No subsec yet."]
+            # text = tk.Text(frame, width=18, height=1, name = namePrefix.lower() + "_noSubsectionText")
+            # text.insert("1.0", "No subsec yet.")
+            # text.grid(row = 0, column = 0)
             
-            return frame
+            # return frame
             
         subchapter_menu = tk.OptionMenu(frame, 
                                         subsection, 
@@ -754,7 +757,7 @@ class SectionsUI:
         def chooseChaptersMenusAndBackCallback():
             # hide all of the menus
             wu.hideAllWidgets(mainWinRoot)
-            if not _u.Settings.UI.showMainWidgets:
+            if not _u.Settings.UI.showMainWidgetsNext:
                 mainWinRoot.columnconfigure(0, weight = 1)
                 mainWinRoot.columnconfigure(1, weight = 1)
                 mainWinRoot.columnconfigure(2, weight = 3)
@@ -765,7 +768,7 @@ class SectionsUI:
                         log.autolog(w._name)
                         w.grid()
                 chooseChapter_MenusBtn_Label.set("sections")
-                _u.Settings.UI.showMainWidgets = True
+                _u.Settings.UI.showMainWidgetsNext = True
             else:
                 mainWinRoot.columnconfigure(0, weight = 1)
                 mainWinRoot.columnconfigure(1, weight = 3)
@@ -776,7 +779,7 @@ class SectionsUI:
                         w.grid()
                 wu.showCurrentLayout(mainWinRoot, *LayoutsMenus.MainLayoutUI.pyAppDimensions)  
                 chooseChapter_MenusBtn_Label.set("layout") 
-                _u.Settings.UI.showMainWidgets = False
+                _u.Settings.UI.showMainWidgetsNext = False
 
         
         # show getBack Button
@@ -861,8 +864,11 @@ class SectionsUI:
                     secStartPage = e.get()
             
             # TODO: check that the structure exists and ask user if we should proceed
+            log.autolog(secPath)
             fsm.addSectionForCurrBook(secPath)
-            topSection = secPath.split(fsm.PropIDs.Book.sections_path_separator_ID)[0]
+            separator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
+            topSection = secPath.split(separator)[0]
+            log.autolog(topSection)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
 
