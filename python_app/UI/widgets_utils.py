@@ -48,9 +48,14 @@ class Screenshot:
 def updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, callback):
     def subsectionChoosingCallback(value):
         choiceVar.set(value)
-        callback()
+        callback(mainWinRoot)
 
+    if newMenuOptions == None:
+        # TODO: should check what conditions lead to None newMenuOptions
+        return
+    
     newMenuOptions.sort()
+    
     for e in mainWinRoot.winfo_children():
         if menuID in e._name:
             for om in e.winfo_children():

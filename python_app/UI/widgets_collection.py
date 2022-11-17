@@ -7,6 +7,8 @@ import UI.widgets_vars as wv
 import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
 
+import layouts.layouts_manager as lm
+
 import file_system.file_system_manager as fsm
 import tex_file.tex_file_manager as t
 
@@ -566,6 +568,7 @@ class LayoutsMenus:
 
     listOfLayoutClasses = [MainLayoutUI, SectionLayoutUI]
 
+
 class ChooseMaterial:
 
     def getOptionsMenu_ChooseBook(mainWinRoot, namePrefix = ""):
@@ -608,42 +611,46 @@ class ChooseMaterial:
     @classmethod
     def _topSectionChoosingCallback(cls, mainWinRoot):
         log.autolog("switching to top section: " + wv.UItkVariables.topSection.get())
+
+        # update top section
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , wv.UItkVariables.topSection.get())
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        secionImIndex = fsm.Wr.SectionInfoStructure.readProperty(currSection, fsm.PropIDs.Sec.imIndex_ID)
+        
+        # update subsection
+        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+        prevSubsectionPath = sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"]
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
+
+        # update image index
+        secionImIndex = fsm.Wr.SectionInfoStructure.readProperty(prevSubsectionPath, fsm.PropIDs.Sec.imIndex_ID)
         wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
         
-        
+
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        subsectionsList.sort()
         #
         # Update other widgets
         #
-        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+
+        # subsection
         wu.updateOptionMenuOptionsList(mainWinRoot, 
-                                        "_chooseSubchapter_optionMenu", 
+                                        "_chooseSubsecion_optionMenu", 
                                         subsectionsList, 
                                         wv.UItkVariables.subsection,
-                                        cls._subsectionChoosingCallback)
-    
-        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
-        prevSubsectionPath = sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"]
+                                        cls._subsectionChoosingCallback)        
         wv.UItkVariables.subsection.set(prevSubsectionPath)
 
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
-        # screenshot
+        # update screenshot widget
         wu.Screenshot.setValueScreenshotLoaction()
 
-        # update image index 
+        # update image index widget
         wv.UItkVariables.imageGenerationEntryText.set(
                 fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
                                                     fsm.PropIDs.Sec.imIndex_ID)
         )
 
         # update Layout
-        #
-        # currLayoutClass = _u.Settings.Layout.getCurrLayoutClass()
-        # currLayoutClass.pyAppHeight = mainWinRoot.winfo_height()
-        # currLayoutClass.set(mainWinRoot)
-        # lu.moveWholeBookToChapter()
+        widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
+        lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
 
     @classmethod
     def getOptionMenu_ChooseTopSection(cls, mainWinRoot, namePrefix = ""):
@@ -653,7 +660,7 @@ class ChooseMaterial:
         wv.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
 
         topSectionsList = fsm.getTopSectionsList()
-        
+        topSectionsList.sort(key = int)
 
         frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
         
@@ -674,7 +681,7 @@ class ChooseMaterial:
 
         return frame
     
-    def _subsectionChoosingCallback():
+    def _subsectionChoosingCallback(mainWinRoot):
         subsection = wv.UItkVariables.subsection
         sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
         sections[wv.UItkVariables.topSection.get()]["prevSubsectionPath"] = subsection.get()
@@ -688,6 +695,12 @@ class ChooseMaterial:
         )
 
         wu.Screenshot.setValueScreenshotLoaction()
+        
+        # update Layout
+        widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
+        lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
+
+        
 
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
@@ -697,7 +710,7 @@ class ChooseMaterial:
         subsectionsList = wu.getSubsectionsListForCurrTopSection()
 
 
-        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubchapter_optionMenu", background="Blue")
+        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubsecion_optionMenu", background="Blue")
         
         if subsectionsList == []:
             subsectionsList = ["No subsec yet."]
@@ -710,7 +723,7 @@ class ChooseMaterial:
         subchapter_menu = tk.OptionMenu(frame, 
                                         subsection, 
                                         *subsectionsList, 
-                                        command = lambda *args: cls._subsectionChoosingCallback(),
+                                        command = lambda *args: cls._subsectionChoosingCallback(mainWinRoot),
                                         )
         subchapter_menu.grid(row = 0, column = 0)
         
@@ -799,7 +812,9 @@ class SectionsUI:
         sectionPath_ETR = tk.Entry(mainWinRoot, 
                             width = 5,
                             textvariable = wv.UItkVariables.currCh, 
-                            name = prefixName.lower() +  cls.WidgetNames.Top.Section + wu.Data.ENT.entryWidget_ID)
+                            name = prefixName.lower() 
+                                    + cls.WidgetNames.Top.Section 
+                                    + wu.Data.ENT.entryWidget_ID)
         
         return sectionPath_ETR
 
@@ -807,20 +822,22 @@ class SectionsUI:
     @classmethod
     def getWidgets_setSectionName(cls, mainWinRoot, prefixName = ""):
         def setTopSectionNameCallback():
-            currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            currTopSection = \
+                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            
             fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
                                                     fsm.PropIDs.Sec.name_ID, 
                                                     entry_setChapterName.get())
         
         entry_setChapterName = tk.Entry(mainWinRoot, 
-                                        name = prefixName.lower() 
-                                            +  cls.WidgetNames.Top.Name
-                                            + wu.Data.ENT.entryWidget_ID
-                                        )
+                            name = prefixName.lower() 
+                                +  cls.WidgetNames.Top.Name
+                                + wu.Data.ENT.entryWidget_ID
+                            )
         button_setChapterName = tk.Button(mainWinRoot, 
-            name = prefixName.lower() +  cls.WidgetNames.Top.Name + "BTN", 
-            text="setTopSectionName", 
-            command = setTopSectionNameCallback)
+                            name = prefixName.lower() +  cls.WidgetNames.Top.Name + "BTN", 
+                            text="setTopSectionName", 
+                            command = setTopSectionNameCallback)
         
         return entry_setChapterName, button_setChapterName            
 
@@ -866,12 +883,17 @@ class SectionsUI:
             # TODO: check that the structure exists and ask user if we should proceed
             fsm.addSectionForCurrBook(secPath)
             separator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
-            topSection = secPath.split(separator)[0]
-            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
+            topSectionName = secPath.split(separator)[0]
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSectionName)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
+            sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+            sections[topSectionName]["prevSubsectionPath"] = secPath
+            fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID, sections)
+
 
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
+           
 
             # update ui
             topSections = list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
@@ -883,7 +905,7 @@ class SectionsUI:
                                         ChooseMaterial._topSectionChoosingCallback
                                         ) 
             wu.updateOptionMenuOptionsList(mainWinRoot, 
-                                        "_chooseSubchapter_optionMenu",
+                                        "_chooseSubsecion_optionMenu",
                                         subsections,
                                         wv.UItkVariables.subsection,
                                         ChooseMaterial._subsectionChoosingCallback
