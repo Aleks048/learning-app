@@ -627,11 +627,12 @@ class ChooseMaterial:
 
         subsectionsList = wu.getSubsectionsListForCurrTopSection()
         subsectionsList.sort()
+        
         #
         # Update other widgets
         #
 
-        # subsection
+        # subsection option menu widget
         wu.updateOptionMenuOptionsList(mainWinRoot, 
                                         "_chooseSubsecion_optionMenu", 
                                         subsectionsList, 
@@ -644,11 +645,11 @@ class ChooseMaterial:
 
         # update image index widget
         wv.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
+            fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
                                                     fsm.PropIDs.Sec.imIndex_ID)
         )
 
-        # update Layout
+        # update Layout widget
         widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
         lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
 
@@ -657,7 +658,9 @@ class ChooseMaterial:
         '''
         functions that retrun options menus for choosing chapter
         '''
-        wv.UItkVariables.topSection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID))
+        wv.UItkVariables.topSection.set(
+            fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+        )
 
         topSectionsList = fsm.getTopSectionsList()
         topSectionsList.sort(key = int)
@@ -904,12 +907,14 @@ class SectionsUI:
                                         wv.UItkVariables.topSection,
                                         ChooseMaterial._topSectionChoosingCallback
                                         ) 
+            wv.UItkVariables.topSection.set(topSectionName)
             wu.updateOptionMenuOptionsList(mainWinRoot, 
                                         "_chooseSubsecion_optionMenu",
                                         subsections,
                                         wv.UItkVariables.subsection,
                                         ChooseMaterial._subsectionChoosingCallback
                                         ) 
+            wv.UItkVariables.subsection.set(secPath)
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 
