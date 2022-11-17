@@ -197,7 +197,7 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
     secImIndex = _u.getCurrSecImIdx()
     wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
-    dataFromUser = [-1, -1, -1]
+    dataFromUser = [-1, -1]
 
     def _storeInputDataAndChange(nextButtonName, f = lambda *args: None, i = 0):
         # NOTE: not sure what is going on but "dataFromUser" refused to clean 
@@ -324,8 +324,8 @@ end tell'"
             
 
         #create a script to run on page change
-        imageAnscriptPath = _u.DIR.Screenshot.getCurrentAbs() + dataFromUser[0] + \
-                            "_" + currsubsection + "_" + dataFromUser[1]
+        imageAnscriptPath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
+                                        dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
         fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imIndex_ID, dataFromUser[0])
@@ -893,10 +893,10 @@ class SectionsUI:
             sections[topSectionName]["prevSubsectionPath"] = secPath
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID, sections)
 
-
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
-           
+            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.imIndex_ID, "1")
+
 
             # update ui
             topSections = list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
@@ -908,6 +908,7 @@ class SectionsUI:
                                         ChooseMaterial._topSectionChoosingCallback
                                         ) 
             wv.UItkVariables.topSection.set(topSectionName)
+            
             wu.updateOptionMenuOptionsList(mainWinRoot, 
                                         "_chooseSubsecion_optionMenu",
                                         subsections,
@@ -915,6 +916,12 @@ class SectionsUI:
                                         ChooseMaterial._subsectionChoosingCallback
                                         ) 
             wv.UItkVariables.subsection.set(secPath)
+
+            wv.UItkVariables.imageGenerationEntryText.set("1")
+
+            # update screenshot widget
+            wu.Screenshot.setValueScreenshotLoaction()
+
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 

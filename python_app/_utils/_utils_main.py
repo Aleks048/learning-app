@@ -63,7 +63,6 @@ class DIR:
 
         @classmethod
         def getCurrentAbs(cls):
-            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
             return  os.path.join(DIR.Section.getCurrentAbs(), getCurrentSectionNameWprefix() + "_images")
 
 '''
