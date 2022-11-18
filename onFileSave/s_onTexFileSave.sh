@@ -1,11 +1,16 @@
+# set -e
 CALLER_TEX_FILEPATH=${1%????????}_main.tex
 CALLER_TEX_DIR_FILEPATH=$2
 
 pushd ${BOOKS_PY_APP_PATH}
-    python3 -c "from _utils import _utils; _utils.TexFile._populateMainFile()"
+    CMD="from tex_file import tex_file_manager as tm; tm.Wr.TexFile._populateMainFile()"
+    echo "Running command: "$CMD
+    python3 -c "$CMD"
 popd
 
 pushd ${CALLER_TEX_DIR_FILEPATH}
-    pdflatex  --shell-escape -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory=${CALLER_TEX_DIR_FILEPATH}/latex_output ${CALLER_TEX_FILEPATH}
-    cp ${CALLER_TEX_DIR_FILEPATH}/latex_output/*.pdf ./
+    CMD="pdflatex  --shell-escape -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory=${CALLER_TEX_DIR_FILEPATH}/_out ${CALLER_TEX_FILEPATH}"
+    echo "Running command:"$CMD
+    $CMD
+    cp ${CALLER_TEX_DIR_FILEPATH}/_out/*.pdf ./
 popd

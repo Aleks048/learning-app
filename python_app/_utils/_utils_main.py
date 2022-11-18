@@ -3,7 +3,6 @@ from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
 
-import UI.widgets_manager as wm
 import file_system.file_system_manager as fsm
 
 

@@ -4,6 +4,7 @@ import _utils._utils_main as _u
 
 import UI.widgets_manager as wm
 import file_system.file_system_manager as fsm
+import _utils.logging as log
 
 
 class TexFile:
@@ -60,10 +61,14 @@ class TexFile:
         with open(TexFile._getCurrTOCFilepath(), 'r') as tocF:
             tocFile = tocF.readlines()
                 
-        with open(os.getenv("BOOKS_PROCESS_TEX_PATH") + "/template.tex", 'r') as templateF:
+        with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()
-            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)) for i in templateFile]
-
+            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+            templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", currSection) for i in templateFile]
+            topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(currTopSection)
+            templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
+        
         with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
 
             outFileList = []
@@ -117,7 +122,7 @@ class TexFile:
     def buildCurrentSubsectionPdf(cls):
         currTexFilesFolder = _u.DIR.Section.getCurrentAbs()
         currTexMainFile = cls._getCurrContentFilepath()
-        print("ChapterLayout.set - " + currTexMainFile)
+        log.autolog("set :" + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
         wm.Data.UItkVariables.needRebuild.set(False)
 

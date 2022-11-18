@@ -2,6 +2,7 @@ from AppKit import NSWorkspace
 import os
 
 import _utils._utils_main as _u
+import _utils.logging as log
 import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
 
@@ -25,11 +26,11 @@ def hideApplicationsWindow(appName, windowID):
     end tell'"
     os.system(osascript)
 
-def openPdfInSkim(pathToChapterFolder):
-    print("Opening in " + _u.Settings._appsIDs.skim_ID + " pdf: " + pathToChapterFolder)
+def openPdfInSkim(pathToSectionFolder):
+    log.autolog("Opening in '" + _u.Settings._appsIDs.skim_ID + "' pdf: " + pathToSectionFolder)
     osascript = "osascript -e '\n\
     tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
-        open \"" + pathToChapterFolder + "\"\n\
+        open \"" + pathToSectionFolder + "\"\n\
     end tell\n\
     '"
     _waitDummy = os.system(osascript)
@@ -41,11 +42,11 @@ def movePdfToPage(filename, page):
     		go to page " + str(page) + "\n\
         end tell\n\
     end tell'"
-    print("movePdfToPage - moving to page " + str(page))
+    log.autolog("moving to page: " + str(page))
     os.system(osascript)
 
 def openChapterFolderInFinder(pathToChapterFolder):
-    print("Opening in Finder chapter: " + pathToChapterFolder)
+    log.autolog("Opening in Finder chapter: " + pathToChapterFolder)
     osascript = "osascript -e '\n\
     tell application \"Finder\"\n\
         open (\"" + pathToChapterFolder + "\" as POSIX file)\n\
@@ -79,7 +80,7 @@ def openWholeBook(dimentions, position):
         ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
     
     if ownerName == None or windowID == None: 
-        print("openWholeBook - Something went wrong. Skim could not open the document")
+        log.autolog("Something went wrong. Skim could not open the document")
     else:
         moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
 
@@ -89,14 +90,14 @@ def moveWholeBookToChapter():
     if currChapter == "":
         message = "Could not move the book to page. currChapter is empty."
         uim.Wr.MessageMenu.createMenu(message)
-        print("moveWholeBookToChapter -" + message)
+        log.autolog(message)
     else:
         sectionPage = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.startPage_ID)
         
         if sectionPage == "":
             message = "Could not move the book to page. could not read chapterPage."  
             uim.Wr.MessageMenu.createMenu(message)
-            print("moveWholeBookToChapter - " + message)   
+            log.autolog(message)   
         else:
             movePdfToPage(_u.Settings.PubProp.wholeBook_ID + ".pdf", sectionPage)
 

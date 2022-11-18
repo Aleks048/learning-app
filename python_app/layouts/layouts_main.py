@@ -5,6 +5,7 @@ from threading import Thread
 import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
+import _utils.logging as log
 import UI.widgets_manager as wm
 import tex_file.tex_file_manager as tm
 import file_system.file_system_manager as fsm
@@ -57,9 +58,9 @@ class SectionLayout(Layout):
             tm.Wr.TexFile.buildCurrentSubsectionPdf()
 
             # if the pdf was not opened in Skim already   
-            pathToChapterFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
+            pathToSectionFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
                                                 secPrefix + "_" + currSection + "_main.pdf")
-            _waitDummy = lu.openPdfInSkim(pathToChapterFolder)
+            _waitDummy = lu.openPdfInSkim(pathToSectionFolder)
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
         

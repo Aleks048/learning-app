@@ -897,8 +897,10 @@ class SectionsUI:
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.imIndex_ID, "1")
 
-
+            #
             # update ui
+            #
+
             topSections = list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
             subsections = wu.getSubsectionsListForCurrTopSection()
             wu.updateOptionMenuOptionsList(mainWinRoot, 
@@ -922,6 +924,8 @@ class SectionsUI:
             # update screenshot widget
             wu.Screenshot.setValueScreenshotLoaction()
 
+            #build the initial pdf file
+            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 

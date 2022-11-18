@@ -114,12 +114,12 @@ class TOCStructure:
     def _getTOCFilePath(cls, sectionName):
         tocFolderPath = cls._getTOCDirPath()
         if (os.path.isdir(tocFolderPath)):
-            return tocFolderPath + "/TOC_" + sectionName + ".tex"
+            return os.path.join(tocFolderPath, "TOC_" + sectionName + ".tex")
         else:
             print("_getTOCFilePath - " + "the TOC filepath is not present.")
             print("Will create: " + tocFolderPath)
             _waitDummy = os.system("mkdir " + tocFolderPath)
-            return tocFolderPath + "/TOC_" + sectionName + ".tex"
+            return os.path.join(tocFolderPath, "TOC_" + sectionName + ".tex")
 
 
 class BookInfoStructure:
@@ -326,7 +326,7 @@ class SectionInfoStructure:
             _waitDummy = os.makedirs(os.path.join(dirPathToSection, sectionFolderName + "_images"))
             
             _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
-            _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_pic.tex"), "w").close()
+            _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_con.tex"), "w").close()
         
         # create the json file file, _out folder, main.tex
         relSectionPath = ""
