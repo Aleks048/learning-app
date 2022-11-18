@@ -1,4 +1,4 @@
-# set -e
+set -e
 CALLER_TEX_FILEPATH=${1%????????}_main.tex
 CALLER_TEX_DIR_FILEPATH=$2
 
