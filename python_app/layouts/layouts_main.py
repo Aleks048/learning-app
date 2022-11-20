@@ -43,6 +43,22 @@ class SectionLayout(Layout):
         #       skim Section to the right 
         #       vscode to the left
         '''
+
+        pathToSourceFolder = _u.DIR.Section.getCurrentAbs()
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        
+        # check if the folder is empty.      
+        if len(os.listdir(os.path.join(pathToSourceFolder, secPrefix + "_" + currSection + "_images"))) == 0:
+            msg = "No images yet. Can't switch to section."
+            wm.Wr.MessageMenu.createMenu(msg)
+            log.autolog(msg)
+            return
+        else:
+            # rebuild the section doc
+            # NOTE: do we need a rebuild each time we switch??
+            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+       
         # Open section pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -50,13 +66,9 @@ class SectionLayout(Layout):
         # set menu dimensions
         mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
        
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
-            tm.Wr.TexFile.buildCurrentSubsectionPdf()
-
             # if the pdf was not opened in Skim already   
             pathToSectionFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
                                                 secPrefix + "_" + currSection + "_main.pdf")
@@ -70,7 +82,6 @@ class SectionLayout(Layout):
                                 [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
-        pathToSourceFolder = _u.DIR.Section.getCurrentAbs()
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
         
         if (windowID == None):

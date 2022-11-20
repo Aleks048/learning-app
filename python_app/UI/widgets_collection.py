@@ -214,6 +214,12 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
 conIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrContentFilepath() + "\" | cut -d: -f1`\n"
         scriptFile += "\
 tocIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrTOCFilepath() + "\" | cut -d: -f1`\n"
+        # get image move numbers
+        scriptFile += "\n\
+pushd ${BOOKS_PY_APP_PATH}\n\
+    cmd=\"from _utils import _utils_main as _u; _u.getCurrSectionMoveNumber();\"\n\
+    movenumbersarray=(`python3 -c \"${cmd}\"`)\n\
+popd\n"
         scriptFile += "\
 if [ \"$conIDX\" != \"\" ]\n\
 then\n\
@@ -225,7 +231,7 @@ osascript -  $conIDX <<EOF\n\
                 keystroke \"1\" using {command down}\n\
                 delay 0.1\n\
                 keystroke \"g\" using {control down}\n\
-                keystroke item 1 of argv + 20\n\
+                keystroke item 1 of argv + ${movenumbersarray[0]}\n\
                 keystroke return\n\
             end tell\n\
         end tell\n\
@@ -243,7 +249,7 @@ osascript - $tocIDX <<EOF\n\
                 keystroke \"2\" using {command down}\n\
                 delay 0.1\n\
                 keystroke \"g\" using {control down}\n\
-                keystroke item 1 of argv\n\
+                keystroke item 1 of argv + ${movenumbersarray[1]}\n\
                 keystroke return\n\
             end tell\n\
         end tell\n\
@@ -265,9 +271,8 @@ end tell'"
     def _createTexForTheProcessedImage():
         currsubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
 
-        extraImagePath = _u.DIR.Screenshot.getCurrentAbs() \
-                            + dataFromUser[0] + "_" + currsubsection \
-                            + "_" + dataFromUser[1]
+        extraImagePath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
+                                    dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
         with open(t.Wr.TexFile._getCurrContentFilepath(), 'a') as f:
@@ -923,9 +928,6 @@ class SectionsUI:
 
             # update screenshot widget
             wu.Screenshot.setValueScreenshotLoaction()
-
-            #build the initial pdf file
-            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
         
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 

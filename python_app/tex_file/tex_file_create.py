@@ -125,4 +125,5 @@ class TexFile:
         log.autolog("set :" + currTexMainFile)
         _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
         wm.Data.UItkVariables.needRebuild.set(False)
+        return True
 

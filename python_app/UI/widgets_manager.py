@@ -40,7 +40,7 @@ class StartupMenu:
 
 
         # get chooseBookOptionMenu
-        def bookMenuChooseCallback():
+        def bookMenuChooseCallback(_):
             bookName = wv.StartupUItkVariables.bookChoice.get()
             bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
             bookPath = bookPaths[bookName]
@@ -80,7 +80,7 @@ class StartupMenu:
             except:
                 message = "Could not create a filepath for new book: " + bookPath
                 log.autolog(message)
-                wmes.messagebox(message)
+                wmes.MessageMenu.createMenu(message)
                 return
             
             # update settings

@@ -149,6 +149,11 @@ class BookInfoStructure:
         currTopSection_ID = "currTopSection"
         currSection_ID = "currSection"
 
+        #imagesProperties
+        imageProp_ID = "imageProp"
+        imageContentFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
+        imageTOCFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
+
     bookInfoTemplate = {
         PubProp.version_ID: "0.1",
         PubProp.sections_prefix_ID: "sec",
@@ -159,6 +164,10 @@ class BookInfoStructure:
             PubProp.currentPage_ID: "",
             PubProp.currSection_ID: "",
             PubProp.currTopSection_ID: ""
+        },
+        PubProp.imageProp_ID: {
+            PubProp.imageContentFileMoveLinesNumber_ID: "20",
+            PubProp.imageTOCFileMoveLinesNumber_ID: "0"
         }
     }
 
@@ -167,10 +176,10 @@ class BookInfoStructure:
         if bookInfoFilepath == "":
             bookInfoFilepath = cls._getAsbFilepath()
         
-        expectedFileDir = os.path.join(*bookInfoFilepath.split("/")[:-1])
+        expectedFileDir = os.path.join("/", *bookInfoFilepath.split("/")[:-1])
         
+        log.autolog("The bookInfo structure was not present will create it at: " + expectedFileDir)
         if not os.path.exists(expectedFileDir):
-            print("BookInfoStructure.createBookInfoStrunture - the bookInfo structure was not present will create it.")
             _waitDummy = os.makedirs(expectedFileDir)
         
         with open(bookInfoFilepath, "w+") as f:
@@ -256,9 +265,14 @@ class SectionInfoStructure:
         name_ID = "_name"
         startPage_ID = "_startPage"
         latestSubchapter_ID = "_latestSubchapter"
-        imIndex_ID = "_imIndex"
         subSections_ID = "_subSections"
-        imLinkName_ID = ""
+
+        #imagesProperties
+        imageProp_ID = "_imageProp"
+        imageContentFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
+        imageTOCFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
+        imIndex_ID = "_imIndex"
+        imLinkName_ID = "_linkName"
 
     class PrivProp:
         tocData_ID = "_tocData"
@@ -276,21 +290,26 @@ class SectionInfoStructure:
     def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
-                sectionInfoEntryPrefix + cls.PubProp.name_ID: "",
-                sectionInfoEntryPrefix + cls.PubProp.startPage_ID: "",
-                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter_ID: "",
-                sectionInfoEntryPrefix + cls.PubProp.imIndex_ID: "",
-                sectionInfoEntryPrefix + cls.PubProp.imLinkName_ID: "",
-                sectionInfoEntryPrefix + cls.PubProp.subSections_ID: [],
+                sectionInfoEntryPrefix + cls.PubProp.name_ID: _u.notDefinedToken,
+                sectionInfoEntryPrefix + cls.PubProp.startPage_ID: _u.notDefinedToken,
+                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter_ID: _u.notDefinedToken,
+                # sectionInfoEntryPrefix + cls.PubProp.subSections_ID: [],
                 sectionInfoEntryPrefix + cls.PrivProp.levelData_ID:{
                     sectionInfoEntryPrefix + cls.PrivProp.levelData_depth_ID: str(depth),
                     sectionInfoEntryPrefix + cls.PrivProp.levelData_level_ID: str(level),
                 },
                 sectionInfoEntryPrefix + cls.PrivProp.tocData_ID:{
-                    sectionInfoEntryPrefix + TOCStructure.PubPro.text_ID: "",
-                    sectionInfoEntryPrefix + TOCStructure.PubPro.start_ID: "",
-                    sectionInfoEntryPrefix + TOCStructure.PubPro.finish_ID: ""
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.text_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.start_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + TOCStructure.PubPro.finish_ID: _u.notDefinedToken
+                },
+                sectionInfoEntryPrefix + cls.PubProp.imageProp_ID: {
+                    sectionInfoEntryPrefix + cls.PubProp.imIndex_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + cls.PubProp.imLinkName_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + cls.PubProp.imageContentFileMoveLinesNumber_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber_ID: _u.notDefinedToken
                 }
+                
         }
         return sectionInfo_template
 
