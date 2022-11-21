@@ -62,9 +62,11 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                     if "proof" in line.lower():
                         if hideProofs:
                             contentLines[i] = line.replace("% ", "")
+                            log.autolog("\nHiding the proof for line:\n" + contentLines[i])
                         else:
                             contentLines[i] = "% " + line
-                break
+                            log.autolog("\nShow the proof for line:\n" + contentLines[i])
+                    break
         with open(t.Wr.TexFile._getCurrContentFilepath(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
     
