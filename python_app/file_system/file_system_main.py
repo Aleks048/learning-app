@@ -111,15 +111,16 @@ class TOCStructure:
         return bookPath + BookInfoStructure.TOCbaseRelPath
 
     @classmethod
-    def _getTOCFilePath(cls, sectionName):
+    def _getTOCFilePath(cls, topSectionName):
+        secprefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
         tocFolderPath = cls._getTOCDirPath()
         if (os.path.isdir(tocFolderPath)):
-            return os.path.join(tocFolderPath, "TOC_" + sectionName + ".tex")
+            return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
         else:
             print("_getTOCFilePath - " + "the TOC filepath is not present.")
             print("Will create: " + tocFolderPath)
             _waitDummy = os.system("mkdir " + tocFolderPath)
-            return os.path.join(tocFolderPath, "TOC_" + sectionName + ".tex")
+            return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
 
 
 class BookInfoStructure:
