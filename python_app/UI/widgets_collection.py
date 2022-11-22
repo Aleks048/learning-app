@@ -34,7 +34,7 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
         wv.UItkVariables.buttonText.set("imNum")
-        sectionImIndex = fsm.Wr.SectionInfoStructure.readProperty(fsm.PropIDs.Sec.imIndex_ID)
+        sectionImIndex = _u.CurrState.getImIDX()
         wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
     
 
@@ -89,7 +89,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
         currentSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        currImID = fsm.Wr.SectionInfoStructure.readProperty(currentSubsection, fsm.PropIDs.Sec.imIndex_ID)
+        currImID = _u.CurrState.getImIDX()
         
         # screenshot
         imName = ""
@@ -225,7 +225,7 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
                                 name=prefixName.lower() + "_imageGeneration_" + wu.Data.ENT.entryWidget_ID)
 
-    secImIndex = _u.getCurrSecImIdx()
+    secImIndex = _u.CurrState.getImIDX()
     wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
     dataFromUser = [-1, -1]
@@ -286,7 +286,7 @@ osascript - $tocIDX <<EOF\n\
     end run\n\
 EOF\n\
 fi\n"
-        pdfName = _u.getCurrentSectionPdfName()
+        pdfName = _u.CurrState.getSectionPdfName()
         scriptFile += "osascript -e '\
 tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
     tell document \"" + pdfName + "\"\n\
@@ -362,7 +362,7 @@ end tell'"
                                         dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
-        fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imIndex_ID, dataFromUser[0])
+        _u.CurrState.setImIDX(dataFromUser[0])
         fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imLinkName_ID, dataFromUser[1])
         
         # POPULATE THE MAIN FILE
@@ -381,10 +381,7 @@ end tell'"
                 os.system("chmod +x " + savePath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                fsm.Wr.SectionInfoStructure.updateProperty(
-                        currsubsection, 
-                        fsm.PropIDs.Sec.imIndex_ID,
-                        nextImNum)
+                _u.CurrState.setImIDX(nextImNum)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wv.UItkVariables.buttonText.set("imNum")
             
@@ -399,10 +396,7 @@ end tell'"
             os.system("chmod +x " + imageAnscriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
-            fsm.Wr.SectionInfoStructure.updateProperty(
-                        currsubsection, 
-                        fsm.PropIDs.Sec.imIndex_ID,
-                        nextImNum)
+            _u.CurrState.setImIDX(nextImNum)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
 
     buttonNamesToFunc = {"imNum": lambda *args: wv.UItkVariables.imageGenerationEntryText.set(""),

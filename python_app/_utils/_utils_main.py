@@ -7,6 +7,9 @@ import file_system.file_system_manager as fsm
 import _utils.logging as log
 
 def getCurrSectionMoveNumber():
+    '''
+    this one is used by the image scripts to get the 
+    '''
     currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
     
     #check if section infostructure has file move numbers defined
@@ -50,6 +53,7 @@ def getMonitorSize():
        return(m.width,m.height)
 
 notDefinedToken = "-1"
+notDefinedListToken = {}
 
 '''
 DIR
@@ -82,11 +86,11 @@ class DIR:
             if currSection == notDefinedToken:
                 return "Screenshot location not defined yet."
             else:
-                return  os.path.join(DIR.Section.getCurrentRel(),getCurrentSectionNameWprefix() + "_images")
+                return  os.path.join(DIR.Section.getCurrentRel(),CurrState.getSectionNameWprefix() + "_images")
 
         @classmethod
         def getCurrentAbs(cls):
-            return  os.path.join(DIR.Section.getCurrentAbs(), getCurrentSectionNameWprefix() + "_images")
+            return  os.path.join(DIR.Section.getCurrentAbs(), CurrState.getSectionNameWprefix() + "_images")
 
 '''
 JSON
@@ -184,15 +188,6 @@ class DICT:
                     DICT.updateProperty(v, propertyName, newValue)
 
 
-def getCurrentSectionNameWprefix():
-    sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-    currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-    return sectionPrefix + "_" + currSection
-
-def getCurrentSectionPdfName():
-    return getCurrentSectionNameWprefix() + "_" + "main.myPDF"
-
-
 def readFile(fp):
     '''
     read the fp to lines list
@@ -268,31 +263,48 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     return None, None
 
 
-def getpageOfcurrentDoc():
-
-    activeApps = getAllRunningApps()
-    
-    app = [i for i in activeApps if Settings.skim_ID in str(i).lower()][0]
-    if app == None :
-        print ("getpageOfcurrentDoc - skim was not found")
-        return -1
-    
-    windowList = getWindowsFromApp(app)
-    currChapter = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-    
-    for window in windowList:
-        if window["kCGWindowOwnerName"] == app.localizedName():
-            if currChapter + "_main.myPDF" in window["kCGWindowName"]:
-                windowName = str(window["kCGWindowName"])
-                pageNum = windowName.split("page ")[1]
-                pageNum = pageNum.split(" ")[0]
-                return pageNum
 
 
-def getCurrSecImIdx():
-    currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-    imIndex_ID = fsm.Wr.SectionInfoStructure.PubProp.imIndex_ID
-    return fsm.Wr.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
+class CurrState:
+    def getpageOfDoc():
+
+        activeApps = getAllRunningApps()
+        
+        app = [i for i in activeApps if Settings.skim_ID in str(i).lower()][0]
+        if app == None :
+            log.autolog("skim was not found")
+            return -1
+        
+        windowList = getWindowsFromApp(app)
+        currChapter = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        
+        for window in windowList:
+            if window["kCGWindowOwnerName"] == app.localizedName():
+                if currChapter + "_main.myPDF" in window["kCGWindowName"]:
+                    windowName = str(window["kCGWindowName"])
+                    pageNum = windowName.split("page ")[1]
+                    pageNum = pageNum.split(" ")[0]
+                    return pageNum
+    
+    @classmethod
+    def getSectionPdfName(cls):
+        return cls.getSectionNameWprefix() + "_" + "main.myPDF"
+
+    def getSectionNameWprefix():
+        sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        return sectionPrefix + "_" + currSection
+
+
+    def getImIDX():
+        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        imIndex_ID = fsm.Wr.SectionInfoStructure.PubProp.imIndex_ID
+        return fsm.Wr.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
+
+    def setImIDX(newValue):
+        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        imIndex_ID = fsm.Wr.SectionInfoStructure.PubProp.imIndex_ID
+        return fsm.Wr.SectionInfoStructure.updateProperty(currSectionPath, imIndex_ID, newValue)
 
 
 '''

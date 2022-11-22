@@ -138,7 +138,7 @@ class MainLayout(Layout):
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currSectionWPrefix = _u.getCurrentSectionNameWprefix()
+        currSectionWPrefix = _u.CurrState.getSectionNameWprefix()
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
         
         if ownerName == None or windowID == None:
