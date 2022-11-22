@@ -71,7 +71,7 @@ class SectionLayout(Layout):
         if ownerName == None or windowID == None:
             # if the pdf was not opened in Skim already   
             pathToSectionFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
-                                                secPrefix + "_" + currSection + "_main.pdf")
+                                                secPrefix + "_" + currSection + "_main.myPDF")
             _waitDummy = lu.openPdfInSkim(pathToSectionFolder)
             # sleep(0.5)
             ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)

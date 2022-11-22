@@ -190,7 +190,7 @@ def getCurrentSectionNameWprefix():
     return sectionPrefix + "_" + currSection
 
 def getCurrentSectionPdfName():
-    return getCurrentSectionNameWprefix() + "_" + "main.pdf"
+    return getCurrentSectionNameWprefix() + "_" + "main.myPDF"
 
 
 def readFile(fp):
@@ -282,7 +282,7 @@ def getpageOfcurrentDoc():
     
     for window in windowList:
         if window["kCGWindowOwnerName"] == app.localizedName():
-            if currChapter + "_main.pdf" in window["kCGWindowName"]:
+            if currChapter + "_main.myPDF" in window["kCGWindowName"]:
                 windowName = str(window["kCGWindowName"])
                 pageNum = windowName.split("page ")[1]
                 pageNum = pageNum.split(" ")[0]

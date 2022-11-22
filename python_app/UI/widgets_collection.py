@@ -148,6 +148,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
         end tell\
         '")
         t.Wr.TexFile.buildCurrentSubsectionPdf()
+    
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_saveImgBTN",
                     text = "saveIM",
@@ -156,36 +157,64 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     def addClLinkCallback():
-        sections = targetSections.get()
-        sectionsStringSeparator = " "
-        sections = sections.split(sectionsStringSeparator)
-        if len(sections) < 3:
-            wmes.MessageMenu.createMenu("The sections and name should be in a '" + sectionsStringSeparator + "' separated string.")
-        else:
-            linkName = sections[-1]
-            targetSection = sections[0]
-            subsections = sections[1:-1]
+        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        sectionPath = targetSections.get()
+        #
+        # check that the section exists
+        #
 
-            # get current file page
-            currFilePage = _u.getpageOfcurrentDoc()
-            #update the current file link
+        sectionInfo = fsm.Wr.BookInfoStructure.readProperty(sectionPath)
+        if sectionInfo == None:
+            msg = "The path: '" + sectionPath + "' does not exist"
+            log.autolog(msg)
+            wmes.MessageMenu.createMenu(msg)
+            return
 
-            # get target tex file position
-            currBookPath = _u.Settings.Book.getCurrBookFolderPath()
-            subsectionPath = os.path.join(currBookPath, sections[0], "subchapters", *subsections)
-            with open(subsectionPath) as f:
-                targetLines = f.readlines()
+        sectionDirPath = "/".join(sectionInfo["path"].split("/")[:-1])
+        sectionPDFpath = os.path.join(sectionDirPath, secPrefix + "_" + sectionPath + "_main.myPDF")
 
-    
+        #
+        # add link to the current section file
+        #
+        # read content file
+        contenfFilepath = t.Wr.TexFile._getCurrContentFilepath()
+        log.autolog("Updating file: " + contenfFilepath)
+        lines = _u.readFile(contenfFilepath)
+        positionToAdd = 0
+        while positionToAdd < len(lines):
+            line = lines[positionToAdd]
+            if "\myGlLinks{" in line:
+                while "myGlLink" in line:
+                    positionToAdd += 1   
+                    line = lines[positionToAdd]
+                break
+            positionToAdd += 1
+        lineToAdd = "\
+        \href{file:" + sectionPDFpath + "}{" + sectionPath + "}\n"
+        outlines = lines[:positionToAdd]
+        outlines.append(lineToAdd)
+        outlines.extend(lines[positionToAdd:])
+        log.autolog("HIP: "+ str(positionToAdd))
+        
+        
+        with open(contenfFilepath, "+w") as f:
+            for line in outlines:
+                f.write(line + "\n")
+
+        # add return link 
+        
+
+        pass
+
     createGlLinkBTN = tk.Button(mainWinRoot, text = "Create gl link", 
-                        name = prefixName.lower() + "addGlobalLinkBTN",
+                        name = prefixName.lower() + "_addGlobalLink" + "BTN",
                         command = addClLinkCallback)
 
     targetSections = tk.StringVar()
     createGlLinkETR = tk.Entry(mainWinRoot,
                             width = 5,
                             textvariable = targetSections,
-                            name = prefixName.lower() + "addGlobalLink" + wu.Data.ENT.entryWidget_ID)
+                            name = prefixName.lower() + "_addGlobalLink" + wu.Data.ENT.entryWidget_ID)
     
     return createGlLinkBTN, createGlLinkETR
 
@@ -207,7 +236,6 @@ def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
         dataFromUser[i] = imageProcessingETR.get()
         f()
         wv.UItkVariables.buttonText.set(nextButtonName)
-
 
     def _createImageScript():
         scriptFile = ""
@@ -268,7 +296,6 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
 end tell'"
 
         return scriptFile
-
 
     def _createTexForTheProcessedImage():
         currsubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
@@ -447,8 +474,6 @@ class StartupMenu:
 
 
 class LayoutsMenus:
-    
-
     class SectionLayoutUI:
         pyAppDimensions = [None, None]
         classPrefix = "sectionlayout"
