@@ -50,8 +50,7 @@ class TOCStructure:
                 continue
 
             separator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
-            sectionPrefix = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_prefix_ID)
-            topSectionName = sectionPrefix + "_" + sectionName.split(separator)[0]
+            topSectionName = sectionName.split(separator)[0]
             
             sectionsTOCLines = [""]
             
@@ -272,8 +271,7 @@ class SectionInfoStructure:
         imageProp_ID = "_imageProp"
         imageContentFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
-        imIndex_ID = "_imIndex"
-        imLinkName_ID = "_linkName"
+        imLinkDict_ID = "imLinkDict"
 
     class PrivProp:
         tocData_ID = "_tocData"
@@ -305,10 +303,9 @@ class SectionInfoStructure:
                     sectionInfoEntryPrefix + TOCStructure.PubPro.finish_ID: _u.notDefinedToken
                 },
                 sectionInfoEntryPrefix + cls.PubProp.imageProp_ID: {
-                    sectionInfoEntryPrefix + cls.PubProp.imIndex_ID: _u.notDefinedToken,
-                    sectionInfoEntryPrefix + cls.PubProp.imLinkName_ID: _u.notDefinedToken,
                     sectionInfoEntryPrefix + cls.PubProp.imageContentFileMoveLinesNumber_ID: _u.notDefinedToken,
-                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber_ID: _u.notDefinedToken
+                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber_ID: _u.notDefinedToken,
+                    sectionInfoEntryPrefix + cls.PubProp.imLinkDict_ID: _u.notDefinedDictToken
                 }
                 
         }

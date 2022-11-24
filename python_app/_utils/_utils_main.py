@@ -53,7 +53,8 @@ def getMonitorSize():
        return(m.width,m.height)
 
 notDefinedToken = "-1"
-notDefinedListToken = {}
+notDefinedListToken = []
+notDefinedDictToken = {notDefinedToken: notDefinedToken}
 
 '''
 DIR
@@ -298,13 +299,41 @@ class CurrState:
 
     def getImIDX():
         currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        imIndex_ID = fsm.Wr.SectionInfoStructure.PubProp.imIndex_ID
-        return fsm.Wr.SectionInfoStructure.readProperty(currSectionPath, imIndex_ID)
-
-    def setImIDX(newValue):
+        return ImIDX.get(currSectionPath)
+    
+    def setImLinkAndIDX(linkName, imIDX):
         currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        imIndex_ID = fsm.Wr.SectionInfoStructure.PubProp.imIndex_ID
-        return fsm.Wr.SectionInfoStructure.updateProperty(currSectionPath, imIndex_ID, newValue)
+        LinkDict.set(currSectionPath, linkName, imIDX)
+
+
+class ImIDX:
+    def get(secPath):
+        d = LinkDict.get(secPath)
+        return list(d.values())[-1]
+
+
+class ImLink:
+    #NOTE: not used now
+    def get(secPath, newValue):
+        d = LinkDict.get(secPath)
+        return list(d.keys())[-1]
+
+ 
+class LinkDict:
+    def get(sectionPath):
+        if sectionPath == notDefinedToken:
+            return {notDefinedToken: notDefinedToken}
+        else:
+            return fsm.Wr.SectionInfoStructure.readProperty(sectionPath, fsm.PropIDs.Sec.imLinkDict_ID)
+
+    @classmethod
+    def set(cls, sectionPath, linkName, imIDX):
+        d = cls.get(sectionPath)
+        # check if the dict is notDefined
+        if d == notDefinedDictToken:
+            d = {}
+        d[linkName] = imIDX
+        fsm.Wr.SectionInfoStructure.updateProperty(sectionPath, fsm.PropIDs.Sec.imLinkDict_ID, d)
 
 
 '''

@@ -122,8 +122,16 @@ class TexFile:
     def buildCurrentSubsectionPdf(cls):
         currTexFilesFolder = _u.DIR.Section.getCurrentAbs()
         currTexMainFile = cls._getCurrContentFilepath()
-        log.autolog("set :" + currTexMainFile)
-        _waitDummy = os.system("${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh " + currTexMainFile + " " + currTexFilesFolder)
+        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        log.autolog("build: " + currTexMainFile)
+        
+        # NOTE: we add "_con.tex" to comply with what is called when the file is saved
+        cmd = "${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh" \
+                            " " + currTexMainFile + \
+                            " " + currTexFilesFolder + \
+                            " " + secPrefix + "_" + currSection + "_con.tex"
+        _waitDummy = os.system(cmd)
         wm.Data.UItkVariables.needRebuild.set(False)
         return True
 

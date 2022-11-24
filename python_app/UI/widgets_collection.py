@@ -220,13 +220,16 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
 
 def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
+    secImIndex = _u.CurrState.getImIDX()
+    if secImIndex == _u.notDefinedToken:
+        wv.UItkVariables.imageGenerationEntryText.set("-1")
+    else:
+        wv.UItkVariables.imageGenerationEntryText.set(str(int(secImIndex) + 1))
+    
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
                                 name=prefixName.lower() + "_imageGeneration_" + wu.Data.ENT.entryWidget_ID)
-
-    secImIndex = _u.CurrState.getImIDX()
-    wv.UItkVariables.imageGenerationEntryText.set(secImIndex)
 
     dataFromUser = [-1, -1]
 
@@ -362,8 +365,7 @@ end tell'"
                                         dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
-        _u.CurrState.setImIDX(dataFromUser[0])
-        fsm.Wr.SectionInfoStructure.updateProperty(currsubsection, fsm.PropIDs.Sec.imLinkName_ID, dataFromUser[1])
+        _u.CurrState.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
         
         # POPULATE THE MAIN FILE
         t.Wr.TexFile._populateMainFile()
@@ -381,7 +383,6 @@ end tell'"
                 os.system("chmod +x " + savePath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                _u.CurrState.setImIDX(nextImNum)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wv.UItkVariables.buttonText.set("imNum")
             
@@ -396,7 +397,6 @@ end tell'"
             os.system("chmod +x " + imageAnscriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
-            _u.CurrState.setImIDX(nextImNum)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
 
     buttonNamesToFunc = {"imNum": lambda *args: wv.UItkVariables.imageGenerationEntryText.set(""),
@@ -612,8 +612,7 @@ class ChooseMaterial:
                 fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
             )
             wv.UItkVariables.imageGenerationEntryText.set(
-                fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
-                                                        fsm.PropIDs.Sec.imIndex_ID)
+                _u.ImIDX.get(wv.UItkVariables.subsection.get())
             )
 
         default_book_name="Select a a book"
@@ -647,7 +646,7 @@ class ChooseMaterial:
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
 
         # update image index
-        secionImIndex = fsm.Wr.SectionInfoStructure.readProperty(prevSubsectionPath, fsm.PropIDs.Sec.imIndex_ID)
+        secionImIndex = _u.ImIDX.get(prevSubsectionPath)
         wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
         
 
@@ -670,10 +669,7 @@ class ChooseMaterial:
         wu.Screenshot.setValueScreenshotLoaction()
 
         # update image index widget
-        wv.UItkVariables.imageGenerationEntryText.set(
-            fsm.Wr.SectionInfoStructure.readProperty(wv.UItkVariables.subsection.get(), 
-                                                    fsm.PropIDs.Sec.imIndex_ID)
-        )
+        wv.UItkVariables.imageGenerationEntryText.set(_u.ImIDX.get(wv.UItkVariables.subsection.get()))
 
         # update Layout widget
         widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
@@ -718,10 +714,7 @@ class ChooseMaterial:
         
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
         
-        wv.UItkVariables.imageGenerationEntryText.set(
-            fsm.Wr.SectionInfoStructure.readProperty(subsection.get(), 
-                                                fsm.PropIDs.Sec.imIndex_ID)
-        )
+        wv.UItkVariables.imageGenerationEntryText.set(_u.ImIDX.get(subsection.get()))
 
         wu.Screenshot.setValueScreenshotLoaction()
         
@@ -921,7 +914,6 @@ class SectionsUI:
 
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
-            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.imIndex_ID, "1")
 
             #
             # update ui
