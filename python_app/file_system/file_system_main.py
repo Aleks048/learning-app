@@ -339,7 +339,7 @@ class SectionInfoStructure:
             
             # create files and folders
             sectionFolderName = dirPathToSection.split("/")[-1]
-            _waitDummy = os.system("mkdir -p " + dirPathToSection)
+            _waitDummy = os.makedirs(dirPathToSection)
             _waitDummy = os.makedirs(os.path.join(dirPathToSection, sectionFolderName + "_images"))
             
             _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
@@ -366,6 +366,13 @@ class SectionInfoStructure:
             if not os.path.exists(os.path.join(pathToTopSection,"_out")):
                 _waitDummy = os.makedirs(os.path.join(pathToTopSection,"_out"))
                 _waitDummy = shutil.copy(mainTemplateFile, os.path.join(pathToTopSection, sectionFolderName + "_main.tex"))
+        
+        # copy the settings 
+        vscodeSettings =os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
+        vscodeSettingsDirPath = os.path.join(dirPathToSection, ".vscode")
+        log.autolog(vscodeSettingsDirPath)
+        os.makedirs(vscodeSettingsDirPath)
+        shutil.copy(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
 
     def _getPathToSectionsFolder():
         pathToSectionFolder = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
