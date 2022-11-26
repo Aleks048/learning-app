@@ -9,6 +9,9 @@ class UItkVariables:
     scrshotPath = None
     currCh = None
     currSubch = None
+    currImLink = None
+    glLinkImLink = None
+    glLinktargetSections = None
 
 class StartupUItkVariables:
     bookChoice = None

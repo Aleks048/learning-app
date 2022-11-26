@@ -158,7 +158,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     def addClLinkCallback():
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        sectionPath = targetSections.get()
+        sectionPath = wv.UItkVariables.glLinktargetSections.get()
         #
         # check that the section exists
         #
@@ -210,10 +210,9 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                         name = prefixName.lower() + "_addGlobalLink" + "BTN",
                         command = addClLinkCallback)
 
-    targetSections = tk.StringVar()
     createGlLinkETR = tk.Entry(mainWinRoot,
                             width = 5,
-                            textvariable = targetSections,
+                            textvariable = wv.UItkVariables.glLinktargetSections,
                             name = prefixName.lower() + "_addGlobalLink" + wu.Data.ENT.entryWidget_ID)
     
     return createGlLinkBTN, createGlLinkETR
@@ -419,6 +418,21 @@ end tell'"
     
     return [imageProcessingETR, processButton]
 
+def getImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
+    frame = tk.Frame(mainWinRoot, name = prefixName + "_currSecImIDX" + "_OM")
+    if secPath != "":
+        currChImageLinks = _u.getCurrImLinksSorted(secPath)
+        wv.UItkVariables.glLinkImLink.set(currChImageLinks[-1])
+    else:
+        currChImageLinks = _u.notDefinedListToken
+        wv.UItkVariables.glLinkImLink.set(_u.notDefinedToken)
+    
+    imIDX_OM = tk.OptionMenu(frame,
+                    wv.UItkVariables.glLinkImLink,
+                    *currChImageLinks
+                    )
+    imIDX_OM.grid(row=0, column=0)
+    return frame
 
 class StartupMenu:
     def getStartup_BTN(winRoot, callback):
@@ -491,6 +505,21 @@ class LayoutsMenus:
             createGlLinkBTN, createGlLinkETR = getGlobalLinksAdd_Widgets(winMainRoot, cls.classPrefix)
             createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
             createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
+            
+            # update the image links om
+            def updateImLinksOM(secPath):
+                if secPath != "":
+                    currChImageLinks = _u.getCurrImLinksSorted(secPath)
+                    wu.updateOptionMenuOptionsList(winMainRoot, 
+                                                "_currSecImIDX", 
+                                                currChImageLinks,
+                                                wv.UItkVariables.glLinkImLink,
+                                                lambda *argv: None)
+                    wv.UItkVariables.glLinkImLink.set(currChImageLinks[-1])
+            createGlLinkETR.bind('<Return>',lambda e: updateImLinksOM(wv.UItkVariables.glLinktargetSections.get()))
+            
+            imageLinksOM = getImageLinks_OM(winMainRoot, cls.classPrefix)
+            imageLinksOM.grid(column=5, row=2, padx=0, pady=0)
 
 
             mon_width, _ = _u.getMonitorSize()
@@ -768,6 +797,7 @@ class SectionsUI:
             Name = "setSubsectionName_"
             StPage = "setSubsectionStartPage_"
 
+
     @classmethod
     def setSectionsUI(cls, mainWinRoot):
         chooseSectionMenus_Btn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.sectionsPrefix)
@@ -786,7 +816,6 @@ class SectionsUI:
         addSec_BTN.grid(row = 0, column = 2,sticky = tk.W)
         removeSec_BTN.grid(row = 0, column = 2,sticky = tk.E)
 
-
     @classmethod
     def getButton_chooseSectionsMenusAndBack(cls, mainWinRoot, prefixName = ""):
         def chooseChaptersMenusAndBackCallback():
@@ -798,20 +827,25 @@ class SectionsUI:
                 mainWinRoot.columnconfigure(2, weight = 3)
                 mainWinRoot.columnconfigure(3, weight = 1)
                 
+                # show the sections UI
                 for w in mainWinRoot.winfo_children():
                     if cls.sectionsPrefix.lower() in w._name:
-                        log.autolog(w._name)
                         w.grid()
+                
                 chooseChapter_MenusBtn_Label.set("sections")
                 _u.Settings.UI.showMainWidgetsNext = True
+
+
             else:
                 mainWinRoot.columnconfigure(0, weight = 1)
                 mainWinRoot.columnconfigure(1, weight = 3)
                 mainWinRoot.columnconfigure(2, weight = 1)
                 mainWinRoot.columnconfigure(3, weight = 3)
+
                 for w in mainWinRoot.winfo_children():
                     if LayoutsMenus.MainLayoutUI.classPrefix in w._name:
                         w.grid()
+                
                 wu.showCurrentLayout(mainWinRoot, *LayoutsMenus.MainLayoutUI.pyAppDimensions)  
                 chooseChapter_MenusBtn_Label.set("layout") 
                 _u.Settings.UI.showMainWidgetsNext = False
@@ -883,8 +917,7 @@ class SectionsUI:
                         text="setTopSectionStartPage", 
                         command = setTopSectionStartPageCallback)
         
-        return entry_setTopSectionStartPage, button_setTopSectionStartPage 
-
+        return entry_setTopSectionStartPage, button_setTopSectionStartPage
 
     @classmethod
     def getButton_createNewSection(cls, mainWinRoot, prefixName = ""):

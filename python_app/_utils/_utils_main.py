@@ -53,7 +53,7 @@ def getMonitorSize():
        return(m.width,m.height)
 
 notDefinedToken = "-1"
-notDefinedListToken = []
+notDefinedListToken = [notDefinedToken]
 notDefinedDictToken = {notDefinedToken: notDefinedToken}
 
 '''
@@ -301,6 +301,10 @@ class CurrState:
         currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         return ImIDX.get(currSectionPath)
     
+    def getCurrLinkIdxDict():
+        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        return LinkDict.get(currSectionPath)
+    
     def setImLinkAndIDX(linkName, imIDX):
         currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
         LinkDict.set(currSectionPath, linkName, imIDX)
@@ -335,6 +339,15 @@ class LinkDict:
         d[linkName] = imIDX
         fsm.Wr.SectionInfoStructure.updateProperty(sectionPath, fsm.PropIDs.Sec.imLinkDict_ID, d)
 
+
+def getCurrImLinksSorted(secPath):
+    currChImageLinksDict = LinkDict.get(secPath)
+    if currChImageLinksDict != notDefinedDictToken:
+        currChImageIDX = list(currChImageLinksDict.values())
+        currChImageIDX.sort(key = int)
+        return [list(currChImageLinksDict.keys())[list(currChImageLinksDict.values()).index(i)] for i in currChImageIDX]
+    else:
+        return notDefinedListToken
 
 '''
 working with Settings

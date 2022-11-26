@@ -54,7 +54,8 @@ def updateOptionMenuOptionsList(mainWinRoot, menuID, newMenuOptions, choiceVar, 
         # TODO: should check what conditions lead to None newMenuOptions
         return
     
-    newMenuOptions.sort()
+    if newMenuOptions[0].isnumeric():
+        newMenuOptions.sort()
     
     for e in mainWinRoot.winfo_children():
         if menuID in e._name:
@@ -129,6 +130,9 @@ class initVars:
         
         wv.UItkVariables.currCh = tk.StringVar()
         wv.UItkVariables.currSubch = tk.StringVar()
+
+        wv.UItkVariables.glLinkImLink = tk.StringVar()
+        wv.UItkVariables.glLinktargetSections = tk.StringVar()
 
     def StartupUI():
         wv.StartupUItkVariables.bookChoice = tk.StringVar()
