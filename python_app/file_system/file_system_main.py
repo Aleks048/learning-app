@@ -326,22 +326,29 @@ class SectionInfoStructure:
 
     @classmethod
     def addSection(cls, sectionPath):
+        # set the curr section to new section
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currSection_ID, sectionPath)
+
         sectionPathSeparator = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID) 
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
-        dirPathToSection = cls._getSectionFilepath(sectionPath)
+        dirPathToSection = _u.DIR.Section.getCurrentAbs()
 
         if not os.path.exists(dirPathToSection):
-
-            print("SectionInfoStructure.addSection - the sections structure was not present will create it.")
-            print("Creating path: " + dirPathToSection)
+            msg = "The sections structure was not present will create it.\n" + \
+                    "Creating path: " + dirPathToSection
+            log.autolog(msg)
             
-            # create files and folders
+            # create folders
             sectionFolderName = dirPathToSection.split("/")[-1]
             _waitDummy = os.makedirs(dirPathToSection)
-            _waitDummy = os.makedirs(os.path.join(dirPathToSection, sectionFolderName + "_images"))
+            _waitDummy = os.makedirs(_u.DIR.Screenshot.getCurrentAbs())
+            _waitDummy = os.makedirs(_u.DIR.Scripts.Links.Local.getAbsPath())
+            _waitDummy = os.makedirs(_u.DIR.Scripts.Links.Global.getAbsPath())
+            _waitDummy = os.makedirs(_u.DIR.Scripts.Utils.getAbsPath())
             
+            # create files
             _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
             _waitDummy = open(os.path.join(dirPathToSection, sectionFolderName + "_con.tex"), "w").close()
         
@@ -360,7 +367,6 @@ class SectionInfoStructure:
                 jsonObj = json.dumps(cls._getTemplate(numLevels, i + 1), indent = 4)
                 f.write(jsonObj)
             
-            
             sectionFolderName = pathToTopSection.split("/")[-1]
             mainTemplateFile = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex")
             if not os.path.exists(os.path.join(pathToTopSection,"_out")):
@@ -370,7 +376,6 @@ class SectionInfoStructure:
         # copy the settings 
         vscodeSettings =os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
         vscodeSettingsDirPath = os.path.join(dirPathToSection, ".vscode")
-        log.autolog(vscodeSettingsDirPath)
         os.makedirs(vscodeSettingsDirPath)
         shutil.copy(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
 
@@ -392,8 +397,8 @@ class SectionInfoStructure:
         sectionFullPath = pathList
         sectionFullPath = os.path.join(*sectionFullPath)
         pathToSection = cls._getPathToSectionsFolder()
-        pathToSection = os.path.join(pathToSection, sectionFullPath)
-
+        pathToSection = os.path.join(_u.DIR.Section.sectionFolderName, pathToSection, sectionFullPath)
+        
         return pathToSection
     
     @classmethod

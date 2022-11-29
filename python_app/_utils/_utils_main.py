@@ -61,24 +61,31 @@ DIR
 '''
 class DIR:
     class Section:
+        sectionFolderName = "subsections"
+
         @classmethod
         def getCurrentAbs(cls):
             relFilepath = cls.getCurrentRel()
             bookPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
             return os.path.join(bookPath, relFilepath)
 
-        def getCurrentRel():
+        @classmethod
+        def getCurrentRel(cls):
             currSec = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            
             if currSec == notDefinedToken:              
                 return ""
             
-            filepath = fsm.Wr.BookInfoStructure.readProperty(currSec)["path"]
-            bookpath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
+            sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+            sectionsPathSeparator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
 
-            relFilepath = filepath.replace(bookpath, "")
-            relFilepath = os.path.join(*relFilepath.split("/")[:-1])
-            return relFilepath
+            pathList = currSec.split(sectionsPathSeparator)
+            pathList[0] = sectionPrefix + "_" + pathList[0]
+            
+            for i in range(len(pathList) - 1, 0, -1):
+                pathList[i] = ".".join(pathList[:i + 1])
+            sectionFullPath = pathList
+            sectionFullPath = os.path.join(cls.sectionFolderName, *sectionFullPath)
+            return sectionFullPath
 
     class Screenshot:
         @classmethod
@@ -92,6 +99,41 @@ class DIR:
         @classmethod
         def getCurrentAbs(cls):
             return  os.path.join(DIR.Section.getCurrentAbs(), CurrState.getSectionNameWprefix() + "_images")
+
+    class Scripts:
+        sctiptsFolder = "Scripts"
+        
+        class Links:
+            linksFolder = "Links"
+            
+            class Local:
+                localFolder = "Local"
+    
+                def getAbsPath():
+                    return  os.path.join(DIR.Section.getCurrentAbs(), 
+                                        CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder, 
+                                        DIR.Scripts.Links.linksFolder,
+                                        DIR.Scripts.Links.Local.localFolder
+                                        )
+            
+            class Global:
+                globalFolder = "Global"
+               
+                def getAbsPath():
+                    return  os.path.join(DIR.Section.getCurrentAbs(), 
+                                        CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder, 
+                                        DIR.Scripts.Links.linksFolder,
+                                        DIR.Scripts.Links.Global.globalFolder
+                                        )
+        
+        class Utils:
+            utilsFolder = "Utils"
+            
+            def getAbsPath():
+                return  os.path.join(DIR.Section.getCurrentAbs(), 
+                                    CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder,
+                                    DIR.Scripts.Utils.utilsFolder
+                                    )
 
 '''
 JSON
@@ -291,10 +333,15 @@ class CurrState:
     def getSectionPdfName(cls):
         return cls.getSectionNameWprefix() + "_" + "main.myPDF"
 
-    def getSectionNameWprefix():
+    @classmethod
+    def getSectionNameWprefix(cls):
         sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        currSection = cls.getSectionNameNoPrefix()
         return sectionPrefix + "_" + currSection
+    
+    def getSectionNameNoPrefix():
+        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        return currSection
 
 
     def getImIDX():

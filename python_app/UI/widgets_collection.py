@@ -158,20 +158,24 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     def addClLinkCallback():
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        sectionPath = wv.UItkVariables.glLinktargetSections.get()
+        sourceSectionPath = _u.CurrState.getSectionNameNoPrefix()
+        targetSectionPath = wv.UItkVariables.glLinktargetSections.get()
+        sourceLinkName = wv.UItkVariables.glLinkSourceImLink.get()
+        sourceIDX = _u.LinkDict.get(sourceSectionPath)[sourceLinkName]
+
         #
         # check that the section exists
         #
 
-        sectionInfo = fsm.Wr.BookInfoStructure.readProperty(sectionPath)
+        sectionInfo = fsm.Wr.BookInfoStructure.readProperty(targetSectionPath)
         if sectionInfo == None:
-            msg = "The path: '" + sectionPath + "' does not exist"
+            msg = "The path: '" + targetSectionPath + "' does not exist"
             log.autolog(msg)
             wmes.MessageMenu.createMenu(msg)
             return
 
         sectionDirPath = "/".join(sectionInfo["path"].split("/")[:-1])
-        sectionPDFpath = os.path.join(sectionDirPath, secPrefix + "_" + sectionPath + "_main.myPDF")
+        sectionPDFpath = os.path.join(sectionDirPath, secPrefix + "_" + targetSectionPath + "_main.myPDF 2")
 
         #
         # add link to the current section file
@@ -183,19 +187,24 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         positionToAdd = 0
         while positionToAdd < len(lines):
             line = lines[positionToAdd]
-            if "\myGlLinks{" in line:
+            # find the line with id
+            if "id: " + sourceIDX in line:
+                # find the line with global links start
+                while "\myGlLinks{" not in line:
+                    positionToAdd +=1
+                    line = lines[positionToAdd]
+                # find the line with global links end
                 while "myGlLink" in line:
                     positionToAdd += 1   
                     line = lines[positionToAdd]
                 break
             positionToAdd += 1
+        
         lineToAdd = "\
-        \href{file:" + sectionPDFpath + "}{" + sectionPath + "}\n"
+        \href{file:" + sectionPDFpath + "}{" + targetSectionPath + "}\n"
         outlines = lines[:positionToAdd]
         outlines.append(lineToAdd)
         outlines.extend(lines[positionToAdd:])
-        log.autolog("HIP: "+ str(positionToAdd))
-        
         
         with open(contenfFilepath, "+w") as f:
             for line in outlines:
@@ -218,7 +227,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     return createGlLinkBTN, createGlLinkETR
 
 
-def getTextEntryButton_imageGeneration(mainWinRoot, prefixName = ""):
+def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
     secImIndex = _u.CurrState.getImIDX()
     if secImIndex == _u.notDefinedToken:
         wv.UItkVariables.imageGenerationEntryText.set("-1")
@@ -360,8 +369,10 @@ end tell'"
             
 
         #create a script to run on page change
-        imageAnscriptPath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
-                                        dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
+        imagePath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
+                                dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
+        scriptPath = os.path.join(_u.DIR.Scripts.Links.Local.getAbsPath(),
+                                dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
         _u.CurrState.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
@@ -371,29 +382,29 @@ end tell'"
         
         
         # take a screenshot
-        if os.path.isfile(imageAnscriptPath + ".png"):
-            def takeScreencapture(savePath):
-                os.system("screencapture -ix " + savePath + ".png")
+        if os.path.isfile(imagePath + ".png"):
+            def takeScreencapture(iPath, sPath):
+                os.system("screencapture -ix " + iPath + ".png")
                 wv.UItkVariables.needRebuild.set(True)
-                    #create a sript associated with image
-                with open(savePath + ".sh", "w+") as f:
+                #create a sript associated with image
+                with open(sPath + ".sh", "w+") as f:
                     for l in _createImageScript():
                         f.write(l)
-                os.system("chmod +x " + savePath + ".sh")
+                os.system("chmod +x " + sPath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wv.UItkVariables.buttonText.set("imNum")
             
-            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, imageAnscriptPath)
+            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, imagePath, scriptPath)
         else:
-            os.system("screencapture -ix " + imageAnscriptPath + ".png")
+            os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
-            with open(imageAnscriptPath + ".sh", "w+") as f:
+            with open(scriptPath + ".sh", "w+") as f:
                 for l in _createImageScript():
                     f.write(l)
-            os.system("chmod +x " + imageAnscriptPath + ".sh")
+            os.system("chmod +x " + scriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -418,17 +429,33 @@ end tell'"
     
     return [imageProcessingETR, processButton]
 
-def getImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
-    frame = tk.Frame(mainWinRoot, name = prefixName + "_currSecImIDX" + "_OM")
+def getTargetImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
+    frame = tk.Frame(mainWinRoot, name = prefixName + "_target_SecImIDX" + "_OM")
     if secPath != "":
         currChImageLinks = _u.getCurrImLinksSorted(secPath)
-        wv.UItkVariables.glLinkImLink.set(currChImageLinks[-1])
+        wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
     else:
         currChImageLinks = _u.notDefinedListToken
-        wv.UItkVariables.glLinkImLink.set(_u.notDefinedToken)
+        wv.UItkVariables.glLinkTargetImLink.set(_u.notDefinedToken)
     
     imIDX_OM = tk.OptionMenu(frame,
-                    wv.UItkVariables.glLinkImLink,
+                    wv.UItkVariables.glLinkTargetImLink,
+                    *currChImageLinks
+                    )
+    imIDX_OM.grid(row=0, column=0)
+    return frame
+
+def getSourceImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
+    frame = tk.Frame(mainWinRoot, name = prefixName + "_source_SecImIDX" + "_OM")
+    if secPath != "":
+        currChImageLinks = _u.getCurrImLinksSorted(secPath)
+        wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
+    else:
+        currChImageLinks = _u.notDefinedListToken
+        wv.UItkVariables.glLinkSourceImLink.set(_u.notDefinedToken)
+    
+    imIDX_OM = tk.OptionMenu(frame,
+                    wv.UItkVariables.glLinkSourceImLink,
                     *currChImageLinks
                     )
     imIDX_OM.grid(row=0, column=0)
@@ -511,16 +538,20 @@ class LayoutsMenus:
                 if secPath != "":
                     currChImageLinks = _u.getCurrImLinksSorted(secPath)
                     wu.updateOptionMenuOptionsList(winMainRoot, 
-                                                "_currSecImIDX", 
+                                                "target_SecImIDX", 
                                                 currChImageLinks,
-                                                wv.UItkVariables.glLinkImLink,
+                                                wv.UItkVariables.glLinkTargetImLink,
                                                 lambda *argv: None)
-                    wv.UItkVariables.glLinkImLink.set(currChImageLinks[-1])
+                    wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
+            
             createGlLinkETR.bind('<Return>',lambda e: updateImLinksOM(wv.UItkVariables.glLinktargetSections.get()))
             
-            imageLinksOM = getImageLinks_OM(winMainRoot, cls.classPrefix)
-            imageLinksOM.grid(column=5, row=2, padx=0, pady=0)
+            targetImageLinksOM = getTargetImageLinks_OM(winMainRoot, cls.classPrefix)
+            targetImageLinksOM.grid(column=5, row=2, padx=0, pady=0)
 
+            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            sourceImageLinksOM = getSourceImageLinks_OM(winMainRoot, cls.classPrefix, currSection)
+            sourceImageLinksOM.grid(column=4, row=2, padx=0, pady=0)
 
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions[0] = int(mon_width / 2)
@@ -544,7 +575,7 @@ class LayoutsMenus:
             #
             # image generation:
             #
-            imageGenerationUI = getTextEntryButton_imageGeneration(winMainRoot, cls.classPrefix)
+            imageGenerationUI = getWidgets_imageGeneration_ETR_BTN(winMainRoot, cls.classPrefix)
             imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
             imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
@@ -606,6 +637,18 @@ class LayoutsMenus:
                         wu.showCurrentLayout(mainWinRoot, 
                                             cl.pyAppDimensions[0],
                                             cl.pyAppDimensions[1])
+                        
+                        if "section" in cl.__name__.lower():
+                            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+                            currChImageLinks = _u.getCurrImLinksSorted(currSection)
+                            wu.updateOptionMenuOptionsList(mainWinRoot, 
+                                                        "source_SecImIDX", 
+                                                        currChImageLinks,
+                                                        wv.UItkVariables.glLinkSourceImLink,
+                                                        lambda *argv: None)
+                            wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
+
+                        break 
             
             listOfLayouts = _u.Settings.layoutsList
             layout_name_vatying = tk.StringVar()

@@ -10,7 +10,8 @@ class UItkVariables:
     currCh = None
     currSubch = None
     currImLink = None
-    glLinkImLink = None
+    glLinkTargetImLink = None
+    glLinkSourceImLink = None
     glLinktargetSections = None
 
 class StartupUItkVariables:

@@ -131,8 +131,9 @@ class initVars:
         wv.UItkVariables.currCh = tk.StringVar()
         wv.UItkVariables.currSubch = tk.StringVar()
 
-        wv.UItkVariables.glLinkImLink = tk.StringVar()
+        wv.UItkVariables.glLinkTargetImLink = tk.StringVar()
         wv.UItkVariables.glLinktargetSections = tk.StringVar()
+        wv.UItkVariables.glLinkSourceImLink = tk.StringVar()
 
     def StartupUI():
         wv.StartupUItkVariables.bookChoice = tk.StringVar()
