@@ -48,19 +48,21 @@ class TexFile:
                     imLinkName = imLinkName.replace(" ", "")
                     imLinkName = imLinkName.replace("}", "")
 
-                    imageAndScriptPath = contentFile[i + 2].replace(myTargetToken, "")[:-1]
-                    imageAndScriptPath = imageAndScriptPath.split("}")[0]
-                    imageAndScriptPath = imageAndScriptPath.replace(" ", "")
-                    imageAndScriptPath = imageAndScriptPath.split("/")
-                    scriptName = imageAndScriptPath[-1]
-                    imageAndScriptPath = imageAndScriptPath[:-2]
-                    imageAndScriptPath = os.path.join(*imageAndScriptPath,
-                                        _u.DIR.Scripts.sctiptsFolder, 
+                    imagesPath = contentFile[i + 2].replace(myTargetToken, "")[:-1]
+                    imagesPath = imagesPath.split("}")[0]
+                    imagesPath = imagesPath.replace(" ", "")
+                    imagesPath = imagesPath.split("/")
+                    scriptName = imagesPath[-1]
+                    sectionName = imagesPath[-3]
+                    scriptPath = imagesPath[:-2]
+                    scriptPath = os.path.join("/",
+                                        *scriptPath,
+                                        sectionName + "_" + _u.DIR.Scripts.sctiptsFolder, 
                                         _u.DIR.Scripts.Links.linksFolder, 
                                         _u.DIR.Scripts.Links.Local.localFolder, 
                                         scriptName + ".sh")
                     
-                    localLinksLine = "        \\href{file:" + imageAndScriptPath + "}{" + imLinkName + "},\n"
+                    localLinksLine = "        \\href{file:" + scriptPath + "}{" + imLinkName + "},\n"
                     listOfLocalLinks.append(localLinksLine)
                     # i += 2
 
