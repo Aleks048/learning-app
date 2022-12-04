@@ -57,7 +57,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
     showProofsVar = tk.StringVar()
     showProofsVar.set("Hide Proofs")
     def _changeProofsVisibility(hideProofs):
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(),"r") as conF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"r") as conF:
             contentLines = conF.readlines()
         extraImagesStartToken = "% \EXTRA IMAGES START"
         extraImagesEndToken = "% \EXTRA IMAGES END"
@@ -74,7 +74,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                             contentLines[i] = "% " + line
                             log.autolog("\nShow the proof for line:\n" + contentLines[i])
                     break
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(),"w") as conF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
     
     def getShowProofsCallBack():
@@ -106,7 +106,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             if "_imageGeneration_" + wu.Data.ENT.entryWidget_ID in w._name:
                 imName = w.get()
         
-        extraImagePath = fsm.Wr.Paths.Screenshot.getAbs() \
+        extraImagePath = fsm.Wr.Paths.Screenshot.getAbs_curr() \
                             + currImID + "_" + currentSubsection \
                             + "_" + imName
         
@@ -123,7 +123,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
 
         # update the content file
         marker = "THIS IS CONTENT id: " + currImID
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), "r+") as f:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
             extraImagesMarker = "% \\EXTRA IMAGES END"
@@ -184,13 +184,13 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
         sectionDirPath = "/".join(sectionInfo["path"].split("/")[:-1])
         sectionPDFpath = \
-            os.path.join(sectionDirPath, secPrefix + "_" + targetSectionPath + "_main.myPDF 2")
+            os.path.join(sectionDirPath, secPrefix + "_" + targetSectionPath + "_main.myPDF")
 
         #
         # add link to the current section file
         #
         # read content file
-        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs()
+        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         log.autolog("Updating file: " + contenfFilepath)
         lines = _u.readFile(contenfFilepath)
         positionToAdd = 0
@@ -260,11 +260,11 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
     def _createTexForTheProcessedImage():
         currsubsection = fsm.Wr.SectionCurrent.readCurrSection()
 
-        extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs(),
+        extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
                                     dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), 'a') as f:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'a') as f:
             add_page = "\n\n\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
     % TEXT BEFORE MAIN IMAGE\n\
@@ -297,7 +297,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         if wv.UItkVariables.createTOCVar.get():
             if wv.UItkVariables.TOCWithImageVar.get():
                 # TOC ADD ENTRY WITH IMAGE
-                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'a') as f:
+                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
                     toc_add_image = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -308,7 +308,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
                     f.write(toc_add_image)
             else:  
                 # TOC ADD ENTRY WITHOUT IMAGE
-                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'a') as f:
+                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
                     toc_add_text = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -318,9 +318,9 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             
 
         #create a script to run on page change
-        imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs(),
+        imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
                                 dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
-        scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs(),
+        scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr(),
                                 dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
@@ -332,8 +332,8 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         
         # take a screenshot
         imIDX = dataFromUser[0]
-        contentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs()
-        tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs()
+        contentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
+        tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
         pdfName = fsm.Wr.SectionCurrent.getSectionPdfName()
         if os.path.isfile(imagePath + ".png"):
             def takeScreencapture(iPath, sPath):
@@ -937,7 +937,6 @@ class SectionsUI:
     @classmethod
     def getButton_createNewSection(cls, mainWinRoot, prefixName = ""):
         def createNewBTNcallback():
-            
             secPath = None
             secName = None
             secStartPage = None
@@ -952,7 +951,8 @@ class SectionsUI:
             
             # TODO: check that the structure exists and ask user if we should proceed
             fsm.addSectionForCurrBook(secPath)
-            separator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
+            separator = \
+                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
             topSectionName = secPath.split(separator)[0]
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSectionName)
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
@@ -960,7 +960,9 @@ class SectionsUI:
             sections[topSectionName]["prevSubsectionPath"] = secPath
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID, sections)
 
-            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
+            fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
+                                                    fsm.PropIDs.Sec.name_ID,
+                                                    secName)            
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
                                                     fsm.PropIDs.Sec.startPage_ID, 
                                                     secStartPage)
@@ -968,8 +970,8 @@ class SectionsUI:
             #
             # update ui
             #
-
-            topSections = list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
+            topSections = \
+                list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
             subsections = wu.getSubsectionsListForCurrTopSection()
             wu.updateOptionMenuOptionsList(mainWinRoot, 
                                         "_chooseSection_optionMenu",

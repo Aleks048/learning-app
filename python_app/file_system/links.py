@@ -1,4 +1,5 @@
 import _utils._utils_main as _u
+import _utils.logging as log
 import file_system.section_fs as sfs
 
 class ImIDX:
@@ -21,7 +22,7 @@ class ImLink:
 class LinkDict:
     def get(sectionPath):
         if sectionPath == _u.Token.NotDef.str_t:
-            return _u.Token.NotDef.str_t
+            return _u.Token.NotDef.dict_t
         else:
             return sfs.SectionInfoStructure.readProperty(sectionPath, 
                                                     sfs.SectionInfoStructure.PubProp.imLinkDict_ID)
@@ -38,7 +39,11 @@ class LinkDict:
 
     def getCurrImLinksSorted(secPath):
         currChImageLinksDict = LinkDict.get(secPath)
-        if currChImageLinksDict != _u.Token.NotDef.dict_t:
+        log.autolog(currChImageLinksDict)
+        if str(currChImageLinksDict) == _u.Token.NotDef.str_t:
+            log.autolog(currChImageLinksDict)
+            return _u.Token.NotDef.list_t
+        elif currChImageLinksDict != _u.Token.NotDef.dict_t:
             currChImageIDX = list(currChImageLinksDict.values())
             currChImageIDX.sort(key = int)
             return [list(currChImageLinksDict.keys())[list(currChImageLinksDict.values()).index(i)] for i in currChImageIDX]

@@ -13,7 +13,7 @@ class TexFile:
         tocFile = []
 
         localLinksLine = ""
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), 'r') as contentF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
             
@@ -48,7 +48,7 @@ class TexFile:
 
             localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
-        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'r') as tocF:
+        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'r') as tocF:
             tocFile = tocF.readlines()
                 
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
@@ -59,7 +59,7 @@ class TexFile:
             topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(currTopSection)
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
-        with open(fsm.Wr.Paths.TexFiles.Main.getAbs(), 'w') as outFile:
+        with open(fsm.Wr.Paths.TexFiles.Main.getAbs_curr(), 'w') as outFile:
 
             outFileList = []
             # get the marker of the part BEFORE_LOCAL_LINKS_MARKER

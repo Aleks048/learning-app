@@ -1,12 +1,10 @@
 import os
 
 import _utils._utils_main as _u
-import file_system.book_fs as bfs
 import file_system.section_fs as sfs
+import file_system.book_fs as bfs
 
 class Paths:
-    sectionPrefix = "sec"
-    sectionsPathSeparator = "."
     
     class Section:
         sectionFolderName = "subsections"
@@ -14,12 +12,12 @@ class Paths:
         @classmethod
         def getAbs_curr(cls):
             currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-            section = sfs.SectionCurrent.readCurrSection()
+            section = sfs.SectionCurrent.getSectionNameWprefix()
             return cls.getAbs(currBookPath, section)
 
         @classmethod
         def getRel_curr(cls):
-            currSec = sfs.SectionCurrent.readCurrSection()
+            currSec = sfs.SectionCurrent.getSectionNameWprefix()
             return cls.getRel(currSec)
 
         @classmethod
@@ -31,12 +29,11 @@ class Paths:
         def getRel(cls, sec):
             if sec == _u.Token.NotDef.str_t:              
                 return ""
-            
-            sectionPrefix = Paths.sectionPrefix
-            sectionsPathSeparator = Paths.sectionsPathSeparator
+
+            sectionsPathSeparator = \
+                bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
 
             pathList = sec.split(sectionsPathSeparator)
-            pathList[0] = sectionPrefix + "_" + pathList[0]
             
             for i in range(len(pathList) - 1, 0, -1):
                 pathList[i] = ".".join(pathList[:i + 1])
@@ -129,7 +126,7 @@ class Paths:
 
             def getAbs(bookPath, secName):
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    Paths.sectionPrefix + secName + "_con.tex")
+                                    secName + "_con.tex")
         
         class TOC:
             @classmethod
@@ -140,7 +137,7 @@ class Paths:
 
             def getAbs(bookPath, secName):
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    Paths.sectionPrefix + secName + "_toc.tex")
+                                    secName + "_toc.tex")
         
         class Main:  
             @classmethod   
@@ -151,5 +148,5 @@ class Paths:
             
             def getAbs(bookPath, secName):
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    Paths.sectionPrefix + secName + "_main.tex")
+                                    secName + "_main.tex")
 
