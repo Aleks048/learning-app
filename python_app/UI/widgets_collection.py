@@ -1,6 +1,5 @@
 import os
 import tkinter as tk
-from tkinter import messagebox
 from threading import Thread
 
 import UI.widgets_vars as wv 
@@ -22,11 +21,19 @@ def getLabel(mainWinRoot, text):
 def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     wv.UItkVariables.createTOCVar.set(True)
     
-    createTOC_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_create_toc", text = "TOC cr",
-                                variable = wv.UItkVariables.createTOCVar, onvalue = 1, offvalue = 0)
+    createTOC_CB = tk.Checkbutton(mainWinRoot, 
+                                name = namePrefix.lower() + "_create_toc", 
+                                text = "TOC cr",
+                                variable = wv.UItkVariables.createTOCVar, 
+                                onvalue = 1, 
+                                offvalue = 0)
     
-    TOCWithImage_CB = tk.Checkbutton(mainWinRoot, name = namePrefix.lower() + "_toc_w_image",  text = "TOC w i",
-                                variable = wv.UItkVariables.TOCWithImageVar, onvalue = 1, offvalue = 0)
+    TOCWithImage_CB = tk.Checkbutton(mainWinRoot, 
+                                    name = namePrefix.lower() + "_toc_w_image",  
+                                    text = "TOC w i",
+                                    variable = wv.UItkVariables.TOCWithImageVar, 
+                                    onvalue = 1, 
+                                    offvalue = 0)
     
     return createTOC_CB, TOCWithImage_CB
 
@@ -34,7 +41,7 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
         wv.UItkVariables.buttonText.set("imNum")
-        sectionImIndex = _u.CurrState.getImIDX()
+        sectionImIndex = fsm.Wr.Links.ImIDX.get()
         wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
     
 
@@ -50,7 +57,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
     showProofsVar = tk.StringVar()
     showProofsVar.set("Hide Proofs")
     def _changeProofsVisibility(hideProofs):
-        with open(t.Wr.TexFile._getCurrContentFilepath(),"r") as conF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(),"r") as conF:
             contentLines = conF.readlines()
         extraImagesStartToken = "% \EXTRA IMAGES START"
         extraImagesEndToken = "% \EXTRA IMAGES END"
@@ -67,7 +74,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                             contentLines[i] = "% " + line
                             log.autolog("\nShow the proof for line:\n" + contentLines[i])
                     break
-        with open(t.Wr.TexFile._getCurrContentFilepath(),"w") as conF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
     
     def getShowProofsCallBack():
@@ -88,8 +95,8 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
 
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
-        currentSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        currImID = _u.CurrState.getImIDX()
+        currentSubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        currImID = fsm.Wr.Links.ImIDX.get()
         
         # screenshot
         imName = ""
@@ -99,7 +106,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             if "_imageGeneration_" + wu.Data.ENT.entryWidget_ID in w._name:
                 imName = w.get()
         
-        extraImagePath = _u.DIR.Screenshot.getCurrentAbs() \
+        extraImagePath = fsm.Wr.Paths.Screenshot.getAbs() \
                             + currImID + "_" + currentSubsection \
                             + "_" + imName
         
@@ -107,22 +114,23 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
             def takeScreencapture(savePath):
                 os.system("screencapture -ix " + savePath)
                 wv.UItkVariables.needRebuild.set(True)
-            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, extraImagePath + ".png")
+            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
+                                            takeScreencapture, 
+                                            extraImagePath + ".png")
         else:
             os.system("screencapture -ix " + extraImagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
 
         # update the content file
         marker = "THIS IS CONTENT id: " + currImID
-        with open(t.Wr.TexFile._getCurrContentFilepath(), "r+") as f:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
             extraImagesMarker = "% \\EXTRA IMAGES END"
             while extraImagesMarker not in contentLines[lineNum]:
                 lineNum += 1
             outLines = contentLines[:lineNum]
-            extraImageLine = "\
-\\\\\myStIm{" + extraImagePath + "}\n"
+            extraImageLine = "\\\\\myStIm{" + extraImagePath + "}\n"
             outLines.append(extraImageLine)
             outLines.extend(contentLines[lineNum:])
 
@@ -158,10 +166,10 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     def addClLinkCallback():
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        sourceSectionPath = _u.CurrState.getSectionNameNoPrefix()
+        sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         targetSectionPath = wv.UItkVariables.glLinktargetSections.get()
         sourceLinkName = wv.UItkVariables.glLinkSourceImLink.get()
-        sourceIDX = _u.LinkDict.get(sourceSectionPath)[sourceLinkName]
+        sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
 
         #
         # check that the section exists
@@ -175,13 +183,14 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
             return
 
         sectionDirPath = "/".join(sectionInfo["path"].split("/")[:-1])
-        sectionPDFpath = os.path.join(sectionDirPath, secPrefix + "_" + targetSectionPath + "_main.myPDF 2")
+        sectionPDFpath = \
+            os.path.join(sectionDirPath, secPrefix + "_" + targetSectionPath + "_main.myPDF 2")
 
         #
         # add link to the current section file
         #
         # read content file
-        contenfFilepath = t.Wr.TexFile._getCurrContentFilepath()
+        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs()
         log.autolog("Updating file: " + contenfFilepath)
         lines = _u.readFile(contenfFilepath)
         positionToAdd = 0
@@ -200,8 +209,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                 break
             positionToAdd += 1
         
-        lineToAdd = "\
-        \href{file:" + sectionPDFpath + "}{" + targetSectionPath + "}\n"
+        lineToAdd = "        \href{file:" + sectionPDFpath + "}{" + targetSectionPath + "}\n"
         outlines = lines[:positionToAdd]
         outlines.append(lineToAdd)
         outlines.extend(lines[positionToAdd:])
@@ -228,8 +236,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
 
 def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
-    secImIndex = _u.CurrState.getImIDX()
-    if secImIndex == _u.notDefinedToken:
+    secImIndex = fsm.Wr.Links.ImIDX.get()
+    if secImIndex == _u.Token.NotDef.str_t:
         wv.UItkVariables.imageGenerationEntryText.set("-1")
     else:
         wv.UItkVariables.imageGenerationEntryText.set(str(int(secImIndex) + 1))
@@ -248,74 +256,15 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         f()
         wv.UItkVariables.buttonText.set(nextButtonName)
 
-    def _createImageScript():
-        scriptFile = ""
-        scriptFile += "#!/bin/bash\n"
-        scriptFile += "\
-conIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrContentFilepath() + "\" | cut -d: -f1`\n"
-        scriptFile += "\
-tocIDX=`grep -n \"% THIS IS CONTENT id: " + dataFromUser[0] +"\" \"" + t.Wr.TexFile._getCurrTOCFilepath() + "\" | cut -d: -f1`\n"
-        # get image move numbers
-        scriptFile += "\n\
-pushd ${BOOKS_PY_APP_PATH}\n\
-    cmd=\"from _utils import _utils_main as _u; _u.getCurrSectionMoveNumber();\"\n\
-    movenumbersarray=(`python3 -c \"${cmd}\"`)\n\
-popd\n"
-        scriptFile += "\
-if [ \"$conIDX\" != \"\" ]\n\
-then\n\
-osascript -  $conIDX <<EOF\n\
-    on run argv\n\
-        tell application \"code\"\n\
-            activate\n\
-            tell application \"System Events\"\n\
-                keystroke \"1\" using {command down}\n\
-                delay 0.1\n\
-                keystroke \"g\" using {control down}\n\
-                keystroke item 1 of argv + ${movenumbersarray[0]}\n\
-                keystroke return\n\
-            end tell\n\
-        end tell\n\
-    end run\n\
-EOF\n\
-fi\n"
-        scriptFile += "\
-if [ \"$tocIDX\" != \"\" ]\n\
-then\n\
-osascript - $tocIDX <<EOF\n\
-    on run argv\n\
-        tell application \"code\"\n\
-            activate\n\
-            tell application \"System Events\"\n\
-                keystroke \"2\" using {command down}\n\
-                delay 0.1\n\
-                keystroke \"g\" using {control down}\n\
-                keystroke item 1 of argv + ${movenumbersarray[1]}\n\
-                keystroke return\n\
-            end tell\n\
-        end tell\n\
-    end run\n\
-EOF\n\
-fi\n"
-        pdfName = _u.CurrState.getSectionPdfName()
-        scriptFile += "osascript -e '\
-tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
-    tell document \"" + pdfName + "\"\n\
-        delay 0.1\n\
-        go to page " + str(dataFromUser[0]) + "\n\
-        end tell\n\
-end tell'"
-
-        return scriptFile
 
     def _createTexForTheProcessedImage():
-        currsubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        currsubsection = fsm.Wr.SectionCurrent.readCurrSection()
 
-        extraImagePath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
+        extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs(),
                                     dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-        with open(t.Wr.TexFile._getCurrContentFilepath(), 'a') as f:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), 'a') as f:
             add_page = "\n\n\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
     % TEXT BEFORE MAIN IMAGE\n\
@@ -348,7 +297,7 @@ end tell'"
         if wv.UItkVariables.createTOCVar.get():
             if wv.UItkVariables.TOCWithImageVar.get():
                 # TOC ADD ENTRY WITH IMAGE
-                with open(t.Wr.TexFile._getCurrTOCFilepath(), 'a') as f:
+                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'a') as f:
                     toc_add_image = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -359,7 +308,7 @@ end tell'"
                     f.write(toc_add_image)
             else:  
                 # TOC ADD ENTRY WITHOUT IMAGE
-                with open(t.Wr.TexFile._getCurrTOCFilepath(), 'a') as f:
+                with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'a') as f:
                     toc_add_text = "\
 % THIS IS CONTENT id: " + dataFromUser[0] + " \n\
 \\mybox{\n\
@@ -369,41 +318,48 @@ end tell'"
             
 
         #create a script to run on page change
-        imagePath = os.path.join(_u.DIR.Screenshot.getCurrentAbs(),
+        imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs(),
                                 dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
-        scriptPath = os.path.join(_u.DIR.Scripts.Links.Local.getAbsPath(),
+        scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs(),
                                 dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
-        _u.CurrState.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
+        fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
         
         # POPULATE THE MAIN FILE
         t.Wr.TexFile._populateMainFile()
         
         
         # take a screenshot
+        imIDX = dataFromUser[0]
+        contentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs()
+        tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs()
+        pdfName = fsm.Wr.SectionCurrent.getSectionPdfName()
         if os.path.isfile(imagePath + ".png"):
             def takeScreencapture(iPath, sPath):
                 os.system("screencapture -ix " + iPath + ".png")
                 wv.UItkVariables.needRebuild.set(True)
                 #create a sript associated with image
                 with open(sPath + ".sh", "w+") as f:
-                    for l in _createImageScript():
-                        f.write(l)
+                    for line in fsm.Wr.Links.LinkDict.createLinkScript(imIDX, contentFilepath, tocFilepath, pdfName):
+                        f.write(line)
                 os.system("chmod +x " + sPath + ".sh")
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
                 wv.UItkVariables.buttonText.set("imNum")
             
-            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", takeScreencapture, imagePath, scriptPath)
+            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
+                                            takeScreencapture, 
+                                            imagePath, 
+                                            scriptPath)
         else:
             os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
             with open(scriptPath + ".sh", "w+") as f:
-                for l in _createImageScript():
-                    f.write(l)
+                for line in fsm.Wr.Links.LinkDict.createLinkScript(imIDX, contentFilepath, tocFilepath, pdfName):
+                    f.write(line)
             os.system("chmod +x " + scriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
@@ -432,33 +388,34 @@ end tell'"
 def getTargetImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
     frame = tk.Frame(mainWinRoot, name = prefixName + "_target_SecImIDX" + "_OM")
     if secPath != "":
-        currChImageLinks = _u.getCurrImLinksSorted(secPath)
+        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(secPath)
         wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
     else:
-        currChImageLinks = _u.notDefinedListToken
-        wv.UItkVariables.glLinkTargetImLink.set(_u.notDefinedToken)
+        currChImageLinks = _u.Token.NotDef.list_t
+        wv.UItkVariables.glLinkTargetImLink.set(_u.Token.NotDef.str_t)
     
     imIDX_OM = tk.OptionMenu(frame,
                     wv.UItkVariables.glLinkTargetImLink,
-                    *currChImageLinks
-                    )
+                    *currChImageLinks)
     imIDX_OM.grid(row=0, column=0)
+    
     return frame
 
 def getSourceImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
     frame = tk.Frame(mainWinRoot, name = prefixName + "_source_SecImIDX" + "_OM")
     if secPath != "":
-        currChImageLinks = _u.getCurrImLinksSorted(secPath)
+        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(secPath)
         wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
     else:
-        currChImageLinks = _u.notDefinedListToken
-        wv.UItkVariables.glLinkSourceImLink.set(_u.notDefinedToken)
+        currChImageLinks = _u.Token.NotDef.list_t
+        wv.UItkVariables.glLinkSourceImLink.set(_u.Token.NotDef.str_t)
     
     imIDX_OM = tk.OptionMenu(frame,
                     wv.UItkVariables.glLinkSourceImLink,
                     *currChImageLinks
                     )
     imIDX_OM.grid(row=0, column=0)
+    
     return frame
 
 class StartupMenu:
@@ -536,7 +493,7 @@ class LayoutsMenus:
             # update the image links om
             def updateImLinksOM(secPath):
                 if secPath != "":
-                    currChImageLinks = _u.getCurrImLinksSorted(secPath)
+                    currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(secPath)
                     wu.updateOptionMenuOptionsList(winMainRoot, 
                                                 "target_SecImIDX", 
                                                 currChImageLinks,
@@ -544,12 +501,13 @@ class LayoutsMenus:
                                                 lambda *argv: None)
                     wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
             
-            createGlLinkETR.bind('<Return>',lambda e: updateImLinksOM(wv.UItkVariables.glLinktargetSections.get()))
+            createGlLinkETR.bind('<Return>',
+                                lambda e: updateImLinksOM(wv.UItkVariables.glLinktargetSections.get()))
             
             targetImageLinksOM = getTargetImageLinks_OM(winMainRoot, cls.classPrefix)
             targetImageLinksOM.grid(column=5, row=2, padx=0, pady=0)
 
-            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            currSection = fsm.Wr.SectionCurrent.readCurrSection()
             sourceImageLinksOM = getSourceImageLinks_OM(winMainRoot, cls.classPrefix, currSection)
             sourceImageLinksOM.grid(column=4, row=2, padx=0, pady=0)
 
@@ -592,7 +550,8 @@ class LayoutsMenus:
             #
             # screenshot:
             #
-            currScrShotDirText = wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.classPrefix)
+            currScrShotDirText = \
+                wu.Screenshot.getText_CurrentScreenshotDirWidget(winMainRoot, cls.classPrefix)
             currScrShotDirText.grid(columnspan = 3,row = 2, column = 1)
 
             #
@@ -639,8 +598,8 @@ class LayoutsMenus:
                                             cl.pyAppDimensions[1])
                         
                         if "section" in cl.__name__.lower():
-                            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-                            currChImageLinks = _u.getCurrImLinksSorted(currSection)
+                            currSection = fsm.Wr.SectionCurrent.readCurrSection()
+                            currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(currSection)
                             wu.updateOptionMenuOptionsList(mainWinRoot, 
                                                         "source_SecImIDX", 
                                                         currChImageLinks,
@@ -654,7 +613,8 @@ class LayoutsMenus:
             layout_name_vatying = tk.StringVar()
             layout_name_vatying.set(listOfLayouts[0])
 
-            frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_layouts_optionMenu", background="Blue")        
+            frame = tk.Frame(mainWinRoot, 
+                            name = namePrefix.lower() + "_layouts_optionMenu", background="Blue")        
             layouts_optionMenu = tk.OptionMenu(frame, 
                                         layout_name_vatying, 
                                         *listOfLayouts, 
@@ -681,10 +641,10 @@ class ChooseMaterial:
                 fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
             )
             wv.UItkVariables.subsection.set(
-                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+                fsm.Wr.SectionCurrent.readCurrSection()
             )
             wv.UItkVariables.imageGenerationEntryText.set(
-                _u.ImIDX.get(wv.UItkVariables.subsection.get())
+                fsm.Wr.Links.ImIDX.get(wv.UItkVariables.subsection.get())
             )
 
         default_book_name="Select a a book"
@@ -698,9 +658,13 @@ class ChooseMaterial:
         # Create the list of books we have
         listOfBooksNames = _u.getListOfBooks()
 
-        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseBook_optionMenu", background="Blue")
-        book_menu = tk.OptionMenu(frame, book_name, 
-                                *listOfBooksNames, command= lambda x: bookMenuChooseCallback(book_name))
+        frame = tk.Frame(mainWinRoot, 
+                        name = namePrefix.lower() + "_chooseBook_optionMenu",
+                        background="Blue")
+        book_menu = tk.OptionMenu(frame, 
+                                book_name, 
+                                *listOfBooksNames, 
+                                command= lambda x: bookMenuChooseCallback(book_name))
         book_menu.grid(row=0, column = 0)
         
         return frame
@@ -710,7 +674,8 @@ class ChooseMaterial:
         log.autolog("switching to top section: " + wv.UItkVariables.topSection.get())
 
         # update top section
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , wv.UItkVariables.topSection.get())
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , 
+                                                wv.UItkVariables.topSection.get())
         
         # update subsection
         sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
@@ -718,7 +683,7 @@ class ChooseMaterial:
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, prevSubsectionPath)
 
         # update image index
-        secionImIndex = _u.ImIDX.get(prevSubsectionPath)
+        secionImIndex = fsm.Wr.Links.ImIDX.get(prevSubsectionPath)
         wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
         
 
@@ -741,7 +706,7 @@ class ChooseMaterial:
         wu.Screenshot.setValueScreenshotLoaction()
 
         # update image index widget
-        wv.UItkVariables.imageGenerationEntryText.set(_u.ImIDX.get(wv.UItkVariables.subsection.get()))
+        wv.UItkVariables.imageGenerationEntryText.set(fsm.Wr.Links.ImIDX.get(wv.UItkVariables.subsection.get()))
 
         # update Layout widget
         widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
@@ -759,7 +724,9 @@ class ChooseMaterial:
         topSectionsList = fsm.getTopSectionsList()
         topSectionsList.sort(key = int)
 
-        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSection_optionMenu", background = "Blue")
+        frame = tk.Frame(mainWinRoot, 
+                        name = namePrefix.lower() + "_chooseSection_optionMenu", 
+                        background = "Blue")
         
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
@@ -786,7 +753,7 @@ class ChooseMaterial:
         
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection.get())
         
-        wv.UItkVariables.imageGenerationEntryText.set(_u.ImIDX.get(subsection.get()))
+        wv.UItkVariables.imageGenerationEntryText.set(fsm.Wr.Links.ImIDX.get(subsection.get()))
 
         wu.Screenshot.setValueScreenshotLoaction()
         
@@ -799,12 +766,14 @@ class ChooseMaterial:
     @classmethod
     def getOptionMenu_ChooseSubsection(cls, mainWinRoot, namePrefix = ""):
         subsection =wv.UItkVariables.subsection
-        subsection.set(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
+        subsection.set(fsm.Wr.SectionCurrent.readCurrSection())
         
         subsectionsList = wu.getSubsectionsListForCurrTopSection()
 
 
-        frame = tk.Frame(mainWinRoot, name = namePrefix.lower() + "_chooseSubsecion_optionMenu", background="Blue")
+        frame = tk.Frame(mainWinRoot, 
+                        name = namePrefix.lower() + "_chooseSubsecion_optionMenu", 
+                        background="Blue")
         
         if subsectionsList == []:
             subsectionsList = ["No subsec yet."]
@@ -843,12 +812,15 @@ class SectionsUI:
 
     @classmethod
     def setSectionsUI(cls, mainWinRoot):
-        chooseSectionMenus_Btn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, cls.sectionsPrefix)
+        chooseSectionMenus_Btn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, 
+                                                                        cls.sectionsPrefix)
         chooseSectionMenus_Btn.grid(row = 1, column = 2)
-        entry_setSectionName, button_setSectionName = cls.getWidgets_setSectionName(mainWinRoot,  cls.sectionsPrefix)
+        entry_setSectionName, button_setSectionName = cls.getWidgets_setSectionName(mainWinRoot,  
+                                                                                    cls.sectionsPrefix)
         entry_setSectionName.grid(row = 0, column = 0)
         button_setSectionName.grid(row = 0, column = 1)
-        entry_setSectionStartPage, button_setSectionStartPage = cls.getWidgets_setSectionStartPage(mainWinRoot,  cls.sectionsPrefix)
+        entry_setSectionStartPage, button_setSectionStartPage = \
+            cls.getWidgets_setSectionStartPage(mainWinRoot,  cls.sectionsPrefix)
         entry_setSectionStartPage.grid(row = 1, column = 0)
         button_setSectionStartPage.grid(row = 1, column = 1)
 
@@ -989,7 +961,9 @@ class SectionsUI:
             fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID, sections)
 
             fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.name_ID, secName)            
-            fsm.Wr.SectionInfoStructure.updateProperty(secPath, fsm.PropIDs.Sec.startPage_ID, secStartPage)
+            fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
+                                                    fsm.PropIDs.Sec.startPage_ID, 
+                                                    secStartPage)
 
             #
             # update ui

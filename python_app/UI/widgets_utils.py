@@ -19,18 +19,21 @@ class Data:
 class Screenshot:
         
     def getValueScreenshotLocation():
-        relPath =  _u.DIR.Screenshot.getCurrentRel()
+        relPath =  fsm.Wr.Paths.Screenshot.getRel()
         log.autolog(relPath)
         return "dir: " + relPath if relPath != "" else "No direction yet."
 
 
     def setValueScreenshotLoaction():
-        wv.UItkVariables.scrshotPath.set(_u.DIR.Screenshot.getCurrentRel())
+        wv.UItkVariables.scrshotPath.set(fsm.Wr.Paths.Screenshot.getRel())
 
 
     @classmethod
     def getText_CurrentScreenshotDirWidget(cls, mainWinRoot, namePref = ""):
-        canvas= tk.Canvas(mainWinRoot,name = namePref.lower() + "_showCurrScreenshotLocation_text", width=520, height= 25)
+        canvas= tk.Canvas(mainWinRoot,
+                        name = namePref.lower() + "_showCurrScreenshotLocation_text", 
+                        width=520, 
+                        height= 25)
 
         currScrshDir = wv.UItkVariables.scrshotPath
 

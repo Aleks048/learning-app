@@ -37,7 +37,7 @@ def openPdfInSkim(pathToSectionFolder):
 
 def movePdfToPage(filename, page):
     osascript = "osascript -e '\n\
-    tell application \"" + u.Settings.skim_ID + "\"\n\
+    tell application \"" + _u.Settings.skim_ID + "\"\n\
         tell document \"" + filename + "\"\n\
     		go to page " + str(page) + "\n\
         end tell\n\
@@ -85,7 +85,7 @@ def openWholeBook(dimentions, position):
         moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
 
 def moveWholeBookToChapter():
-    currChapter = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+    currChapter = fsm.Wr.SectionCurrent.readCurrSection()
     
     if currChapter == "":
         message = "Could not move the book to page. currChapter is empty."

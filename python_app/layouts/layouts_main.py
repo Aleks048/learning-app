@@ -44,8 +44,8 @@ class SectionLayout(Layout):
         #       vscode to the left
         '''
 
-        pathToSourceFolder = _u.DIR.Section.getCurrentAbs()
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        pathToSourceFolder = fsm.Wr.Paths.Section.getAbs_curr()
+        currSection = fsm.Wr.SectionCurrent.readCurrSection()
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         
         # check if the folder is empty.      
@@ -64,17 +64,19 @@ class SectionLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # set menu dimensions
-        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
+                            + "+" + str(int(mon_halfWidth)) + "+0")
        
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
             # if the pdf was not opened in Skim already   
-            pathToSectionFolder = os.path.join(_u.DIR.Section.getCurrentAbs(), 
+            pathToSectionFolder = os.path.join(fsm.Wr.Paths.Section.getAbs_curr(), 
                                                 secPrefix + "_" + currSection + "_main.myPDF")
             _waitDummy = lu.openPdfInSkim(pathToSectionFolder)
             # sleep(0.5)
-            ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
+            ownerName, windowID = \
+                _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
         
 
         lu.moveApplicationsWindow(ownerName, 
@@ -116,7 +118,7 @@ class MainLayout(Layout):
         #close the chapter vscode if it open
         _, windowID = _u.getOwnersName_windowID_ofApp(
                             "vscode",
-                             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID))
+                             fsm.Wr.SectionCurrent.readCurrSection())
         
         if (windowID != None):
             osascript = "osascript -e '\
@@ -133,17 +135,18 @@ class MainLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # change the manu size
-        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) + "+" + str(int(mon_halfWidth)) + "+0")
+        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) 
+                        + "+" + str(int(mon_halfWidth)) + "+0")
 
         lu.openWholeBook([mon_halfWidth, mon_height * 2],[0, 0])
 
         # currChapter images folder
-        currSectionWPrefix = _u.CurrState.getSectionNameWprefix()
+        currSectionWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            currScreenshotDir = _u.DIR.Screenshot.getCurrentAbs()
+            currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs()
             _waitDummy = lu.openChapterFolderInFinder(currScreenshotDir)
             # TODO: this needs to change
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", "images")

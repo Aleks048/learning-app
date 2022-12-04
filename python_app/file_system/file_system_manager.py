@@ -3,7 +3,12 @@ from unicodedata import name
 
 import _utils._utils_main as _u
 import _utils.logging as log
-import file_system.file_system_main as fs
+import file_system.origmaterial_fs as omfs
+import file_system.section_fs as sfs
+import file_system.toc_fs as tocfs
+import file_system.book_fs as bfs
+import file_system.paths as paths
+import file_system.links as l
 
 '''
 Facade for Filesystem
@@ -13,27 +18,53 @@ class Data:
     pass
 
 class Wr:
-    class BookInfoStructure(fs.BookInfoStructure):
+    class BookInfoStructure(bfs.BookInfoStructure):
         pass
 
-    class SectionInfoStructure(fs.SectionInfoStructure):
+    class SectionInfoStructure(sfs.SectionInfoStructure):
+        pass
+    
+    class SectionCurrent(sfs.SectionCurrent):
         pass
 
-    class TOCStructure(fs.TOCStructure):
+    class TOCStructure(tocfs.TOCStructure):
         pass
 
-    class OriginalMaterialStructure(fs.OriginalMaterialStructure):
+    class OriginalMaterialStructure(omfs.OriginalMaterialStructure):
         pass
+
+    class Paths:
+        class Screenshot(paths.Paths.Screenshot):
+            pass
+            
+        class Scripts(paths.Paths.Scripts):
+            pass
+
+        class Section(paths.Paths.Section):
+            pass
+
+        class TexFiles(paths.Paths.TexFiles):
+            pass
+    
+    class Links:
+        class LinkDict(l.LinkDict):
+            pass
+
+        class ImIDX(l.ImIDX):
+            pass
+
+        class ImLink(l.ImLink):
+            pass
 
 
 class PropIDs:
-    class Sec(fs.SectionInfoStructure.PubProp):
+    class Sec(sfs.SectionInfoStructure.PubProp):
         pass
 
-    class Book(fs.BookInfoStructure.PubProp):
+    class Book(bfs.BookInfoStructure.PubProp):
         pass
 
-    class TOC(fs.TOCStructure.PubPro):
+    class TOC(tocfs.TOCStructure.PubPro):
         pass
 
 
@@ -58,61 +89,60 @@ def createNewBook(bookName):
     #
     #create bookInfo structure
     #
-    fs.BookInfoStructure.createStructure()
+    bfs.BookInfoStructure.createStructure()
 
     #create sections structure
-    fs.SectionInfoStructure.createStructure()
+    sfs.SectionInfoStructure.createStructure()
 
     #create TOCstructure
-    fs.TOCStructure.createStructure()
+    tocfs.TOCStructure.createStructure()
 
     # create originalMaterialStructure
-    fs.OriginalMaterialStructure.createStructure()
+    omfs.OriginalMaterialStructure.createStructure()
 
 def addSectionForCurrBook(sectionPath):
     # add to Sections structure
-    fs.SectionInfoStructure.addSection(sectionPath)
+    sfs.SectionInfoStructure.addSection(sectionPath)
     
     # add to BookInfo structure
-    fs.BookInfoStructure.addSection(sectionPath)
+    bfs.BookInfoStructure.addSection(sectionPath)
 
     # add to TOC structure
-    fs.TOCStructure.addSection(sectionPath)
+    tocfs.TOCStructure.addSection(sectionPath)
 
 def _updateSectionProperty(sectionPath, propertyName, newValue):
     # thange the TOC
-    fs.TOCStructure.updateTOCfiles(sectionPath, propertyName, newValue)
+    tocfs.TOCStructure.updateTOCfiles(sectionPath, propertyName, newValue)
     
     # change the section.json
-    sectionJSONPath = fs.BookInfoStructure.readProperty(sectionPath)["path"]
-    fullPropertyName =fs.TOCStructure.PubPro.getPropertyFormPath(sectionPath, propertyName)
+    sectionJSONPath = bfs.BookInfoStructure.readProperty(sectionPath)["path"]
+    fullPropertyName =tocfs.TOCStructure.PubPro.getPropertyFormPath(sectionPath, propertyName)
     _u.JSON.updateProperty(sectionJSONPath, fullPropertyName, newValue)
 
 def updateSectionStartPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.PubPro.start_ID, newValue)
+    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.start_ID, newValue)
 
 def updateSectionFinishPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.PubPro.finish_ID, newValue)
+    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.finish_ID, newValue)
 
 def updateSectionTOCText(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, fs.TOCStructure.PubPro.text_ID, newValue)
+    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.text_ID, newValue)
 
 def updateSectionProperty(sectionPath, propertyName, newValue):
-    print("propertyName")
-    print(propertyName)
-    fs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
+    log.autolog(propertyName)
+    sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
 
 def getSubsectionsList(sectionPath = ""):
-    sections_ID = fs.BookInfoStructure.PubProp.sections_ID
+    sections_ID = bfs.BookInfoStructure.PubProp.sections_ID
     outSubsectionsList = []
     
-    if sectionPath == _u.notDefinedToken:
+    if sectionPath == _u.Token.NotDef.str_t:
         return []
 
     if sectionPath == "":
-        subsections = fs.BookInfoStructure.readProperty(sections_ID)
+        subsections = bfs.BookInfoStructure.readProperty(sections_ID)
     else:
-        subsections = fs.BookInfoStructure.readProperty(sectionPath)[sections_ID]
+        subsections = bfs.BookInfoStructure.readProperty(sectionPath)[sections_ID]
 
     subsectionsNamesList = list(subsections.keys())
     subsectionsList = list(subsections.values())
@@ -135,7 +165,7 @@ def getSubsectionsList(sectionPath = ""):
     return outSubsectionsList
     
 def getTopSectionsList():
-    sections = fs.BookInfoStructure.readProperty(fs.BookInfoStructure.PubProp.sections_ID)
+    sections = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_ID)
 
     return list(sections.keys())
 

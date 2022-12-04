@@ -8,32 +8,12 @@ import _utils.logging as log
 
 
 class TexFile:
-    sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID) + "_"
-
-    @classmethod
-    def _getCurrContentFilepath(cls):
-        currSubsection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSubsection + "_con.tex")
-    
-
-    @classmethod
-    def _getCurrTOCFilepath(cls):
-        currSusection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSusection + "_toc.tex")
-    
-
-    @classmethod      
-    def _getCurrMainFilepath(cls):
-        currSussection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return os.path.join(_u.DIR.Section.getCurrentAbs(), cls.sectionPrefix + currSussection + "_main.tex")
-
-
     def _populateMainFile():
         contentFile = []
         tocFile = []
 
         localLinksLine = ""
-        with open(TexFile._getCurrContentFilepath(), 'r') as contentF:
+        with open(fsm.Wr.Paths.TexFiles.Content.getAbs(), 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
             
@@ -56,11 +36,11 @@ class TexFile:
                     sectionName = imagesPath[-3]
                     scriptPath = imagesPath[:-2]
                     scriptPath = os.path.join("/",
-                                        *scriptPath,
-                                        sectionName + "_" + _u.DIR.Scripts.sctiptsFolder, 
-                                        _u.DIR.Scripts.Links.linksFolder, 
-                                        _u.DIR.Scripts.Links.Local.localFolder, 
-                                        scriptName + ".sh")
+                                            *scriptPath,
+                                            sectionName + "_" + fsm.Wr.Paths.Scripts.sctiptsFolder, 
+                                            fsm.Wr.Paths.Scripts.Links.linksFolder, 
+                                            fsm.Wr.Paths.Scripts.Links.Local.localFolder, 
+                                            scriptName + ".sh")
                     
                     localLinksLine = "        \\href{file:" + scriptPath + "}{" + imLinkName + "},\n"
                     listOfLocalLinks.append(localLinksLine)
@@ -68,25 +48,26 @@ class TexFile:
 
             localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
-        with open(TexFile._getCurrTOCFilepath(), 'r') as tocF:
+        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs(), 'r') as tocF:
             tocFile = tocF.readlines()
                 
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()
-            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+            currSection = fsm.Wr.SectionCurrent.readCurrSection()
             currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", currSection) for i in templateFile]
             topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(currTopSection)
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
-        with open(TexFile._getCurrMainFilepath(), 'w') as outFile:
+        with open(fsm.Wr.Paths.TexFiles.Main.getAbs(), 'w') as outFile:
 
             outFileList = []
             # get the marker of the part BEFORE_LOCAL_LINKS_MARKER
             # 
             # replace everything before marker from template 
             beforeLocalLinksMarker = "BEFORE_LOCAL_LINKS_MARKER"
-            beforeLocalLinksmarkerPosTemplate = next(i for i,v in enumerate(templateFile) if beforeLocalLinksMarker in v)
+            beforeLocalLinksmarkerPosTemplate = \
+                next(i for i,v in enumerate(templateFile) if beforeLocalLinksMarker in v)
             outFileList = templateFile[:beforeLocalLinksmarkerPosTemplate + 1]
 
             # add local links
@@ -94,7 +75,8 @@ class TexFile:
             
             # add TOC from template
             beforeTOCmarker = "BEFORE_TOC_MARKER"
-            beforeTOCmarkerPosTemplate = next(i for i,v in enumerate(templateFile) if beforeTOCmarker in v)
+            beforeTOCmarkerPosTemplate = \
+                next(i for i,v in enumerate(templateFile) if beforeTOCmarker in v)
             outFileList.extend(templateFile[beforeLocalLinksmarkerPosTemplate + 1:beforeTOCmarkerPosTemplate + 1])          
 
             # add TOC data
@@ -130,10 +112,10 @@ class TexFile:
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
-        currTexFilesFolder = _u.DIR.Section.getCurrentAbs()
-        currTexMainFile = cls._getCurrContentFilepath()
+        currTexFilesFolder = fsm.Wr.Paths.Section.getAbs()
+        currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs()
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+        currSection = fsm.Wr.SectionCurrent.readCurrSection()
         log.autolog("build: " + currTexMainFile)
         
         # NOTE: we add "_con.tex" to comply with what is called when the file is saved

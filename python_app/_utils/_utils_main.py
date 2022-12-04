@@ -3,40 +3,18 @@ from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
 
-import file_system.file_system_manager as fsm
 import _utils.logging as log
 
-def getCurrSectionMoveNumber():
-    '''
-    this one is used by the image scripts to get the 
-    '''
-    currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-    
-    #check if section infostructure has file move numbers defined
-    contentFileMoveNumber = fsm.Wr.SectionInfoStructure.readProperty(currSection, fsm.PropIDs.Sec.imageContentFileMoveLinesNumber_ID)
-    tocFileMoveNumber = fsm.Wr.SectionInfoStructure.readProperty(currSection, fsm.PropIDs.Sec.imageTOCFileMoveLinesNumber_ID)
+class Token:
+    class NotDef:
+        str_t = "-1"
+        list_t = [str_t]
+        dict_t = {str_t: str_t}
 
-    if contentFileMoveNumber != notDefinedToken and tocFileMoveNumber != notDefinedToken:
-        log.autolog("Got move numbers from section. Content: " + str(contentFileMoveNumber) + ". TOC: " + str(tocFileMoveNumber))
-        
-        #print to get values in sh script
-        print(str(contentFileMoveNumber) + " "+ str(tocFileMoveNumber))
-        return contentFileMoveNumber, tocFileMoveNumber
-    
-    #get the move numbers from bookinfostructure
-    contentFileMoveNumber = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.imageContentFileMoveLinesNumber_ID)
-    tocFileMoveNumber = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.imageTOCFileMoveLinesNumber_ID)
-    
-    log.autolog("Got move numbers from book. Content: " + str(contentFileMoveNumber) + ". TOC: " + str(tocFileMoveNumber))
-    
-    #print to get values in sh script
-    print(str(contentFileMoveNumber) + " " + str(tocFileMoveNumber))
-    return contentFileMoveNumber, tocFileMoveNumber
 
 def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     if not os.path.exists(filepath):
-        print("replaceMarkerInFile - filepath does not exist.")
-        print("filepath: " + filepath)
+        log("filepath does not exist. \nfilepath: " + filepath)
         return None
     with open(filepath, "r") as f:
         fLines = f.readlines()
@@ -48,92 +26,88 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     with open(filepath, "w") as f:
         f.writelines(fLines)
 
+
 def getMonitorSize():
     for m in get_monitors():
        return(m.width,m.height)
 
-notDefinedToken = "-1"
-notDefinedListToken = [notDefinedToken]
-notDefinedDictToken = {notDefinedToken: notDefinedToken}
 
-'''
-DIR
-'''
-class DIR:
-    class Section:
-        sectionFolderName = "subsections"
+def readFile(fp):
+    '''
+    read the fp to lines list
+    '''
+    #!!!!!NOTE: the relationship with the env var needs to change
 
-        @classmethod
-        def getCurrentAbs(cls):
-            relFilepath = cls.getCurrentRel()
-            bookPath = Settings.readProperty(Settings.PubProp.currBookPath_ID)
-            return os.path.join(bookPath, relFilepath)
+    with open(fp, "r") as file:
+        # read the temptate file
+        lines = file.readlines()
+        lines = [line.rstrip() for line in lines]
+        return lines
 
-        @classmethod
-        def getCurrentRel(cls):
-            currSec = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            if currSec == notDefinedToken:              
-                return ""
-            
-            sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-            sectionsPathSeparator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
 
-            pathList = currSec.split(sectionsPathSeparator)
-            pathList[0] = sectionPrefix + "_" + pathList[0]
-            
-            for i in range(len(pathList) - 1, 0, -1):
-                pathList[i] = ".".join(pathList[:i + 1])
-            sectionFullPath = pathList
-            sectionFullPath = os.path.join(cls.sectionFolderName, *sectionFullPath)
-            return sectionFullPath
+def readPyArgs():
+    '''
+    read the arguments proveded to the python script to a readToList
+    '''
+    readToList = []
+    for i in range(1, len(sys.argv)):
+        readToList.append(sys.argv[i])
+    return readToList
 
-    class Screenshot:
-        @classmethod
-        def getCurrentRel(cls):
-            currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-            if currSection == notDefinedToken:
-                return "Screenshot location not defined yet."
-            else:
-                return  os.path.join(DIR.Section.getCurrentRel(),CurrState.getSectionNameWprefix() + "_images")
 
-        @classmethod
-        def getCurrentAbs(cls):
-            return  os.path.join(DIR.Section.getCurrentAbs(), CurrState.getSectionNameWprefix() + "_images")
+def filePathToParentDir(fp):
+    '''
+    returns path to the parrent directory from the fp
+    '''
+    return os.path.join(*fp.split("/")[:-1])
 
-    class Scripts:
-        sctiptsFolder = "Scripts"
-        
-        class Links:
-            linksFolder = "Links"
-            
-            class Local:
-                localFolder = "Local"
+
+def getPathToBooks():
+    return os.getenv("BOOKS_ROOT_PATH")
+
+
+def getListOfBooks():
+    booksPathsDict = Settings.readProperty(Settings.PubProp.booksPaths_ID)
+    return booksPathsDict.keys()
+
+
+def getAllRunningApps():
+    #get all the running applications
+    workspace = NSWorkspace.sharedWorkspace()
+    activeApps = workspace.runningApplications()
+    return activeApps
+
+
+def getWindowsFromApp(app):
+    # if app.isActive():
+    options = Quartz.kCGWindowListOptionOnScreenOnly
+    return Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
+
+
+def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
+    activeApps = getAllRunningApps()
     
-                def getAbsPath():
-                    return  os.path.join(DIR.Section.getCurrentAbs(), 
-                                        CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder, 
-                                        DIR.Scripts.Links.linksFolder,
-                                        DIR.Scripts.Links.Local.localFolder
-                                        )
-            
-            class Global:
-                globalFolder = "Global"
-               
-                def getAbsPath():
-                    return  os.path.join(DIR.Section.getCurrentAbs(), 
-                                        CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder, 
-                                        DIR.Scripts.Links.linksFolder,
-                                        DIR.Scripts.Links.Global.globalFolder
-                                        )
-        
-        class Utils:
-            utilsFolder = "Utils"
-            
-            def getAbsPath():
-                return  os.path.join(DIR.Section.getCurrentAbs(), 
-                                    CurrState.getSectionNameWprefix() + "_" + DIR.Scripts.sctiptsFolder,
-                                    DIR.Scripts.Utils.utilsFolder
-                                    )
+    app = [i for i in activeApps if appName in str(i).lower()][0]
+    if app == None :
+        print ("getOwnersName_windowID_ofApp - the app was not found")
+        return None, None
+    
+    windowList = getWindowsFromApp(app)
+    windowIndex = 1
+    
+    for window in windowList:
+        if window["kCGWindowOwnerName"] == app.localizedName():
+            if windowIdentifier in window["kCGWindowName"]:
+                ownerName = str(window["kCGWindowOwnerName"])
+                windowID = str(windowIndex)
+
+                return ownerName, windowID
+            windowIndex += 1
+    
+    log("getOwnersName_windowID_ofApp - window was not found")
+    return None, None
+
+
 
 '''
 JSON
@@ -231,171 +205,6 @@ class DICT:
                     DICT.updateProperty(v, propertyName, newValue)
 
 
-def readFile(fp):
-    '''
-    read the fp to lines list
-    '''
-    #!!!!!NOTE: the relationship with the env var needs to change
-
-    with open(fp, "r") as file:
-        # read the temptate file
-        lines = file.readlines()
-        lines = [line.rstrip() for line in lines]
-        return lines
-
-def readPyArgs():
-    '''
-    read the arguments proveded to the python script to a readToList
-    '''
-    readToList = []
-    for i in range(1, len(sys.argv)):
-        readToList.append(sys.argv[i])
-    return readToList
-
-
-def filePathToParentDir(fp):
-    '''
-    returns path to the parrent directory from the fp
-    '''
-    return os.path.join(*fp.split("/")[:-1])
-
-
-def getPathToBooks():
-    return os.getenv("BOOKS_ROOT_PATH")
-
-
-def getListOfBooks():
-    booksPathsDict = Settings.readProperty(Settings.PubProp.booksPaths_ID)
-    return booksPathsDict.keys()
-
-
-def getAllRunningApps():
-    #get all the running applications
-    workspace = NSWorkspace.sharedWorkspace()
-    activeApps = workspace.runningApplications()
-    return activeApps
-
-
-def getWindowsFromApp(app):
-    # if app.isActive():
-    options = Quartz.kCGWindowListOptionOnScreenOnly
-    return Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
-
-
-def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
-    activeApps = getAllRunningApps()
-    
-    app = [i for i in activeApps if appName in str(i).lower()][0]
-    if app == None :
-        print ("getOwnersName_windowID_ofApp - the app was not found")
-        return None, None
-    
-    windowList = getWindowsFromApp(app)
-    windowIndex = 1
-    
-    for window in windowList:
-        if window["kCGWindowOwnerName"] == app.localizedName():
-            if windowIdentifier in window["kCGWindowName"]:
-                ownerName = str(window["kCGWindowOwnerName"])
-                windowID = str(windowIndex)
-
-                return ownerName, windowID
-            windowIndex += 1
-    
-    print("getOwnersName_windowID_ofApp - window was not found")
-    return None, None
-
-
-
-
-class CurrState:
-    def getpageOfDoc():
-
-        activeApps = getAllRunningApps()
-        
-        app = [i for i in activeApps if Settings.skim_ID in str(i).lower()][0]
-        if app == None :
-            log.autolog("skim was not found")
-            return -1
-        
-        windowList = getWindowsFromApp(app)
-        currChapter = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        
-        for window in windowList:
-            if window["kCGWindowOwnerName"] == app.localizedName():
-                if currChapter + "_main.myPDF" in window["kCGWindowName"]:
-                    windowName = str(window["kCGWindowName"])
-                    pageNum = windowName.split("page ")[1]
-                    pageNum = pageNum.split(" ")[0]
-                    return pageNum
-    
-    @classmethod
-    def getSectionPdfName(cls):
-        return cls.getSectionNameWprefix() + "_" + "main.myPDF"
-
-    @classmethod
-    def getSectionNameWprefix(cls):
-        sectionPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        currSection = cls.getSectionNameNoPrefix()
-        return sectionPrefix + "_" + currSection
-    
-    def getSectionNameNoPrefix():
-        currSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return currSection
-
-
-    def getImIDX():
-        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return ImIDX.get(currSectionPath)
-    
-    def getCurrLinkIdxDict():
-        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        return LinkDict.get(currSectionPath)
-    
-    def setImLinkAndIDX(linkName, imIDX):
-        currSectionPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
-        LinkDict.set(currSectionPath, linkName, imIDX)
-
-
-class ImIDX:
-    def get(secPath):
-        d = LinkDict.get(secPath)
-        return list(d.values())[-1]
-
-
-class ImLink:
-    #NOTE: not used now
-    def get(secPath, newValue):
-        d = LinkDict.get(secPath)
-        return list(d.keys())[-1]
-
- 
-class LinkDict:
-    def get(sectionPath):
-        if sectionPath == notDefinedToken:
-            return {notDefinedToken: notDefinedToken}
-        else:
-            return fsm.Wr.SectionInfoStructure.readProperty(sectionPath, fsm.PropIDs.Sec.imLinkDict_ID)
-
-    @classmethod
-    def set(cls, sectionPath, linkName, imIDX):
-        d = cls.get(sectionPath)
-        # check if the dict is notDefined
-        if d == notDefinedDictToken:
-            d = {}
-        d[linkName] = imIDX
-        fsm.Wr.SectionInfoStructure.updateProperty(sectionPath, fsm.PropIDs.Sec.imLinkDict_ID, d)
-
-
-def getCurrImLinksSorted(secPath):
-    currChImageLinksDict = LinkDict.get(secPath)
-    if currChImageLinksDict != notDefinedDictToken:
-        currChImageIDX = list(currChImageLinksDict.values())
-        currChImageIDX.sort(key = int)
-        return [list(currChImageLinksDict.keys())[list(currChImageLinksDict.values()).index(i)] for i in currChImageIDX]
-    else:
-        return notDefinedListToken
-
 '''
 working with Settings
 '''
@@ -453,14 +262,6 @@ class Settings:
         def setCurrentBook(bookName, bookPath):
             Settings.updateProperty(Settings.PubProp.currBookPath_ID, bookPath)
             Settings.updateProperty(Settings.PubProp.currBookName_ID, bookName)
-        
-        @classmethod
-        def getWholeBookPath(cls):
-            path = os.path.join(Settings.readProperty(Settings.PubProp.currBookPath_ID),
-                            fsm.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath,
-                            Settings.PubProp.wholeBook_ID + ".pdf")
-            print(path)
-            return path
 
         def getCurrBookFolderPath():
             return Settings.readProperty(Settings.PubProp.currBookPath_ID)
