@@ -5,7 +5,7 @@ import file_system.book_fs as bfs
 import file_system.toc_fs as tocfs
 import file_system._utils as _ufs
 import file_system.links as l
-import file_system.paths as paths
+import file_system.paths as p
 import _utils._utils_main as _u
 import _utils.logging as log
 
@@ -99,7 +99,7 @@ class SectionInfoStructure:
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
-        dirPathToSection = paths.Paths.Section.getAbs()
+        dirPathToSection = p.Paths.Section.getAbs_curr()
 
         if not os.path.exists(dirPathToSection):
             msg = "The sections structure was not present will create it.\n" + \
@@ -109,10 +109,10 @@ class SectionInfoStructure:
             # create folders
             sectionFolderName = dirPathToSection.split("/")[-1]
             _waitDummy = os.makedirs(dirPathToSection)
-            _waitDummy = os.makedirs(paths.Paths.Screenshot.getAbs())
-            _waitDummy = os.makedirs(paths.Paths.Scripts.Links.Local.getAbs())
-            _waitDummy = os.makedirs(paths.Paths.Scripts.Links.Global.getAbs())
-            _waitDummy = os.makedirs(paths.Paths.Scripts.Utils.getAbs())
+            _waitDummy = os.makedirs(p.Paths.Screenshot.getAbs_curr())
+            _waitDummy = os.makedirs(p.Paths.Scripts.Links.Local.getAbs_curr())
+            _waitDummy = os.makedirs(p.Paths.Scripts.Links.Global.getAbs_curr())
+            _waitDummy = os.makedirs(p.Paths.Scripts.Utils.getAbs_curr())
             
             # create files
             _waitDummy = \
@@ -123,8 +123,8 @@ class SectionInfoStructure:
         # create the json file file, _out folder, main.tex
         relSectionPath = ""
         sectionPathList = sectionPath.split(sectionPathSeparator)
-        for i,p in enumerate(sectionPathList):
-            relSectionPath += p if relSectionPath == "" else "." + p
+        for i,path in enumerate(sectionPathList):
+            relSectionPath += path if relSectionPath == "" else "." + path
             
             cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
             

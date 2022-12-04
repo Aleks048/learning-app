@@ -47,7 +47,9 @@ class Paths:
     class Screenshot:
         @classmethod
         def getAbs_curr(cls):
-            return  os.path.join(Paths.Section.getAbs(), 
+            currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+            currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+            return  os.path.join(Paths.Section.getAbs(currBookPath, currSubsection), 
                                 sfs.SectionCurrent.getSectionNameWprefix() + "_images")
 
         @classmethod
@@ -64,8 +66,8 @@ class Paths:
                                     secNameWPrefix + "_images")
 
         @classmethod
-        def getAbs(cls, secNameWPrefix):
-            return  os.path.join(Paths.Section.getAbs(), 
+        def getAbs(cls, bookPath,  secNameWPrefix):
+            return  os.path.join(Paths.Section.getAbs(bookPath, secNameWPrefix), 
                                 secNameWPrefix + "_images")
 
     class Scripts:
@@ -78,10 +80,12 @@ class Paths:
                 localFolder = "Local"
                 @classmethod
                 def getAbs_curr(cls):
-                    return  cls.getAbs(sfs.SectionCurrent.getSectionNameWprefix())
+                    currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currSection = sfs.SectionCurrent.getSectionNameWprefix()
+                    return  cls.getAbs(currBookpath, currSection)
 
-                def getAbs(sectionNameWprefix):
-                    return  os.path.join(Paths.Section.getAbs(), 
+                def getAbs(bookPath, sectionNameWprefix):
+                    return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
                                         sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder, 
                                         Paths.Scripts.Links.linksFolder,
                                         Paths.Scripts.Links.Local.localFolder)
@@ -91,10 +95,12 @@ class Paths:
 
                 @classmethod
                 def getAbs_curr(cls):
-                    return cls.getAbs(sfs.SectionCurrent.getSectionNameWprefix())
+                    currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currSection = sfs.SectionCurrent.getSectionNameWprefix()
+                    return cls.getAbs(currBookpath, currSection)
                 
-                def getAbs(sectionNameWprefix):
-                    return  os.path.join(Paths.Section.getAbs(), 
+                def getAbs(bookPath, sectionNameWprefix):
+                    return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
                                         sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder, 
                                         Paths.Scripts.Links.linksFolder,
                                         Paths.Scripts.Links.Global.globalFolder)
@@ -104,10 +110,12 @@ class Paths:
 
             @classmethod
             def getAbs_curr(cls):
-                return cls.getAbs(sfs.SectionCurrent.getSectionNameWprefix())
+                currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                currSection = sfs.SectionCurrent.getSectionNameWprefix()    
+                return cls.getAbs(currBookpath, currSection)
             
-            def getAbs(sectionNameWprefix):
-                return  os.path.join(Paths.Section.getAbs(), 
+            def getAbs(bookPath, sectionNameWprefix):
+                return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
                                     sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder,
                                     Paths.Scripts.Utils.utilsFolder)
 
@@ -115,30 +123,33 @@ class Paths:
         class Content:
             @classmethod
             def getAbs_curr(cls):
-                currSubsection = sfs.SectionCurrent.readCurrSection()
-                return cls.getAbs(currSubsection)
+                currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                return cls.getAbs(currBookPath, currSubsection)
 
-            def getAbs(secName):
-                return os.path.join(Paths.Section.getAbs(), 
+            def getAbs(bookPath, secName):
+                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
                                     Paths.sectionPrefix + secName + "_con.tex")
         
         class TOC:
             @classmethod
             def getAbs_curr(cls):
-                currSubsection = sfs.SectionCurrent.readCurrSection()
-                return cls.getAbs(currSubsection)
+                currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                return cls.getAbs(currBookPath, currSubsection)
 
-            def getAbs(secName):
-                return os.path.join(Paths.Section.getAbs(), 
+            def getAbs(bookPath, secName):
+                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
                                     Paths.sectionPrefix + secName + "_toc.tex")
         
         class Main:  
             @classmethod   
             def getAbs_curr(cls):
-                currSubsection = sfs.SectionCurrent.readCurrSection()
-                return cls.getAbs(currSubsection)
+                currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                return cls.getAbs(currBookPath, currSubsection)
             
-            def getAbs(secName):
-                return os.path.join(Paths.Section.getAbs(), 
+            def getAbs(bookPath, secName):
+                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
                                     Paths.sectionPrefix + secName + "_main.tex")
 

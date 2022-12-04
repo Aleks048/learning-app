@@ -89,7 +89,7 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     
     app = [i for i in activeApps if appName in str(i).lower()][0]
     if app == None :
-        print ("getOwnersName_windowID_ofApp - the app was not found")
+        log.autolog("getOwnersName_windowID_ofApp - the app was not found")
         return None, None
     
     windowList = getWindowsFromApp(app)
@@ -104,7 +104,7 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
                 return ownerName, windowID
             windowIndex += 1
     
-    log("getOwnersName_windowID_ofApp - window was not found")
+    log.autolog("getOwnersName_windowID_ofApp - window was not found")
     return None, None
 
 
@@ -151,7 +151,7 @@ class JSON:
         def _updateProperty(jsonData, newValue):
             if propertyName in jsonData:
                 if type(newValue) != type(jsonData[propertyName]):
-                    print("\
+                    log.autolog("\
     ERROR: JSON.updateProperty - did not update the json file. \
     Type of new value does not match the type of the property")
                 else:
@@ -190,7 +190,7 @@ class DICT:
     def updateProperty(dictToUpdate, propertyName, newValue):
         if propertyName in dictToUpdate:
             if type(newValue) != type(dictToUpdate[propertyName]):
-                    print("\
+                    log.autolog("\
     ERROR: JSON.updateProperty - did not update the json file. \
     Type of new value does not match the type of the property")
             else:

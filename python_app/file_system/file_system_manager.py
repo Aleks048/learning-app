@@ -7,7 +7,7 @@ import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
 import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
-import file_system.paths as paths
+import file_system.paths as p
 import file_system.links as l
 
 '''
@@ -34,16 +34,16 @@ class Wr:
         pass
 
     class Paths:
-        class Screenshot(paths.Paths.Screenshot):
+        class Screenshot(p.Paths.Screenshot):
             pass
             
-        class Scripts(paths.Paths.Scripts):
+        class Scripts(p.Paths.Scripts):
             pass
 
-        class Section(paths.Paths.Section):
+        class Section(p.Paths.Section):
             pass
 
-        class TexFiles(paths.Paths.TexFiles):
+        class TexFiles(p.Paths.TexFiles):
             pass
     
     class Links:

@@ -56,7 +56,7 @@ class TOCStructure:
             if i == 0:
                 pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
                 _waitDummy = shutil.copy(pathToTemplates + "/TOC_template.tex",
-                                        + cls._getTOCFilePath(topSectionName))
+                                        cls._getTOCFilePath(topSectionName))
             
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
 

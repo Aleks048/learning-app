@@ -146,7 +146,7 @@ class MainLayout(Layout):
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
-            currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs()
+            currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
             _waitDummy = lu.openChapterFolderInFinder(currScreenshotDir)
             # TODO: this needs to change
             ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", "images")

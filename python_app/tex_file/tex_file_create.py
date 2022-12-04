@@ -112,8 +112,8 @@ class TexFile:
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
-        currTexFilesFolder = fsm.Wr.Paths.Section.getAbs()
-        currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs()
+        currTexFilesFolder = fsm.Wr.Paths.Section.getAbs_curr()
+        currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         currSection = fsm.Wr.SectionCurrent.readCurrSection()
         log.autolog("build: " + currTexMainFile)
