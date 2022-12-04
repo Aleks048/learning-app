@@ -60,7 +60,7 @@ class Paths:
             if secNameWPrefix == _u.Token.NotDef.str_t:
                 return "Screenshot location not defined yet."
             else:
-                return  os.path.join(Paths.Section.getRel(),
+                return  os.path.join(Paths.Section.getRel(secNameWPrefix),
                                     secNameWPrefix + "_images")
 
         @classmethod

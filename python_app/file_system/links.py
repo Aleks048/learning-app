@@ -2,6 +2,10 @@ import _utils._utils_main as _u
 import file_system.section_fs as sfs
 
 class ImIDX:
+    @classmethod
+    def get_curr(cls):
+        currSec = sfs.SectionCurrent.readCurrSection()
+        return cls.get(currSec)
     def get(secPath):
         d = LinkDict.get(secPath)
         return list(d.values())[-1]

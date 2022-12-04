@@ -41,7 +41,7 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
 def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     def restartBTNcallback():
         wv.UItkVariables.buttonText.set("imNum")
-        sectionImIndex = fsm.Wr.Links.ImIDX.get()
+        sectionImIndex = fsm.Wr.Links.ImIDX.get_curr()
         wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
     
 
@@ -96,7 +96,7 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
     def addImBTNcallback():
         currentSubsection = fsm.Wr.SectionCurrent.readCurrSection()
-        currImID = fsm.Wr.Links.ImIDX.get()
+        currImID = fsm.Wr.Links.ImIDX.get_curr()
         
         # screenshot
         imName = ""
@@ -236,7 +236,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
 
 def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
-    secImIndex = fsm.Wr.Links.ImIDX.get()
+    secImIndex = fsm.Wr.Links.ImIDX.get_curr()
     if secImIndex == _u.Token.NotDef.str_t:
         wv.UItkVariables.imageGenerationEntryText.set("-1")
     else:

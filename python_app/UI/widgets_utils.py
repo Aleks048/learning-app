@@ -19,13 +19,13 @@ class Data:
 class Screenshot:
         
     def getValueScreenshotLocation():
-        relPath =  fsm.Wr.Paths.Screenshot.getRel()
+        relPath =  fsm.Wr.Paths.Screenshot.getRel_curr()
         log.autolog(relPath)
         return "dir: " + relPath if relPath != "" else "No direction yet."
 
 
     def setValueScreenshotLoaction():
-        wv.UItkVariables.scrshotPath.set(fsm.Wr.Paths.Screenshot.getRel())
+        wv.UItkVariables.scrshotPath.set(fsm.Wr.Paths.Screenshot.getRel_curr())
 
 
     @classmethod
