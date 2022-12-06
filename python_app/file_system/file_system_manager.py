@@ -45,7 +45,11 @@ class Wr:
 
         class TexFiles(p.Paths.TexFiles):
             pass
-    
+        
+        class PDF(p.Paths.PDF):
+            pass
+
+
     class Links:
         class LinkDict(l.LinkDict):
             pass

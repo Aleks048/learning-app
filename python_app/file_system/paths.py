@@ -150,3 +150,10 @@ class Paths:
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), 
                                     secName + "_main.tex")
 
+    class PDF:
+        def getAbs_curr():
+            pass
+
+        def getAbs(bookPath, secNameWprefix):
+            sectionDirPath = Paths.Section.getAbs(bookPath, secNameWprefix)
+            return os.path.join(sectionDirPath, secNameWprefix + "_main.myPDF")

@@ -4,6 +4,7 @@ from AppKit import NSWorkspace
 import Quartz
 
 import _utils.logging as log
+import curr_state.curr_state as cs
 
 class Token:
     class NotDef:
@@ -282,8 +283,10 @@ class Settings:
 
     @classmethod 
     def readProperty(cls, propertyName):
+        # if cs.Data.Settings.data[propertyName] != None:
+        #     return cs.Data.Settings.data[propertyName]
+        # else:
         return JSON.readProperty(cls.getSettingsFileFilepath(), propertyName)
-   
 
     @classmethod
     def updateProperty(cls, propertyName, newValue):
