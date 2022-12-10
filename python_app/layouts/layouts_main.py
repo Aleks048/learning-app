@@ -37,7 +37,7 @@ class SectionLayout(Layout):
     pyAppDimensions = [None, None]    
 
     @classmethod
-    def set(cls, mainWinRoot, menuWidth, menuHeight):
+    def set(cls, mainWinRoot = None, menuWidth = 0, menuHeight = 0):
         '''
         # Section: 
         #       skim Section to the right 
@@ -64,8 +64,9 @@ class SectionLayout(Layout):
         mon_halfWidth = mon_width / 2
         
         # set menu dimensions
-        mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
-                            + "+" + str(int(mon_halfWidth)) + "+0")
+        if mainWinRoot != None:
+            mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
+                                + "+" + str(int(mon_halfWidth)) + "+0")
        
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         

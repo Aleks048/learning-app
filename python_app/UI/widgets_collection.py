@@ -164,21 +164,62 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
-    def addClLinkCallback():
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+    def addLinkToTexFile(imIDX, scriptPath, linkName):
+        #
+        # add link to the current section file
+        #
+        # read content file
+        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
+        log.autolog("Updating file: " + contenfFilepath)
+        lines = _u.readFile(contenfFilepath)
+        positionToAdd = 0
+        while positionToAdd < len(lines):
+            line = lines[positionToAdd]
+            # find the line with id
+            if "id: " + imIDX in line:
+                # find the line with global links start
+                while "\myGlLinks{" not in line:
+                    positionToAdd +=1
+                    line = lines[positionToAdd]
+                # find the line with global links end
+                while "myGlLink" in line:
+                    positionToAdd += 1   
+                    line = lines[positionToAdd]
+                break
+            positionToAdd += 1
         
+        lineToAdd = "        \href{file:" + scriptPath + "}{" + linkName + "}\n"
+        outlines = lines[:positionToAdd]
+        outlines.append(lineToAdd)
+        outlines.extend(lines[positionToAdd:])
+        
+        with open(contenfFilepath, "+w") as f:
+            for line in outlines:
+                f.write(line + "\n")
+
+
+    def addGlLinkCallback():
+        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        
         sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        sourceSectionPathWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         sourceLinkName = wv.UItkVariables.glLinkSourceImLink.get()
         sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
+        sourceContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
+        sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
+        sourcePDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
+        sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
+        
         targetSectionPath = wv.UItkVariables.glLinktargetSections.get()
         targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
         targetLinkName = wv.UItkVariables.glLinkTargetImLink.get()
         targetIDX = fsm.Wr.Links.LinkDict.get(targetSectionPath)[targetLinkName]
+        sectionPath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
         targetContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
         targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
+        targetPDFFilename = targetPDFFilepath.split("/")[-1]
 
         #
         # check that the section exists
@@ -191,62 +232,44 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
             wmes.MessageMenu.createMenu(msg)
             return
 
-        sectionDirPath = "/".join(sectionInfo["path"].split("/")[:-1])
-
         #
         # Create the link script
         #
-        sDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, sourceSectionPathWprefix)
-        sName = targetSectionPath + "_" + targetIDX + "_" + targetLinkName + ".sh"
+        sDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, sourceSectionNameWprefix)
+        sName = sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName + "__" \
+            + targetSectionPath + "_" + targetIDX + "." + targetLinkName + ".sh"
         sPath = os.path.join(sDirPath, sName)
         with open(sPath , "w+") as f:
-            for line in fsm.Wr.Links.LinkDict.createLinkScript(targetIDX, 
-                                                            targetContentFilepath, 
-                                                            targetTOCFilepath, 
+            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX, 
+                                                            targetPDFFilename,
                                                             targetPDFFilepath):
                 f.write(line)
+        os.system("chmod +rwx " + sPath)
 
-
-        #
-        # add link to the current section file
-        #
-        # read content file
-        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
-        log.autolog("Updating file: " + contenfFilepath)
-        lines = _u.readFile(contenfFilepath)
-        positionToAdd = 0
-        while positionToAdd < len(lines):
-            line = lines[positionToAdd]
-            # find the line with id
-            if "id: " + sourceIDX in line:
-                # find the line with global links start
-                while "\myGlLinks{" not in line:
-                    positionToAdd +=1
-                    line = lines[positionToAdd]
-                # find the line with global links end
-                while "myGlLink" in line:
-                    positionToAdd += 1   
-                    line = lines[positionToAdd]
-                break
-            positionToAdd += 1
-        
-        lineToAdd = "        \href{file:" + sPath + "}{" + targetSectionPath + "}\n"
-        outlines = lines[:positionToAdd]
-        outlines.append(lineToAdd)
-        outlines.extend(lines[positionToAdd:])
-        
-        with open(contenfFilepath, "+w") as f:
-            for line in outlines:
-                f.write(line + "\n")
+        addLinkToTexFile(sourceIDX, sPath, targetSectionPath + "_" + targetLinkName)
 
         # add return link 
         
+        returnScriptDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, targetSectionNameWprefix)
+        returnScriptName = targetSectionPath + "_" + targetIDX + "." + targetLinkName + "__" \
+                        + sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName +  ".sh"
+        returnSctiptPath = os.path.join(returnScriptDirPath, returnScriptName)
+        with open(returnSctiptPath , "w+") as f:
+            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
+                                                            sourcePDFFilename,
+                                                            sourcePDFFilepath):
+                f.write(line)
+        os.system("chmod +rwx " + returnSctiptPath)
 
-        pass
+        addLinkToTexFile(targetIDX, returnSctiptPath, sourceSectionPath + "_" + sourceLinkName)
+
+        #
+        # rebuild the scripts
+        #
 
     createGlLinkBTN = tk.Button(mainWinRoot, text = "Create gl link", 
                         name = prefixName.lower() + "_addGlobalLink" + "BTN",
-                        command = addClLinkCallback)
+                        command = addGlLinkCallback)
 
     createGlLinkETR = tk.Entry(mainWinRoot,
                             width = 5,
@@ -356,13 +379,19 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         contentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
         pdfName = fsm.Wr.SectionCurrent.getSectionPdfName()
+        pdfFilepath = fsm.Wr.Paths.PDF.getAbs_curr()
         if os.path.isfile(imagePath + ".png"):
             def takeScreencapture(iPath, sPath):
                 os.system("screencapture -ix " + iPath + ".png")
                 wv.UItkVariables.needRebuild.set(True)
                 # create a sript associated with page
                 with open(sPath + ".sh", "w+") as f:
-                    for line in fsm.Wr.Links.LinkDict.createLinkScript(imIDX, contentFilepath, tocFilepath, pdfName):
+                    lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
+                                                                    contentFilepath, 
+                                                                    tocFilepath, 
+                                                                    pdfName,
+                                                                    pdfFilepath)
+                    for line in lines:
                         f.write(line)
                 os.system("chmod +x " + sPath + ".sh")
                 # update curr image index for the chapter
@@ -373,13 +402,19 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
                                             takeScreencapture, 
                                             imagePath, 
-                                            scriptPath)
+                                            scriptPath,
+                                            pdfFilepath)
         else:
             os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
             with open(scriptPath + ".sh", "w+") as f:
-                for line in fsm.Wr.Links.LinkDict.createLinkScript(imIDX, contentFilepath, tocFilepath, pdfName):
+                lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
+                                                                contentFilepath, 
+                                                                tocFilepath, 
+                                                                pdfName,
+                                                                pdfFilepath)
+                for line in lines:
                     f.write(line)
             os.system("chmod +x " + scriptPath + ".sh")
             #update curr image index for the chapter

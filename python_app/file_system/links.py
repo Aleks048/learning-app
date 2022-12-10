@@ -50,7 +50,7 @@ class LinkDict:
         else:
             return _u.Token.NotDef.list_t
 
-    def createLinkScript(imIDX, contentFilePath, tocFilepath, pdfName):
+    def getLocalLinkScriptLines(imIDX, contentFilePath, tocFilepath, pdfName, pdfPath):
         scriptFile = ""
         scriptFile += "#!/bin/bash\n"
         scriptFile += "\
@@ -60,7 +60,7 @@ tocIDX=`grep -n \"% THIS IS CONTENT id: " + imIDX +"\" \"" + tocFilepath + "\" |
         # get image move numbers
         scriptFile += "\n\
 pushd ${BOOKS_PY_APP_PATH}\n\
-    cmd=\"from _utils import _utils_main as _u; _u.getCurrSectionMoveNumber();\"\n\
+    cmd=\"import file_system._utils as _u; _u.getCurrSectionMoveNumber();\"\n\
     movenumbersarray=(`python3 -c \"${cmd}\"`)\n\
 popd\n"
         scriptFile += "\
@@ -99,12 +99,27 @@ osascript - $tocIDX <<EOF\n\
     end run\n\
 EOF\n\
 fi\n"
-        scriptFile += "osascript -e '\
+        scriptFile += "osascript -e '\n\
 tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
+    open \"" + pdfPath + "\"\n\
     tell document \"" + pdfName + "\"\n\
         delay 0.1\n\
         go to page " + str(imIDX) + "\n\
         end tell\n\
+    activate\n\
 end tell'"
         
         return scriptFile
+
+    def getGlobalLinkScriptLines(imIDX, pdfName, pdfPath):
+        scriptFile = "osascript -e '\n\
+tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
+    open \"" + pdfPath + "\"\n\
+    tell document \"" + pdfName + "\"\n\
+        go to page " + str(imIDX) + "\n\
+        end tell\n\
+    activate\n\
+end tell'"
+
+        return scriptFile
+

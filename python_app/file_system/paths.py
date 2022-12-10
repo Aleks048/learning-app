@@ -151,8 +151,11 @@ class Paths:
                                     secName + "_main.tex")
 
     class PDF:
-        def getAbs_curr():
-            pass
+        @classmethod
+        def getAbs_curr(cls):
+            currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+            currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+            return cls.getAbs(currBookPath, currSubsection)
 
         def getAbs(bookPath, secNameWprefix):
             sectionDirPath = Paths.Section.getAbs(bookPath, secNameWprefix)

@@ -37,7 +37,7 @@ def openPdfInSkim(pathToSectionFolder):
 
 def movePdfToPage(filename, page):
     osascript = "osascript -e '\n\
-    tell application \"" + _u.Settings.skim_ID + "\"\n\
+    tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
         tell document \"" + filename + "\"\n\
     		go to page " + str(page) + "\n\
         end tell\n\
@@ -76,7 +76,7 @@ def openWholeBook(dimentions, position):
     
     if ownerName == None or windowID == None:
         # if the book was not opened in Skim already    
-        openPdfInSkim(_u.Settings.Book.getWholeBookPath())
+        openPdfInSkim(fsm.Wr.OriginalMaterialStructure._getBaseAbsPath())
         ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
     
     if ownerName == None or windowID == None: 
