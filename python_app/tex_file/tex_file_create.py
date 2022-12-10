@@ -109,21 +109,22 @@ class TexFile:
             for line in outFileList:
                 outFile.write(line)
 
-
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
         currTexFilesFolder = fsm.Wr.Paths.Section.getAbs_curr()
         currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
-        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        currSection = fsm.Wr.SectionCurrent.readCurrSection()
-        log.autolog("build: " + currTexMainFile)
+        currSectionNameWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        
+        wm.Data.UItkVariables.needRebuild.set(False)
+        return cls.buildSubsectionPdf(currTexFilesFolder, currTexMainFile, currSectionNameWPrefix)
+    
+    def buildSubsectionPdf(sectionFolder, mainTexFilepath, sectionNameWprefix):
+        log.autolog("build: " + mainTexFilepath)
         
         # NOTE: we add "_con.tex" to comply with what is called when the file is saved
         cmd = "${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh" \
-                            " " + currTexMainFile + \
-                            " " + currTexFilesFolder + \
-                            " " + secPrefix + "_" + currSection + "_con.tex"
+                            " " + mainTexFilepath + \
+                            " " + sectionFolder + \
+                            " " + sectionNameWprefix + "_con.tex"
         _waitDummy = os.system(cmd)
-        wm.Data.UItkVariables.needRebuild.set(False)
         return True
-

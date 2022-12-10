@@ -116,6 +116,7 @@ end tell'"
 tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
     open \"" + pdfPath + "\"\n\
     tell document \"" + pdfName + "\"\n\
+        delay 0.1\n\
         go to page " + str(imIDX) + "\n\
         end tell\n\
     activate\n\

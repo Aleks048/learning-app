@@ -206,7 +206,9 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         sourceLinkName = wv.UItkVariables.glLinkSourceImLink.get()
         sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
+        sourceSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, sourceSectionPath)
         sourceContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
+        sourceMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
         sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
         sourcePDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
         sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
@@ -215,8 +217,9 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
         targetLinkName = wv.UItkVariables.glLinkTargetImLink.get()
         targetIDX = fsm.Wr.Links.LinkDict.get(targetSectionPath)[targetLinkName]
-        sectionPath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
+        targetSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
         targetContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
+        targetMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
         targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilename = targetPDFFilepath.split("/")[-1]
@@ -264,8 +267,14 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         addLinkToTexFile(targetIDX, returnSctiptPath, sourceSectionPath + "_" + sourceLinkName)
 
         #
-        # rebuild the scripts
+        # rebuild the pdfs
         #
+        t.Wr.TexFile.buildSubsectionPdf(sourceSectionFilepath,
+                                        sourceMainFilepath,
+                                        sourceSectionNameWprefix)
+        t.Wr.TexFile.buildSubsectionPdf(targetSectionFilepath,
+                                        targetMainFilepath,
+                                        targetSectionNameWprefix)
 
     createGlLinkBTN = tk.Button(mainWinRoot, text = "Create gl link", 
                         name = prefixName.lower() + "_addGlobalLink" + "BTN",
@@ -474,6 +483,32 @@ def getSourceImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
     
     return frame
 
+def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
+    '''
+    Change subsection by grabbing the name and top name from the front skim document
+    '''
+    def callback():
+        # get the name of the front skim document
+        cmd = "osascript -e '\n\
+tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
+    tell front document \n\
+        delay 0.1\n\
+            go to page " + str(2) + "\n\
+        end tell\n\
+    activate\n\
+end tell'"
+        os.system(cmd)
+        # get subsection and top section from it
+
+        #change the currnt subsection for the app
+        pass
+
+    return tk.Button(mainWinRoot, 
+                    name = prefixName + "_changeSubsection",
+                    text = "change subsecttion",
+                    command = callback)
+
+
 class StartupMenu:
     def getStartup_BTN(winRoot, callback):
         return tk.Button(winRoot,
@@ -566,6 +601,9 @@ class LayoutsMenus:
             currSection = fsm.Wr.SectionCurrent.readCurrSection()
             sourceImageLinksOM = getSourceImageLinks_OM(winMainRoot, cls.classPrefix, currSection)
             sourceImageLinksOM.grid(column=4, row=2, padx=0, pady=0)
+
+            changeSection_BTN = getChangeSubsectionToTheFront(winMainRoot, cls.classPrefix)
+            changeSection_BTN.grid(column=0, row=2, padx=0, pady=0)
 
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions[0] = int(mon_width / 2)
