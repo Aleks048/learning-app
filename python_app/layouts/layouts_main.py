@@ -57,7 +57,8 @@ class SectionLayout(Layout):
         else:
             # rebuild the section doc
             # NOTE: do we need a rebuild each time we switch??
-            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+            # _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+            pass
        
         # Open section pdf in skim
         mon_width, mon_height = _u.getMonitorSize()

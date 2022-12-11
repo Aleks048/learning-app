@@ -1,4 +1,5 @@
 import os
+import subprocess
 import tkinter as tk
 from threading import Thread
 
@@ -490,18 +491,58 @@ def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
     def callback():
         # get the name of the front skim document
         cmd = "osascript -e '\n\
-tell application \"" + _u.Settings._appsIDs.skim_ID + "\"\n\
-    tell front document \n\
-        delay 0.1\n\
-            go to page " + str(2) + "\n\
-        end tell\n\
-    activate\n\
-end tell'"
-        os.system(cmd)
+tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return name of front document\n\
+'"
+        frontSkimDocumentName = str(subprocess.check_output(cmd, shell=True))
+        
         # get subsection and top section from it
+        frontSkimDocumentName = frontSkimDocumentName.replace("\\n", "")
+        frontSkimDocumentName = frontSkimDocumentName.split("_")[1]
+        topSection = frontSkimDocumentName.split(".")[0]
+        subsection = frontSkimDocumentName
+        
+        cmd = "osascript -e '\n\
+tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page of front document\n\
+'"
+        imIDX = int(str(subprocess.check_output(cmd, shell=True)).split(" ")[1])
 
-        #change the currnt subsection for the app
-        pass
+        # close current section vscode
+        _, windowID = _u.getOwnersName_windowID_ofApp(
+                            "vscode",
+                             fsm.Wr.SectionCurrent.readCurrSection())
+        
+        if (windowID != None):
+            osascript = "osascript -e '\
+    tell application \"System Events\" to tell process \""  + _u.Settings._appsIDs.vsCode_ID + "\"\n\
+	    tell window " + windowID + "\n\
+            click button 1\n\
+	    end tell\n\
+    end tell'"
+            os.system(osascript)
+
+        #change the current subsection for the app
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, subsection)
+        
+        mon_width, _ = _u.getMonitorSize()
+        width = int(mon_width / 2)
+        height = 70
+        lm.Wr.SectionLayout.set(mainWinRoot, width, height)
+        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(subsection)
+        wu.updateOptionMenuOptionsList(mainWinRoot, 
+                                    "source_SecImIDX", 
+                                    currChImageLinks,
+                                    wv.UItkVariables.glLinkSourceImLink,
+                                    lambda *argv: None)
+        wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
+        
+        #move run susection script to move to desired position
+        localScriptsDir = fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr()
+
+        sctiptPath = os.path.join(localScriptsDir, str(imIDX) + "*" + currChImageLinks[imIDX - 1] + "*.sh")
+        log.autolog("running script: " + sctiptPath)
+        os.system("chmod +rwx " + sctiptPath)
+        os.system(sctiptPath)
 
     return tk.Button(mainWinRoot, 
                     name = prefixName + "_changeSubsection",
