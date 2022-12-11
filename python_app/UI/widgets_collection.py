@@ -648,7 +648,7 @@ class LayoutsMenus:
 
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions[0] = int(mon_width / 2)
-            cls.pyAppDimensions[1] = layoutOM.winfo_height() + 5
+            cls.pyAppDimensions[1] = 70
     
     class MainLayoutUI:
         pyAppDimensions = [None, None]
