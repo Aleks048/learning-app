@@ -57,9 +57,8 @@ class SectionLayout(Layout):
         else:
             # rebuild the section doc
             # NOTE: do we need a rebuild each time we switch??
-            # _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
-            pass
-       
+            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+        
         # Open section pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -97,7 +96,6 @@ class SectionLayout(Layout):
                 sleep(0.1)
         
         #move vscode into position
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
         lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
 
         if wm.Data.UItkVariables.needRebuild.get() == True:
