@@ -165,12 +165,11 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
-    def addLinkToTexFile(imIDX, scriptPath, linkName):
+    def addLinkToTexFile(imIDX, scriptPath, linkName, contenfFilepath):
         #
         # add link to the current section file
         #
         # read content file
-        contenfFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         log.autolog("Updating file: " + contenfFilepath)
         lines = _u.readFile(contenfFilepath)
         positionToAdd = 0
@@ -248,9 +247,13 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                                                             targetPDFFilename,
                                                             targetPDFFilepath):
                 f.write(line)
+        log.autolog("Hippo" + sPath)
         os.system("chmod +rwx " + sPath)
 
-        addLinkToTexFile(sourceIDX, sPath, targetSectionPath + "_" + targetLinkName)
+        addLinkToTexFile(sourceIDX, 
+                        sPath, 
+                        targetSectionPath + "\_" + targetLinkName,
+                        sourceContentFilepath)
 
         # add return link 
         
@@ -263,9 +266,13 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                                                             sourcePDFFilename,
                                                             sourcePDFFilepath):
                 f.write(line)
+        log.autolog("Hoppo" + returnSctiptPath)
         os.system("chmod +rwx " + returnSctiptPath)
 
-        addLinkToTexFile(targetIDX, returnSctiptPath, sourceSectionPath + "_" + sourceLinkName)
+        addLinkToTexFile(targetIDX, 
+                        returnSctiptPath, 
+                        sourceSectionPath + "\_" + sourceLinkName,
+                        targetContentFilepath)
 
         #
         # rebuild the pdfs
