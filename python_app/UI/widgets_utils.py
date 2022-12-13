@@ -104,7 +104,10 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     l_Name = _u.Settings.readProperty(_u.Settings.PubProp.currLayout_ID)
     
     layoutClass = [i for i in lm.Data.listOfLayoutClasses if i.__name__.replace(_u.Settings.layoutClassToken,"") == l_Name][0]
-    print("showCurrentLayout - Showing layout: " + layoutClass.__name__)
+    log.autolog("Hippo Showing layout: \n" 
+                + str(menuWidth) + "\n" 
+                + str(menuHeight) + "\n" 
+                + layoutClass.__name__)
     
     layoutClass.set(mainWinRoot, menuWidth, menuHeight)
     hideAllWidgets(mainWinRoot)

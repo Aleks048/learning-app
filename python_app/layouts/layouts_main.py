@@ -57,8 +57,11 @@ class SectionLayout(Layout):
         else:
             # rebuild the section doc
             # NOTE: do we need a rebuild each time we switch??
-            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+            wm.Data.UItkVariables.needRebuild.set(True)
         
+        if wm.Data.UItkVariables.needRebuild.get() == True:
+            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+
         # Open section pdf in skim
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -93,13 +96,32 @@ class SectionLayout(Layout):
             windowID = None
             while windowID == None:
                 ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
-                sleep(0.1)
-        
-        #move vscode into position
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, (mon_height) * 2 , 0 , 0])
+                # sleep(0.1) 
 
-        if wm.Data.UItkVariables.needRebuild.get() == True:
-            Thread(target = tm.Wr.TexFile.buildCurrentSubsectionPdf).start()
+        # move vscode into position
+        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height , 0 , 0])
+        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height , 0 , 0])
+
+        # create the layout in the vscode window
+        conterntFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
+        TOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
+        cmd = "osascript -e '\n\
+        tell application \"code\"\n\
+            activate\n\
+        end tell\n\
+        '"
+        _waitDummy = os.system(cmd)
+        
+        cmd = "osascript -e '\n\
+        tell application \"System Events\"\n\
+            keystroke \"kw\" using {command down}\n\
+            keystroke \"b\" using {command down, option down}\n\
+        end tell\n\
+        '"
+        _waitDummy = os.system(cmd)
+
+        _waitDummy = os.system("code " + TOCFilepath)
+        _waitDummy = os.system("code " + conterntFilepath)
 
 
 class MainLayout(Layout):

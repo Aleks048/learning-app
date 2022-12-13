@@ -209,7 +209,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         sourceSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, sourceSectionPath)
         sourceContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
         sourceMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
-        sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
+        # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
         sourcePDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
         sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
         
@@ -220,7 +220,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         targetSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
         targetContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
         targetMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
-        targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
+        # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilename = targetPDFFilepath.split("/")[-1]
 
@@ -247,7 +247,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                                                             targetPDFFilename,
                                                             targetPDFFilepath):
                 f.write(line)
-        log.autolog("Hippo" + sPath)
+
         os.system("chmod +rwx " + sPath)
 
         addLinkToTexFile(sourceIDX, 
@@ -266,7 +266,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                                                             sourcePDFFilename,
                                                             sourcePDFFilepath):
                 f.write(line)
-        log.autolog("Hoppo" + returnSctiptPath)
+        
         os.system("chmod +rwx " + returnSctiptPath)
 
         addLinkToTexFile(targetIDX, 
@@ -534,7 +534,10 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page
         mon_width, _ = _u.getMonitorSize()
         width = int(mon_width / 2)
         height = 70
-        lm.Wr.SectionLayout.set(mainWinRoot, width, height)
+        wu.showCurrentLayout(mainWinRoot, 
+                            width, 
+                            height)
+        # lm.Wr.SectionLayout.set(mainWinRoot, width, height)
         currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(subsection)
         wu.updateOptionMenuOptionsList(mainWinRoot, 
                                     "source_SecImIDX", 
@@ -747,6 +750,8 @@ class LayoutsMenus:
                                                         currChImageLinks,
                                                         wv.UItkVariables.glLinkSourceImLink,
                                                         lambda *argv: None)
+                            
+                            # set to the latest link
                             wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
 
                         break 
@@ -852,7 +857,8 @@ class ChooseMaterial:
 
         # update Layout widget
         widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
-        lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
+        wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
+        # lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
 
     @classmethod
     def getOptionMenu_ChooseTopSection(cls, mainWinRoot, namePrefix = ""):
@@ -901,7 +907,8 @@ class ChooseMaterial:
         
         # update Layout
         widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
-        lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
+        wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
+        # lm.Wr.MainLayout.set(mainWinRoot, *widgetDimensions)
 
         
 

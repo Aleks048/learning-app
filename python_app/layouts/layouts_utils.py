@@ -8,15 +8,17 @@ import UI.widgets_manager as uim
 
 def moveApplicationsWindow(appName, windowID, bounds):
     bounds = [str(i) for i in bounds]
-    osascript2 = "osascript -e '\
+    osascript = "osascript -e '\
     tell application \"System Events\" to tell process \"" + appName + "\"\n\
 	    tell window " + windowID + "\n\
 		    set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
-		    set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
+		    delay 0.1\n\
+            set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
+            delay 0.1\n\
             perform action \"AXRaise\"\n\
 	    end tell\n\
     end tell'"
-    os.system(osascript2)
+    os.system(osascript)
 
 def hideApplicationsWindow(appName, windowID):
     osascript = "osascript -e '\
