@@ -86,6 +86,9 @@ class SectionLayout(Layout):
         lu.moveApplicationsWindow(ownerName, 
                                 windowID, 
                                 [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
+        lu.moveApplicationsWindow(ownerName, 
+                                windowID, 
+                                [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
@@ -179,6 +182,9 @@ class MainLayout(Layout):
             lu.moveApplicationsWindow(ownerName, 
                                     windowID, 
                                     [mon_halfWidth, mon_height - appHeight - 105, appWidth, appHeight + 54])
+            lu.moveApplicationsWindow(ownerName, 
+                                    windowID, 
+                                    [mon_halfWidth, mon_height - appHeight - 105, appWidth, appHeight + 54])
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
 
@@ -194,6 +200,7 @@ class WholeVSCodeLayout(Layout):
         mon_windth, mon_height = _u.getMonitorSize()
         # vscode open
         ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode")
+        lu.moveApplicationsWindow(ownerName, windowID, [mon_windth, mon_height , 0 , 0])
         lu.moveApplicationsWindow(ownerName, windowID, [mon_windth, mon_height , 0 , 0])
 
 

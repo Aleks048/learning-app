@@ -243,9 +243,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
             + targetSectionPath + "_" + targetIDX + "." + targetLinkName + ".sh"
         sPath = os.path.join(sDirPath, sName)
         with open(sPath , "w+") as f:
-            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX, 
-                                                            targetPDFFilename,
-                                                            targetPDFFilepath):
+            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX,
+                                                                    targetPDFFilepath):
                 f.write(line)
 
         os.system("chmod +rwx " + sPath)
@@ -263,8 +262,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         returnSctiptPath = os.path.join(returnScriptDirPath, returnScriptName)
         with open(returnSctiptPath , "w+") as f:
             for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
-                                                            sourcePDFFilename,
-                                                            sourcePDFFilepath):
+                                                                    sourcePDFFilepath):
                 f.write(line)
         
         os.system("chmod +rwx " + returnSctiptPath)
@@ -405,8 +403,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
                 with open(sPath + ".sh", "w+") as f:
                     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
                                                                     contentFilepath, 
-                                                                    tocFilepath, 
-                                                                    pdfName,
+                                                                    tocFilepath,
                                                                     pdfFilepath)
                     for line in lines:
                         f.write(line)
@@ -428,8 +425,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             with open(scriptPath + ".sh", "w+") as f:
                 lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
                                                                 contentFilepath, 
-                                                                tocFilepath, 
-                                                                pdfName,
+                                                                tocFilepath,
                                                                 pdfFilepath)
                 for line in lines:
                     f.write(line)

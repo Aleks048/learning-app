@@ -6,9 +6,9 @@ import _utils.logging as log
 import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
 
-def moveApplicationsWindow(appName, windowID, bounds):
+def moveApplicationsWindow(appName, windowID, bounds, windowName = ""):
     bounds = [str(i) for i in bounds]
-    osascript = "osascript -e '\
+    cmd = "osascript -e '\
     tell application \"System Events\" to tell process \"" + appName + "\"\n\
 	    tell window " + windowID + "\n\
 		    set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
@@ -18,7 +18,12 @@ def moveApplicationsWindow(appName, windowID, bounds):
             perform action \"AXRaise\"\n\
 	    end tell\n\
     end tell'"
-    os.system(osascript)
+
+    # attempt to do this with xdotools
+    # cmd = "xdotool search --name windowmove " + windowID + " " + bounds[2] + " " + bounds[3]
+    # os.system(cmd)
+    # cmd = "xdotool windowsize " + windowID + " " + bounds[0] + " " + bounds[1]
+    os.system(cmd)
 
 def hideApplicationsWindow(appName, windowID):
     osascript = "osascript -e '\
@@ -84,6 +89,7 @@ def openWholeBook(dimentions, position):
     if ownerName == None or windowID == None: 
         log.autolog("Something went wrong. Skim could not open the document")
     else:
+        moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
         moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
 
 def moveWholeBookToChapter():
