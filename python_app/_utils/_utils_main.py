@@ -12,16 +12,28 @@ class Token:
         list_t = [str_t]
         dict_t = {str_t: str_t}
 
+def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
+    outPos = []
 
-def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     if not os.path.exists(filepath):
         log("filepath does not exist. \nfilepath: " + filepath)
         return None
     with open(filepath, "r") as f:
         fLines = f.readlines()
-    
+     
     for i in range(len(fLines)):
         if  marker in fLines[i] and lineToken in fLines[i]:
+            outPos.append[i]
+    
+    return outPos, fLines
+
+
+
+def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
+    outPos, fLines = findPositionsOfMarkerInFile(filepath, marker, lineToken)
+    
+    for i in range(len(fLines)):
+        if i in outPos:
             fLines[i] = fLines[i].replace(marker, value)
     
     with open(filepath, "w") as f:
