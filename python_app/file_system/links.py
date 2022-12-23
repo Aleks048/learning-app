@@ -52,26 +52,10 @@ class LinkDict:
 
     def getLocalLinkScriptLines(imIDX, contentFilePath, tocFilepath, pdfPath):
         scriptFile = ""
-        scriptFile += "#!/bin/bash\n"
+
         scriptFile += "\
-conIDX=`grep -n \"% THIS IS CONTENT id: " + imIDX +"\" \"" + contentFilePath + "\" | cut -d: -f1`\n"
-        scriptFile += "\
-tocIDX=`grep -n \"% THIS IS CONTENT id: " + imIDX +"\" \"" + tocFilepath + "\" | cut -d: -f1`\n"
-        # get image move numbers
-        scriptFile += "\n\
-pushd ${BOOKS_PY_APP_PATH}\n\
-    cmd=\"import file_system._utils as _u; _u.getCurrSectionMoveNumber();\"\n\
-    movenumbersarray=(`python3 -c \"${cmd}\"`)\n\
-popd\n"
-        scriptFile += "\n\
-tocline=`expr $tocIDX + ${movenumbersarray[1]}`\n\
-code -g " + tocFilepath + ":${tocline}:0\n"
-        scriptFile += "\n\
-conline=`expr $conIDX + ${movenumbersarray[0]}`\n\
-code -g " + contentFilePath + ":${conline}:0\n"
-        
-        scriptFile += "\n\
-open \"skim://" + pdfPath + "#page=" + imIDX + "\""
+sourse ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
+local_links " + imIDX
         
         return scriptFile
 

@@ -5,9 +5,9 @@ def getCurrSectionMoveNumber(popsitionIDX):
     currConFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
     currTocFile = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
 
-    getSectionMoveNumber(popsitionIDX, currConFile, currTocFile)
+    getSectionMoveNumbers(popsitionIDX, currConFile, currTocFile)
 
-def getSectionMoveNumber(popsitionIDX, conTexFilepath, tocTexFilepath):
+def getSectionMoveNumbers(popsitionIDX, conTexFilepath, tocTexFilepath):
     '''
     this one is used by the image scripts to get the 
     '''
@@ -29,7 +29,7 @@ def getSectionMoveNumber(popsitionIDX, conTexFilepath, tocTexFilepath):
 
     if contentFileMoveNumber != _u.Token.NotDef.str_t or tocFileMoveNumber != _u.Token.NotDef.str_t:
         #print to get values in sh script
-        print(str(contentFileMoveNumber) + " "+ str(tocFileMoveNumber))
+        print(str(conLine + contentFileMoveNumber) + " "+ str(tocLine + tocFileMoveNumber))
         return
     
     #get the move numbers from bookinfostructure
