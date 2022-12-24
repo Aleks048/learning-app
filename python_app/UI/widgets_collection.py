@@ -317,10 +317,11 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
 
 
     def _createTexForTheProcessedImage():
-        currsubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
+        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
 
         extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
-                                    dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
+                                    dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
         with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'a') as f:
@@ -363,7 +364,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
 \\mybox{\n\
     \\link[" + dataFromUser[0] + \
     "]{" + dataFromUser[1] + "} \\image[0.5]{" + \
-    dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1] + "}\n\
+    dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1] + "}\n\
 }\n\n\n"
                     f.write(toc_add_image)
             else:  
@@ -379,9 +380,9 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
 
         #create a script to run on page change
         imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
-                                dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
+                                dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
         scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr(),
-                                dataFromUser[0] + "_" + currsubsection + "_" + dataFromUser[1])
+                                dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
         fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
@@ -392,9 +393,6 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         
         # take a screenshot
         imIDX = dataFromUser[0]
-        contentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
-        tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
-        pdfName = fsm.Wr.SectionCurrent.getSectionPdfName()
         pdfFilepath = fsm.Wr.Paths.PDF.getAbs_curr()
         if os.path.isfile(imagePath + ".png"):
             def takeScreencapture(iPath, sPath):
@@ -403,9 +401,8 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
                 # create a sript associated with page
                 with open(sPath + ".sh", "w+") as f:
                     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-                                                                    contentFilepath, 
-                                                                    tocFilepath,
-                                                                    pdfFilepath)
+                                                                        sPath,
+                                                                        bookName)
                     for line in lines:
                         f.write(line)
                 os.system("chmod +x " + sPath + ".sh")
@@ -416,18 +413,16 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             
             wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
                                             takeScreencapture, 
-                                            imagePath, 
-                                            scriptPath,
-                                            pdfFilepath)
+                                            currSubsection,
+                                            bookName)
         else:
             os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
             with open(scriptPath + ".sh", "w+") as f:
                 lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-                                                                contentFilepath, 
-                                                                tocFilepath,
-                                                                pdfFilepath)
+                                                                    currSubsection,
+                                                                    bookName)
                 for line in lines:
                     f.write(line)
             os.system("chmod +x " + scriptPath + ".sh")

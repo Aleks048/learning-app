@@ -50,12 +50,10 @@ class LinkDict:
         else:
             return _u.Token.NotDef.list_t
 
-    def getLocalLinkScriptLines(imIDX, contentFilePath, tocFilepath, pdfPath):
-        scriptFile = ""
-
-        scriptFile += "\
+    def getLocalLinkScriptLines(imIDX, subSection, bookName):
+        scriptFile = "\
 source ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
-local_links " + imIDX
+local_links " + imIDX + " " + subSection + " " + bookName
         
         return scriptFile
 

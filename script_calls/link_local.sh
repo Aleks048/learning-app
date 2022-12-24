@@ -7,7 +7,7 @@ local_link () {
 
     # get numbers that we add to the found lines
     pushd ${BOOKS_PY_APP_PATH}
-        cmd="import outside_calls.link_local as ll; ll.processLink('${sec_place_id}');"
+        cmd="import outside_calls.link_local as ll; ll.processLinkCall('${sec_place_id}', '${sec_bookpath}', '${bookpath}');"
         movenumbersarray=(`python3 -c "${cmd}"`)
     popd
 }
