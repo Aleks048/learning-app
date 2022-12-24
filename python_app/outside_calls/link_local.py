@@ -3,24 +3,23 @@ import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.file_system_manager as fsm
 
-def processLinkSecLinkCall(popsitionIDX):
+def processLinkSecLinkCall(positionIDX):
     currConFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
     currTocFile = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
     currTocFile = fsm.Wr.Paths.PDF.getAbs_curr()
 
-    processLinkCall(popsitionIDX, currConFile, currTocFile, currTocFile)
+    processLocalLinkCall(positionIDX, currConFile, currTocFile, currTocFile)
 
-def processLinkCall(popsitionIDX, secName, bookName):
+def processLocalLinkCall(positionIDX, secName, bookName):
     '''
     this one is used by the image scripts to get the 
     '''
 
     secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
-    log.autolog(secName)
     bookPath = _u.getBookPath(bookName)
     if bookPath == _u.Token.NotDef.str_t:
         log.autolog("Could not find the path for the book with name '" 
-                    + bookName + "'. Abropt link '" + secName + "'processing.")
+                    + bookName + "'. Abropt local link '" + secName + "'processing.")
         return
 
     conTexFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, secNameWPrefix)
@@ -28,10 +27,10 @@ def processLinkCall(popsitionIDX, secName, bookName):
     secPdfFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, secNameWPrefix)
 
     # enforce the position index to be a string
-    if type(popsitionIDX) != str:
-        popsitionIDX = str(popsitionIDX)
+    if type(positionIDX) != str:
+        positionIDX = str(positionIDX)
     
-    idxMarker = popsitionIDX
+    idxMarker = positionIDX
 
     # get position of index in content file
     conLine,_ = _u.findPositionsOfMarkerInFile(conTexFilepath, idxMarker)
@@ -53,7 +52,7 @@ def processLinkCall(popsitionIDX, secName, bookName):
 
     tocLineNumber = str(tocLine + tocFileMoveNumber)
     conLineNumber = str(conLine + conFileMoveNumber)
-    pdfPage = popsitionIDX
+    pdfPage = positionIDX
 
     if conFileMoveNumber == _u.Token.NotDef.str_t and tocFileMoveNumber == _u.Token.NotDef.str_t:
         #get the move numbers from bookinfostructure
@@ -77,4 +76,18 @@ open \"skim://{4}#page={5}\"
         secPdfFilepath,
         pdfPage)
     os.system(cmd)
-    
+
+
+
+def processGlobalLinkCall(positionIDX, secName, bookName):
+    secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
+    bookPath = _u.getBookPath(bookName)
+    if bookPath == _u.Token.NotDef.str_t:
+        log.autolog("Could not find the path for the book with name '" 
+                    + bookName + "'. Abropt global link '" + secName + "'processing.")
+        return
+
+    pdfPath = fsm.Wr.Paths.PDF.getAbs(bookPath, secNameWPrefix)
+
+    cmd = "open 'skim://{0}#page={1}'".format(pdfPath, positionIDX)
+    os.system(cmd)

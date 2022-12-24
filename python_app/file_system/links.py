@@ -52,13 +52,15 @@ class LinkDict:
 
     def getLocalLinkScriptLines(imIDX, subSection, bookName):
         scriptFile = "\
-source ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
+source ${BOOKS_SCRIPTSCALLS_PATH}/link.sh\n\
 local_link " + imIDX + " " + subSection + " " + bookName
         
         return scriptFile
 
-    def getGlobalLinkScriptLines(imIDX, pdfPath):
-        scriptFile = "open \"skim://" + pdfPath + "#page=" + imIDX + "\""
+    def getGlobalLinkScriptLines(imIDX, subSection, bookName):
+        scriptFile = "\
+source ${BOOKS_SCRIPTSCALLS_PATH}/link.sh\n\
+global_link " + imIDX + " " + subSection + " " + bookName
 
         return scriptFile
 
