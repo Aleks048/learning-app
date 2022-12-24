@@ -54,7 +54,7 @@ class LinkDict:
         scriptFile = ""
 
         scriptFile += "\
-sourse ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
+source ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
 local_links " + imIDX
         
         return scriptFile

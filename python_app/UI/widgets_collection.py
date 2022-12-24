@@ -7,13 +7,13 @@ import UI.widgets_vars as wv
 import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
 
-import layouts.layouts_manager as lm
-
 import file_system.file_system_manager as fsm
 import tex_file.tex_file_manager as t
 
 import _utils.logging as log
 import _utils._utils_main as _u
+
+import data.constants as d
 
 def getLabel(mainWinRoot, text):
     return tk.Label(mainWinRoot, text = text)
@@ -324,8 +324,9 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
         with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'a') as f:
-            add_page = "\n\n\
-% THIS IS CONTENT id: " + dataFromUser[0] + " \n\
+            add_page = "\n\n"
+            add_page += d.Links.Local.getIdxLineMarkerLine(dataFromUser[0]) + "\n"
+            add_page += "\
     % TEXT BEFORE MAIN IMAGE\n\
     \n\
     \n\
@@ -357,8 +358,8 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             if wv.UItkVariables.TOCWithImageVar.get():
                 # TOC ADD ENTRY WITH IMAGE
                 with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
-                    toc_add_image = "\
-% THIS IS CONTENT id: " + dataFromUser[0] + " \n\
+                    toc_add_image = d.Links.Local.getIdxLineMarkerLine(dataFromUser[0]) + " \n"
+                    toc_add_image += "\
 \\mybox{\n\
     \\link[" + dataFromUser[0] + \
     "]{" + dataFromUser[1] + "} \\image[0.5]{" + \
@@ -368,8 +369,8 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             else:  
                 # TOC ADD ENTRY WITHOUT IMAGE
                 with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
-                    toc_add_text = "\
-% THIS IS CONTENT id: " + dataFromUser[0] + " \n\
+                    toc_add_text = d.Links.Local.getIdxLineMarkerLine(dataFromUser[0]) + " \n"
+                    toc_add_text += "\
 \\mybox{\n\
     \\link[" + dataFromUser[0] + "]{" + dataFromUser[1] + "} \\textbf{!}\n\
 }\n\n\n"

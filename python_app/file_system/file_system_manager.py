@@ -9,6 +9,7 @@ import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
 import file_system.paths as p
 import file_system.links as l
+import file_system._utils as fsu
 
 '''
 Facade for Filesystem
@@ -60,6 +61,9 @@ class Wr:
         class ImLink(l.ImLink):
             pass
 
+    class Utils(fsu.Utils):
+        pass
+
 
 class PropIDs:
     class Sec(sfs.SectionInfoStructure.PubProp):
@@ -70,7 +74,6 @@ class PropIDs:
 
     class TOC(tocfs.TOCStructure.PubPro):
         pass
-
 
 
 def createNewBook(bookName):

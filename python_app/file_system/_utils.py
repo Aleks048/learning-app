@@ -7,6 +7,15 @@ import file_system.section_fs as sfs
 import file_system.origmaterial_fs as omfs
 import file_system.paths as p
 
+
+class Utils:
+    def getSectionNameWPrefix(secName):
+        sectionPrefix = \
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+        
+        return sectionPrefix + "_" + secName
+
+
 @classmethod
 def getWholeBookPath(cls):
     path = os.path.join(_u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID),
@@ -14,6 +23,7 @@ def getWholeBookPath(cls):
                     _u.Settings.PubProp.wholeBook_ID + ".pdf")
     print(path)
     return path
+
 
 
 def _getSectionFilepath(sectionPath):

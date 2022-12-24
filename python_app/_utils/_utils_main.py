@@ -16,14 +16,14 @@ def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
     outPos = []
 
     if not os.path.exists(filepath):
-        log("filepath does not exist. \nfilepath: " + filepath)
+        log.autolog("filepath does not exist. \nfilepath: " + filepath)
         return None
     with open(filepath, "r") as f:
         fLines = f.readlines()
      
     for i in range(len(fLines)):
         if  marker in fLines[i] and lineToken in fLines[i]:
-            outPos.append[i]
+            outPos.append(i)
     
     return outPos, fLines
 
@@ -80,8 +80,18 @@ def getPathToBooks():
 
 
 def getListOfBooks():
+    return getListBooksPathsDict().keys()
+
+def getListBooksPathsDict():
     booksPathsDict = Settings.readProperty(Settings.PubProp.booksPaths_ID)
-    return booksPathsDict.keys()
+    return booksPathsDict
+
+def getBookPath(bookName):
+    bookPathsDict = getListBooksPathsDict()
+    if bookName in list(bookPathsDict.keys()):
+        return bookPathsDict[bookName]
+    else:
+        return Token.NotDef.str_t
 
 
 def getAllRunningApps():
@@ -119,7 +129,6 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     
     log.autolog("getOwnersName_windowID_ofApp - window was not found")
     return None, None
-
 
 
 '''
