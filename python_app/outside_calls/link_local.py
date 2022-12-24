@@ -16,6 +16,7 @@ def processLinkCall(popsitionIDX, secName, bookName):
     '''
 
     secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
+    log.autolog(secName)
     bookPath = _u.getBookPath(bookName)
     if bookPath == _u.Token.NotDef.str_t:
         log.autolog("Could not find the path for the book with name '" 
@@ -43,7 +44,7 @@ def processLinkCall(popsitionIDX, secName, bookName):
     currSection = fsm.Wr.SectionCurrent.readCurrSection()
     
     #check if section infostructure has file move numbers defined
-    contentFileMoveNumber = \
+    conFileMoveNumber = \
         int(fsm.Wr.SectionInfoStructure.readProperty(currSection, 
                                 fsm.PropIDs.Sec.imageContentFileMoveLinesNumber_ID))
     tocFileMoveNumber = \
@@ -54,7 +55,7 @@ def processLinkCall(popsitionIDX, secName, bookName):
     conLineNumber = str(conLine + conFileMoveNumber)
     pdfPage = popsitionIDX
 
-    if contentFileMoveNumber == _u.Token.NotDef.str_t and tocFileMoveNumber == _u.Token.NotDef.str_t:
+    if conFileMoveNumber == _u.Token.NotDef.str_t and tocFileMoveNumber == _u.Token.NotDef.str_t:
         #get the move numbers from bookinfostructure
         conFileMoveNumber = \
             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.imageContentFileMoveLinesNumber_ID)
@@ -68,7 +69,7 @@ def processLinkCall(popsitionIDX, secName, bookName):
 # move tex TOC file to desired
 code -g {0}:{1}:0
 code -g {2}:{3}:0
-open \"skim://{4}#page=${5}\"
+open \"skim://{4}#page={5}\"
 """.format(tocTexFilepath, 
         tocLineNumber, 
         conTexFilepath, 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 local_link () {
-    sec_bookpath=$1
-    sec_place_id=$2
+    sec_place_id=$1
+    sec_bookpath=$2
     bookpath=$3
 
     # get numbers that we add to the found lines

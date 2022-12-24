@@ -53,7 +53,7 @@ class LinkDict:
     def getLocalLinkScriptLines(imIDX, subSection, bookName):
         scriptFile = "\
 source ${BOOKS_SCRIPTSCALLS_PATH}/link_local.sh\n\
-local_links " + imIDX + " " + subSection + " " + bookName
+local_link " + imIDX + " " + subSection + " " + bookName
         
         return scriptFile
 

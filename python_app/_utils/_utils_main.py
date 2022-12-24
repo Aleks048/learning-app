@@ -17,7 +17,7 @@ def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
 
     if not os.path.exists(filepath):
         log.autolog("filepath does not exist. \nfilepath: " + filepath)
-        return None
+        return None, None
     with open(filepath, "r") as f:
         fLines = f.readlines()
      
