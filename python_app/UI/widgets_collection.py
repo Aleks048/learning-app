@@ -555,6 +555,17 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page
                     command = callback)
 
 
+def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
+    def rebuildBtnCallback():
+        t.Wr.TexFile.buildCurrentSubsectionPdf()
+        
+    return tk.Button(mainWinRoot, 
+                    name = prefixName.lower() + "_rebuildCurrSubsec",
+                    text="rebuild", 
+                    fg='black', bg='red' ,
+                    command= rebuildBtnCallback)
+
+
 class StartupMenu:
     def getStartup_BTN(winRoot, callback):
         return tk.Button(winRoot,
@@ -650,6 +661,10 @@ class LayoutsMenus:
 
             changeSection_BTN = getChangeSubsectionToTheFront(winMainRoot, cls.classPrefix)
             changeSection_BTN.grid(column=0, row=2, padx=0, pady=0)
+
+
+            rebuildCurrSec_BTN = getRebuildCurrentSubsec_BTN(winMainRoot, cls.classPrefix)
+            rebuildCurrSec_BTN.grid(row = 2, column = 1)
 
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions[0] = int(mon_width / 2)
