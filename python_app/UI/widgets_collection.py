@@ -200,6 +200,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
     def addGlLinkCallback():
         bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+        bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         
         sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
@@ -244,7 +245,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         sPath = os.path.join(sDirPath, sName)
         with open(sPath , "w+") as f:
             for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX,
-                                                                    targetPDFFilepath):
+                                                                    targetSectionPath,
+                                                                    bookName):
                 f.write(line)
 
         os.system("chmod +rwx " + sPath)
@@ -262,7 +264,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         returnSctiptPath = os.path.join(returnScriptDirPath, returnScriptName)
         with open(returnSctiptPath , "w+") as f:
             for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
-                                                                    sourcePDFFilepath):
+                                                                    sourceSectionPath,
+                                                                    bookName):
                 f.write(line)
         
         os.system("chmod +rwx " + returnSctiptPath)
