@@ -10,9 +10,12 @@ class UItkVariables:
     currCh = None
     currSubch = None
     currImLink = None
+   
     glLinkTargetImLink = None
     glLinkSourceImLink = None
     glLinktargetSections = None
+    glLinktargetTopSection = None
+    glLinktargetSubSection = None
 
 class StartupUItkVariables:
     bookChoice = None

@@ -296,6 +296,77 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
     
     return createGlLinkBTN, createGlLinkETR
 
+# update the image links om
+def updateImLinksOM(winMainRoot, secPath):
+    if secPath != "":
+        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(secPath)
+        wu.updateOptionMenuOptionsList(winMainRoot, 
+                                    "target_SecImIDX", 
+                                    currChImageLinks,
+                                    wv.UItkVariables.glLinkTargetImLink,
+                                    lambda *argv: None)
+        wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
+
+def getGlLinkSectionAndSubsection_OM(mainWinRoot, namePrefix = ""):
+    '''
+    functions that retrun options menus for choosing chapter
+    '''
+
+    def _subsectionChoosingCallback(mainWinRoot):
+        sectiopPath =  wv.UItkVariables.glLinktargetSubSection.get()
+        log.autolog("Hip:" + sectiopPath)
+        wv.UItkVariables.glLinktargetSections.set(sectiopPath)
+        updateImLinksOM(mainWinRoot, wv.UItkVariables.glLinktargetSections.get())
+
+
+    def _topSectionChoosingCallback(mainWinRoot):
+        topSec = wv.UItkVariables.glLinktargetSections.get()
+        subsectionsList = fsm.getSubsectionsList(topSec)
+        subsectionsList.sort()
+
+        # subsection option menu widget
+        wu.updateOptionMenuOptionsList(mainWinRoot, 
+                                        "_GlLink_chooseSubsecion_optionMenu", 
+                                        subsectionsList, 
+                                        wv.UItkVariables.glLinktargetSubSection,
+                                        _subsectionChoosingCallback) 
+
+
+    wv.UItkVariables.topSection.set(
+        fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+    )
+
+    topSectionsList = fsm.getTopSectionsList()
+    topSectionsList.sort(key = int)
+    subsectionsList = fsm.getSubsectionsList(topSectionsList[0])
+
+    frameTop = tk.Frame(mainWinRoot, 
+                    name = namePrefix.lower() + "_GlLink_chooseSection_optionMenu", 
+                    background = "Blue")
+    
+    wv.UItkVariables.glLinktargetTopSection = tk.StringVar()
+    wv.UItkVariables.glLinktargetTopSection.set(topSectionsList[0])
+    topSection_menu = tk.OptionMenu(frameTop, 
+                                    wv.UItkVariables.glLinktargetTopSection , 
+                                    *topSectionsList, 
+                                    command= lambda x: _topSectionChoosingCallback(mainWinRoot))
+    topSection_menu.grid(row = 0, column = 0)
+    
+
+    frameSub = tk.Frame(mainWinRoot, 
+                    name = namePrefix.lower() + "_GlLink_chooseSubsection_optionMenu", 
+                    background = "Blue")
+
+    wv.UItkVariables.glLinktargetSubSection = tk.StringVar()
+    wv.UItkVariables.glLinktargetSubSection.set(subsectionsList[0])
+    subection_menu = tk.OptionMenu(frameSub, 
+                                    wv.UItkVariables.glLinktargetSubSection , 
+                                    *subsectionsList, 
+                                    command= lambda x: _subsectionChoosingCallback(mainWinRoot))
+    subection_menu.grid(row = 0, column = 0)
+
+    return frameTop, frameSub
+
 
 def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
     secImIndex = fsm.Wr.Links.ImIDX.get_curr()
@@ -634,23 +705,14 @@ class LayoutsMenus:
             saveImageBTN = getSaveImage_BTN(winMainRoot, cls.classPrefix)
             saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
 
+            getGlLinkSectionAndSubsection_OM(winMainRoot, cls.classPrefix)
+
             createGlLinkBTN, createGlLinkETR = getGlobalLinksAdd_Widgets(winMainRoot, cls.classPrefix)
             createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
             createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
             
-            # update the image links om
-            def updateImLinksOM(secPath):
-                if secPath != "":
-                    currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(secPath)
-                    wu.updateOptionMenuOptionsList(winMainRoot, 
-                                                "target_SecImIDX", 
-                                                currChImageLinks,
-                                                wv.UItkVariables.glLinkTargetImLink,
-                                                lambda *argv: None)
-                    wv.UItkVariables.glLinkTargetImLink.set(currChImageLinks[-1])
-            
             createGlLinkETR.bind('<Return>',
-                                lambda e: updateImLinksOM(wv.UItkVariables.glLinktargetSections.get()))
+                                lambda e: updateImLinksOM(winMainRoot, wv.UItkVariables.glLinktargetSections.get()))
             
             targetImageLinksOM = getTargetImageLinks_OM(winMainRoot, cls.classPrefix)
             targetImageLinksOM.grid(column=5, row=2, padx=0, pady=0)
@@ -665,6 +727,10 @@ class LayoutsMenus:
 
             rebuildCurrSec_BTN = getRebuildCurrentSubsec_BTN(winMainRoot, cls.classPrefix)
             rebuildCurrSec_BTN.grid(row = 2, column = 1)
+
+            targetTopSectionOM, targetSubsectionOM = getGlLinkSectionAndSubsection_OM(winMainRoot, cls.classPrefix)
+            targetTopSectionOM.grid(row = 2, column = 2)
+            targetSubsectionOM.grid(row = 2, column = 3)
 
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions[0] = int(mon_width / 2)
