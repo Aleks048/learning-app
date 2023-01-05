@@ -1,4 +1,4 @@
-import os
+import os, subprocess, signal, psutil
 from time import sleep
 from threading import Thread
 
@@ -9,6 +9,7 @@ import _utils.logging as log
 import UI.widgets_manager as wm
 import tex_file.tex_file_manager as tm
 import file_system.file_system_manager as fsm
+import data.temp as dt
 
 
 '''
@@ -70,8 +71,8 @@ class SectionLayout(Layout):
         if mainWinRoot != None:
             mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
                                 + "+" + str(int(mon_halfWidth)) + "+0")
-       
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("skim", currSection)
+        
+        ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         
         if ownerName == None or windowID == None:
             # if the pdf was not opened in Skim already   
@@ -79,39 +80,46 @@ class SectionLayout(Layout):
                                                 secPrefix + "_" + currSection + "_main.myPDF")
             _waitDummy = lu.openPdfInSkim(pathToSectionFolder)
             # sleep(0.5)
-            ownerName, windowID = \
+            ownerName, windowID, ownerPID = \
                 _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
         
 
         lu.moveApplicationsWindow(ownerName, 
-                                windowID, 
+                                windowID,
+                                ownerPID,
                                 [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
         lu.moveApplicationsWindow(ownerName, 
                                 windowID, 
+                                ownerPID,
                                 [mon_halfWidth, mon_height - menuHeight - 24, menuWidth, menuHeight + 54])
     
         # open chapter source in vscode
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
+        # ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
         
-        if (windowID == None):
-            _waitDummy = os.system("code -n " + pathToSourceFolder)
-            ownerName = None
-            windowID = None
-            while windowID == None:
-                ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
-                # sleep(0.1) 
+        # if (windowID == None):
+        cmd = "exec code -n "+ pathToSourceFolder + " &"
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+
+        # ownerName = None
+        windowID = None
+        while windowID == None:
+            ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
+            dt.OtherAppsInfo.VsCode.section_pid  = ownerPID
 
         # move vscode into position
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height , 0 , 0])
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_halfWidth, mon_height , 0 , 0])
+        lu.moveApplicationsWindow(ownerName,
+                                windowID,
+                                ownerPID,
+                                [mon_halfWidth, mon_height , 0 , 0],
+                                currSection)
 
         # create the layout in the vscode window
         conterntFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         TOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
         cmd = "osascript -e '\n\
-        tell application \"code\"\n\
-            activate\n\
-        end tell\n\
+        set theprocs to every process whose unix id is " + ownerPID + "\n\
+        set proc to item 1 of theprocs\n\
+        tell proc to activate\n\
         '"
         _waitDummy = os.system(cmd)
         
@@ -123,8 +131,7 @@ class SectionLayout(Layout):
         '"
         _waitDummy = os.system(cmd)
 
-        _waitDummy = os.system("code " + TOCFilepath)
-        _waitDummy = os.system("code " + conterntFilepath)
+        _waitDummy = os.system("code " + TOCFilepath + " " + conterntFilepath)
 
 
 class MainLayout(Layout):
@@ -141,19 +148,8 @@ class MainLayout(Layout):
         wm.Data.UItkVariables.needRebuild.set(False)
 
         #close the chapter vscode if it open
-        _, windowID = _u.getOwnersName_windowID_ofApp(
-                            "vscode",
-                             fsm.Wr.SectionCurrent.readCurrSection())
-        
-        if (windowID != None):
-            osascript = "osascript -e '\
-    tell application \"System Events\" to tell process \""  + _u.Settings._appsIDs.vsCode_ID + "\"\n\
-	    tell window " + windowID + "\n\
-            click button 1\n\
-	    end tell\n\
-    end tell'"
-            os.system(osascript)
-
+        if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
+            os.killpg(int(dt.OtherAppsInfo.VsCode.section_pid), signal.SIGINT)
 
         # whole book in skim
         mon_width, mon_height = _u.getMonitorSize()
@@ -167,23 +163,25 @@ class MainLayout(Layout):
 
         # currChapter images folder
         currSectionWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
+        ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
         
         if ownerName == None or windowID == None:
             # if no window found we open one with the chapter in Finder
             currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
             _waitDummy = lu.openChapterFolderInFinder(currScreenshotDir)
             # TODO: this needs to change
-            ownerName, windowID = _u.getOwnersName_windowID_ofApp("finder", "images")
+            ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
         
         if ownerName == None or windowID == None: 
             print("setMainLayout - Something went wrong. Finder could not open the folder")
         else:
             lu.moveApplicationsWindow(ownerName, 
-                                    windowID, 
+                                    windowID,
+                                    ownerPID,
                                     [mon_halfWidth, mon_height - appHeight - 105, appWidth, appHeight + 54])
             lu.moveApplicationsWindow(ownerName, 
-                                    windowID, 
+                                    windowID,
+                                    ownerPID,
                                     [mon_halfWidth, mon_height - appHeight - 105, appWidth, appHeight + 54])
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
@@ -199,9 +197,15 @@ class WholeVSCodeLayout(Layout):
 
         mon_windth, mon_height = _u.getMonitorSize()
         # vscode open
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp("vscode")
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_windth, mon_height , 0 , 0])
-        lu.moveApplicationsWindow(ownerName, windowID, [mon_windth, mon_height , 0 , 0])
+        ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode")
+        lu.moveApplicationsWindow(ownerName, 
+                                windowID, 
+                                ownerPID, 
+                                [mon_windth, mon_height , 0 , 0])
+        lu.moveApplicationsWindow(ownerName, 
+                                windowID, 
+                                ownerPID,
+                                [mon_windth, mon_height , 0 , 0])
 
 
 

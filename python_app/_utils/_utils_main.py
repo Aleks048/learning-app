@@ -1,4 +1,4 @@
-import sys, os, json
+import sys, os, json, time
 from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
@@ -101,7 +101,7 @@ def getAllRunningApps():
     return activeApps
 
 
-def getWindowsFromApp(app):
+def getWindowsList():
     # if app.isActive():
     options = Quartz.kCGWindowListOptionOnScreenOnly
     return Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
@@ -110,12 +110,19 @@ def getWindowsFromApp(app):
 def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     activeApps = getAllRunningApps()
     
-    app = [i for i in activeApps if appName in str(i).lower()][0]
+    app = [i for i in activeApps if appName in str(i).lower()]
+    while len(app) == 0:
+        time.sleep(0.1)
+        activeApps = getAllRunningApps()
+        app = [i for i in activeApps if appName in str(i).lower()]
+
+    app = app[0]
+
     if app == None :
         log.autolog("getOwnersName_windowID_ofApp - the app was not found")
-        return None, None
+        return None, None, None
     
-    windowList = getWindowsFromApp(app)
+    windowList = getWindowsList()
     windowIndex = 1
     
     for window in windowList:
@@ -123,12 +130,13 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
             if windowIdentifier in window["kCGWindowName"]:
                 ownerName = str(window["kCGWindowOwnerName"])
                 windowID = str(windowIndex)
+                ownerPID = str(window["kCGWindowOwnerPID"])            
 
-                return ownerName, windowID
+                return ownerName, windowID, ownerPID
             windowIndex += 1
     
     log.autolog("getOwnersName_windowID_ofApp - window was not found")
-    return None, None
+    return None, None, None
 
 
 '''

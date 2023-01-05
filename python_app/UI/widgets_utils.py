@@ -104,7 +104,7 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     l_Name = _u.Settings.readProperty(_u.Settings.PubProp.currLayout_ID)
     
     layoutClass = [i for i in lm.Data.listOfLayoutClasses if i.__name__.replace(_u.Settings.layoutClassToken,"") == l_Name][0]
-    log.autolog("Hippo Showing layout: \n" 
+    log.autolog("Showing layout: \n" 
                 + str(menuWidth) + "\n" 
                 + str(menuHeight) + "\n" 
                 + layoutClass.__name__)
@@ -118,6 +118,7 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
             if (Data.ENT.entryWidget_ID in e._name):
                 e.focus_set()
             e.grid()
+
 
 class initVars:
     def MainUI():

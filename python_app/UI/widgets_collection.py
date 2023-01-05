@@ -580,7 +580,7 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page
         imIDX = int(str(subprocess.check_output(cmd, shell=True)).split(" ")[1])
 
         # close current section vscode
-        _, windowID = _u.getOwnersName_windowID_ofApp(
+        _, windowID, _ = _u.getOwnersName_windowID_ofApp(
                             "vscode",
                              fsm.Wr.SectionCurrent.readCurrSection())
         

@@ -6,18 +6,40 @@ import _utils.logging as log
 import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
 
-def moveApplicationsWindow(appName, windowID, bounds, windowName = ""):
+def moveApplicationsWindow(appName, windowID, appPID, bounds, windowIdentifier = ""):
     bounds = [str(i) for i in bounds]
-    cmd = "osascript -e '\
-    tell application \"System Events\" to tell process \"" + appName + "\"\n\
-	    tell window " + windowID + "\n\
-		    set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
-		    delay 0.1\n\
-            set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
-            delay 0.1\n\
-            perform action \"AXRaise\"\n\
-	    end tell\n\
-    end tell'"
+    if windowIdentifier == "":
+        cmd = "osascript -e '\
+        tell application \"System Events\"\n\
+            set processList to every process whose unix id is " + appPID + "\n\
+            repeat with proc in processList\n\
+                tell proc\n\
+                    tell window " + windowID + "\n\
+                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
+                        delay 0.1\n\
+                        set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
+                        delay 0.1\n\
+                        perform action \"AXRaise\"\n\
+                    end tell\n\
+                end tell\n\
+            end repeat\n\
+        end tell'"
+    else:
+        cmd = "osascript -e '\
+        tell application \"System Events\"\n\
+            set processList to every process whose unix id is " + appPID + "\n\
+            repeat with proc in processList\n\
+                tell proc\n\
+                    tell window whose name contains \"" + windowIdentifier + "\"\n\
+                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
+                        delay 0.1\n\
+                        set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
+                        delay 0.1\n\
+                        perform action \"AXRaise\"\n\
+                    end tell\n\
+                end tell\n\
+            end repeat\n\
+        end tell'"
 
     # attempt to do this with xdotools
     # cmd = "xdotool search --name windowmove " + windowID + " " + bounds[2] + " " + bounds[3]
@@ -79,18 +101,24 @@ def vsCodeManipulation(clearWindows, collapseFolders, hide):
 
 def openWholeBook(dimentions, position):
     # whole book in skim
-    ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
+    ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
     
     if ownerName == None or windowID == None:
         # if the book was not opened in Skim already    
         openPdfInSkim(fsm.Wr.OriginalMaterialStructure._getBaseAbsPath())
-        ownerName, windowID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
+        ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, _u.Settings.PubProp.wholeBook_ID + ".pdf")
     
     if ownerName == None or windowID == None: 
         log.autolog("Something went wrong. Skim could not open the document")
     else:
-        moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
-        moveApplicationsWindow(ownerName, windowID, [dimentions[0], dimentions[1], position[0] , position[1]])
+        moveApplicationsWindow(ownerName, 
+                            windowID, 
+                            ownerPID, 
+                            [dimentions[0], dimentions[1], position[0] , position[1]])
+        moveApplicationsWindow(ownerName,
+                            windowID, 
+                            ownerPID, 
+                            [dimentions[0], dimentions[1], position[0] , position[1]])
 
 def moveWholeBookToChapter():
     currChapter = fsm.Wr.SectionCurrent.readCurrSection()
