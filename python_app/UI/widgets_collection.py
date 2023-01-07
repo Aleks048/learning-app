@@ -49,7 +49,7 @@ def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
     restart_BTN = tk.Button(mainWinRoot,
                             name = namePrefix.lower() + "_imageGenerationRestartBTN",
                             text= "restart", 
-                            command = restartBTNcallback)
+                            command = restartBTNcallback())
     
     return restart_BTN
 
@@ -89,9 +89,9 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
             Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
     
     return tk.Button(mainWinRoot, 
-                    name = prefixName.lower() + "_showProofsBTN",
+                    name = prefixName.lower() + "_showProofs_BTN",
                     textvariable = showProofsVar,
-                    command = getShowProofsCallBack)
+                    command = lambda: getShowProofsCallBack())
 
 
 def getAddImage_BTN(mainWinRoot, prefixName = ""):
@@ -143,7 +143,7 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_imageGenerationAddImBTN",
                     text= "addIm",
-                    command = addImBTNcallback)
+                    command = lambda: addImBTNcallback())
 
 
 def getSaveImage_BTN(mainWinRoot, prefixName = ""):
@@ -161,7 +161,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_saveImgBTN",
                     text = "saveIM",
-                    command = saveImageCallBack)
+                    command = lambda: saveImageCallBack())
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
@@ -287,7 +287,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
     createGlLinkBTN = tk.Button(mainWinRoot, text = "Create gl link", 
                         name = prefixName.lower() + "_addGlobalLink" + "BTN",
-                        command = addGlLinkCallback)
+                        command = lambda: addGlLinkCallback())
 
     createGlLinkETR = tk.Entry(mainWinRoot,
                             width = 5,
@@ -378,7 +378,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
     imageProcessingETR = tk.Entry(mainWinRoot, 
                                 width = 8,
                                 textvariable =  wv.UItkVariables.imageGenerationEntryText,
-                                name=prefixName.lower() + "_imageGeneration_" + wu.Data.ENT.entryWidget_ID)
+                                name = prefixName.lower() + "_imageGeneration_" + wu.Data.ENT.entryWidget_ID)
 
     dataFromUser = [-1, -1]
 
@@ -518,9 +518,9 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
                 break
 
     processButton = tk.Button(mainWinRoot, 
-                            name = prefixName.lower() + "_imageGeneration_processButton",
+                            name = prefixName.lower() + "_imageGeneration_process_BTN",
                             textvariable = wv.UItkVariables.buttonText, 
-                            command= buttonCallback)
+                            command= lambda: buttonCallback())
     
     return [imageProcessingETR, processButton]
 
@@ -623,7 +623,7 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page
     return tk.Button(mainWinRoot, 
                     name = prefixName + "_changeSubsection",
                     text = "change subsecttion",
-                    command = callback)
+                    command = lambda: callback())
 
 
 def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
@@ -632,9 +632,9 @@ def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
         
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_rebuildCurrSubsec",
-                    text="rebuild", 
-                    fg='black', bg='red' ,
-                    command= rebuildBtnCallback)
+                    text = "rebuild", 
+                    fg = 'black', bg = 'red' ,
+                    command = lambda: rebuildBtnCallback())
 
 
 class StartupMenu:
@@ -642,7 +642,7 @@ class StartupMenu:
         return tk.Button(winRoot,
                         name = "_startupConfirmBTN",
                         text= "start", 
-                        command = callback)
+                        command = lambda: callback())
 
     def getBookChoosing_OM(winRoot, callback):
         default_book_name="Select a a book"
@@ -681,7 +681,7 @@ class StartupMenu:
         return tk.Button(winRoot,
                         name = "_addBookBTN",
                         text= "addBook", 
-                        command = callback)
+                        command = lambda: callback())
 
 
 class LayoutsMenus:
@@ -1098,7 +1098,7 @@ class SectionsUI:
                                          name = prefixName.lower() 
                                                 + "_chooseChapterLayoutBtn", 
                                         textvariable = chooseChapter_MenusBtn_Label, 
-                                        command = chooseChaptersMenusAndBackCallback)
+                                        command = lambda: chooseChaptersMenusAndBackCallback())
         
         return chooseChapter_MenusBtn
 
@@ -1133,7 +1133,7 @@ class SectionsUI:
         button_setChapterName = tk.Button(mainWinRoot, 
                             name = prefixName.lower() +  cls.WidgetNames.Top.Name + "BTN", 
                             text="setTopSectionName", 
-                            command = setTopSectionNameCallback)
+                            command = lambda: setTopSectionNameCallback())
         
         return entry_setChapterName, button_setChapterName            
 
@@ -1155,7 +1155,7 @@ class SectionsUI:
         button_setTopSectionStartPage = tk.Button(mainWinRoot, 
                         name = prefixName.lower() + cls.WidgetNames.Top.StPage + "BTN", 
                         text="setTopSectionStartPage", 
-                        command = setTopSectionStartPageCallback)
+                        command = lambda: setTopSectionStartPageCallback())
         
         return entry_setTopSectionStartPage, button_setTopSectionStartPage
 
@@ -1222,7 +1222,7 @@ class SectionsUI:
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_createNewTopSection_" + "BTN", 
                         text="New", 
-                        command = createNewBTNcallback)
+                        command = lambda: createNewBTNcallback())
     
 
     @classmethod
@@ -1240,5 +1240,5 @@ class SectionsUI:
         return tk.Button(mainWinRoot, 
                         name = prefixName.lower() + "_removeTopSectionBTN", 
                         text="Del", 
-                        command = removeBTNcallback)
+                        command = lambda: removeBTNcallback())
 

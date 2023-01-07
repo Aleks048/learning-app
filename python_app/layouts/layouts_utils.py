@@ -6,15 +6,17 @@ import _utils.logging as log
 import file_system.file_system_manager as fsm
 import UI.widgets_manager as uim
 
-def moveApplicationsWindow(appName, windowID, appPID, bounds, windowIdentifier = ""):
+def moveApplicationsWindow(appName, windowID, appPID, bounds, windowIdentifier = "", windowCmd = ""):
     bounds = [str(i) for i in bounds]
+    log.autolog(appName + " " + appPID)
+    # windowIdentifier = ""
     if windowIdentifier == "":
         cmd = "osascript -e '\
         tell application \"System Events\"\n\
             set processList to every process whose unix id is " + appPID + "\n\
             repeat with proc in processList\n\
                 tell proc\n\
-                    tell window " + windowID + "\n\
+                    tell window " + "1" + "\n\
                         set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
                         delay 0.1\n\
                         set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
@@ -26,20 +28,23 @@ def moveApplicationsWindow(appName, windowID, appPID, bounds, windowIdentifier =
         end tell'"
     else:
         cmd = "osascript -e '\
-        tell application \"System Events\"\n\
-            set processList to every process whose unix id is " + appPID + "\n\
-            repeat with proc in processList\n\
-                tell proc\n\
-                    tell window whose name contains \"" + windowIdentifier + "\"\n\
-                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
-                        delay 0.1\n\
-                        set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
-                        delay 0.1\n\
-                        perform action \"AXRaise\"\n\
-                    end tell\n\
-                end tell\n\
-            end repeat\n\
-        end tell'"
+tell application \"System Events\"\n\
+	set processList to every process whose unix id is " + appPID + "\n\
+	repeat with proc in processList\n\
+		tell proc\n\
+			repeat with theWindow in windows\n\
+				set n to name of theWindow\n\
+				if n contains \"" + windowIdentifier + "\" then\n\
+					tell theWindow\n"
+        cmd += windowCmd
+        cmd += "\
+					end tell\n\
+				end if\n\
+			end repeat\n\
+		end tell\n\
+	end repeat\n\
+end tell'"
+    log.autolog(cmd)
 
     # attempt to do this with xdotools
     # cmd = "xdotool search --name windowmove " + windowID + " " + bounds[2] + " " + bounds[3]

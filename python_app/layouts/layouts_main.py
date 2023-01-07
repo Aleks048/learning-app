@@ -106,12 +106,21 @@ class SectionLayout(Layout):
             ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
             dt.OtherAppsInfo.VsCode.section_pid  = ownerPID
 
+        vscodeBounds = [mon_halfWidth, mon_height , 0 , 0]
+        vscodeBounds  = [str(i) for i in vscodeBounds]
+        vscodeWindowCmd = "\
+                        set size to {" + vscodeBounds[0] + ", " + vscodeBounds[1] + "}\n\
+                        delay 0.1\n\
+                        set position to {" + vscodeBounds[2] + ", " + vscodeBounds[3] + "}\n\
+                        delay 0.1\n\
+                        perform action \"AXRaise\"\n"
         # move vscode into position
         lu.moveApplicationsWindow(ownerName,
                                 windowID,
                                 ownerPID,
-                                [mon_halfWidth, mon_height , 0 , 0],
-                                currSection)
+                                vscodeBounds,
+                                currSection,
+                                vscodeWindowCmd)
 
         # create the layout in the vscode window
         conterntFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
@@ -146,10 +155,24 @@ class MainLayout(Layout):
         #       vscode/finder(with images folder) to the right
         '''
         wm.Data.UItkVariables.needRebuild.set(False)
+        currSection = fsm.Wr.SectionCurrent.readCurrSection()
 
         #close the chapter vscode if it open
+        log.autolog("hip: " + dt.OtherAppsInfo.VsCode.section_pid)
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
-            os.killpg(int(dt.OtherAppsInfo.VsCode.section_pid), signal.SIGINT)
+            mon_width, mon_height = _u.getMonitorSize()
+            mon_halfWidth = mon_width / 2
+            vscodeBounds = [mon_halfWidth, mon_height , 0 , 0]
+            vscodeWindowCmd = "\
+                        click button 1\n"
+            ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode", currSection)
+            # move vscode into position
+            lu.moveApplicationsWindow(ownerName,
+                                    windowID,
+                                    str(ownerPID),
+                                    vscodeBounds,
+                                    currSection,
+                                    vscodeWindowCmd)
 
         # whole book in skim
         mon_width, mon_height = _u.getMonitorSize()

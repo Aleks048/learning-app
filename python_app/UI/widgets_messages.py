@@ -37,8 +37,8 @@ class ConfirmationMenu:
         l1=tk.Label(cls.winRoot, image="::tk::icons::question")
         l2=tk.Label(cls.winRoot,text= text)
 
-        b1=tk.Button(cls.winRoot,text="Yes",command = onYesCallback, width = 10)
-        b2=tk.Button(cls.winRoot,text="No",command= cls.winRoot .destroy,width = 10)
+        b1=tk.Button(cls.winRoot,text="Yes",command = lambda: onYesCallback(), width = 10)
+        b2=tk.Button(cls.winRoot,text="No",command= lambda: cls.winRoot.destroy(),width = 10)
 
 
         # layout

@@ -140,6 +140,9 @@ def updateSectionProperty(sectionPath, propertyName, newValue):
     sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
 
 def getSubsectionsList(sectionPath = ""):
+    if sectionPath == _u.Token.NotDef.str_t:
+        return _u.Token.NotDef.list_t
+
     sections_ID = bfs.BookInfoStructure.PubProp.sections_ID
     outSubsectionsList = []
     
@@ -173,7 +176,8 @@ def getSubsectionsList(sectionPath = ""):
     
 def getTopSectionsList():
     sections = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_ID)
-
+    if sections == {}:
+        return _u.Token.NotDef.list_t
     return list(sections.keys())
 
 def removeSection():

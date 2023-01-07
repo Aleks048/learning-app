@@ -53,7 +53,7 @@ class StartupMenu:
         def startup_BTN_callback():
             cls.winRoot.withdraw()
             _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-            MainMenu.createMenu(winRoot)
+            MainMenu.createMenu(cls.winRoot)
         confirm_BTN = wc.StartupMenu.getStartup_BTN(cls.winRoot, startup_BTN_callback)
         
         confirm_BTN.pack()

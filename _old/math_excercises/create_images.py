@@ -62,11 +62,20 @@ master.bind('<Return>', funcEnter)
 master.bind('<Escape>', funcEscape)
 master.bind('{', funcSC)
 
-b = tk.Button(master, textvariable = buttonText, width = 10, command = callback)
+b = tk.Button(master, 
+            textvariable = buttonText, 
+            width = 10, 
+            command = lambda: callback())
 b.pack()
-eb = tk.Button(master, textvariable = buttonTextE, width = 10, command = callbackE)
+eb = tk.Button(master, 
+            textvariable = buttonTextE, 
+            width = 10, 
+            command = lambda: callbackE())
 eb.pack()
-setCounterB = tk.Button(master, textvariable = buttonTextSC, width = 10, command = callbackSC)
+setCounterB = tk.Button(master, 
+                        textvariable = buttonTextSC, 
+                        width = 10, 
+                        command = lambda: callbackSC())
 setCounterB.pack()
 master.configure(bg='red')
 

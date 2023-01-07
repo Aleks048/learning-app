@@ -20,8 +20,11 @@ def callbackOptionWrapper(event):
 def createButton(buttonLabel, buttonName):
     buttonText = tk.StringVar()
     buttonText.set(buttonLabel)
-    build_latex_button = tk.Button(master, textvariable = buttonText, width = 10, 
-                                    name=buttonName, command = callbackButton)
+    build_latex_button = tk.Button(master, 
+                                textvariable = buttonText, 
+                                width = 10, 
+                                name=buttonName, 
+                                command = lambda: callbackButton())
     build_latex_button.pack()
 
 def processChapterTex(chapterName):
