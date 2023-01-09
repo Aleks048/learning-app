@@ -258,7 +258,7 @@ class Settings:
     #app IDs
     class _appsIDs:
         skim_ID = "skim"
-        vsCode_ID = "Code"
+        vsCode_ID = "vscode"
         finder_ID = "Finder"
 
     class UI:
