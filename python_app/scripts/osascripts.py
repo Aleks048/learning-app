@@ -10,7 +10,7 @@ tell application \"System Events\"\n\
 		set idx to 1\n\
 		set listSize to count of windows of proc\n\
 		repeat\n\
-			if idx >= listSize then\n\
+			if idx > listSize then\n\
 				exit repeat\n\
 			end if\n\
 			set procN to name of proc\n\
@@ -33,7 +33,7 @@ def closeVscodeWindow(vscodePID, winNameID):
     outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
     return outCmd
 
-def closeWindow(vscodePID, winNameID):
+def closeFinderWindow(vscodePID, winNameID):
     cmd = "\
                         click button 1 of theWindow\n"
     outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
@@ -59,26 +59,10 @@ tell application \"System Events\"\n\
 end tell'"
     return outCmd
 
-def getMoveWindowCMD(appPID, bounds, windowIdentifier = ""):
+def getMoveWindowCMD(appPID, bounds, windowIdentifier):
     bounds = [str(i) for i in bounds]
-    if windowIdentifier == "":
-        cmd = "osascript -e '\
-        tell application \"System Events\"\n\
-            set processList to every process whose unix id is " + appPID + "\n\
-            repeat with proc in processList\n\
-                tell proc\n\
-                    tell window " + "1" + "\n\
-                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
-                        delay 0.1\n\
-                        set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
-                        delay 0.1\n\
-                        perform action \"AXRaise\"\n\
-                    end tell\n\
-                end tell\n\
-            end repeat\n\
-        end tell'"
-    else:
-        cmd = "osascript -e '\
+   
+    cmd = "osascript -e '\
 tell application \"System Events\"\n\
 	set processList to every process whose unix id is " + appPID + "\n\
 	repeat with proc in processList\n\
@@ -87,11 +71,11 @@ tell application \"System Events\"\n\
 				set n to name of theWindow\n\
 				if n contains \"" + windowIdentifier + "\" then\n\
 					tell theWindow\n\
-                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
-                        delay 0.1\n\
+                        perform action \"AXRaise\"\n\
                         set position to {" + bounds[2] + ", " + bounds[3] + "}\n\
                         delay 0.1\n\
-                        perform action \"AXRaise\"\n\
+                        set size to {" + bounds[0] + ", " + bounds[1] + "}\n\
+                        delay 0.1\n\
 					end tell\n\
 				end if\n\
 			end repeat\n\

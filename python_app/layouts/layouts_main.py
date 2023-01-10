@@ -1,4 +1,4 @@
-import os, subprocess, signal, psutil
+import os, subprocess
 from time import sleep
 from threading import Thread
 
@@ -52,7 +52,28 @@ class SectionLayout(Layout):
         
         if dt.OtherAppsInfo.Finder.main_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeFinderWindow(dt.OtherAppsInfo.Finder.main_pid, currSection)
-            _waitDummy = os.system(cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+        
+        if dt.OtherAppsInfo.Skim.main_pid != _u.Token.NotDef.str_t:
+            _, windowName, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, 
+                                                        _u.Settings.PubProp.wholeBook_ID + ".pdf")
+            if windowName != None:
+                dt.OtherAppsInfo.Skim.main_winName = windowName
+                page = windowName.split("page ")
+                log.autolog(page)
+                if len(page) != 2:
+                    log.autolog("setSectionLayout - Something went wrong. Can't get page number out of the name.")
+                    return
+                else:
+                    page = page[-1]
+                
+                if type(page) == str:
+                    page = page.split(" ")[0]
+                    fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currentPage_ID, page)
+                    
+                    cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.main_pid, _u.Settings.PubProp.wholeBook_ID)
+                    log.autolog(cmd)
+                    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         
         # check if the folder is empty.      
         if len(os.listdir(os.path.join(pathToSourceFolder, secPrefix + "_" + currSection + "_images"))) == 0:
@@ -76,17 +97,18 @@ class SectionLayout(Layout):
         if mainWinRoot != None:
             mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
                                 + "+" + str(int(mon_halfWidth)) + "+0")
-
  
         #
         # SKIM
         #
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
+
+        pathToCurrSecPDF = fsm.Wr.Paths.PDF.getAbs_curr()
         
         if ownerPID == None:
-            cmd = " open skim://"+ pathToSourceFolder
-            _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            cmd = " open skim://" + pathToCurrSecPDF
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         while ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, currSection)
@@ -94,12 +116,12 @@ class SectionLayout(Layout):
 
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
         
-        skimBounds = [mon_halfWidth, mon_height - menuHeight - 54, menuWidth, 0 + menuHeight + 54]
+        skimBounds = [mon_halfWidth, mon_height - menuHeight - 80, menuWidth, 0 + menuHeight + 54]
         skimBounds  = [str(i) for i in skimBounds]
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 skimBounds,
                                 currSection)
-        _waitDummy = os.system(cmd)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         log.autolog("moved SKIM")
 
 
@@ -122,16 +144,17 @@ class SectionLayout(Layout):
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 vscodeBounds,
                                 currSection)
-        _waitDummy = os.system(cmd)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         # create the layout in the vscode window
         conterntFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         TOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs_curr()
         
-        cms = oscr.get_SetSecVSCode_CMD()
-        _waitDummy = os.system(cmd)
+        cmd = oscr.get_SetSecVSCode_CMD()
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
-        _waitDummy = os.system("code " + TOCFilepath + " " + conterntFilepath)
+        cmd = "code " + TOCFilepath + " " + conterntFilepath
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         log.autolog("moved VSCODE.")
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
@@ -155,11 +178,11 @@ class MainLayout(Layout):
         #close the chapter VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
-            _waitDummy = os.system(cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         #close the chapter Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
-            _waitDummy = os.system(cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -172,14 +195,16 @@ class MainLayout(Layout):
         #
         # SKIM
         #
-        dimensions = [mon_halfWidth, mon_height * 2, 0, 0]
+        dimensions = [mon_halfWidth, mon_height, 0, 0]
+    
+        currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currentPage_ID)
+
+        bookPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.originalMaterialPath_ID)
+        cmd = " open skim://"+ bookPath + "#page=" + currPage
+        _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).pid
+        
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, 
                                                         _u.Settings.PubProp.wholeBook_ID + ".pdf")
-    
-        if ownerPID == None:
-            cmd = " open skim://"+ fsm.Wr.OriginalMaterialStructure._getBaseAbsPath()
-            _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).pid
-        
         while ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, 
                                                             _u.Settings.PubProp.wholeBook_ID + ".pdf")
@@ -189,14 +214,18 @@ class MainLayout(Layout):
             log.autolog("Something went wrong. Skim could not open the document")
         else:
             cmd = oscr.getMoveWindowCMD(ownerPID, 
-                                        dimensions)
-            _wairDummy = os.system(cmd)
-            _wairDummy = os.system(cmd)
+                                        dimensions,
+                                        _u.Settings.PubProp.wholeBook_ID)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+
+        dt.OtherAppsInfo.Skim.main_pid = ownerPID
 
 
         #
         # FINDER
         #
+        bounds = [mon_halfWidth, mon_height - appHeight - 80, appWidth, appHeight + 54]
+
         currSectionWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
         dt.OtherAppsInfo.Finder.main_pid = ownerPID
@@ -205,7 +234,7 @@ class MainLayout(Layout):
             # if no window found we open one with the chapter in Finder
             currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
             cmd = "open file://" + currScreenshotDir
-            _waitDummy = os.system(cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         
         while ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
@@ -217,10 +246,9 @@ class MainLayout(Layout):
             print("setMainLayout - Something went wrong. Finder could not open the folder")
         else:
             cmd = oscr.getMoveWindowCMD(ownerPID,
-                                    [mon_halfWidth, mon_height - appHeight - 75, appWidth, appHeight + 54],
+                                    bounds,
                                     currSection)
-            _waitDummy = os.system(cmd)
-            _waitDummy = os.system(cmd)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         
         log.autolog("Moved Finder.")
 
@@ -241,8 +269,7 @@ class WholeVSCodeLayout(Layout):
         ownerName, windowID, ownerPID = _u.getOwnersName_windowID_ofApp("vscode")
         cmd = oscr.getMoveWindowCMD(ownerPID, 
                                 [mon_windth, mon_height , 0 , 0])
-        _wairDummy = os.system(cmd)
-        _wairDummy = os.system(cmd)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
 
 

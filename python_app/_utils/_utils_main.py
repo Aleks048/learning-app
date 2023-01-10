@@ -123,17 +123,15 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
         return None, None, None
     
     windowList = getWindowsList()
-    windowIndex = 1
     
     for window in windowList:
         if window["kCGWindowOwnerName"] == app.localizedName():
             if windowIdentifier in window["kCGWindowName"]:
                 ownerName = str(window["kCGWindowOwnerName"])
-                windowID = str(windowIndex)
+                windowName = str(window["kCGWindowName"])
                 ownerPID = str(window["kCGWindowOwnerPID"])            
 
-                return ownerName, windowID, ownerPID
-            windowIndex += 1
+                return ownerName, windowName, ownerPID
     
     log.autolog("getOwnersName_windowID_ofApp - window was not found")
     return None, None, None

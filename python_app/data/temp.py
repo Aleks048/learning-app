@@ -7,6 +7,7 @@ class OtherAppsInfo:
     class Skim:
         section_pid = _u.Token.NotDef.str_t
         main_pid = _u.Token.NotDef.str_t
+        main_winName = _u.Token.NotDef.str_t
 
     class Finder:
         main_pid = _u.Token.NotDef.str_t

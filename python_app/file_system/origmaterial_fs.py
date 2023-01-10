@@ -2,6 +2,7 @@ import os
 
 import _utils._utils_main as _u
 import _utils.logging as log
+import file_system.book_fs as bfs
 
 
 class OriginalMaterialStructure:
@@ -31,6 +32,9 @@ class OriginalMaterialStructure:
                         + "'does not exist will create it")
             _waitDummy = os.makedirs(originnalMaterialDestinationPath)
         
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.originalMaterialPath_ID,
+                                            originnalMaterialDestinationPath)
+
         cmd = "cp " + filePath + " " + os.path.join(originnalMaterialDestinationPath) 
         log.autolog("Exacuting command: '" + cmd + "'")
         os.system(cmd)
@@ -39,3 +43,4 @@ class OriginalMaterialStructure:
     def _getBaseAbsPath(cls):
         bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
         return os.path.join(bookPath, cls.originalMaterialBaseRelPath)
+    

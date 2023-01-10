@@ -38,10 +38,13 @@ class BookInfoStructure:
         imageContentFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
 
+        originalMaterialPath_ID = "originalMaterialPath"
+
     bookInfoTemplate = {
         PubProp.version_ID: "0.1",
         PubProp.sections_prefix_ID: "sec",
         PubProp.sections_path_separator_ID: ".",
+        PubProp.originalMaterialPath_ID: "",
         PubProp.sections_ID: {
         },
         PubProp.currentState_ID: {
