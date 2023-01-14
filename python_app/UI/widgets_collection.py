@@ -14,6 +14,8 @@ import _utils.logging as log
 import _utils._utils_main as _u
 
 import data.constants as d
+import data.temp as dt
+import scripts.osascripts as oscr
 
 def getLabel(mainWinRoot, text):
     return tk.Label(mainWinRoot, text = text)
@@ -148,14 +150,8 @@ def getAddImage_BTN(mainWinRoot, prefixName = ""):
 
 def getSaveImage_BTN(mainWinRoot, prefixName = ""):
     def saveImageCallBack():
-        _waitDummy = os.system("osascript -e '\
-        tell application \"Preview\" to save the front document\n\
-        tell application \"System Events\" to tell process \"Preview\"\n\
-            tell front window \n\
-                click button 1\n\
-            end tell\n\
-        end tell\
-        '")
+        cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         t.Wr.TexFile.buildCurrentSubsectionPdf()
     
     return tk.Button(mainWinRoot, 
@@ -563,9 +559,7 @@ def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
     '''
     def callback():
         # get the name of the front skim document
-        cmd = "osascript -e '\n\
-tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return name of front document\n\
-'"
+        cmd = oscr.get_NameOfFrontSkimDoc_CMD()
         frontSkimDocumentName = str(subprocess.check_output(cmd, shell=True))
         
         # get subsection and top section from it
@@ -574,9 +568,7 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return name of fron
         topSection = frontSkimDocumentName.split(".")[0]
         subsection = frontSkimDocumentName
         
-        cmd = "osascript -e '\n\
-tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page of front document\n\
-'"
+        cmd = oscr.get_NameOfFrontSkimDoc_CMD()
         imIDX = int(str(subprocess.check_output(cmd, shell=True)).split(" ")[1])
 
         # close current section vscode
@@ -585,13 +577,8 @@ tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return current page
                              fsm.Wr.SectionCurrent.readCurrSection())
         
         if (windowID != None):
-            osascript = "osascript -e '\
-    tell application \"System Events\" to tell process \""  + _u.Settings._appsIDs.vsCode_ID + "\"\n\
-	    tell window " + windowID + "\n\
-            click button 1\n\
-	    end tell\n\
-    end tell'"
-            os.system(osascript)
+            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, subsection)
+            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         #change the current subsection for the app
         fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)

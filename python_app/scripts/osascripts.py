@@ -2,6 +2,26 @@ import data.temp as dt
 import _utils.logging as log
 import _utils._utils_main as _u
 
+def get_NameOfFrontSkimDoc_CMD():
+	cmd = "osascript -e '\n\
+tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return name of front document\n\
+'"
+	return cmd
+
+
+def get_NameOfFrontPreviewDoc_CMD():
+    cmd = "osascript -e '\
+        tell application \"Preview\" to save the front document\n\
+        tell application \"System Events\" to tell process \"Preview\"\n\
+            tell front window \n\
+                click button 1\n\
+            end tell\n\
+        end tell\
+        '"
+    return cmd
+
+
+
 def closeSkimDocument(skimPID, docNameId):
     skimCloseWindowCmd = "osascript -e '\
 tell application \"System Events\"\n\
