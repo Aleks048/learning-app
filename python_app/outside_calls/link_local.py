@@ -78,6 +78,20 @@ open \"skim://{4}#page={5}\"
     os.system(cmd)
 
 
+def processLinkCall(positionIDX, secName, bookName):
+    secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
+    bookPath = _u.getBookPath(bookName)
+    if bookPath == _u.Token.NotDef.str_t:
+        log.autolog("Could not find the path for the book with name '" 
+                    + bookName + "'. Abropt global link '" + secName + "'processing.")
+        return
+
+    pdfPath = fsm.Wr.Paths.PDF.getAbs(bookPath, secNameWPrefix)
+
+    cmd = "open 'skim://{0}#page={1}'".format(pdfPath, positionIDX)
+    os.system(cmd)
+
+
 
 def processGlobalLinkCall(positionIDX, secName, bookName):
     secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
