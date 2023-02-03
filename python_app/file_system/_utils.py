@@ -9,12 +9,20 @@ import file_system.paths as p
 
 
 class Utils:
-    def getSectionNameWPrefix(secName):
+    def getSectionNameWPrefix(fullSecName):
         sectionPrefix = \
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
         
-        return sectionPrefix + "_" + secName
+        return sectionPrefix + "_" + fullSecName
+    def joinTopAndSubsection(topSection, subsection):
+        separator = \
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        return topSection + separator + subsection
 
+    def getPDFPageFromPosIDX(posIDX):
+        # at the moment posIDX = sec page
+        # but in the future that might not be the case
+        return posIDX
 
 @classmethod
 def getWholeBookPath(cls):

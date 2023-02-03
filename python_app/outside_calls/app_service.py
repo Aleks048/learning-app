@@ -2,12 +2,14 @@
 import rpyc
 import time
 
-def processLink(message, *args):
-    print("Hello: " + message)
+import outside_calls.url as url
+
+def processLink(*args):
+    url.processLinkCall(args[0], args[1], args[2], args[3])
 
 class MyService(rpyc.Service):
-    def exposed_processLink(self, message, *args):
-        return processLink(message, *args)
+    def exposed_processLink(self, *args):
+        return processLink(*args)
 
 from rpyc.utils.server import ThreadedServer
 from threading import Thread
