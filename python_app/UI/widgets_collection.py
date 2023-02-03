@@ -161,7 +161,7 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
-    def addLinkToTexFile(imIDX, scriptPath, linkName, contenfFilepath):
+    def addLinkToTexFile(imIDX, _, linkName, contenfFilepath, linkData):
         #
         # add link to the current section file
         #
@@ -184,7 +184,7 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                 break
             positionToAdd += 1
         
-        lineToAdd = "        \href{file:" + scriptPath + "}{" + linkName + "}\n"
+        lineToAdd = "        \href{KIK:" + ".".join(linkData) + "." + imIDX + "}{" + linkName + "}\n"
         outlines = lines[:positionToAdd]
         outlines.append(lineToAdd)
         outlines.extend(lines[positionToAdd:])
