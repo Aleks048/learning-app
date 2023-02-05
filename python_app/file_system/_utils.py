@@ -17,12 +17,32 @@ class Utils:
     def joinTopAndSubsection(topSection, subsection):
         separator = \
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        
         return topSection + separator + subsection
 
     def getPDFPageFromPosIDX(posIDX):
         # at the moment posIDX = sec page
         # but in the future that might not be the case
         return posIDX
+    
+    def stripFullName_Wprefix(fullName):
+        # 
+        # remove prefix and split into subsection and top section
+        #
+
+        sectionPrefix = \
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+        
+        # remove prefix
+        fullName = fullName.replace(sectionPrefix, "")
+
+        separator = \
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        
+        fullName = fullName.split(separator)
+        topSection = fullName[0]
+        subsection = separator.join(fullName[1:])
+        return topSection, subsection
 
 @classmethod
 def getWholeBookPath(cls):

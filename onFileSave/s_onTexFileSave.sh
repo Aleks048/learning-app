@@ -1,21 +1,5 @@
-# set -e
-CALLER_TEX_FILEPATH=${1%????????}_main.tex
-CALLER_TEX_DIR_FILEPATH=$2
-GENERATED_PDF_NAME=${3%????????}_main
+CALLER_MAIN_TEX_FILEPATH=$1
 
-pushd ${BOOKS_PY_APP_PATH}
-    CMD="from tex_file import tex_file_manager as tm; tm.Wr.TexFile._populateMainFile()"
-    echo "Running command: "$CMD
-    python3 -c "$CMD"
-popd
-
-pushd ${CALLER_TEX_DIR_FILEPATH}
-    CMD="pdflatex  --shell-escape -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory=${CALLER_TEX_DIR_FILEPATH}/_out ${CALLER_TEX_FILEPATH}"
-    echo "Running command:"$CMD
-    $CMD
-
-    CMD="cp ${CALLER_TEX_DIR_FILEPATH}/_out/${GENERATED_PDF_NAME}.pdf ./${GENERATED_PDF_NAME}.myPDF"
-    echo "Running command:"$CMD
-    $CMD
-
-popd
+CMD="import rpyc; c = rpyc.connect(\"localhost\", 12345).root; c.processSaveTexFile('${CALLER_MAIN_TEX_FILEPATH}')"
+echo "Running command: "$CMD
+python3 -c "$CMD"

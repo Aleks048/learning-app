@@ -235,15 +235,15 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         #
         # Create the link script
         #
-        sDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, sourceSectionNameWprefix)
+        sDirPath = ""#fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, sourceSectionNameWprefix)
         sName = sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName + "__" \
             + targetSectionPath + "_" + targetIDX + "." + targetLinkName + ".sh"
         sPath = os.path.join(sDirPath, sName)
-        with open(sPath , "w+") as f:
-            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX,
-                                                                    targetSectionPath,
-                                                                    bookName):
-                f.write(line)
+        # with open(sPath , "w+") as f:
+        #     for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX,
+        #                                                             targetSectionPath,
+        #                                                             bookName):
+        #         f.write(line)
 
         os.system("chmod +rwx " + sPath)
 
@@ -254,15 +254,15 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
 
         # add return link 
         
-        returnScriptDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, targetSectionNameWprefix)
+        # returnScriptDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, targetSectionNameWprefix)
         returnScriptName = targetSectionPath + "_" + targetIDX + "." + targetLinkName + "__" \
                         + sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName +  ".sh"
         returnSctiptPath = os.path.join(returnScriptDirPath, returnScriptName)
-        with open(returnSctiptPath , "w+") as f:
-            for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
-                                                                    sourceSectionPath,
-                                                                    bookName):
-                f.write(line)
+        # with open(returnSctiptPath , "w+") as f:
+        #     for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
+        #                                                             sourceSectionPath,
+        #                                                             bookName):
+        #         f.write(line)
         
         os.system("chmod +rwx " + returnSctiptPath)
 
@@ -451,8 +451,8 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         #create a script to run on page change
         imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
                                 dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
-        scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr(),
-                                dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
+        # scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr(),
+        #                         dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
         fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
@@ -469,12 +469,12 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
                 os.system("screencapture -ix " + iPath + ".png")
                 wv.UItkVariables.needRebuild.set(True)
                 # create a sript associated with page
-                with open(sPath + ".sh", "w+") as f:
-                    lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-                                                                        sPath,
-                                                                        bookName)
-                    for line in lines:
-                        f.write(line)
+                # with open(sPath + ".sh", "w+") as f:
+                #     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
+                #                                                         sPath,
+                #                                                         bookName)
+                #     for line in lines:
+                #         f.write(line)
                 os.system("chmod +x " + sPath + ".sh")
                 # update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
@@ -489,13 +489,13 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
             #create a sript associated with image
-            with open(scriptPath + ".sh", "w+") as f:
-                lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-                                                                    currSubsection,
-                                                                    bookName)
-                for line in lines:
-                    f.write(line)
-            os.system("chmod +x " + scriptPath + ".sh")
+            # with open(scriptPath + ".sh", "w+") as f:
+            #     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
+            #                                                         currSubsection,
+            #                                                         bookName)
+            #     for line in lines:
+            #         f.write(line)
+            # os.system("chmod +x " + scriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -600,12 +600,12 @@ def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
         wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
         
         #move run susection script to move to desired position
-        localScriptsDir = fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr()
+        # localScriptsDir = fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr()
 
-        sctiptPath = os.path.join(localScriptsDir, str(imIDX) + "*" + currChImageLinks[imIDX - 1] + "*.sh")
-        log.autolog("running script: " + sctiptPath)
-        os.system("chmod +rwx " + sctiptPath)
-        os.system(sctiptPath)
+        # sctiptPath = os.path.join(localScriptsDir, str(imIDX) + "*" + currChImageLinks[imIDX - 1] + "*.sh")
+        # log.autolog("running script: " + sctiptPath)
+        # os.system("chmod +rwx " + sctiptPath)
+        # os.system(sctiptPath)
 
     return tk.Button(mainWinRoot, 
                     name = prefixName + "_changeSubsection",

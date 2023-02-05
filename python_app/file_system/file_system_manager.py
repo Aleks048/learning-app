@@ -37,9 +37,7 @@ class Wr:
     class Paths:
         class Screenshot(p.Paths.Screenshot):
             pass
-            
-        class Scripts(p.Paths.Scripts):
-            pass
+        
 
         class Section(p.Paths.Section):
             pass

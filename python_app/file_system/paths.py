@@ -1,6 +1,7 @@
 import os
 
 import _utils._utils_main as _u
+import _utils.logging as log
 import file_system.section_fs as sfs
 import file_system.book_fs as bfs
 
@@ -66,57 +67,18 @@ class Paths:
         def getAbs(cls, bookPath,  secNameWPrefix):
             return  os.path.join(Paths.Section.getAbs(bookPath, secNameWPrefix), 
                                 secNameWPrefix + "_images")
-
-    class Scripts:
-        sctiptsFolder = "Scripts"
-        
-        class Links:
-            linksFolder = "Links"
-            
-            class Local:
-                localFolder = "Local"
-                @classmethod
-                def getAbs_curr(cls):
-                    currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-                    currSection = sfs.SectionCurrent.getSectionNameWprefix()
-                    return  cls.getAbs(currBookpath, currSection)
-
-                def getAbs(bookPath, sectionNameWprefix):
-                    return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
-                                        sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder, 
-                                        Paths.Scripts.Links.linksFolder,
-                                        Paths.Scripts.Links.Local.localFolder)
-            
-            class Global:
-                globalFolder = "Global"
-
-                @classmethod
-                def getAbs_curr(cls):
-                    currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-                    currSection = sfs.SectionCurrent.getSectionNameWprefix()
-                    return cls.getAbs(currBookpath, currSection)
-                
-                def getAbs(bookPath, sectionNameWprefix):
-                    return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
-                                        sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder, 
-                                        Paths.Scripts.Links.linksFolder,
-                                        Paths.Scripts.Links.Global.globalFolder)
-            
-        class Utils:
-            utilsFolder = "Utils"
-
-            @classmethod
-            def getAbs_curr(cls):
-                currBookpath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-                currSection = sfs.SectionCurrent.getSectionNameWprefix()    
-                return cls.getAbs(currBookpath, currSection)
-            
-            def getAbs(bookPath, sectionNameWprefix):
-                return  os.path.join(Paths.Section.getAbs(bookPath, sectionNameWprefix), 
-                                    sectionNameWprefix + "_" + Paths.Scripts.sctiptsFolder,
-                                    Paths.Scripts.Utils.utilsFolder)
-
+    
     class TexFiles:
+        def getSectionFromPath_Whole_WPrefix(filepath):
+            # we get it from the parent folder name
+            return filepath.split("/")[-2]
+        
+        def getBooknameFromPath(filepath):
+            bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
+            for n,p in bookPaths.items():
+                if p in filepath:
+                    return n
+
         class Content:
             @classmethod
             def getAbs_curr(cls):

@@ -109,10 +109,6 @@ class SectionInfoStructure:
             # create folders
             sectionFolderName = dirPathToSection.split("/")[-1]
             _waitDummy = os.makedirs(dirPathToSection)
-            _waitDummy = os.makedirs(p.Paths.Screenshot.getAbs_curr())
-            _waitDummy = os.makedirs(p.Paths.Scripts.Links.Local.getAbs_curr())
-            _waitDummy = os.makedirs(p.Paths.Scripts.Links.Global.getAbs_curr())
-            _waitDummy = os.makedirs(p.Paths.Scripts.Utils.getAbs_curr())
             
             # create files
             _waitDummy = \
