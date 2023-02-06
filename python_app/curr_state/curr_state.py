@@ -46,7 +46,7 @@ class Data:
     
 #     for window in windowList:
 #         if window["kCGWindowOwnerName"] == app.localizedName():
-#             if currChapter + "_main.myPDF" in window["kCGWindowName"]:
+#             if currChapter + "_main.pdf" in window["kCGWindowName"]:
 #                 windowName = str(window["kCGWindowName"])
 #                 pageNum = windowName.split("page ")[1]
 #                 pageNum = pageNum.split(" ")[0]

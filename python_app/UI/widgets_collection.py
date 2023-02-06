@@ -161,7 +161,8 @@ def getSaveImage_BTN(mainWinRoot, prefixName = ""):
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
-    def addLinkToTexFile(imIDX, _, linkName, contenfFilepath, linkData):
+    def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
+                        bookName, topSection, subsection):
         #
         # add link to the current section file
         #
@@ -184,7 +185,8 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
                 break
             positionToAdd += 1
         
-        lineToAdd = "        \href{KIK:" + ".".join(linkData) + "." + imIDX + "}{" + linkName + "}\n"
+        url = "KIK:/" + bookName + "." + topSection + "." + subsection + "." + imIDX
+        lineToAdd = "        \href{" + url + "}{" + linkName + "}\n"
         outlines = lines[:positionToAdd]
         outlines.append(lineToAdd)
         outlines.extend(lines[positionToAdd:])
@@ -231,45 +233,26 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
             log.autolog(msg)
             wmes.MessageMenu.createMenu(msg)
             return
-
-        #
-        # Create the link script
-        #
-        sDirPath = ""#fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, sourceSectionNameWprefix)
-        sName = sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName + "__" \
-            + targetSectionPath + "_" + targetIDX + "." + targetLinkName + ".sh"
-        sPath = os.path.join(sDirPath, sName)
-        # with open(sPath , "w+") as f:
-        #     for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(targetIDX,
-        #                                                             targetSectionPath,
-        #                                                             bookName):
-        #         f.write(line)
-
-        os.system("chmod +rwx " + sPath)
-
-        addLinkToTexFile(sourceIDX, 
-                        sPath, 
+        
+        topSection = targetSectionPath.split(".")[0]
+        subsection = ".".join(targetSectionPath.split(".")[1:])
+        addLinkToTexFile(sourceIDX,
                         targetSectionPath + "\_" + targetLinkName,
-                        sourceContentFilepath)
+                        sourceContentFilepath,
+                        bookName,
+                        topSection,
+                        subsection)
 
         # add return link 
         
-        # returnScriptDirPath = fsm.Wr.Paths.Scripts.Links.Global.getAbs(bookPath, targetSectionNameWprefix)
-        returnScriptName = targetSectionPath + "_" + targetIDX + "." + targetLinkName + "__" \
-                        + sourceSectionPath + "_" + sourceIDX + "." + sourceLinkName +  ".sh"
-        returnSctiptPath = os.path.join(returnScriptDirPath, returnScriptName)
-        # with open(returnSctiptPath , "w+") as f:
-        #     for line in fsm.Wr.Links.LinkDict.getGlobalLinkScriptLines(sourceIDX,
-        #                                                             sourceSectionPath,
-        #                                                             bookName):
-        #         f.write(line)
-        
-        os.system("chmod +rwx " + returnSctiptPath)
-
+        sourceTopSection = sourceSectionPath.split(".")[0]
+        sourceSubection = ".".join(sourceSectionPath.split(".")[1:])
         addLinkToTexFile(targetIDX, 
-                        returnSctiptPath, 
                         sourceSectionPath + "\_" + sourceLinkName,
-                        targetContentFilepath)
+                        targetContentFilepath,
+                        bookName,
+                        sourceTopSection,
+                        sourceSubection)
 
         #
         # rebuild the pdfs
@@ -310,7 +293,6 @@ def getGlLinkSectionAndSubsection_OM(mainWinRoot, namePrefix = ""):
 
     def _subsectionChoosingCallback(mainWinRoot):
         sectiopPath =  wv.UItkVariables.glLinktargetSubSection.get()
-        log.autolog("Hip:" + sectiopPath)
         wv.UItkVariables.glLinktargetSections.set(sectiopPath)
         updateImLinksOM(mainWinRoot, wv.UItkVariables.glLinktargetSections.get())
 
@@ -451,8 +433,6 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         #create a script to run on page change
         imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
                                 dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
-        # scriptPath = os.path.join(fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr(),
-        #                         dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
 
         # STOTE IMNUM, IMNAME AND LINK
         fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
@@ -468,14 +448,6 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
             def takeScreencapture(iPath, sPath):
                 os.system("screencapture -ix " + iPath + ".png")
                 wv.UItkVariables.needRebuild.set(True)
-                # create a sript associated with page
-                # with open(sPath + ".sh", "w+") as f:
-                #     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-                #                                                         sPath,
-                #                                                         bookName)
-                #     for line in lines:
-                #         f.write(line)
-                os.system("chmod +x " + sPath + ".sh")
                 # update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
                 wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -488,14 +460,6 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         else:
             os.system("screencapture -ix " + imagePath + ".png")
             wv.UItkVariables.needRebuild.set(True)
-            #create a sript associated with image
-            # with open(scriptPath + ".sh", "w+") as f:
-            #     lines = fsm.Wr.Links.LinkDict.getLocalLinkScriptLines(imIDX, 
-            #                                                         currSubsection,
-            #                                                         bookName)
-            #     for line in lines:
-            #         f.write(line)
-            # os.system("chmod +x " + scriptPath + ".sh")
             #update curr image index for the chapter
             nextImNum = str(int(dataFromUser[0]) + 1)
             wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
@@ -598,14 +562,6 @@ def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
                                     wv.UItkVariables.glLinkSourceImLink,
                                     lambda *argv: None)
         wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
-        
-        #move run susection script to move to desired position
-        # localScriptsDir = fsm.Wr.Paths.Scripts.Links.Local.getAbs_curr()
-
-        # sctiptPath = os.path.join(localScriptsDir, str(imIDX) + "*" + currChImageLinks[imIDX - 1] + "*.sh")
-        # log.autolog("running script: " + sctiptPath)
-        # os.system("chmod +rwx " + sctiptPath)
-        # os.system(sctiptPath)
 
     return tk.Button(mainWinRoot, 
                     name = prefixName + "_changeSubsection",

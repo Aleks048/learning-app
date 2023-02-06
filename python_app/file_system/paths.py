@@ -69,6 +69,26 @@ class Paths:
                                 secNameWPrefix + "_images")
     
     class TexFiles:
+        class Output:
+            @classmethod
+            def getAbs_curr(cls):
+                currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                return cls.getAbs(currBookPath, currSubsection)
+
+            def getAbs(bookPath, secName):
+                return os.path.join(Paths.Section.getAbs(bookPath, secName), "_out")
+            
+            class PDF:
+                def getAbs_curr(cls):
+                    currSubsection = sfs.SectionCurrent.getSectionNameWprefix()
+                    currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    return cls.getAbs(currBookPath, currSubsection)
+
+                def getAbs(bookPath, secName):
+                    return os.path.join(Paths.TexFiles.Output.getAbs(bookPath, secName), secName + "_main.pdf")
+
+
         def getSectionFromPath_Whole_WPrefix(filepath):
             # we get it from the parent folder name
             return filepath.split("/")[-2]
@@ -121,4 +141,4 @@ class Paths:
 
         def getAbs(bookPath, secNameWprefix):
             sectionDirPath = Paths.Section.getAbs(bookPath, secNameWprefix)
-            return os.path.join(sectionDirPath, secNameWprefix + "_main.myPDF")
+            return os.path.join(sectionDirPath, secNameWprefix + "_main.pdf")

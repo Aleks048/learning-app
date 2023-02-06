@@ -182,7 +182,7 @@ class SectionInfoStructure:
 class SectionCurrent:
     @classmethod
     def getSectionPdfName(cls):
-        return cls.getSectionNameWprefix() + "_" + "main.myPDF"
+        return cls.getSectionNameWprefix() + "_" + "main.pdf"
 
     @classmethod
     def getSectionNameWprefix(cls):

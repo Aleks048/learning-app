@@ -200,6 +200,8 @@ class MainLayout(Layout):
         currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currentPage_ID)
 
         bookPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.originalMaterialPath_ID)
+        if currPage == None or bookPath == None:
+            return
         cmd = " open skim://"+ bookPath + "#page=" + currPage
         _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).pid
         
