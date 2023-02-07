@@ -4,8 +4,32 @@ import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.section_fs as sfs
 import file_system.book_fs as bfs
+import file_system.origmaterial_fs as omfs
 
 class Paths:
+    class OriginalMaterial:
+        class MainBook:
+            def getAbs(bookPath):
+                originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
+                relMainBookPath = \
+                    bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.originalMaterialRelPath_ID)
+                log.autolog(originalMaterialbasePath)
+                log.autolog(relMainBookPath)
+                return os.path.join(originalMaterialbasePath, relMainBookPath)
+
+            @classmethod
+            def getCurrAbs(cls):
+               bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+               return cls.getAbs(bookPath)
+                
+        
+        def getAbs(bookPath):
+            return omfs.OriginalMaterialStructure._getBaseAbsPath(bookPath)
+
+        @classmethod        
+        def getCurrAbs(cls):
+            bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+            return cls.getAbs(bookPath)
     
     class Section:
         sectionFolderName = "subsections"

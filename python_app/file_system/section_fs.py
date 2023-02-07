@@ -109,6 +109,10 @@ class SectionInfoStructure:
             # create folders
             sectionFolderName = dirPathToSection.split("/")[-1]
             _waitDummy = os.makedirs(dirPathToSection)
+
+            # create images folder
+            imagesFolderFSPath = os.path.join(dirPathToSection, sectionFolderName + "_images")
+            _waitDummy = os.makedirs(imagesFolderFSPath)
             
             # create files
             _waitDummy = \
@@ -157,7 +161,7 @@ class SectionInfoStructure:
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
-            return ""
+            return _u.Token.NotDef.str_t
         else:
             return _u.JSON.readProperty(fullPathToSection, 
                                         sectionPrefixForTemplate 
@@ -188,6 +192,8 @@ class SectionCurrent:
     def getSectionNameWprefix(cls):
         sectionPrefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
         currSection = cls.getSectionNameNoPrefix()
+        if currSection == _u.Token.NotDef.str_t:
+            return _u.Token.NotDef.str_t
         return sectionPrefix + "_" + currSection
 
     @classmethod

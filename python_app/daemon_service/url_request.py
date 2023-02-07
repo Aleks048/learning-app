@@ -1,4 +1,5 @@
-import outside_calls.skim_calls as sc
+import outside_calls.pdfApp_calls as sc
+import outside_calls.outside_calls_facade as ocf
 
 #
 # use this if we need to move the vscode from the url
@@ -79,4 +80,4 @@ def processCall(url):
     topSection = url[1]
     subsecPath = url[2]
     positionIDX = url[3]
-    sc.openSubsectionPDF(positionIDX, topSection, subsecPath, bookName)
+    ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, topSection, subsecPath, bookName)

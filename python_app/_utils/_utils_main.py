@@ -133,7 +133,7 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
 
                 return ownerName, windowName, ownerPID
     
-    log.autolog("getOwnersName_windowID_ofApp - window was not found")
+    # log.autolog("getOwnersName_windowID_ofApp - window was not found")
     return None, None, None
 
 

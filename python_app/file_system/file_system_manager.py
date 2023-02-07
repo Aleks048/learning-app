@@ -35,6 +35,9 @@ class Wr:
         pass
 
     class Paths:
+        class OriginalMaterial(p.Paths.OriginalMaterial):
+            pass
+        
         class Screenshot(p.Paths.Screenshot):
             pass
         
