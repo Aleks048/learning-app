@@ -34,7 +34,7 @@ class Utils:
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
         
         # remove prefix
-        fullName = fullName.replace(sectionPrefix, "")
+        fullName = fullName.replace(sectionPrefix + "_", "")
 
         separator = \
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)

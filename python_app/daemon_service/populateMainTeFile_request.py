@@ -16,7 +16,7 @@ def processCall(callerTexFile):
     tfm.Wr.TexFile.populateMainFile(subsectionName, bookPath)
     
     #build subsection the pdf
-    lc.buildPDF(bookPath, subsectionName)
+    lc.currLatecDistro.buildPDF(bookPath, subsectionName)
     
     # move generated pdf
     mainPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, subsectionName)

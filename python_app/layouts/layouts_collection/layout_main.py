@@ -85,30 +85,31 @@ class MainLayout(lc.Layout):
         currSectionWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         if currSectionWPrefix == _u.Token.NotDef.str_t:
             log.autolog("No subssection to open yet.")
-            return
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
-        dt.OtherAppsInfo.Finder.main_pid = ownerPID
-        
-        if ownerPID == None:
-            # if no window found we open one with the chapter in Finder
-            currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
-            oc.Wr.fsAppCalls.openFile(currScreenshotDir)
-        
-        while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
-            sleep(0.1)
-        
-        dt.OtherAppsInfo.Finder.main_pid = ownerPID
-        
-        if ownerPID == None: 
-            print("setMainLayout - Something went wrong. Finder could not open the folder")
         else:
-            cmd = oscr.getMoveWindowCMD(ownerPID,
-                                    bounds,
-                                    currSection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        
-        log.autolog("Moved Finder.")
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
+            dt.OtherAppsInfo.Finder.main_pid = ownerPID
+            
+            if ownerPID == None:
+                # if no window found we open one with the chapter in Finder
+                currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
+                oc.Wr.fsAppCalls.openFile(currScreenshotDir)
+            
+            while ownerPID == None:
+                _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
+                sleep(0.1)
+            
+            dt.OtherAppsInfo.Finder.main_pid = ownerPID
+            
+            if ownerPID == None: 
+                print("setMainLayout - Something went wrong. Finder could not open the folder")
+            else:
+                cmd = oscr.getMoveWindowCMD(ownerPID,
+                                        bounds,
+                                        currSection)
+                subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+            
+            log.autolog("Moved Finder.")
+
 
         _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
         log.autolog("DONE setting section layout.")

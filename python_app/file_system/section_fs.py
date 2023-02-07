@@ -114,17 +114,17 @@ class SectionInfoStructure:
             imagesFolderFSPath = os.path.join(dirPathToSection, sectionFolderName + "_images")
             _waitDummy = os.makedirs(imagesFolderFSPath)
             
-            # create files
+            # create _con and _toc .tex files
             _waitDummy = \
                 open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
             _waitDummy = \
                 open(os.path.join(dirPathToSection, sectionFolderName + "_con.tex"), "w").close()
         
         # create the json file file, _out folder, main.tex
-        relSectionPath = ""
+        relSectionPath = _u.Token.NotDef.str_t
         sectionPathList = sectionPath.split(sectionPathSeparator)
         for i,path in enumerate(sectionPathList):
-            relSectionPath += path if relSectionPath == "" else "." + path
+            relSectionPath += path if relSectionPath == _u.Token.NotDef.str_t else "." + path
             
             cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
             
