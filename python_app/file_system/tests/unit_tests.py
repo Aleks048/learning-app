@@ -9,7 +9,7 @@ import shutil
 # import file_system.file_system_manager as fsm
 
 
-import UI.widgets_manager as wm
+import UI.widgets_facade as wm
 import UI.widgets_messages as wmes
 import file_system.file_system_manager as fsm
 import file_system.origmaterial_fs as fsmain

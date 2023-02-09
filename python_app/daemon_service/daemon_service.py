@@ -7,8 +7,8 @@ here we make the wrappers for main app functions
 so that they can be called by other apps
 '''
 
-import daemon_service.url_request as url
-import daemon_service.populateMainTeFile_request as ptf
+import daemon_service.services_collection.url_request as url
+import daemon_service.services_collection.populateMainTeFile_request as ptf
 
 class MyService(rpyc.Service):
     def exposed_processLink(self, url):

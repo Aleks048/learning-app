@@ -1,4 +1,4 @@
-import tex_file.tex_file_manager as tfm
+import tex_file.tex_file_facade as tff
 import outside_calls.latex_calls as lc
 import file_system.file_system_manager as fsm
 import _utils._utils_main as _u
@@ -13,7 +13,7 @@ def processCall(callerTexFile):
     bookPath = bookPaths[bookName]
     
     # populate the main file
-    tfm.Wr.TexFile.populateMainFile(subsectionName, bookPath)
+    tff.Wr.TexFile.populateMainFile(subsectionName, bookPath)
     
     #build subsection the pdf
     lc.currLatecDistro.buildPDF(bookPath, subsectionName)

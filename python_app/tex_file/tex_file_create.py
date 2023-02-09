@@ -2,7 +2,7 @@ import os
 
 import _utils._utils_main as _u
 
-import UI.widgets_manager as wm
+import UI.widgets_facade as wm
 import file_system.file_system_manager as fsm
 import _utils.logging as log
 

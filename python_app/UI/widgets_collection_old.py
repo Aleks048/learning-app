@@ -8,7 +8,7 @@ import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
 
 import file_system.file_system_manager as fsm
-import tex_file.tex_file_manager as t
+import tex_file.tex_file_facade as tff
 
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -16,6 +16,10 @@ import _utils._utils_main as _u
 import data.constants as d
 import data.temp as dt
 import scripts.osascripts as oscr
+
+import outside_calls.outside_calls_facade as ocf
+
+import UI.widgets_facade as wf
 
 def getLabel(mainWinRoot, text):
     return tk.Label(mainWinRoot, text = text)
@@ -39,21 +43,6 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
                                     offvalue = 0)
     
     return createTOC_CB, TOCWithImage_CB
-
-
-def getImageGenerationRestart_BTN(mainWinRoot, namePrefix = ""):
-    def restartBTNcallback():
-        wv.UItkVariables.buttonText.set("imNum")
-        sectionImIndex = fsm.Wr.Links.ImIDX.get_curr()
-        wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
-    
-
-    restart_BTN = tk.Button(mainWinRoot,
-                            name = namePrefix.lower() + "_imageGenerationRestartBTN",
-                            text= "restart", 
-                            command = restartBTNcallback())
-    
-    return restart_BTN
 
 
 def getShowProofs_BTN(mainWinRoot, prefixName = ""):
@@ -84,11 +73,11 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
         if showProofsVar.get() == "Show Proofs":
             showProofsVar.set("Hide Proofs")
             _changeProofsVisibility(True)
-            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
+            Thread(target= tff.Wr.TexFile.buildCurrentSubsectionPdf).start()
         elif showProofsVar.get() == "Hide Proofs":
             showProofsVar.set("Show Proofs")
             _changeProofsVisibility(False)
-            Thread(target= t.Wr.TexFile.buildCurrentSubsectionPdf).start()
+            Thread(target= tff.Wr.TexFile.buildCurrentSubsectionPdf).start()
     
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_showProofs_BTN",
@@ -96,63 +85,11 @@ def getShowProofs_BTN(mainWinRoot, prefixName = ""):
                     command = lambda: getShowProofsCallBack())
 
 
-def getAddImage_BTN(mainWinRoot, prefixName = ""):
-    def addImBTNcallback():
-        currentSubsection = fsm.Wr.SectionCurrent.readCurrSection()
-        currImID = fsm.Wr.Links.ImIDX.get_curr()
-        
-        # screenshot
-        imName = ""
-
-        # get name of the image from the text field
-        for w in mainWinRoot.winfo_children():
-            if "_imageGeneration_" + wu.Data.ENT.entryWidget_ID in w._name:
-                imName = w.get()
-        
-        extraImagePath = fsm.Wr.Paths.Screenshot.getAbs_curr() \
-                            + currImID + "_" + currentSubsection \
-                            + "_" + imName
-        
-        if os.path.isfile(extraImagePath + ".png"):
-            def takeScreencapture(savePath):
-                os.system("screencapture -ix " + savePath)
-                wv.UItkVariables.needRebuild.set(True)
-            wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
-                                            takeScreencapture, 
-                                            extraImagePath + ".png")
-        else:
-            os.system("screencapture -ix " + extraImagePath + ".png")
-            wv.UItkVariables.needRebuild.set(True)
-
-        # update the content file
-        marker = "THIS IS CONTENT id: " + currImID
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), "r+") as f:
-            contentLines = f.readlines()
-            lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
-            extraImagesMarker = "% \\EXTRA IMAGES END"
-            while extraImagesMarker not in contentLines[lineNum]:
-                lineNum += 1
-            outLines = contentLines[:lineNum]
-            extraImageLine = "\\\\\myStIm{" + extraImagePath + "}\n"
-            outLines.append(extraImageLine)
-            outLines.extend(contentLines[lineNum:])
-
-            f.seek(0)
-            f.writelines(outLines)
-        
-        t.Wr.TexFile._populateMainFile()
-    
-    return tk.Button(mainWinRoot, 
-                    name = prefixName.lower() + "_imageGenerationAddImBTN",
-                    text= "addIm",
-                    command = lambda: addImBTNcallback())
-
-
 def getSaveImage_BTN(mainWinRoot, prefixName = ""):
     def saveImageCallBack():
         cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
         subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        t.Wr.TexFile.buildCurrentSubsectionPdf()
+        tff.Wr.TexFile.buildCurrentSubsectionPdf()
     
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_saveImgBTN",
@@ -257,10 +194,10 @@ def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
         #
         # rebuild the pdfs
         #
-        t.Wr.TexFile.buildSubsectionPdf(sourceSectionFilepath,
+        tff.Wr.TexFile.buildSubsectionPdf(sourceSectionFilepath,
                                         sourceMainFilepath,
                                         sourceSectionNameWprefix)
-        t.Wr.TexFile.buildSubsectionPdf(targetSectionFilepath,
+        tff.Wr.TexFile.buildSubsectionPdf(targetSectionFilepath,
                                         targetMainFilepath,
                                         targetSectionNameWprefix)
 
@@ -438,7 +375,7 @@ def getWidgets_imageGeneration_ETR_BTN(mainWinRoot, prefixName = ""):
         fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
         
         # POPULATE THE MAIN FILE
-        t.Wr.TexFile._populateMainFile()
+        tff.Wr.TexFile._populateMainFile()
         
         
         # take a screenshot
@@ -571,7 +508,7 @@ def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
 
 def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
     def rebuildBtnCallback():
-        t.Wr.TexFile.buildCurrentSubsectionPdf()
+        tff.Wr.TexFile.buildCurrentSubsectionPdf()
         
     return tk.Button(mainWinRoot, 
                     name = prefixName.lower() + "_rebuildCurrSubsec",
@@ -701,11 +638,13 @@ class LayoutsMenus:
             imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
             imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            addExtraImage = getAddImage_BTN(winMainRoot, cls.classPrefix)
-            addExtraImage.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.E)
+            addExtraImage = \
+                wf.Wr.ImageCreationWidgets.AddExtraImage_BTN(winMainRoot, cls.classPrefix)
+            addExtraImage.render()
 
-            imageGenerationRestartBTN = getImageGenerationRestart_BTN(winMainRoot, cls.classPrefix)
-            imageGenerationRestartBTN.grid(column = 3, row = 1, padx = 0, pady = 0, sticky = tk.W)
+            imageGenerationRestartBTN = \
+                wf.Wr.ImageCreationWidgets.ImageGenerationRestart_BTN(winMainRoot, cls.classPrefix)
+            imageGenerationRestartBTN.render()
 
             TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.classPrefix)
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)

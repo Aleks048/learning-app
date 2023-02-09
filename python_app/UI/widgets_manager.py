@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 import threading
 
-import UI.widgets_collection as wc
+import UI.widgets_collection_old as wc
 import UI.widgets_utils as wu
 import UI.widgets_vars as wv
 import UI.widgets_messages as wmes
@@ -14,18 +14,45 @@ import file_system.file_system_manager as fsm
 import _utils.logging as log
 import _utils._utils_main as _u
 
-class Data:
-    UItkVariables = wv.UItkVariables
+import UI.widgets_collection.imageCreation as icw
 
-class Wr:
-    class ConfirmationMenu(wmes.ConfirmationMenu):
-        pass
+
+class MenuManager_Interface:
+    def createMenu(cls, winRoot):
+        raise NotImplementedError()
     
-    class MessageMenu(wmes.MessageMenu):
+    @classmethod
+    def _bindKeys(cls):
+        raise NotImplementedError()
+
+
+class MainMenuManager(MenuManager_Interface):
+    @classmethod
+    def createMenu(cls, winRoot):
+        cls.winRoot = tk.Toplevel(winRoot)
+        wu.initVars.MainUI()
+
+        wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
+        wu.hideAllWidgets(cls.winRoot)
+        wc.SectionsUI.setSectionsUI(cls.winRoot)
+        wu.hideAllWidgets(cls.winRoot)
+        wc.LayoutsMenus.MainLayoutUI.addWidgets(cls.winRoot)
+        _u.Settings.UI.showMainWidgetsNext = False
+
+        #set Layout
+        menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
+        lm.Wr.MainLayout.set(cls.winRoot, *menuDimensions)
+
+        cls.winRoot.mainloop()
+    
+
+    @classmethod
+    def _bindKeys(cls):
         pass
 
-class StartupMenu:
-    prefix = "_" + __name__
+
+class StartupMenuManager(MenuManager_Interface):
+    prefix = "_StartupMenu"
 
     monitorSize = _u.getMonitorSize()
     
@@ -53,7 +80,7 @@ class StartupMenu:
         def startup_BTN_callback():
             cls.winRoot.withdraw()
             _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-            MainMenu.createMenu(cls.winRoot)
+            MainMenuManager.createMenu(cls.winRoot)
         confirm_BTN = wc.StartupMenu.getStartup_BTN(cls.winRoot, startup_BTN_callback)
         
         confirm_BTN.pack()
@@ -120,23 +147,3 @@ class StartupMenu:
         cls.winRoot.bind("<Escape>", lambda e: cls.winRoot.destroy())
         cls.winRoot.bind("<Return>", lambda e: cls.winRoot.destroy())
 
-
-class MainMenu:
-    @classmethod
-    def createMenu(cls, winRoot):
-        cls.winRoot = tk.Toplevel(winRoot)
-        wu.initVars.MainUI()
-
-        wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
-        wu.hideAllWidgets(cls.winRoot)
-        wc.SectionsUI.setSectionsUI(cls.winRoot)
-        wu.hideAllWidgets(cls.winRoot)
-        wc.LayoutsMenus.MainLayoutUI.addWidgets(cls.winRoot)
-        _u.Settings.UI.showMainWidgetsNext = False
-
-        #set Layout
-        menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
-        lm.Wr.MainLayout.set(cls.winRoot, *menuDimensions)
-
-        cls.winRoot.mainloop()
-        
