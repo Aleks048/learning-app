@@ -35,8 +35,30 @@ class HasRelatedWidget_Interface:
     def getRelatedWidget(self, widgetName, **kwargs):
         return self.relatedWidgets[widgetName]
 
+class DataTranslatable_Interface:
+    def translateExtraBuildOptions(extraOptions):
+        if extraOptions != {}:
+            extraOptions = {**extraOptions[Data.GeneralProperties_ID], **extraOptions[currUIImpl.__name__]}
+            if Data.CommonTextColor_ID in extraOptions:
+                extraOptions[currUIImpl.Data.textColor_ID] = extraOptions.pop(Data.CommonTextColor_ID)    
+        return extraOptions
 
-class TkWidgets:
+    def translateRenderOptions(renderOptions):
+        if renderOptions != {}:
+            renderOptions = {**renderOptions[Data.GeneralProperties_ID], **renderOptions[currUIImpl.__name__]}
+        return renderOptions
+
+class Data:
+    CommonTextColor_ID = "textColor"
+    GeneralProperties_ID = "general"
+
+class TkWidgets (DataTranslatable_Interface):
+    class Data:
+        textColor_ID = "fg"
+        class BindID:
+            focusIn = "<FocusIn>"
+            focusOut = "<FocusOut>"
+
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
             self.dataVar = tk.Variable()
@@ -89,7 +111,8 @@ class TkWidgets:
                     extraOptions = {},
                     bindCmd = lambda *args: None):
             
-            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
             
             self.name = prefix.lower() + name
             self.text = text
@@ -102,10 +125,10 @@ class TkWidgets:
                                 command = cmd,
                                 **extraOptions)
             
-            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
 
             super().bind()
         
@@ -128,14 +151,15 @@ class TkWidgets:
                     extraOptions = {},
                     bindCmd = lambda *args: None):
             
-            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
             self.listOfOptions = listOfOptions
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+            currUIImpl.DataContainer_Interface_Impl.__init__(self)
 
             widgetObj = tk.Frame(self.rootWidget, name = name, background="Blue")
             optionMenu = tk.OptionMenu(widgetObj, 
@@ -146,10 +170,10 @@ class TkWidgets:
             self.optionMenu = optionMenu
             
             
-            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
 
             super().bind()
         
@@ -170,23 +194,25 @@ class TkWidgets:
                     renderData : dict,
                     extraOptions = {},
                     bindCmd = lambda *args: None):
-            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
             self.rootWidget = rootWidget
             self.bindCmd = bindCmd
 
-            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+            currUIImpl.DataContainer_Interface_Impl.__init__(self)
 
             widgetObj = tk.Entry(self.rootWidget,
                         textvariable = self.getDataObject(),
                         name = self.name,
                         **extraOptions)
             
-            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
 
             super().bind()
         

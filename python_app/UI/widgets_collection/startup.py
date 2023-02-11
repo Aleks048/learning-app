@@ -22,12 +22,15 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
+
+
+
 class StartupConfirm_BTN(ww.currUIImpl.Button):
     renderData = {
-        "general" :{"column" : 0, "row" : 1},
+        ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
-    text = "start"
+    text = "Start"
     name = "_startupConfirmBTN"
 
     def __init__(self, patentWidget, prefix):
@@ -42,11 +45,11 @@ class StartupConfirm_BTN(ww.currUIImpl.Button):
 
 class AddBook_BTN(ww.currUIImpl.Button):
     renderData = {
-        "general" :{"column" : 0, "row" : 6},
+        ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 6},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
+    text = "Add Book"
     name = "_addBookBTN"
-    text = "add book"
 
 
     def __init__(self, patentWidget, prefix, BookMenuWidget):
@@ -98,7 +101,7 @@ class AddBook_BTN(ww.currUIImpl.Button):
 
 class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
     renderData = {
-        "general" : {"column" : 0, "row" : 0},
+        ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
     name = "_chooseBook_optionMenu"
@@ -117,11 +120,12 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
 
 class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
     renderData = {
-        "general" : {"column" : 0, "row" : 2},
+        ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
     extraBuildOptions = {
-        "fg": wu.Data.ENT.defaultTextColor
+        ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wu.Data.ENT.defaultTextColor},
+        ww.TkWidgets.__name__ : {}
     }
     defaultText = "Book name"
     name = "_bookName"
@@ -136,18 +140,19 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
 
     def bindCmd(self):
-        self.widjetObj.bind("<FocusIn>",  
+        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
                         lambda *args: wu.addDefaultTextToETR(self))
-        self.widgetObj.bind("<FocusOut>", 
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: wu.addDefaultTextToETR(self))
 
 class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
     renderData = {
-        "general" : {"column" : 0, "row" : 3},
+        ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
     extraBuildOptions = {
-        "fg": wu.Data.ENT.defaultTextColor
+        ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wu.Data.ENT.defaultTextColor},
+        ww.TkWidgets.__name__ : {}
     }
     defaultText = "Book location"
     name = "_bookLocation"
@@ -162,18 +167,19 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
 
     def bindCmd(self):
-        self.widjetObj.bind("<FocusIn>",  
+        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
                         lambda *args: wu.addDefaultTextToETR(self))
-        self.widgetObj.bind("<FocusOut>", 
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: wu.addDefaultTextToETR(self))
 
 class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
     renderData = {
-        "general" : {"column" : 0, "row" : 4},
+        ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 4},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
     extraBuildOptions = {
-        "fg": wu.Data.ENT.defaultTextColor
+        ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wu.Data.ENT.defaultTextColor},
+        ww.TkWidgets.__name__ : {}
     }
     defaultText = "Original Material Name"
     name = "_originalMaterialName"
@@ -188,18 +194,19 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
 
     def bindCmd(self):
-        self.widjetObj.bind("<FocusIn>",  
+        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
                         lambda *args: wu.addDefaultTextToETR(self))
-        self.widgetObj.bind("<FocusOut>", 
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: wu.addDefaultTextToETR(self))
 
 class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
     renderData = {
-        "general" : {"column" : 0, "row" : 5},
+        ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 5},
         ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
     }
     extraBuildOptions = {
-        "fg": wu.Data.ENT.defaultTextColor
+        ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wu.Data.ENT.defaultTextColor},
+        ww.TkWidgets.__name__ : {}
     }
     defaultText = "Original Material Locattion"
     name = "_originalMaterialLocattion"
@@ -214,7 +221,7 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
 
     def bindCmd(self):
-        self.widjetObj.bind("<FocusIn>",  
+        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
                         lambda *args: wu.addDefaultTextToETR(self))
-        self.widgetObj.bind("<FocusOut>", 
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: wu.addDefaultTextToETR(self))
