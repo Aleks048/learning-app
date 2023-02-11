@@ -25,8 +25,11 @@ import UI.widgets_manager as wm
 
 
 class AddExtraImage_BTN(ww.currUIImpl.Button):
-    data = {"column" : 3, "row" : 1, "padx" : 0, "pady" : 0, "sticky" : tk.E}
-    name = "_imageGenerationAddImBTN"
+    data = {
+        ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+        ww.currUIImpl.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+    }
+    name = "_imageGenerationAddIm"
     text= "addIm"
     
     def __init__(self, patentWidget, prefix):
@@ -70,8 +73,11 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
         #                 command = lambda: addImBTNcallback())
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
-    data = {"column" : 3, "row" : 1, "padx" : 0, "pady" : 0, "sticky" : tk.W}
-    name = "_imageGenerationRestartBTN"
+    data = {
+        ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+        ww.currUIImpl.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+    }
+    name = "_imageGenerationRestart"
     text= "restart"
 
     def __init__(self, patentWidget, prefix):

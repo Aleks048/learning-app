@@ -26,14 +26,19 @@ class BindableWidget_Interface:
     def bind(self, **kwargs):
         raise NotImplementedError()
 
-class HasRelatedWidget_Interface:
-    relatedWidgets = {}
+class HasListenersWidget_Interface:
+    listeners = []
 
-    def addRelatedWidget(self, widget, **kwargs):
-        self.relatedWidgets[widget.name] = widget
+    def addListenerWidget(self, widget, **kwargs):
+        self.listeners.append(widget)
     
-    def getRelatedWidget(self, widgetName, **kwargs):
-        return self.relatedWidgets[widgetName]
+    def notifyAllListeners(self, **kwargs):
+        for widget in self.listeners:
+            widget.notify(self.name)
+
+class Notifyable_Interface:
+    def notify(self, broadcasterName):
+        pass
 
 class DataTranslatable_Interface:
     def translateExtraBuildOptions(extraOptions):
@@ -74,7 +79,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj = widgetObj
         
         def getChildren(self):
-            self.widgetObj.winfo_children()
+            return self.widgetObj.winfo_children()
     
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
         def __init__(self, widgetObj = None, *args, **kwargs):
@@ -87,7 +92,7 @@ class TkWidgets (DataTranslatable_Interface):
                 widjetObj.grid(**kwargs)
     
 
-    class HasRelatedWidget_Interface_Impl(HasRelatedWidget_Interface):
+    class HasListenersWidget_Interface_Impl(HasListenersWidget_Interface):
         def __init__(self, *args, **kwargs):
             pass
 
@@ -98,9 +103,10 @@ class TkWidgets (DataTranslatable_Interface):
         def bind(self):
             self.bindCmd()
         
-    class Button (HasChildren_Interface_Impl, 
+    class Button (Notifyable_Interface,
+                HasChildren_Interface_Impl, 
                 RenderableWidget_Interface_Impl,
-                HasRelatedWidget_Interface_Impl,
+                HasListenersWidget_Interface_Impl,
                 BindableWidget_Interface_Impl):
         def __init__(self, 
                     prefix, name, 
@@ -122,13 +128,14 @@ class TkWidgets (DataTranslatable_Interface):
             widgetObj = tk.Button(self.rootWidget, 
                                 name = self.name,
                                 text= self.text,
-                                command = cmd,
+                                command = lambda : cmd,
                                 **extraOptions)
             
             currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            Notifyable_Interface.__init__(self)
 
             super().bind()
         
@@ -138,10 +145,11 @@ class TkWidgets (DataTranslatable_Interface):
 
 
 
-    class OptionMenu (DataContainer_Interface_Impl,
+    class OptionMenu (Notifyable_Interface,
+                    DataContainer_Interface_Impl,
                     HasChildren_Interface_Impl, 
                     RenderableWidget_Interface_Impl,
-                    HasRelatedWidget_Interface_Impl,
+                    HasListenersWidget_Interface_Impl,
                     BindableWidget_Interface_Impl):
         def __init__(self, prefix, name, 
                     listOfOptions, 
@@ -165,27 +173,47 @@ class TkWidgets (DataTranslatable_Interface):
             optionMenu = tk.OptionMenu(widgetObj, 
                                     self.getDataObject(), 
                                     *self.listOfOptions, 
-                                    command= lambda _: cmd,
+                                    command= lambda _: cmd(),
                                     **extraOptions)
             self.optionMenu = optionMenu
             
             
             currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            Notifyable_Interface.__init__(self)
 
             super().bind()
-        
-            
+                    
         def render(self, **kwargs):
             super().render(self.optionMenu, column = 0, row = 0)
             return super().render(**self.renderData)
+
+        def updateOptions(self, newMenuOptions):
+            def optionChoosingCallback(value):
+                self.setData(value)
+                self.cmd()
+
+            if newMenuOptions == None:
+                # TODO: should check what conditions lead to None newMenuOptions
+                return
+            
+            if newMenuOptions[0].isnumeric():
+                newMenuOptions.sort()  
+            
+            for om in self.getChildren():
+                om['menu'].delete(0, 'end')
+                for choice in newMenuOptions:
+                    om['menu'].add_command(label=choice, 
+                                        command= lambda value = choice: optionChoosingCallback(value))
+            self.setData(newMenuOptions[0])
     
-    class TextEntry (DataContainer_Interface_Impl,
+    class TextEntry (Notifyable_Interface,
+                    DataContainer_Interface_Impl,
                     HasChildren_Interface_Impl, 
                     RenderableWidget_Interface_Impl,
-                    HasRelatedWidget_Interface_Impl,
+                    HasListenersWidget_Interface_Impl,
                     BindableWidget_Interface_Impl):
         def __init__(self, 
                     prefix: str, 
@@ -211,8 +239,9 @@ class TkWidgets (DataTranslatable_Interface):
             
             currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            currUIImpl.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            Notifyable_Interface.__init__(self)
 
             super().bind()
         

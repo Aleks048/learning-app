@@ -62,42 +62,36 @@ class AddBook_BTN(ww.currUIImpl.Button):
         return super().render(**self.renderData)
 
     def cmd(self):
-        bookPath = wv.StartupUItkVariables.newBookLocation.get()
-        bookName = wv.StartupUItkVariables.newBookName.get()
-        originalMaterialLocation = wv.StartupUItkVariables.originalMaterialLocation.get()
-        originalMaterialName = wv.StartupUItkVariables.originalMaterialName.get()
+        # bookPath = wv.StartupUItkVariables.newBookLocation.get()
+        # bookName = wv.StartupUItkVariables.newBookName.get()
+        # originalMaterialLocation = wv.StartupUItkVariables.originalMaterialLocation.get()
+        # originalMaterialName = wv.StartupUItkVariables.originalMaterialName.get()
 
-        # create a directory
-        try:
-            os.makedirs(bookPath)
-        except:
-            message = "Could not create a filepath for new book: " + bookPath
-            log.autolog(message)
-            wmes.MessageMenu.createMenu(message)
-            return
+        # # create a directory
+        # try:
+        #     os.makedirs(bookPath)
+        # except:
+        #     message = "Could not create a filepath for new book: " + bookPath
+        #     log.autolog(message)
+        #     wmes.MessageMenu.createMenu(message)
+        #     return
         
-        # update settings
-        _u.Settings.Book.addNewBook(bookName, bookPath)
-        # set as current book
-        _u.Settings.Book.setCurrentBook(bookName, bookPath)
+        # # update settings
+        # _u.Settings.Book.addNewBook(bookName, bookPath)
+        # # set as current book
+        # _u.Settings.Book.setCurrentBook(bookName, bookPath)
 
-        # create structures
-        fsm.Wr.BookInfoStructure.createStructure()
-        fsm.Wr.SectionInfoStructure.createStructure()
-        fsm.Wr.TOCStructure.createStructure()
-        fsm.Wr.OriginalMaterialStructure.createStructure()
+        # # create structures
+        # fsm.Wr.BookInfoStructure.createStructure()
+        # fsm.Wr.SectionInfoStructure.createStructure()
+        # fsm.Wr.TOCStructure.createStructure()
+        # fsm.Wr.OriginalMaterialStructure.createStructure()
 
-        # add original material
-        fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, 
-                                                            originalMaterialLocation, 
-                                                            "")
-        
-        booksNames = list(_u.getListOfBooks()) 
-        # wu.updateOptionMenuOptionsList(self.rootWidget, 
-        #                                 "chooseBook_optionMenu", 
-        #                                 booksNames, 
-        #                                 wv.StartupUItkVariables.bookChoice,
-        #                                 self.BookMenuWidget.cmd)
+        # # add original material
+        # fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, 
+        #                                                     originalMaterialLocation, 
+        #                                                     "")
+        self.notifyAllListeners()
 
 class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
     renderData = {
@@ -112,11 +106,15 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
         super().__init__(prefix, self.name, self.listOfBooksNames,
                         patentWidget, self.renderData, self.cmd)
     
-    def cmd(_):
-        bookName = wv.StartupUItkVariables.bookChoice.get()
+    def cmd(self):
+        bookName = self.getData()
         bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
         bookPath = bookPaths[bookName]
         _u.Settings.Book.setCurrentBook(bookName, bookPath)
+    
+    def notify(self, _):
+        booksNames = list(_u.getListOfBooks()) 
+        self.updateOptions(booksNames)
 
 class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
     renderData = {
@@ -140,7 +138,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
 
     def bindCmd(self):
-        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
+        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,
                         lambda *args: wu.addDefaultTextToETR(self))
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: wu.addDefaultTextToETR(self))
