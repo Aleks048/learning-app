@@ -15,6 +15,7 @@ import _utils.logging as log
 import _utils._utils_main as _u
 
 import UI.widgets_collection.imageCreation as icw
+import UI.widgets_collection.startup as sw
 
 
 class MenuManager_Interface:
@@ -52,7 +53,7 @@ class MainMenuManager(MenuManager_Interface):
 
 
 class StartupMenuManager(MenuManager_Interface):
-    prefix = "_StartupMenu"
+    prefix = "_StartupMenu_"
 
     monitorSize = _u.getMonitorSize()
     
@@ -64,77 +65,24 @@ class StartupMenuManager(MenuManager_Interface):
         cls.winRoot.geometry("+" + str(int(cls.monitorSize[0] / 2)) \
                     + "+" \
                     + str(int(cls.monitorSize[1] / 2)))
-
-
-        # get chooseBookOptionMenu
-        def bookMenuChooseCallback(_):
-            bookName = wv.StartupUItkVariables.bookChoice.get()
-            bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
-            bookPath = bookPaths[bookName]
-            _u.Settings.Book.setCurrentBook(bookName, bookPath)
         
-        books_OM = wc.StartupMenu.getBookChoosing_OM(cls.winRoot, bookMenuChooseCallback)
-        books_OM.pack()
+        books_OM = sw.ChooseStartupBook_OM(cls.winRoot, cls.prefix)
+        books_OM.render()
 
-        # get confirmation button
-        def startup_BTN_callback():
-            cls.winRoot.withdraw()
-            _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-            MainMenuManager.createMenu(cls.winRoot)
-        confirm_BTN = wc.StartupMenu.getStartup_BTN(cls.winRoot, startup_BTN_callback)
+        confirm_BTN = sw.StartupConfirm_BTN(cls.winRoot, cls.prefix)
+        confirm_BTN.render()
         
-        confirm_BTN.pack()
-        
-        entriesData = [
-            ["bookName", wv.StartupUItkVariables.newBookName, "Book name"],
-            ["bookLocation", wv.StartupUItkVariables.newBookLocation, "Book location"],
-            ["originalMaterialName", wv.StartupUItkVariables.originalMaterialName, "Original Material Name"],
-            ["originalMaterialLocattion", wv.StartupUItkVariables.originalMaterialLocation, "Original Material Locattion"]
-        ]
-        textEntries = []
-        for entryData in entriesData:
-            textEntry = wc.StartupMenu.getTextEntry_ETR(cls.winRoot, *entryData)
-            textEntry.pack()
+        bookName_ETR = sw.StrtupBookName_ETR(cls.winRoot, cls.prefix)
+        bookName_ETR.render()
+        bookLocation_ETR = sw.StrtupBookLocation_ETR(cls.winRoot, cls.prefix)
+        bookLocation_ETR.render()
+        originalMaterialName_ETR = sw.StrtupOriginalMaterialName_ETR(cls.winRoot, cls.prefix)
+        originalMaterialName_ETR.render()
+        originalMaterialLocation_ETR = sw.StrtupOriginalMaterialLocation_ETR(cls.winRoot, cls.prefix)
+        originalMaterialLocation_ETR.render()
 
-        def addBookCallback():
-            bookPath = wv.StartupUItkVariables.newBookLocation.get()
-            bookName = wv.StartupUItkVariables.newBookName.get()
-            originalMaterialLocation = wv.StartupUItkVariables.originalMaterialLocation.get()
-            originalMaterialName = wv.StartupUItkVariables.originalMaterialName.get()
-
-            # create a directory
-            try:
-                os.makedirs(bookPath)
-            except:
-                message = "Could not create a filepath for new book: " + bookPath
-                log.autolog(message)
-                wmes.MessageMenu.createMenu(message)
-                return
-            
-            # update settings
-            _u.Settings.Book.addNewBook(bookName, bookPath)
-            # set as current book
-            _u.Settings.Book.setCurrentBook(bookName, bookPath)
-
-            # create structures
-            fsm.Wr.BookInfoStructure.createStructure()
-            fsm.Wr.SectionInfoStructure.createStructure()
-            fsm.Wr.TOCStructure.createStructure()
-            fsm.Wr.OriginalMaterialStructure.createStructure()
-
-            # add original material
-            fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, originalMaterialLocation, "")
-            
-            booksNames = list(_u.getListOfBooks()) 
-            wu.updateOptionMenuOptionsList(cls.winRoot, 
-                                            "chooseBook_optionMenu", 
-                                            booksNames, 
-                                            wv.StartupUItkVariables.bookChoice,
-                                            bookMenuChooseCallback)
-
-
-        addbook_BTN = wc.StartupMenu.addNewBook_BTN(cls.winRoot, addBookCallback)
-        addbook_BTN.pack()
+        addbook_BTN = sw.AddBook_BTN(cls.winRoot, cls.prefix, None)
+        addbook_BTN.render()
 
         # assign the keys
         cls._bindKeys()

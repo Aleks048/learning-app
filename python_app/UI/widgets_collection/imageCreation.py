@@ -26,14 +26,11 @@ import UI.widgets_manager as wm
 
 class AddExtraImage_BTN(ww.currUIImpl.Button):
     data = {"column" : 3, "row" : 1, "padx" : 0, "pady" : 0, "sticky" : tk.E}
+    name = "_imageGenerationAddImBTN"
+    text= "addIm"
     
     def __init__(self, patentWidget, prefix):
-        name = prefix.lower() + "_imageGenerationAddImBTN"
-        text= "addIm"
-        super().__init__(name, text, patentWidget, self.cmd)
-    
-    def render(self, **kwargs):
-        return super().render(**self.data)
+        super().__init__(prefix, self.name, self.text, patentWidget, self.data, self.cmd)
 
     def cmd(self):
         currentSubsection = fsm.Wr.SectionCurrent.readCurrSection()
@@ -74,35 +71,17 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
     data = {"column" : 3, "row" : 1, "padx" : 0, "pady" : 0, "sticky" : tk.W}
+    name = "_imageGenerationRestartBTN"
+    text= "restart"
 
     def __init__(self, patentWidget, prefix):
-        name = prefix.lower() + "_imageGenerationRestartBTN"
-        text= "restart"
-        super().__init__(name, text, patentWidget, self.cmd)
-    
-    def render(self, **kwargs):
-        return super().render(**self.data)
+        super().__init__(prefix, self.name, self.text, 
+                        patentWidget, self.data, self.cmd)
 
     def cmd(self):
         wv.UItkVariables.buttonText.set("imNum")
         sectionImIndex = fsm.Wr.Links.ImIDX.get_curr()
         wv.UItkVariables.imageGenerationEntryText.set(sectionImIndex)
-
-class StartupConfirm_BTN(ww.currUIImpl.Button):
-    data = {}
-
-    def __init__(self, patentWidget, prefix):
-        name = prefix.lower() + "_startupConfirmBTN"
-        text = "start"
-        super().__init__(name, text, patentWidget, self.cmd)
-    
-    def render(self, **kwargs):
-        return super().render(**self.data)
-
-    def cmd(self):
-        super().rootWidget.withdraw()
-        _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-        wm.MainMenuManager.createMenu(super().rootWidget)
 
 
 class ImageCreation:

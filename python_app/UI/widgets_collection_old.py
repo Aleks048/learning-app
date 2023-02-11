@@ -518,31 +518,6 @@ def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
 
 
 class StartupMenu:
-    def getStartup_BTN(winRoot, callback):
-        return tk.Button(winRoot,
-                        name = "_startupConfirmBTN",
-                        text= "start", 
-                        command = lambda: callback())
-
-    def getBookChoosing_OM(winRoot, callback):
-        default_book_name="Select a a book"
-
-        '''
-        functions that retrun options menus for choosing book
-        '''
-        wv.StartupUItkVariables.bookChoice.set(default_book_name)
-
-        # Create the list of books we have
-        listOfBooksNames = _u.getListOfBooks()
-
-        frame = tk.Frame(winRoot, name = "chooseBook_optionMenu", background="Blue")
-        book_menu = tk.OptionMenu(frame, 
-                                wv.StartupUItkVariables.bookChoice, 
-                                *listOfBooksNames, 
-                                command= lambda x: callback)
-        book_menu.grid(row=0, column = 0)
-        return frame
-    
     def getTextEntry_ETR(winRoot, entryNname, dataVar, defaultText):
         dataVar.set(defaultText)
         entry = tk.Entry(winRoot, 
@@ -556,12 +531,6 @@ class StartupMenu:
         entry.bind("<FocusOut>", 
                             lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
         return entry
-
-    def addNewBook_BTN(winRoot, callback):
-        return tk.Button(winRoot,
-                        name = "_addBookBTN",
-                        text= "addBook", 
-                        command = lambda: callback())
 
 
 class LayoutsMenus:

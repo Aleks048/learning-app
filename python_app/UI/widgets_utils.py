@@ -76,15 +76,14 @@ def getSubsectionsListForCurrTopSection():
     return childrensList
 
 
-def addDefaultTextToETR(entry, dataVar, defaultText):
-    current = dataVar.get()
-    
-    if current == defaultText:
-        entry.configure(fg = Data.ENT.regularTextColor)
-        dataVar.set("")
+def addDefaultTextToETR(widget):
+    current = widget.getData()
+    if current == widget.defaultText:
+        widget.widgetObj.configure(fg = Data.ENT.regularTextColor)
+        widget.setData("")
     elif current == "":
-        entry.configure(fg = Data.ENT.defaultTextColor)
-        dataVar.set(defaultText)
+        widget.widgetObj.configure(fg = Data.ENT.defaultTextColor)
+        widget.setData(widget.defaultText)
 
 
 def hideAllWidgets(mainWinRoot):

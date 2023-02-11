@@ -1,18 +1,55 @@
 import tkinter as tk
 
+import _utils.logging as log
+
+class DataContainer_Interface:
+    dataVar = None
+
+    def getDataObject(self):
+        return self.dataVar
+
+    def getData(self, **kwargs):
+        raise NotImplementedError()
+        
+    def setData(self, data, **kwargs):
+        raise NotImplementedError()
+
 class HasChildren_Interface:
-    def getChildren(self):
+    def getChildren(self, **kwargs):
         raise NotImplementedError()
 
 class RenderableWidget_Interface:
     def render(self, **kwargs):
         raise NotImplementedError()
 
+class BindableWidget_Interface:
+    def bind(self, **kwargs):
+        raise NotImplementedError()
+
+class HasRelatedWidget_Interface:
+    relatedWidgets = {}
+
+    def addRelatedWidget(self, widget, **kwargs):
+        self.relatedWidgets[widget.name] = widget
+    
+    def getRelatedWidget(self, widgetName, **kwargs):
+        return self.relatedWidgets[widgetName]
+
 
 class TkWidgets:
+    class DataContainer_Interface_Impl(DataContainer_Interface):
+        def __init__(self, *args, **kwargs):
+            self.dataVar = tk.Variable()
+
+        def getData(self, **kwargs):
+            return self.dataVar.get()
+        
+        def setData(self, data, **kwargs):
+            self.dataVar.set(data)
+
     class HasChildren_Interface_Impl(HasChildren_Interface):
         def __init__(self, widgetObj = None, *args, **kwargs):
-            self.widjetObj = widgetObj
+            self.widgetObj = widgetObj
         
         def getChildren(self):
             self.widgetObj.winfo_children()
@@ -21,39 +58,147 @@ class TkWidgets:
         def __init__(self, widgetObj = None, *args, **kwargs):
             self.widjetObj = widgetObj
         
-        def render(self, **kwargs):
-            self.widjetObj.grid(**kwargs)
+        def render(self, widjetObj = None, **kwargs):
+            if widjetObj == None:
+                self.widjetObj.grid(**kwargs)
+            else:
+                widjetObj.grid(**kwargs)
     
-    class Button (HasChildren_Interface_Impl, RenderableWidget_Interface_Impl):
-        def __init__(self, name, text, rootWidget, cmd):
-            self.name = name
+
+    class HasRelatedWidget_Interface_Impl(HasRelatedWidget_Interface):
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class BindableWidget_Interface_Impl(BindableWidget_Interface):
+        def __init__(self, bindCmd = lambda *args: None, *args, **kwargs):
+            self.bindCmd = bindCmd
+        
+        def bind(self):
+            self.bindCmd()
+        
+    class Button (HasChildren_Interface_Impl, 
+                RenderableWidget_Interface_Impl,
+                HasRelatedWidget_Interface_Impl,
+                BindableWidget_Interface_Impl):
+        def __init__(self, 
+                    prefix, name, 
+                    text, 
+                    rootWidget, 
+                    renderData, 
+                    cmd, 
+                    extraOptions = {},
+                    bindCmd = lambda *args: None):
+            
+            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+            
+            self.name = prefix.lower() + name
             self.text = text
             self.rootWidget = rootWidget
-            
+            self.cmd = cmd
+
             widgetObj = tk.Button(self.rootWidget, 
                                 name = self.name,
                                 text= self.text,
-                                command = cmd)
-            super().__init__(widgetObj = widgetObj)
+                                command = cmd,
+                                **extraOptions)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
 
+            super().bind()
         
+            
+        def render(self, **kwargs):
+            return super().render(**self.renderData)
 
-    class Dropdown:
-        def __init__(name, rootWidget):
-            pass
+
+
+    class OptionMenu (DataContainer_Interface_Impl,
+                    HasChildren_Interface_Impl, 
+                    RenderableWidget_Interface_Impl,
+                    HasRelatedWidget_Interface_Impl,
+                    BindableWidget_Interface_Impl):
+        def __init__(self, prefix, name, 
+                    listOfOptions, 
+                    rootWidget, 
+                    renderData, 
+                    cmd, 
+                    extraOptions = {},
+                    bindCmd = lambda *args: None):
+            
+            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+
+            self.name = prefix.lower() + name
+            self.listOfOptions = listOfOptions
+            self.rootWidget = rootWidget
+            self.cmd = cmd
+
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+            widgetObj = tk.Frame(self.rootWidget, name = name, background="Blue")
+            optionMenu = tk.OptionMenu(widgetObj, 
+                                    self.getDataObject(), 
+                                    *self.listOfOptions, 
+                                    command= lambda _: cmd,
+                                    **extraOptions)
+            self.optionMenu = optionMenu
+            
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+
+            super().bind()
+        
+            
+        def render(self, **kwargs):
+            super().render(self.optionMenu, column = 0, row = 0)
+            return super().render(**self.renderData)
+    
+    class TextEntry (DataContainer_Interface_Impl,
+                    HasChildren_Interface_Impl, 
+                    RenderableWidget_Interface_Impl,
+                    HasRelatedWidget_Interface_Impl,
+                    BindableWidget_Interface_Impl):
+        def __init__(self, 
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    extraOptions = {},
+                    bindCmd = lambda *args: None):
+            self.renderData = {**renderData["general"], **renderData[currUIImpl.__name__]}
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+            self.bindCmd = bindCmd
+
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+            widgetObj = tk.Entry(self.rootWidget,
+                        textvariable = self.getDataObject(),
+                        name = self.name,
+                        **extraOptions)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.HasRelatedWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+
+            super().bind()
+        
+        def render(self, **kwargs):
+            return super().render(**self.renderData)
     
     class Checkbox:
         def __init__(name, rootWidget):
             pass
 
-    class TextField:
-        def __init__(name, rootWidget):
-            pass
-        
-        def getData():
-            pass
     
-    class Root:
+    class RootWidget:
         pass
 
 currUIImpl = TkWidgets
