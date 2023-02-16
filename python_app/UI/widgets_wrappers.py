@@ -21,6 +21,8 @@ class HasChildren_Interface:
 class RenderableWidget_Interface:
     def render(self, **kwargs):
         raise NotImplementedError()
+    def hide(self, **kwargs):
+        raise NotImplementedError()
 
 class BindableWidget_Interface:
     def bind(self, **kwargs):
@@ -60,6 +62,7 @@ class Data:
 class TkWidgets (DataTranslatable_Interface):
     class Data:
         textColor_ID = "fg"
+        tk = tk.Tk()
         class BindID:
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
@@ -83,13 +86,22 @@ class TkWidgets (DataTranslatable_Interface):
     
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
         def __init__(self, widgetObj = None, *args, **kwargs):
+            self.wasRendered = False
             self.widjetObj = widgetObj
         
         def render(self, widjetObj = None, **kwargs):
-            if widjetObj == None:
-                self.widjetObj.grid(**kwargs)
+            if self.wasRendered:
+                log.autolog("ho")
+                self.widjetObj.grid()
             else:
-                widjetObj.grid(**kwargs)
+                if widjetObj == None:
+                    self.widjetObj.grid(**kwargs)
+                else:
+                    log.autolog("hi")
+                    widjetObj.grid(**kwargs)
+        
+        def hide(self, **kwargs):
+            self.widjetObj.grid_remove()
     
 
     class HasListenersWidget_Interface_Impl(HasListenersWidget_Interface):
@@ -125,10 +137,10 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            widgetObj = tk.Button(self.rootWidget, 
+            widgetObj = tk.Button(self.rootWidget.widjetObj, 
                                 name = self.name,
                                 text= self.text,
-                                command = lambda : cmd,
+                                command = lambda : cmd(),
                                 **extraOptions)
             
             currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
@@ -169,7 +181,9 @@ class TkWidgets (DataTranslatable_Interface):
 
             currUIImpl.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Frame(self.rootWidget, name = name, background="Blue")
+            widgetObj = tk.Frame(self.rootWidget.widjetObj, 
+                                name = self.name, 
+                                background="Blue")
             optionMenu = tk.OptionMenu(widgetObj, 
                                     self.getDataObject(), 
                                     *self.listOfOptions, 
@@ -221,18 +235,20 @@ class TkWidgets (DataTranslatable_Interface):
                     rootWidget, 
                     renderData : dict,
                     extraOptions = {},
-                    bindCmd = lambda *args: None):
+                    bindCmd = lambda *args: None,
+                    defaultText = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
             self.rootWidget = rootWidget
             self.bindCmd = bindCmd
+            self.defaultText = defaultText
 
 
             currUIImpl.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Entry(self.rootWidget,
+            widgetObj = tk.Entry(self.rootWidget.widjetObj,
                         textvariable = self.getDataObject(),
                         name = self.name,
                         **extraOptions)
@@ -247,13 +263,44 @@ class TkWidgets (DataTranslatable_Interface):
         
         def render(self, **kwargs):
             return super().render(**self.renderData)
+        
+        def hide(self, **kwargs):
+            # self.widgetObj.delete(0, 'end')
+            self.setData(self.defaultText)
+
+            return super().hide(**kwargs)
+
+        def setTextColor(self, color):
+            self.widgetObj.configure(fg = color)
     
     class Checkbox:
         def __init__(name, rootWidget):
             pass
 
     
-    class RootWidget:
-        pass
+    class RootWidget(BindableWidget_Interface_Impl):
+        def __init__(self, width, height):
+            self.tk = TkWidgets.Data.tk
+            self.tk.geometry(str(width) + "x" + str(height))
+            self.widjetObj = tk.Toplevel(self.tk)
+        
+        def setGeometry(self, width = 0, height = 0, posx = 0, posy = 0):
+            width = str(width)
+            height = str(height)
+            posx = str(posx)
+            posy = str(posy)
+
+            if width == "0" or height == "0":
+                self.widjetObj.geometry("+" + posx + "+" + posy)
+            elif posx == "0" or posy == "0":
+                self.widjetObj.geometry(width + "x" + height)
+            else:
+                self.widjetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)
+
+        def startMainLoop(self):
+            self.tk.mainloop()
+        
+        def stopMainLoop(self):
+            self.widjetObj.withdraw()
 
 currUIImpl = TkWidgets

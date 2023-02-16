@@ -1,5 +1,43 @@
 import _utils._utils_main as _u
 
+
+class ClassAttNotAccessibleType(type):
+    data = None
+
+    def __getattribute__(self, __name):
+        if __name in ["data", "getData", "setData"]:
+            return object.__getattribute__(self, __name)
+        else: 
+            raise TypeError("The objects of this calss are not acessible directly. Please use getData(dataAccessToken)")
+    
+    def getData(self, token):
+        return self.data
+    
+    def setData(self, token, newValue):
+        self.data = newValue
+
+class NonInstantiable_Interface:
+    def __new__(cls, *args, **kwargs):
+        raise TypeError(f"'{cls.__name__}' may not be instantiated")
+
+
+
+class AppState:
+    class CurrMenu(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        pass
+    
+    class CurrLayout(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        pass
+
+    class CurrUILayout(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        pass
+
+    class CurrUIImplementation(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        pass
+    
+    class UIManagers(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        data = []
+
 class OtherAppsInfo:
     class VsCode:
         section_pid = _u.Token.NotDef.str_t

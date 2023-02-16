@@ -8,13 +8,7 @@ import layouts.layouts_manager as lm
 
 import _utils._utils_main as _u
 import _utils.logging as log
-
-class Data:
-    class ENT:
-        entryWidget_ID = "ETR"
-
-        regularTextColor = "white"
-        defaultTextColor = "blue"
+import UI.widgets_data as wd
 
 class Screenshot:
         
@@ -76,27 +70,6 @@ def getSubsectionsListForCurrTopSection():
     return childrensList
 
 
-def addDefaultTextToETR(widget):
-    current = widget.getData()
-    if current == widget.defaultText:
-        widget.widgetObj.configure(fg = Data.ENT.regularTextColor)
-        widget.setData("")
-    elif current == "":
-        widget.widgetObj.configure(fg = Data.ENT.defaultTextColor)
-        widget.setData(widget.defaultText)
-
-
-def hideAllWidgets(mainWinRoot):
-    '''
-    hide all widgets. clear all entries
-    '''
-    for e in mainWinRoot.winfo_children():
-        # clear all entries
-        if (Data.ENT.entryWidget_ID in e._name):
-            if ("_imageGeneration_" not in e._name):
-                e.delete(0, 'end')
-        e.grid_remove()
-
 
 def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
     #TODO: need to be reworked
@@ -114,7 +87,7 @@ def showCurrentLayout(mainWinRoot, menuWidth, menuHeight):
 
     for e in mainWinRoot.winfo_children():
         if layoutClass.__name__.lower() in e._name:
-            if (Data.ENT.entryWidget_ID in e._name):
+            if (wd.Data.ENT.entryWidget_ID in e._name):
                 e.focus_set()
             e.grid()
 

@@ -268,10 +268,7 @@ class Settings:
     layoutClassToken = "Layout"
     currLayout = ""
     mon_windth, mon_height  = getMonitorSize()
-
-
-    #paths # need to be imported from bookInfoStructuere
-    relToSubchapters_Path = "/subchapters/"
+    
 
     class Layout:
         def getCurrLayoutClass():
@@ -280,6 +277,15 @@ class Settings:
             return getattr(layouts_main, layoutStr + Settings.layoutClassToken)
 
     class Book:
+        def getPathFromName(bookName):
+            bookPaths = Settings.readProperty(Settings.PubProp.booksPaths_ID)
+            if bookName in bookPaths.keys():
+                bookPath = bookPaths[bookName]
+                return bookPath
+            else:
+                log.autolog("No path for book with name '{0}'. Something is wrong!".format(bookName))
+                return Token.NotDef.str_t
+
         @classmethod
         def addNewBook(cls, bookName, bookPath):
             cls.setCurrentBook(bookName, bookPath)

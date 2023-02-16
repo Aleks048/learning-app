@@ -7,7 +7,7 @@ import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
 import _utils.logging as log
-import UI.widgets_facade as wm
+import UI.widgets_facade as wf
 import tex_file.tex_file_facade as tm
 import file_system.file_system_manager as fsm
 import data.temp as dt
@@ -27,14 +27,14 @@ class MainLayout(lc.Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
-        wm.Data.UItkVariables.needRebuild.set(False)
+
         currSection = fsm.Wr.SectionCurrent.readCurrSection()
 
-        #close the chapter VSCode if it is open
+        #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
             subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        #close the chapter Skim if it is open
+        #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
             subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
@@ -42,10 +42,12 @@ class MainLayout(lc.Layout):
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
 
-        # change the manu size
+        # wm.Data.UItkVariables.needRebuild.set(False)
+        # change the menu size
         mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) 
                             + "+" + str(int(mon_halfWidth)) + "+0")
-
+        # switch menu
+        wf.Wr.MenuManagers.MainMenuManager.LayoutManagers.Main.show() 
        
         #
         # SKIM

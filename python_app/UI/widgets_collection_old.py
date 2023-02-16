@@ -517,22 +517,6 @@ def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
                     command = lambda: rebuildBtnCallback())
 
 
-class StartupMenu:
-    def getTextEntry_ETR(winRoot, entryNname, dataVar, defaultText):
-        dataVar.set(defaultText)
-        entry = tk.Entry(winRoot, 
-                        width = 50,
-                        textvariable = dataVar, 
-                        fg = wu.Data.ENT.defaultTextColor,
-                        name = entryNname + wu.Data.ENT.entryWidget_ID)
-
-        entry.bind("<FocusIn>",  
-                        lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
-        entry.bind("<FocusOut>", 
-                            lambda *args: wu.addDefaultTextToETR(entry, dataVar, defaultText))
-        return entry
-
-
 class LayoutsMenus:
     class SectionLayoutUI:
         pyAppDimensions = [None, None]
@@ -613,7 +597,7 @@ class LayoutsMenus:
 
             imageGenerationRestartBTN = \
                 wf.Wr.ImageCreationWidgets.ImageGenerationRestart_BTN(winMainRoot, cls.classPrefix)
-            imageGenerationRestartBTN.render()
+            imageGenerationRestartBTN.eender()
 
             TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.classPrefix)
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)

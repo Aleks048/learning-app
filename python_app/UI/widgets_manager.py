@@ -1,55 +1,78 @@
-import os
-import tkinter as tk
-import threading
-
-import UI.widgets_collection_old as wc
-import UI.widgets_utils as wu
-import UI.widgets_vars as wv
-import UI.widgets_messages as wmes
-
-import layouts.layouts_manager as lm
-
-import file_system.file_system_manager as fsm
-
-import _utils.logging as log
+import data.constants as dc
+import data.temp as dt
 import _utils._utils_main as _u
+import _utils.logging as log
 
-import UI.widgets_collection.layouts.mathLayouts.mainLayout as icw
-import UI.widgets_collection.startup.startup as sw
+menuManagers = []
 
+class MenuLayout_Interface:
+    widgets = []
 
-class MenuManager_Interface:
-    def createMenu(cls, winRoot):
-        raise NotImplementedError()
+    monitorSize = _u.getMonitorSize()
+
+    name = None
+    def __init__(self, winRoot):
+        raise NotImplementedError
+
+    def addWidget(self, widget):
+        self.widgets.append(widget)
     
-    @classmethod
-    def _bindKeys(cls):
-        raise NotImplementedError()
-
-
-class MainMenuManager(MenuManager_Interface):
-    @classmethod
-    def createMenu(cls, winRoot):
-        cls.winRoot = tk.Toplevel(winRoot)
-        wu.initVars.MainUI()
-
-        wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
-        wu.hideAllWidgets(cls.winRoot)
-        wc.SectionsUI.setSectionsUI(cls.winRoot)
-        wu.hideAllWidgets(cls.winRoot)
-        wc.LayoutsMenus.MainLayoutUI.addWidgets(cls.winRoot)
-        _u.Settings.UI.showMainWidgetsNext = False
-
-        #set Layout
-        menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
-        lm.Wr.MainLayout.set(cls.winRoot, *menuDimensions)
-
-        cls.winRoot.mainloop()
+    def show(self):
+        for w in self.widgets:
+            w.render()
     
+    def hide(self):
+        for w in self.widgets:
+            w.hide()
+
+
+class MenuManager_Interface(dc.AppCurrDataAccessToken):
+    layouts = []
+    currLayout = None
+    name = None
+    winRoot = None
 
     @classmethod
-    def _bindKeys(cls):
+    def createMenu(cls):
+        #add manager to the list of all managers
+        UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
+        UIManagers.append(cls)
+
+        dt.AppState.UIManagers.setData(cls.appCurrDataAccessToken, UIManagers)
+    
+    def switchUILayout(self, fromLayout, toLayout):
         pass
+
+    @classmethod
+    def startMainLoop(cls):
+        cls.winRoot.startMainLoop()
+   
+    @classmethod
+    def stopMainLoop(cls):
+        cls.winRoot.startMainLoop()
+
+    @classmethod
+    def show(cls):
+        cls.hideAllWidgets()
+        cls.currLayout.show()
+    
+    @classmethod
+    def hide(cls):
+        for l in cls.layouts:
+            l.hide()
+
+    @classmethod
+    def _bindKeys(cls):
+        raise NotImplementedError()
+
+    @classmethod
+    def hideAllWidgets(cls):
+        '''
+        hide all widgets. clear all entries
+        '''
+        UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
+        for UIManager in UIManagers:
+            UIManager.hide()
 
 
 
