@@ -578,11 +578,6 @@ class LayoutsMenus:
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions = [int(mon_width / 2), 90]
 
-            #
-            # layout: 
-            #
-            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
-            layoutOM.grid(column = 1, row = 0, padx = 0, pady = 0)
 
             #
             # image generation:
@@ -591,13 +586,8 @@ class LayoutsMenus:
             imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
             imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
 
-            addExtraImage = \
-                wf.Wr.ImageCreationWidgets.AddExtraImage_BTN(winMainRoot, cls.classPrefix)
-            addExtraImage.render()
-
-            imageGenerationRestartBTN = \
-                wf.Wr.ImageCreationWidgets.ImageGenerationRestart_BTN(winMainRoot, cls.classPrefix)
-            imageGenerationRestartBTN.eender()
+            
+            
 
             TOCcreate_CB, TOCWithImage_CB = getCheckboxes_TOC(winMainRoot, cls.classPrefix)
             TOCcreate_CB.grid(column = 1, row = 1, padx = 0, pady = 0, sticky = tk.W)

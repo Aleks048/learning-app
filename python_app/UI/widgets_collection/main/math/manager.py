@@ -8,8 +8,8 @@ import UI.widgets_utils as wu
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.layouts.common as com
-import UI.widgets_collection.main.math.layouts.common as ml
-import UI.widgets_collection.main.math.layouts.common as sl
+import UI.widgets_collection.main.math.layouts.mainLayout as ml
+import UI.widgets_collection.main.math.layouts.sectionLayout as sl
 import data.constants as dc
 
 class LayoutManagers:
@@ -23,16 +23,18 @@ class LayoutManagers:
             print(appDimensions)
             super().__init__(winRoot, appDimensions)
 
-
             layouts_OM = com.Layouts_OM(winRoot, self.prefix)
             self.addWidget(layouts_OM)
+            imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
+            self.addWidget(imageGenration_ERT)
 
+            addExtraImage = ml.AddExtraImage_BTN(winRoot, self.prefix)
+            self.addWidget(addExtraImage)
 
-            #
-            # layout: 
-            #
-            # layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
-            # layoutOM.grid(column = 1, row = 0, padx = 0, pady = 0)
+            imageGenerationRestartBTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
+            self.addWidget(imageGenerationRestartBTN)
+            
+
 
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"

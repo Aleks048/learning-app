@@ -14,6 +14,7 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
             "Main" : [mmm.LayoutManagers._Main.name, lm.Wr.MainLayout], 
             "Section" : [mmm.LayoutManagers._Section.name, lm.Wr.SectionLayout], 
             "WholeVSCode": None}
+        
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
@@ -34,30 +35,3 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
         layoutToSwitchTo = self.getData()
         mmm.MathMenuManager.switchUILayout(self.layoutOptions[layoutToSwitchTo][0])
         self.layoutOptions[layoutToSwitchTo][1].set()
-
-        # # call layout manager to change the UI
-               
-        # # _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, self.getData())
-        
-        
-
-
-        # for cl in LayoutsMenus.listOfLayoutClasses:
-        #     if self.getData().lower() in cl.__name__.lower():
-        #         wu.showCurrentLayout(mainWinRoot, 
-        #                             cl.pyAppDimensions[0],
-        #                             cl.pyAppDimensions[1])
-                
-        #         #update the section layout UI
-        #         # if "section" in cl.__name__.lower():
-        #         #     currSection = fsm.Wr.SectionCurrent.readCurrSection()
-        #         #     currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(currSection)
-        #         #     wu.updateOptionMenuOptionsList(mainWinRoot, 
-        #         #                                 "source_SecImIDX", 
-        #         #                                 currChImageLinks,
-        #         #                                 wv.UItkVariables.glLinkSourceImLink,
-        #         #                                 lambda *argv: None)
-                    
-        #         #     # set to the latest link
-        #         #     wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
-        #         # break 

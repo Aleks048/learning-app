@@ -22,18 +22,41 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
-
+#
+            # image generation:
+            #
+            # imageGenerationUI = getWidgets_imageGeneration_ETR_BTN(winMainRoot, cls.classPrefix)
+            # imageGenerationUI[0].grid(column = 2, row = 0, padx = 0, pady = 0, sticky = tk.N)
+            # imageGenerationUI[1].grid(column = 2, row = 1, padx = 0, pady = 0, sticky = tk.N)
+class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_imageGeneration_ETR"
+        super().__init__(prefix, 
+                        name,
+                        patentWidget, 
+                        data)
+        
 
 class AddExtraImage_BTN(ww.currUIImpl.Button):
-    data = {
-        ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
-        ww.currUIImpl.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
-    }
-    name = "_imageGenerationAddIm"
-    text= "addIm"
     
     def __init__(self, patentWidget, prefix):
-        super().__init__(prefix, self.name, self.text, patentWidget, self.data, self.cmd)
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+        }
+        name = "_imageGenerationAddIm"
+        text= "addExtraIm"
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
 
     def cmd(self):
         currentSubsection = fsm.Wr.SectionCurrent.readCurrSection()
@@ -75,7 +98,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
     data = {
         ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
-        ww.currUIImpl.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
     }
     name = "_imageGenerationRestart"
     text= "restart"
