@@ -5,19 +5,25 @@ import _utils.logging as log
 
 menuManagers = []
 
-class MenuLayout_Interface:
+class MenuLayout_Interface(dc.AppCurrDataAccessToken):
+    name = None
     widgets = []
-
-    monitorSize = _u.getMonitorSize()
+    appDimensions = []
 
     name = None
-    def __init__(self, winRoot):
-        raise NotImplementedError
+    def __init__(self, winRoot, appDimensions):
+        self.winRoot = winRoot
+        self.appDimensions = appDimensions
+        self.setAppDimensions()        
 
     def addWidget(self, widget):
         self.widgets.append(widget)
     
+    def setAppDimensions(self):
+        self.winRoot.setGeometry(*self.appDimensions)
+
     def show(self):
+        self.setAppDimensions()
         for w in self.widgets:
             w.render()
     
@@ -40,8 +46,13 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
         dt.AppState.UIManagers.setData(cls.appCurrDataAccessToken, UIManagers)
     
-    def switchUILayout(self, fromLayout, toLayout):
-        pass
+    @classmethod
+    def switchUILayout(cls, toLayout_name):
+        for layout in cls.layouts:
+            if layout.name == toLayout_name:
+                layout.show()
+                return
+        raise KeyError
 
     @classmethod
     def startMainLoop(cls):
@@ -73,6 +84,12 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
         for UIManager in UIManagers:
             UIManager.hide()
+    
+    @classmethod
+    def startManager(cls):
+        cls.createMenu()
+        cls.show()
+        cls.startMainLoop()
 
 
 

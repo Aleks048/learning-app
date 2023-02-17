@@ -18,12 +18,17 @@ import UI.widgets_collection.startup.startup as sw
 
 import UI.widgets_manager as wm
 
+import data.constants as dc
+
 class StartupLayout(wm.MenuLayout_Interface):
     prefix = "_StartupLayout_"
 
     def __init__(self, winRoot):
-        winRoot.setGeometry(posx = int(self.monitorSize[0] / 2),
-                            posy = int(self.monitorSize[1] / 2))
+        monitorSize = dc.MonitorSize.getData()
+        appDimensions = [-1, -1, int(monitorSize[0] / 2), int(monitorSize[1] / 2)]
+        super().__init__(winRoot, appDimensions)
+
+        winRoot.setGeometry(*self.appDimensions)
         
         books_OM = sw.ChooseStartupBook_OM(winRoot, self.prefix)
         self.addWidget(books_OM)
@@ -44,22 +49,15 @@ class StartupLayout(wm.MenuLayout_Interface):
         addbook_BTN.addListenerWidget(books_OM)
         self.addWidget(addbook_BTN)
 
-        # super().__init__(winRoot)
 
 class StartupMenuManager(wm.MenuManager_Interface):
-    prefix = "_StartupMenu_"
-    monitorSize = _u.getMonitorSize()
-    
     @classmethod
     def createMenu(cls):
+        super().createMenu()
         cls.winRoot = sw.StartupRoot(0, 0)
         startupLayout = StartupLayout(cls.winRoot)
         cls.layouts.append(startupLayout)
         cls.currLayout = startupLayout
-        
-        # run the tk
-        # winRoot.mainloop()
-        super().createMenu()
 
     @classmethod
     def _bindKeys(cls):

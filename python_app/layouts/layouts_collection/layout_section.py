@@ -6,7 +6,7 @@ import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
 import _utils.logging as log
-import UI.widgets_facade as wm
+# import UI.widgets_facade as wm
 import tex_file.tex_file_facade as tm
 import file_system.file_system_manager as fsm
 import data.temp as dt
@@ -56,18 +56,18 @@ class SectionLayout(lc.Layout):
                     subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
         
         # check if the folder is empty.      
-        if len(os.listdir(os.path.join(pathToSourceFolder, secPrefix + "_" + currSection + "_images"))) == 0:
-            msg = "No images yet. Can't switch to section."
-            wm.Wr.MessageMenu.createMenu(msg)
-            log.autolog(msg)
-            return
-        else:
-            # rebuild the section doc
-            # NOTE: do we need a rebuild each time we switch??
-            wm.Data.UItkVariables.needRebuild.set(True)
+        # if len(os.listdir(os.path.join(pathToSourceFolder, secPrefix + "_" + currSection + "_images"))) == 0:
+        #     msg = "No images yet. Can't switch to section."
+        #     wm.Wr.MessageMenu.createMenu(msg)
+        #     log.autolog(msg)
+        #     return
+        # else:
+        #     # rebuild the section doc
+        #     # NOTE: do we need a rebuild each time we switch??
+        #     wm.Data.UItkVariables.needRebuild.set(True)
         
-        if wm.Data.UItkVariables.needRebuild.get() == True:
-            _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
+        # if wm.Data.UItkVariables.needRebuild.get() == True:
+        #     _waitDummy = tm.Wr.TexFile.buildCurrentSubsectionPdf()
 
  
         # set menu dimensions

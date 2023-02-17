@@ -10,22 +10,23 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.layouts.common as com
 import UI.widgets_collection.main.math.layouts.common as ml
 import UI.widgets_collection.main.math.layouts.common as sl
-
-import UI.widgets_collection.main.manager as wmm
-
-
-
-
-class LayoutManager_Interface(wmm.MainMenuManager):
-    pass
+import data.constants as dc
 
 class LayoutManagers:
-    class _Main(LayoutManager_Interface):
-        def addWidgets(rootWidget):           
-            mon_width, _ = _u.getMonitorSize()
-            pyAppDimensions = [int(mon_width / 2), 90]
+    class _Main(wm.MenuLayout_Interface):
+        prefix = "_mainLayout"
+        name = __name__
+        def __init__(self, winRoot):
+            monitorSize = dc.MonitorSize.getData()
+            monHalfWidth = int(monitorSize[0] / 2)
+            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+            print(appDimensions)
+            super().__init__(winRoot, appDimensions)
 
-            
+
+            layouts_OM = com.Layouts_OM(winRoot, self.prefix)
+            self.addWidget(layouts_OM)
+
 
             #
             # layout: 
@@ -33,37 +34,32 @@ class LayoutManagers:
             # layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
             # layoutOM.grid(column = 1, row = 0, padx = 0, pady = 0)
 
-    class _Section(LayoutManager_Interface):
-        def addWidgets(rootWidget):
+    class _Section(wm.MenuLayout_Interface):
+        prefix = "_sectionLayout"
+        name = __name__
+        @classmethod
+        def __init__(self, winRoot):
             pass
     
-    listOfManagers = [_Main, _Section]
+    @classmethod
+    def listOfLayouts(cls):
+        results = []
+        for attrname in dir(cls):
+            obj = getattr(cls, attrname)
+            if isinstance(obj, type) and issubclass(obj, wm.MenuLayout_Interface):
+                results.append(obj)
+        return results
 
-class MathMenuManager(wmm.MainMenuManager):
+class MathMenuManager(wm.MenuManager_Interface):
+    prefix = "_MainMathMenu_"
+
     @classmethod
     def createMenu(cls):
         super().createMenu()
 
         cls.winRoot = com.MainMenuRoot(0, 0)
 
-
-        for lm in LayoutManagers.listOfManagers:
-            lm.addWidgets(cls.winRoot)
-        # wc.LayoutsMenus.SectionLayoutUI.addWidgets(cls.winRoot)
-        # wu.hideAllWidgets(cls.winRoot)
-        # wc.SectionsUI.setSectionsUI(cls.winRoot)
-        # cls.LayoutManagers.Main.addWidgets(cls.winRoot)
-        # _u.Settings.UI.showMainWidgetsNext = False
-
-        #set Layout
-        # menuDimensions = wc.LayoutsMenus.MainLayoutUI.pyAppDimensions
-        # lm.Wr.MainLayout.set(cls.winRoot, *menuDimensions)
-
-        # cls.winRoot.mainloop()
-
-    def show(self):
-        pass
-
-    @classmethod
-    def _bindKeys(cls):
-        pass
+        for lm in LayoutManagers.listOfLayouts():
+            cls.layouts.append(lm(cls.winRoot))
+        
+        cls.currLayout = cls.layouts[0]

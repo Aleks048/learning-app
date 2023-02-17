@@ -46,7 +46,7 @@ class StartupConfirm_BTN(ww.currUIImpl.Button):
         self.name
         self.rootWidget.stopMainLoop()
         _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-        wm.MathMenuManager.createMenu()
+        wm.MathMenuManager.startManager()
 
 class AddBook_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix, BookMenuWidget):

@@ -7,7 +7,7 @@ import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
 import _utils.logging as log
-import UI.widgets_facade as wf
+# import UI.widgets_facade as wf
 import tex_file.tex_file_facade as tm
 import file_system.file_system_manager as fsm
 import data.temp as dt
@@ -21,7 +21,7 @@ class MainLayout(lc.Layout):
     pyAppDimensions = [None, None]
     
     @classmethod
-    def set(cls, mainWinRoot, appWidth, appHeight):
+    def set(cls):
         '''
         # main:
         #       full book to the left
@@ -41,13 +41,17 @@ class MainLayout(lc.Layout):
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
+        mon_width, _ = _u.getMonitorSize()
+        cls.pyAppDimensions = [int(mon_width / 2), 90]
+        appWidth = cls.pyAppDimensions[0]
+        appHeight = cls.pyAppDimensions[1]
+        mon_width, mon_height = _u.getMonitorSize()
+        mon_halfWidth = mon_width / 2
+            # wm.Data.UItkVariables.needRebu
 
-        # wm.Data.UItkVariables.needRebuild.set(False)
-        # change the menu size
-        mainWinRoot.geometry(str(appWidth) + "x" + str(appHeight) 
-                            + "+" + str(int(mon_halfWidth)) + "+0")
+
         # switch menu
-        wf.Wr.MenuManagers.MainMenuManager.LayoutManagers.Main.show() 
+        # wf.Wr.MenuManagers.MainMenuManager.LayoutManagers.Main.show() 
        
         #
         # SKIM

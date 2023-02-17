@@ -2,7 +2,6 @@ import os
 
 import _utils._utils_main as _u
 
-import UI.widgets_facade as wm
 import file_system.file_system_manager as fsm
 import _utils.logging as log
 
@@ -196,7 +195,7 @@ class TexFile:
         currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
         currSectionNameWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         
-        wm.Data.UItkVariables.needRebuild.set(False)
+        # wm.Data.UItkVariables.needRebuild.set(False)
         return cls.buildSubsectionPdf(currTexFilesFolder, currTexMainFile, currSectionNameWPrefix)
     
     def buildSubsectionPdf(sectionFolder, mainTexFilepath, sectionNameWprefix):

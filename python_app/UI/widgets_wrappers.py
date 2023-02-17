@@ -284,15 +284,15 @@ class TkWidgets (DataTranslatable_Interface):
             self.tk.geometry(str(width) + "x" + str(height))
             self.widjetObj = tk.Toplevel(self.tk)
         
-        def setGeometry(self, width = 0, height = 0, posx = 0, posy = 0):
+        def setGeometry(self, width = -1, height = -1, posx = -1, posy = -1):
             width = str(width)
             height = str(height)
             posx = str(posx)
             posy = str(posy)
 
-            if width == "0" or height == "0":
+            if width == "-1" or height == "-1":
                 self.widjetObj.geometry("+" + posx + "+" + posy)
-            elif posx == "0" or posy == "0":
+            elif posx == "-1" or posy == "-1":
                 self.widjetObj.geometry(width + "x" + height)
             else:
                 self.widjetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)

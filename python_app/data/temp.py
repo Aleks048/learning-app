@@ -3,9 +3,16 @@ import _utils._utils_main as _u
 
 class ClassAttNotAccessibleType(type):
     data = None
+    dataAccessCounter = 0
 
     def __getattribute__(self, __name):
-        if __name in ["data", "getData", "setData"]:
+        if __name == "dataAccessCounter":
+            return object.__getattribute__(self, __name)
+        elif __name in ["getData", "setData"]:
+            self.dataAccessCounter = 1
+            return object.__getattribute__(self, __name)
+        elif __name == "data" and self.dataAccessCounter == 1:
+            self.dataAccessCounter = 0
             return object.__getattribute__(self, __name)
         else: 
             raise TypeError("The objects of this calss are not acessible directly. Please use getData(dataAccessToken)")
@@ -29,8 +36,8 @@ class AppState:
     class CurrLayout(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         pass
 
-    class CurrUILayout(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
-        pass
+    class CurrUILayoutName(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        data = ""
 
     class CurrUIImplementation(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         pass
