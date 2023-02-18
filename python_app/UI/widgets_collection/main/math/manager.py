@@ -25,14 +25,23 @@ class LayoutManagers:
 
             layouts_OM = com.Layouts_OM(winRoot, self.prefix)
             self.addWidget(layouts_OM)
+            
             imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
             self.addWidget(imageGenration_ERT)
+            
+            imageGeneration_BTN = ml.ImageGeneration_BTN(winRoot, self.prefix)
+            imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
+            self.addWidget(imageGeneration_BTN)
 
             addExtraImage = ml.AddExtraImage_BTN(winRoot, self.prefix)
             self.addWidget(addExtraImage)
 
+
             imageGenerationRestartBTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
+            imageGenerationRestartBTN.addListenerWidget(imageGenration_ERT)
+            imageGenerationRestartBTN.addListenerWidget(imageGeneration_BTN)
             self.addWidget(imageGenerationRestartBTN)
+            
             
 
 

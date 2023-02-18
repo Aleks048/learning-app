@@ -45,8 +45,12 @@ class StartupLayout(wm.MenuLayout_Interface):
         originalMaterialLocation_ETR = sw.StrtupOriginalMaterialLocation_ETR(winRoot, self.prefix)
         self.addWidget(originalMaterialLocation_ETR)
 
-        addbook_BTN = sw.AddBook_BTN(winRoot, self.prefix, None)
+        addbook_BTN = sw.AddBook_BTN(winRoot, self.prefix)
         addbook_BTN.addListenerWidget(books_OM)
+        addbook_BTN.addListenerWidget(bookName_ETR)
+        addbook_BTN.addListenerWidget(bookLocation_ETR)
+        addbook_BTN.addListenerWidget(originalMaterialName_ETR)
+        addbook_BTN.addListenerWidget(originalMaterialLocation_ETR)
         self.addWidget(addbook_BTN)
 
 

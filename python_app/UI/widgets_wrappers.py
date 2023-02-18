@@ -34,13 +34,18 @@ class HasListenersWidget_Interface:
     def addListenerWidget(self, widget, **kwargs):
         self.listeners.append(widget)
     
-    def notifyAllListeners(self, **kwargs):
+    def notifyAllListeners(self, *args, **kwargs):
         for widget in self.listeners:
-            widget.notify(self.name)
+            widget.receiveNotification(type(self), *args, **kwargs)
+    
+    def notify(self, reciverWidgetClass, *args, **kwargs):
+        for widget in self.listeners:
+            if type(widget) == reciverWidgetClass:
+                widget.receiveNotification(type(self), *args, **kwargs)
 
 class Notifyable_Interface:
-    def notify(self, broadcasterName):
-        pass
+    def receiveNotification(self, broadcasterName) -> None:
+        raise NotImplementedError
 
 class DataTranslatable_Interface:
     def translateExtraBuildOptions(extraOptions):
@@ -155,6 +160,10 @@ class TkWidgets (DataTranslatable_Interface):
         def render(self, **kwargs):
             return super().render(**self.renderData)
 
+        def updateLabel(self, newText):
+            self.text = newText
+            self.widgetObj.configure(text = newText)
+
 
 
     class OptionMenu (Notifyable_Interface,
@@ -265,13 +274,16 @@ class TkWidgets (DataTranslatable_Interface):
             return super().render(**self.renderData)
         
         def hide(self, **kwargs):
-            # self.widgetObj.delete(0, 'end')
             self.setData(self.defaultText)
 
             return super().hide(**kwargs)
 
+
         def setTextColor(self, color):
             self.widgetObj.configure(fg = color)
+
+        def updateDafaultText(self, newText):
+            self.defaultText = newText
     
     class Checkbox:
         def __init__(name, rootWidget):

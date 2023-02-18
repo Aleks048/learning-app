@@ -49,15 +49,13 @@ class StartupConfirm_BTN(ww.currUIImpl.Button):
         wm.MathMenuManager.startManager()
 
 class AddBook_BTN(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix, BookMenuWidget):
+    def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Add Book"
         name = "_addBookBTN"
-
-        self.BookMenuWidget = BookMenuWidget
 
         super().__init__(prefix, 
                         name, 
@@ -67,10 +65,10 @@ class AddBook_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        bookPath = wv.StartupUItkVariables.newBookLocation.get()
-        bookName = wv.StartupUItkVariables.newBookName.get()
-        originalMaterialLocation = wv.StartupUItkVariables.originalMaterialLocation.get()
-        originalMaterialName = wv.StartupUItkVariables.originalMaterialName.get()
+        bookPath = self.notify(StrtupBookLocation_ETR)
+        bookName = self.notify(StrtupBookName_ETR)
+        originalMaterialLocation = self.notify(StrtupOriginalMaterialLocation_ETR)
+        originalMaterialName = self.notify(StrtupOriginalMaterialName_ETR)
 
         # create a directory
         try:
@@ -97,7 +95,7 @@ class AddBook_BTN(ww.currUIImpl.Button):
                                                             originalMaterialLocation, 
                                                             "")
 
-        self.notifyAllListeners()
+        self.notify(ChooseStartupBook_OM)
 
 class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
 
@@ -123,7 +121,7 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
         
         self.notifyAllListeners()
     
-    def notify(self, _):
+    def receiveNotification(self, _):
         booksNames = list(_u.getListOfBooks()) 
         self.updateOptions(booksNames)
 
@@ -155,6 +153,10 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
                         lambda *args: addDefaultTextToETR(self))
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: addDefaultTextToETR(self))
+    
+        
+    def receiveNotification(self, _) -> None:
+        return self.getData()
 
 class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
 
@@ -184,6 +186,10 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
                         lambda *args: addDefaultTextToETR(self))
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: addDefaultTextToETR(self))
+    
+        
+    def receiveNotification(self, _) -> None:
+        return self.getData()
 
 class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
 
@@ -213,6 +219,10 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
                         lambda *args: addDefaultTextToETR(self))
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: addDefaultTextToETR(self))
+    
+        
+    def receiveNotification(self, _) -> None:
+        return self.getData()
 
 class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
 
@@ -242,6 +252,9 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
                         lambda *args: addDefaultTextToETR(self))
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
                         lambda *args: addDefaultTextToETR(self))
+    
+    def receiveNotification(self, _) -> None:
+        return self.getData()
 
 class StartupRoot(ww.currUIImpl.RootWidget):
     pass
