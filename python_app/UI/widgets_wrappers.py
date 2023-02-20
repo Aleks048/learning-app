@@ -44,8 +44,6 @@ class HasListenersWidget_Interface:
             widget.receiveNotification(type(self), *args, **kwargs)
     
     def notify(self, reciverWidgetType, *args, **kwargs):
-        log.autolog("Hoppo:")
-        log.autolog([i.name for i in self.listeners])
         for widget in self.listeners:
             if type(widget) == reciverWidgetType:
                 return widget.receiveNotification(type(self), *args, **kwargs)
@@ -352,12 +350,10 @@ class TkWidgets (DataTranslatable_Interface):
                     rootWidget, 
                     renderData : dict,
                     extraOptions = {},
-                    extraTextOptions = {},
                     bindCmd = lambda *args: None,
                     text = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
-            extraTextOptions = currUIImpl.translateExtraBuildOptions(extraTextOptions)
 
             self.name = prefix.lower() + name
             self.rootWidget = rootWidget
@@ -365,21 +361,19 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Canvas(self.rootWidget.widjetObj, 
-                                name = self.name, 
-                                **extraOptions)
-            self.txtWidgetObj = widgetObj.create_text(100, 10, text = self.text)
+            widjetObj = tk.Label(self.rootWidget.widjetObj, text = self.text)
             
-            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
-            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
             Notifyable_Interface.__init__(self)
 
             super().bind()
         
         def changeText(self, newText):
-            self.widgetObj.itemconfigure(self.txtWidgetObj, text=newText)
+            # self.widgetObj.itemconfigure(self.txtWidgetObj, text=newText)
+            self.widjetObj.configure(text=newText)
 
     
     class RootWidget(BindableWidget_Interface_Impl):

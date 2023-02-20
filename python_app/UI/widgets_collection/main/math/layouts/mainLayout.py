@@ -56,7 +56,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         
         self.notify(ImageGeneration_ETR, fsm.Wr.Links.ImIDX.get(subsection))
 
-        wu.Screenshot.setValueScreenshotLoaction()
+        self.notify(ScreenshotLocation_LBL)
         
         # update Layout
         # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
@@ -121,7 +121,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         self.notify(ChooseSubsection_OM, subsectionsList, prevSubsectionPath)
 
         # update screenshot widget
-        self.notify(ScreenshotLocation_LBL, fsm.Wr.Paths.Screenshot.getRel_curr())
+        self.notify(ScreenshotLocation_LBL)
 
         # update image index widget
         self.notify(ImageGeneration_ETR, 
@@ -142,39 +142,23 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
-        extraOptions = {
-            ww.Data.GeneralProperties_ID : {},
-            ww.TkWidgets.__name__ : {"width" : 520, "height" : 25}
-        }
-        extraTextOptions = {
-            ww.Data.GeneralProperties_ID : {},
-            ww.TkWidgets.__name__ : {"anchor" : "nw"}
-        }
         name = "_showCurrScreenshotLocation_text"
-        text = self.__formatScreenshotLocation()
+        text = self.__getScreenshotLocation_Formatted()
         super().__init__(prefix, 
                         name,
                         parentWidget, 
                         renderData = data, 
-                        text = text,
-                        bindCmd=self.bindCmd,
-                        extraOptions = extraOptions,
-                        extraTextOptions = extraTextOptions)
+                        text = text)
     
-    def bindCmd(self):
-        print(self.__formatScreenshotLocation())
-        def on_change():
-            self.changeText(self.__formatScreenshotLocation())
-        
-        self.setOnCmdONDataChange(on_change)
-    
-    def receiveNotification(self, broadcasterName, data):
+    def receiveNotification(self, broadcasterName, data = None):
         if broadcasterName == ChooseTopSection_OM:
-            self.setData(data)
+            self.changeText(self.__getScreenshotLocation_Formatted())
+        if broadcasterName == ChooseSubsection_OM:
+            self.changeText(self.__getScreenshotLocation_Formatted())
         
-    def __formatScreenshotLocation(self):
+    def __getScreenshotLocation_Formatted(self):
         relPath =  fsm.Wr.Paths.Screenshot.getRel_curr()
-        log.autolog(relPath)
+        self.text = relPath
         return "dir: " + relPath if relPath != "" else "No direction yet."
 
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
@@ -319,10 +303,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
-            self.setData(dataToSet)
+            currImIdx = str(int(fsm.Wr.SectionCurrent.getImIDX()) + 1)
+            self.setData(currImIdx)
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
-            log.autolog("Hip: " + str(prevData)  + " " + str(dataToSet))
             self.setData(dataToSet)
             return prevData
         elif broadcasterType == ChooseTopSection_OM:

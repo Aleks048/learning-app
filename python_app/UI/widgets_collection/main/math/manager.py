@@ -64,10 +64,12 @@ class LayoutManagers:
             chooseSubsection_OM = ml.ChooseSubsection_OM(winRoot, self.prefix)
             self.addWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(imageGenration_ERT)
+            self.addWidget(chooseSubsection_OM)
             
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
-            self.addWidget(chooseSubsection_OM)
+            chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
+            chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
