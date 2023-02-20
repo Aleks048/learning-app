@@ -216,6 +216,7 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
 
 class ImageGeneration_BTN(ww.currUIImpl.Button):
     labelOptions = ["imIdx", "imName"]
+    dataFromUser = [-1, -1]
 
     def __init__(self, patentWidget, prefix):
         data = {
@@ -233,28 +234,28 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                         self.cmd)
     
     def cmd(self):
-        dataFromUser = [-1, -1]
         
         def _createTexForTheProcessedImage():
+            log.autolog("Haha:")
             bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
             currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
 
             # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-            tff.Wr.TexFileModify.addProcessedImage(dataFromUser[0], dataFromUser[1])
+            tff.Wr.TexFileModify.addProcessedImage(self.dataFromUser[0], self.dataFromUser[1])
 
             if self.notify(addToTOC_CHB):
                 if self.notify(addToTOCwImage_CHB):
                     # TOC ADD ENTRY WITH IMAGE
-                   tff.Wr.TexFileModify.addImageLinkToTOC_wImage(dataFromUser[0], dataFromUser[1])
+                   tff.Wr.TexFileModify.addImageLinkToTOC_wImage(self.dataFromUser[0], self.dataFromUser[1])
                 else:  
                     # TOC ADD ENTRY WITHOUT IMAGE
-                   tff.Wr.TexFileModify.addImageLinkToTOC_woImage(dataFromUser[0], dataFromUser[1])
+                   tff.Wr.TexFileModify.addImageLinkToTOC_woImage(self.dataFromUser[0], self.dataFromUser[1])
             
             imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
-                                    str(dataFromUser[0]) + "_" + currSubsection + "_" + str(dataFromUser[1]))
+                                    str(self.dataFromUser[0]) + "_" + currSubsection + "_" + str(self.dataFromUser[1]))
 
             # STOTE IMNUM, IMNAME AND LINK
-            fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
+            fsm.Wr.SectionCurrent.setImLinkAndIDX(self.dataFromUser[1], self.dataFromUser[0])
             
             # POPULATE THE MAIN FILE
             tff.Wr.TexFile._populateMainFile()
@@ -265,7 +266,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                     ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
                     # wv.UItkVariables.needRebuild.set(True)
                     # update curr image index for the chapter
-                    nextImNum = str(int(dataFromUser[0]) + 1)
+                    nextImNum = str(int(self.dataFromUser[0]) + 1)
                     self.notify(ImageGeneration_ETR, nextImNum)
                     self.updateLabel(self.labelOptions[0])
                 
@@ -276,17 +277,18 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                 ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
                 # wv.UItkVariables.needRebuild.set(True)
                 #update curr image index for the chapter
-                nextImNum = str(int(dataFromUser[0]) + 1)
+                nextImNum = str(int(self.dataFromUser[0]) + 1)
                 self.notify(ImageGeneration_ETR, nextImNum)
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
 
         for i in range(len(self.labelOptions)):
+            log.autolog("Hoho:")
             if self.labelOptions[i] == self.text:
                 nextButtonName = self.labelOptions[(i+1)%len(self.labelOptions)]
                 sectionImIndex = fsm.Wr.Links.ImIDX.get_curr()
-                dataFromUser[i] = self.notify(ImageGeneration_ETR, sectionImIndex) 
+                self.dataFromUser[i] = self.notify(ImageGeneration_ETR, sectionImIndex) 
                 buttonNamesToFunc[self.labelOptions[i]]()
                 self.updateLabel(nextButtonName)
                 break
@@ -319,7 +321,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         if broadcasterType == ImageGenerationRestart_BTN:
             self.setData(dataToSet)
         elif broadcasterType == ImageGeneration_BTN:
+            prevData = self.getData()
+            log.autolog("Hip: " + str(prevData)  + " " + str(dataToSet))
             self.setData(dataToSet)
+            return prevData
         elif broadcasterType == ChooseTopSection_OM:
             self.setData(dataToSet)
         elif broadcasterType == ChooseSubsection_OM:

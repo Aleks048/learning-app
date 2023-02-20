@@ -2,8 +2,9 @@ import tkinter as tk
 
 import _utils.logging as log
 
-class DataContainer_Interface:
-    dataVar = None
+class DataContainer_Interface: 
+    def __init__(self):
+        self.dataVar = None
 
     def getDataObject(self):
         return self.dataVar
@@ -32,7 +33,8 @@ class BindableWidget_Interface:
         raise NotImplementedError()
 
 class HasListenersWidget_Interface:
-    listeners = []
+    def __init__(self):
+        self.listeners = []
 
     def addListenerWidget(self, widget, **kwargs):
         self.listeners.append(widget)
@@ -41,13 +43,15 @@ class HasListenersWidget_Interface:
         for widget in self.listeners:
             widget.receiveNotification(type(self), *args, **kwargs)
     
-    def notify(self, reciverWidgetClass, *args, **kwargs):
+    def notify(self, reciverWidgetType, *args, **kwargs):
+        log.autolog("Hoppo:")
+        log.autolog([i.name for i in self.listeners])
         for widget in self.listeners:
-            if type(widget) == reciverWidgetClass:
-                widget.receiveNotification(type(self), *args, **kwargs)
+            if type(widget) == reciverWidgetType:
+                return widget.receiveNotification(type(self), *args, **kwargs)
 
 class Notifyable_Interface:
-    def receiveNotification(self, broadcasterName) -> None:
+    def receiveNotification(self, broadcasterType) -> None:
         raise NotImplementedError
 
 class DataTranslatable_Interface:
@@ -80,6 +84,7 @@ class TkWidgets (DataTranslatable_Interface):
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
+            super().__init__()
             self.dataVar = tk.Variable()
 
         def getData(self, **kwargs):
@@ -120,11 +125,12 @@ class TkWidgets (DataTranslatable_Interface):
 
     class HasListenersWidget_Interface_Impl(HasListenersWidget_Interface):
         def __init__(self, *args, **kwargs):
-            pass
+            super().__init__()
 
     class BindableWidget_Interface_Impl(BindableWidget_Interface):
         def __init__(self, bindCmd = lambda *args: None, *args, **kwargs):
             self.bindCmd = bindCmd
+            super().__init__()
         
         def bind(self):
             self.bindCmd()

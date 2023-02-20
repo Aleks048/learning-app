@@ -20,7 +20,7 @@ class LayoutManagers:
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
             appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
-            
+
             super().__init__(winRoot, appDimensions)
 
             winRoot.configureColumn(0, weight = 1)
