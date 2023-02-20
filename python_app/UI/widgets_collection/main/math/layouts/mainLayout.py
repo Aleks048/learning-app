@@ -22,6 +22,198 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
+class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseSubsecion_optionMenu"
+
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+
+        if subsectionsList == []:
+            subsectionsList = ["No subsec yet."]
+
+        super().__init__(prefix, 
+                        name, 
+                        subsectionsList,
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+        
+        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        self.setData(currSubsection)
+    
+    def cmd(self):
+        subsection = self.getData()
+        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+        topSection = self.notify(ChooseTopSection_OM)
+        sections[topSection]["prevSubsectionPath"] = subsection
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID , sections)
+        
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID , subsection)
+        
+        self.notify(ImageGeneration_ETR, fsm.Wr.Links.ImIDX.get(subsection))
+
+        wu.Screenshot.setValueScreenshotLoaction()
+        
+        # update Layout
+        # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
+        # wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
+    
+    def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
+        if broadcasterType == ChooseTopSection_OM:
+            self.updateOptions(newOptionList)
+            self.setData(prevSubsectionPath)
+
+class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseSection_optionMenu"
+
+        topSectionsList = fsm.getTopSectionsList()
+        topSectionsList.sort(key = int)
+        if topSectionsList == []:
+            topSectionsList = ["No top sec yet."]
+
+        super().__init__(prefix, 
+                        name, 
+                        topSectionsList,
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+        
+        currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+        self.setData(currTopSection)
+    
+    def cmd(self):
+        topSection = self.getData()
+        log.autolog("switching to top section: " + topSection)
+
+        # update top section
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID , 
+                                                topSection)
+        
+        # update subsection
+        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+        prevSubsectionPath = sections[topSection]["prevSubsectionPath"]
+        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, 
+                                                prevSubsectionPath)
+
+        # update image index
+        secionImIndex = fsm.Wr.Links.ImIDX.get(prevSubsectionPath)
+        # wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
+        
+
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        subsectionsList.sort()
+        
+        #
+        # Update other widgets
+        #
+
+        # subsection option menu widget
+        # notify choose subsection OM
+        self.notify(ChooseSubsection_OM, subsectionsList, prevSubsectionPath)
+
+        # update screenshot widget
+        self.notify(ScreenshotLocation_LBL, fsm.Wr.Paths.Screenshot.getRel_curr())
+
+        # update image index widget
+        self.notify(ImageGeneration_ETR, 
+                    fsm.Wr.Links.ImIDX.get(prevSubsectionPath))
+
+        # # update Layout widget
+        # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
+        # wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
+    
+    def receiveNotification(self, broadcasterType):
+        if broadcasterType == ChooseSubsection_OM:
+            return self.getData()
+
+
+class ScreenshotLocation_LBL(ww.currUIImpl.Label):
+    def __init__(self, parentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2, "columnspan": 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        extraOptions = {
+            ww.Data.GeneralProperties_ID : {},
+            ww.TkWidgets.__name__ : {"width" : 520, "height" : 25}
+        }
+        extraTextOptions = {
+            ww.Data.GeneralProperties_ID : {},
+            ww.TkWidgets.__name__ : {"anchor" : "nw"}
+        }
+        name = "_showCurrScreenshotLocation_text"
+        text = self.__formatScreenshotLocation()
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = data, 
+                        text = text,
+                        bindCmd=self.bindCmd,
+                        extraOptions = extraOptions,
+                        extraTextOptions = extraTextOptions)
+    
+    def bindCmd(self):
+        print(self.__formatScreenshotLocation())
+        def on_change():
+            self.changeText(self.__formatScreenshotLocation())
+        
+        self.setOnCmdONDataChange(on_change)
+    
+    def receiveNotification(self, broadcasterName, data):
+        if broadcasterName == ChooseTopSection_OM:
+            self.setData(data)
+        
+    def __formatScreenshotLocation(self):
+        relPath =  fsm.Wr.Paths.Screenshot.getRel_curr()
+        log.autolog(relPath)
+        return "dir: " + relPath if relPath != "" else "No direction yet."
+
+class addToTOC_CHB(ww.currUIImpl.Checkbox):
+    def __init__(self, parentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        name = "_create_toc"
+        text = "TOC cr"
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = renderData, 
+                        text = text)
+        self.setData(True)
+
+        
+    def receiveNotification(self, broadcasterName):
+        return self.getData()
+
+class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
+    def __init__(self, parentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+        }
+        name = "_toc_w_image"
+        text = "TOC w i"
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData, 
+                        text = text)
+        self.setData(False)
+    
+    def receiveNotification(self, broadcasterName):
+        return self.getData()
+
 class ImageGeneration_BTN(ww.currUIImpl.Button):
     labelOptions = ["imIdx", "imName"]
 
@@ -47,37 +239,19 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
             bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
             currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
 
-            
-
             # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
             tff.Wr.TexFileModify.addProcessedImage(dataFromUser[0], dataFromUser[1])
 
-            if wv.UItkVariables.createTOCVar.get():
-                if wv.UItkVariables.TOCWithImageVar.get():
+            if self.notify(addToTOC_CHB):
+                if self.notify(addToTOCwImage_CHB):
                     # TOC ADD ENTRY WITH IMAGE
-                    with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
-                        toc_add_image = d.Links.Local.getIdxLineMarkerLine(dataFromUser[0]) + " \n"
-                        toc_add_image += "\
-    \\mybox{\n\
-        \\link[" + dataFromUser[0] + \
-        "]{" + dataFromUser[1] + "} \\image[0.5]{" + \
-        dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1] + "}\n\
-    }\n\n\n"
-                        f.write(toc_add_image)
+                   tff.Wr.TexFileModify.addImageLinkToTOC_wImage(dataFromUser[0], dataFromUser[1])
                 else:  
                     # TOC ADD ENTRY WITHOUT IMAGE
-                    with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
-                        toc_add_text = d.Links.Local.getIdxLineMarkerLine(dataFromUser[0]) + " \n"
-                        toc_add_text += "\
-    \\mybox{\n\
-        \\link[" + dataFromUser[0] + "]{" + dataFromUser[1] + "} \\textbf{!}\n\
-    }\n\n\n"
-                        f.write(toc_add_text)
-                
-
-            #create a script to run on page change
+                   tff.Wr.TexFileModify.addImageLinkToTOC_woImage(dataFromUser[0], dataFromUser[1])
+            
             imagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
-                                    dataFromUser[0] + "_" + currSubsection + "_" + dataFromUser[1])
+                                    str(dataFromUser[0]) + "_" + currSubsection + "_" + str(dataFromUser[1]))
 
             # STOTE IMNUM, IMNAME AND LINK
             fsm.Wr.SectionCurrent.setImLinkAndIDX(dataFromUser[1], dataFromUser[0])
@@ -85,29 +259,25 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
             # POPULATE THE MAIN FILE
             tff.Wr.TexFile._populateMainFile()
             
-            
             # take a screenshot
-            imIDX = dataFromUser[0]
-            pdfFilepath = fsm.Wr.Paths.PDF.getAbs_curr()
-            if os.path.isfile(imagePath + ".png"):
-                def takeScreencapture(iPath, sPath):
-                    os.system("screencapture -ix " + iPath + ".png")
-                    wv.UItkVariables.needRebuild.set(True)
+            if ocf.Wr.fsAppCalls.checkIfFileExists(imagePath):
+                def takeScreencapture(iPath):
+                    ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
+                    # wv.UItkVariables.needRebuild.set(True)
                     # update curr image index for the chapter
                     nextImNum = str(int(dataFromUser[0]) + 1)
-                    wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
-                    wv.UItkVariables.buttonText.set("imNum")
+                    self.notify(ImageGeneration_ETR, nextImNum)
+                    self.updateLabel(self.labelOptions[0])
                 
                 wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
                                                 takeScreencapture, 
-                                                currSubsection,
-                                                bookName)
+                                                imagePath)
             else:
-                os.system("screencapture -ix " + imagePath + ".png")
-                wv.UItkVariables.needRebuild.set(True)
+                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+                # wv.UItkVariables.needRebuild.set(True)
                 #update curr image index for the chapter
                 nextImNum = str(int(dataFromUser[0]) + 1)
-                wv.UItkVariables.imageGenerationEntryText.set(nextImNum)
+                self.notify(ImageGeneration_ETR, nextImNum)
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
@@ -150,13 +320,16 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.setData(dataToSet)
         elif broadcasterType == ImageGeneration_BTN:
             self.setData(dataToSet)
-           
+        elif broadcasterType == ChooseTopSection_OM:
+            self.setData(dataToSet)
+        elif broadcasterType == ChooseSubsection_OM:
+            self.setData(dataToSet)
 
 class AddExtraImage_BTN(ww.currUIImpl.Button):
     
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
         }
         text= "addExtraIm"
@@ -210,7 +383,7 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_imageGenerationRestart"

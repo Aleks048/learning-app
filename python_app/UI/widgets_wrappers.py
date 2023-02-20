@@ -13,6 +13,9 @@ class DataContainer_Interface:
         
     def setData(self, data, **kwargs):
         raise NotImplementedError()
+    
+    def setOnCmdONDataChange(self, cmd, **kwargs):
+        raise NotImplementedError()
 
 class HasChildren_Interface:
     def getChildren(self, **kwargs):
@@ -49,20 +52,23 @@ class Notifyable_Interface:
 
 class DataTranslatable_Interface:
     def translateExtraBuildOptions(extraOptions):
+        kwargs = {}
         if extraOptions != {}:
-            extraOptions = {**extraOptions[Data.GeneralProperties_ID], **extraOptions[currUIImpl.__name__]}
-            if Data.CommonTextColor_ID in extraOptions:
-                extraOptions[currUIImpl.Data.textColor_ID] = extraOptions.pop(Data.CommonTextColor_ID)    
-        return extraOptions
+            kwargs = {**extraOptions[Data.GeneralProperties_ID], **extraOptions[currUIImpl.__name__]}
+            if Data.CommonTextColor_ID in kwargs:
+                kwargs[currUIImpl.Data.textColor_ID] = kwargs.pop(Data.CommonTextColor_ID)    
+        return kwargs
 
     def translateRenderOptions(renderOptions):
+        kwargs = {}
         if renderOptions != {}:
-            renderOptions = {**renderOptions[Data.GeneralProperties_ID], **renderOptions[currUIImpl.__name__]}
-        return renderOptions
+            kwargs = {**renderOptions[Data.GeneralProperties_ID], **renderOptions[currUIImpl.__name__]}
+        return kwargs
 
 class Data:
     CommonTextColor_ID = "textColor"
     GeneralProperties_ID = "general"
+    args = "args"
 
 class TkWidgets (DataTranslatable_Interface):
     class Data:
@@ -79,8 +85,11 @@ class TkWidgets (DataTranslatable_Interface):
         def getData(self, **kwargs):
             return self.dataVar.get()
         
-        def setData(self, data, **kwargs):
-            self.dataVar.set(data)
+        def setData(self, newData, **kwargs):
+            self.dataVar.set(newData)
+
+        def setOnCmdONDataChange(self, cmd, **kwargs):
+            self.dataVar.trace_variable('w', cmd)
 
     class HasChildren_Interface_Impl(HasChildren_Interface):
         def __init__(self, widgetObj = None, *args, **kwargs):
@@ -90,20 +99,20 @@ class TkWidgets (DataTranslatable_Interface):
             return self.widgetObj.winfo_children()
     
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
-        def __init__(self, widgetObj = None, *args, **kwargs):
+        def __init__(self, widgetObj = None, renderData = {}, *args, **kwargs):
             self.wasRendered = False
             self.widjetObj = widgetObj
+            self.renderData = renderData
         
-        def render(self, widjetObj = None, **kwargs):
+        def render(self, widjetObj = None, renderData = {}, **kwargs):
             if self.wasRendered:
-                log.autolog("ho")
                 self.widjetObj.grid()
             else:
                 if widjetObj == None:
-                    self.widjetObj.grid(**kwargs)
+                    self.widjetObj.grid(**self.renderData)
                 else:
-                    log.autolog("hi")
-                    widjetObj.grid(**kwargs)
+                    widjetObj.grid(renderData)
+                self.wasRendered = True
         
         def hide(self, **kwargs):
             self.widjetObj.grid_remove()
@@ -148,10 +157,10 @@ class TkWidgets (DataTranslatable_Interface):
                                 command = lambda : cmd(),
                                 **extraOptions)
             
-            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -188,7 +197,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            currUIImpl.DataContainer_Interface_Impl.__init__(self)
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             widgetObj = tk.Frame(self.rootWidget.widjetObj, 
                                 name = self.name, 
@@ -199,19 +208,20 @@ class TkWidgets (DataTranslatable_Interface):
                                     command= lambda _: cmd(),
                                     **extraOptions)
             self.optionMenu = optionMenu
+            self.optionMenu.grid(column= 0, row = 0)
             
             
-            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
             Notifyable_Interface.__init__(self)
 
             super().bind()
                     
-        def render(self, **kwargs):
-            super().render(self.optionMenu, column = 0, row = 0)
-            return super().render(**self.renderData)
+        # def render(self, **kwargs):
+        #     super().render(self.optionMenu, column = 0, row = 0)
+        #     return super().render()
 
         def updateOptions(self, newMenuOptions):
             def optionChoosingCallback(value):
@@ -254,18 +264,17 @@ class TkWidgets (DataTranslatable_Interface):
             self.bindCmd = bindCmd
             self.defaultText = defaultText
 
-
-            currUIImpl.DataContainer_Interface_Impl.__init__(self)
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             widgetObj = tk.Entry(self.rootWidget.widjetObj,
                         textvariable = self.getDataObject(),
                         name = self.name,
                         **extraOptions)
             
-            currUIImpl.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            currUIImpl.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            currUIImpl.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            currUIImpl.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -285,9 +294,86 @@ class TkWidgets (DataTranslatable_Interface):
         def updateDafaultText(self, newText):
             self.defaultText = newText
     
-    class Checkbox:
-        def __init__(name, rootWidget):
-            pass
+    class Checkbox (Notifyable_Interface,
+                    DataContainer_Interface_Impl,
+                    HasChildren_Interface_Impl, 
+                    RenderableWidget_Interface_Impl,
+                    HasListenersWidget_Interface_Impl,
+                    BindableWidget_Interface_Impl):
+        def __init__(self, 
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    extraOptions = {},
+                    bindCmd = lambda *args: None,
+                    text = ""):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+            self.bindCmd = bindCmd
+            self.text = text
+
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+            widgetObj = tk.Checkbutton(self.rootWidget.widjetObj, 
+                                name = self.name, 
+                                text = self.text,
+                                variable = self.getDataObject(), 
+                                onvalue = 1, 
+                                offvalue = 0,
+                                **extraOptions)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            Notifyable_Interface.__init__(self)
+
+            super().bind()
+    
+    class Label (Notifyable_Interface,
+                DataContainer_Interface_Impl,
+                HasChildren_Interface_Impl, 
+                RenderableWidget_Interface_Impl,
+                HasListenersWidget_Interface_Impl,
+                BindableWidget_Interface_Impl):
+        def __init__(self, 
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    extraOptions = {},
+                    extraTextOptions = {},
+                    bindCmd = lambda *args: None,
+                    text = ""):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+            extraTextOptions = currUIImpl.translateExtraBuildOptions(extraTextOptions)
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+            self.text = text
+
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+            widgetObj = tk.Canvas(self.rootWidget.widjetObj, 
+                                name = self.name, 
+                                **extraOptions)
+            self.txtWidgetObj = widgetObj.create_text(100, 10, text = self.text)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            Notifyable_Interface.__init__(self)
+
+            super().bind()
+        
+        def changeText(self, newText):
+            self.widgetObj.itemconfigure(self.txtWidgetObj, text=newText)
 
     
     class RootWidget(BindableWidget_Interface_Impl):
@@ -314,5 +400,8 @@ class TkWidgets (DataTranslatable_Interface):
         
         def stopMainLoop(self):
             self.widjetObj.withdraw()
+
+        def configureColumn(self, conNum, weight):
+            self.widjetObj.columnconfigure(conNum, weight = weight)
 
 currUIImpl = TkWidgets

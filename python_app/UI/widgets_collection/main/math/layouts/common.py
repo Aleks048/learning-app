@@ -2,6 +2,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_utils as wu
 import UI.widgets_collection.main.math.manager as mmm
 import layouts.layouts_manager as lm
+import _utils._utils_main as _u
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
@@ -16,7 +17,7 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
             "WholeVSCode": None}
         
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_layouts_optionMenu"
@@ -35,3 +36,50 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
         layoutToSwitchTo = self.getData()
         mmm.MathMenuManager.switchUILayout(self.layoutOptions[layoutToSwitchTo][0])
         self.layoutOptions[layoutToSwitchTo][1].set()
+
+
+class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
+    labelOptions = ["sections", "main"]
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseSubsectionLayout_BTN"
+        text = self.labelOptions[0]
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
+    
+    def cmd(self):
+        # wu.hideAllWidgets(self.rootWidget)
+        if not _u.Settings.UI.showMainWidgetsNext:
+            self.rootWidget.configureColumn(0, 1)
+            self.rootWidget.configureColumn(1, 1)
+            self.rootWidget.configureColumn(2, 3)
+            self.rootWidget.configureColumn(3, 1)
+
+            # show the sections UI
+            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Section.name)
+            
+            #TODO: switch other apps layout
+
+            self.updateLabel("sections")
+            _u.Settings.UI.showMainWidgetsNext = True
+
+
+        else:
+            self.rootWidget.configureColumn(0, 1)
+            self.rootWidget.configureColumn(1, 3)
+            self.rootWidget.configureColumn(2, 1)
+            self.rootWidget.configureColumn(3, 3)
+
+            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main.name)
+
+            self.updateLabel("layout") 
+            _u.Settings.UI.showMainWidgetsNext = False

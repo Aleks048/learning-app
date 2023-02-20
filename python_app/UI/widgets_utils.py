@@ -11,11 +11,6 @@ import _utils.logging as log
 import UI.widgets_data as wd
 
 class Screenshot:
-        
-    def getValueScreenshotLocation():
-        relPath =  fsm.Wr.Paths.Screenshot.getRel_curr()
-        log.autolog(relPath)
-        return "dir: " + relPath if relPath != "" else "No direction yet."
 
 
     def setValueScreenshotLoaction():

@@ -49,7 +49,6 @@ def getWholeBookPath(cls):
     path = os.path.join(_u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID),
                     omfs.OriginalMaterialStructure.originalMaterialBaseRelPath,
                     _u.Settings.PubProp.wholeBook_ID + ".pdf")
-    print(path)
     return path
 
 

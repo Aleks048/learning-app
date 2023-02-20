@@ -25,6 +25,9 @@ class TexFileModify:
         tc.TexFile._populateMainFile()
     
     def addProcessedImage(imIdx, linkName):
+        imIdx = str(imIdx)
+        linkName = str(linkName)
+        
         currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
         extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
                                         imIdx + "_" + currSubsection + "_" + linkName)
@@ -59,3 +62,30 @@ class TexFileModify:
         \\TOC\\newpage\n"
                     
                 f.write(add_page)
+    
+    def addImageLinkToTOC_wImage(imIdx, linkName):
+        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        imIdx = str(imIdx)
+        linkName = str(linkName)
+
+        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
+                        toc_add_image = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+                        toc_add_image += "\
+    \\mybox{\n\
+        \\link[" + imIdx + \
+        "]{" + linkName + "} \\image[0.5]{" + \
+        imIdx + "_" + currSubsection + "_" + imIdx + "}\n\
+    }\n\n\n"
+                        f.write(toc_add_image)
+
+    def addImageLinkToTOC_woImage(imIdx, linkName):
+        imIdx = str(imIdx)
+        linkName = str(linkName)
+
+        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
+                        toc_add_text = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+                        toc_add_text += "\
+    \\mybox{\n\
+        \\link[" + imIdx + "]{" + linkName + "} \\textbf{!}\n\
+    }\n\n\n"
+                        f.write(toc_add_text)
