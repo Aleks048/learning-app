@@ -65,11 +65,11 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
             self.rootWidget.configureColumn(3, 1)
 
             # show the sections UI
-            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Section.name)
+            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
             
             #TODO: switch other apps layout
 
-            self.updateLabel("sections")
+            self.updateLabel(self.labelOptions[0])
             _u.Settings.UI.showMainWidgetsNext = True
 
 
@@ -79,7 +79,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
             self.rootWidget.configureColumn(2, 1)
             self.rootWidget.configureColumn(3, 3)
 
-            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main.name)
+            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
-            self.updateLabel("layout") 
+            self.updateLabel(self.labelOptions[1]) 
             _u.Settings.UI.showMainWidgetsNext = False

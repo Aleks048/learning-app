@@ -1,6 +1,7 @@
 import tkinter as tk
 
 import _utils._utils_main as _u
+import _utils.logging as log
 import layouts.layouts_manager as lm
 
 import UI.widgets_manager as wm
@@ -15,7 +16,6 @@ import data.constants as dc
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
-        name = __name__
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
@@ -74,13 +74,25 @@ class LayoutManagers:
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
-
+        def show(self):
+            self.winRoot.configureColumn(0, weight = 1)
+            self.winRoot.configureColumn(1, weight = 1)
+            self.winRoot.configureColumn(2, weight = 3)
+            self.winRoot.configureColumn(3, weight = 1)
+            return super().show()
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
-        name = __name__
-        @classmethod
-        def __init__(self, winRoot):
-            pass
+
+        def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+            monitorSize = dc.MonitorSize.getData()
+            monHalfWidth = int(monitorSize[0] / 2)
+            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+
+            super().__init__(winRoot, appDimensions)
+            
+            switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
+            self.addWidget(switchLayout_BTN)
+
     
     @classmethod
     def listOfLayouts(cls):

@@ -6,12 +6,11 @@ import _utils.logging as log
 menuManagers = []
 
 class MenuLayout_Interface(dc.AppCurrDataAccessToken):
-    name = None
-    widgets = []
-    appDimensions = []
 
     name = None
     def __init__(self, winRoot, appDimensions):
+        self.widgets = []
+        self.appDimensions = []
         self.winRoot = winRoot
         self.appDimensions = appDimensions
         self.setAppDimensions()        
@@ -35,11 +34,11 @@ class MenuLayout_Interface(dc.AppCurrDataAccessToken):
 class MenuManager_Interface(dc.AppCurrDataAccessToken):
     layouts = []
     currLayout = None
-    name = None
     winRoot = None
 
     @classmethod
     def createMenu(cls):
+        cls.layouts = []
         #add manager to the list of all managers
         UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
         UIManagers.append(cls)
@@ -47,9 +46,13 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         dt.AppState.UIManagers.setData(cls.appCurrDataAccessToken, UIManagers)
     
     @classmethod
-    def switchUILayout(cls, toLayout_name):
+    def switchUILayout(cls, toLayoutType):
+        cls.hideAllWidgets()
         for layout in cls.layouts:
-            if layout.name == toLayout_name:
+            log.autolog("Hi")
+            log.autolog(type(layout))
+            log.autolog(toLayoutType)
+            if type(layout) == toLayoutType:
                 layout.show()
                 return
         raise KeyError
@@ -65,6 +68,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     @classmethod
     def show(cls):
         cls.hideAllWidgets()
+        log.autolog(type(cls.currLayout))
         cls.currLayout.show()
     
     @classmethod
