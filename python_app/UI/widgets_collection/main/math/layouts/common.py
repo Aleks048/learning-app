@@ -12,8 +12,8 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
 class Layouts_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         self.layoutOptions = {
-            "Main" : [mmm.LayoutManagers._Main.name, lm.Wr.MainLayout], 
-            "Section" : [mmm.LayoutManagers._Section.name, lm.Wr.SectionLayout], 
+            "Main" : [mmm.LayoutManagers._Main, lm.Wr.MainLayout], 
+            "Section" : [mmm.LayoutManagers._Section, lm.Wr.SectionLayout], 
             "WholeVSCode": None}
         
         renderData = {
