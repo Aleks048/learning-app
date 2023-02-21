@@ -45,56 +45,6 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     return createTOC_CB, TOCWithImage_CB
 
 
-def getShowProofs_BTN(mainWinRoot, prefixName = ""):
-    showProofsVar = tk.StringVar()
-    showProofsVar.set("Hide Proofs")
-    def _changeProofsVisibility(hideProofs):
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"r") as conF:
-            contentLines = conF.readlines()
-        extraImagesStartToken = "% \EXTRA IMAGES START"
-        extraImagesEndToken = "% \EXTRA IMAGES END"
-        for i in range(len(contentLines)):
-            if (extraImagesStartToken in contentLines[i]):
-                while (extraImagesEndToken not in contentLines[i]):
-                    i += 1
-                    line = contentLines[i]
-                    if "proof" in line.lower():
-                        if hideProofs:
-                            contentLines[i] = line.replace("% ", "")
-                            log.autolog("\nHiding the proof for line:\n" + contentLines[i])
-                        else:
-                            contentLines[i] = "% " + line
-                            log.autolog("\nShow the proof for line:\n" + contentLines[i])
-                    break
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"w") as conF:
-            _waitDummy = conF.writelines(contentLines)
-    
-    def getShowProofsCallBack():
-        if showProofsVar.get() == "Show Proofs":
-            showProofsVar.set("Hide Proofs")
-            _changeProofsVisibility(True)
-            Thread(target= tff.Wr.TexFile.buildCurrentSubsectionPdf).start()
-        elif showProofsVar.get() == "Hide Proofs":
-            showProofsVar.set("Show Proofs")
-            _changeProofsVisibility(False)
-            Thread(target= tff.Wr.TexFile.buildCurrentSubsectionPdf).start()
-    
-    return tk.Button(mainWinRoot, 
-                    name = prefixName.lower() + "_showProofs_BTN",
-                    textvariable = showProofsVar,
-                    command = lambda: getShowProofsCallBack())
-
-
-def getSaveImage_BTN(mainWinRoot, prefixName = ""):
-    def saveImageCallBack():
-        cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        tff.Wr.TexFile.buildCurrentSubsectionPdf()
-    
-    return tk.Button(mainWinRoot, 
-                    name = prefixName.lower() + "_saveImgBTN",
-                    text = "saveIM",
-                    command = lambda: saveImageCallBack())
 
 
 def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
@@ -386,19 +336,10 @@ class LayoutsMenus:
 
         @classmethod
         def addWidgets(cls, winMainRoot):
-            layoutOM = LayoutsMenus._commonWidgets.getOptionsMenu_Layouts(winMainRoot, cls.classPrefix)
-            layoutOM.grid(column=0, row=0, padx=0, pady=0)
-            layoutOM.update()
-            
-            showProofsBTN = getShowProofs_BTN(winMainRoot, cls.classPrefix)
-            showProofsBTN.grid(column=1, row=0, padx=0, pady=0)
 
             dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.classPrefix + "_dummyFocusEntry")
             dummyEntry.grid(column=2, row=0, padx=0, pady=0)
             dummyEntry.focus_set()
-
-            saveImageBTN = getSaveImage_BTN(winMainRoot, cls.classPrefix)
-            saveImageBTN.grid(column=3, row=0, padx=0, pady=0)
 
             getGlLinkSectionAndSubsection_OM(winMainRoot, cls.classPrefix)
 

@@ -93,6 +93,15 @@ class LayoutManagers:
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
+            layouts_OM = com.Layouts_OM(winRoot, self.prefix)
+            self.addWidget(layouts_OM)
+
+            showProof_BTN = sl.ShowProofs_BTN(winRoot, self.prefix)
+            self.addWidget(showProof_BTN)
+
+            saveImage_BTN = sl.ImageSave_BTN(winRoot, self.prefix)
+            self.addWidget(saveImage_BTN)
+
     
     @classmethod
     def listOfLayouts(cls):

@@ -268,7 +268,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                             self.labelOptions[1]: _createTexForTheProcessedImage}
 
         for i in range(len(self.labelOptions)):
-            log.autolog("Hoho:")
             if self.labelOptions[i] == self.text:
                 nextButtonName = self.labelOptions[(i+1)%len(self.labelOptions)]
                 sectionImIndex = fsm.Wr.Links.ImIDX.get_curr()

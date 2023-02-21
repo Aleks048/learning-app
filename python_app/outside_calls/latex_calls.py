@@ -13,7 +13,7 @@ class MacLatex:
         $CMD\n\
     \n\
     popd".format(mainTexFilepath, subsectionDir, subsection)
-        subprocess.Popen(cmd, shell=True)
+        subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         log.autolog("Built subsection: {0}".format(subsection))
 
 currLatecDistro = MacLatex

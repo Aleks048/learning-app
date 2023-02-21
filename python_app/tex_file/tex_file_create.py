@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 import _utils._utils_main as _u
 
@@ -202,9 +203,10 @@ class TexFile:
         log.autolog("build: " + mainTexFilepath)
         
         # NOTE: we add "_con.tex" to comply with what is called when the file is saved
-        cmd = "${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh" \
+        cmd = "echo 3 | ${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh" \
                             " " + mainTexFilepath + \
                             " " + sectionFolder + \
-                            " " + sectionNameWprefix + "_con.tex"
-        _waitDummy = os.system(cmd)
+                            " " + sectionNameWprefix + "_con.tex > /dev/null 2>&1"
+        
+        subprocess.check_output(cmd, shell=True)
         return True

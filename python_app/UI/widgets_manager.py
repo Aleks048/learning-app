@@ -49,9 +49,6 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     def switchUILayout(cls, toLayoutType):
         cls.hideAllWidgets()
         for layout in cls.layouts:
-            log.autolog("Hi")
-            log.autolog(type(layout))
-            log.autolog(toLayoutType)
             if type(layout) == toLayoutType:
                 layout.show()
                 return
@@ -68,7 +65,6 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     @classmethod
     def show(cls):
         cls.hideAllWidgets()
-        log.autolog(type(cls.currLayout))
         cls.currLayout.show()
     
     @classmethod

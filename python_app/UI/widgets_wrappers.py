@@ -176,6 +176,9 @@ class TkWidgets (DataTranslatable_Interface):
         def updateLabel(self, newText):
             self.text = newText
             self.widgetObj.configure(text = newText)
+        
+        def getLabel(self):
+            return self.widgetObj["text"]
 
 
 
