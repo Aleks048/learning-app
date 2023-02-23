@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 import _utils.logging as log
 
@@ -156,11 +157,21 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            widgetObj = tk.Button(self.rootWidget.widjetObj, 
+            ttk.Style().configure('green/black.TButton', 
+                                foreground='white', 
+                                background='black')
+            
+            widgetObj = ttk.Button(self.rootWidget.widjetObj, 
                                 name = self.name,
                                 text= self.text,
-                                command = lambda : cmd(),
-                                **extraOptions)
+                                style='green/black.TButton',
+                                **extraOptions
+                                )
+            
+            def btnCmd():
+                cmd()
+            
+            widgetObj.configure(command = lambda : btnCmd())
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
@@ -377,7 +388,6 @@ class TkWidgets (DataTranslatable_Interface):
             super().bind()
         
         def changeText(self, newText):
-            # self.widgetObj.itemconfigure(self.txtWidgetObj, text=newText)
             self.widjetObj.configure(text=newText)
 
     

@@ -19,10 +19,6 @@ class RebuildCurrSection_BTN(ww.currUIImpl.Button):
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0,  "pady" : 0, "sticky" : tk.N,}
         }
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {},
-            ww.TkWidgets.__name__ : {"fg" : 'black', "bg" : 'red'}
-        }
         name = "_rebuildCurrSubsec_BTN"
         text = "rebuild"
 
@@ -204,7 +200,7 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
     def cmd(self):
         secPath =  self.getData()
         self.notify(TargetImageLinks_OM, secPath)
-        self.notify(AddGlobalLink_ETR, secPath)
+        # self.notify(AddGlobalLink_ETR, secPath)
     
     def receiveNotification(self, broadcasterType, data = None):
         if broadcasterType == TargetTopSection_OM:
@@ -349,13 +345,19 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
     def receiveNotification(self, broadcasterType, data = None):
+        log.autolog("opp")
+        log.autolog(broadcasterType)
         if broadcasterType == AddGlobalLink_BTN:
             return self.getData()
         elif broadcasterType == TargetTopSection_OM:
-            self.setData(str(data) + ".")
+            newText = str(data) + "."
+            self.updateDafaultText(newText)
+            self.setData(newText)
         elif broadcasterType == TargetSubection_OM:
+            self.updateDafaultText(data)
             self.setData(data)
         elif broadcasterType == TargetImageLinks_OM:
+            self.updateDafaultText(data)
             self.setData(data)
         elif broadcasterType == AddGlobalLink_BTN:
             return self.getData()

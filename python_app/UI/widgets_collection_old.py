@@ -296,9 +296,6 @@ class SectionsUI:
 
     @classmethod
     def setSectionsUI(cls, mainWinRoot):
-        chooseSectionMenus_Btn = cls.getButton_chooseSectionsMenusAndBack(mainWinRoot, 
-                                                                        cls.sectionsPrefix)
-        chooseSectionMenus_Btn.grid(row = 1, column = 2)
         entry_setSectionName, button_setSectionName = cls.getWidgets_setSectionName(mainWinRoot,  
                                                                                     cls.sectionsPrefix)
         entry_setSectionName.grid(row = 0, column = 0)

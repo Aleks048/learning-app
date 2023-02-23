@@ -39,9 +39,7 @@ class LinkDict:
 
     def getCurrImLinksSorted(secPath):
         currChImageLinksDict = LinkDict.get(secPath)
-        log.autolog(currChImageLinksDict)
         if str(currChImageLinksDict) == _u.Token.NotDef.str_t:
-            log.autolog(currChImageLinksDict)
             return _u.Token.NotDef.list_t
         elif currChImageLinksDict != _u.Token.NotDef.dict_t:
             currChImageIDX = list(currChImageLinksDict.values())

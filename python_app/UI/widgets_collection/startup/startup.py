@@ -24,6 +24,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as wm
 
 
+import layouts.layouts_manager as lm
 
 
 class StartupConfirm_BTN(ww.currUIImpl.Button):
@@ -46,6 +47,7 @@ class StartupConfirm_BTN(ww.currUIImpl.Button):
         self.name
         self.rootWidget.stopMainLoop()
         _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
+        lm.Wr.MainLayout.set()
         wm.MathMenuManager.startManager()
 
 class AddBook_BTN(ww.currUIImpl.Button):
@@ -105,7 +107,7 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_chooseBook_optionMenu"
-        self.listOfBooksNames = _u.getListOfBooks()
+        self.listOfBooksNames = list(_u.getListOfBooks())
 
         super().__init__(prefix = prefix, 
                         name =name, 
@@ -113,6 +115,8 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
                         renderData = renderData, 
                         cmd = self.cmd,
                         listOfOptions = self.listOfBooksNames)
+        
+        self.setData(self.listOfBooksNames[-1])
     
     def cmd(self):
         bookName = self.getData()

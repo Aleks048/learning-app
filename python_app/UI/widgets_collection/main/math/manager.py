@@ -8,15 +8,23 @@ import UI.widgets_manager as wm
 import UI.widgets_utils as wu
 import UI.widgets_wrappers as ww
 
-import UI.widgets_collection.main.math.layouts.common as com
-import UI.widgets_collection.main.math.layouts.mainLayout as ml
-import UI.widgets_collection.main.math.layouts.sectionLayout as sl
+import UI.widgets_collection.main.math.UI_layouts.common as com
+import UI.widgets_collection.main.math.UI_layouts.mainLayout as ml
+import UI.widgets_collection.main.math.UI_layouts.sectionLayout as sl
 import data.constants as dc
 
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+            #
+            # pre init
+            #
+
+
+            #
+            # init
+            #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
             appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
@@ -75,16 +83,29 @@ class LayoutManagers:
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
+            #
+            # post init
+            #
+
         def show(self):
             self.winRoot.configureColumn(0, weight = 1)
             self.winRoot.configureColumn(1, weight = 1)
             self.winRoot.configureColumn(2, weight = 3)
             self.winRoot.configureColumn(3, weight = 1)
             return super().show()
+    
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
 
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+            #
+            # pre init
+            #
+
+
+            #
+            # init
+            #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
             appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
@@ -122,19 +143,25 @@ class LayoutManagers:
             self.addWidget(targetImageLinks_OM)
 
             targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
-            targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
             targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
             targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
+            targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
 
             sourceImageLinks_OM = sl.SourceImageLinks_OM(winRoot, self.prefix)
             self.addWidget(sourceImageLinks_OM)
 
             addGlobalLink_BTN = sl.AddGlobalLink_BTN(winRoot, self.prefix)
             self.addWidget(addGlobalLink_BTN)
-            
+
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
 
+
+            #
+            # post init
+            #
+            targetSubsection_OM.cmd()
+            targetImageLinks_OM.cmd()
     
     @classmethod
     def listOfLayouts(cls):
