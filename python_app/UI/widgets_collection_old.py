@@ -44,124 +44,6 @@ def getCheckboxes_TOC(mainWinRoot, namePrefix = ""):
     
     return createTOC_CB, TOCWithImage_CB
 
-
-
-
-def getGlobalLinksAdd_Widgets(mainWinRoot, prefixName = ""):
-    def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
-                        bookName, topSection, subsection):
-        #
-        # add link to the current section file
-        #
-        # read content file
-        log.autolog("Updating file: " + contenfFilepath)
-        lines = _u.readFile(contenfFilepath)
-        positionToAdd = 0
-        while positionToAdd < len(lines):
-            line = lines[positionToAdd]
-            # find the line with id
-            if "id: " + imIDX in line:
-                # find the line with global links start
-                while "\myGlLinks{" not in line:
-                    positionToAdd +=1
-                    line = lines[positionToAdd]
-                # find the line with global links end
-                while "myGlLink" in line:
-                    positionToAdd += 1   
-                    line = lines[positionToAdd]
-                break
-            positionToAdd += 1
-        
-        url = "KIK:/" + bookName + "." + topSection + "." + subsection + "." + imIDX
-        lineToAdd = "        \href{" + url + "}{" + linkName + "}\n"
-        outlines = lines[:positionToAdd]
-        outlines.append(lineToAdd)
-        outlines.extend(lines[positionToAdd:])
-        
-        with open(contenfFilepath, "+w") as f:
-            for line in outlines:
-                f.write(line + "\n")
-
-
-    def addGlLinkCallback():
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-        bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
-        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
-        
-        sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
-        sourceLinkName = wv.UItkVariables.glLinkSourceImLink.get()
-        sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
-        sourceSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, sourceSectionPath)
-        sourceContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
-        sourceMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
-        # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
-        sourcePDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
-        sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
-        
-        targetSectionPath = wv.UItkVariables.glLinktargetSections.get()
-        targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
-        targetLinkName = wv.UItkVariables.glLinkTargetImLink.get()
-        targetIDX = fsm.Wr.Links.LinkDict.get(targetSectionPath)[targetLinkName]
-        targetSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
-        targetContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
-        targetMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
-        # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
-        targetPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
-        targetPDFFilename = targetPDFFilepath.split("/")[-1]
-
-        #
-        # check that the section exists
-        #
-
-        sectionInfo = fsm.Wr.BookInfoStructure.readProperty(targetSectionPath)
-        if sectionInfo == None:
-            msg = "The path: '" + targetSectionPath + "' does not exist"
-            log.autolog(msg)
-            wmes.MessageMenu.createMenu(msg)
-            return
-        
-        topSection = targetSectionPath.split(".")[0]
-        subsection = ".".join(targetSectionPath.split(".")[1:])
-        addLinkToTexFile(sourceIDX,
-                        targetSectionPath + "\_" + targetLinkName,
-                        sourceContentFilepath,
-                        bookName,
-                        topSection,
-                        subsection)
-
-        # add return link 
-        
-        sourceTopSection = sourceSectionPath.split(".")[0]
-        sourceSubection = ".".join(sourceSectionPath.split(".")[1:])
-        addLinkToTexFile(targetIDX, 
-                        sourceSectionPath + "\_" + sourceLinkName,
-                        targetContentFilepath,
-                        bookName,
-                        sourceTopSection,
-                        sourceSubection)
-
-        #
-        # rebuild the pdfs
-        #
-        tff.Wr.TexFile.buildSubsectionPdf(sourceSectionFilepath,
-                                        sourceMainFilepath,
-                                        sourceSectionNameWprefix)
-        tff.Wr.TexFile.buildSubsectionPdf(targetSectionFilepath,
-                                        targetMainFilepath,
-                                        targetSectionNameWprefix)
-
-    createGlLinkBTN = tk.Button(mainWinRoot, text = "Create gl link", 
-                        name = prefixName.lower() + "_addGlobalLink" + "BTN",
-                        command = lambda: addGlLinkCallback())
-
-    createGlLinkETR = tk.Entry(mainWinRoot,
-                            width = 5,
-                            textvariable = wv.UItkVariables.glLinktargetSections,
-                            name = prefixName.lower() + "_addGlobalLink" + wu.Data.ENT.entryWidget_ID)
-    
-    return createGlLinkBTN, createGlLinkETR
-
 # update the image links om
 def updateImLinksOM(winMainRoot, secPath):
     if secPath != "":
@@ -197,9 +79,9 @@ def getGlLinkSectionAndSubsection_OM(mainWinRoot, namePrefix = ""):
                                         _subsectionChoosingCallback) 
 
 
-    wv.UItkVariables.topSection.set(
-        fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
-    )
+    # wv.UItkVariables.topSection.set(
+    #     fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+    # )
 
     topSectionsList = fsm.getTopSectionsList()
     topSectionsList.sort(key = int)
@@ -266,67 +148,7 @@ def getSourceImageLinks_OM(mainWinRoot, prefixName = "", secPath = ""):
     
     return frame
 
-def getChangeSubsectionToTheFront(mainWinRoot, prefixName = ""):
-    '''
-    Change subsection by grabbing the name and top name from the front skim document
-    '''
-    def callback():
-        # get the name of the front skim document
-        cmd = oscr.get_NameOfFrontSkimDoc_CMD()
-        frontSkimDocumentName = str(subprocess.check_output(cmd, shell=True))
-        
-        # get subsection and top section from it
-        frontSkimDocumentName = frontSkimDocumentName.replace("\\n", "")
-        frontSkimDocumentName = frontSkimDocumentName.split("_")[1]
-        topSection = frontSkimDocumentName.split(".")[0]
-        subsection = frontSkimDocumentName
-        
-        cmd = oscr.get_NameOfFrontSkimDoc_CMD()
-        imIDX = int(str(subprocess.check_output(cmd, shell=True)).split(" ")[1])
 
-        # close current section vscode
-        _, windowID, _ = _u.getOwnersName_windowID_ofApp(
-                            "vscode",
-                             fsm.Wr.SectionCurrent.readCurrSection())
-        
-        if (windowID != None):
-            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, subsection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-
-        #change the current subsection for the app
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, subsection)
-        
-        mon_width, _ = _u.getMonitorSize()
-        width = int(mon_width / 2)
-        height = 70
-        wu.showCurrentLayout(mainWinRoot, 
-                            width, 
-                            height)
-        # lm.Wr.SectionLayout.set(mainWinRoot, width, height)
-        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(subsection)
-        wu.updateOptionMenuOptionsList(mainWinRoot, 
-                                    "source_SecImIDX", 
-                                    currChImageLinks,
-                                    wv.UItkVariables.glLinkSourceImLink,
-                                    lambda *argv: None)
-        wv.UItkVariables.glLinkSourceImLink.set(currChImageLinks[-1])
-
-    return tk.Button(mainWinRoot, 
-                    name = prefixName + "_changeSubsection",
-                    text = "change subsecttion",
-                    command = lambda: callback())
-
-
-def getRebuildCurrentSubsec_BTN(mainWinRoot, prefixName = ""):
-    def rebuildBtnCallback():
-        tff.Wr.TexFile.buildCurrentSubsectionPdf()
-        
-    return tk.Button(mainWinRoot, 
-                    name = prefixName.lower() + "_rebuildCurrSubsec",
-                    text = "rebuild", 
-                    fg = 'black', bg = 'red' ,
-                    command = lambda: rebuildBtnCallback())
 
 
 class LayoutsMenus:
@@ -336,48 +158,15 @@ class LayoutsMenus:
 
         @classmethod
         def addWidgets(cls, winMainRoot):
-
-            dummyEntry = tk.Entry(winMainRoot, text = "Dummy", name = cls.classPrefix + "_dummyFocusEntry")
-            dummyEntry.grid(column=2, row=0, padx=0, pady=0)
-            dummyEntry.focus_set()
-
-            getGlLinkSectionAndSubsection_OM(winMainRoot, cls.classPrefix)
-
-            createGlLinkBTN, createGlLinkETR = getGlobalLinksAdd_Widgets(winMainRoot, cls.classPrefix)
-            createGlLinkETR.grid(column=4, row=0, padx=0, pady=0)
-            createGlLinkBTN.grid(column=5, row=0, padx=0, pady=0)
-            
-            createGlLinkETR.bind('<Return>',
-                                lambda e: updateImLinksOM(winMainRoot, wv.UItkVariables.glLinktargetSections.get()))
-            
-            targetImageLinksOM = getTargetImageLinks_OM(winMainRoot, cls.classPrefix)
-            targetImageLinksOM.grid(column=5, row=2, padx=0, pady=0)
-
-            currSection = fsm.Wr.SectionCurrent.readCurrSection()
-            sourceImageLinksOM = getSourceImageLinks_OM(winMainRoot, cls.classPrefix, currSection)
-            sourceImageLinksOM.grid(column=4, row=2, padx=0, pady=0)
-
-            changeSection_BTN = getChangeSubsectionToTheFront(winMainRoot, cls.classPrefix)
-            changeSection_BTN.grid(column=0, row=2, padx=0, pady=0)
-
-
-            rebuildCurrSec_BTN = getRebuildCurrentSubsec_BTN(winMainRoot, cls.classPrefix)
-            rebuildCurrSec_BTN.grid(row = 2, column = 1)
-
-            targetTopSectionOM, targetSubsectionOM = getGlLinkSectionAndSubsection_OM(winMainRoot, cls.classPrefix)
-            targetTopSectionOM.grid(row = 2, column = 2)
-            targetSubsectionOM.grid(row = 2, column = 3)
-
-            mon_width, _ = _u.getMonitorSize()
-            cls.pyAppDimensions[0] = int(mon_width / 2)
-            cls.pyAppDimensions[1] = 70
+            pass
     
     class MainLayoutUI:
         pyAppDimensions = [None, None]
         classPrefix = "mainlayout"
 
         @classmethod
-        def addWidgets(cls, winMainRoot):            
+        def addWidgets(cls, winMainRoot):  
+            return          
             mon_width, _ = _u.getMonitorSize()
             cls.pyAppDimensions = [int(mon_width / 2), 90]
             

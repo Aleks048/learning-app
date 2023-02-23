@@ -79,6 +79,7 @@ class TkWidgets (DataTranslatable_Interface):
         class BindID:
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
+            enter = "<Return>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
@@ -200,7 +201,7 @@ class TkWidgets (DataTranslatable_Interface):
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
-            self.listOfOptions = listOfOptions
+            self.listOfOptions = list(listOfOptions)
             self.rootWidget = rootWidget
             self.cmd = cmd
 
@@ -224,6 +225,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
             Notifyable_Interface.__init__(self)
 
+            self.setData(self.listOfOptions[0])
             super().bind()
                     
         # def render(self, **kwargs):

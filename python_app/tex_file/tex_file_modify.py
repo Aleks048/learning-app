@@ -3,6 +3,8 @@ import os
 import file_system.file_system_manager as fsm
 import tex_file.tex_file_create as tc
 import data.constants as d
+import _utils.logging as log
+import _utils._utils_main as _u
 
 class TexFileModify:
     # update the content file
@@ -89,3 +91,37 @@ class TexFileModify:
         \\link[" + imIdx + "]{" + linkName + "} \\textbf{!}\n\
     }\n\n\n"
                         f.write(toc_add_text)
+    
+    def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
+                        bookName, topSection, subsection):
+        #
+        # add link to the current section file
+        #
+        # read content file
+        log.autolog("Updating file: " + contenfFilepath)
+        lines = _u.readFile(contenfFilepath)
+        positionToAdd = 0
+        while positionToAdd < len(lines):
+            line = lines[positionToAdd]
+            # find the line with id
+            if "id: " + imIDX in line:
+                # find the line with global links start
+                while "\myGlLinks{" not in line:
+                    positionToAdd +=1
+                    line = lines[positionToAdd]
+                # find the line with global links end
+                while "myGlLink" in line:
+                    positionToAdd += 1   
+                    line = lines[positionToAdd]
+                break
+            positionToAdd += 1
+        
+        url = "KIK:/" + bookName + "." + topSection + "." + subsection + "." + imIDX
+        lineToAdd = "        \href{" + url + "}{" + linkName + "}\n"
+        outlines = lines[:positionToAdd]
+        outlines.append(lineToAdd)
+        outlines.extend(lines[positionToAdd:])
+        
+        with open(contenfFilepath, "+w") as f:
+            for line in outlines:
+                f.write(line + "\n")

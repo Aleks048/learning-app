@@ -107,12 +107,12 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
         name = "_chooseBook_optionMenu"
         self.listOfBooksNames = _u.getListOfBooks()
 
-        super().__init__(prefix, 
-                        name, 
-                        self.listOfBooksNames,
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
+        super().__init__(prefix = prefix, 
+                        name =name, 
+                        rootWidget = patentWidget, 
+                        renderData = renderData, 
+                        cmd = self.cmd,
+                        listOfOptions = self.listOfBooksNames)
     
     def cmd(self):
         bookName = self.getData()
@@ -146,6 +146,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
                         extraBuildOptions,
                         self.bindCmd,
                         defaultText)
+        
         super().setData(self.defaultText)
 
     def bindCmd(self):
@@ -179,6 +180,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
                         extraBuildOptions,
                         self.bindCmd,
                         defaultText)
+        
         super().setData(self.defaultText)
 
     def bindCmd(self):
