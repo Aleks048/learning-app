@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import _utils.logging as log
+import UI.widgets_data as wd
 
 class DataContainer_Interface: 
     def __init__(self):
@@ -72,6 +73,7 @@ class Data:
     CommonTextColor_ID = "textColor"
     GeneralProperties_ID = "general"
     args = "args"
+    widgetsWidth = "width"
 
 class TkWidgets (DataTranslatable_Interface):
     class Data:
@@ -278,10 +280,17 @@ class TkWidgets (DataTranslatable_Interface):
                     defaultText = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+            if "fg" not in extraOptions.keys():
+                extraOptions["fg"] = wd.Data.ENT.defaultTextColor
 
             self.name = prefix.lower() + name
             self.rootWidget = rootWidget
-            self.bindCmd = bindCmd
+
+            def bindCmdWrapper(*args):
+                bindCmd(*args)
+                self.__bindCMD()
+            
+            self.bindCmd = bindCmdWrapper
             self.defaultText = defaultText
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
@@ -304,15 +313,28 @@ class TkWidgets (DataTranslatable_Interface):
         
         def hide(self, **kwargs):
             self.setData(self.defaultText)
-
             return super().hide(**kwargs)
-
 
         def setTextColor(self, color):
             self.widgetObj.configure(fg = color)
 
         def updateDafaultText(self, newText):
             self.defaultText = newText
+
+        def defaultTextCMD(self):
+            current = self.getData()
+            if current == self.defaultText:
+                self.setTextColor(wd.Data.ENT.regularTextColor)
+                self.setData("")
+            elif current == "":
+                self.setTextColor(wd.Data.ENT.defaultTextColor)
+                self.setData(self.defaultText)
+
+        def __bindCMD(self):
+            self.widjetObj.bind(TkWidgets.Data.BindID.focusIn,  
+                        lambda *args: self.defaultTextCMD())
+            self.widgetObj.bind(TkWidgets.Data.BindID.focusOut, 
+                        lambda *args: self.defaultTextCMD())
     
     class Checkbox (Notifyable_Interface,
                     DataContainer_Interface_Impl,

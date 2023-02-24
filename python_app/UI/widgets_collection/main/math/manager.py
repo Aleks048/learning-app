@@ -11,6 +11,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.common as com
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as ml
 import UI.widgets_collection.main.math.UI_layouts.sectionLayout as sl
+import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import data.constants as dc
 
 class LayoutManagers:
@@ -163,6 +164,42 @@ class LayoutManagers:
             targetSubsection_OM.cmd()
             targetImageLinks_OM.cmd()
     
+    class _AddModifySection(wm.MenuLayout_Interface):
+        prefix = "_AddModifySectionLayout"
+
+        def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+            #
+            # pre init
+            #
+            monitorSize = dc.MonitorSize.getData()
+            monHalfWidth = int(monitorSize[0] / 2)
+            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+
+            #
+            # init
+            #
+
+            super().__init__(winRoot, appDimensions)
+
+            switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
+            self.addWidget(switchLayout_BTN)
+
+            setSectionStartPage_ETR = amsl.SetSectionStartPage_ETR(winRoot, self.prefix)
+            self.addWidget(setSectionStartPage_ETR)
+
+            setSectionStartPage_BTN = amsl.SetSectionStartPage_BTN(winRoot, self.prefix)
+            self.addWidget(setSectionStartPage_BTN)
+            setSectionStartPage_BTN.addListenerWidget(setSectionStartPage_ETR)
+
+            setSectionName_ETR = amsl.SetSectionName_ETR(winRoot, self.prefix)
+            self.addWidget(setSectionName_ETR)
+
+            setSectionName_BTN = amsl.SetSectionName_BTN(winRoot, self.prefix)
+            self.addWidget(setSectionName_BTN)
+            setSectionName_BTN.addListenerWidget(setSectionName_ETR)
+
+    
+
     @classmethod
     def listOfLayouts(cls):
         results = []

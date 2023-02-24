@@ -39,7 +39,7 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
 
 
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
-    labelOptions = ["sections", "main"]
+    labelOptions = ["Add/Modify", "Main"]
 
     def __init__(self, patentWidget, prefix):
         data = {
@@ -65,7 +65,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
             self.rootWidget.configureColumn(3, 1)
 
             # show the sections UI
-            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
+            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifySection)
             
             #TODO: switch other apps layout
 

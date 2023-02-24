@@ -148,16 +148,9 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
                         patentWidget, 
                         renderData,
                         extraBuildOptions,
-                        self.bindCmd,
-                        defaultText)
+                        defaultText = defaultText)
         
         super().setData(self.defaultText)
-
-    def bindCmd(self):
-        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,
-                        lambda *args: addDefaultTextToETR(self))
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
-                        lambda *args: addDefaultTextToETR(self))
     
         
     def receiveNotification(self, _) -> None:
@@ -182,16 +175,9 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
                         patentWidget, 
                         renderData,
                         extraBuildOptions,
-                        self.bindCmd,
-                        defaultText)
+                        defaultText = defaultText)
         
         super().setData(self.defaultText)
-
-    def bindCmd(self):
-        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
-                        lambda *args: addDefaultTextToETR(self))
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
-                        lambda *args: addDefaultTextToETR(self))
     
         
     def receiveNotification(self, _) -> None:
@@ -216,15 +202,8 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
                         patentWidget, 
                         renderData,
                         extraBuildOptions,
-                        self.bindCmd,
-                        defaultText)
+                        defaultText = defaultText)
         super().setData(defaultText)
-
-    def bindCmd(self):
-        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
-                        lambda *args: addDefaultTextToETR(self))
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
-                        lambda *args: addDefaultTextToETR(self))
     
         
     def receiveNotification(self, _) -> None:
@@ -249,15 +228,8 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
                         patentWidget, 
                         renderData,
                         extraBuildOptions,
-                        self.bindCmd,
-                        defaultText)
+                        defaultText = defaultText)
         super().setData(defaultText)
-
-    def bindCmd(self):
-        self.widjetObj.bind(ww.currUIImpl.Data.BindID.focusIn,  
-                        lambda *args: addDefaultTextToETR(self))
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.focusOut, 
-                        lambda *args: addDefaultTextToETR(self))
     
     def receiveNotification(self, _) -> None:
         return self.getData()
@@ -265,12 +237,3 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
 class StartupRoot(ww.currUIImpl.RootWidget):
     pass
 
-
-def addDefaultTextToETR(widget):
-    current = widget.getData()
-    if current == widget.defaultText:
-        widget.setTextColor(wd.Data.ENT.regularTextColor)
-        widget.setData("")
-    elif current == "":
-        widget.setTextColor(wd.Data.ENT.defaultTextColor)
-        widget.setData(widget.defaultText)
