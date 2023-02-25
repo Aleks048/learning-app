@@ -8,7 +8,7 @@ import curr_state.curr_state as cs
 
 class Token:
     class NotDef:
-        str_t = "-1"
+        str_t = ""
         list_t = [str_t]
         dict_t = {str_t: str_t}
 
@@ -181,7 +181,7 @@ class JSON:
                 if type(newValue) != type(jsonData[propertyName]):
                     log.autolog("\
     ERROR: JSON.updateProperty - did not update the json file. \
-    Type of new value does not match the type of the property")
+    Type of new value type '{0}' does not match the type of the property '{1}'".format(type(newValue), type(jsonData[propertyName])))
                 else:
                     jsonData[propertyName] = newValue
             else:

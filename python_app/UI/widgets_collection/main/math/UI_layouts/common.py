@@ -41,13 +41,17 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
     labelOptions = ["Add/Modify", "Main"]
 
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
-        }
-        name = "_chooseSubsectionLayout_BTN"
-        text = self.labelOptions[0]
+    def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
+        if data == None:
+            data = {
+                ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+            }
+        if name == None:
+            name = "_chooseSubsectionLayout_BTN"
+        
+        if text == None:
+            text = self.labelOptions[0]
 
         super().__init__(prefix, 
                         name,
@@ -59,11 +63,6 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
     def cmd(self):
         # wu.hideAllWidgets(self.rootWidget)
         if not _u.Settings.UI.showMainWidgetsNext:
-            self.rootWidget.configureColumn(0, 1)
-            self.rootWidget.configureColumn(1, 1)
-            self.rootWidget.configureColumn(2, 3)
-            self.rootWidget.configureColumn(3, 1)
-
             # show the sections UI
             mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifySection)
             
@@ -74,11 +73,6 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
 
 
         else:
-            self.rootWidget.configureColumn(0, 1)
-            self.rootWidget.configureColumn(1, 3)
-            self.rootWidget.configureColumn(2, 1)
-            self.rootWidget.configureColumn(3, 3)
-
             mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
             self.updateLabel(self.labelOptions[1]) 

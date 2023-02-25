@@ -181,7 +181,7 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
+            switchLayout_BTN = amsl.SwitchLayoutSectionVSMain_amsl_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
             setSectionStartPage_ETR = amsl.SetSectionStartPage_ETR(winRoot, self.prefix)
@@ -198,6 +198,26 @@ class LayoutManagers:
             self.addWidget(setSectionName_BTN)
             setSectionName_BTN.addListenerWidget(setSectionName_ETR)
 
+            currSectionPath_LBL = amsl.CurrSectionPath_LBL(winRoot, self.prefix)
+            self.addWidget(currSectionPath_LBL)
+            
+            newSectionPath_ETR = amsl.NewSectionPath_ETR(winRoot, self.prefix)
+            self.addWidget(newSectionPath_ETR)
+            
+            createNewTopSection_BTN = amsl.CreateNewTopSection_BTN(winRoot, self.prefix)
+            self.addWidget(createNewTopSection_BTN)
+            createNewTopSection_BTN.addListenerWidget(newSectionPath_ETR)
+            createNewTopSection_BTN.addListenerWidget(setSectionStartPage_ETR)
+            createNewTopSection_BTN.addListenerWidget(setSectionName_ETR)
+
+
+        def show(self):
+            self.winRoot.configureColumn(0, weight = 1)
+            self.winRoot.configureColumn(1, weight = 1)
+            self.winRoot.configureColumn(2, weight = 1)
+            self.winRoot.configureColumn(3, weight = 1)
+            self.winRoot.configureColumn(4, weight = 1)
+            return super().show()
     
 
     @classmethod

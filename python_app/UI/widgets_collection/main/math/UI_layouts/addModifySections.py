@@ -1,10 +1,51 @@
 import tkinter as tk
 
+import _utils.logging as log
+
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
 import file_system.file_system_manager as fsm
+import UI.widgets_collection.main.math.UI_layouts.common as cl
 
 
+class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseSubsectionLayout_BTN"
+        text = self.labelOptions[0]
+        super().__init__(patentWidget, prefix, data, name, text)
+
+class CurrSectionPath_LBL(ww.currUIImpl.Label):
+    def __init__(self, parentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2, "columnspan": 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        name = "_showCurrSectionPath_LBL"
+        text = self.__getCurrSectionPath_Formatted()
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = data, 
+                        text = text)
+    
+    def receiveNotification(self, broadcasterName, data = None):
+        newText = self.__getCurrSectionPath_Formatted()
+        self.changeText(newText)
+        
+    def __getCurrSectionPath_Formatted(self):
+        currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        currSecNameWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        name = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.name_ID)
+        startPage = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.startPage_ID)
+        currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        # TODO:
+        # add showing the name
+        # asd showing the staring page
+        return "current section path: {0}. Name: '{1}'. Start page: '{2}'".format(currSecName, name, startPage)
 
 class SetSectionStartPage_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
@@ -39,22 +80,21 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {ww.Data.widgetsWidth: "5"},
-            ww.TkWidgets.__name__ : {}
-        }
 
         super().__init__(prefix, 
                         name, 
                         patentWidget, 
                         renderData,
-                        extraBuildOptions,
                         defaultText = defaultText)
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType):
         if broadcasterType == SetSectionStartPage_BTN:
-            return self.getData()
+            text = self.getData()
+            return text if text != self.defaultText else ""
+        if broadcasterType == CreateNewTopSection_BTN:
+            text = self.getData()
+            return text if text != self.defaultText else ""
 
 class SetSectionName_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
@@ -90,45 +130,41 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {ww.Data.widgetsWidth: "5"},
-            ww.TkWidgets.__name__ : {}
-        }
 
         super().__init__(prefix, 
                         name, 
                         patentWidget, 
                         renderData,
-                        extraBuildOptions,
                         defaultText = defaultText)
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType):
         if broadcasterType == SetSectionName_BTN:
-            return self.getData()
+            text = self.getData()
+            return text if text != self.defaultText else ""
+        if broadcasterType == CreateNewTopSection_BTN:
+            text = self.getData()
+            return text if text != self.defaultText else ""
 
-class getNewSectionPath_ETR(ww.currUIImpl.TextEntry):
-
+class NewSectionPath_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_getNewSectionPath_ETR"
-        defaultText = ""
+        defaultText = "New section path"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {ww.Data.widgetsWidth: "5"},
-            ww.TkWidgets.__name__ : {}
         }
 
         super().__init__(prefix, 
                         name, 
                         patentWidget, 
                         renderData,
-                        extraBuildOptions,
-                        self.bindCmd,
-                        defaultText)
-        super().setData(defaultText)
+                        defaultText = defaultText)
+    
+    def receiveNotification(self, broadcasterType):
+        log.autolog(self.getData())
+
+        return self.getData()
 
 class RemoveTopSection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
@@ -153,8 +189,8 @@ class RemoveTopSection_BTN(ww.currUIImpl.Button):
 class CreateNewTopSection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.Data.GeneralProperties_ID :{"column" : 3, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         text = "New"
         name = "_createNewTopSection_BTN"
@@ -167,21 +203,13 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        secPath = None
-        secName = None
-        secStartPage = None
-        
-        #TODO: get names
-        # for e in self.rootWidget.getChildren():
-        #     if  cls.WidgetNames.Top.Section + wu.Data.ENT.entryWidget_ID in e._name:
-        #         secPath = e.get()
-        #     elif cls.WidgetNames.Top.Name + wu.Data.ENT.entryWidget_ID in e._name:
-        #         secName = e.get()
-        #     elif cls.WidgetNames.Top.StPage + wu.Data.ENT.entryWidget_ID in e._name:
-        #         secStartPage = e.get()
+        newSecName = self.notify(SetSectionName_ETR)
+        newSecStartPage = self.notify(SetSectionStartPage_ETR)
+        secPath = self.notify(NewSectionPath_ETR)
         
         # TODO: check that the structure exists and ask user if we should proceed
         fsm.addSectionForCurrBook(secPath)
+
         separator = \
             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
         topSectionName = secPath.split(separator)[0]
@@ -193,11 +221,11 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
 
         fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
                                                 fsm.PropIDs.Sec.name_ID,
-                                                secName)            
+                                                newSecName)            
         fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
                                                 fsm.PropIDs.Sec.startPage_ID, 
-                                                secStartPage)
-
+                                                newSecStartPage)
+        
         #
         # update ui
         #

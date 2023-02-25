@@ -69,7 +69,6 @@ def _getSectionFilepath(sectionPath):
     sectionFullPath = os.path.join(*sectionFullPath)
     pathToSection = _getPathToSectionsFolder()
     pathToSection = os.path.join(p.Paths.Section.sectionFolderName, pathToSection, sectionFullPath)
-    
     return pathToSection
 
 

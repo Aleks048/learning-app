@@ -153,7 +153,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
         
-    def receiveNotification(self, _) -> None:
+    def receiveNotification(self, _):
         return self.getData()
 
 class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
@@ -180,7 +180,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
         
-    def receiveNotification(self, _) -> None:
+    def receiveNotification(self, _):
         return self.getData()
 
 class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
@@ -206,7 +206,7 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
         super().setData(defaultText)
     
         
-    def receiveNotification(self, _) -> None:
+    def receiveNotification(self, _):
         return self.getData()
 
 class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
@@ -231,7 +231,7 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
                         defaultText = defaultText)
         super().setData(defaultText)
     
-    def receiveNotification(self, _) -> None:
+    def receiveNotification(self, _):
         return self.getData()
 
 class StartupRoot(ww.currUIImpl.RootWidget):

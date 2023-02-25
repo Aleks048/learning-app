@@ -139,7 +139,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -164,7 +164,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_create_toc"
@@ -183,8 +183,8 @@ class addToTOC_CHB(ww.currUIImpl.Checkbox):
 class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
     def __init__(self, parentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_toc_w_image"
         text = "TOC w i"
@@ -317,8 +317,8 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
     
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text= "addExtraIm"
         name = "_imageGenerationAddIm"
@@ -371,8 +371,8 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_imageGenerationRestart"
         text= "restart"

@@ -124,7 +124,7 @@ class SectionInfoStructure:
         relSectionPath = _u.Token.NotDef.str_t
         sectionPathList = sectionPath.split(sectionPathSeparator)
         for i,path in enumerate(sectionPathList):
-            relSectionPath += path if relSectionPath == _u.Token.NotDef.str_t else "." + path
+            relSectionPath = path if relSectionPath == _u.Token.NotDef.str_t else relSectionPath + "." + path
             
             cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
             
