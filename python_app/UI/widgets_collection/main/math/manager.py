@@ -55,6 +55,7 @@ class LayoutManagers:
             self.addWidget(imageGeneration_BTN)
 
             addExtraImage = ml.AddExtraImage_BTN(winRoot, self.prefix)
+            addExtraImage.addListenerWidget(imageGenration_ERT)
             self.addWidget(addExtraImage)
 
 
@@ -83,6 +84,9 @@ class LayoutManagers:
 
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
+
+            switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
+            self.addWidget(switchToCurrSectionLayout_BTN)
 
             #
             # post init
@@ -115,9 +119,6 @@ class LayoutManagers:
 
             addGlobalLink_ETR = sl.AddGlobalLink_ETR(winRoot, self.prefix)
             self.addWidget(addGlobalLink_ETR)
-            
-            switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
-            self.addWidget(switchLayout_BTN)
 
             layouts_OM = com.Layouts_OM(winRoot, self.prefix)
             self.addWidget(layouts_OM)
@@ -157,12 +158,22 @@ class LayoutManagers:
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
 
+            switchToCurrMainLayout_BTN = sl.SwitchToCurrMainLayout_BTN(winRoot, self.prefix)
+            self.addWidget(switchToCurrMainLayout_BTN)
 
             #
             # post init
             #
             targetSubsection_OM.cmd()
             targetImageLinks_OM.cmd()
+        
+        def show(self):
+            self.winRoot.configureColumn(0, weight = 1)
+            self.winRoot.configureColumn(1, weight = 1)
+            self.winRoot.configureColumn(2, weight = 1)
+            self.winRoot.configureColumn(3, weight = 1)
+            self.winRoot.configureColumn(4, weight = 1)
+            return super().show()
     
     class _AddModifySection(wm.MenuLayout_Interface):
         prefix = "_AddModifySectionLayout"

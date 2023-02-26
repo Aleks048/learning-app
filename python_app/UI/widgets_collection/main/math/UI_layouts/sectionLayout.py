@@ -13,10 +13,33 @@ import data.temp as dt
 import _utils._utils_main as _u
 
 
+import UI.widgets_collection.main.math.manager as mmm
+import layouts.layouts_manager as lm
+
+class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_swritchToCurrMainLayout_BTN"
+        text= "To main"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
+        lm.Wr.MainLayout.set()
+
 class RebuildCurrSection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0,  "pady" : 0, "sticky" : tk.N,}
         }
         name = "_rebuildCurrSubsec_BTN"
@@ -242,7 +265,7 @@ class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
 class AddGlobalLink_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_addGlobalLink_BTN"
@@ -328,7 +351,7 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2, "columnspan" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         defaultText = ""
@@ -345,8 +368,6 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
     def receiveNotification(self, broadcasterType, data = None):
-        log.autolog("opp")
-        log.autolog(broadcasterType)
         if broadcasterType == AddGlobalLink_BTN:
             return self.getData()
         elif broadcasterType == TargetTopSection_OM:

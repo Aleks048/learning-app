@@ -38,14 +38,17 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         
     def __getCurrSectionPath_Formatted(self):
         currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        currSecNameWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         name = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.name_ID)
         startPage = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.startPage_ID)
         currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        # TODO:
-        # add showing the name
-        # asd showing the staring page
+
         return "current section path: {0}. Name: '{1}'. Start page: '{2}'".format(currSecName, name, startPage)
+
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        text = self.__getCurrSectionPath_Formatted()
+        self.changeText(text)
+
+        return super().render(widjetObj, renderData, **kwargs)
 
 class SetSectionStartPage_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
@@ -225,30 +228,3 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
                                                 fsm.PropIDs.Sec.startPage_ID, 
                                                 newSecStartPage)
-        
-        #
-        # update ui
-        #
-        # topSections = \
-        #     list(fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID).keys())
-        # subsections = wu.getSubsectionsListForCurrTopSection()
-        # wu.updateOptionMenuOptionsList(mainWinRoot, 
-        #                             "_chooseSection_optionMenu",
-        #                             topSections, 
-        #                             wv.UItkVariables.topSection,
-        #                             ChooseMaterial._topSectionChoosingCallback
-        #                             ) 
-        # wv.UItkVariables.topSection.set(topSectionName)
-        
-        # wu.updateOptionMenuOptionsList(mainWinRoot, 
-        #                             "_chooseSubsecion_optionMenu",
-        #                             subsections,
-        #                             wv.UItkVariables.subsection,
-        #                             ChooseMaterial._subsectionChoosingCallback
-        #                             ) 
-        # wv.UItkVariables.subsection.set(secPath)
-
-        # wv.UItkVariables.imageGenerationEntryText.set("1")
-
-        # # update screenshot widget
-        # wu.Screenshot.setValueScreenshotLoaction()

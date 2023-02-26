@@ -22,6 +22,31 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
+import UI.widgets_collection.main.math.manager as mmm
+import layouts.layouts_manager as lm
+
+
+class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_swritchToCurrSectionLayout_BTN"
+        text= "To section"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
+        lm.Wr.SectionLayout.set()
+
+
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -67,6 +92,18 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
             self.updateOptions(newOptionList)
             self.setData(prevSubsectionPath)
 
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+
+        if subsectionsList == []:
+            subsectionsList = ["No subsec yet."]
+
+        self.updateOptions(subsectionsList)
+
+        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        self.setData(currSubsection)
+
+        return super().render(widjetObj, renderData, **kwargs)
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -134,12 +171,25 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ChooseSubsection_OM:
             return self.getData()
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        topSectionsList = fsm.getTopSectionsList()
+        topSectionsList.sort(key = int)
+        if topSectionsList == []:
+            topSectionsList = ["No top sec yet."]
+        
+        self.setData(topSectionsList)
+
+        currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+        self.setData(currTopSection)
+
+        return super().render(widjetObj, renderData, **kwargs)
 
 
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -158,8 +208,21 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
         
     def __getScreenshotLocation_Formatted(self):
         relPath =  fsm.Wr.Paths.Screenshot.getRel_curr()
-        self.text = relPath
-        return "dir: " + relPath if relPath != "" else "No direction yet."
+
+        currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        name = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.name_ID)
+        startPage = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.startPage_ID)
+        currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+
+        text = "Sec path: '{0}'. Name: '{1}'. St page: '{2}'.".format(currSecName, name, startPage)
+
+        text += " Im dir:  '{0}'".format(relPath) if relPath != "" else "No direction yet."
+        return text
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        text = self.__getScreenshotLocation_Formatted()
+        self.changeText(text)
+        return super().render(widjetObj, renderData, **kwargs)
 
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
@@ -168,14 +231,13 @@ class addToTOC_CHB(ww.currUIImpl.Checkbox):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_create_toc"
-        text = "TOC cr"
+        text = "add TOC entry"
         super().__init__(prefix, 
                         name,
                         parentWidget, 
                         renderData = renderData, 
                         text = text)
         self.setData(True)
-
         
     def receiveNotification(self, broadcasterName):
         return self.getData()
@@ -187,7 +249,7 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_toc_w_image"
-        text = "TOC w i"
+        text = "TOC entry with image"
         super().__init__(prefix, 
                         name,
                         parentWidget, 
@@ -312,9 +374,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.setData(dataToSet)
         elif broadcasterType == ChooseSubsection_OM:
             self.setData(dataToSet)
+        elif broadcasterType == AddExtraImage_BTN:
+            return self.getData()
 
-class AddExtraImage_BTN(ww.currUIImpl.Button):
-    
+class AddExtraImage_BTN(ww.currUIImpl.Button):  
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
@@ -339,9 +402,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
 
         # get name of the image from the text field
         # NOTE: need to refactor into a separate function
-        for w in self.patentWidget.getChildren():
-            if "_imageGeneration_" + wu.Data.ENT.entryWidget_ID in w._name:
-                imName = w.get()
+        imName = self.notify(ImageGeneration_ETR)
         
         extraImagePath = fsm.Wr.Paths.Screenshot.getAbs_curr() \
                             + currImID + "_" + currentSubsection \
