@@ -36,6 +36,7 @@ class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button):
         mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
         lm.Wr.MainLayout.set()
 
+
 class RebuildCurrSection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
@@ -384,8 +385,7 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
             return self.getData()
     
     def bindCmd(self):
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.enter,
-                            lambda _: self.notify(TargetImageLinks_OM, self.getData()))
+        return [ww.currUIImpl.Data.BindID.enter] , [lambda _: self.notify(TargetImageLinks_OM, self.getData())]
 
 
 class ChangeSubsection_BTN(ww.currUIImpl.Button):

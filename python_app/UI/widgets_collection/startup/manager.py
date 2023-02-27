@@ -65,5 +65,8 @@ class StartupMenuManager(wm.MenuManager_Interface):
 
     @classmethod
     def _bindKeys(cls):
-        cls.winRoot.bind("<Escape>", lambda e: cls.winRoot.destroy())
-        cls.winRoot.bind("<Return>", lambda e: cls.winRoot.destroy())
+        keys = ["<Escape>", "<Return>"]
+        cmds = [lambda e: cls.winRoot.destroy(), 
+                lambda e: cls.winRoot.destroy()]
+        
+        return keys, cmds

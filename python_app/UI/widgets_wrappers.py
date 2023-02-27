@@ -130,12 +130,21 @@ class TkWidgets (DataTranslatable_Interface):
             super().__init__()
 
     class BindableWidget_Interface_Impl(BindableWidget_Interface):
-        def __init__(self, bindCmd = lambda *args: None, *args, **kwargs):
+        def __init__(self, widgetObj = None, 
+                    bindCmd = lambda *args: (None, None) , *args, **kwargs):
             self.bindCmd = bindCmd
+            self.widgetObj = widgetObj
             super().__init__()
         
         def bind(self):
-            self.bindCmd()
+            keys, cmds = self.bindCmd()
+            if keys != None and cmds != None:
+                log.autolog(keys)
+                log.autolog(cmds)
+                for i in range(len(keys)):
+                    key = keys[i]
+                    cmd = cmds[i]
+                    self.widgetObj.bind(key, cmd)
         
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
@@ -149,7 +158,7 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData, 
                     cmd, 
                     extraOptions = {},
-                    bindCmd = lambda *args: None):
+                    bindCmd = lambda *args: (None, None)):
             
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -178,7 +187,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widgetObj,)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -208,7 +217,7 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData, 
                     cmd, 
                     extraOptions = {},
-                    bindCmd = lambda *args: None):
+                    bindCmd = lambda *args: (None, None)):
             
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -235,7 +244,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widgetObj,)
             Notifyable_Interface.__init__(self)
 
             self.setData(self.listOfOptions[0])
@@ -276,7 +285,7 @@ class TkWidgets (DataTranslatable_Interface):
                     rootWidget, 
                     renderData : dict,
                     extraOptions = {},
-                    bindCmd = lambda *args: None,
+                    bindCmd = lambda *args: (None, None),
                     defaultText = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -288,7 +297,7 @@ class TkWidgets (DataTranslatable_Interface):
 
             def bindCmdWrapper(*args):
                 bindCmd(*args)
-                self.__bindCMD()
+                return self.__bindCMD()
             
             self.bindCmd = bindCmdWrapper
             self.defaultText = defaultText
@@ -303,7 +312,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, widgetObj = widgetObj,)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -331,10 +340,10 @@ class TkWidgets (DataTranslatable_Interface):
                 self.setData(self.defaultText)
 
         def __bindCMD(self):
-            self.widjetObj.bind(TkWidgets.Data.BindID.focusIn,  
-                        lambda *args: self.defaultTextCMD())
-            self.widgetObj.bind(TkWidgets.Data.BindID.focusOut, 
-                        lambda *args: self.defaultTextCMD())
+            keys = [TkWidgets.Data.BindID.focusIn, TkWidgets.Data.BindID.focusOut]
+            cmds = [lambda *args: self.defaultTextCMD(), 
+                    lambda *args: self.defaultTextCMD()]
+            return keys, cmds
     
     class Checkbox (Notifyable_Interface,
                     DataContainer_Interface_Impl,
@@ -348,7 +357,7 @@ class TkWidgets (DataTranslatable_Interface):
                     rootWidget, 
                     renderData : dict,
                     extraOptions = {},
-                    bindCmd = lambda *args: None,
+                    bindCmd = lambda *args: (None, None),
                     text = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -371,7 +380,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, widgetObj = widgetObj)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -388,7 +397,7 @@ class TkWidgets (DataTranslatable_Interface):
                     rootWidget, 
                     renderData : dict,
                     extraOptions = {},
-                    bindCmd = lambda *args: None,
+                    bindCmd = lambda *args: (None, None),
                     text = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -404,7 +413,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
             Notifyable_Interface.__init__(self)
 
             super().bind()

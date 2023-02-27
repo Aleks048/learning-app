@@ -86,6 +86,8 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         # update Layout
         # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
         # wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
+
+        lm.Wr.MainLayout.set()
     
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
         if broadcasterType == ChooseTopSection_OM:
@@ -163,6 +165,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         # update image index widget
         self.notify(ImageGeneration_ETR, 
                     fsm.Wr.Links.ImIDX.get(prevSubsectionPath))
+        
+        lm.Wr.MainLayout.set()
 
         # # update Layout widget
         # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
@@ -350,15 +354,18 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_imageGeneration_ETR"
+        defaultText = "1"
+
         super().__init__(prefix, 
                         name,
                         patentWidget, 
-                        data)
+                        data,
+                        defaultText = defaultText)
 
         secImIndex = fsm.Wr.Links.ImIDX.get_curr()
 
         if secImIndex == _u.Token.NotDef.str_t:
-            self.updateDafaultText("-1")
+            self.updateDafaultText(self.defaultText)
         else:
             self.updateDafaultText(str(int(secImIndex) + 1))
 
@@ -368,14 +375,34 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.setData(currImIdx)
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
+            log.autolog(dataToSet)
             self.setData(dataToSet)
             return prevData
         elif broadcasterType == ChooseTopSection_OM:
-            self.setData(dataToSet)
+            currIdx = fsm.Wr.SectionCurrent.getImIDX()
+            currIdx = 0 if currIdx == '' else int(currIdx)
+            nextIdx = str(currIdx + 1)
+            self.setData(nextIdx)
         elif broadcasterType == ChooseSubsection_OM:
-            self.setData(dataToSet)
+            currIdx = fsm.Wr.SectionCurrent.getImIDX()
+            currIdx = 0 if currIdx == '' else int(currIdx)
+            nextIdx = str(currIdx + 1)
+            self.setData(nextIdx)
         elif broadcasterType == AddExtraImage_BTN:
             return self.getData()
+    
+    def render(self, **kwargs):
+        secImIndex = fsm.Wr.Links.ImIDX.get_curr()
+
+        if secImIndex == _u.Token.NotDef.str_t:
+            self.updateDafaultText("1")
+        else:
+            self.updateDafaultText(str(int(secImIndex) + 1))
+
+        return super().render(**kwargs)
+
+    def defaultTextCMD(self):
+        pass
 
 class AddExtraImage_BTN(ww.currUIImpl.Button):  
     def __init__(self, patentWidget, prefix):
