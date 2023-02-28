@@ -3,6 +3,8 @@ import data.temp as dt
 import _utils._utils_main as _u
 import _utils.logging as log
 
+import UI.widgets_wrappers as ww
+
 menuManagers = []
 
 class MenuLayout_Interface(dc.AppCurrDataAccessToken):
@@ -61,13 +63,17 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         self.winRoot.stopMainLoop()
 
     def show(self):
-        self.hideAllWidgets()
+        self.winRoot.render()
         self.currLayout.show()
     
+    def showOnly(self):
+        self.hideAllWidgets()
+        self.show()
+    
     def hide(self):
-        pass
-        # for l in self.layouts:
-        #     l.hide()
+        self.winRoot.hide()
+        for l in self.layouts:
+            l.hide()
 
     def hideAllWidgets(self):
         '''
@@ -79,7 +85,8 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
     def startManager(self):
         self.show()
-        self.startMainLoop()
+        # self.startMainLoop()
+        self.show()
 
 
 

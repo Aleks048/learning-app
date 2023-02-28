@@ -418,19 +418,23 @@ class TkWidgets (DataTranslatable_Interface):
             super().bind()
         
         def changeText(self, newText):
+            self.text = newText
             self.widjetObj.configure(text=newText)
 
     
-    class RootWidget(BindableWidget_Interface_Impl):
+    class RootWidget(BindableWidget_Interface_Impl,
+                     RenderableWidget_Interface_Impl):
         def __init__(self, 
                      width, 
                      height,
                      bindCmd = lambda *args: (None, None)):
+            
             self.tk = TkWidgets.Data.tk
             self.tk.geometry(str(width) + "x" + str(height))
-            self.widjetObj = tk.Toplevel(self.tk)
+            self.widgetObj = tk.Toplevel(self.tk)
 
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = self.widjetObj)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = self.widgetObj)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj, bindCmd = bindCmd, renderData = self.renderData)
         
             super().bind()
 
@@ -441,19 +445,28 @@ class TkWidgets (DataTranslatable_Interface):
             posy = str(posy)
 
             if width == "-1" or height == "-1":
-                self.widjetObj.geometry("+" + posx + "+" + posy)
+                self.widgetObj.geometry("+" + posx + "+" + posy)
             elif posx == "-1" or posy == "-1":
-                self.widjetObj.geometry(width + "x" + height)
+                self.widgetObj.geometry(width + "x" + height)
             else:
-                self.widjetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)
+                self.widgetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)
 
         def startMainLoop(self):
             self.tk.mainloop()
         
         def stopMainLoop(self):
-            self.widjetObj.withdraw()
+            self.widgetObj.withdraw()
 
         def configureColumn(self, conNum, weight):
-            self.widjetObj.columnconfigure(conNum, weight = weight)
+            self.widgetObj.columnconfigure(conNum, weight = weight)
+        
+        def hide(self, **kwargs):
+            self.widgetObj.withdraw()
+        
+        def render(self, widjetObj=None, renderData={}, **kwargs):
+            self.widgetObj.deiconify()
+    
+    def startLoop():
+        TkWidgets.Data.tk.mainloop()
 
 currUIImpl = TkWidgets

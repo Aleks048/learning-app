@@ -53,10 +53,9 @@ class LayoutManagers:
         prefix = "_MessageLayout_"
 
         def __init__(self, winRoot):
-            appDimensions = [-1, -1, 90, 90]
+            appDimensions = [200, 50, 700, 350]
             super().__init__(winRoot, appDimensions)
 
-            
             message_LBL = mw.Message_LBL(winRoot, self.prefix)
             self.addWidget(message_LBL)
 
@@ -64,7 +63,7 @@ class LayoutManagers:
         
         def setProps(self,  msg = "", cmd = lambda _: None):
             for w in self.widgets:
-                if type(w) ==  mw.Message_LBL:
+                if w.__class__ ==  mw.Message_LBL:
                     w.changeText(msg)
 
 
@@ -72,7 +71,7 @@ class LayoutManagers:
         prefix = "_ConfirmationMessageLayout_"
 
         def __init__(self, winRoot):
-            appDimensions = [-1, -1, 90, 90]
+            appDimensions = [50, 20, 700, 700]
             super().__init__(winRoot, appDimensions)
 
             message_LBL = mw.Message_LBL(winRoot, self.prefix)
@@ -105,4 +104,8 @@ class MessageMenuManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+    
+    def show(self, text):
+        self.currLayout.setProps(text)
+        return super().show()
         

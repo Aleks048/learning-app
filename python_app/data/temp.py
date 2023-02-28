@@ -22,9 +22,11 @@ class ClassAttNotAccessibleType(type):
             return self.data
         else:
             for dp in self.data:
-                if type(dp) == dpType:
-                    log.autolog("hoppoo")
+                log.autolog(dpType)
+                log.autolog(dp.__class__.__bases__)
+                if dpType in dp.__class__.__bases__:
                     return dp
+            raise KeyError
 
     def setData(self, token, newValue):
         self.data = newValue

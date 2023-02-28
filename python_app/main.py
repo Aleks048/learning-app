@@ -12,10 +12,12 @@ import _utils.logging as log
 # start the daemon to process client calls
 das.startMainServerDaemon()
 
+
 # create startup menu
 messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
-messageMenuManager.startManager()
-# messageMenuManager.stopMainLoop()
+mainMenuManager = wf.Wr.MenuManagers.MainMenuManager()
+
 startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
-startupMenuManager.startManager()
+startupMenuManager.showOnly()
+wf.Wr.WidgetWrappers.startLoop()
 

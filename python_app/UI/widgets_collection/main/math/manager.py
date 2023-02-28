@@ -35,7 +35,7 @@ class LayoutManagers:
             winRoot.configureColumn(1, weight = 1)
             winRoot.configureColumn(2, weight = 3)
             winRoot.configureColumn(3, weight = 1)
-
+            
             addToTOC_CHB = ml.addToTOC_CHB(winRoot, self.prefix)
             self.addWidget(addToTOC_CHB)
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
@@ -240,18 +240,19 @@ class LayoutManagers:
         return results
 
 class MathMenuManager(wm.MenuManager_Interface):
-    prefix = "_MainMathMenu_"
-
-    @classmethod
-    def createMenu(cls):
-        super().createMenu()
-
-        cls.winRoot = com.MainMenuRoot(0, 0)
+    def __init__(self):
+        winRoot = com.MainMenuRoot(0, 0)
+        layouts = []
 
         for lm in LayoutManagers.listOfLayouts():
-            cls.layouts.append(lm(cls.winRoot))
+            layouts.append(lm(winRoot))
         
-        for layout in cls.layouts:
+        currLayout = None
+        for layout in layouts:
             if type(layout) == LayoutManagers._Main:
-                cls.currLayout = layout
+                currLayout = layout
                 break
+        
+        super().__init__(winRoot,
+                        layouts,
+                        currLayout)

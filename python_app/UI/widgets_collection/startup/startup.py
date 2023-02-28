@@ -10,7 +10,7 @@ import _utils.logging as log
 import _utils._utils_main as _u
 
 import UI.widgets_wrappers as ww
-import UI.widgets_collection.main.math.manager as wm
+import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.startup.manager as stm
 
@@ -39,11 +39,19 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
     def cmd(self):
         startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         stm.StartupMenuManager)
-        startupManager.stopMainLoop()
-        mesm.MessageMenuManager.startManager()
-        # _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-        # lm.Wr.MainLayout.set()
-        # wm.MathMenuManager.startManager()
+        startupManager.hide()
+        
+
+        _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
+        lm.Wr.MainLayout.set()
+
+        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mesm.MessageMenuManager)
+        messageManager.show("gotcha")
+
+        mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+        mainMathManager.show()
 
 class AddBook_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
