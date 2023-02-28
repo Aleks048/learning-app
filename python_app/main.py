@@ -13,5 +13,9 @@ import _utils.logging as log
 das.startMainServerDaemon()
 
 # create startup menu
-wf.Wr.MenuManagers.StartupMenuManager.startManager()
+messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
+messageMenuManager.startManager()
+# messageMenuManager.stopMainLoop()
+startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
+startupMenuManager.startManager()
 

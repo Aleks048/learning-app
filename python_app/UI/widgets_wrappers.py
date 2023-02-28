@@ -83,6 +83,7 @@ class TkWidgets (DataTranslatable_Interface):
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
             enter = "<Return>"
+            escape = "<Escape>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
@@ -139,8 +140,6 @@ class TkWidgets (DataTranslatable_Interface):
         def bind(self):
             keys, cmds = self.bindCmd()
             if keys != None and cmds != None:
-                log.autolog(keys)
-                log.autolog(cmds)
                 for i in range(len(keys)):
                     key = keys[i]
                     cmd = cmds[i]
@@ -423,11 +422,18 @@ class TkWidgets (DataTranslatable_Interface):
 
     
     class RootWidget(BindableWidget_Interface_Impl):
-        def __init__(self, width, height):
+        def __init__(self, 
+                     width, 
+                     height,
+                     bindCmd = lambda *args: (None, None)):
             self.tk = TkWidgets.Data.tk
             self.tk.geometry(str(width) + "x" + str(height))
             self.widjetObj = tk.Toplevel(self.tk)
+
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = self.widjetObj)
         
+            super().bind()
+
         def setGeometry(self, width = -1, height = -1, posx = -1, posy = -1):
             width = str(width)
             height = str(height)

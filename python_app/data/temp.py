@@ -1,5 +1,5 @@
 import _utils._utils_main as _u
-
+import _utils.logging as log
 
 class ClassAttNotAccessibleType(type):
     data = None
@@ -17,9 +17,15 @@ class ClassAttNotAccessibleType(type):
         else: 
             raise TypeError("The objects of this calss are not acessible directly. Please use getData(dataAccessToken)")
     
-    def getData(self, token):
-        return self.data
-    
+    def getData(self, token, dpType = None):
+        if dpType == None:
+            return self.data
+        else:
+            for dp in self.data:
+                if type(dp) == dpType:
+                    log.autolog("hoppoo")
+                    return dp
+
     def setData(self, token, newValue):
         self.data = newValue
 

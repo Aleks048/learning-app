@@ -5,7 +5,6 @@ import _utils.logging as log
 import layouts.layouts_manager as lm
 
 import UI.widgets_manager as wm
-import UI.widgets_utils as wu
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.UI_layouts.common as com
@@ -252,4 +251,7 @@ class MathMenuManager(wm.MenuManager_Interface):
         for lm in LayoutManagers.listOfLayouts():
             cls.layouts.append(lm(cls.winRoot))
         
-        cls.currLayout = cls.layouts[0]
+        for layout in cls.layouts:
+            if type(layout) == LayoutManagers._Main:
+                cls.currLayout = layout
+                break

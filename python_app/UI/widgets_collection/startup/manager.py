@@ -1,19 +1,3 @@
-import os
-import tkinter as tk
-import threading
-
-import UI.widgets_collection_old as wc
-import UI.widgets_utils as wu
-import UI.widgets_vars as wv
-import UI.widgets_messages as wmes
-
-import layouts.layouts_manager as lm
-
-import file_system.file_system_manager as fsm
-
-import _utils.logging as log
-import _utils._utils_main as _u
-
 import UI.widgets_collection.startup.startup as sw
 
 import UI.widgets_manager as wm
@@ -55,18 +39,9 @@ class StartupLayout(wm.MenuLayout_Interface):
 
 
 class StartupMenuManager(wm.MenuManager_Interface):
-    @classmethod
-    def createMenu(cls):
-        super().createMenu()
-        cls.winRoot = sw.StartupRoot(0, 0)
-        startupLayout = StartupLayout(cls.winRoot)
-        cls.layouts.append(startupLayout)
-        cls.currLayout = startupLayout
-
-    @classmethod
-    def _bindKeys(cls):
-        keys = ["<Escape>", "<Return>"]
-        cmds = [lambda e: cls.winRoot.destroy(), 
-                lambda e: cls.winRoot.destroy()]
-        
-        return keys, cmds
+    def __init__(self):
+        winRoot = sw.StartupRoot(0, 0)
+        startupLayout = StartupLayout(winRoot)
+        super().__init__(winRoot,
+                        [startupLayout],
+                        startupLayout)

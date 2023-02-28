@@ -1,34 +1,27 @@
 import os
-import subprocess
 import tkinter as tk
-from threading import Thread
 
-import UI.widgets_vars as wv 
-import UI.widgets_utils as wu
 import UI.widgets_data as wd
 import UI.widgets_messages as wmes
 
 import file_system.file_system_manager as fsm
-import tex_file.tex_file_facade as tff
 
 import _utils.logging as log
 import _utils._utils_main as _u
 
-import data.constants as d
-import data.temp as dt
-import scripts.osascripts as oscr
-
-import outside_calls.outside_calls_facade as ocf
-
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as wm
+import UI.widgets_collection.message.manager as mesm
+import UI.widgets_collection.startup.manager as stm
 
 
 import layouts.layouts_manager as lm
+import data.constants as dc
+import data.temp as dt
 
 
-class StartupConfirm_BTN(ww.currUIImpl.Button):
-
+class StartupConfirm_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
@@ -44,11 +37,13 @@ class StartupConfirm_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        self.name
-        self.rootWidget.stopMainLoop()
-        _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
-        lm.Wr.MainLayout.set()
-        wm.MathMenuManager.startManager()
+        startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        stm.StartupMenuManager)
+        startupManager.stopMainLoop()
+        mesm.MessageMenuManager.startManager()
+        # _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
+        # lm.Wr.MainLayout.set()
+        # wm.MathMenuManager.startManager()
 
 class AddBook_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):

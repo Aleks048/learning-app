@@ -32,64 +32,54 @@ class MenuLayout_Interface(dc.AppCurrDataAccessToken):
 
 
 class MenuManager_Interface(dc.AppCurrDataAccessToken):
-    layouts = []
-    currLayout = None
-    winRoot = None
-
-    @classmethod
-    def createMenu(cls):
-        cls.layouts = []
-        #add manager to the list of all managers
-        UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
-        UIManagers.append(cls)
-
-        dt.AppState.UIManagers.setData(cls.appCurrDataAccessToken, UIManagers)
+    currLayout:MenuLayout_Interface
     
-    @classmethod
-    def switchUILayout(cls, toLayoutType):
-        cls.hideAllWidgets()
-        for layout in cls.layouts:
+    def __init__(self, rootWidget, layouts, currLayout):
+        super().__init__()
+
+        self.winRoot = rootWidget
+        self.layouts = layouts
+        self.currLayout = currLayout
+
+        #add manager to the list of all managers
+        UIManagers = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken)
+        UIManagers.append(self)
+        dt.AppState.UIManagers.setData(self.appCurrDataAccessToken, UIManagers)
+
+    def switchUILayout(self, toLayoutType):
+        self.hideAllWidgets()
+        for layout in self.layouts:
             if type(layout) == toLayoutType:
                 layout.show()
                 return
         raise KeyError
 
-    @classmethod
-    def startMainLoop(cls):
-        cls.winRoot.startMainLoop()
-   
-    @classmethod
-    def stopMainLoop(cls):
-        cls.winRoot.startMainLoop()
+    def startMainLoop(self):
+        self.winRoot.startMainLoop()
 
-    @classmethod
-    def show(cls):
-        cls.hideAllWidgets()
-        cls.currLayout.show()
+    def stopMainLoop(self):
+        self.winRoot.stopMainLoop()
+
+    def show(self):
+        self.hideAllWidgets()
+        self.currLayout.show()
     
-    @classmethod
-    def hide(cls):
-        for l in cls.layouts:
-            l.hide()
+    def hide(self):
+        pass
+        # for l in self.layouts:
+        #     l.hide()
 
-    @classmethod
-    def _bindKeys(cls):
-        raise NotImplementedError()
-
-    @classmethod
-    def hideAllWidgets(cls):
+    def hideAllWidgets(self):
         '''
         hide all widgets. clear all entries
         '''
-        UIManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
+        UIManagers = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken)
         for UIManager in UIManagers:
             UIManager.hide()
-    
-    @classmethod
-    def startManager(cls):
-        cls.createMenu()
-        cls.show()
-        cls.startMainLoop()
+
+    def startManager(self):
+        self.show()
+        self.startMainLoop()
 
 
 

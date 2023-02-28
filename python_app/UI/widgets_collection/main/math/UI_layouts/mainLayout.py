@@ -1,10 +1,5 @@
 import os
-import subprocess
 import tkinter as tk
-from threading import Thread
-
-import UI.widgets_vars as wv 
-import UI.widgets_utils as wu
 import UI.widgets_messages as wmes
 
 import file_system.file_system_manager as fsm
@@ -13,14 +8,9 @@ import tex_file.tex_file_facade as tff
 import _utils.logging as log
 import _utils._utils_main as _u
 
-import data.constants as d
-import data.temp as dt
-import scripts.osascripts as oscr
-
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_wrappers as ww
-import UI.widgets_manager as wm
 
 import UI.widgets_collection.main.math.manager as mmm
 import layouts.layouts_manager as lm
@@ -55,7 +45,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         }
         name = "_chooseSubsecion_optionMenu"
 
-        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        subsectionsList = fsm.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
 
         if subsectionsList == []:
             subsectionsList = ["No subsec yet."]
@@ -82,10 +72,6 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.notify(ImageGeneration_ETR, fsm.Wr.Links.ImIDX.get(subsection))
 
         self.notify(ScreenshotLocation_LBL)
-        
-        # update Layout
-        # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
-        # wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
 
         lm.Wr.MainLayout.set()
     
@@ -95,7 +81,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
             self.setData(prevSubsectionPath)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        subsectionsList = fsm.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
 
         if subsectionsList == []:
             subsectionsList = ["No subsec yet."]
@@ -144,11 +130,10 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
                                                 prevSubsectionPath)
 
         # update image index
-        secionImIndex = fsm.Wr.Links.ImIDX.get(prevSubsectionPath)
-        # wv.UItkVariables.imageGenerationEntryText.set(secionImIndex)         
+        secionImIndex = fsm.Wr.Links.ImIDX.get(prevSubsectionPath)        
         
 
-        subsectionsList = wu.getSubsectionsListForCurrTopSection()
+        subsectionsList = fsm.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
         subsectionsList.sort()
         
         #
@@ -167,10 +152,6 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
                     fsm.Wr.Links.ImIDX.get(prevSubsectionPath))
         
         lm.Wr.MainLayout.set()
-
-        # # update Layout widget
-        # widgetDimensions = LayoutsMenus.MainLayoutUI.pyAppDimensions
-        # wu.showCurrentLayout(mainWinRoot, *widgetDimensions)
     
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ChooseSubsection_OM:
@@ -314,8 +295,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
             if ocf.Wr.fsAppCalls.checkIfFileExists(imagePath):
                 def takeScreencapture(iPath):
                     ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
-                    # wv.UItkVariables.needRebuild.set(True)
-                    # update curr image index for the chapter
                     nextImNum = str(int(self.dataFromUser[0]) + 1)
                     self.notify(ImageGeneration_ETR, nextImNum)
                     self.updateLabel(self.labelOptions[0])
@@ -325,8 +304,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                                                 imagePath)
             else:
                 ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
-                # wv.UItkVariables.needRebuild.set(True)
-                #update curr image index for the chapter
                 nextImNum = str(int(self.dataFromUser[0]) + 1)
                 self.notify(ImageGeneration_ETR, nextImNum)
         
@@ -438,14 +415,12 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
         if os.path.isfile(extraImagePath + ".png"):
             def takeScreenshotWrapper(savePath):
                 ocf.Wr.ScreenshotCalls.takeScreenshot(savePath)
-                wv.UItkVariables.needRebuild.set(True)
             
             wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
                                             takeScreenshotWrapper, 
                                             extraImagePath + ".png")
         else:
             ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePath)
-            wv.UItkVariables.needRebuild.set(True)
 
         tff.Wr.TexFileModify.addExtraImage(currImID, extraImagePath)
         

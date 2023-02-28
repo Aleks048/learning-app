@@ -9,6 +9,8 @@ import file_system.paths as p
 import _utils._utils_main as _u
 import _utils.logging as log
 
+import file_system.file_system_manager as fsm
+
 class SectionInfoStructure:
     '''
     Structure to store sections and .tex files and images
@@ -184,6 +186,11 @@ class SectionInfoStructure:
 
 
 class SectionCurrent:
+    def getSubsectionsListForCurrTopSection():
+        currSectionPath = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currTopSection_ID)
+        childrensList = fsm.getSubsectionsList(currSectionPath)
+        return childrensList
+
     @classmethod
     def getSectionPdfName(cls):
         return cls.getSectionNameWprefix() + "_" + "main.pdf"
