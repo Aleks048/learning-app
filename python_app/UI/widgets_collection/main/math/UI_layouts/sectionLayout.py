@@ -385,7 +385,10 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
             return self.getData()
     
     def bindCmd(self):
-        return [ww.currUIImpl.Data.BindID.enter] , [lambda _: self.notify(TargetImageLinks_OM, self.getData())]
+        def __cmd(event, *args):
+            if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
+                lambda _: self.notify(TargetImageLinks_OM, self.getData())
+        return [ww.currUIImpl.Data.BindID.allKeys] , [__cmd]
 
 
 class ChangeSubsection_BTN(ww.currUIImpl.Button):

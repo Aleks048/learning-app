@@ -82,8 +82,10 @@ class TkWidgets (DataTranslatable_Interface):
         class BindID:
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
-            enter = "<Return>"
-            escape = "<Escape>"
+            allKeys = "<Key>"
+            class Keys:
+                enter = "Return"
+                escape = "Escape"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
@@ -143,7 +145,10 @@ class TkWidgets (DataTranslatable_Interface):
                 for i in range(len(keys)):
                     key = keys[i]
                     cmd = cmds[i]
-                    self.widgetObj.bind(key, cmd)
+                    if key == TkWidgets.Data.BindID.allKeys:
+                        self.widgetObj.bind_all(key, lambda event: cmd(event))
+                    else:
+                        self.widgetObj.bind(key, lambda *args: cmd())
         
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
@@ -415,11 +420,15 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
             Notifyable_Interface.__init__(self)
 
-            super().bind()
+            self.bind()
         
         def changeText(self, newText):
             self.text = newText
             self.widjetObj.configure(text=newText)
+        
+        def bind(self):
+            self.widgetObj.focus_set()
+            return super().bind()
 
     
     class RootWidget(BindableWidget_Interface_Impl,

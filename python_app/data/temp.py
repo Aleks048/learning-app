@@ -21,9 +21,8 @@ class ClassAttNotAccessibleType(type):
         if dpType == None:
             return self.data
         else:
-            for dp in self.data:
-                log.autolog(dpType)
-                log.autolog(dp.__class__.__bases__)
+            data = self.data
+            for dp in data:
                 if dpType in dp.__class__.__bases__:
                     return dp
             raise KeyError
@@ -52,6 +51,9 @@ class AppState:
     
     class UIManagers(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         data = []
+    
+    class Wait(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        data = False
 
 class OtherAppsInfo:
     class VsCode:

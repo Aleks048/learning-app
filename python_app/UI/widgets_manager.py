@@ -64,6 +64,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
     def show(self):
         self.winRoot.render()
+        self.winRoot.widgetObj.focus_force()
         self.currLayout.show()
     
     def showOnly(self):

@@ -108,4 +108,11 @@ class MessageMenuManager(wm.MenuManager_Interface):
     def show(self, text):
         self.currLayout.setProps(text)
         return super().show()
+    
+    def showOnly(self, text):
+        self.hideAllWidgets()
+        return self.show(text)
+    
+    def hide(self):
+        return super().hide()
         

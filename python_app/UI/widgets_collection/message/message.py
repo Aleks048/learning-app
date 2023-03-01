@@ -6,6 +6,8 @@ import data.temp as dt
 
 import UI.widgets_collection.message.manager as mesm
 
+import _utils.logging as log
+
 class Message_LBL(ww.currUIImpl.Label,
                   dc.AppCurrDataAccessToken):
     def __init__(self, parentWidget, prefix):
@@ -29,11 +31,17 @@ class Message_LBL(ww.currUIImpl.Label,
                         text = text)
 
     def bindCmd(self):
-        return None, None
-        # keys = [ww.currUIImpl.Data.BindID.enter, ww.currUIImpl.Data.BindID.escape]
-        # messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-        #                                                 mesm.MessageMenuManager)
-        # cmds = [messageManager.stopMainLoop, messageManager.stopMainLoop]
+        keys = [ww.currUIImpl.Data.BindID.allKeys]
+        def hideMessage(event):
+            if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter or \
+                event.keysym == ww.currUIImpl.Data.BindID.Keys.escape:
+
+                dt.AppState.Wait.setData(self.appCurrDataAccessToken, False)
+
+                messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mesm.MessageMenuManager)
+                messageManager.hide()
+        cmds = [hideMessage]
 
         return keys, cmds
 
