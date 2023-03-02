@@ -8,6 +8,71 @@ import UI.widgets_collection.message.manager as mesm
 
 import _utils.logging as log
 
+
+class Decline_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        text = "No"
+        name = "_decline_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mesm.MessageMenuManager)
+        messageManager.stopWait(False)
+        messageManager.hide()
+    
+    def bindCmd(self):
+        keys = [ww.currUIImpl.Data.BindID.allKeys]
+        def _bindCmd(event):
+            if event.keysym == ww.currUIImpl.Data.BindID.Keys.escape:
+                self.cmd()
+        cmds = [_bindCmd]
+
+        return keys, cmds
+class Confirm_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        text = "Yes"
+        name = "_confirm_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        self.hideMessageWin()
+
+    def hideMessageWin(self):
+        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mesm.MessageMenuManager)
+        messageManager.stopWait(True)
+        messageManager.hide()
+    
+    def bindCmd(self):
+        keys = [ww.currUIImpl.Data.BindID.allKeys]
+        def _bindCmd(event):
+            if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
+                self.cmd()
+        cmds = [_bindCmd]
+
+        return keys, cmds
+
 class Message_LBL(ww.currUIImpl.Label,
                   dc.AppCurrDataAccessToken):
     def __init__(self, parentWidget, prefix):
@@ -40,6 +105,8 @@ class Message_LBL(ww.currUIImpl.Label,
 
                 messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                             mesm.MessageMenuManager)
+                
+                messageManager.stopWait()
                 messageManager.hide()
         cmds = [hideMessage]
 

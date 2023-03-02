@@ -1,7 +1,5 @@
 import os
 import tkinter as tk
-import time
-from threading import Thread
 from threading import Lock
 
 import UI.widgets_data as wd
@@ -48,13 +46,10 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
         _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
         lm.Wr.MainLayout.set()
 
-        def _showMag():
-            messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mesm.MessageMenuManager)
-            _dummyWait = messageManager.show("gotcha")
-        thread = Thread(target = _showMag)
-        thread.start()
-        
+        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mesm.MessageMenuManager)
+        response = messageManager.show("gotcha", True)
+
         mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mmm.MathMenuManager)
         mainMathManager.show()

@@ -1,4 +1,3 @@
-import tkinter as tk
 
 import file_system.file_system_manager as fsm
 import layouts.layouts_manager as lm
@@ -17,5 +16,6 @@ messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
 mainMenuManager = wf.Wr.MenuManagers.MainMenuManager()
 startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
 startupMenuManager.showOnly()
+
 wf.Wr.WidgetWrappers.startLoop()
 

@@ -432,7 +432,8 @@ class TkWidgets (DataTranslatable_Interface):
 
     
     class RootWidget(BindableWidget_Interface_Impl,
-                     RenderableWidget_Interface_Impl):
+                     RenderableWidget_Interface_Impl,
+                     DataContainer_Interface_Impl):
         def __init__(self, 
                      width, 
                      height,
@@ -441,6 +442,8 @@ class TkWidgets (DataTranslatable_Interface):
             self.tk = TkWidgets.Data.tk
             self.tk.geometry(str(width) + "x" + str(height))
             self.widgetObj = tk.Toplevel(self.tk)
+            
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = self.widgetObj)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj, bindCmd = bindCmd, renderData = self.renderData)
@@ -474,6 +477,12 @@ class TkWidgets (DataTranslatable_Interface):
         
         def render(self, widjetObj=None, renderData={}, **kwargs):
             self.widgetObj.deiconify()
+        
+        def wait(self):
+            self.widgetObj.wait_variable(self.getDataObject())
+        
+        def stopWait(self, response = False):
+            self.setData(response)
     
     def startLoop():
         TkWidgets.Data.tk.mainloop()

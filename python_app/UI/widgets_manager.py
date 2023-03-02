@@ -52,6 +52,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         self.hideAllWidgets()
         for layout in self.layouts:
             if type(layout) == toLayoutType:
+                self.currLayout = layout
                 layout.show()
                 return
         raise KeyError
@@ -85,8 +86,6 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
             UIManager.hide()
 
     def startManager(self):
-        self.show()
-        # self.startMainLoop()
         self.show()
 
 
