@@ -1,6 +1,6 @@
 import os
 
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
 import tex_file.tex_file_create as tc
 import data.constants as d
 import _utils.logging as log

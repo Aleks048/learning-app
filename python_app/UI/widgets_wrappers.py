@@ -427,7 +427,6 @@ class TkWidgets (DataTranslatable_Interface):
             self.widjetObj.configure(text=newText)
         
         def bind(self):
-            self.widgetObj.focus_set()
             return super().bind()
 
     

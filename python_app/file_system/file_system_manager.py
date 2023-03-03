@@ -7,74 +7,6 @@ import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
 import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
-import file_system.paths as p
-import file_system.links as l
-import file_system._utils as fsu
-
-'''
-Facade for Filesystem
-'''
-
-class Data:
-    pass
-
-class Wr:
-    class BookInfoStructure(bfs.BookInfoStructure):
-        pass
-
-    class SectionInfoStructure(sfs.SectionInfoStructure):
-        pass
-    
-    class SectionCurrent(sfs.SectionCurrent):
-        pass
-
-    class TOCStructure(tocfs.TOCStructure):
-        pass
-
-    class OriginalMaterialStructure(omfs.OriginalMaterialStructure):
-        pass
-
-    class Paths:
-        class OriginalMaterial(p.Paths.OriginalMaterial):
-            pass
-        
-        class Screenshot(p.Paths.Screenshot):
-            pass
-        
-
-        class Section(p.Paths.Section):
-            pass
-
-        class TexFiles(p.Paths.TexFiles):
-            pass
-        
-        class PDF(p.Paths.PDF):
-            pass
-
-
-    class Links:
-        class LinkDict(l.LinkDict):
-            pass
-
-        class ImIDX(l.ImIDX):
-            pass
-
-        class ImLink(l.ImLink):
-            pass
-
-    class Utils(fsu.Utils):
-        pass
-
-
-class PropIDs:
-    class Sec(sfs.SectionInfoStructure.PubProp):
-        pass
-
-    class Book(bfs.BookInfoStructure.PubProp):
-        pass
-
-    class TOC(tocfs.TOCStructure.PubPro):
-        pass
 
 
 def createNewBook(bookName):
@@ -137,49 +69,8 @@ def updateSectionTOCText(sectionPath, newValue):
     _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.text_ID, newValue)
 
 def updateSectionProperty(sectionPath, propertyName, newValue):
-    log.autolog(propertyName)
+    log.autolog("Updating: " + propertyName)
     sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
-
-def getSubsectionsList(sectionPath = ""):
-    if sectionPath == _u.Token.NotDef.str_t:
-        return _u.Token.NotDef.list_t
-
-    sections_ID = bfs.BookInfoStructure.PubProp.sections_ID
-    outSubsectionsList = []
-    
-    if sectionPath == _u.Token.NotDef.str_t:
-        return []
-
-    if sectionPath == "":
-        subsections = bfs.BookInfoStructure.readProperty(sections_ID)
-    else:
-        subsections = bfs.BookInfoStructure.readProperty(sectionPath)[sections_ID]
-
-    subsectionsNamesList = list(subsections.keys())
-    subsectionsList = list(subsections.values())
-    while subsectionsList != []:
-        section = subsectionsList[0]
-        sectionName = subsectionsNamesList[0]
-
-        bottomSubsection = True
-        for subSecName, subSec in section[sections_ID].items():
-            bottomSubsection = False
-            subsectionsList.append(subSec)
-            subsectionsNamesList.append(subSecName)
-        
-        if bottomSubsection:
-            outSubsectionsList.append(sectionName)
-        
-        subsectionsList.pop(0)
-        subsectionsNamesList.pop(0)
-    
-    return outSubsectionsList
-    
-def getTopSectionsList():
-    sections = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_ID)
-    if sections == {}:
-        return _u.Token.NotDef.list_t
-    return list(sections.keys())
 
 def removeSection():
     # # remove to Sections structure

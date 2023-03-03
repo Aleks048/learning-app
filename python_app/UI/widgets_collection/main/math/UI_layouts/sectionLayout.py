@@ -4,14 +4,17 @@ import subprocess
 
 import UI.widgets_wrappers as ww
 import UI.widgets_messages as wmes
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
 import _utils.logging as log
 import tex_file.tex_file_facade as tff
 import scripts.osascripts as oscr
 import data.temp as dt
+import data.constants as dc
 
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 
+import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_collection.main.math.manager as mmm
 import layouts.layouts_manager as lm
@@ -210,9 +213,9 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
         }
         name = "_GlLink_TargetSubsection_OM"
 
-        topSectionsList = fsm.getTopSectionsList()
+        topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
         topSectionsList.sort(key = int)
-        self.subsectionsList = fsm.getSubsectionsList(topSectionsList[0])
+        self.subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(topSectionsList[0])
 
         super().__init__(prefix, 
                         name, 
@@ -228,7 +231,7 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
     
     def receiveNotification(self, broadcasterType, data = None):
         if broadcasterType == TargetTopSection_OM:
-            subsectionsList = fsm.getSubsectionsList(data)
+            subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(data)
             subsectionsList.sort()
             self.updateOptions(subsectionsList)
             sectiopPath =  self.getData()
@@ -246,7 +249,7 @@ class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
         }
         name = "_GlLink_TargetTopSection_OM"
 
-        self.topSectionsList = fsm.getTopSectionsList()
+        self.topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
 
         super().__init__(prefix, 
                         name, 
@@ -288,11 +291,11 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         sourceLinkName = self.notify(SourceImageLinks_OM)
         sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
-        sourceSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, sourceSectionPath)
-        sourceContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
-        sourceMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
+        sourceSectionFilepath = _upan.Paths.Section.getAbs(bookPath, sourceSectionPath)
+        sourceContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
+        sourceMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
         # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
-        sourcePDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
+        sourcePDFFilepath = _upan.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
         sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
         
         wholeLinkPath = self.notify(AddGlobalLink_ETR).split(".")
@@ -300,11 +303,11 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
         targetLinkName = wholeLinkPath[-1]
         targetIDX = fsm.Wr.Links.LinkDict.get(targetSectionPath)[targetLinkName]
-        targetSectionFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, targetSectionPath)
-        targetContentFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
-        targetMainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
+        targetSectionFilepath = _upan.Paths.Section.getAbs(bookPath, targetSectionPath)
+        targetContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
+        targetMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
         # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
-        targetPDFFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
+        targetPDFFilepath = _upan.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
         targetPDFFilename = targetPDFFilepath.split("/")[-1]
 
         #
@@ -312,11 +315,11 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         #
 
         sectionInfo = fsm.Wr.BookInfoStructure.readProperty(targetSectionPath)
-        if sectionInfo == None:
-            msg = "The path: '" + targetSectionPath + "' does not exist"
-            log.autolog(msg)
-            wmes.MessageMenu.createMenu(msg)
-            return
+        # if sectionInfo == None:
+        #     msg = "The path: '" + targetSectionPath + "' does not exist"
+        #     log.autolog(msg)
+        #     wmes.MessageMenu.createMenu(msg)
+        #     return
         
         topSection = targetSectionPath.split(".")[0]
         subsection = ".".join(targetSectionPath.split(".")[1:])
@@ -341,12 +344,8 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         #
         # rebuild the pdfs
         #
-        tff.Wr.TexFile.buildSubsectionPdf(sourceSectionFilepath,
-                                        sourceMainFilepath,
-                                        sourceSectionNameWprefix)
-        tff.Wr.TexFile.buildSubsectionPdf(targetSectionFilepath,
-                                        targetMainFilepath,
-                                        targetSectionNameWprefix)
+        ocf.Wr.LatexCalls.buildSubsectionPdf(sourceSubection, bookName)
+        ocf.Wr.LatexCalls.buildSubsectionPdf(subsection, bookName)
 
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):

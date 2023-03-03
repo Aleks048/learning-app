@@ -8,7 +8,7 @@ import _utils._utils_main as _u
 import _utils.logging as log
 import UI.widgets_facade as wm
 import tex_file.tex_file_facade as tm
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
 import data.temp as dt
 import scripts.osascripts as oscr
 

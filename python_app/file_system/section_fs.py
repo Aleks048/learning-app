@@ -5,8 +5,8 @@ import file_system.book_fs as bfs
 import file_system.toc_fs as tocfs
 import file_system._utils as _ufs
 import file_system.links as l
-import file_system.paths as p
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 import _utils.logging as log
 
 import file_system.file_system_manager as fsm
@@ -188,7 +188,7 @@ class SectionInfoStructure:
 class SectionCurrent:
     def getSubsectionsListForCurrTopSection():
         currSectionPath = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currTopSection_ID)
-        childrensList = fsm.getSubsectionsList(currSectionPath)
+        childrensList = bfs.BookInfoStructure.getSubsectionsList(currSectionPath)
         return childrensList
 
     @classmethod
@@ -205,23 +205,20 @@ class SectionCurrent:
 
     @classmethod
     def getSectionNameNoPrefix(cls):
-        currSection = cls.readCurrSection()
+        currSection = _upan.Current.Names.Section.name()
         return currSection
 
     @classmethod
     def getImIDX(cls):
-        currSectionPath = cls.readCurrSection()
+        currSectionPath = _upan.Current.Names.Section.name()
         return l.ImIDX.get(currSectionPath)
 
     @classmethod
     def getCurrLinkIdxDict(cls):
-        currSectionPath = cls.readCurrSection()
+        currSectionPath = _upan.Current.Names.Section.name()
         return l.LinkDict.get(currSectionPath)
 
     @classmethod
     def setImLinkAndIDX(cls, linkName, imIDX):
-        currSectionPath = cls.readCurrSection()
+        currSectionPath = _upan.Current.Names.Section.name()
         l.LinkDict.set(currSectionPath, linkName, imIDX)
-
-    def readCurrSection():
-        return bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currSection_ID)

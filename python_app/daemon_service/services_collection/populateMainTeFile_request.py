@@ -1,6 +1,6 @@
 import tex_file.tex_file_facade as tff
 import outside_calls.latex_calls as lc
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
 import shutil
 import _utils.logging as log

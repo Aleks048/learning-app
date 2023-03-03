@@ -1,11 +1,12 @@
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import file_system.section_fs as sfs
 
 class ImIDX:
     @classmethod
     def get_curr(cls):
-        currSec = sfs.SectionCurrent.readCurrSection()
+        currSec = _upan.Current.Names.Section.name()
         return cls.get(currSec)
     def get(secPath):
         d = LinkDict.get(secPath)

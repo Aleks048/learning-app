@@ -3,7 +3,8 @@ import subprocess
 
 import _utils._utils_main as _u
 
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
+import outside_calls.outside_calls_facade as ocf
 import _utils.logging as log
 
 
@@ -190,23 +191,4 @@ class TexFile:
             for line in outFileList:
                 outFile.write(line)
 
-    @classmethod 
-    def buildCurrentSubsectionPdf(cls):
-        currTexFilesFolder = fsm.Wr.Paths.Section.getAbs_curr()
-        currTexMainFile = fsm.Wr.Paths.TexFiles.Content.getAbs_curr()
-        currSectionNameWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
-        
-        # wm.Data.UItkVariables.needRebuild.set(False)
-        return cls.buildSubsectionPdf(currTexFilesFolder, currTexMainFile, currSectionNameWPrefix)
-    
-    def buildSubsectionPdf(sectionFolder, mainTexFilepath, sectionNameWprefix):
-        log.autolog("build: " + mainTexFilepath)
-        
-        # NOTE: we add "_con.tex" to comply with what is called when the file is saved
-        cmd = "echo 3 | ${BOOKS_ON_FILE_SAVE_PATH}/s_onTexFileSave.sh" \
-                            " " + mainTexFilepath + \
-                            " " + sectionFolder + \
-                            " " + sectionNameWprefix + "_con.tex > /dev/null 2>&1"
-        
-        subprocess.check_output(cmd, shell=True)
-        return True
+

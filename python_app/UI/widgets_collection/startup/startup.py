@@ -5,7 +5,7 @@ from threading import Lock
 import UI.widgets_data as wd
 import UI.widgets_messages as wmes
 
-import file_system.file_system_manager as fsm
+import file_system.file_system_facade as fsm
 
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -45,10 +45,6 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
 
         _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
         lm.Wr.MainLayout.set()
-
-        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mesm.MessageMenuManager)
-        response = messageManager.show("gotcha", True)
 
         mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mmm.MathMenuManager)

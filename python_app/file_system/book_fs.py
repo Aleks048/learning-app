@@ -134,4 +134,48 @@ class BookInfoStructure:
     @classmethod
     def updateProperty(cls, propertyName, newValue):
         _u.JSON.updateProperty(cls._getAsbFilepath(), propertyName, newValue)
+        
+    @classmethod      
+    def getSubsectionsList(cls, sectionPath = ""):
+        if sectionPath == _u.Token.NotDef.str_t:
+            return _u.Token.NotDef.list_t
+
+        sections_ID = cls.PubProp.sections_ID
+        outSubsectionsList = []
+        
+        if sectionPath == _u.Token.NotDef.str_t:
+            return []
+
+        if sectionPath == "":
+            subsections = cls.readProperty(sections_ID)
+        else:
+            subsections = cls.readProperty(sectionPath)[sections_ID]
+
+        subsectionsNamesList = list(subsections.keys())
+        subsectionsList = list(subsections.values())
+        while subsectionsList != []:
+            section = subsectionsList[0]
+            sectionName = subsectionsNamesList[0]
+
+            bottomSubsection = True
+            for subSecName, subSec in section[sections_ID].items():
+                bottomSubsection = False
+                subsectionsList.append(subSec)
+                subsectionsNamesList.append(subSecName)
+            
+            if bottomSubsection:
+                outSubsectionsList.append(sectionName)
+            
+            subsectionsList.pop(0)
+            subsectionsNamesList.pop(0)
+        
+        return outSubsectionsList
+
+    @classmethod 
+    def getTopSectionsList(cls):
+        sections =cls.readProperty(cls.PubProp.sections_ID)
+        if sections == {}:
+            return _u.Token.NotDef.list_t
+        return list(sections.keys())
+
 

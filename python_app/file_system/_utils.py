@@ -5,7 +5,7 @@ import _utils.logging as log
 import file_system.book_fs as bfs
 import file_system.section_fs as sfs
 import file_system.origmaterial_fs as omfs
-import file_system.paths as p
+import _utils.pathsAndNames as p
 
 
 class Utils:
