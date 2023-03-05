@@ -110,6 +110,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
         topSectionsList.sort(key = int)
+        
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
 

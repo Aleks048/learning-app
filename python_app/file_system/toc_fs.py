@@ -5,6 +5,8 @@ import file_system.book_fs as bfs
 import file_system.section_fs as sfs
 import _utils._utils_main as _u
 
+import settings.facade as sf
+
 class TOCStructure:
     '''
     Keeps the toc for the sections and links to them.
@@ -118,8 +120,8 @@ class TOCStructure:
                     cls._getTOCLines(section, outLines, level +1)
     
     def _getTOCDirPath():
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-        return bookPath + bfs.BookInfoStructure.TOCbaseRelPath
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        return os.path.join(bookPath, bfs.BookInfoStructure.TOCbaseRelPath)
 
     @classmethod
     def _getTOCFilePath(cls, topSectionName):

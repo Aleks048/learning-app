@@ -1,11 +1,8 @@
 import os
 import tkinter as tk
-from threading import Lock
 
 import UI.widgets_data as wd
-import UI.widgets_messages as wmes
-
-import file_system.file_system_facade as fsm
+import file_system.file_system_facade as fsf
 
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -20,6 +17,9 @@ import layouts.layouts_manager as lm
 import data.constants as dc
 import data.temp as dt
 
+import settings.facade as sf
+
+import generalManger.generalManger as gm
 
 class StartupConfirm_BTN(ww.currUIImpl.Button,
                          dc.AppCurrDataAccessToken):
@@ -38,19 +38,21 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
+        # hide startup UI layout
         startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         stm.StartupMenuManager)
         startupManager.hide()
         
-
-        _u.Settings.updateProperty(_u.Settings.PubProp.currLayout_ID, "Main")
+        # show 3rd party main layout
         lm.Wr.MainLayout.set()
 
+        # show UI main layout
         mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mmm.MathMenuManager)
         mainMathManager.show()
 
-class AddBook_BTN(ww.currUIImpl.Button):
+class AddBook_BTN(ww.currUIImpl.Button,
+                  dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 6},
@@ -67,36 +69,18 @@ class AddBook_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
+        # get the data from the ETRs
         bookPath = self.notify(StrtupBookLocation_ETR)
         bookName = self.notify(StrtupBookName_ETR)
         originalMaterialLocation = self.notify(StrtupOriginalMaterialLocation_ETR)
-        originalMaterialName = self.notify(StrtupOriginalMaterialName_ETR)
+        originalMaterialRelPath = self.notify(StrtupOriginalMaterialRelPath_ETR)
 
-        # create a directory
-        try:
-            os.makedirs(bookPath)
-        except:
-            message = "Could not create a filepath for new book: " + bookPath
-            log.autolog(message)
-            wmes.MessageMenu.createMenu(message)
-            return
-        
-        # update settings
-        _u.Settings.Book.addNewBook(bookName, bookPath)
-        # set as current book
-        _u.Settings.Book.setCurrentBook(bookName, bookPath)
+        gm.GeneralManger.AddNewBook(bookName, 
+                                    bookPath,
+                                    originalMaterialLocation,
+                                    originalMaterialRelPath)
 
-        # create structures
-        fsm.Wr.BookInfoStructure.createStructure()
-        fsm.Wr.SectionInfoStructure.createStructure()
-        fsm.Wr.TOCStructure.createStructure()
-        fsm.Wr.OriginalMaterialStructure.createStructure()
-
-        # add original material
-        fsm.Wr.OriginalMaterialStructure.addOriginalMaterial(originalMaterialName, 
-                                                            originalMaterialLocation, 
-                                                            "")
-
+        # update choosing book OM
         self.notify(ChooseStartupBook_OM)
 
 class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
@@ -107,7 +91,7 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_chooseBook_optionMenu"
-        self.listOfBooksNames = list(_u.getListOfBooks())
+        self.listOfBooksNames = list(sf.Wr.Manager.Book.getListOfBooksNames())
 
         super().__init__(prefix = prefix, 
                         name =name, 
@@ -120,14 +104,18 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         bookName = self.getData()
-        bookPath = _u.Settings.Book.getPathFromName(bookName)
-        _u.Settings.Book.setCurrentBook(bookName, bookPath)
+        bookPath = sf.Wr.Manager.Book.getPathFromName(bookName)
+        sf.Wr.Manager.Book.setCurrentBook(bookName, bookPath)
         
         self.notifyAllListeners()
     
     def receiveNotification(self, _):
-        booksNames = list(_u.getListOfBooks()) 
+        booksNames = list(sf.Wr.Manager.Book.getListOfBooksNames()) 
         self.updateOptions(booksNames)
+
+'''
+next 4 ETRs are containers for data from the user
+'''
 
 class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
 
@@ -183,7 +171,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
     def receiveNotification(self, _):
         return self.getData()
 
-class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
+class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
 
     def __init__(self, patentWidget, prefix):
         renderData = {

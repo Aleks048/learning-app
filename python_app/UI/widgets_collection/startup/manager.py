@@ -24,8 +24,8 @@ class StartupLayout(wm.MenuLayout_Interface):
         self.addWidget(bookName_ETR)
         bookLocation_ETR = sw.StrtupBookLocation_ETR(winRoot, self.prefix)
         self.addWidget(bookLocation_ETR)
-        originalMaterialName_ETR = sw.StrtupOriginalMaterialName_ETR(winRoot, self.prefix)
-        self.addWidget(originalMaterialName_ETR)
+        originalMaterialRelPath_ETR = sw.StrtupOriginalMaterialRelPath_ETR(winRoot, self.prefix)
+        self.addWidget(originalMaterialRelPath_ETR)
         originalMaterialLocation_ETR = sw.StrtupOriginalMaterialLocation_ETR(winRoot, self.prefix)
         self.addWidget(originalMaterialLocation_ETR)
 
@@ -33,7 +33,7 @@ class StartupLayout(wm.MenuLayout_Interface):
         addbook_BTN.addListenerWidget(books_OM)
         addbook_BTN.addListenerWidget(bookName_ETR)
         addbook_BTN.addListenerWidget(bookLocation_ETR)
-        addbook_BTN.addListenerWidget(originalMaterialName_ETR)
+        addbook_BTN.addListenerWidget(originalMaterialRelPath_ETR)
         addbook_BTN.addListenerWidget(originalMaterialLocation_ETR)
         self.addWidget(addbook_BTN)
 

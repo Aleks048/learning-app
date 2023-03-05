@@ -4,6 +4,8 @@ import _utils._utils_main as _u
 import _utils.logging as log
 
 import file_system.file_system_facade as fsm
+import settings.facade as sf
+
 
 class Paths:
     class OriginalMaterial:
@@ -17,16 +19,16 @@ class Paths:
 
             @classmethod
             def getCurrAbs(cls):
-               bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+               bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                return cls.getAbs(bookPath)
                 
         
         def getAbs(bookPath):
-            os.path.join(bookPath, fsm.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
+            return os.path.join(bookPath, fsm.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
 
         @classmethod        
         def getCurrAbs(cls):
-            bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
             return cls.getAbs(bookPath)
     
     class Section:
@@ -66,7 +68,6 @@ class Paths:
     
     class TexFiles:
         class Output:
-
             def getAbs(bookPath, secName):
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), "_out")
             
@@ -76,7 +77,6 @@ class Paths:
 
 
         class Content:
-
             def getAbs(bookPath, secName):
                 return os.path.join(Paths.Section.getAbs(bookPath, secName), 
                                     secName + "_con.tex")
@@ -115,7 +115,7 @@ class Current:
         class Screenshot:
             def abs():
                 currSubsection =Current.Names.Section.name_wPrefix()
-                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 return  Paths.Section.getAbs(currBookPath, currSubsection)
 
             def rel():
@@ -144,20 +144,20 @@ class Current:
             class Output:
                 def abs():
                     currSubsection = Current.Names.Section.name_wPrefix()
-                    currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     return Paths.TexFiles.Output.getAbs(currBookPath, currSubsection)
             
                 class PDF:
                     def abs():
                         currSubsection = Current.Names.Section.name_wPrefix()
-                        currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                         return Paths.TexFiles.Output.PDF.getAbs(currBookPath, currSubsection)
 
 
             class Content:
                 def abs():
                     currSubsection =Current.Names.Section.name_wPrefix()
-                    currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     return Paths.TexFiles.Content.getAbs(currBookPath, currSubsection)
             
 
@@ -165,21 +165,21 @@ class Current:
             class TOC:
                 def abs():
                     currSubsection = Current.Names.Section.name_wPrefix()
-                    currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     return Paths.TexFiles.TOC.getAbs(currBookPath, currSubsection)
             
             
             class Main: 
                 def abs():
                     currSubsection =Current.Names.Section.name_wPrefix()
-                    currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     return Paths.TexFiles.Main.getAbs(currBookPath, currSubsection)
 
 
         class PDF:
             def abs(cls):
                 currSubsection = Current.Names.Section.name_wPrefix()
-                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 return Paths.PDF.getAbs(currBookPath, currSubsection) 
 
 
@@ -187,7 +187,7 @@ class Current:
         class Book:            
             def name(filepath = _u.Token.NotDef.str_t):
                 if filepath != _u.Token.NotDef.str_t:
-                    bookPaths = _u.Settings.readProperty(_u.Settings.PubProp.booksPaths_ID)
+                    bookPaths = sf.Wr.Manager.Book.getListOfBooksPaths()
                     for n,p in bookPaths.items():
                         if p in filepath:
                             return n

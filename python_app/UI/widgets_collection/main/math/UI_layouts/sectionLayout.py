@@ -3,7 +3,6 @@ from threading import Thread
 import subprocess
 
 import UI.widgets_wrappers as ww
-import UI.widgets_messages as wmes
 import file_system.file_system_facade as fsm
 import _utils.logging as log
 import tex_file.tex_file_facade as tff

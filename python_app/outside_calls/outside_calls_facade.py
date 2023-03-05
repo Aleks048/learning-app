@@ -11,7 +11,7 @@ class Wr:
     class LatexCalls(lc.currLatecDistro):
         pass
    
-    class fsAppCalls(fc.currFilesystemApp):
+    class FsAppCalls(fc.currFilesystemApp):
         pass
 
     class IdeCalls(idec.currIdeApp):

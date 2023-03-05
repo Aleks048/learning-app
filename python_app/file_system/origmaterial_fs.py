@@ -5,6 +5,8 @@ import _utils.logging as log
 import file_system.book_fs as bfs
 import _utils.pathsAndNames as _upn
 
+import outside_calls.outside_calls_facade as ocf
+import settings.facade as sf
 
 class OriginalMaterialStructure:
     '''
@@ -15,30 +17,31 @@ class OriginalMaterialStructure:
     
     @classmethod
     def createStructure(cls):
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-        getAbsPath = _upn.Paths.OriginalMaterial.getAbs(bookPath)
-        if not os.path.exists(getAbsPath):   
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        origMatAbsPath = _upn.Paths.OriginalMaterial.getAbs(bookPath)
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath):   
             log.autolog("The structure was not present. Will create it.")
-            log.autolog("Creating path: " + getAbsPath)
-            _waitDummy = os.makedirs(getAbsPath)
+            log.autolog("Creating path: '{0}'".format(origMatAbsPath))
+            ocf.Wr.FsAppCalls.createFile(origMatAbsPath)
     
     @classmethod
-    def addOriginalMaterial(cls, name, filePath, structureRelPath):
-        log.autolog("Adding material: '" + name + "' to rel path: " + structureRelPath)
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+    def addOriginalMaterial(cls, filePath, structureRelPath):
+        log.autolog("Adding material: '{0}' to rel path: '{1}'".format(structureRelPath, structureRelPath))
+        
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         basePath =  _upn.Paths.OriginalMaterial.getAbs(bookPath)
         originnalMaterialDestinationPath = os.path.join(basePath, structureRelPath)
-        log.autolog(originnalMaterialDestinationPath)
-        if not os.path.exists(originnalMaterialDestinationPath):   
-            log.autolog("Path '" 
-                        + originnalMaterialDestinationPath 
-                        + "'does not exist will create it")
-            _waitDummy = os.makedirs(originnalMaterialDestinationPath)
+
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(originnalMaterialDestinationPath):   
+            log.autolog("Path '{0}' does not exist. Will create it.".format(originnalMaterialDestinationPath))
+            createdFile = ocf.Wr.FsAppCalls.createFile(originnalMaterialDestinationPath)
+            if not createdFile:
+                return False
         
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.originalMaterialRelPath_ID,
                                             structureRelPath)
-
-        cmd = "cp " + filePath + " " + os.path.join(originnalMaterialDestinationPath) 
-        log.autolog("Exacuting command: '" + cmd + "'")
-        os.system(cmd)
+         
+        
+        log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
+        ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
     

@@ -6,6 +6,7 @@ import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
 import file_system._utils as fsu
 import file_system.links as l
+import file_system.file_system_manager as fsm
 
 '''
 Facade for Filesystem
@@ -15,6 +16,9 @@ class Data:
     pass
 
 class Wr:
+    class FileSystemManager(fsm.FileSystemManager):
+        pass
+    
     class BookInfoStructure(bfs.BookInfoStructure):
         pass
 

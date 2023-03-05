@@ -8,37 +8,50 @@ import file_system.section_fs as sfs
 import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
 
+import outside_calls.outside_calls_facade as ocf
 
-def createNewBook(bookName):
-    # check if a book with name exists and ask
-    # if we want to delete and proceed
-    booksPath = _u.getPathToBooks()
-    bookPath = os.path.join(booksPath, bookName)
+import settings.facade as sf
 
-    if os.path.exists(bookPath):
-        print("createNewBook - the book path exists")
-        print("bookPath:" + bookPath)
-        # TODO: ask the user we we should proceed.
-        raise
 
-    os.system("mkdir -p " + bookPath)
+class FileSystemManager:
+    def addNewBook(bookName, bookPathDir):
+        # check if a book with name exists and ask
+        # if we want to delete and proceed
+        # booksPath = _u.getPathToBooks()
+        # bookPath = os.path.join(booksPath, bookName)
 
-    #set the current book in Settings
-    _u.Settings.Book.addNewBook(bookName, bookPath)
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(bookPathDir):
+            log.autolog("The book at path '{0}' already exists!".format(bookPathDir))
+            # TODO: ask the user we we should proceed.
+            return False
 
-    #
-    #create bookInfo structure
-    #
-    bfs.BookInfoStructure.createStructure()
+        log.autolog(bookPathDir)
+        ocf.Wr.FsAppCalls.createFile(bookPathDir)
 
-    #create sections structure
-    sfs.SectionInfoStructure.createStructure()
+        #set the current book in Settings
+        sf.Wr.Manager.Book.addNewBook(bookName, bookPathDir)
 
-    #create TOCstructure
-    tocfs.TOCStructure.createStructure()
+        #
+        #create bookInfo structure
+        #
+        bfs.BookInfoStructure.createStructure()
 
-    # create originalMaterialStructure
-    omfs.OriginalMaterialStructure.createStructure()
+        #create sections structure
+        sfs.SectionInfoStructure.createStructure()
+
+        #create TOCstructure
+        tocfs.TOCStructure.createStructure()
+
+        # create originalMaterialStructure
+        omfs.OriginalMaterialStructure.createStructure()
+
+        return True
+
+
+    def addOriginalMaterial(pathToSourceFile, relStructurePath):
+        omfs.OriginalMaterialStructure.addOriginalMaterial(pathToSourceFile,
+                                                            relStructurePath)
+
 
 def addSectionForCurrBook(sectionPath):
     # add to Sections structure

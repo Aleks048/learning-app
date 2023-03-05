@@ -7,6 +7,8 @@ import file_system.section_fs as sfs
 import file_system.origmaterial_fs as omfs
 import _utils.pathsAndNames as p
 
+import settings.facade as sf
+
 
 class Utils:
     def getSectionNameWPrefix(fullSecName):
@@ -44,14 +46,6 @@ class Utils:
         subsection = separator.join(fullName[1:])
         return topSection, subsection
 
-@classmethod
-def getWholeBookPath(cls):
-    path = os.path.join(_u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID),
-                    omfs.OriginalMaterialStructure.originalMaterialBaseRelPath,
-                    _u.Settings.PubProp.wholeBook_ID + ".pdf")
-    return path
-
-
 
 def _getSectionFilepath(sectionPath):
     sectionPrefix = \
@@ -73,8 +67,7 @@ def _getSectionFilepath(sectionPath):
 
 
 def _getPathToSectionsFolder():
-    pathToSectionFolder = \
-        _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+    pathToSectionFolder = sf.Wr.Manager.Book.getCurrBookFolderPath()
     pathToSectionFolder = os.path.join(pathToSectionFolder, 
                                     bfs.BookInfoStructure.sectionsInfoBaseRelPath)
     return pathToSectionFolder

@@ -4,6 +4,8 @@ import json
 import _utils.logging as log
 import _utils._utils_main as _u
 
+import settings.facade as sf
+
 import file_system._utils as _ufs
 
 class BookInfoStructure:
@@ -124,7 +126,7 @@ class BookInfoStructure:
     
     @classmethod
     def _getAsbFilepath(cls):
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         return bookPath + cls._getRelFilepath()
 
     @classmethod
@@ -134,7 +136,7 @@ class BookInfoStructure:
     @classmethod
     def updateProperty(cls, propertyName, newValue):
         _u.JSON.updateProperty(cls._getAsbFilepath(), propertyName, newValue)
-        
+
     @classmethod      
     def getSubsectionsList(cls, sectionPath = ""):
         if sectionPath == _u.Token.NotDef.str_t:

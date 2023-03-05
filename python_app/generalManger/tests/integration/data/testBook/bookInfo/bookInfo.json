@@ -1,0 +1,15 @@
+{
+    "version": "0.1",
+    "sections_prefix": "sec",
+    "sections_path_separator": ".",
+    "originalMaterialRelPath": "main/test",
+    "sections": {},
+    "currentState": {
+        "currentPage": "",
+        "currSection": "",
+        "currTopSection": ""
+    },
+    "imageProp": {
+        "imageContentFileMoveLinesNumber": "0"
+    }
+}
