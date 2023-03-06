@@ -38,10 +38,10 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        # hide startup UI layout
-        startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        stm.StartupMenuManager)
-        startupManager.hide()
+        # # hide startup UI layout
+        # startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+        #                                                 stm.StartupMenuManager)
+        # startupManager.hide()
         
         # show 3rd party main layout
         lm.Wr.MainLayout.set()
@@ -49,7 +49,7 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
         # show UI main layout
         mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mmm.MathMenuManager)
-        mainMathManager.show()
+        mainMathManager.showOnly()
 
 class AddBook_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):

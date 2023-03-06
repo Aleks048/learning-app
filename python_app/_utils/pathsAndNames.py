@@ -3,7 +3,7 @@ import os
 import _utils._utils_main as _u
 import _utils.logging as log
 
-import file_system.file_system_facade as fsm
+import file_system.file_system_facade as fsf
 import settings.facade as sf
 
 
@@ -12,7 +12,7 @@ class Paths:
         class MainBook:
             def getAbs(bookPath):
                 originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
-                relMainBookPath = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.originalMaterialRelPath_ID)
+                relMainBookPath = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.originalMaterialRelPath_ID)
                 log.autolog(originalMaterialbasePath)
                 log.autolog(relMainBookPath)
                 return os.path.join(originalMaterialbasePath, relMainBookPath)
@@ -24,7 +24,7 @@ class Paths:
                 
         
         def getAbs(bookPath):
-            return os.path.join(bookPath, fsm.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
+            return os.path.join(bookPath, fsf.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
 
         @classmethod        
         def getCurrAbs(cls):
@@ -44,7 +44,7 @@ class Paths:
             if sec == _u.Token.NotDef.str_t:              
                 return ""
 
-            sectionsPathSeparator = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
+            sectionsPathSeparator = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.sections_path_separator_ID)
 
             pathList = sec.split(sectionsPathSeparator)
             
@@ -114,9 +114,9 @@ class Current:
         
         class Screenshot:
             def abs():
-                currSubsection =Current.Names.Section.name_wPrefix()
+                currSubsection = Current.Names.Section.name_wPrefix()
                 currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                return  Paths.Section.getAbs(currBookPath, currSubsection)
+                return  Paths.Screenshot.getAbs(currBookPath, currSubsection)
 
             def rel():
                 currSection = Current.Names.Section.name()
@@ -129,10 +129,10 @@ class Current:
                 '''
                 relPath = cls.rel()
 
-                currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-                name = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.name_ID)
-                startPage = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.startPage_ID)
-                currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+                currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+                name = fsf.Wr.SectionInfoStructure.readProperty(currSecName, fsf.PropIDs.Sec.name_ID)
+                startPage = fsf.Wr.SectionInfoStructure.readProperty(currSecName, fsf.PropIDs.Sec.startPage_ID)
+                currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
                 text = "Sec path: '{0}'. Name: '{1}'. St page: '{2}'.".format(currSecName, name, startPage)
 
@@ -197,12 +197,12 @@ class Current:
         class Section:
             @classmethod
             def name_wPrefix(cls, filepath = _u.Token.NotDef.str_t):
-                if filepath != _u.Token.NotDef.str_t:
-                    return filepath.split("/")[-2]
-                else:
-                    prefix = ""
-                    name = cls.name()
-                    return prefix + "_" + name
+                sectionPrefix = fsf.Wr.BookInfoStructure.readProperty(\
+                                        fsf.PropIDs.Book.sections_prefix_ID)
+                currSection = cls.name()
+                if currSection == _u.Token.NotDef.str_t:
+                    return _u.Token.NotDef.str_t
+                return sectionPrefix + "_" + currSection
 
             def name():
-                return fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currSection_ID)
+                return fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.currSection_ID)

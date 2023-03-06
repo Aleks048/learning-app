@@ -7,6 +7,7 @@ import layouts.layouts_utils as lu
 
 import _utils._utils_main as _u
 import _utils.logging as log
+import _utils.pathsAndNames as _upan
 # import UI.widgets_facade as wf
 import tex_file.tex_file_facade as tm
 import file_system.file_system_facade as fsm
@@ -15,6 +16,7 @@ import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oc
 
 import layouts.layouts_common as lc
+import settings.facade as sf
 
 class MainLayout(lc.Layout):
     layoutUInames = []
@@ -28,7 +30,7 @@ class MainLayout(lc.Layout):
         #       vscode/finder(with images folder) to the right
         '''
 
-        currSection = fsm.Wr.SectionCurrent.readCurrSection()
+        currSection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
 
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
@@ -58,17 +60,17 @@ class MainLayout(lc.Layout):
         #
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
-        origMaterialBookFSPath = fsm.Wr.Paths.OriginalMaterial.MainBook.getCurrAbs()
+        origMaterialBookFSPath = _upan.Paths.OriginalMaterial.MainBook.getCurrAbs()
         
         currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currentPage_ID)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, 
-                                                        _u.Settings.PubProp.wholeBook_ID + ".pdf")
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                        sf.Wr.Data.TokenIDs.Misc.wholeBook_ID + ".pdf")
         while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(_u.Settings._appsIDs.skim_ID, 
-                                                            _u.Settings.PubProp.wholeBook_ID + ".pdf")
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                            sf.Wr.Data.TokenIDs.Misc.wholeBook_ID + ".pdf")
             log.autolog("Opening skim...")
             sleep(0.1)
 
@@ -77,7 +79,7 @@ class MainLayout(lc.Layout):
         else:
             cmd = oscr.getMoveWindowCMD(ownerPID, 
                                         dimensions,
-                                        _u.Settings.PubProp.wholeBook_ID)
+                                        sf.Wr.Data.TokenIDs.Misc.wholeBook_ID)
             subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
@@ -88,7 +90,7 @@ class MainLayout(lc.Layout):
         #
         bounds = [mon_halfWidth, mon_height - appHeight - 80, appWidth, appHeight + 54]
 
-        currSectionWPrefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        currSectionWPrefix = _upan.Current.Names.Section.name_wPrefix()
         if currSectionWPrefix == _u.Token.NotDef.str_t:
             log.autolog("No subssection to open yet.")
         else:
@@ -97,10 +99,11 @@ class MainLayout(lc.Layout):
             
             if ownerPID == None:
                 # if no window found we open one with the chapter in Finder
-                currScreenshotDir = fsm.Wr.Paths.Screenshot.getAbs_curr()
-                oc.Wr.fsAppCalls.openFile(currScreenshotDir)
+                currScreenshotDir = _upan.Current.Paths.Screenshot.abs()
+                oc.Wr.FsAppCalls.openFile(currScreenshotDir)
             
             while ownerPID == None:
+                log.autolog("hip")
                 _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
                 sleep(0.1)
             
@@ -117,5 +120,5 @@ class MainLayout(lc.Layout):
             log.autolog("Moved Finder.")
 
 
-        _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
+        #  _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
         log.autolog("DONE setting section layout.")

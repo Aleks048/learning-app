@@ -110,7 +110,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
         topSectionsList.sort(key = int)
-        
+
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
 
@@ -167,7 +167,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
             return self.getData()
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        topSectionsList = fsf()
+        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
         topSectionsList.sort(key = int)
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
