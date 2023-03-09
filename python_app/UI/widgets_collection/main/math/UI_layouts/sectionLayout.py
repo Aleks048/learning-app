@@ -353,9 +353,8 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         #
         # rebuild the pdfs
         #
-        ocf.Wr.LatexCalls.buildSubsectionPdf(sourceSubection, bookName)
-        ocf.Wr.LatexCalls.buildSubsectionPdf(subsection, bookName)
-
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubection)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, subsection)
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):

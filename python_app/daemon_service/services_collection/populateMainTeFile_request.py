@@ -9,6 +9,7 @@ import settings.facade as sf
 
 def processCall(callerTexFile):
     # get the section name from the path
+    log.autolog("Hip:" + callerTexFile)
     subsectionName = _upan.Current.Paths.TexFiles.Paths.TexFiles.getSectionFromPath_Whole_WPrefix(callerTexFile)
     bookName =  sf.Wr.Manager.Book.getCurrBookName()
     bookPaths = sf.Wr.Manager.Book.getCurrBookFolderPath()

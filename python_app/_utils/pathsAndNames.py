@@ -37,6 +37,7 @@ class Paths:
         @classmethod
         def getAbs(cls, bookPath, section):
             relFilepath = cls.getRel(section)
+            log.autolog(section + " " + relFilepath)
             return os.path.join(bookPath, relFilepath)
 
         @classmethod

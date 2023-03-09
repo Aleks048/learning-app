@@ -13,12 +13,12 @@ class BookInfoStructure:
     The stucture keeps the info about the book
     '''
 
-    bookInfoFoldefRelPath= "/bookInfo/"
+    bookInfoFoldefRelPath= "bookInfo/"
     bookInfoFilename = "bookInfo.json"
     sectionsInfoBaseRelPath = "subsections/"
     sectionsInfoFilename = "sectionInfo.json"
 
-    TOCbaseRelPath = "/TOC/"
+    TOCbaseRelPath = "TOC/"
     TOCFilename = "TOCinfo.json"
 
     currSectionFull_ID= "currChapterFull"# need to be removed
@@ -122,12 +122,12 @@ class BookInfoStructure:
 
     @classmethod
     def _getRelFilepath(cls):
-        return cls.bookInfoFoldefRelPath + cls.bookInfoFilename
+        return os.path.join(cls.bookInfoFoldefRelPath,cls.bookInfoFilename)
     
     @classmethod
     def _getAsbFilepath(cls):
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        return bookPath + cls._getRelFilepath()
+        return os.path.join(bookPath,cls._getRelFilepath())
 
     @classmethod
     def readProperty(cls, property):

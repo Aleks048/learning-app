@@ -43,6 +43,7 @@ class TexFile:
             templateFile = templateF.readlines()
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", subsection) for i in templateFile]
             topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(topSection)
+            log.autolog("Hop:" + topFilepath)
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
         with open(mainFilepath, 'w') as outFile:

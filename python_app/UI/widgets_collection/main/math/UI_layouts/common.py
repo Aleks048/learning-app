@@ -12,7 +12,8 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
     pass
 
 
-class Layouts_OM(ww.currUIImpl.OptionMenu):
+class Layouts_OM(ww.currUIImpl.OptionMenu,
+                 dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         self.layoutOptions = {
             "Main" : [mmm.LayoutManagers._Main, lm.Wr.MainLayout], 
@@ -37,7 +38,9 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         layoutToSwitchTo = self.getData()
-        mmm.MathMenuManager.switchUILayout(self.layoutOptions[layoutToSwitchTo][0])
+        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, 
+                                                         mmm.MathMenuManager)
+        mathMenuManager.switchUILayout(self.layoutOptions[layoutToSwitchTo][0])
         self.layoutOptions[layoutToSwitchTo][1].set()
 
 

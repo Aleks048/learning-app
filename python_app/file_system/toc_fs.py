@@ -4,6 +4,8 @@ import shutil
 import file_system.book_fs as bfs
 import file_system.section_fs as sfs
 import _utils._utils_main as _u
+import _utils.logging as log
+import outside_calls.outside_calls_facade as ocf
 
 import settings.facade as sf
 
@@ -121,6 +123,7 @@ class TOCStructure:
     
     def _getTOCDirPath():
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        log.autolog(bookPath)
         return os.path.join(bookPath, bfs.BookInfoStructure.TOCbaseRelPath)
 
     @classmethod
@@ -130,7 +133,6 @@ class TOCStructure:
         if (os.path.isdir(tocFolderPath)):
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
         else:
-            print("_getTOCFilePath - " + "the TOC filepath is not present.")
-            print("Will create: " + tocFolderPath)
-            _waitDummy = os.system("mkdir " + tocFolderPath)
+            log.autolog("The TOC filepath is not present. Will create: {0}".format(tocFolderPath))
+            ocf.fc.currFilesystemApp.createFile(tocFolderPath)
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
