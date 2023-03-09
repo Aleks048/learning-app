@@ -18,6 +18,7 @@ import layouts.layouts_manager as lm
 import data.constants as dc
 import data.temp as dt
 
+import settings.facade as sf
 
 class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
@@ -37,7 +38,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        tff.Wr.TexFile.buildCurrentSubsectionPdf()
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
         # switch UI
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
@@ -263,7 +264,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
     def cmd(self):
         
         def _createTexForTheProcessedImage():
-            bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
+            bookName = sf.Wr.Manager.Book.getCurrBookName()
             currSubsection = _upan.Current.Names.Section.name()
 
             # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
@@ -277,7 +278,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                     # TOC ADD ENTRY WITHOUT IMAGE
                    tff.Wr.TexFileModify.addImageLinkToTOC_woImage(self.dataFromUser[0], self.dataFromUser[1])
             
-            imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs,
+            imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
                                     str(self.dataFromUser[0]) + "_" + currSubsection + "_" + str(self.dataFromUser[1]))
 
             # STOTE IMNUM, IMNAME AND LINK
@@ -287,7 +288,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
             tff.Wr.TexFile._populateMainFile()
             
             # take a screenshot
-            if ocf.Wr.fsAppCalls.checkIfFileExists(imagePath):
+            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
                 def takeScreencapture(iPath):
                     ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
                     nextImNum = str(int(self.dataFromUser[0]) + 1)
@@ -418,12 +419,6 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
             ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePath)
 
         tff.Wr.TexFileModify.addExtraImage(currImID, extraImagePath)
-        
-   
-        # return ww.currUIImpl.Button(rootWidget = mainWinRoot, 
-        #                 name = prefixName.lower() + "_imageGenerationAddImBTN",
-        #                 text= "addIm",
-        #                 command = lambda: addImBTNcallback())
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 

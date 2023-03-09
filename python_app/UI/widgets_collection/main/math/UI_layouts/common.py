@@ -1,7 +1,11 @@
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_facade as wf
 import layouts.layouts_manager as lm
 import _utils._utils_main as _u
+import settings.facade as sf
+import data.constants as dc
+import data.temp as dt
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
@@ -37,7 +41,8 @@ class Layouts_OM(ww.currUIImpl.OptionMenu):
         self.layoutOptions[layoutToSwitchTo][1].set()
 
 
-class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
+class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
+                                    dc.AppCurrDataAccessToken):
     labelOptions = ["Add/Modify", "Main"]
 
     def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
@@ -60,21 +65,18 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button):
                         self.cmd)
     
     def cmd(self):
-        # wu.hideAllWidgets(self.rootWidget)
-        if not _u.Settings.UI.showMainWidgetsNext:
+        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                         mmm.MathMenuManager)
+        if type(mathMenuManager.currLayout) == mmm.LayoutManagers._Main:
             # show the sections UI
-            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifySection)
+            mathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifySection)
 
             self.updateLabel(self.labelOptions[0])
-            _u.Settings.UI.showMainWidgetsNext = True
 
             lm.Wr.MainLayout.set()
-
-
         else:
-            mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
+            mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
-            self.updateLabel(self.labelOptions[1]) 
-            _u.Settings.UI.showMainWidgetsNext = False
+            self.updateLabel(self.labelOptions[1])
 
             lm.Wr.MainLayout.set()

@@ -103,7 +103,7 @@ class Current:
     class Paths:
         class Section:
             def abs():
-                currBookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 section = Current.Names.Section.name_wPrefix()
                 return Paths.Section.getAbs(currBookPath, section)
 
@@ -177,7 +177,7 @@ class Current:
 
 
         class PDF:
-            def abs(cls):
+            def abs():
                 currSubsection = Current.Names.Section.name_wPrefix()
                 currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 return Paths.PDF.getAbs(currBookPath, currSubsection) 

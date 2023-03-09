@@ -5,12 +5,13 @@ import tex_file.tex_file_create as tc
 import data.constants as d
 import _utils.logging as log
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 
 class TexFileModify:
     # update the content file
     def addExtraImage(mainImID, extraImagePath):
         marker = "THIS IS CONTENT id: " + mainImID
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), "r+") as f:
+        with open(_upan.Current.Paths.TexFiles.Content.abs(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
             extraImagesMarker = "% \\EXTRA IMAGES END"
@@ -30,11 +31,11 @@ class TexFileModify:
         imIdx = str(imIdx)
         linkName = str(linkName)
         
-        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
-        extraImagePath = os.path.join(fsm.Wr.Paths.Screenshot.getAbs_curr(),
+        currSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        extraImagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
                                         imIdx + "_" + currSubsection + "_" + linkName)
 
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'a') as f:
+        with open(_upan.Current.Paths.TexFiles.Content.abs(), 'a') as f:
                 add_page = "\n\n"
                 add_page += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
                 add_page += "\
@@ -66,11 +67,11 @@ class TexFileModify:
                 f.write(add_page)
     
     def addImageLinkToTOC_wImage(imIdx, linkName):
-        currSubsection = fsm.Wr.SectionCurrent.readCurrSection()
+        currSubsection = _upan.Current.Names.Section.name()
         imIdx = str(imIdx)
         linkName = str(linkName)
 
-        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
+        with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
                         toc_add_image = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
                         toc_add_image += "\
     \\mybox{\n\
@@ -84,7 +85,7 @@ class TexFileModify:
         imIdx = str(imIdx)
         linkName = str(linkName)
 
-        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'a') as f:
+        with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
                         toc_add_text = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
                         toc_add_text += "\
     \\mybox{\n\

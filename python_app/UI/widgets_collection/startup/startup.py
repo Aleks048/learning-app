@@ -38,11 +38,6 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        # # hide startup UI layout
-        # startupManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-        #                                                 stm.StartupMenuManager)
-        # startupManager.hide()
-        
         # show 3rd party main layout
         lm.Wr.MainLayout.set()
 
@@ -100,7 +95,8 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
                         cmd = self.cmd,
                         listOfOptions = self.listOfBooksNames)
         
-        self.setData(self.listOfBooksNames[-1])
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        self.setData(currBookName)
     
     def cmd(self):
         bookName = self.getData()

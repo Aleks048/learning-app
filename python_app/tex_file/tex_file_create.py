@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 
 import file_system.file_system_facade as fsm
 import outside_calls.outside_calls_facade as ocf
@@ -14,9 +15,9 @@ class TexFile:
         tocFile = []
 
         localLinksLine = ""
-        conFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookName, subsectionName_full_WPrefix)
-        tocFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookName, subsectionName_full_WPrefix)
-        mainFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookName, subsectionName_full_WPrefix)
+        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookName, subsectionName_full_WPrefix)
+        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsectionName_full_WPrefix)
+        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookName, subsectionName_full_WPrefix)
 
         topSection, subsection = fsm.Wr.Utils.stripFullName_Wprefix(subsectionName_full_WPrefix)
         
@@ -102,7 +103,7 @@ class TexFile:
         tocFile = []
 
         localLinksLine = ""
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(), 'r') as contentF:
+        with open(_upan.Current.Paths.TexFiles.Content.abs(), 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
             
@@ -130,18 +131,18 @@ class TexFile:
 
             localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
-        with open(fsm.Wr.Paths.TexFiles.TOC.getAbs_curr(), 'r') as tocF:
+        with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'r') as tocF:
             tocFile = tocF.readlines()
                 
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()
-            currSection = fsm.Wr.SectionCurrent.readCurrSection()
+            currSection = _upan.Current.Names.Section.name()
             currTopSection = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", currSection) for i in templateFile]
             topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(currTopSection)
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
-        with open(fsm.Wr.Paths.TexFiles.Main.getAbs_curr(), 'w') as outFile:
+        with open(_upan.Current.Paths.TexFiles.Main.abs(), 'w') as outFile:
 
             outFileList = []
             # get the marker of the part BEFORE_LOCAL_LINKS_MARKER

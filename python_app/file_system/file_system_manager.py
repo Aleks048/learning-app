@@ -52,16 +52,15 @@ class FileSystemManager:
         omfs.OriginalMaterialStructure.addOriginalMaterial(pathToSourceFile,
                                                             relStructurePath)
 
+    def addSectionForCurrBook(sectionPath):
+        # add to Sections structure
+        sfs.SectionInfoStructure.addSection(sectionPath)
+        
+        # add to BookInfo structure
+        bfs.BookInfoStructure.addSection(sectionPath)
 
-def addSectionForCurrBook(sectionPath):
-    # add to Sections structure
-    sfs.SectionInfoStructure.addSection(sectionPath)
-    
-    # add to BookInfo structure
-    bfs.BookInfoStructure.addSection(sectionPath)
-
-    # add to TOC structure
-    tocfs.TOCStructure.addSection(sectionPath)
+        # add to TOC structure
+        tocfs.TOCStructure.addSection(sectionPath)
 
 def _updateSectionProperty(sectionPath, propertyName, newValue):
     # thange the TOC

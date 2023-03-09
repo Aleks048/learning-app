@@ -256,3 +256,9 @@ class MathMenuManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+    
+    def switchToMainLayout(self):
+        self.switchUILayout(LayoutManagers._Main)
+    
+    def switchToSectionLayout(self):
+        self.switchUILayout(LayoutManagers._Section)

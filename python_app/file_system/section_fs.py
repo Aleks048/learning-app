@@ -101,7 +101,7 @@ class SectionInfoStructure:
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
-        dirPathToSection = p.Paths.Section.getAbs_curr()
+        dirPathToSection = _upan.Current.Paths.Section.abs()
 
         if not os.path.exists(dirPathToSection):
             msg = "The sections structure was not present will create it.\n" + \

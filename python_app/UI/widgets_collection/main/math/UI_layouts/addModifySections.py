@@ -211,7 +211,7 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         secPath = self.notify(NewSectionPath_ETR)
         
         # TODO: check that the structure exists and ask user if we should proceed
-        fsm.addSectionForCurrBook(secPath)
+        fsm.Wr.FileSystemManager.addSectionForCurrBook(secPath)
 
         separator = \
             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)

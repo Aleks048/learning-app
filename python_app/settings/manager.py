@@ -28,6 +28,9 @@ class Manager:
         def getCurrBookFolderPath():
             return s.Settings.readProperty(s.Settings.PubProp.currBookPath_ID)
         
+        def getCurrBookName():
+            return s.Settings.readProperty(s.Settings.PubProp.currBookName_ID)
+        
 
         @classmethod
         def getListOfBooksNames(cls):

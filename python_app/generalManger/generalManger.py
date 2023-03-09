@@ -6,6 +6,8 @@ import data.constants as dc
 import data.temp as dt
 import UI.widgets_facade as uif
 
+import layouts.layouts_manager as lm
+
 
 class GeneralManger:
     def AddNewBook(bookName, bookPath, originalMaterialLocation, originalMaterialRelPath):
@@ -22,20 +24,3 @@ class GeneralManger:
 
         # update settings
         sf.Wr.Manager.Book.addNewBook(bookName, bookPath)
-    
-    # class Layouts(dc.AppCurrDataAccessToken):
-    #     appCurrDataAccessToken = super().appCurrDataAccessToken
-    #     @classmethod
-    #     def stopStartupStartMain(cls):
-    #         # hide startup UI layout
-    #         startupManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-    #                                                         uif.Wr.MenuManagers.StartupMenuManager)
-    #         startupManager.hide()
-            
-    #         # show 3rd party main layout
-    #         lm.Wr.MainLayout.set()
-
-    #         # show UI main layout
-    #         mainMathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-    #                                                         uif.Wr.MenuManagers.MainMenuManager)
-    #         mainMathManager.show()

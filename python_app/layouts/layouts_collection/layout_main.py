@@ -103,7 +103,6 @@ class MainLayout(lc.Layout):
                 oc.Wr.FsAppCalls.openFile(currScreenshotDir)
             
             while ownerPID == None:
-                log.autolog("hip")
                 _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
                 sleep(0.1)
             
@@ -118,7 +117,5 @@ class MainLayout(lc.Layout):
                 subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
             
             log.autolog("Moved Finder.")
-
-
-        #  _u.Settings.currLayout = cls.__name__.replace(_u.Settings.layoutClassToken, "")
+        
         log.autolog("DONE setting section layout.")

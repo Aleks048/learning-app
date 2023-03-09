@@ -106,7 +106,11 @@ class Message_LBL(ww.currUIImpl.Label,
                 messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                             mesm.MessageMenuManager)
                 
-                messageManager.stopWait()
+                if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
+                    messageManager.stopWait(True)
+                else:
+                    messageManager.stopWait(False)
+                
                 messageManager.hide()
         cmds = [hideMessage]
 

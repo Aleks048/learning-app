@@ -1,14 +1,16 @@
 import file_system.file_system_facade as fsm
 import _utils.logging as log
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
+import settings.facade as sf
 
 
 import subprocess
 
 class MacLatex:
     def buildPDF(bookpath, subsection):
-        subsectionDir = fsm.Wr.Paths.Section.getAbs(bookpath, subsection)
-        mainTexFilepath = fsm.Wr.Paths.TexFiles.Main.getAbs(bookpath, subsection)
+        subsectionDir = _upan.Paths.Section.getAbs(bookpath, subsection)
+        mainTexFilepath = _upan.Paths.TexFiles.Main.getAbs(bookpath, subsection)
         cmd = "\
     pushd {1}\n\
         CMD=\"pdflatex  --shell-escape -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -output-directory={1}/_out {0}\"\n\
@@ -22,7 +24,7 @@ class MacLatex:
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
-        bookPath = _u.Settings.Book.getCurrBookFolderPath()
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         subsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         
         cls.buildPDF(bookPath, subsection)
@@ -30,8 +32,8 @@ class MacLatex:
     def buildSubsectionPdf(subsection, bookName):
         sectionNameWprefix = subsection
         bookPath = bookName 
-        sectionFolder = fsm.Wr.Paths.TexFiles.Main.getAbs(bookPath, subsection)
-        mainTexFilepath = fsm.Wr.Paths.Section.getAbs(bookPath, subsection)
+        sectionFolder = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsection)
+        mainTexFilepath = _upan.Paths.Section.getAbs(bookPath, subsection)
         log.autolog("build: " + mainTexFilepath)
         
         # NOTE: we add "_con.tex" to comply with what is called when the file is saved

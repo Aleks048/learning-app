@@ -8,7 +8,6 @@ import UI.widgets_wrappers as ww
 menuManagers = []
 
 class MenuLayout_Interface(dc.AppCurrDataAccessToken):
-
     name = None
     def __init__(self, winRoot, appDimensions):
         self.widgets = []
@@ -50,6 +49,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
     def switchUILayout(self, toLayoutType):
         self.hideAllWidgets()
+        self.winRoot.render()
         for layout in self.layouts:
             if type(layout) == toLayoutType:
                 self.currLayout = layout

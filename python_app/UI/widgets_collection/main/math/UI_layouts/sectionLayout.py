@@ -18,7 +18,13 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_collection.main.math.manager as mmm
 import layouts.layouts_manager as lm
 
-class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button):
+import data.constants as dc
+import data.temp as dt
+
+import settings.facade as sf
+
+class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button,
+                                 dc.AppCurrDataAccessToken):
 
     def __init__(self, patentWidget, prefix):
         data = {
@@ -35,7 +41,11 @@ class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        mmm.MathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
+        # switch UI
+        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
+        mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
+
+        # switch other apps
         lm.Wr.MainLayout.set()
 
 
@@ -282,8 +292,8 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
                         self.cmd)
     
     def cmd(self):
-        bookPath = _u.Settings.readProperty(_u.Settings.PubProp.currBookPath_ID)
-        bookName = _u.Settings.readProperty(_u.Settings.PubProp.currBookName_ID)
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
         secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
         
         sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()

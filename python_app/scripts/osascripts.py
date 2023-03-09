@@ -1,10 +1,11 @@
 import data.temp as dt
 import _utils.logging as log
 import _utils._utils_main as _u
+import settings.facade as sf
 
 def get_NameOfFrontSkimDoc_CMD():
 	cmd = "osascript -e '\n\
-tell application \"" + _u.Settings._appsIDs.skim_ID + "\" to return name of front document\n\
+tell application \"" + sf.Wr.Data.TokenIDs.AppIds.skim_ID + "\" to return name of front document\n\
 '"
 	return cmd
 
@@ -103,10 +104,6 @@ tell application \"System Events\"\n\
 	end repeat\n\
 end tell'"
 
-    # attempt to do this with xdotools
-    # cmd = "xdotool search --name windowmove " + windowID + " " + bounds[2] + " " + bounds[3]
-    # os.system(cmd)
-    # cmd = "xdotool windowsize " + windowID + " " + bounds[0] + " " + bounds[1]
     return cmd
 
 def get_SetSecVSCode_CMD():

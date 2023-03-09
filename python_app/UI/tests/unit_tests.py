@@ -2,7 +2,6 @@ import unittest
 import os
 
 import UI.widgets_facade as wm
-import UI.widgets_messages as wmes
 import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
 
@@ -12,6 +11,7 @@ testBookPath = os.getenv("BOOKS_ROOT_PATH") + testBookName
 
 class Test_WidgetsManager_StartupMenu(unittest.TestCase):
     def setUp(self):
+
         _u.Settings.Book.setCurrentBook(testBookName, testBookPath)
 
     # def test_StartupMenu(self):

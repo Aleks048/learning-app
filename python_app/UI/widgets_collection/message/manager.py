@@ -37,7 +37,7 @@ class LayoutManagers:
         prefix = "_ConfirmationMessageLayout_"
 
         def __init__(self, winRoot):
-            appDimensions = [110, 80, 700, 350]
+            appDimensions = [250, 100, 700, 350]
             super().__init__(winRoot, appDimensions)
 
             message_LBL = mw.Message_LBL(winRoot, self.prefix)
