@@ -127,7 +127,6 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         topSection = self.getData()
-        log.autolog("switching to top section: " + topSection)
 
         # update top section
         fsf.Wr.BookInfoStructure.updateProperty(fsf.PropIDs.Book.currTopSection_ID , 
@@ -348,7 +347,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.setData(currImIdx)
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
-            log.autolog(dataToSet)
             self.setData(dataToSet)
             return prevData
         elif broadcasterType == ChooseTopSection_OM:

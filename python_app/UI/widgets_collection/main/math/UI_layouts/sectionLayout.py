@@ -66,7 +66,7 @@ class RebuildCurrSection_BTN(ww.currUIImpl.Button):
                         self.cmd)
     
     def cmd(self):
-        tff.Wr.TexFile.buildCurrentSubsectionPdf()
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
 
 class ShowProofs_BTN(ww.currUIImpl.Button):
@@ -96,10 +96,10 @@ class ShowProofs_BTN(ww.currUIImpl.Button):
             self.updateLabel(self.labelOptions[0])
             self._changeProofsVisibility(False)
         
-        Thread(target= tff.Wr.TexFile.buildCurrentSubsectionPdf).start()
+        Thread(target= ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()).start()
     
     def _changeProofsVisibility(self, hideProofs):
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"r") as conF:
+        with open(_upan.Current.Paths.TexFiles.Content.abs(),"r") as conF:
             contentLines = conF.readlines()
         extraImagesStartToken = "% \EXTRA IMAGES START"
         extraImagesEndToken = "% \EXTRA IMAGES END"
@@ -116,7 +116,7 @@ class ShowProofs_BTN(ww.currUIImpl.Button):
                             contentLines[i] = "% " + line
                             log.autolog("\nShow the proof for line:\n" + contentLines[i])
                     break
-        with open(fsm.Wr.Paths.TexFiles.Content.getAbs_curr(),"w") as conF:
+        with open(_upan.Current.Paths.TexFiles.Content.abs(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
 
 
@@ -353,8 +353,8 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         #
         # rebuild the pdfs
         #
-        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubection)
-        ocf.Wr.LatexCalls.buildPDF(bookPath, subsection)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSectionNameWprefix)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSectionNameWprefix)
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):

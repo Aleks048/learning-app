@@ -5,7 +5,7 @@ import _utils.logging as log
 import file_system.book_fs as bfs
 import file_system.section_fs as sfs
 import file_system.origmaterial_fs as omfs
-import _utils.pathsAndNames as p
+import _utils.pathsAndNames as _upan
 
 import settings.facade as sf
 
@@ -62,7 +62,7 @@ def _getSectionFilepath(sectionPath):
     sectionFullPath = pathList
     sectionFullPath = os.path.join(*sectionFullPath)
     pathToSection = _getPathToSectionsFolder()
-    pathToSection = os.path.join(p.Paths.Section.sectionFolderName, pathToSection, sectionFullPath)
+    pathToSection = os.path.join(_upan.Paths.Section.sectionFolderName, pathToSection, sectionFullPath)
     return pathToSection
 
 

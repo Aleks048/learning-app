@@ -13,8 +13,6 @@ class Paths:
             def getAbs(bookPath):
                 originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
                 relMainBookPath = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.originalMaterialRelPath_ID)
-                log.autolog(originalMaterialbasePath)
-                log.autolog(relMainBookPath)
                 return os.path.join(originalMaterialbasePath, relMainBookPath)
 
             @classmethod
@@ -37,7 +35,6 @@ class Paths:
         @classmethod
         def getAbs(cls, bookPath, section):
             relFilepath = cls.getRel(section)
-            log.autolog(section + " " + relFilepath)
             return os.path.join(bookPath, relFilepath)
 
         @classmethod

@@ -5,10 +5,20 @@ import _utils.logging as log
 
 class Manager:  
     class Book:
+        def getNameFromPath(bookPath):
+            bookPathsDict = s.Settings.readProperty(s.Settings.PubProp.booksPaths_ID)
+            for bookName in bookPathsDict.keys():
+                tempBookPath = bookPathsDict[bookName]
+                if tempBookPath == bookPath:
+                    return bookName
+            
+            log.autolog("No name for book with path '{0}'. Something is wrong!".format(bookPath))
+            return _u.Token.NotDef.str_t
+
         def getPathFromName(bookName):
-            bookPaths = s.Settings.readProperty(s.Settings.PubProp.booksPaths_ID)
-            if bookName in bookPaths.keys():
-                bookPath = bookPaths[bookName]
+            bookPathsDict = s.Settings.readProperty(s.Settings.PubProp.booksPaths_ID)
+            if bookName in bookPathsDict.keys():
+                bookPath = bookPathsDict[bookName]
                 return bookPath
             else:
                 log.autolog("No path for book with name '{0}'. Something is wrong!".format(bookName))
@@ -43,11 +53,3 @@ class Manager:
         def getListBooksPathsDict():
             booksPathsDict = s.Settings.readProperty(s.Settings.PubProp.booksPaths_ID)
             return booksPathsDict
-
-        @classmethod
-        def getBookPath(cls, bookName):
-            bookPathsDict = cls.getListBooksPathsDict()
-            if bookName in list(bookPathsDict.keys()):
-                return bookPathsDict[bookName]
-            else:
-                return _u.Token.NotDef.str_t

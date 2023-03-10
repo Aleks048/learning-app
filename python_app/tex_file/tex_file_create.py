@@ -10,14 +10,14 @@ import _utils.logging as log
 
 
 class TexFile:
-    def populateMainFile(subsectionName_full_WPrefix, bookName):
+    def populateMainFile(subsectionName_full_WPrefix, bookPath):
         contentFile = []
         tocFile = []
 
         localLinksLine = ""
-        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookName, subsectionName_full_WPrefix)
-        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsectionName_full_WPrefix)
-        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookName, subsectionName_full_WPrefix)
+        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsectionName_full_WPrefix)
+        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsectionName_full_WPrefix)
+        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsectionName_full_WPrefix)
 
         topSection, subsection = fsm.Wr.Utils.stripFullName_Wprefix(subsectionName_full_WPrefix)
         
@@ -33,6 +33,13 @@ class TexFile:
                     line = line.replace(" ", "")
                     line = line.replace("\n", "")
                     listOfLocalLinks.append(line)
+                if "myTarget" in line:
+                    log.autolog(line)
+                    lineArr = line.split("{")
+                    imageName = lineArr[1][:-1]
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                                             imageName)
+                    contentFile[i] = line.replace(imageName, imagePath)
 
         localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
@@ -43,7 +50,6 @@ class TexFile:
             templateFile = templateF.readlines()
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", subsection) for i in templateFile]
             topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(topSection)
-            log.autolog("Hop:" + topFilepath)
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
         with open(mainFilepath, 'w') as outFile:

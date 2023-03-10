@@ -4,6 +4,8 @@ import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
+import settings.facade as sf
 
 class SkimCalls:
     def openPDF(pdfPath, pdfPage = _u.Token.NotDef.str_t):
@@ -20,13 +22,13 @@ class SkimCalls:
         fullSecpath = fsm.Wr.Utils.joinTopAndSubsection(topSection, subsecPath)
         secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(fullSecpath)
         pdfPage = fsm.Wr.Utils.getPDFPageFromPosIDX(positionIDX)
-        bookPath = _u.getBookPath(bookName)
+        bookPath = sf.Wr.Manager.Book.getPathFromName(bookName)
         if bookPath == _u.Token.NotDef.str_t:
             log.autolog("Could not find the path for the book with name '" 
                         + bookName + "'. Abropt processing link :'" + secNameWPrefix + "'.")
             return
 
-        pdfPath = fsm.Wr.Paths.PDF.getAbs(bookPath, secNameWPrefix)
+        pdfPath = _upan.Paths.PDF.getAbs(bookPath, secNameWPrefix)
 
         cls.openPDF(pdfPath, pdfPage)
 
