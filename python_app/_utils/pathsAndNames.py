@@ -128,8 +128,8 @@ class Current:
                 relPath = cls.rel()
 
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
-                name = fsf.Wr.SectionInfoStructure.readProperty(currSecName, fsf.PropIDs.Sec.name_ID)
-                startPage = fsf.Wr.SectionInfoStructure.readProperty(currSecName, fsf.PropIDs.Sec.startPage_ID)
+                name = fsf.Data.Sec.name(currSecName)
+                startPage = fsf.Data.Sec.startPage_ID(currSecName)
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
                 text = "Sec path: '{0}'. Name: '{1}'. St page: '{2}'.".format(currSecName, name, startPage)

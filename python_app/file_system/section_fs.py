@@ -35,6 +35,17 @@ class SectionInfoStructure:
         imageContentFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
         imLinkDict_ID = "imLinkDict"
+        
+        name = "_name"
+        startPage = "_startPage"
+        latestSubchapter = "_latestSubchapter"
+        subSections = "_subSections"
+
+        #imagesProperties
+        imageProp = "_imageProp"
+        imageContentFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
+        imageTOCFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
+        imLinkDict = "imLinkDict"
 
     class PrivProp:
         tocData_ID = "_tocData"
@@ -157,10 +168,10 @@ class SectionInfoStructure:
         fullPathToSection = os.path.join(fullPathToSection, bfs.BookInfoStructure.sectionsInfoFilename)
 
         sectionPathSeparator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         
         sectionPrefixForTemplate = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t

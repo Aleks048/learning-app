@@ -38,8 +38,8 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         
     def __getCurrSectionPath_Formatted(self):
         currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        name = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.name_ID)
-        startPage = fsm.Wr.SectionInfoStructure.readProperty(currSecName, fsm.PropIDs.Sec.startPage_ID)
+        name = fsm.Data.Sec.name(currSecName)
+        startPage = fsm.Data.Sec.startPage(currSecName)
         currSecName = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
 
         return "current section path: {0}. Name: '{1}'. Start page: '{2}'".format(currSecName, name, startPage)
@@ -70,9 +70,7 @@ class SetSectionStartPage_BTN(ww.currUIImpl.Button):
         currTopSection = fsm.Data.Book.currTopSection
             
         startPage = self.notify(SetSectionStartPage_ETR)
-        fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
-                                                fsm.PropIDs.Sec.startPage_ID, 
-                                                startPage)
+        fsm.Data.Sec.startPage(currTopSection, startPage)
 
 class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
@@ -118,9 +116,7 @@ class SetSectionName_BTN(ww.currUIImpl.Button):
         currTopSection = fsm.Data.Book.currTopSection
             
         name = self.notify(SetSectionName_ETR)
-        fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
-                                                fsm.PropIDs.Sec.name_ID, 
-                                                name)
+        fsm.Data.Sec.name(currTopSection, name)
 
 class SetSectionName_ETR(ww.currUIImpl.TextEntry):
 
@@ -220,9 +216,5 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         sections[topSectionName]["prevSubsectionPath"] = secPath
         fsm.Data.Book.sections = sections
 
-        fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
-                                                fsm.PropIDs.Sec.name_ID,
-                                                newSecName)            
-        fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
-                                                fsm.PropIDs.Sec.startPage_ID, 
-                                                newSecStartPage)
+        fsm.Data.Sec.name(secPath, newSecName)     
+        fsm.Data.Sec.startPage(secPath, newSecStartPage)

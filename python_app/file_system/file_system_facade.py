@@ -16,9 +16,6 @@ Facade for Filesystem
 '''
 
 class ClassGetProperty(type):
-    data = None
-    dataAccessCounter = 0
-
     def __getattribute__(self, __name):
         if "__" in __name:
             return object.__getattribute__(self, __name)
@@ -26,6 +23,18 @@ class ClassGetProperty(type):
         propertyName = super().__getattribute__(__name)
 
         module = self.__getbasemodule()
+
+        if "sec" in str(self.__base__).lower():
+            def getAttributeForSection(subsection, newValue = None):
+                if newValue == None:
+                    return module.readProperty(subsection, propertyName)
+                else:
+                    return module.readProperty(subsection, 
+                                               propertyName, 
+                                               newValue)
+
+            return getAttributeForSection
+
         return module.readProperty(propertyName)
     
     def __setattr__(self, __name: str, __value):
@@ -44,11 +53,6 @@ class ClassGetProperty(type):
 
 
 
-
-class Data:
-    class Book(bfs.BookInfoStructure.PubProp,
-               metaclass = ClassGetProperty):
-        pass
 
 class Wr:
     class FileSystemManager(fsm.FileSystemManager):
@@ -84,9 +88,17 @@ class Wr:
         pass
 
 
-class PropIDs:
-    class Sec(sfs.SectionInfoStructure.PubProp):
-        pass
 
-    class TOC(tocfs.TOCStructure.PubPro):
+
+class Data:
+    class Book(bfs.BookInfoStructure.PubProp,
+               metaclass = ClassGetProperty):
+        pass
+    
+    class TOC(tocfs.TOCStructure.PubPro,
+              metaclass = ClassGetProperty):
+        pass
+    
+    class Sec(sfs.SectionInfoStructure.PubProp,
+              metaclass = ClassGetProperty):
         pass

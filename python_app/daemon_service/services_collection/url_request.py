@@ -37,12 +37,8 @@ import outside_calls.outside_calls_facade as ocf
 #     currSection = fsm.Wr.SectionCurrent.readCurrSection()
     
 #     #check if section infostructure has file move numbers defined
-#     conFileMoveNumber = \
-#         int(fsm.Wr.SectionInfoStructure.readProperty(currSection, 
-#                                 fsm.PropIDs.Sec.imageContentFileMoveLinesNumber_ID))
-#     tocFileMoveNumber = \
-#         int(fsm.Wr.SectionInfoStructure.readProperty(currSection, 
-#                                 fsm.PropIDs.Sec.imageTOCFileMoveLinesNumber_ID))
+#     conFileMoveNumber = fsm.Data.Sec.imageContentFileMoveLinesNumber(currSection)
+#     tocFileMoveNumber = fsm.Data.Sec.imageTOCFileMoveLinesNumber(currSection)
 
 #     tocLineNumber = str(tocLine + tocFileMoveNumber)
 #     conLineNumber = str(conLine + conFileMoveNumber)
