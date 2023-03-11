@@ -1,7 +1,7 @@
 import os
 
 import file_system.file_system_facade as fsm
-import tex_file.tex_file_create as tc
+import tex_file.tex_file_populate as tfp
 import data.constants as d
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -25,7 +25,7 @@ class TexFileModify:
             f.seek(0)
             f.writelines(outLines)
         
-        tc.TexFile._populateMainFile()
+        tfp.TexFilePopulate.populateCurrMainFile()
     
     def addProcessedImage(imIdx, linkName):
         imIdx = str(imIdx)
@@ -36,9 +36,9 @@ class TexFileModify:
                                         imIdx + "_" + currSubsection + "_" + linkName)
 
         with open(_upan.Current.Paths.TexFiles.Content.abs(), 'a') as f:
-                add_page = "\n\n"
-                add_page += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
-                add_page += "\
+            add_page = "\n\n"
+            add_page += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
+            add_page += "\
         % TEXT BEFORE MAIN IMAGE\n\
         \n\
         \n\
@@ -63,8 +63,8 @@ class TexFileModify:
         }\n\
         \\\\Local links: \n\
         \\TOC\\newpage\n"
-                    
-                f.write(add_page)
+                
+            f.write(add_page)
     
     def addImageLinkToTOC_wImage(imIdx, linkName):
         currSubsection = _upan.Current.Names.Section.name()
@@ -72,26 +72,26 @@ class TexFileModify:
         linkName = str(linkName)
 
         with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
-                        toc_add_image = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-                        toc_add_image += "\
+            toc_add_image = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+            toc_add_image += "\
     \\mybox{\n\
         \\link[" + imIdx + \
         "]{" + linkName + "} \\image[0.5]{" + \
         imIdx + "_" + currSubsection + "_" + imIdx + "}\n\
     }\n\n\n"
-                        f.write(toc_add_image)
+            f.write(toc_add_image)
 
     def addImageLinkToTOC_woImage(imIdx, linkName):
         imIdx = str(imIdx)
         linkName = str(linkName)
 
         with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
-                        toc_add_text = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-                        toc_add_text += "\
+            toc_add_text = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+            toc_add_text += "\
     \\mybox{\n\
         \\link[" + imIdx + "]{" + linkName + "} \\textbf{!}\n\
     }\n\n\n"
-                        f.write(toc_add_text)
+            f.write(toc_add_text)
     
     def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
                         bookName, topSection, subsection):

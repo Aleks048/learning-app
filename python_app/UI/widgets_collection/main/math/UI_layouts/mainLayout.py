@@ -284,7 +284,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
             fsf.Wr.SectionCurrent.setImLinkAndIDX(self.dataFromUser[1], self.dataFromUser[0])
             
             # POPULATE THE MAIN FILE
-            tff.Wr.TexFile._populateMainFile()
+            tff.Wr.TexFilePopulate.populateCurrMainFile()
             
             # take a screenshot
             if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):

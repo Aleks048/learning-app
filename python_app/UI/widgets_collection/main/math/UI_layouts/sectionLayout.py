@@ -139,7 +139,7 @@ class ImageSave_BTN(ww.currUIImpl.Button):
     def cmd(self):
         cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
         subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        tff.Wr.TexFile.buildCurrentSubsectionPdf()
+        tff.Wr.TexFilePopulate.buildCurrentSubsectionPdf()
 
 
 class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
