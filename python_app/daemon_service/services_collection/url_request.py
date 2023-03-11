@@ -50,10 +50,8 @@ import outside_calls.outside_calls_facade as ocf
 
 #     if conFileMoveNumber == _u.Token.NotDef.str_t and tocFileMoveNumber == _u.Token.NotDef.str_t:
 #         #get the move numbers from bookinfostructure
-#         conFileMoveNumber = \
-#             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.imageContentFileMoveLinesNumber_ID)
-#         tocFileMoveNumber = \
-#             fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.imageTOCFileMoveLinesNumber_ID)
+#         conFileMoveNumber = fsm.Data.Book.imageContentFileMoveLinesNumber
+#         tocFileMoveNumber = fsm.Data.Book.imageTOCFileMoveLinesNumber
         
 #         tocLineNumber = str(tocLine + tocFileMoveNumber)
 #         conLineNumber = str(conLine + conFileMoveNumber)    

@@ -294,7 +294,7 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
     def cmd(self):
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         bookName = sf.Wr.Manager.Book.getCurrBookName()
-        secPrefix = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_prefix_ID)
+        secPrefix = fsm.Data.Book.sections_prefix
         
         sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
@@ -437,8 +437,8 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
             subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
         #change the current subsection for the app
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSection)
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, subsection)
+        fsm.Data.Book.currTopSection = topSection
+        fsm.Data.Book.currSection = subsection
         
 
         # rerender the layout???

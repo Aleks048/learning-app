@@ -57,7 +57,7 @@ class SectionLayout(lc.Layout,
                 
                 if type(page) == str:
                     page = page.split(" ")[0]
-                    fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currentPage_ID, page)
+                    fsm.Data.Book.currentPage = page
                     
                     cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.main_pid, 
                                                  sf.Wr.Data.TokenIDs.Misc.wholeBook_ID)

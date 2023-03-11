@@ -62,7 +62,7 @@ class MainLayout(lc.Layout):
     
         origMaterialBookFSPath = _upan.Paths.OriginalMaterial.MainBook.getCurrAbs()
         
-        currPage = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currentPage_ID)
+        currPage = fsm.Data.Book.currentPage
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         

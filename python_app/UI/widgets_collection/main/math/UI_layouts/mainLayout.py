@@ -71,12 +71,11 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         subsection = self.getData()
-        sections = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.sections_ID)
+        sections = fsf.Data.Book.sections
         topSection = self.notify(ChooseTopSection_OM)
         sections[topSection]["prevSubsectionPath"] = subsection
-        fsf.Wr.BookInfoStructure.updateProperty(fsf.PropIDs.Book.sections_ID , sections)
-        
-        fsf.Wr.BookInfoStructure.updateProperty(fsf.PropIDs.Book.currSection_ID , subsection)
+        fsf.Data.Book.sections = sections
+        fsf.Data.Book.currSection = subsection
         
         self.notify(ImageGeneration_ETR, fsf.Wr.Links.ImIDX.get(subsection))
 
@@ -122,21 +121,19 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
                         renderData, 
                         self.cmd)
         
-        currTopSection = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.currTopSection_ID)
+        currTopSection = fsf.Data.Book.currTopSection
         self.setData(currTopSection)
     
     def cmd(self):
         topSection = self.getData()
 
         # update top section
-        fsf.Wr.BookInfoStructure.updateProperty(fsf.PropIDs.Book.currTopSection_ID , 
-                                                topSection)
+        fsf.Data.Book.currTopSection = topSection
         
         # update subsection
-        sections = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.sections_ID)
+        sections = fsf.Data.Book.sections
         prevSubsectionPath = sections[topSection]["prevSubsectionPath"]
-        fsf.Wr.BookInfoStructure.updateProperty(fsf.PropIDs.Book.currSection_ID, 
-                                                prevSubsectionPath)
+        fsf.Data.Book.currSection = prevSubsectionPath
 
         # update image index
         secionImIndex = fsf.Wr.Links.ImIDX.get(prevSubsectionPath)        
@@ -174,7 +171,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         
         self.setData(topSectionsList)
 
-        currTopSection = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.currTopSection_ID)
+        currTopSection = fsf.Data.Book.currTopSection
         self.setData(currTopSection)
 
         return super().render(widjetObj, renderData, **kwargs)

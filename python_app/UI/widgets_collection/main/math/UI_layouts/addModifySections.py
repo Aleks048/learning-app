@@ -67,8 +67,7 @@ class SetSectionStartPage_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        currTopSection = \
-                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+        currTopSection = fsm.Data.Book.currTopSection
             
         startPage = self.notify(SetSectionStartPage_ETR)
         fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
@@ -116,8 +115,7 @@ class SetSectionName_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        currTopSection = \
-                fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.currTopSection_ID)
+        currTopSection = fsm.Data.Book.currTopSection
             
         name = self.notify(SetSectionName_ETR)
         fsm.Wr.SectionInfoStructure.updateProperty(currTopSection, 
@@ -213,14 +211,14 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         # TODO: check that the structure exists and ask user if we should proceed
         fsm.Wr.FileSystemManager.addSectionForCurrBook(secPath)
 
-        separator = \
-            fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_path_separator_ID)
+        separator = fsm.Data.Book.sections_path_separator
+
         topSectionName = secPath.split(separator)[0]
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currTopSection_ID, topSectionName)
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.currSection_ID, secPath)
-        sections = fsm.Wr.BookInfoStructure.readProperty(fsm.PropIDs.Book.sections_ID)
+        fsm.Data.Book.currTopSection = topSectionName
+        fsm.Data.Book.currSection = secPath
+        sections = fsm.Data.Book.sections
         sections[topSectionName]["prevSubsectionPath"] = secPath
-        fsm.Wr.BookInfoStructure.updateProperty(fsm.PropIDs.Book.sections_ID, sections)
+        fsm.Data.Book.sections = sections
 
         fsm.Wr.SectionInfoStructure.updateProperty(secPath, 
                                                 fsm.PropIDs.Sec.name_ID,

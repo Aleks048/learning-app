@@ -1,4 +1,7 @@
+import sys
+
 import _utils._utils_main as _u
+import _utils.logging as log
 
 import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
@@ -12,8 +15,40 @@ import file_system.file_system_manager as fsm
 Facade for Filesystem
 '''
 
+class ClassGetProperty(type):
+    data = None
+    dataAccessCounter = 0
+
+    def __getattribute__(self, __name):
+        if "__" in __name:
+            return object.__getattribute__(self, __name)
+
+        propertyName = super().__getattribute__(__name)
+
+        module = self.__getbasemodule()
+        return module.readProperty(propertyName)
+    
+    def __setattr__(self, __name: str, __value):
+        propertyName = super().__getattribute__(__name)
+
+        module = self.__getbasemodule()
+        module.updateProperty(propertyName, __value)
+    
+    def __getbasemodule(self):
+        baseName = str(self.__base__)
+        baseName = baseName.split("'")[-2] # get rid of prefix and postfix
+        className = baseName.split(".")[-2]
+        moduleName = ".".join(baseName.split(".")[:-2])
+
+        return getattr(sys.modules[moduleName], className)
+
+
+
+
 class Data:
-    pass
+    class Book(bfs.BookInfoStructure.PubProp,
+               metaclass = ClassGetProperty):
+        pass
 
 class Wr:
     class FileSystemManager(fsm.FileSystemManager):
@@ -51,9 +86,6 @@ class Wr:
 
 class PropIDs:
     class Sec(sfs.SectionInfoStructure.PubProp):
-        pass
-
-    class Book(bfs.BookInfoStructure.PubProp):
         pass
 
     class TOC(tocfs.TOCStructure.PubPro):

@@ -12,7 +12,7 @@ class Paths:
         class MainBook:
             def getAbs(bookPath):
                 originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
-                relMainBookPath = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.originalMaterialRelPath_ID)
+                relMainBookPath = fsf.Data.Book.originalMaterialRelPath
                 return os.path.join(originalMaterialbasePath, relMainBookPath)
 
             @classmethod
@@ -42,7 +42,7 @@ class Paths:
             if sec == _u.Token.NotDef.str_t:              
                 return ""
 
-            sectionsPathSeparator = fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.sections_path_separator_ID)
+            sectionsPathSeparator = fsf.Data.Book.sections_path_separator
 
             pathList = sec.split(sectionsPathSeparator)
             
@@ -195,12 +195,12 @@ class Current:
         class Section:
             @classmethod
             def name_wPrefix(cls, filepath = _u.Token.NotDef.str_t):
-                sectionPrefix = fsf.Wr.BookInfoStructure.readProperty(\
-                                        fsf.PropIDs.Book.sections_prefix_ID)
+                sectionPrefix = fsf.Data.Book.sections_prefix
+
                 currSection = cls.name()
                 if currSection == _u.Token.NotDef.str_t:
                     return _u.Token.NotDef.str_t
                 return sectionPrefix + "_" + currSection
 
             def name():
-                return fsf.Wr.BookInfoStructure.readProperty(fsf.PropIDs.Book.currSection_ID)
+                return fsf.Data.Book.currSection

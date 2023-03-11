@@ -41,6 +41,24 @@ class BookInfoStructure:
         imageTOCFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
 
         originalMaterialRelPath_ID = "originalMaterialRelPath"
+        
+        version = "version"
+        sections_prefix = "sections_prefix"
+        sections_path_separator = "sections_path_separator"
+        sections = "sections"
+        
+        #currState
+        currentState = "currentState"
+        currentPage = "currentPage"
+        currTopSection = "currTopSection"
+        currSection = "currSection"
+
+        #imagesProperties
+        imageProp = "imageProp"
+        imageContentFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
+        imageTOCFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
+
+        originalMaterialRelPath = "originalMaterialRelPath"
 
     bookInfoTemplate = {
         PubProp.version_ID: "0.1",
@@ -59,6 +77,10 @@ class BookInfoStructure:
             PubProp.imageTOCFileMoveLinesNumber_ID: "0"
         }
     }
+
+    @classmethod
+    def test(cls):
+        log.autolog("Hiiop")
 
     @classmethod
     def createStructure(cls, bookInfoFilepath = ""):
