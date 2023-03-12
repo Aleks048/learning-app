@@ -4,7 +4,6 @@ from AppKit import NSWorkspace
 import Quartz
 
 import _utils.logging as log
-import curr_state.curr_state as cs
 
 class Token:
     class NotDef:
