@@ -26,10 +26,12 @@ class ClassGetProperty(type):
 
         if "sec" in str(self.__base__).lower():
             def getAttributeForSection(subsection, newValue = None):
+                log.autolog(propertyName)
+                log.autolog(newValue)
                 if newValue == None:
                     return module.readProperty(subsection, propertyName)
                 else:
-                    return module.readProperty(subsection, 
+                    return module.updateProperty(subsection, 
                                                propertyName, 
                                                newValue)
 

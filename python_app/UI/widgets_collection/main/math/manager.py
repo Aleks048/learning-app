@@ -216,9 +216,33 @@ class LayoutManagers:
             
             createNewTopSection_BTN = amsl.CreateNewTopSection_BTN(winRoot, self.prefix)
             self.addWidget(createNewTopSection_BTN)
+            
             createNewTopSection_BTN.addListenerWidget(newSectionPath_ETR)
             createNewTopSection_BTN.addListenerWidget(setSectionStartPage_ETR)
             createNewTopSection_BTN.addListenerWidget(setSectionName_ETR)
+
+            chooseTopSection_OM = amsl.ChooseTopSection_OM(winRoot, self.prefix)
+            self.addWidget(chooseTopSection_OM)
+
+            chooseSubsection_OM = amsl.ChooseSubsection_OM(winRoot, self.prefix)
+            self.addWidget(chooseSubsection_OM)
+            
+            chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
+            chooseTopSection_OM.addListenerWidget(currSectionPath_LBL)
+            chooseTopSection_OM.addListenerWidget(setSectionName_ETR)
+            chooseTopSection_OM.addListenerWidget(setSectionStartPage_ETR)
+
+            chooseSubsection_OM.addListenerWidget(currSectionPath_LBL)
+            chooseSubsection_OM.addListenerWidget(setSectionName_ETR)
+            chooseSubsection_OM.addListenerWidget(setSectionStartPage_ETR)
+
+
+            modifySubsection_BTN = amsl.ModifySubsection_BTN(winRoot, self.prefix)
+            self.addWidget(modifySubsection_BTN)
+
+            modifySubsection_BTN.addListenerWidget(chooseSubsection_OM)
+            modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
+            modifySubsection_BTN.addListenerWidget(setSectionName_ETR)
 
 
         def show(self):

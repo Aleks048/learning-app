@@ -100,6 +100,8 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currSubsection)
 
         return super().render(widjetObj, renderData, **kwargs)
+
+
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
