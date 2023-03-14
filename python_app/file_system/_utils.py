@@ -13,12 +13,12 @@ import settings.facade as sf
 class Utils:
     def getSectionNameWPrefix(fullSecName):
         sectionPrefix = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         
         return sectionPrefix + "_" + fullSecName
     def joinTopAndSubsection(topSection, subsection):
         separator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         
         return topSection + separator + subsection
 
@@ -33,13 +33,13 @@ class Utils:
         #
 
         sectionPrefix = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         
         # remove prefix
         fullName = fullName.replace(sectionPrefix + "_", "")
 
         separator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         
         fullName = fullName.split(separator)
         topSection = fullName[0]
@@ -49,9 +49,9 @@ class Utils:
 
 def _getSectionFilepath(sectionPath):
     sectionPrefix = \
-        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
     sectionsPathSeparator = \
-        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
 
     pathList = sectionPath.split(sectionsPathSeparator)
     pathList[0] = sectionPrefix + "_" + pathList[0]

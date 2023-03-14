@@ -48,9 +48,10 @@ class FileSystemManager:
         return True
 
 
-    def addOriginalMaterial(pathToSourceFile, relStructurePath):
+    def addOriginalMaterial(pathToSourceFile, relStructurePath, materialName):
         omfs.OriginalMaterialStructure.addOriginalMaterial(pathToSourceFile,
-                                                            relStructurePath)
+                                                            relStructurePath,
+                                                            materialName)
 
     def addSectionForCurrBook(sectionPath):
         # add to Sections structure
@@ -63,16 +64,16 @@ class FileSystemManager:
         tocfs.TOCStructure.addSection(sectionPath)
 
 
-# def removeSection():
-#     # # remove to Sections structure
-#     # fs.SectionInfoStructure.removeSection(sectionPath)
-    
-#     # # remove BookInfo structure
-#     # fs.BookInfoStructure.removeSection(sectionPath)
+    def removeSection(secPath):
+        # remove to Sections structure
+        sfs.SectionInfoStructure.removeSection(secPath)
+        
+        # # remove BookInfo structure
+        # fs.BookInfoStructure.removeSection(sectionPath)
 
-#     # # remove TOC structure
-#     # fs.SectionInfoStructure.removeSection(sectionPath)
-#     pass
+        # # remove TOC structure
+        # fs.SectionInfoStructure.removeSection(sectionPath)
+        pass
 
 # def moveSection():
 #     pass

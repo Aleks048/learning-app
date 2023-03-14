@@ -26,7 +26,7 @@ class LinkDict:
             return _u.Token.NotDef.dict_t
         else:
             return sfs.SectionInfoStructure.readProperty(sectionPath, 
-                                                    sfs.SectionInfoStructure.PubProp.imLinkDict_ID)
+                                                    sfs.SectionInfoStructure.PubProp.imLinkDict)
 
     @classmethod
     def set(cls, sectionPath, linkName, imIDX):
@@ -36,7 +36,7 @@ class LinkDict:
             d = {}
         d[linkName] = imIDX
         sfs.SectionInfoStructure.updateProperty(sectionPath, 
-                                                sfs.SectionInfoStructure.PubProp.imLinkDict_ID, d)
+                                                sfs.SectionInfoStructure.PubProp.imLinkDict, d)
 
     def getCurrImLinksSorted(secPath):
         currChImageLinksDict = LinkDict.get(secPath)

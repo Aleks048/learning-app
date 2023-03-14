@@ -60,7 +60,7 @@ class MainLayout(lc.Layout):
         #
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
-        origMaterialBookFSPath = _upan.Paths.OriginalMaterial.MainBook.getCurrAbs()
+        origMaterialBookFSPath = _upan.Current.Paths.OriginalMaterial.MainBook.abs()
         
         currPage = fsm.Data.Book.currentPage
 

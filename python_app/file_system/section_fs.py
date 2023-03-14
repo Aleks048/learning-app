@@ -8,6 +8,7 @@ import file_system.links as l
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
+import outside_calls.outside_calls_facade as ocf
 
 import file_system.file_system_manager as fsm
 
@@ -19,23 +20,12 @@ class SectionInfoStructure:
     currStucturePath = ""
 
     # for later: add if the section should generate the pdf.
-    # currPage_ID = "currentPage"
-    # currImageID_ID = "currImageID"
-    # currImageName_ID = "currImageName"
-    # currLinkName_ID = "currLinkName"
+    # currPage = "currentPage"
+    # currImageID = "currImageID"
+    # currImageName = "currImageName"
+    # currLinkName = "currLinkName"
 
     class PubProp:
-        name_ID = "_name"
-        startPage_ID = "_startPage"
-        latestSubchapter_ID = "_latestSubchapter"
-        subSections_ID = "_subSections"
-
-        #imagesProperties
-        imageProp_ID = "_imageProp"
-        imageContentFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
-        imageTOCFileMoveLinesNumber_ID = "_imageContentFileMoveLinesNumber"
-        imLinkDict_ID = "imLinkDict"
-        
         name = "_name"
         startPage = "_startPage"
         latestSubchapter = "_latestSubchapter"
@@ -48,13 +38,13 @@ class SectionInfoStructure:
         imLinkDict = "imLinkDict"
 
     class PrivProp:
-        tocData_ID = "_tocData"
+        tocData = "_tocData"
 
-        level_ID = "_level"
+        level = "_level"
 
-        levelData_ID = "_levelData"
-        levelData_depth_ID = "_depth"
-        levelData_level_ID = "_level"
+        levelData = "_levelData"
+        levelData_depth = "_depth"
+        levelData_level = "_level"
 
     sectionPrefixForTemplate = ""
     sectionPathForTemplate = ""
@@ -63,23 +53,23 @@ class SectionInfoStructure:
     def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
-                sectionInfoEntryPrefix + cls.PubProp.name_ID: _u.Token.NotDef.str_t,
-                sectionInfoEntryPrefix + cls.PubProp.startPage_ID: _u.Token.NotDef.str_t,
-                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter_ID: _u.Token.NotDef.str_t,
-                # sectionInfoEntryPrefix + cls.PubProp.subSections_ID: [],
-                sectionInfoEntryPrefix + cls.PrivProp.levelData_ID:{
-                    sectionInfoEntryPrefix + cls.PrivProp.levelData_depth_ID: str(depth),
-                    sectionInfoEntryPrefix + cls.PrivProp.levelData_level_ID: str(level),
+                sectionInfoEntryPrefix + cls.PubProp.name: _u.Token.NotDef.str_t,
+                sectionInfoEntryPrefix + cls.PubProp.startPage: _u.Token.NotDef.str_t,
+                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
+                # sectionInfoEntryPrefix + cls.PubProp.subSections: [],
+                sectionInfoEntryPrefix + cls.PrivProp.levelData:{
+                    sectionInfoEntryPrefix + cls.PrivProp.levelData_depth: str(depth),
+                    sectionInfoEntryPrefix + cls.PrivProp.levelData_level: str(level),
                 },
-                sectionInfoEntryPrefix + cls.PrivProp.tocData_ID:{
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.text_ID: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.start_ID: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.finish_ID: _u.Token.NotDef.str_t
+                sectionInfoEntryPrefix + cls.PrivProp.tocData:{
+                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.text: _u.Token.NotDef.str_t,
+                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.start: _u.Token.NotDef.str_t,
+                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.finish: _u.Token.NotDef.str_t
                 },
-                sectionInfoEntryPrefix + cls.PubProp.imageProp_ID: {
-                    sectionInfoEntryPrefix + cls.PubProp.imageContentFileMoveLinesNumber_ID: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber_ID: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + cls.PubProp.imLinkDict_ID: _u.Token.NotDef.dict_t
+                sectionInfoEntryPrefix + cls.PubProp.imageProp: {
+                    sectionInfoEntryPrefix + cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                    sectionInfoEntryPrefix + cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t
                 }
                 
         }
@@ -87,36 +77,36 @@ class SectionInfoStructure:
 
     def getSectionJSONKeyPrefixFormPath(path):
         sectionPathSeparator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID) 
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator) 
         secPrefix = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         return secPrefix + "_" + path.replace(sectionPathSeparator, "_")   
 
     def createStructure():
         os.makedirs(_ufs._getPathToSectionsFolder())
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currentPage_ID, 
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currentPage, 
                                             _u.Token.NotDef.str_t)
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection_ID,
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection,
                                             _u.Token.NotDef.str_t)
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currTopSection_ID, 
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currTopSection, 
                                             _u.Token.NotDef.str_t)
         return
 
     @classmethod
     def addSection(cls, sectionPath):
         # set the curr section to new section
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection_ID, sectionPath)
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
 
         sectionPathSeparator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID) 
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator) 
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
         dirPathToSection = _upan.Current.Paths.Section.abs()
 
-        if not os.path.exists(dirPathToSection):
+        if not ocf.fc.currFilesystemApp.checkIfFileOrDirExists(dirPathToSection):
             msg = "The sections structure was not present will create it.\n" + \
-                    "Creating path: " + dirPathToSection
+                    "Creating path: '{0}'".format(dirPathToSection)
             log.autolog(msg)
             
             # create folders
@@ -163,6 +153,21 @@ class SectionInfoStructure:
         shutil.copy(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
     
     @classmethod
+    def removeSection(cls, sectionPath):
+        # take care if the section is current section
+
+
+        currSection = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+        # set the curr section to not defined
+        # bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+
+        # sectionPathSeparator = \
+        #     bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator) 
+
+        
+        pass
+
+    @classmethod
     def readProperty(cls, sectionPath, propertyName):
         fullPathToSection = _ufs._getSectionFilepath(sectionPath)
         fullPathToSection = os.path.join(fullPathToSection, bfs.BookInfoStructure.sectionsInfoFilename)
@@ -187,9 +192,9 @@ class SectionInfoStructure:
         fullPathToSection = os.path.join(fullPathToSection, bfs.BookInfoStructure.sectionsInfoFilename)
 
         sectionPathSeparator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         sectionPrefixForTemplate = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         _u.JSON.updateProperty(fullPathToSection, 
                             sectionPrefixForTemplate + "_" + sectionPathForTemplate  + propertyName,
@@ -198,7 +203,7 @@ class SectionInfoStructure:
 
 class SectionCurrent:
     def getSubsectionsListForCurrTopSection():
-        currSectionPath = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currTopSection_ID)
+        currSectionPath = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currTopSection)
         childrensList = bfs.BookInfoStructure.getSubsectionsList(currSectionPath)
         return childrensList
 
@@ -208,7 +213,7 @@ class SectionCurrent:
 
     @classmethod
     def getSectionNameWprefix(cls):
-        sectionPrefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+        sectionPrefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         currSection = cls.getSectionNameNoPrefix()
         if currSection == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t

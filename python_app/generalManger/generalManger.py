@@ -10,7 +10,9 @@ import layouts.layouts_manager as lm
 
 
 class GeneralManger:
-    def AddNewBook(bookName, bookPath, originalMaterialLocation, originalMaterialRelPath):
+    def AddNewBook(bookName, bookPath, 
+                   originalMaterialLocation, originalMaterialRelPath,
+                   originalMaterialName):
         # create filesystem
         addedNewbook = fsf.Wr.FileSystemManager.addNewBook(bookName, bookPath)
         if not addedNewbook:
@@ -20,7 +22,8 @@ class GeneralManger:
 
         # add original material
         fsf.Wr.FileSystemManager.addOriginalMaterial(originalMaterialLocation, 
-                                                    originalMaterialRelPath)
+                                                    originalMaterialRelPath,
+                                                    originalMaterialName)
 
         # update settings
         sf.Wr.Manager.Book.addNewBook(bookName, bookPath)

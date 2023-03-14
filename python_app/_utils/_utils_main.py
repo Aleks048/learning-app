@@ -125,6 +125,11 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
 JSON
 '''
 class JSON:
+    def createFromTemplate(path, template):
+        with open(path, "w+") as f:
+            jsonObj = json.dumps(template, ident = 4)
+            f.write(jsonObj)
+
     def readFile(filePath):
         # print("JSON.readFile - reading json file: " + filePath)
         with open(filePath, 'r') as f:

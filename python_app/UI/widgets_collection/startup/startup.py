@@ -50,7 +50,7 @@ class AddBook_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 6},
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 7},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Add Book"
@@ -69,11 +69,13 @@ class AddBook_BTN(ww.currUIImpl.Button,
         bookName = self.notify(StrtupBookName_ETR)
         originalMaterialLocation = self.notify(StrtupOriginalMaterialLocation_ETR)
         originalMaterialRelPath = self.notify(StrtupOriginalMaterialRelPath_ETR)
+        originalMaterialName = self.notify(StrtupOriginalMaterialName_ETR)
 
         gm.GeneralManger.AddNewBook(bookName, 
                                     bookPath,
                                     originalMaterialLocation,
-                                    originalMaterialRelPath)
+                                    originalMaterialRelPath,
+                                    originalMaterialName)
 
         # update choosing book OM
         self.notify(ChooseStartupBook_OM)
@@ -178,6 +180,33 @@ class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
             ww.TkWidgets.__name__ : {}
         }
+        defaultText = "Original Material Rel Path"
+        name = "_originalMaterialRelPath"
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        extraBuildOptions,
+                        defaultText = defaultText)
+        super().setData(defaultText)
+    
+        
+    def receiveNotification(self, _):
+        return self.getData()
+
+
+class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 5},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
+            ww.TkWidgets.__name__ : {}
+        }
         defaultText = "Original Material Name"
         name = "_originalMaterialName"
 
@@ -197,9 +226,9 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
 
     def __init__(self, patentWidget, prefix):
         name = "_originalMaterialLocattion"
-        defaultText = "Original Material Locattion"
+        defaultText = "Original Material Location"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 5},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraBuildOptions = {

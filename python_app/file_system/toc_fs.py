@@ -21,19 +21,19 @@ class TOCStructure:
         NAME_MARKER = "[SECTION_NAME]"
         CONTENT_MARKER = "[CONTENT_MARKER]"
         
-        text_ID = "TOC_text"
-        start_ID = "TOC_sectionStart"
-        finish_ID = "TOC_sectionFinish"
+        text = "TOC_text"
+        start = "TOC_sectionStart"
+        finish = "TOC_sectionFinish"
         
         propertyToMarker = {
-            text_ID: TEXT_MARKER,
-            start_ID: START_MARKER,
-            finish_ID: FINISH_MARKER
+            text: TEXT_MARKER,
+            start: START_MARKER,
+            finish: FINISH_MARKER
         }
  
         def getPropertyFormPath(path, propertyName):
-            separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
-            sectionPrefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+            separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
+            sectionPrefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
             return sectionPrefix + "_" + path.replace(separator, "_") + propertyName
 
     @classmethod
@@ -42,17 +42,17 @@ class TOCStructure:
         
     @classmethod
     def addSection(cls, sectionPath):
-        sectionPathSeparator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        sectionPathSeparator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         
         for i,sectionName in enumerate(sectionPathList):
-            sectionsList = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_ID)
+            sectionsList = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections)
             sectionData = bfs.BookInfoStructure.readProperty(sectionName)
             if sectionData == None:
                 continue
 
-            separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+            separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
             topSectionName = sectionName.split(separator)[0]
             
             sectionsTOCLines = [""]
@@ -74,8 +74,8 @@ class TOCStructure:
 
     
     def _getTOCSectionNameFromSectionPath(sectionPath):
-        prefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
-        separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator_ID)
+        prefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
+        separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         return prefix + "_" + sectionPath.split(separator)[0]
 
     @classmethod
@@ -128,7 +128,7 @@ class TOCStructure:
 
     @classmethod
     def _getTOCFilePath(cls, topSectionName):
-        secprefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix_ID)
+        secprefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         tocFolderPath = cls._getTOCDirPath()
         if (os.path.isdir(tocFolderPath)):
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")

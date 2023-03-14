@@ -52,8 +52,6 @@ class ClassGetProperty(type):
         return getattr(sys.modules[moduleName], className)
 
 
-
-
 class Wr:
     class FileSystemManager(fsm.FileSystemManager):
         pass
@@ -86,8 +84,6 @@ class Wr:
 
     class Utils(fsu.Utils):
         pass
-
-
 
 
 class Data:

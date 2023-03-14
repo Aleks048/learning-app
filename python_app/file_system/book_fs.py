@@ -21,27 +21,9 @@ class BookInfoStructure:
     TOCbaseRelPath = "TOC/"
     TOCFilename = "TOCinfo.json"
 
-    currSectionFull_ID= "currChapterFull"# need to be removed
+    currSectionFull= "currChapterFull"# need to be removed
     
     class PubProp:
-        version_ID = "version"
-        sections_prefix_ID = "sections_prefix"
-        sections_path_separator_ID = "sections_path_separator"
-        sections_ID = "sections"
-        
-        #currState
-        currentState_ID = "currentState"
-        currentPage_ID = "currentPage"
-        currTopSection_ID = "currTopSection"
-        currSection_ID = "currSection"
-
-        #imagesProperties
-        imageProp_ID = "imageProp"
-        imageContentFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
-        imageTOCFileMoveLinesNumber_ID = "imageContentFileMoveLinesNumber"
-
-        originalMaterialRelPath_ID = "originalMaterialRelPath"
-        
         version = "version"
         sections_prefix = "sections_prefix"
         sections_path_separator = "sections_path_separator"
@@ -58,29 +40,26 @@ class BookInfoStructure:
         imageContentFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
 
-        originalMaterialRelPath = "originalMaterialRelPath"
+        currOriginalMaterialRelPath = "currOriginalMaterialRelPath"
 
     bookInfoTemplate = {
-        PubProp.version_ID: "0.1",
-        PubProp.sections_prefix_ID: "sec",
-        PubProp.sections_path_separator_ID: ".",
-        PubProp.originalMaterialRelPath_ID: "",
-        PubProp.sections_ID: {
+        PubProp.version: "0.1",
+        PubProp.sections_prefix: "sec",
+        PubProp.sections_path_separator: ".",
+        PubProp.sections: {
         },
-        PubProp.currentState_ID: {
-            PubProp.currentPage_ID: "",
-            PubProp.currSection_ID: "",
-            PubProp.currTopSection_ID: ""
+        PubProp.currentState: {
+            PubProp.currentPage: "",
+            PubProp.currSection: "",
+            PubProp.currTopSection: "",
+            PubProp.currOriginalMaterialRelPath: "",
         },
-        PubProp.imageProp_ID: {
-            PubProp.imageContentFileMoveLinesNumber_ID: "20",
-            PubProp.imageTOCFileMoveLinesNumber_ID: "0"
+        PubProp.imageProp: {
+            PubProp.imageContentFileMoveLinesNumber: "20",
+            PubProp.imageTOCFileMoveLinesNumber: "0"
         }
     }
 
-    @classmethod
-    def test(cls):
-        log.autolog("Hiiop")
 
     @classmethod
     def createStructure(cls, bookInfoFilepath = ""):
@@ -93,14 +72,12 @@ class BookInfoStructure:
         if not os.path.exists(expectedFileDir):
             _waitDummy = os.makedirs(expectedFileDir)
         
-        with open(bookInfoFilepath, "w+") as f:
-            jsonObj = json.dumps(cls.bookInfoTemplate, indent = 4)
-            f.write(jsonObj)
+        _u.JSON.createFromTemplate(bookInfoFilepath, cls.bookInfoTemplate)
 
     @classmethod
     def addSection(cls, sectionPath):
         sectionPathSeparator = \
-            BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator_ID)
+            BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_path_separator)
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         relSectionPath = ""
@@ -112,7 +89,7 @@ class BookInfoStructure:
             sectionFilepath = os.path.join(pathToTopSection, BookInfoStructure.sectionsInfoFilename)
 
             # update the book info
-            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections_ID)
+            bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections)
             
             def addBookInfoSection(parentProperty):
                 parentProperty[relSectionPath] = {
@@ -140,7 +117,7 @@ class BookInfoStructure:
                 
                 _u.DICT.updateProperty(bookInfoSections, prevRelSectionPath, parentProperty)
             
-            BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections_ID, bookInfoSections)
+            BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
 
     @classmethod
     def _getRelFilepath(cls):
@@ -164,16 +141,16 @@ class BookInfoStructure:
         if sectionPath == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.list_t
 
-        sections_ID = cls.PubProp.sections_ID
+        sections = cls.PubProp.sections
         outSubsectionsList = []
         
         if sectionPath == _u.Token.NotDef.str_t:
             return []
 
         if sectionPath == "":
-            subsections = cls.readProperty(sections_ID)
+            subsections = cls.readProperty(sections)
         else:
-            subsections = cls.readProperty(sectionPath)[sections_ID]
+            subsections = cls.readProperty(sectionPath)[sections]
 
         subsectionsNamesList = list(subsections.keys())
         subsectionsList = list(subsections.values())
@@ -182,7 +159,7 @@ class BookInfoStructure:
             sectionName = subsectionsNamesList[0]
 
             bottomSubsection = True
-            for subSecName, subSec in section[sections_ID].items():
+            for subSecName, subSec in section[sections].items():
                 bottomSubsection = False
                 subsectionsList.append(subSec)
                 subsectionsNamesList.append(subSecName)
@@ -197,7 +174,7 @@ class BookInfoStructure:
 
     @classmethod 
     def getTopSectionsList(cls):
-        sections =cls.readProperty(cls.PubProp.sections_ID)
+        sections =cls.readProperty(cls.PubProp.sections)
         if sections == {}:
             return _u.Token.NotDef.list_t
         return list(sections.keys())

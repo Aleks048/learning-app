@@ -13,21 +13,10 @@ class Paths:
             def getAbs(bookPath):
                 originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
                 relMainBookPath = fsf.Data.Book.originalMaterialRelPath
-                return os.path.join(originalMaterialbasePath, relMainBookPath)
-
-            @classmethod
-            def getCurrAbs(cls):
-               bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-               return cls.getAbs(bookPath)
-                
+                return os.path.join(originalMaterialbasePath, relMainBookPath)         
         
         def getAbs(bookPath):
             return os.path.join(bookPath, fsf.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
-
-        @classmethod        
-        def getCurrAbs(cls):
-            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-            return cls.getAbs(bookPath)
     
     class Section:
         sectionFolderName = "subsections"
@@ -99,6 +88,18 @@ class Names:
 
 class Current:
     class Paths:
+        class OriginalMaterial:
+            class MainBook:
+                @classmethod
+                def abs(cls):
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    return Paths.OriginalMaterial.MainBook.getAbs(bookPath)
+            
+            @classmethod        
+            def abs(cls):
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                return Paths.OriginalMaterial.getAbs(bookPath)
+
         class Section:
             def abs():
                 currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -129,7 +130,7 @@ class Current:
 
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
                 name = fsf.Data.Sec.name(currSecName)
-                startPage = fsf.Data.Sec.startPage_ID(currSecName)
+                startPage = fsf.Data.Sec.startPage(currSecName)
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
                 text = "Sec path: '{0}'. Name: '{1}'. St page: '{2}'.".format(currSecName, name, startPage)
