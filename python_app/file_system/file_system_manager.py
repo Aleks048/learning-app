@@ -62,50 +62,29 @@ class FileSystemManager:
         # add to TOC structure
         tocfs.TOCStructure.addSection(sectionPath)
 
-def _updateSectionProperty(sectionPath, propertyName, newValue):
-    # thange the TOC
-    tocfs.TOCStructure.updateTOCfiles(sectionPath, propertyName, newValue)
+
+# def removeSection():
+#     # # remove to Sections structure
+#     # fs.SectionInfoStructure.removeSection(sectionPath)
     
-    # change the section.json
-    sectionJSONPath = bfs.BookInfoStructure.readProperty(sectionPath)["path"]
-    fullPropertyName =tocfs.TOCStructure.PubPro.getPropertyFormPath(sectionPath, propertyName)
-    _u.JSON.updateProperty(sectionJSONPath, fullPropertyName, newValue)
+#     # # remove BookInfo structure
+#     # fs.BookInfoStructure.removeSection(sectionPath)
 
-def updateSectionStartPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.start_ID, newValue)
+#     # # remove TOC structure
+#     # fs.SectionInfoStructure.removeSection(sectionPath)
+#     pass
 
-def updateSectionFinishPage(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.finish_ID, newValue)
+# def moveSection():
+#     pass
 
-def updateSectionTOCText(sectionPath, newValue):
-    _updateSectionProperty(sectionPath, tocfs.TOCStructure.PubPro.text_ID, newValue)
+# def passMarerialToBook():
+#     # original structure add material
 
-def updateSectionProperty(sectionPath, propertyName, newValue):
-    log.autolog("Updating: " + propertyName)
-    sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
+#     # add to original material list
+#     pass
 
-def removeSection():
-    # # remove to Sections structure
-    # fs.SectionInfoStructure.removeSection(sectionPath)
-    
-    # # remove BookInfo structure
-    # fs.BookInfoStructure.removeSection(sectionPath)
+# def backupBookToDB():
+#     pass
 
-    # # remove TOC structure
-    # fs.SectionInfoStructure.removeSection(sectionPath)
-    pass
-
-def moveSection():
-    pass
-
-def passMarerialToBook():
-    # original structure add material
-
-    # add to original material list
-    pass
-
-def backupBookToDB():
-    pass
-
-def loadBookFromDB():
-    pass
+# def loadBookFromDB():
+#     pass

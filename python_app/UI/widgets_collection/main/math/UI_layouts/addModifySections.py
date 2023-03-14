@@ -20,7 +20,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Modify"
         name = "_modifySubsection_BTN"
@@ -193,6 +193,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 
 
 class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
+    labelOptions = ["Swith layout", "Swith layout"]
+
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
@@ -248,29 +250,6 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         return super().render(widjetObj, renderData, **kwargs)
 
 
-class SetSectionStartPage_BTN(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
-        }
-        text = "Start Page"
-        name = "_setSectionStartPage_BTN"
-
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        currTopSection = fsf.Data.Book.currTopSection
-            
-        startPage = self.notify(SetSectionStartPage_ETR)
-        fsf.Data.Sec.startPage(currTopSection, startPage)
-
-
 class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
@@ -288,9 +267,6 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType, data = None, newStartPage = ""):
-        if broadcasterType == SetSectionStartPage_BTN:
-            text = self.getData()
-            return text if text != self.defaultText else ""
         if broadcasterType == CreateNewTopSection_BTN:
             text = self.getData()
             return text if text != self.defaultText else ""
@@ -306,30 +282,6 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
                 self.updateDafaultText(newStartPage)
             else:
                 return self.getData()
-
-
-class SetSectionName_BTN(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
-        }
-        text = "Name"
-        name = "_setSectionName_BTN"
-
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        # should get it from the OM
-        currTopSection = fsf.Data.Book.currTopSection
-            
-        name = self.notify(SetSectionName_ETR)
-        fsf.Data.Sec.name(currTopSection, name)
 
 
 class SetSectionName_ETR(ww.currUIImpl.TextEntry):
@@ -350,9 +302,6 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType, newName = ""):
-        if broadcasterType == SetSectionName_BTN:
-            text = self.getData()
-            return text if text != self.defaultText else ""
         if broadcasterType == CreateNewTopSection_BTN:
             text = self.getData()
             return text if text != self.defaultText else ""

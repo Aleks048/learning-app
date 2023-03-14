@@ -197,16 +197,8 @@ class LayoutManagers:
             setSectionStartPage_ETR = amsl.SetSectionStartPage_ETR(winRoot, self.prefix)
             self.addWidget(setSectionStartPage_ETR)
 
-            setSectionStartPage_BTN = amsl.SetSectionStartPage_BTN(winRoot, self.prefix)
-            self.addWidget(setSectionStartPage_BTN)
-            setSectionStartPage_BTN.addListenerWidget(setSectionStartPage_ETR)
-
             setSectionName_ETR = amsl.SetSectionName_ETR(winRoot, self.prefix)
             self.addWidget(setSectionName_ETR)
-
-            setSectionName_BTN = amsl.SetSectionName_BTN(winRoot, self.prefix)
-            self.addWidget(setSectionName_BTN)
-            setSectionName_BTN.addListenerWidget(setSectionName_ETR)
 
             currSectionPath_LBL = amsl.CurrSectionPath_LBL(winRoot, self.prefix)
             self.addWidget(currSectionPath_LBL)
