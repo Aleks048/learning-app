@@ -242,6 +242,7 @@ class LayoutManagers:
 
             modifySubsection_BTN.addListenerWidget(currSectionPath_LBL)
             modifySubsection_BTN.addListenerWidget(chooseSubsection_OM)
+            modifySubsection_BTN.addListenerWidget(chooseTopSection_OM)
             modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionName_ETR)
 

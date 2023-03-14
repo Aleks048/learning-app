@@ -35,6 +35,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
     def cmd(self):
         # get working subsection
         subsecPath = self.notify(ChooseSubsection_OM)
+        topSection = self.notify(ChooseTopSection_OM)
 
         # get start page
         startPage = self.notify(SetSectionStartPage_ETR)
@@ -52,15 +53,20 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
                                                     mmm.MathMenuManager)
         mainManager.show()
 
-        #update subsection on successful response
+        # update subsection on successful response
         if response == True:
             fsf.Data.Sec.name(subsecPath, name)
             fsf.Data.Sec.startPage(subsecPath, startPage)
 
-        log.autolog(name)
         self.notify(CurrSectionPath_LBL, secPath = subsecPath)
         self.notify(SetSectionName_ETR, newName = name)
         self.notify(SetSectionStartPage_ETR, newStartPage = startPage)
+
+        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
+        subsectionsList.sort()
+        self.notify(ChooseSubsection_OM, subsectionsList, subsecPath)
+        self.notify(ChooseTopSection_OM, topSection)
+
 
 
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
@@ -101,7 +107,11 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
             self.updateOptions(newOptionList)
             self.setData(prevSubsectionPath)
         if broadcasterType == ModifySubsection_BTN:
-            return self.getData()
+            if prevSubsectionPath == "":
+                return self.getData()
+            else:
+                self.updateOptions(newOptionList)
+                self.setData(prevSubsectionPath)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
@@ -149,9 +159,6 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
         subsectionsList.sort()
-        
-
-
         name = fsf.Data.Sec.name(prevSubsectionPath)
         startPage = fsf.Data.Sec.startPage(prevSubsectionPath)
         #
@@ -165,8 +172,11 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         self.notify(SetSectionName_ETR, newName = name)
         self.notify(SetSectionStartPage_ETR, newStartPage = startPage)
     
-    def receiveNotification(self, broadcasterType):
-        return self.getData()
+    def receiveNotification(self, broadcasterType, topSec = ""):
+        if topSec == "":
+            return self.getData()
+        else:
+            self.setData(topSec)
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
