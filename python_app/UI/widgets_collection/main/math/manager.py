@@ -240,6 +240,7 @@ class LayoutManagers:
             modifySubsection_BTN = amsl.ModifySubsection_BTN(winRoot, self.prefix)
             self.addWidget(modifySubsection_BTN)
 
+            modifySubsection_BTN.addListenerWidget(currSectionPath_LBL)
             modifySubsection_BTN.addListenerWidget(chooseSubsection_OM)
             modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionName_ETR)

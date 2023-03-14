@@ -5,6 +5,7 @@ import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.message.manager as mesm
+import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_data as wd
 import file_system.file_system_facade as fsf
 import UI.widgets_collection.main.math.UI_layouts.common as cl
@@ -44,13 +45,22 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
         messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mesm.MessageMenuManager)
         response = messageManager.show(
-            "Do you want to change name: '{1}' start page: '{1}' for subsection: '{2}'".format(name, startPage, subsecPath), 
+            "Do you want to change name: '{0}' start page: '{1}' for subsection: '{2}'".format(name, startPage, subsecPath), 
             True)
         
+        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                    mmm.MathMenuManager)
+        mainManager.show()
+
         #update subsection on successful response
         if response == True:
             fsf.Data.Sec.name(subsecPath, name)
             fsf.Data.Sec.startPage(subsecPath, startPage)
+
+        log.autolog(name)
+        self.notify(CurrSectionPath_LBL, secPath = subsecPath)
+        self.notify(SetSectionName_ETR, newName = name)
+        self.notify(SetSectionStartPage_ETR, newStartPage = startPage)
 
 
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
@@ -206,6 +216,10 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
             newText = self.__getSectionPath_Formatted(secPath)
             self.changeText(newText)
         
+        if broadcasterType == ModifySubsection_BTN:
+            newText = self.__getSectionPath_Formatted(secPath)
+            self.changeText(newText)
+        
     def __getCurrSectionPath_Formatted(self):
         currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
@@ -250,7 +264,7 @@ class SetSectionStartPage_BTN(ww.currUIImpl.Button):
 class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
-        defaultText = "Set Section Start Page"
+        defaultText = fsf.Data.Sec.startPage(fsf.Data.Book.currSection)
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -277,7 +291,11 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
             self.setData(newStartPage)
             self.updateDafaultText(newStartPage)
         if broadcasterType == ModifySubsection_BTN:
-            return self.getData()
+            if newStartPage not in (None, ""):
+                self.setData(newStartPage)
+                self.updateDafaultText(newStartPage)
+            else:
+                return self.getData()
 
 
 class SetSectionName_BTN(ww.currUIImpl.Button):
@@ -308,7 +326,7 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
 
     def __init__(self, patentWidget, prefix):
         name = "_setSectionName_ETR"
-        defaultText = "Set Section Name"
+        defaultText = fsf.Data.Sec.name(fsf.Data.Book.currSection)
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -335,7 +353,11 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
             self.setData(newName)
             self.updateDafaultText(newName)
         if broadcasterType == ModifySubsection_BTN:
-            return self.getData()
+            if newName not in (None, ""):
+                self.setData(newName)
+                self.updateDafaultText(newName)
+            else:
+                return self.getData()
 
 
 class NewSectionPath_ETR(ww.currUIImpl.TextEntry):
