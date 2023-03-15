@@ -1,5 +1,6 @@
 import os
 import subprocess
+from threading import Thread
 import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.file_system_facade as fsm
@@ -14,7 +15,8 @@ class SkimCalls:
         else:
             url = "skim://{0}#page={1}".format(pdfPath, pdfPage)
         
-        subprocess.Popen(['open', url]).wait()
+        p = subprocess.Popen(['open', url])
+        _waitDummy = p.communicate()
         log.autolog("Opened {0} in skim.".format(pdfPath))
     
     @classmethod

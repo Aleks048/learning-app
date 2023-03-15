@@ -87,6 +87,9 @@ class LayoutManagers:
             switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
             self.addWidget(switchToCurrSectionLayout_BTN)
 
+            chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
+            self.addWidget(chooseOriginalMaterial_OM)
+
             #
             # post init
             #

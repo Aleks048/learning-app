@@ -4,9 +4,15 @@ import _utils._utils_main as _u
 import settings.facade as sf
 
 def get_NameOfFrontSkimDoc_CMD():
-	cmd = "osascript -e '\n\
-tell application \"" + sf.Wr.Data.TokenIDs.AppIds.skim_ID + "\" to return name of front document\n\
-'"
+	cmd = "osascript -e '\
+tell application \"{0}\" to return name of front document\
+'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID)
+	return cmd
+
+def get_PageOfFrontSkimDoc_CMD():
+	cmd = "osascript -e '\
+tell application \"{0}\" to return page of front document\
+'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID)
 	return cmd
 
 

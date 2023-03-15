@@ -356,6 +356,7 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSectionNameWprefix)
         ocf.Wr.LatexCalls.buildPDF(bookPath, targetSectionNameWprefix)
 
+
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {

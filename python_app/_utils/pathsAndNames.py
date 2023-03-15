@@ -12,7 +12,7 @@ class Paths:
         class MainBook:
             def getAbs(bookPath):
                 originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
-                relMainBookPath = fsf.Data.Book.originalMaterialRelPath
+                relMainBookPath = fsf.Data.Book.currOriginalMaterialRelPath
                 return os.path.join(originalMaterialbasePath, relMainBookPath)         
         
         def getAbs(bookPath):

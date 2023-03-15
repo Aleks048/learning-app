@@ -22,7 +22,16 @@ class OriginalMaterialStructure:
     }
     
     class PubProp:
-        books = "materials"
+        materials = "materials"
+
+        # book props
+        path = "Path"
+        currPage = "CurrPage"
+
+    bookTemplate = {
+        PubProp.path : "Path",
+        PubProp.currPage : "CurrPage"
+    }
 
 
     @classmethod
@@ -37,7 +46,7 @@ Creating path: '{0}'".format(origMatAbsPath))
         
         # create file to track original materials with names and paths
         structureFile = cls.__getJSONfilepath()
-        ocf.fc.currFilesystemApp.createFile(structureFile)
+        ocf.Wr.FsAppCalls.createFile(structureFile)
         _u.JSON.createFromTemplate(structureFile, cls.template)
     
     @classmethod
@@ -60,30 +69,32 @@ Creating path: '{0}'".format(origMatAbsPath))
         
         # update data structure to keep the dict of books and paths to them
         cls.setMaterialPath(materialName, originnalMaterialDestinationPath)
+        cls.setMaterialPath(materialName, 1)
          
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
-    
-    @classmethod
-    def __getJSONfilepath(cls,  bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()):
-        origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
-        # create file to track original materials with names and paths
-        return os.path.join(origMatAbsPath, "origMat.json")
 
     @classmethod
-    def __getMaterailsDict(cls):
-        jsonFilepath = cls.__getJSONfilepath()
-        return _u.JSON.readProperty(jsonFilepath,
-                                    cls.PubProp.books)
-
+    def getOriginalMaterialsNames(cls):
+        origMatDict = cls.__getMaterailsDict()
+        return list(origMatDict.keys())
 
     @classmethod
     def getMaterialPath(cls, bookName):
         books = cls.__getMaterailsDict()
+        try:
+            return books[bookName][OriginalMaterialStructure.PubProp.path]
+        except:
+            log.autolog("No book with name '{0}'".format(bookName))
+            return None
+    
+    @classmethod
+    def getMaterialCurrPage(cls, bookName):
+        books = cls.__getMaterailsDict()
         
         try:
-            return books[bookName]
+            return books[bookName][OriginalMaterialStructure.PubProp.currPage]
         except:
             log.autolog("No book with name '{0}'".format(bookName))
             return None
@@ -91,8 +102,32 @@ Creating path: '{0}'".format(origMatAbsPath))
     @classmethod
     def setMaterialPath(cls, materialName, materialPath):
         books = cls.__getMaterailsDict()   
-        if materialName in books.keys():
-            log.autolog("The material with name '{0}' already exists.".format(materialName))
-            raise KeyError
-        else:
-            books[materialName] = materialPath
+        books[materialName][OriginalMaterialStructure.PubProp.path] = materialPath
+        cls.__updateMaterialDict(books)
+    
+    @classmethod
+    def setMaterialCurrPage(cls, materialName, currPage):
+        books = cls.__getMaterailsDict()
+        books[materialName][OriginalMaterialStructure.PubProp.currPage] = currPage
+        cls.__updateMaterialDict(books)
+        
+    @classmethod
+    def __getJSONfilepath(cls,  bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()) -> str:
+        origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
+        # create file to track original materials with names and paths
+        return os.path.join(origMatAbsPath, "origMat.json")
+    
+    @classmethod
+    def __updateMaterialDict(cls, newMatDict):
+        jsonFilepath = cls.__getJSONfilepath()
+        _u.JSON.updateProperty(jsonFilepath, 
+                               OriginalMaterialStructure.PubProp.materials,
+                               newMatDict)
+        pass
+    
+    @classmethod
+    def __getMaterailsDict(cls) -> dict:
+        jsonFilepath = cls.__getJSONfilepath()
+        
+        return _u.JSON.readProperty(jsonFilepath,
+                                    cls.PubProp.materials)

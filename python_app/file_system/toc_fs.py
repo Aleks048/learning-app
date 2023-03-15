@@ -134,5 +134,5 @@ class TOCStructure:
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
         else:
             log.autolog("The TOC filepath is not present. Will create: {0}".format(tocFolderPath))
-            ocf.fc.currFilesystemApp.createFile(tocFolderPath)
+            ocf.Wr.FsAppCalls.createFile(tocFolderPath)
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")

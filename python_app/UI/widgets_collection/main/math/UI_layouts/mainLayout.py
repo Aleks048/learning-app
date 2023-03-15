@@ -1,5 +1,8 @@
 import os
 import tkinter as tk
+import subprocess
+from threading import Thread
+import time
 
 import file_system.file_system_facade as fsf
 import tex_file.tex_file_facade as tff
@@ -19,6 +22,73 @@ import data.constants as dc
 import data.temp as dt
 
 import settings.facade as sf
+
+import scripts.osascripts as oscr
+
+
+class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
+    prevChoice = ""
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseOriginalMaterial_OM"
+
+        origMatNames = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
+
+        super().__init__(prefix, 
+                        name, 
+                        origMatNames,
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+        
+        #TODO: set the data to currOrigMaterialName
+        currOrigMatRelPath = fsf.Data.Book.currOriginalMaterialRelPath
+        currOrigMatName = currOrigMatRelPath.split("/")[-1]
+        currOrigMatName = currOrigMatName.replace(".pdf", "")
+        self.setData(currOrigMatName)
+        self.prevChoice = currOrigMatName
+    
+    def cmd(self):
+        # update the currPage for original material
+        cmd = oscr.get_PageOfFrontSkimDoc_CMD()
+        p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
+        frontSkimDocumentPage, _ = p.communicate()
+        frontSkimDocumentPage = frontSkimDocumentPage.decode("utf-8")
+        # frontSkimDocumentPage = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        page = frontSkimDocumentPage.split("page ")[1]
+        page = page.split(" ")[0]
+        log.autolog(self.prevChoice)
+        fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(self.prevChoice, page)
+        
+        _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                    self.prevChoice)
+        cmd = oscr.closeSkimDocument(oldPID, self.prevChoice)    
+        subprocess.check_output(cmd, shell=True)
+
+        # open another original material
+        origMatName = self.getData()
+        self.prevChoice = origMatName
+        origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
+        origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+        t = Thread(target = ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage))
+        t.start()
+        t.join()
+        width, height = _u.getMonitorSize()
+        halfWidth = int(width / 2)
+        _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                    origMatName)
+        while newPID == None:
+            time.sleep(0.1)
+            _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                    origMatName)
+        cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], origMatName)
+        subprocess.Popen(cmd, shell=True).wait()
+
+
 
 class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
@@ -182,7 +252,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 4},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"

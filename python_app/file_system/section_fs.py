@@ -104,7 +104,7 @@ class SectionInfoStructure:
 
         dirPathToSection = _upan.Current.Paths.Section.abs()
 
-        if not ocf.fc.currFilesystemApp.checkIfFileOrDirExists(dirPathToSection):
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(dirPathToSection):
             msg = "The sections structure was not present will create it.\n" + \
                     "Creating path: '{0}'".format(dirPathToSection)
             log.autolog(msg)
