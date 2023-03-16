@@ -87,6 +87,11 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
                                                     newChoiceID)
         cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], origMatName)
         subprocess.Popen(cmd, shell=True).wait()
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        names = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
+        self.updateOptions(names)
+        return super().render(widjetObj, renderData, **kwargs)
 
 
 
