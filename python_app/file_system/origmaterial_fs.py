@@ -64,12 +64,12 @@ Creating path: '{0}'".format(origMatAbsPath))
                 return False
         
         # update curr material let path
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currOriginalMaterialRelPath,
-                                            structureRelPath)
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currOrigMatName,
+                                            materialName)
         
         # update data structure to keep the dict of books and paths to them
         cls.setMaterialPath(materialName, originnalMaterialDestinationPath)
-        cls.setMaterialPath(materialName, 1)
+        cls.setMaterialCurrPage(materialName, "1")
          
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
@@ -79,6 +79,12 @@ Creating path: '{0}'".format(origMatAbsPath))
     def getOriginalMaterialsNames(cls):
         origMatDict = cls.__getMaterailsDict()
         return list(origMatDict.keys())
+    
+    @classmethod
+    def getOriginalMaterialsFilename(cls, matName):
+        matPath = cls.getMaterialPath(matName)
+        matName = matPath.split("/")[-1]
+        return matName
 
     @classmethod
     def getMaterialPath(cls, bookName):
@@ -101,15 +107,23 @@ Creating path: '{0}'".format(origMatAbsPath))
     
     @classmethod
     def setMaterialPath(cls, materialName, materialPath):
-        books = cls.__getMaterailsDict()   
-        books[materialName][OriginalMaterialStructure.PubProp.path] = materialPath
-        cls.__updateMaterialDict(books)
+        materials = cls.__getMaterailsDict() 
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.path] = materialPath
+        cls.__updateMaterialDict(materials)
     
     @classmethod
     def setMaterialCurrPage(cls, materialName, currPage):
-        books = cls.__getMaterailsDict()
-        books[materialName][OriginalMaterialStructure.PubProp.currPage] = currPage
-        cls.__updateMaterialDict(books)
+        materials = cls.__getMaterailsDict()
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.currPage] = currPage
+        cls.__updateMaterialDict(materials)
         
     @classmethod
     def __getJSONfilepath(cls,  bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()) -> str:

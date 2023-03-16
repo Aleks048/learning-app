@@ -14,7 +14,6 @@ import data.constants as dc
 import data.temp as dt
 
 
-
 class ModifySubsection_BTN(ww.currUIImpl.Button,
                            dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):

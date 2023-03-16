@@ -11,9 +11,8 @@ class Paths:
     class OriginalMaterial:
         class MainBook:
             def getAbs(bookPath):
-                originalMaterialbasePath = Paths.OriginalMaterial.getAbs(bookPath)
-                relMainBookPath = fsf.Data.Book.currOriginalMaterialRelPath
-                return os.path.join(originalMaterialbasePath, relMainBookPath)         
+                currMaterialName = fsf.Data.Book.currOrigMatName
+                return fsf.omfs.OriginalMaterialStructure.getMaterialPath(currMaterialName)      
         
         def getAbs(bookPath):
             return os.path.join(bookPath, fsf.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)

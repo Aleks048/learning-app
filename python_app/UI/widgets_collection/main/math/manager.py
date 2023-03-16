@@ -11,6 +11,7 @@ import UI.widgets_collection.main.math.UI_layouts.common as com
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as ml
 import UI.widgets_collection.main.math.UI_layouts.sectionLayout as sl
 import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
+import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
 import data.constants as dc
 
 class LayoutManagers:
@@ -31,10 +32,10 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            winRoot.configureColumn(0, weight = 1)
-            winRoot.configureColumn(1, weight = 1)
-            winRoot.configureColumn(2, weight = 3)
-            winRoot.configureColumn(3, weight = 1)
+            # winRoot.configureColumn(0, weight = 1)
+            # winRoot.configureColumn(1, weight = 1)
+            # winRoot.configureColumn(2, weight = 3)
+            # winRoot.configureColumn(3, weight = 1)
             
             addToTOC_CHB = ml.addToTOC_CHB(winRoot, self.prefix)
             self.addWidget(addToTOC_CHB)
@@ -90,6 +91,9 @@ class LayoutManagers:
             chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
             self.addWidget(chooseOriginalMaterial_OM)
 
+            layoutsSwitchOrigMatVSMain_BTN = com.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
+            self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
+
             #
             # post init
             #
@@ -99,8 +103,10 @@ class LayoutManagers:
             self.winRoot.configureColumn(1, weight = 1)
             self.winRoot.configureColumn(2, weight = 3)
             self.winRoot.configureColumn(3, weight = 1)
+            self.winRoot.configureColumn(4, weight = 1)
             return super().show()
     
+
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
 
@@ -177,6 +183,7 @@ class LayoutManagers:
             self.winRoot.configureColumn(4, weight = 1)
             return super().show()
     
+
     class _AddModifySection(wm.MenuLayout_Interface):
         prefix = "_AddModifySectionLayout"
 
@@ -248,6 +255,52 @@ class LayoutManagers:
             self.winRoot.configureColumn(2, weight = 1)
             self.winRoot.configureColumn(3, weight = 1)
             self.winRoot.configureColumn(4, weight = 1)
+            return super().show()
+    
+
+    class _AddModifyOrigMat(wm.MenuLayout_Interface):
+        prefix = "_AddModifyOrigMatLayout"
+
+        def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+            #
+            # pre init
+            #
+            monitorSize = dc.MonitorSize.getData()
+            monHalfWidth = int(monitorSize[0] / 2)
+            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+
+            #
+            # init
+            #
+
+            super().__init__(winRoot, appDimensions)
+
+
+            addOrigMaterial_BTN = amom.AddOrigMaterial_BTN(winRoot, self.prefix)
+            self.addWidget(addOrigMaterial_BTN)
+
+            fetOrigMatPath_ETR = amom.GetOrigMatPath_ETR(winRoot, self.prefix)
+            self.addWidget(fetOrigMatPath_ETR)
+
+            getOrigMatDestRelPath_ETR = amom.GetOrigMatDestRelPath_ETR(winRoot, self.prefix)
+            self.addWidget(getOrigMatDestRelPath_ETR)
+
+            getOrigMatName_ETR = amom.GetOrigMatName_ETR(winRoot, self.prefix)
+            self.addWidget(getOrigMatName_ETR)
+
+            addOrigMaterial_BTN.addListenerWidget(fetOrigMatPath_ETR)
+            addOrigMaterial_BTN.addListenerWidget(getOrigMatDestRelPath_ETR)
+            addOrigMaterial_BTN.addListenerWidget(getOrigMatName_ETR)
+
+            layoutsSwitchOrigMatVSMain_BTN = amom.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
+            self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
+            
+
+
+        def show(self):
+            self.winRoot.configureColumn(0, weight = 1)
+            self.winRoot.configureColumn(1, weight = 1)
+            self.winRoot.configureColumn(2, weight = 1)
             return super().show()
     
 

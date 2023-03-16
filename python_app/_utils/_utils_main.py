@@ -109,9 +109,7 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     windowList = getWindowsList()
     
     for window in windowList:
-        log.autolog("hip:" + window["kCGWindowOwnerName"])
         if window["kCGWindowOwnerName"] == app.localizedName():
-            log.autolog(window["kCGWindowName"])
             if windowIdentifier in window["kCGWindowName"]:
                 ownerName = str(window["kCGWindowOwnerName"])
                 windowName = str(window["kCGWindowName"])

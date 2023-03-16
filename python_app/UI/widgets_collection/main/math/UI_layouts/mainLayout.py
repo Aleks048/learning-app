@@ -25,13 +25,12 @@ import settings.facade as sf
 
 import scripts.osascripts as oscr
 
-
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseOriginalMaterial_OM"
@@ -46,9 +45,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
                         self.cmd)
         
         #TODO: set the data to currOrigMaterialName
-        currOrigMatRelPath = fsf.Data.Book.currOriginalMaterialRelPath
-        currOrigMatName = currOrigMatRelPath.split("/")[-1]
-        currOrigMatName = currOrigMatName.replace(".pdf", "")
+        currOrigMatName = fsf.Data.Book.currOrigMatName
         self.setData(currOrigMatName)
         self.prevChoice = currOrigMatName
     
@@ -64,8 +61,9 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         log.autolog(self.prevChoice)
         fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(self.prevChoice, page)
         
+        prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    self.prevChoice)
+                                                    prevChoiceID)
         cmd = oscr.closeSkimDocument(oldPID, self.prevChoice)    
         subprocess.check_output(cmd, shell=True)
 
@@ -79,12 +77,14 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         t.join()
         width, height = _u.getMonitorSize()
         halfWidth = int(width / 2)
+
+        newChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
         _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    origMatName)
+                                                    newChoiceID)
         while newPID == None:
             time.sleep(0.1)
             _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    origMatName)
+                                                    newChoiceID)
         cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], origMatName)
         subprocess.Popen(cmd, shell=True).wait()
 
@@ -252,7 +252,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"

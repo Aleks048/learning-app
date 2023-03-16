@@ -83,3 +83,43 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
             self.updateLabel(self.labelOptions[1])
 
             lm.Wr.MainLayout.set()
+
+class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
+                                    dc.AppCurrDataAccessToken):
+    labelOptions = ["Orig Mat", "Main"]
+
+    def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
+        if data == None:
+            data = {
+                ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+            }
+        if name == None:
+            name = "_layoutsSwitchOrigMatVSMain_BTN"
+        
+        if text == None:
+            text = self.labelOptions[0]
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
+    
+    def cmd(self):
+        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                         mmm.MathMenuManager)
+        if type(mathMenuManager.currLayout) == mmm.LayoutManagers._Main:
+            # show the sections UI
+            mathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifyOrigMat)
+
+            self.updateLabel(self.labelOptions[0])
+
+            lm.Wr.MainLayout.set()
+        else:
+            mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
+
+            self.updateLabel(self.labelOptions[1])
+
+            lm.Wr.MainLayout.set()

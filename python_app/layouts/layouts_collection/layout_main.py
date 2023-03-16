@@ -61,16 +61,19 @@ class MainLayout(lc.Layout):
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
         origMaterialBookFSPath = _upan.Current.Paths.OriginalMaterial.MainBook.abs()
-        
+        currMaterialName = fsm.Data.Book.currOrigMatName
+        currMaterialFilename = \
+            fsm.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
+
         currPage = fsm.Data.Book.currentPage
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        sf.Wr.Data.TokenIDs.Misc.wholeBook_ID + ".pdf")
+                                                        currMaterialFilename)
         while ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                            sf.Wr.Data.TokenIDs.Misc.wholeBook_ID + ".pdf")
+                                                            currMaterialFilename)
             log.autolog("Opening skim...")
             sleep(0.1)
 

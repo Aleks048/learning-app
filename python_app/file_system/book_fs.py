@@ -40,7 +40,7 @@ class BookInfoStructure:
         imageContentFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
 
-        currOriginalMaterialRelPath = "currOriginalMaterialRelPath"
+        currOrigMatName = "currOrigMatName"
 
     bookInfoTemplate = {
         PubProp.version: "0.1",
@@ -52,7 +52,7 @@ class BookInfoStructure:
             PubProp.currentPage: "",
             PubProp.currSection: "",
             PubProp.currTopSection: "",
-            PubProp.currOriginalMaterialRelPath: "",
+            PubProp.currOrigMatName: "",
         },
         PubProp.imageProp: {
             PubProp.imageContentFileMoveLinesNumber: "20",
