@@ -68,7 +68,9 @@ Creating path: '{0}'".format(origMatAbsPath))
                                             materialName)
         
         # update data structure to keep the dict of books and paths to them
-        cls.setMaterialPath(materialName, originnalMaterialDestinationPath)
+        origMatFilename = cls.__fromMatPathToFilename(filePath)
+        cls.setMaterialPath(materialName, 
+                            os.path.join(originnalMaterialDestinationPath, origMatFilename))
         cls.setMaterialCurrPage(materialName, "1")
          
         
@@ -83,6 +85,9 @@ Creating path: '{0}'".format(origMatAbsPath))
     @classmethod
     def getOriginalMaterialsFilename(cls, matName):
         matPath = cls.getMaterialPath(matName)
+        return cls.__fromMatPathToFilename(matPath)
+    
+    def __fromMatPathToFilename(matPath):
         matName = matPath.split("/")[-1]
         return matName
 

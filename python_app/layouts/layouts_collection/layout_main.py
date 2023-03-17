@@ -10,7 +10,7 @@ import _utils.logging as log
 import _utils.pathsAndNames as _upan
 # import UI.widgets_facade as wf
 import tex_file.tex_file_facade as tm
-import file_system.file_system_facade as fsm
+import file_system.file_system_facade as fsf
 import data.temp as dt
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oc
@@ -30,7 +30,7 @@ class MainLayout(lc.Layout):
         #       vscode/finder(with images folder) to the right
         '''
 
-        currSection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        currSection = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
@@ -61,11 +61,11 @@ class MainLayout(lc.Layout):
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
         origMaterialBookFSPath = _upan.Current.Paths.OriginalMaterial.MainBook.abs()
-        currMaterialName = fsm.Data.Book.currOrigMatName
+        currMaterialName = fsf.Data.Book.currOrigMatName
         currMaterialFilename = \
-            fsm.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
+            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
 
-        currPage = fsm.Data.Book.currentPage
+        currPage = fsf.Data.Book.currentPage
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         

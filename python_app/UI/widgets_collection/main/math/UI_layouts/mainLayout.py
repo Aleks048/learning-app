@@ -55,17 +55,20 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
         frontSkimDocumentPage, _ = p.communicate()
         frontSkimDocumentPage = frontSkimDocumentPage.decode("utf-8")
-        # frontSkimDocumentPage = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        page = frontSkimDocumentPage.split("page ")[1]
-        page = page.split(" ")[0]
-        log.autolog(self.prevChoice)
-        fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(self.prevChoice, page)
+        if frontSkimDocumentPage != None:
+            # frontSkimDocumentPage = subprocess.check_output(cmd, shell=True).decode("utf-8")
+            page = frontSkimDocumentPage.split("page ")[1]
+            page = page.split(" ")[0]
+            log.autolog(self.prevChoice)
+            fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(self.prevChoice, page)
         
         prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     prevChoiceID)
-        cmd = oscr.closeSkimDocument(oldPID, self.prevChoice)    
-        subprocess.check_output(cmd, shell=True)
+        log.autolog(oldPID)
+        if oldPID != None:
+            cmd = oscr.closeSkimDocument(oldPID, prevChoiceID)
+            subprocess.Popen(cmd, shell=True)
 
         # open another original material
         origMatName = self.getData()
@@ -85,7 +88,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
             time.sleep(0.1)
             _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     newChoiceID)
-        cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], origMatName)
+        cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], newChoiceID)
         subprocess.Popen(cmd, shell=True).wait()
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
