@@ -65,7 +65,6 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     prevChoiceID)
-        log.autolog(oldPID)
         if oldPID != None:
             cmd = oscr.closeSkimDocument(oldPID, prevChoiceID)
             subprocess.Popen(cmd, shell=True)

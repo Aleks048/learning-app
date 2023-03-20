@@ -16,6 +16,8 @@ tell application \"{0}\" to return page of front document\
 	return cmd
 
 
+
+
 def get_NameOfFrontPreviewDoc_CMD():
     cmd = "osascript -e '\
         tell application \"Preview\" to save the front document\n\

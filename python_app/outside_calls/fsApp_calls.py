@@ -2,14 +2,20 @@ import subprocess
 import os
 import shutil
 
+import time
+import _utils._utils_main as _u
+import _utils.logging as log
+import settings.facade as sf
+
 class FinderCalls:
 
     def copyFile(sourceFilepath, destFilepath):
         return shutil.copy2(sourceFilepath, destFilepath)
 
     def openFile(filepath):
-        cmd = "open file://" + filepath
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+        cmd = "open -W file://" + filepath + " &"
+        _u.runCmdAndWait(cmd)
+        log.autolog("Opened file: '{0}'".format(filepath))
     
     @classmethod
     def checkIfImageExists(cls, filepath):

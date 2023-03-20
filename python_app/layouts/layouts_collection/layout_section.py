@@ -61,7 +61,6 @@ class SectionLayout(lc.Layout,
                     
                     cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.main_pid, 
                                                  sf.Wr.Data.TokenIDs.Misc.wholeBook_ID)
-                    log.autolog(cmd)
                     subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
 

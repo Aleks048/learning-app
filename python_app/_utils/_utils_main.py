@@ -1,4 +1,5 @@
-import sys, os, json, time
+import sys, os, json, time, subprocess
+from threading import Thread
 from screeninfo import get_monitors
 from AppKit import NSWorkspace
 import Quartz
@@ -10,6 +11,11 @@ class Token:
         str_t = ""
         list_t = [str_t]
         dict_t = {str_t: str_t}
+
+def runCmdAndWait(cmd):
+    t = Thread(target = lambda *args: subprocess.Popen(cmd, shell = True))
+    t.start()
+    t.join()
 
 def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
     outPos = []

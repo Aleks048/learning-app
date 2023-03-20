@@ -35,11 +35,11 @@ class MainLayout(lc.Layout):
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+            _u.runCmdAndWait(cmd)
         #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+            _u.runCmdAndWait(cmd)
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -49,11 +49,6 @@ class MainLayout(lc.Layout):
         appHeight = cls.pyAppDimensions[1]
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
-            # wm.Data.UItkVariables.needRebu
-
-
-        # switch menu
-        # wf.Wr.MenuManagers.MainMenuManager.LayoutManagers.Main.show() 
        
         #
         # SKIM
@@ -64,26 +59,22 @@ class MainLayout(lc.Layout):
         currMaterialName = fsf.Data.Book.currOrigMatName
         currMaterialFilename = \
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
+        skimFile_ID = currMaterialFilename
 
         currPage = fsf.Data.Book.currentPage
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        currMaterialFilename)
-        while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                            currMaterialFilename)
-            log.autolog("Opening skim...")
-            sleep(0.1)
+                                                        skimFile_ID)
 
         if ownerPID == None: 
             log.autolog("Something went wrong. Skim could not open the document")
         else:
             cmd = oscr.getMoveWindowCMD(ownerPID, 
                                         dimensions,
-                                        sf.Wr.Data.TokenIDs.Misc.wholeBook_ID)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+                                        skimFile_ID)
+            _u.runCmdAndWait(cmd)
 
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
         log.autolog("Opened skim!")
@@ -91,33 +82,37 @@ class MainLayout(lc.Layout):
         #
         # FINDER
         #
+        ownerPID = None
         bounds = [mon_halfWidth, mon_height - appHeight - 80, appWidth, appHeight + 54]
 
         currSectionWPrefix = _upan.Current.Names.Section.name_wPrefix()
+        currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
+
+
         if currSectionWPrefix == _u.Token.NotDef.str_t:
             log.autolog("No subssection to open yet.")
         else:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", currSectionWPrefix + "_images")
-            dt.OtherAppsInfo.Finder.main_pid = ownerPID
+            currScreenshotDir = _upan.Current.Paths.Screenshot.abs()
+            oc.Wr.FsAppCalls.openFile(currScreenshotDir)
             
-            if ownerPID == None:
-                # if no window found we open one with the chapter in Finder
-                currScreenshotDir = _upan.Current.Paths.Screenshot.abs()
-                oc.Wr.FsAppCalls.openFile(currScreenshotDir)
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+                                                             currScreenshotFolderName)
             
             while ownerPID == None:
-                _, _, ownerPID = _u.getOwnersName_windowID_ofApp("finder", "images")
                 sleep(0.1)
+                _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+                                                                currScreenshotFolderName)
             
             dt.OtherAppsInfo.Finder.main_pid = ownerPID
             
             if ownerPID == None: 
+                log.autolog(currScreenshotFolderName)
                 print("setMainLayout - Something went wrong. Finder could not open the folder")
             else:
                 cmd = oscr.getMoveWindowCMD(ownerPID,
                                         bounds,
-                                        currSection)
-                subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+                                        currScreenshotFolderName)
+                _u.runCmdAndWait(cmd)
             
             log.autolog("Moved Finder.")
         

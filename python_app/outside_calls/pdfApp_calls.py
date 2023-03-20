@@ -15,9 +15,7 @@ class SkimCalls:
         else:
             url = "skim://{0}#page={1}".format(pdfPath, pdfPage)
         
-        p = subprocess.Popen(['open', url])
-        p.wait()
-        _waitDummy = p.communicate()
+        _u.runCmdAndWait('open ' + url)
         log.autolog("Opened {0} in skim.".format(pdfPath))
     
     @classmethod

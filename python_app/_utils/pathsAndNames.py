@@ -193,6 +193,10 @@ class Current:
                     pass
         
         class Section:
+            class Screenshot:
+                def name_wPrefix():
+                    return Current.Names.Section.name_wPrefix() + "_images"
+
             @classmethod
             def name_wPrefix(cls, filepath = _u.Token.NotDef.str_t):
                 sectionPrefix = fsf.Data.Book.sections_prefix
