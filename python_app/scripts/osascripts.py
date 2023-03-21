@@ -9,14 +9,19 @@ tell application \"{0}\" to return name of front document\
 '".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID)
 	return cmd
 
-def get_PageOfFrontSkimDoc_CMD():
+def get_PageOfSkimDoc_CMD(filename):
 	cmd = "osascript -e '\
-tell application \"{0}\" to return page of front document\
-'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID)
+tell application \"{0}\"\n\
+	repeat with d in documents\n\
+		set n to name of d\n\
+		if n contains \"{1}\" then\n\
+			tell d\n\
+				return current page\n\
+			end tell\n\
+		end if\n\
+	end repeat\n\
+end tell'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID, filename)
 	return cmd
-
-
-
 
 def get_NameOfFrontPreviewDoc_CMD():
     cmd = "osascript -e '\
@@ -34,7 +39,7 @@ def get_NameOfFrontPreviewDoc_CMD():
 def closeSkimDocument(skimPID, docNameId):
     skimCloseWindowCmd = "osascript -e '\
 tell application \"System Events\"\n\
-	set processList to every process whose unix id is " + skimPID + "\n\
+	set processList to every process whose unix id is {0}\n\
 	repeat with proc in processList\n\
 		set idx to 1\n\
 		set listSize to count of windows of proc\n\
@@ -43,17 +48,17 @@ tell application \"System Events\"\n\
 				exit repeat\n\
 			end if\n\
 			set procN to name of proc\n\
-			if procN is equal to \"Skim\" then\n\
-				set procN to \"Skim\"\n\
+			if procN is equal to \"{1}\" then\n\
+				set procN to \"{1}\"\n\
 			end if\n\
-			if name of document idx of application \"Skim\" contains \"" + docNameId + "\" then\n\
-				tell document idx of application \"Skim\" to close\n\
+			if name of document idx of application \"{1}\" contains \"{2}\" then\n\
+				tell document idx of application \"{1}\" to close\n\
 				exit repeat\n\
 			end if\n\
 			set idx to idx + 1\n\
 		end repeat\n\
 	end repeat\n\
-end tell'"
+end tell'".format(skimPID, sf.Wr.Data.TokenIDs.AppIds.skim_ID, docNameId)
     return skimCloseWindowCmd
 
 def closeVscodeWindow(vscodePID, winNameID):
@@ -116,10 +121,11 @@ end tell'"
 
 def get_SetSecVSCode_CMD():
     cmd = "osascript -e '\n\
+		activate " + sf.Wr.Data.TokenIDs.AppIds.vsCode_ID + "\n\
         tell application \"System Events\"\n\
             keystroke \"kw\" using {command down}\n\
             keystroke \"b\" using {command down, option down}\n\
         end tell\n\
-        '"
+	'"
     return cmd
 

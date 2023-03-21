@@ -4,6 +4,7 @@ from time import sleep
 from threading import Thread
 
 import layouts.layouts_utils as lu
+import layouts.layouts_collection.layout_section as ls
 
 import _utils._utils_main as _u
 import _utils.logging as log
@@ -29,17 +30,8 @@ class MainLayout(lc.Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
+        ls.SectionLayout.close()        
 
-        currSection = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
-
-        #close the subsection VSCode if it is open
-        if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
-            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
-            _u.runCmdAndWait(cmd)
-        #close the subsection Skim if it is open
-        if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
-            cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
-            _u.runCmdAndWait(cmd)
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -68,13 +60,15 @@ class MainLayout(lc.Layout):
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                         skimFile_ID)
 
-        if ownerPID == None: 
-            log.autolog("Something went wrong. Skim could not open the document")
-        else:
-            cmd = oscr.getMoveWindowCMD(ownerPID, 
-                                        dimensions,
-                                        skimFile_ID)
-            _u.runCmdAndWait(cmd)
+        while ownerPID == None:
+            sleep(0.1)
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                        skimFile_ID)
+
+        cmd = oscr.getMoveWindowCMD(ownerPID, 
+                                    dimensions,
+                                    skimFile_ID)
+        _u.runCmdAndWait(cmd)
 
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
         log.autolog("Opened skim!")
@@ -117,3 +111,36 @@ class MainLayout(lc.Layout):
             log.autolog("Moved Finder.")
         
         log.autolog("DONE setting section layout.")
+
+    @classmethod
+    def close(cls):
+        
+        pathToSourceFolder = _upan.Current.Paths.Section.abs()
+        currSection = _upan.Current.Names.Section.name()
+
+        # close FS window
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+                                                        currSection)
+        if ownerPID != None:
+            log.autolog(currSection)
+            cmd = oscr.closeFinderWindow(ownerPID, currSection)
+            _u.runCmdAndWait(cmd)
+        else:
+            log.autolog("Could not close the 'file system' window of the main layout")
+        
+        # close PDF reader window
+        ownerPID = None
+
+        currOrigMatName = fsf.Data.Book.currOrigMatName
+        currOrigMatFilename = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currOrigMatName)
+        
+        _, windowName, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                                currOrigMatFilename)
+        if ownerPID != None:
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(currOrigMatName)
+            cmd = oscr.closeSkimDocument(ownerPID, currOrigMatFilename)
+            _u.runCmdAndWait(cmd)
+        else:
+            log.autolog("Could not close the 'pdf reader' window of the main layout")
+        
+        log.autolog("Closed main layout")

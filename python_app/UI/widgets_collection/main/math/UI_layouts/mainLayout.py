@@ -50,21 +50,12 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         self.prevChoice = currOrigMatName
     
     def cmd(self):
-        # update the currPage for original material
-        cmd = oscr.get_PageOfFrontSkimDoc_CMD()
-        p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
-        frontSkimDocumentPage, _ = p.communicate()
-        frontSkimDocumentPage = frontSkimDocumentPage.decode("utf-8")
-        if frontSkimDocumentPage != None:
-            # frontSkimDocumentPage = subprocess.check_output(cmd, shell=True).decode("utf-8")
-            page = frontSkimDocumentPage.split("page ")[1]
-            page = page.split(" ")[0]
-            log.autolog(self.prevChoice)
-            fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(self.prevChoice, page)
-        
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
+
+        # close original material document
         prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    prevChoiceID)
+                                                    prevChoiceID)     
         if oldPID != None:
             cmd = oscr.closeSkimDocument(oldPID, prevChoiceID)
             subprocess.Popen(cmd, shell=True)
@@ -116,9 +107,11 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
+        
         # switch UI
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
+        
         # switch other apps
         lm.Wr.SectionLayout.set()
 

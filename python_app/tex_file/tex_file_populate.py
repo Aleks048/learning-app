@@ -34,7 +34,6 @@ class TexFilePopulate:
                     line = line.replace("\n", "")
                     listOfLocalLinks.append(line)
                 if "myTarget" in line:
-                    log.autolog(line)
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),

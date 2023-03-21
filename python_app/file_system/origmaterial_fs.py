@@ -1,5 +1,5 @@
 import os
-import json
+import subprocess
 
 import _utils._utils_main as _u
 import _utils.logging as log
@@ -8,6 +8,7 @@ import _utils.pathsAndNames as _upan
 
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
+import scripts.osascripts as oscr
 
 class OriginalMaterialStructure:
     '''
@@ -110,6 +111,20 @@ Creating path: '{0}'".format(origMatAbsPath))
             log.autolog("No book with name '{0}'".format(bookName))
             return None
     
+    @classmethod
+    def updateOriginalMaterialPage(cls, matName):
+        materialFilename = cls.getOriginalMaterialsFilename(matName)
+        # update the currPage for original material
+        cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
+        p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
+        frontSkimDocumentPage, _ = p.communicate()
+        frontSkimDocumentPage = frontSkimDocumentPage.decode("utf-8")
+        
+        if frontSkimDocumentPage != None:
+            page = frontSkimDocumentPage.split("page ")[1]
+            page = page.split(" ")[0]
+            cls.setMaterialCurrPage(matName, page)
+
     @classmethod
     def setMaterialPath(cls, materialName, materialPath):
         materials = cls.__getMaterailsDict() 

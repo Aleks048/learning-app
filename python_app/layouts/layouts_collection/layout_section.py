@@ -22,6 +22,7 @@ import data.constants as dc
 import data.temp as dt
 
 import UI.widgets_facade as wf
+import file_system.file_system_facade as fsf
 
 class SectionLayout(lc.Layout,
                     dc.AppCurrDataAccessToken):
@@ -36,34 +37,10 @@ class SectionLayout(lc.Layout,
         #       vscode to the left
         '''
 
+        lm.MainLayout.close()
+
         pathToSourceFolder = _upan.Current.Paths.Section.abs()
         currSection = _upan.Current.Names.Section.name()
-        
-        if dt.OtherAppsInfo.Finder.main_pid != _u.Token.NotDef.str_t:
-            cmd = oscr.closeFinderWindow(dt.OtherAppsInfo.Finder.main_pid, currSection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        
-        if dt.OtherAppsInfo.Skim.main_pid != _u.Token.NotDef.str_t:
-            _, windowName, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        sf.Wr.Data.TokenIDs.Misc.wholeBook_ID + ".pdf")
-            if windowName != None:
-                dt.OtherAppsInfo.Skim.main_winName = windowName
-                page = windowName.split("page ")
-                if len(page) != 2:
-                    log.autolog("setSectionLayout - Something went wrong. Can't get page number out of the name.")
-                    return
-                else:
-                    page = page[-1]
-                
-                if type(page) == str:
-                    page = page.split(" ")[0]
-                    fsm.Data.Book.currentPage = page
-                    
-                    cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.main_pid, 
-                                                 sf.Wr.Data.TokenIDs.Misc.wholeBook_ID)
-                    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-
-
         
         # check if the folder is empty.
         if len(os.listdir(_upan.Current.Paths.Screenshot.abs())) == 0: 
@@ -83,14 +60,9 @@ class SectionLayout(lc.Layout,
         else:
             ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
- 
-        # set menu dimensions
+
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
-        
-        if mainWinRoot != None:
-            mainWinRoot.geometry(str(menuWidth) + "x" + str(menuHeight) 
-                                + "+" + str(int(mon_halfWidth)) + "+0")
  
         #
         # SKIM
@@ -101,8 +73,7 @@ class SectionLayout(lc.Layout,
         pathToCurrSecPDF = _upan.Current.Paths.PDF.abs()
         
         if ownerPID == None:
-            cmd = " open skim://" + pathToCurrSecPDF
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+            ocf.Wr.PdfApp.openPDF(pathToCurrSecPDF)
 
         while ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, currSection)
@@ -118,16 +89,17 @@ class SectionLayout(lc.Layout,
         log.autolog("moved SKIM")
 
 
-        #
+        
         # VSCODE
-        #
-        cmd = "code -n "+ pathToSourceFolder
-        _ = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        
+        ocf.Wr.IdeCalls.openNewWindow(pathToSourceFolder)
 
         ownerPID = None
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
+        
         while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
             sleep(0.1)
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
         
         dt.OtherAppsInfo.VsCode.section_pid  = ownerPID
 
@@ -137,18 +109,32 @@ class SectionLayout(lc.Layout,
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 vscodeBounds,
                                 currSection)
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+        _u.runCmdAndWait(cmd)
+        log.autolog("moved VSCODE.")
 
-        # create the layout in the vscode window
+        # # create the layout in the vscode window
         conterntFilepath = _upan.Current.Paths.TexFiles.Content.abs()
         TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
         
         cmd = oscr.get_SetSecVSCode_CMD()
         subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
-        cmd = "code " + TOCFilepath + " " + conterntFilepath
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        log.autolog("moved VSCODE.")
+        ocf.Wr.IdeCalls.openNewTab(conterntFilepath + " " + TOCFilepath)
+        log.autolog("set VSCODE section.")
         
         log.autolog("DONE setting section layout.")
 
+    @classmethod
+    def close(cls):
+        currSection = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+
+        #close the subsection VSCode if it is open
+        if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
+            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
+            _u.runCmdAndWait(cmd)
+        #close the subsection Skim if it is open
+        if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
+            cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
+            _u.runCmdAndWait(cmd)
+        
+        log.autolog("Closed section layout!")
