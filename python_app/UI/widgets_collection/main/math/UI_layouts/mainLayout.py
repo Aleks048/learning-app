@@ -106,8 +106,6 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
-        
         # switch UI
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
@@ -181,7 +179,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         name = "_chooseSection_optionMenu"
 
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        topSectionsList.sort(key = int)
+        if topSectionsList != _u.Token.NotDef.list_t:
+            topSectionsList.sort(key = int)
 
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
@@ -237,7 +236,9 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        topSectionsList.sort(key = int)
+        if topSectionsList != _u.Token.NotDef.list_t:
+            topSectionsList.sort(key = int)
+        
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]
         
@@ -437,6 +438,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         if secImIndex == _u.Token.NotDef.str_t:
             self.updateDafaultText("1")
         else:
+            log.autolog(secImIndex)
             self.updateDafaultText(str(int(secImIndex) + 1))
 
         return super().render(**kwargs)

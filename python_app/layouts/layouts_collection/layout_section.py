@@ -8,7 +8,6 @@ import layouts.layouts_collection.layout_main as lm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
-# import UI.widgets_facade as wm
 import tex_file.tex_file_facade as tm
 import file_system.file_system_facade as fsm
 import scripts.osascripts as oscr
@@ -30,7 +29,7 @@ class SectionLayout(lc.Layout,
     pyAppDimensions = [None, None]    
 
     @classmethod
-    def set(cls, mainWinRoot = None, menuWidth = 0, menuHeight = 55):
+    def set(cls, menuHeight = 55):
         '''
         # Section: 
         #       skim Section to the right 
@@ -81,7 +80,7 @@ class SectionLayout(lc.Layout,
 
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
         
-        skimBounds = [mon_halfWidth, mon_height - menuHeight - 80, mon_halfWidth, menuHeight + 90]
+        skimBounds = [mon_halfWidth, mon_height - menuHeight - 120, mon_halfWidth, menuHeight + 90]
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 skimBounds,
                                 currSection)
@@ -89,9 +88,9 @@ class SectionLayout(lc.Layout,
         log.autolog("moved SKIM")
 
 
-        
+        #
         # VSCODE
-        
+        #
         ocf.Wr.IdeCalls.openNewWindow(pathToSourceFolder)
 
         ownerPID = None

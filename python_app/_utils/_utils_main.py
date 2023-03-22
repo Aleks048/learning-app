@@ -8,7 +8,7 @@ import _utils.logging as log
 
 class Token:
     class NotDef:
-        str_t = ""
+        str_t = "-1"
         list_t = [str_t]
         dict_t = {str_t: str_t}
 
@@ -133,7 +133,7 @@ JSON
 class JSON:
     def createFromTemplate(path, template):
         with open(path, "w+") as f:
-            jsonObj = json.dumps(template, ident = 4)
+            jsonObj = json.dumps(template, indent = 4)
             f.write(jsonObj)
 
     def readFile(filePath):
@@ -165,7 +165,6 @@ class JSON:
                     if property != None:
                         return property
         property = _readProperty(jsonData)
-        
         return property
 
     def updateProperty(jsonFilepath, propertyName, newValue):

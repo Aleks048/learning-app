@@ -223,7 +223,9 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
         name = "_GlLink_TargetSubsection_OM"
 
         topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
-        topSectionsList.sort(key = int)
+        if topSectionsList != _u.Token.NotDef.list_t:
+            topSectionsList.sort(key = int)
+        
         self.subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(topSectionsList[0])
 
         super().__init__(prefix, 

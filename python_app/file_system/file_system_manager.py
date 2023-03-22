@@ -15,7 +15,7 @@ import settings.facade as sf
 
 class FileSystemManager:
     def addNewBook(bookName, bookPathDir):
-        # check if a book with name exists and ask
+        # TODO:check if a book with name exists and ask
         # if we want to delete and proceed
         # booksPath = _u.getPathToBooks()
         # bookPath = os.path.join(booksPath, bookName)
@@ -24,12 +24,8 @@ class FileSystemManager:
             log.autolog("The book at path '{0}' already exists!".format(bookPathDir))
             # TODO: ask the user we we should proceed.
             return False
-
-        log.autolog(bookPathDir)
-        ocf.Wr.FsAppCalls.createFile(bookPathDir)
-
-        #set the current book in Settings
-        sf.Wr.Manager.Book.addNewBook(bookName, bookPathDir)
+        
+        ocf.Wr.FsAppCalls.createDir(bookPathDir)
 
         #
         #create bookInfo structure

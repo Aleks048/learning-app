@@ -123,7 +123,6 @@ class TOCStructure:
     
     def _getTOCDirPath():
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        log.autolog(bookPath)
         return os.path.join(bookPath, bfs.BookInfoStructure.TOCbaseRelPath)
 
     @classmethod
@@ -133,6 +132,6 @@ class TOCStructure:
         if (os.path.isdir(tocFolderPath)):
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
         else:
-            log.autolog("The TOC filepath is not present. Will create: {0}".format(tocFolderPath))
-            ocf.Wr.FsAppCalls.createFile(tocFolderPath)
+            log.autolog("The TOC dir is not present. Will create: {0}".format(tocFolderPath))
+            ocf.Wr.FsAppCalls.createDir(tocFolderPath)
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")

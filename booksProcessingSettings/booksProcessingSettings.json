@@ -1,15 +1,13 @@
 {
     "currentState": {
-        "currentState_BookPath": "/Users/ashum048/books/testBooks/mT",
-        "currentState_BookName": "mT",
+        "currentState_BookPath": "/Users/ashum048/books/testBooks/diffGeom",
+        "currentState_BookName": "diffGeom",
         "currentState_Layout": "Main"
     },
     "booksPaths": {
         "b_analysis_test": "/Users/ashum048/books/testBooks/b_analysis_test",
-        "b_newBook_test": "/Users/ashum048/books/testBooks/b_newBook_test/",
-        "b_newBook2_test": "/Users/ashum048/books/testBooks/b_newBook2_test/",
         "mT": "/Users/ashum048/books/testBooks/mT",
-        "test": "/Users/ashum048/books/utils/python_app/generalManger/tests/integration/data/testBook"
+        "diffGeom": "/Users/ashum048/books/testBooks/diffGeom"
     },
     "startup": {
         "startupLayout": "whole_book"

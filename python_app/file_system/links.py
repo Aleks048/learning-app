@@ -8,6 +8,7 @@ class ImIDX:
     def get_curr(cls):
         currSec = _upan.Current.Names.Section.name()
         return cls.get(currSec)
+    
     def get(secPath):
         d = LinkDict.get(secPath)
         return list(d.values())[-1]

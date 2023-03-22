@@ -17,10 +17,6 @@ class OriginalMaterialStructure:
 
     originalMaterialBaseRelPath = "originalMaterial/"
 
-    template = {
-        "books": {
-        }
-    }
     
     class PubProp:
         materials = "materials"
@@ -34,25 +30,30 @@ class OriginalMaterialStructure:
         PubProp.currPage : "CurrPage"
     }
 
+    template = {
+        PubProp.materials: {
+        }
+    }
 
     @classmethod
-    def createStructure(cls, bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()):
+    def createStructure(cls):
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
         
-        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath):   
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath):   
             log.autolog("\
 The structure was not present. Will create it.\n\
 Creating path: '{0}'".format(origMatAbsPath))
-            ocf.Wr.FsAppCalls.createFile(origMatAbsPath)
+            ocf.Wr.FsAppCalls.createDir(origMatAbsPath)
         
         # create file to track original materials with names and paths
         structureFile = cls.__getJSONfilepath()
-        ocf.Wr.FsAppCalls.createFile(structureFile)
+        # ocf.Wr.FsAppCalls.createDir(structureFile)
         _u.JSON.createFromTemplate(structureFile, cls.template)
     
     @classmethod
     def addOriginalMaterial(cls, filePath, structureRelPath, materialName):
-        log.autolog("Adding material: '{0}' to rel path: '{1}'".format(structureRelPath, structureRelPath))
+        log.autolog("Adding material: '{0}' to rel path: '{1}'".format(filePath, structureRelPath))
         
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         basePath =  _upan.Paths.OriginalMaterial.getAbs(bookPath)
@@ -60,7 +61,7 @@ Creating path: '{0}'".format(origMatAbsPath))
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(originnalMaterialDestinationPath):   
             log.autolog("Path '{0}' does not exist. Will create it.".format(originnalMaterialDestinationPath))
-            createdFile = ocf.Wr.FsAppCalls.createFile(originnalMaterialDestinationPath)
+            createdFile = ocf.Wr.FsAppCalls.createDir(originnalMaterialDestinationPath)
             if not createdFile:
                 return False
         
@@ -146,7 +147,8 @@ Creating path: '{0}'".format(origMatAbsPath))
         cls.__updateMaterialDict(materials)
         
     @classmethod
-    def __getJSONfilepath(cls,  bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()) -> str:
+    def __getJSONfilepath(cls) -> str:
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
         # create file to track original materials with names and paths
         return os.path.join(origMatAbsPath, "origMat.json")
@@ -157,11 +159,14 @@ Creating path: '{0}'".format(origMatAbsPath))
         _u.JSON.updateProperty(jsonFilepath, 
                                OriginalMaterialStructure.PubProp.materials,
                                newMatDict)
-        pass
     
     @classmethod
     def __getMaterailsDict(cls) -> dict:
         jsonFilepath = cls.__getJSONfilepath()
         
-        return _u.JSON.readProperty(jsonFilepath,
+        materialsDict = _u.JSON.readProperty(jsonFilepath,
                                     cls.PubProp.materials)
+        if materialsDict == None:
+            return _u.Token.NotDef.dict_t
+        else:
+            return materialsDict

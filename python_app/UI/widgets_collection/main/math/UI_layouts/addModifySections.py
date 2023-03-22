@@ -1,6 +1,7 @@
 import tkinter as tk
 
 import _utils.logging as log
+import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
@@ -135,7 +136,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         name = "_chooseSection_optionMenu"
 
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        topSectionsList.sort(key = int)
+        if topSectionsList != _u.Token.NotDef.list_t:
+            topSectionsList.sort(key = int)
 
         if topSectionsList == []:
             topSectionsList = ["No top sec yet."]

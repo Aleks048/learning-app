@@ -25,7 +25,7 @@ class FinderCalls:
         return os.path.exists(filepath)
     
     @classmethod
-    def createFile(cls, filepath):
+    def createDir(cls, filepath):
         if cls.checkIfFileOrDirExists(filepath):
             return False
         else:
