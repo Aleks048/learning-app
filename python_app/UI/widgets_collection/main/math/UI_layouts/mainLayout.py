@@ -334,7 +334,8 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
         
         def _createTexForTheProcessedImage():
             bookName = sf.Wr.Manager.Book.getCurrBookName()
-            currSubsection = _upan.Current.Names.Section.name()
+            currSubsection = _upan.Current.Names.Section.name().split("_")[0]
+            self.dataFromUser[1] = self.dataFromUser[1].replace(" ", "_")
 
             # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
             tff.Wr.TexFileModify.addProcessedImage(self.dataFromUser[0], self.dataFromUser[1])
@@ -348,7 +349,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                    tff.Wr.TexFileModify.addImageLinkToTOC_woImage(self.dataFromUser[0], self.dataFromUser[1])
             
             imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
-                                    str(self.dataFromUser[0]) + "_" + currSubsection + "_" + str(self.dataFromUser[1]))
+                                    str(self.dataFromUser[0]) + "__" + currSubsection + "__" + str(self.dataFromUser[1]))
 
             # STOTE IMNUM, IMNAME AND LINK
             fsf.Wr.SectionCurrent.setImLinkAndIDX(self.dataFromUser[1], self.dataFromUser[0])

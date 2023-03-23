@@ -255,6 +255,10 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
         defaultText = fsf.Data.Sec.startPage(fsf.Data.Book.currSection)
+        
+        if defaultText == _u.Token.NotDef.str_t:
+            defaultText = "Section start page"
+        
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -290,6 +294,10 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionName_ETR"
         defaultText = fsf.Data.Sec.name(fsf.Data.Book.currSection)
+        
+        if defaultText == _u.Token.NotDef.str_t:
+            defaultText = "Section Name"
+        
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -336,9 +344,12 @@ class NewSectionPath_ETR(ww.currUIImpl.TextEntry):
                         defaultText = defaultText)
     
     def receiveNotification(self, broadcasterType):
-        log.autolog(self.getData())
-
         return self.getData()
+      
+    def getData(self, **kwargs):
+        text = super().getData(**kwargs)
+        text = text.replace(" ", "_")
+        return text
 
 
 class RemoveTopSection_BTN(ww.currUIImpl.Button):

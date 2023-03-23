@@ -44,6 +44,16 @@ class TexFilePopulate:
         
         with open(tocFilepath, 'r') as tocF:
             tocFile = tocF.readlines()
+
+            imageToken = "image"
+            for i in range(0, len(tocFile)):
+                line = tocFile[i]
+                if imageToken in line:
+                    lineArr = line.split("{")
+                    imageName = lineArr[-1][:-1]
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                                             imageName)
+                    tocFile[i] = line.replace(imageName, imagePath)
         
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()

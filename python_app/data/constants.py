@@ -30,5 +30,5 @@ class Links:
     class Local:
         idxLineMarker = "% THIS IS CONTENT id: "
         @classmethod
-        def getIdxLineMarkerLine(cls, idx):
-            return cls.idxLineMarker + idx
+        def getIdxLineMarkerLine(cls, idx: int):
+            return cls.idxLineMarker + str(idx)

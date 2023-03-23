@@ -27,71 +27,114 @@ class TexFileModify:
         
         tfp.TexFilePopulate.populateCurrMainFile()
     
-    def addProcessedImage(imIdx, linkName):
+    @classmethod
+    def addProcessedImage(cls, imIdx, linkName):     
         imIdx = str(imIdx)
         linkName = str(linkName)
         
         currSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        extraImagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
-                                        imIdx + "_" + currSubsection + "_" + linkName)
+        currSubsectionNum = currSubsection.split("_")[0]
+        extraImagePath = imIdx + "__" + currSubsectionNum + "__" + linkName
+        
+        pageToAdd = "\n\n"
+        pageToAdd += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
+        pageToAdd += "\
+    % TEXT BEFORE MAIN IMAGE\n\
+    \n\
+    \n\
+    % TEXT BEFORE MAIN IMAGE\n\
+    \\def\\imnum{" + imIdx + "}\n\
+    \\def\\linkname{" + linkName.replace("_", " ") + "}\n\
+    \\hyperdef{TOC}{\\linkname}{}\n\
+    \myTarget{" + extraImagePath + "}{\\linkname\\imnum}\n\
+    % TEXT AFTER MAIN IMAGE\n\
+    \n\
+    \n\
+    % TEXT AFTER MAIN IMAGE\n\
+    % \EXTRA IMAGES START\n\
+    % \EXTRA IMAGES END\n\
+    % TEXT AFTER EXTRA IMAGES\n\
+    \n\
+    \n\
+    % TEXT AFTER EXTRA IMAGES\n\
+    \\\\\\rule{\\textwidth}{0.4pt}\n\
+    \\\\\\myGlLinks{\n\
+        % \\myGlLink{}{}\n\
+    }\n\
+    \\\\Local links: \n\
+    \\TOC\\newpage\n"
+        pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
 
-        with open(_upan.Current.Paths.TexFiles.Content.abs(), 'a') as f:
-            add_page = "\n\n"
-            add_page += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
-            add_page += "\
-        % TEXT BEFORE MAIN IMAGE\n\
-        \n\
-        \n\
-        % TEXT BEFORE MAIN IMAGE\n\
-        \\def\\imnum{" + imIdx + "}\n\
-        \\def\\linkname{" + linkName + "}\n\
-        \\hyperdef{TOC}{\\linkname}{}\n\
-        \myTarget{" + extraImagePath + "}{\\linkname\\imnum}\n\
-        % TEXT AFTER MAIN IMAGE\n\
-        \n\
-        \n\
-        % TEXT AFTER MAIN IMAGE\n\
-        % \EXTRA IMAGES START\n\
-        % \EXTRA IMAGES END\n\
-        % TEXT AFTER EXTRA IMAGES\n\
-        \n\
-        \n\
-        % TEXT AFTER EXTRA IMAGES\n\
-        \\\\\\rule{\\textwidth}{0.4pt}\n\
-        \\\\\\myGlLinks{\n\
-            % \\myGlLink{}{}\n\
-        }\n\
-        \\\\Local links: \n\
-        \\TOC\\newpage\n"
-                
-            f.write(add_page)
-    
-    def addImageLinkToTOC_wImage(imIdx, linkName):
+        cls.__updateTexFile(_upan.Current.Paths.TexFiles.Content.abs(),
+                            pageToAdd, 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+        
+    @classmethod
+    def addImageLinkToTOC_wImage(cls, imIdx, linkName):
         currSubsection = _upan.Current.Names.Section.name()
         imIdx = str(imIdx)
         linkName = str(linkName)
-
-        with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
-            toc_add_image = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-            toc_add_image += "\
+        
+        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+        pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdx + \
-        "]{" + linkName + "} \\image[0.5]{" + \
+        "]{" + linkName.replace("_", " ") + "} \\image[0.5]{" + \
         imIdx + "_" + currSubsection + "_" + imIdx + "}\n\
     }\n\n\n"
-            f.write(toc_add_image)
-
-    def addImageLinkToTOC_woImage(imIdx, linkName):
+        pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
+        
+        cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
+                            pageToAdd, 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+        
+    @classmethod
+    def addImageLinkToTOC_woImage(cls, imIdx, linkName):
         imIdx = str(imIdx)
         linkName = str(linkName)
-
-        with open(_upan.Current.Paths.TexFiles.TOC.abs(), 'a') as f:
-            toc_add_text = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-            toc_add_text += "\
+        
+        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+        pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdx + "]{" + linkName + "} \\textbf{!}\n\
+        \\link[" + imIdx + "]{" + linkName.replace("_", " ") + "} \\textbf{!}\n\
     }\n\n\n"
-            f.write(toc_add_text)
+        pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
+        
+        cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
+                            pageToAdd, 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+    
+    def __updateTexFile(filePath, linesToAdd, startMarker, stopMarker):
+        with open(filePath, 'r') as f:
+            fileLines = f.readlines()
+        
+        imIdxLineStartNum = -1
+        imIdxLineEndNum = -1
+        for i in range(len(fileLines)):
+            log.autolog("The marker: '{0}' was alteady in the \n'{1}' file. Will replace it".format(startMarker, filePath))
+            if startMarker in fileLines[i]:
+                imIdxLineStartNum = i
+                while stopMarker not in fileLines[i]:
+                    i += 1
+                    if i >= len(fileLines):
+                        break
+                imIdxLineEndNum = i + 1
+        
+        if imIdxLineStartNum != -1 and imIdxLineEndNum != -1:
+            fileLinesBefore = fileLines[:imIdxLineStartNum]
+            fileLinesAfter = fileLines[imIdxLineEndNum:]
+            fileLines = fileLinesBefore
+        
+        fileLines.extend(linesToAdd)
+
+        if imIdxLineStartNum != -1 and imIdxLineEndNum != -1:
+            fileLines.extend(fileLinesAfter)
+        
+        with open(filePath, 'w') as f:
+            f.writelines(fileLines)
     
     def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
                         bookName, topSection, subsection):
