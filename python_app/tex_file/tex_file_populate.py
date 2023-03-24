@@ -39,6 +39,12 @@ class TexFilePopulate:
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
+                if "myStIm" in line:
+                    lineArr = line.split("{")
+                    imageName = lineArr[-1][:-1]
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                                             imageName)
+                    contentFile[i] = line.replace(imageName, imagePath)
 
         localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         

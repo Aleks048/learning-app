@@ -56,6 +56,7 @@ class LayoutManagers:
 
             addExtraImage = ml.AddExtraImage_BTN(winRoot, self.prefix)
             addExtraImage.addListenerWidget(imageGenration_ERT)
+            addExtraImage.addListenerWidget(imageGeneration_BTN)
             self.addWidget(addExtraImage)
 
 
@@ -79,8 +80,6 @@ class LayoutManagers:
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
             chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
-            chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
-            chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)

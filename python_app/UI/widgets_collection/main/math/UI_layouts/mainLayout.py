@@ -389,6 +389,8 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ImageGenerationRestart_BTN:
             self.updateLabel(self.labelOptions[0])
+        if broadcasterType == AddExtraImage_BTN:
+            return self.dataFromUser[0]
 
 class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
@@ -439,7 +441,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         if secImIndex == _u.Token.NotDef.str_t:
             self.updateDafaultText("1")
         else:
-            log.autolog(secImIndex)
             self.updateDafaultText(str(int(secImIndex) + 1))
 
         return super().render(**kwargs)
@@ -464,31 +465,23 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
+        mainImIdx = self.notify(ImageGeneration_BTN)
+        if mainImIdx == "-1":
+            mainImIdx = fsf.Wr.Links.ImIDX.get_curr()
+       
+        extraImName = self.notify(ImageGeneration_ETR)
+        
         currentSubsection = _upan.Current.Names.Section.name()
-        currImID = fsf.Wr.Links.ImIDX.get_curr()
+        currentSubsectionNum = currentSubsection.split("_")[0]
         
-        # screenshot
-        imName = ""
+        
+        extraImagePath = _upan.Current.Paths.Screenshot.abs()
+        extraImageName = "{0}__{1}__e__{2}".format(mainImIdx, currentSubsectionNum, extraImName)
+        
+        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath, extraImageName))
 
-        # get name of the image from the text field
-        # NOTE: need to refactor into a separate function
-        imName = self.notify(ImageGeneration_ETR)
-        
-        extraImagePath = _upan.Current.Paths.Screenshot.abs() \
-                            + currImID + "_" + currentSubsection \
-                            + "_" + imName
-        
-        if os.path.isfile(extraImagePath + ".png"):
-            def takeScreenshotWrapper(savePath):
-                ocf.Wr.ScreenshotCalls.takeScreenshot(savePath)
-            
-            # wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
-            #                                 takeScreenshotWrapper, 
-            #                                 extraImagePath + ".png")
-        else:
-            ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePath)
-
-        tff.Wr.TexFileModify.addExtraImage(currImID, extraImagePath)
+        # update the content file
+        tff.Wr.TexFileModify.addExtraImage(mainImIdx, extraImageName)
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 

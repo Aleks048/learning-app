@@ -9,8 +9,8 @@ import _utils.pathsAndNames as _upan
 
 class TexFileModify:
     # update the content file
-    def addExtraImage(mainImID, extraImagePath):
-        marker = "THIS IS CONTENT id: " + mainImID
+    def addExtraImage(mainImID, extraImageName):
+        marker = d.Links.Local.getIdxLineMarkerLine(mainImID)
         with open(_upan.Current.Paths.TexFiles.Content.abs(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
@@ -18,7 +18,7 @@ class TexFileModify:
             while extraImagesMarker not in contentLines[lineNum]:
                 lineNum += 1
             outLines = contentLines[:lineNum]
-            extraImageLine = "\\\\\myStIm{" + extraImagePath + "}\n"
+            extraImageLine = "      \\\\\myStIm{" + extraImageName + "}\n"
             outLines.append(extraImageLine)
             outLines.extend(contentLines[lineNum:])
 
