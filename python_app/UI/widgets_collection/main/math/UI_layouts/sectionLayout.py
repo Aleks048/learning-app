@@ -16,7 +16,7 @@ import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_collection.main.math.manager as mmm
-import layouts.layouts_manager as lm
+import layouts.layouts_facade as lf
 
 import data.constants as dc
 import data.temp as dt
@@ -46,7 +46,7 @@ class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button,
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
         # switch other apps
-        lm.Wr.MainLayout.set()
+        lf.Wr.MainLayout.set()
 
 
 class RebuildCurrSection_BTN(ww.currUIImpl.Button):
@@ -436,8 +436,7 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
                              fsm.Wr.SectionCurrent.readCurrSection())
         
         if (windowID != None):
-            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, subsection)
-            subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+            lf.Wr.LayoutsManager.closeIDEWindow(subsection, dt.OtherAppsInfo.VsCode.section_pid)
 
         #change the current subsection for the app
         fsm.Data.Book.currTopSection = topSection
@@ -451,6 +450,6 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
         # wu.showCurrentLayout(mainWinRoot, 
         #                     width, 
         #                     height)
-        # lm.Wr.SectionLayout.set(mainWinRoot, width, height)
+        # lf.Wr.SectionLayout.set(mainWinRoot, width, height)
 
         self.notify(SourceImageLinks_OM, subsection)

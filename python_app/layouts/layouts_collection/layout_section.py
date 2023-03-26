@@ -1,9 +1,9 @@
 import os, subprocess
 from time import sleep
-from threading import Thread
 
-import layouts.layouts_utils as lu
-import layouts.layouts_collection.layout_main as lm
+
+import layouts.layouts_collection.layout_main as lma
+import layouts.layouts_manager as lm
 
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
@@ -36,7 +36,7 @@ class SectionLayout(lc.Layout,
         #       vscode to the left
         '''
 
-        lm.MainLayout.close()
+        lma.MainLayout.close()
 
         pathToSourceFolder = _upan.Current.Paths.Section.abs()
         currSection = _upan.Current.Names.Section.name()
@@ -53,7 +53,7 @@ class SectionLayout(lc.Layout,
             
             mainMenuManager.switchToMainLayout()
 
-            lm.MainLayout.set()
+            lma.MainLayout.set()
             log.autolog(msg)
             return
         else:
@@ -139,11 +139,10 @@ class SectionLayout(lc.Layout,
 
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
-            cmd = oscr.closeVscodeWindow(dt.OtherAppsInfo.VsCode.section_pid, currSection)
+            lm.LayoutsManager.closeIDEWindow(currSection, dt.OtherAppsInfo.VsCode.section_pid)
             _u.runCmdAndWait(cmd)
         #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
-            cmd = oscr.closeSkimDocument(dt.OtherAppsInfo.Skim.section_pid, currSection)
-            _u.runCmdAndWait(cmd)
+            lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)
         
         log.autolog("Closed section layout!")

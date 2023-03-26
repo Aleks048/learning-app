@@ -2,7 +2,7 @@ import tkinter as tk
 
 import _utils._utils_main as _u
 import _utils.logging as log
-import layouts.layouts_manager as lm
+import layouts.layouts_facade as lm
 
 import UI.widgets_manager as wm
 import UI.widgets_wrappers as ww

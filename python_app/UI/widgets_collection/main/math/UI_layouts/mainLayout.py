@@ -16,7 +16,7 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
-import layouts.layouts_manager as lm
+import layouts.layouts_facade as lf
 
 import data.constants as dc
 import data.temp as dt
@@ -24,6 +24,7 @@ import data.temp as dt
 import settings.facade as sf
 
 import scripts.osascripts as oscr
+
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
@@ -56,9 +57,9 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     prevChoiceID)     
+        
         if oldPID != None:
-            cmd = oscr.closeSkimDocument(oldPID, prevChoiceID)
-            subprocess.Popen(cmd, shell=True)
+            lf.Wr.LayoutsManager.closePDFwindow(prevChoiceID, oldPID)
 
         # open another original material
         origMatName = self.getData()
@@ -87,7 +88,6 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         return super().render(widjetObj, renderData, **kwargs)
 
 
-
 class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
 
@@ -111,7 +111,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
         
         # switch other apps
-        lm.Wr.SectionLayout.set()
+        lf.Wr.SectionLayout.set()
 
 
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
@@ -138,6 +138,10 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currSubsection)
     
     def cmd(self):
+        # close current subsection FS window
+        currSection = fsf.Data.Book.currSection
+        lf.Wr.LayoutsManager.closeFSWindow(currSection)
+
         subsection = self.getData()
         sections = fsf.Data.Book.sections
         topSection = self.notify(ChooseTopSection_OM)
@@ -149,7 +153,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 
         self.notify(ScreenshotLocation_LBL)
 
-        lm.Wr.MainLayout.set()
+        lf.Wr.MainLayout.set()
     
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
         if broadcasterType == ChooseTopSection_OM:
@@ -196,6 +200,10 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currTopSection)
     
     def cmd(self):
+        # close current subsection FS window
+        currSection = fsf.Data.Book.currSection
+        lf.Wr.LayoutsManager.closeFSWindow(currSection)
+
         topSection = self.getData()
 
         # update top section
@@ -228,7 +236,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         self.notify(ImageGeneration_ETR, 
                     fsf.Wr.Links.ImIDX.get(prevSubsectionPath))
         
-        lm.Wr.MainLayout.set()
+        lf.Wr.MainLayout.set()
     
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ChooseSubsection_OM:

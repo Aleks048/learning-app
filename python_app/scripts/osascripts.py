@@ -64,37 +64,34 @@ end tell'".format(skimPID, sf.Wr.Data.TokenIDs.AppIds.skim_ID, docNameId)
 
 
 def closeVscodeWindow(vscodePID, winNameID):
-    cmd = "\
-                        click button 1 of theWindow\n"
-    outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
+    cmd = "click button 1 of theWindow\n"
+    outCmd = getCmdToRunOnProcessWindow(vscodePID, winNameID, cmd)
     return outCmd
 
 
-def closeFinderWindow(vscodePID, winNameID):
-    cmd = "\
-                        click button 1 of theWindow\n"
-    outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
+def closeFinderWindow(finderPID, winNameID):
+    cmd = "click button 1 of theWindow\n"
+    outCmd = getCmdToRunOnProcessWindow(finderPID, winNameID, cmd)
     return outCmd
 
 
-def getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd):
+def getCmdToRunOnProcessWindow(vscodePID, winNameID, cmd):
     outCmd = "osascript -e '\
 tell application \"System Events\"\n\
-	set processList to every process whose unix id is " + vscodePID + "\n\
+	set processList to every process whose unix id is {0}\n\
 	repeat with proc in processList\n\
 		tell proc\n\
 			repeat with theWindow in windows\n\
 				set n to name of theWindow\n\
-				if n contains \"" + winNameID + "\" then\n\
-					tell theWindow\n"
-    outCmd += cmd
-    outCmd += "\
+				if n contains \"{1}\" then\n\
+					tell theWindow\n\
+						{2}\
 					end tell\n\
 				end if\n\
 			end repeat\n\
 		end tell\n\
 	end repeat\n\
-end tell'"
+end tell'".format(vscodePID, winNameID, cmd)
     return outCmd
 
 

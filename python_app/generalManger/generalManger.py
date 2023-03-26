@@ -2,12 +2,6 @@ import file_system.file_system_facade as fsf
 import settings.facade as sf
 import _utils.logging as log
 
-import data.constants as dc
-import data.temp as dt
-import UI.widgets_facade as uif
-
-import layouts.layouts_manager as lm
-
 
 class GeneralManger:
     def AddNewBook(bookName, bookPath, 

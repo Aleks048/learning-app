@@ -17,6 +17,7 @@ import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oc
 
 import layouts.layouts_common as lc
+import layouts.layouts_manager as lm
 import settings.facade as sf
 
 class MainLayout(lc.Layout):
@@ -122,9 +123,7 @@ class MainLayout(lc.Layout):
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
                                                         currSection)
         if ownerPID != None:
-            log.autolog(currSection)
-            cmd = oscr.closeFinderWindow(ownerPID, currSection)
-            _u.runCmdAndWait(cmd)
+            lm.LayoutsManager.closeFSWindow(currSection, ownerPID)
         else:
             log.autolog("Could not close the 'file system' window of the main layout")
         
@@ -138,8 +137,8 @@ class MainLayout(lc.Layout):
                                                                 currOrigMatFilename)
         if ownerPID != None:
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(currOrigMatName)
-            cmd = oscr.closeSkimDocument(ownerPID, currOrigMatFilename)
-            _u.runCmdAndWait(cmd)
+
+            lm.LayoutsManager.closePDFwindow(currOrigMatFilename, ownerPID)
         else:
             log.autolog("Could not close the 'pdf reader' window of the main layout")
         
