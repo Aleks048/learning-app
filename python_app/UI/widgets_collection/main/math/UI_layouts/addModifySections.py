@@ -8,8 +8,9 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_data as wd
-import file_system.file_system_facade as fsf
 import UI.widgets_collection.main.math.UI_layouts.common as cl
+import file_system.file_system_facade as fsf
+import layouts.layouts_facade as lf
 
 import data.constants as dc
 import data.temp as dt
@@ -390,6 +391,10 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
+        # close current subsection FS window
+        currSection = fsf.Data.Book.currSection
+        lf.Wr.LayoutsManager.closeFSWindow(currSection)
+
         newSecName = self.notify(SetSectionName_ETR)
         newSecStartPage = self.notify(SetSectionStartPage_ETR)
         secPath = self.notify(NewSectionPath_ETR)
