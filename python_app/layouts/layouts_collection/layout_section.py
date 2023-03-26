@@ -8,7 +8,7 @@ import layouts.layouts_collection.layout_main as lm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
-import tex_file.tex_file_facade as tm
+import tex_file.tex_file_facade as tf
 import file_system.file_system_facade as fsm
 import scripts.osascripts as oscr
 
@@ -111,14 +111,24 @@ class SectionLayout(lc.Layout,
         _u.runCmdAndWait(cmd)
         log.autolog("moved VSCODE.")
 
-        # # create the layout in the vscode window
+        # create the layout in the vscode window
         conterntFilepath = _upan.Current.Paths.TexFiles.Content.abs()
         TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
         
         cmd = oscr.get_SetSecVSCode_CMD()
         subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
-        ocf.Wr.IdeCalls.openNewTab(conterntFilepath + " " + TOCFilepath)
+
+        # move vscode files to desired lines
+        currImIdx = fsf.Wr.SectionCurrent.getImIDX()
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        currSecWPrefix =  _upan.Current.Names.Section.name_wPrefix()
+        conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecWPrefix, currSection, currImIdx)
+        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecWPrefix, currSection, currImIdx)
+
+        ocf.Wr.IdeCalls.openNewTab(conterntFilepath, conLine)
+        ocf.Wr.IdeCalls.openNewTab(TOCFilepath, tocLine)
+
         log.autolog("set VSCODE section.")
         
         log.autolog("DONE setting section layout.")

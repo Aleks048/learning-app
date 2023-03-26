@@ -31,7 +31,6 @@ class BookInfoStructure:
         
         #currState
         currentState = "currentState"
-        currentPage = "currentPage"
         currTopSection = "currTopSection"
         currSection = "currSection"
 
@@ -49,7 +48,6 @@ class BookInfoStructure:
         PubProp.sections: {
         },
         PubProp.currentState: {
-            PubProp.currentPage: "",
             PubProp.currSection: "",
             PubProp.currTopSection: "",
             PubProp.currOrigMatName: "",

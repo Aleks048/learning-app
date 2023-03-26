@@ -1,77 +1,40 @@
 import outside_calls.pdfApp_calls as sc
 import outside_calls.outside_calls_facade as ocf
 
-#
-# use this if we need to move the vscode from the url
-#
-# def processLocalLinkCall(positionIDX, secName, bookName):
-#     '''
-#     this one is used by the image scripts to get the 
-#     '''
+import _utils.logging as log
 
-#     secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(secName)
-#     bookPath = _u.getBookPath(bookName)
-#     if bookPath == _u.Token.NotDef.str_t:
-#         log.autolog("Could not find the path for the book with name '" 
-#                     + bookName + "'. Abropt local link '" + secName + "'processing.")
-#         return
+import file_system.file_system_facade as fsf
 
-#     conTexFilepath = fsm.Wr.Paths.TexFiles.Content.getAbs(bookPath, secNameWPrefix)
-#     tocTexFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, secNameWPrefix)
-#     secPdfFilepath = fsm.Wr.Paths.PDF.getAbs(bookPath, secNameWPrefix)
+import layouts.layouts_manager as lm
 
-#     # enforce the position index to be a string
-#     if type(positionIDX) != str:
-#         positionIDX = str(positionIDX)
-    
-#     idxMarker = positionIDX
+import data.constants as dc
+import data.temp as dt
 
-#     # get position of index in content file
-#     conLine,_ = _u.findPositionsOfMarkerInFile(conTexFilepath, idxMarker)
-#     conLine = conLine[0]
+import UI.widgets_facade as wf
 
-#     # get position of index in toc file
-#     tocLine, _ = _u.findPositionsOfMarkerInFile(tocTexFilepath, idxMarker)
-#     tocLine = tocLine[0]
-
-#     currSection = fsm.Wr.SectionCurrent.readCurrSection()
-    
-#     #check if section infostructure has file move numbers defined
-#     conFileMoveNumber = fsm.Data.Sec.imageContentFileMoveLinesNumber(currSection)
-#     tocFileMoveNumber = fsm.Data.Sec.imageTOCFileMoveLinesNumber(currSection)
-
-#     tocLineNumber = str(tocLine + tocFileMoveNumber)
-#     conLineNumber = str(conLine + conFileMoveNumber)
-#     pdfPage = positionIDX
-
-#     if conFileMoveNumber == _u.Token.NotDef.str_t and tocFileMoveNumber == _u.Token.NotDef.str_t:
-#         #get the move numbers from bookinfostructure
-#         conFileMoveNumber = fsm.Data.Book.imageContentFileMoveLinesNumber
-#         tocFileMoveNumber = fsm.Data.Book.imageTOCFileMoveLinesNumber
-        
-#         tocLineNumber = str(tocLine + tocFileMoveNumber)
-#         conLineNumber = str(conLine + conFileMoveNumber)    
-
-#     cmd ="""\
-# # move tex TOC file to desired
-# code -g {0}:{1}:0
-# code -g {2}:{3}:0
-# open \"skim://{4}#page={5}\"
-# """.format(tocTexFilepath, 
-#         tocLineNumber, 
-#         conTexFilepath, 
-#         conLineNumber, 
-#         secPdfFilepath,
-#         pdfPage)
-#     os.system(cmd)
+import scripts.osascripts as oscr
 
 
 
 def processCall(url):
-    url = url.replace("KIK:/")
+    log.autolog("Processing url request: '{0}'.".format(url))
+    url = url.replace("KIK:/", "")
     url = url.split(".")
     bookName = url[0]
     topSection = url[1]
     subsecPath = url[2]
     positionIDX = url[3]
+
+    # switch section
+    fsf.Data.Book.currSection = topSection + "." + subsecPath
+    fsf.Data.Book.currTopSection = topSection
+
+    lm.Wr.SectionLayout.set()
+
+    mainMenuManager = dt.AppState.UIManagers.getData("fake toke", wf.Wr.MenuManagers.MainMenuManager.__base__)
+            
+    mainMenuManager.switchToSectionLayout()
+
+    # open pdf on the correct page
     ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, topSection, subsecPath, bookName)
+

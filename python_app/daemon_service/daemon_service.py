@@ -11,8 +11,8 @@ import daemon_service.services_collection.url_request as url
 import daemon_service.services_collection.populateMainTeFile_request as ptf
 
 class MyService(rpyc.Service):
-    def exposed_processLink(self, url):
-        return url.processCall(url)
+    def exposed_processLink(self, urlLink):
+        return url.processCall(urlLink)
     
     def exposed_processSaveTexFile(self, callerTexFile):
         return ptf.processCall(callerTexFile)

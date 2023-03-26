@@ -8,6 +8,7 @@ import _utils.logging as log
 import settings.facade as sf
 
 def processCall(callerTexFilePath):
+    log.autolog("Processing 'populate main file' request: '{0}'.".format(callerTexFilePath))
     # get the section name from the path
     subsectionName = callerTexFilePath.split("/")[-1]
     subsectionName = "_".join(subsectionName.split("_")[:-1])

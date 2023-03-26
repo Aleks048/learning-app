@@ -9,6 +9,7 @@ tell application \"{0}\" to return name of front document\
 '".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID)
 	return cmd
 
+
 def get_PageOfSkimDoc_CMD(filename):
 	cmd = "osascript -e '\
 tell application \"{0}\"\n\
@@ -23,6 +24,7 @@ tell application \"{0}\"\n\
 end tell'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID, filename)
 	return cmd
 
+
 def get_NameOfFrontPreviewDoc_CMD():
     cmd = "osascript -e '\
         tell application \"Preview\" to save the front document\n\
@@ -33,7 +35,6 @@ def get_NameOfFrontPreviewDoc_CMD():
         end tell\
         '"
     return cmd
-
 
 
 def closeSkimDocument(skimPID, docNameId):
@@ -61,17 +62,20 @@ tell application \"System Events\"\n\
 end tell'".format(skimPID, sf.Wr.Data.TokenIDs.AppIds.skim_ID, docNameId)
     return skimCloseWindowCmd
 
+
 def closeVscodeWindow(vscodePID, winNameID):
     cmd = "\
                         click button 1 of theWindow\n"
     outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
     return outCmd
 
+
 def closeFinderWindow(vscodePID, winNameID):
     cmd = "\
                         click button 1 of theWindow\n"
     outCmd = getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd)
     return outCmd
+
 
 def getCmdToRunOnVscodeWindow(vscodePID, winNameID, cmd):
     outCmd = "osascript -e '\
@@ -92,6 +96,7 @@ tell application \"System Events\"\n\
 	end repeat\n\
 end tell'"
     return outCmd
+
 
 def getMoveWindowCMD(appPID, bounds, windowIdentifier):
     bounds = [str(i) for i in bounds]
@@ -118,6 +123,7 @@ tell application \"System Events\"\n\
 end tell'"
 
     return cmd
+
 
 def get_SetSecVSCode_CMD():
     cmd = "osascript -e '\n\

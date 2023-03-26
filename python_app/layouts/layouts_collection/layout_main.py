@@ -53,7 +53,7 @@ class MainLayout(lc.Layout):
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
         skimFile_ID = currMaterialFilename
 
-        currPage = fsf.Data.Book.currentPage
+        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
@@ -112,9 +112,9 @@ class MainLayout(lc.Layout):
         
         log.autolog("DONE setting section layout.")
 
+
     @classmethod
-    def close(cls):
-        
+    def close(cls):  
         pathToSourceFolder = _upan.Current.Paths.Section.abs()
         currSection = _upan.Current.Names.Section.name()
 

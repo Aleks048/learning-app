@@ -84,8 +84,6 @@ class SectionInfoStructure:
 
     def createStructure():
         os.makedirs(_ufs._getPathToSectionsFolder())
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currentPage, 
-                                            _u.Token.NotDef.str_t)
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection,
                                             _u.Token.NotDef.str_t)
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currTopSection, 
