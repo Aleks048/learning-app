@@ -9,7 +9,6 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import tex_file.tex_file_facade as tf
-import file_system.file_system_facade as fsm
 import scripts.osascripts as oscr
 
 import settings.facade as sf
@@ -119,8 +118,6 @@ class SectionLayout(lc.Layout,
         conterntFilepath = _upan.Current.Paths.TexFiles.Content.abs()
         TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
         
-        cmd = oscr.get_SetSecVSCode_CMD()
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
 
 
         # move vscode files to desired lines
@@ -130,8 +127,11 @@ class SectionLayout(lc.Layout,
         conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecWPrefix, currSection, currImIdx)
         tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecWPrefix, currSection, currImIdx)
 
-        ocf.Wr.IdeCalls.openNewTab(conterntFilepath, conLine)
         ocf.Wr.IdeCalls.openNewTab(TOCFilepath, tocLine)
+        ocf.Wr.IdeCalls.openNewTab(conterntFilepath, conLine)
+
+        # cmd = oscr.get_SetSecVSCode_CMD()
+        # _u.runCmdAndWait(cmd)
 
         log.autolog("set VSCODE section.")
         
