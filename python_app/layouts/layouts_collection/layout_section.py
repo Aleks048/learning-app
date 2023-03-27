@@ -59,6 +59,10 @@ class SectionLayout(lc.Layout,
         else:
             ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
+            # check if PDF exists
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(_upan.Current.Paths.PDF.abs()):
+                sleep(0.1)
+
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
