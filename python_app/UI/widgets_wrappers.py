@@ -336,6 +336,8 @@ class TkWidgets (DataTranslatable_Interface):
 
         def defaultTextCMD(self):
             current = self.getData()
+            # [KIK-63] since " " in text data cause errors so we store "_" instead
+            current = current.replace("_", " ")
             if current == self.defaultText:
                 self.setTextColor(wd.Data.ENT.regularTextColor)
                 self.setData("")
