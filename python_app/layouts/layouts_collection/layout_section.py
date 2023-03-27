@@ -44,9 +44,8 @@ class SectionLayout(lc.Layout,
         # check if the folder is empty.
         if len(os.listdir(_upan.Current.Paths.Screenshot.abs())) == 0: 
             msg = "No images yet. Can't switch to section."
-            messsageMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        wf.Wr.MenuManagers.MessageMenuManager)
-            response = messsageMenuManager.show(msg, True)
+            
+            wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
             
             mainMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                         wf.Wr.MenuManagers.MainMenuManager.__base__)

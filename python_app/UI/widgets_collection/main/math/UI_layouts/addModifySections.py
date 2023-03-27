@@ -5,6 +5,7 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
+import UI.widgets_manager as wm
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_data as wd
@@ -44,11 +45,8 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
         name = self.notify(SetSectionName_ETR)
 
         # show notification with wait
-        messageManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mesm.MessageMenuManager)
-        response = messageManager.show(
-            "Do you want to change name: '{0}' start page: '{1}' for subsection: '{2}'".format(name, startPage, subsecPath), 
-            True)
+        msg = "Do you want to change name: '{0}' start page: '{1}' for subsection: '{2}'".format(name, startPage, subsecPath)
+        response = wm.UI_generalManager.showNotification(msg, True)
         
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                     mmm.MathMenuManager)

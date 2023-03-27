@@ -1,9 +1,7 @@
 import data.constants as dc
 import data.temp as dt
-import _utils._utils_main as _u
-import _utils.logging as log
 
-import UI.widgets_wrappers as ww
+import UI.widgets_facade as wf
 
 menuManagers = []
 
@@ -89,4 +87,14 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         self.show()
 
 
-
+class UI_generalManager(dc.AppCurrDataAccessToken):
+    @classmethod
+    def showNotification(cls, msg, shouldWait):
+        messsageMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
+                                                    wf.Wr.MenuManagers.MessageMenuManager)
+        
+        if shouldWait:
+            response = messsageMenuManager.show(msg, shouldWait)
+            return response
+        else:
+            messsageMenuManager.show(msg, shouldWait)
