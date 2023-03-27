@@ -36,7 +36,8 @@ class SectionLayout(lc.Layout,
         #       vscode to the left
         '''
 
-        lma.MainLayout.close()
+        if  dt.AppState.CurrLayout != cls:
+            lma.MainLayout.close()
 
         pathToSourceFolder = _upan.Current.Paths.Section.abs()
         currSection = _upan.Current.Names.Section.name()
@@ -136,6 +137,8 @@ class SectionLayout(lc.Layout,
         
         log.autolog("DONE setting section layout.")
 
+        dt.AppState.CurrLayout = cls
+
     @classmethod
     def close(cls):
         currSection = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
@@ -143,7 +146,6 @@ class SectionLayout(lc.Layout,
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
             lm.LayoutsManager.closeIDEWindow(currSection, dt.OtherAppsInfo.VsCode.section_pid)
-            _u.runCmdAndWait(cmd)
         #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)

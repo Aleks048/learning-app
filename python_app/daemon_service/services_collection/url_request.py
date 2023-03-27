@@ -1,4 +1,3 @@
-import outside_calls.pdfApp_calls as sc
 import outside_calls.outside_calls_facade as ocf
 
 import _utils.logging as log
@@ -26,6 +25,8 @@ def processCall(url):
     positionIDX = url[3]
 
     # switch section
+    lm.Wr.SectionLayout.close()
+
     fsf.Data.Book.currSection = topSection + "." + subsecPath
     fsf.Data.Book.currTopSection = topSection
 

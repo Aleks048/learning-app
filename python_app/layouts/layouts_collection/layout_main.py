@@ -9,7 +9,6 @@ import layouts.layouts_collection.layout_section as ls
 import _utils._utils_main as _u
 import _utils.logging as log
 import _utils.pathsAndNames as _upan
-# import UI.widgets_facade as wf
 import tex_file.tex_file_facade as tm
 import file_system.file_system_facade as fsf
 import data.temp as dt
@@ -31,8 +30,12 @@ class MainLayout(lc.Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
-        ls.SectionLayout.close()        
+        if dt.AppState.CurrLayout != cls:
+            ls.SectionLayout.close()      
 
+        
+        currSectionWPrefix = _upan.Current.Names.Section.name_wPrefix()
+        currSection = _upan.Current.Names.Section.name()
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
@@ -54,7 +57,7 @@ class MainLayout(lc.Layout):
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
         skimFile_ID = currMaterialFilename
 
-        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
+        currPage = fsf.Data.Sec.startPage(currSection)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
@@ -80,7 +83,6 @@ class MainLayout(lc.Layout):
         ownerPID = None
         bounds = [mon_halfWidth, mon_height - appHeight - 80, appWidth, appHeight + 54]
 
-        currSectionWPrefix = _upan.Current.Names.Section.name_wPrefix()
         currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
 
 
@@ -112,6 +114,8 @@ class MainLayout(lc.Layout):
             log.autolog("Moved Finder.")
         
         log.autolog("DONE setting section layout.")
+        
+        dt.AppState.CurrLayout = cls
 
 
     @classmethod
