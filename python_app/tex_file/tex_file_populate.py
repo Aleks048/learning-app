@@ -54,7 +54,7 @@ class TexFilePopulate:
             bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
             bringToFrontLIne = tfm.TexFileModify.getLinkLine(bookName, topSection, subsection,
-                                                                1, "Bring To front", "full")
+                                                        _u.Token.NotDef.str_t, "Bring To front", "full")
 
             # add link to bring the subsection to the front.
             tocFile = [bringToFrontLIne] + tocFile

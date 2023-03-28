@@ -14,6 +14,8 @@ import UI.widgets_facade as wf
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oscf
 
+import _utils._utils_main as _u
+
 
 
 def processCall(url):
@@ -24,6 +26,9 @@ def processCall(url):
     topSection = url[1]
     subsecPath = url[2]
     positionIDX = url[3]
+
+    if positionIDX == _u.Token.NotDef.str_t:
+        positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
     
     newSubsection = topSection + "." + subsecPath
     
