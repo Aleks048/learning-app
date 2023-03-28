@@ -7,7 +7,7 @@ class VsCodeCalls:
         _u.runCmdAndWait(cmd)
     
     def openNewTab(path, line = 0):
-        cmd = "code -g {0}:{1}:0".format(path, line)
+        cmd = "code -g {0}:{1}:0".format(path, line) + " &"
         log.autolog(cmd)
         _u.runCmdAndWait(cmd)
 

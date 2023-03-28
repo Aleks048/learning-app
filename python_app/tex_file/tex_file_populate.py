@@ -8,6 +8,7 @@ import file_system.file_system_facade as fsm
 import outside_calls.outside_calls_facade as ocf
 import _utils.logging as log
 import settings.facade as sf
+import tex_file.tex_file_modify as tfm
 
 class TexFilePopulate:
     def populateMainFile(subsectionName_full_WPrefix, bookPath):
@@ -50,8 +51,15 @@ class TexFilePopulate:
         
         with open(tocFilepath, 'r') as tocF:
             tocFile = tocF.readlines()
+            bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
+            bringToFrontLIne = tfm.TexFileModify.getLinkLine(bookName, topSection, subsection,
+                                                                1, "Bring To front", "full")
+
+            # add link to bring the subsection to the front.
+            tocFile = [bringToFrontLIne] + tocFile
             imageToken = "image"
+
             for i in range(0, len(tocFile)):
                 line = tocFile[i]
                 if imageToken in line:
@@ -68,7 +76,6 @@ class TexFilePopulate:
             templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
         with open(mainFilepath, 'w') as outFile:
-
             outFileList = []
             # get the marker of the part BEFORE_LOCAL_LINKS_MARKER
             # 

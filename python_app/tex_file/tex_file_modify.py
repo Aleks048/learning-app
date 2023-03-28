@@ -136,7 +136,8 @@ class TexFileModify:
         with open(filePath, 'w') as f:
             f.writelines(fileLines)
     
-    def addLinkToTexFile(imIDX, linkName, contenfFilepath, 
+    @classmethod
+    def addLinkToTexFile(cls, imIDX, linkName, contenfFilepath, 
                         bookName, topSection, subsection):
         #
         # add link to the current section file
@@ -160,12 +161,17 @@ class TexFileModify:
                 break
             positionToAdd += 1
         
-        url = "KIK:/" + bookName + "." + topSection + "." + subsection + "." + imIDX
-        lineToAdd = "        \href{" + url + "}{" + linkName + "}\n"
+        lineToAddFull = "        " + cls.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "full")
+        lineToAddPdfOnly = "        " + cls.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "pdf")
         outlines = lines[:positionToAdd]
-        outlines.append(lineToAdd)
+        outlines.append(lineToAddFull)
+        outlines.append(lineToAddPdfOnly)
         outlines.extend(lines[positionToAdd:])
         
         with open(contenfFilepath, "+w") as f:
             for line in outlines:
                 f.write(line + "\n")
+    
+    def getLinkLine(bookName, topSection, subsection, imIDX, linkName: str, linkType: str):
+        url = "KIK:/{0}.{1}.{2}.{3}".format(bookName, topSection, subsection, imIDX)
+        return "\href{" + url + "." + linkType + "}{" + linkName + "}\n"

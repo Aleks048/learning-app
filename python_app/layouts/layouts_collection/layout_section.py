@@ -117,8 +117,6 @@ class SectionLayout(lc.Layout,
         # create the layout in the vscode window
         conterntFilepath = _upan.Current.Paths.TexFiles.Content.abs()
         TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
-        
-
 
         # move vscode files to desired lines
         currImIdx = fsf.Wr.SectionCurrent.getImIDX()
@@ -128,6 +126,7 @@ class SectionLayout(lc.Layout,
         tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecWPrefix, currSection, currImIdx)
 
         ocf.Wr.IdeCalls.openNewTab(TOCFilepath, tocLine)
+        sleep(0.3)
         ocf.Wr.IdeCalls.openNewTab(conterntFilepath, conLine)
 
         # cmd = oscr.get_SetSecVSCode_CMD()
