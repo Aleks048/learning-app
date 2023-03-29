@@ -125,7 +125,6 @@ class Current:
                 '''
                 Used in the main layout Label
                 '''
-                relPath = cls.rel()
 
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
                 name = fsf.Data.TOC.text(currSecName)
@@ -138,7 +137,6 @@ class Current:
                                                                                            startPage,
                                                                                            endPage)
 
-                # text += " Im dir:  '{0}'".format(relPath) if relPath != "" else "No direction yet."
                 return text
         
 

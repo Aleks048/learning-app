@@ -36,6 +36,9 @@ def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
 
 def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     outPos, fLines = findPositionsOfMarkerInFile(filepath, marker, lineToken)
+
+    if outPos == None or fLines == None:
+        return
     
     for i in range(len(fLines)):
         if i in outPos:
