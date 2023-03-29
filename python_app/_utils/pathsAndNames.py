@@ -128,13 +128,17 @@ class Current:
                 relPath = cls.rel()
 
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
-                name = fsf.Data.Sec.name(currSecName)
-                startPage = fsf.Data.Sec.startPage(currSecName)
+                name = fsf.Data.TOC.text(currSecName)
+                startPage = fsf.Data.TOC.start(currSecName)
+                endPage = fsf.Data.TOC.finish(currSecName)
                 currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
-                text = "Sec path: '{0}'. Name: '{1}'. St page: '{2}'.".format(currSecName, name, startPage)
+                text = "Sec path: '{0}'. Name: '{1}'. Start p: '{2}'. End p: '{3}'.".format(currSecName, 
+                                                                                           name, 
+                                                                                           startPage,
+                                                                                           endPage)
 
-                text += " Im dir:  '{0}'".format(relPath) if relPath != "" else "No direction yet."
+                # text += " Im dir:  '{0}'".format(relPath) if relPath != "" else "No direction yet."
                 return text
         
 

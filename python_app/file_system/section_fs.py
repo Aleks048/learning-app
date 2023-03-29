@@ -27,7 +27,6 @@ class SectionInfoStructure:
 
     class PubProp:
         name = "_name"
-        startPage = "_startPage"
         latestSubchapter = "_latestSubchapter"
         subSections = "_subSections"
 
@@ -53,10 +52,7 @@ class SectionInfoStructure:
     def _getTemplate(cls, depth, level):
         sectionInfoEntryPrefix = cls.sectionPathForTemplate
         sectionInfo_template = {
-                sectionInfoEntryPrefix + cls.PubProp.name: _u.Token.NotDef.str_t,
-                sectionInfoEntryPrefix + cls.PubProp.startPage: _u.Token.NotDef.str_t,
                 sectionInfoEntryPrefix + cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
-                # sectionInfoEntryPrefix + cls.PubProp.subSections: [],
                 sectionInfoEntryPrefix + cls.PrivProp.levelData:{
                     sectionInfoEntryPrefix + cls.PrivProp.levelData_depth: str(depth),
                     sectionInfoEntryPrefix + cls.PrivProp.levelData_level: str(level),

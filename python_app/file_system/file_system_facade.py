@@ -24,7 +24,7 @@ class ClassGetProperty(type):
 
         module = self.__getbasemodule()
 
-        if "sec" in str(self.__base__).lower():
+        if "sec" in str(self.__base__).lower() or "toc" in str(self.__base__).lower():
             def getAttributeForSection(subsection, newValue = None):
                 if newValue == None:
                     return module.readProperty(subsection, propertyName)

@@ -54,7 +54,7 @@ class MainLayout(lc.Layout):
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
         skimFile_ID = currMaterialFilename
 
-        currPage = fsf.Data.Sec.startPage(currSection)
+        currPage = fsf.Data.TOC.start(currSection)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         

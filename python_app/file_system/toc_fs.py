@@ -6,6 +6,7 @@ import file_system.section_fs as sfs
 import _utils._utils_main as _u
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
+import file_system._utils as _ufs
 
 import settings.facade as sf
 
@@ -135,3 +136,13 @@ class TOCStructure:
             log.autolog("The TOC dir is not present. Will create: {0}".format(tocFolderPath))
             ocf.Wr.FsAppCalls.createDir(tocFolderPath)
             return os.path.join(tocFolderPath, "TOC_" + secprefix + "_" + topSectionName + ".tex")
+
+   
+    @classmethod
+    def readProperty(cls, sectionPath, propertyName):
+        return sfs.SectionInfoStructure.readProperty(sectionPath, propertyName)
+
+    @classmethod
+    def updateProperty(cls, sectionPath, propertyName, newValue):     
+        cls.updateTOCfiles(sectionPath, propertyName, newValue)
+        sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)

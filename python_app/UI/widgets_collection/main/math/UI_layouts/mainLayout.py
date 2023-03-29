@@ -283,6 +283,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
         self.changeText(text)
         return super().render(widjetObj, renderData, **kwargs)
 
+
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
@@ -301,6 +302,7 @@ class addToTOC_CHB(ww.currUIImpl.Checkbox):
     def receiveNotification(self, broadcasterName):
         return self.getData()
 
+
 class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
     def __init__(self, parentWidget, prefix):
         renderData = {
@@ -318,6 +320,7 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
     
     def receiveNotification(self, broadcasterName):
         return self.getData()
+
 
 class ImageGeneration_BTN(ww.currUIImpl.Button):
     labelOptions = ["imIdx", "imName"]

@@ -53,7 +53,8 @@ def processCall(url):
 
     lm.Wr.SectionLayout.set()
 
-    mainMenuManager = dt.AppState.UIManagers.getData("fake token", wf.Wr.MenuManagers.MainMenuManager.__base__)
+    mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                    wf.Wr.MenuManagers.MainMenuManager.__base__)
             
     mainMenuManager.switchToSectionLayout()
 
