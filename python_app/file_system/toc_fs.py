@@ -7,6 +7,7 @@ import _utils._utils_main as _u
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import file_system._utils as _ufs
+import file_system.file_system_facade as fsf
 
 import settings.facade as sf
 
@@ -16,11 +17,11 @@ class TOCStructure:
     '''
 
     class PubPro:
-        TEXT_MARKER = "[SECTION_TEXT]"
-        START_MARKER = "[SECTION_START]" 
-        FINISH_MARKER = "[SECTION_FINISH]"
-        NAME_MARKER = "[SECTION_NAME]"
-        CONTENT_MARKER = "[CONTENT_MARKER]"
+        TEXT_MARKER = "[SECTION\\_TEXT]"
+        START_MARKER = "[SECTION\\_START]" 
+        FINISH_MARKER = "[SECTION\\_FINISH]"
+        NAME_MARKER = "[SECTION\_NAME]"
+        CONTENT_MARKER = "[CONTENT\\_MARKER]"
         
         text = "TOC_text"
         start = "TOC_sectionStart"
@@ -47,7 +48,7 @@ class TOCStructure:
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         
-        for i,sectionName in enumerate(sectionPathList):
+        for i, sectionName in enumerate(sectionPathList):
             sectionsList = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections)
             sectionData = bfs.BookInfoStructure.readProperty(sectionName)
             if sectionData == None:
@@ -57,11 +58,16 @@ class TOCStructure:
             topSectionName = sectionName.split(separator)[0]
             
             sectionsTOCLines = [""]
-            
+
             if i == 0:
-                pathToTemplates = os.getenv("BOOKS_TEMPLATES_PATH")
-                _waitDummy = shutil.copy(pathToTemplates + "/TOC_template.tex",
-                                        cls._getTOCFilePath(topSectionName))
+                tocTemplate = "\
+\\input{{\\utPath}TOC_utilLinks.tex}\n\
+\\mybox{\n\
+[CONTENT\\_MARKER]\n\
+}\n\
+\\\\"
+                with open(cls._getTOCFilePath(topSectionName), "w") as f:
+                      f.write(tocTemplate)
             
             cls._getTOCLines(sectionData, sectionsTOCLines, 0)
 
@@ -74,25 +80,31 @@ class TOCStructure:
                                 sectionsTOCLines[0])
 
     
-    def _getTOCSectionNameFromSectionPath(sectionPath):
+    def __getTopSecNameFromSectionPath(sectionPath):
         prefix = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
-        return prefix + "_" + sectionPath.split(separator)[0]
+        return sectionPath.split(separator)[0]
 
     @classmethod
     def updateTOCfiles(cls, sectionPath, propertyName, newValue):
         oldPropertyValue = sfs.SectionInfoStructure.readProperty(sectionPath, propertyName)
 
         # update the TOC files
-        sectionName = cls._getTOCSectionNameFromSectionPath(sectionPath)
-        if oldPropertyValue != "":
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), 
+        
+        topSecName = cls.__getTopSecNameFromSectionPath(sectionPath)
+        newValue = newValue.replace(" ", "\ ")
+        newValue = newValue.replace("_", "\_")
+        sectionPath = sectionPath.replace(" ", "\ ")
+        sectionPath = sectionPath.replace("_", "\_")
+
+        if oldPropertyValue != _u.Token.NotDef.str_t:
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSecName), 
                                 "[" + oldPropertyValue + "]", 
                                 "[" + newValue + "]", 
                                 "[" + sectionPath + "]")
         else:
             marker = cls.PubPro.propertyToMarker[propertyName]
-            _u.replaceMarkerInFile(cls._getTOCFilePath(sectionName), 
+            _u.replaceMarkerInFile(cls._getTOCFilePath(topSecName), 
                                 "[" + marker  + "]", 
                                 "[" + newValue + "]", 
                                 "[" + sectionPath + "]")
@@ -100,25 +112,37 @@ class TOCStructure:
     @classmethod
     def _getTOCLines(cls, sectionsData, outLines, level):
         INTEMEDIATE_LINE = cls.PubPro.NAME_MARKER + ":\\\\\n"
-        BOTTOM_LINE = "\TOCline{[" + cls.PubPro.TEXT_MARKER + \
-            "] [" + cls.PubPro.NAME_MARKER + "]// [" + \
+        BOTTOM_LINE = "\TOCline{[" + cls.PubPro.TEXT_MARKER + "]// [" + \
             cls.PubPro.START_MARKER + \
             "] - [" + cls.PubPro.FINISH_MARKER + "]}{[" + \
-            cls.PubPro.START_MARKER + "]}" + \
+            cls.PubPro.NAME_MARKER + "]}" + \
             "\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
     
         for name, section in sectionsData["sections"].items():
+            nameFormatted = name.replace(" ", "\ ")
+            nameFormatted = nameFormatted.replace("_", "\_")
             if type(section) == dict:
+                start = fsf.Data.TOC.start(name)
+                finish = fsf.Data.TOC.finish(name)
+                text = fsf.Data.TOC.text(name)
+                text = text.replace(" ", "\ ")
+                text = text.replace("_", "\_")
                 if section["sections"] == {}:
                     # add line
+
                     lineToAdd = DEFAULT_PREFIX_SPACES \
-                                + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, name)
+                                + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
+                    lineToAdd = lineToAdd.replace(cls.PubPro.TEXT_MARKER, text)
+                    lineToAdd = lineToAdd.replace(cls.PubPro.START_MARKER, start)
+                    lineToAdd = lineToAdd.replace(cls.PubPro.FINISH_MARKER, finish)
+                   
                     outLines[0] = outLines[0] + lineToAdd
                 else:
                     lineToAdd = DEFAULT_PREFIX_SPACES \
-                                + INTEMEDIATE_LINE.replace(cls.PubPro.NAME_MARKER, name)
+                                + INTEMEDIATE_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
+                    
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
     
@@ -143,6 +167,6 @@ class TOCStructure:
         return sfs.SectionInfoStructure.readProperty(sectionPath, propertyName)
 
     @classmethod
-    def updateProperty(cls, sectionPath, propertyName, newValue):     
+    def updateProperty(cls, sectionPath, propertyName, newValue):  
         cls.updateTOCfiles(sectionPath, propertyName, newValue)
         sfs.SectionInfoStructure.updateProperty(sectionPath, propertyName, newValue)
