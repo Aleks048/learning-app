@@ -38,6 +38,7 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     outPos, fLines = findPositionsOfMarkerInFile(filepath, marker, lineToken)
 
     if outPos == None or fLines == None:
+        log.autolog("Could not find line token '{0}' in '{1}'".format(lineToken, filepath))
         return
     
     for i in range(len(fLines)):

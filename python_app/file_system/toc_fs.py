@@ -48,36 +48,24 @@ class TOCStructure:
 
         sectionPathList = sectionPath.split(sectionPathSeparator)
         
-        for i, sectionName in enumerate(sectionPathList):
-            sectionsList = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections)
-            sectionData = bfs.BookInfoStructure.readProperty(sectionName)
-            if sectionData == None:
-                continue
+        sectionsList = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections)
+        sectionsList = sectionsList[sectionPathList[0]]
 
-            separator = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
-            topSectionName = sectionName.split(separator)[0]
-            
-            sectionsTOCLines = [""]
-
-            if i == 0:
-                tocTemplate = "\
+        tocTemplate = "\
 \\input{{\\utPath}TOC_utilLinks.tex}\n\
 \\mybox{\n\
 [CONTENT\\_MARKER]\n\
 }\n\
 \\\\"
-                with open(cls._getTOCFilePath(topSectionName), "w") as f:
-                      f.write(tocTemplate)
-            
-            cls._getTOCLines(sectionData, sectionsTOCLines, 0)
+        with open(cls._getTOCFilePath(sectionPathList[0]), "w") as f:
+                f.write(tocTemplate)
 
-            
-            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), 
-                                cls.PubPro.NAME_MARKER, 
-                                topSectionName)
-            _u.replaceMarkerInFile(cls._getTOCFilePath(topSectionName), 
-                                cls.PubPro.CONTENT_MARKER, 
-                                sectionsTOCLines[0])
+        sectionsTOCLines = [""]
+        cls._getTOCLines(sectionsList, sectionsTOCLines, 0)
+
+        _u.replaceMarkerInFile(cls._getTOCFilePath(sectionPathList[0]), 
+                            cls.PubPro.CONTENT_MARKER,
+                            sectionsTOCLines[0])
 
     
     def __getTopSecNameFromSectionPath(sectionPath):
@@ -134,14 +122,23 @@ class TOCStructure:
 
                     lineToAdd = DEFAULT_PREFIX_SPACES \
                                 + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
-                    lineToAdd = lineToAdd.replace(cls.PubPro.TEXT_MARKER, text)
-                    lineToAdd = lineToAdd.replace(cls.PubPro.START_MARKER, start)
-                    lineToAdd = lineToAdd.replace(cls.PubPro.FINISH_MARKER, finish)
+                    if text != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.TEXT_MARKER, text)
+                    if start != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.START_MARKER, start)
+                    if finish != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.FINISH_MARKER, finish)
                    
                     outLines[0] = outLines[0] + lineToAdd
                 else:
                     lineToAdd = DEFAULT_PREFIX_SPACES \
-                                + INTEMEDIATE_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
+                                + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
+                    if text != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.TEXT_MARKER, text)
+                    if start != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.START_MARKER, start)
+                    if finish != _u.Token.NotDef.str_t:
+                        lineToAdd = lineToAdd.replace(cls.PubPro.FINISH_MARKER, finish)
                     
                     outLines[0] = outLines[0] + lineToAdd
                     cls._getTOCLines(section, outLines, level +1)
