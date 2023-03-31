@@ -16,24 +16,26 @@ class TexFilePopulate:
         tocFile = []
 
         localLinksLine = ""
+        bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
         conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsectionName_full_WPrefix)
         tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsectionName_full_WPrefix)
         mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsectionName_full_WPrefix)
 
         topSection, subsection = fsm.Wr.Utils.stripFullName_Wprefix(subsectionName_full_WPrefix)
         
-        listOfLocalLinks = []
+        # listOfLocalLinks = []
         with open(conFilepath, 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
             
-            linkToken = "KIK:"
+            # linkToken = "KIK:"
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
-                if linkToken in line:
-                    line = line.replace(" ", "")
-                    line = line.replace("\n", "")
-                    listOfLocalLinks.append(line)
+                # if linkToken in line:
+                #     line = line.replace(" ", "")
+                #     line = line.replace("\n", "")
+                #     lineToAdd = "\href{{KIK:{0}.{1}.{2}.}}{{}}, \n".format(bookName, topSection, subsection)
+                #     listOfLocalLinks.append(line)
                 if "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
@@ -46,8 +48,11 @@ class TexFilePopulate:
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
+                if "Local links" in line:
+                    contentFile[i] = ""
 
-        localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
+
+        # localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
         with open(tocFilepath, 'r') as tocF:
             tocFile = tocF.readlines()
@@ -86,7 +91,7 @@ class TexFilePopulate:
             outFileList = templateFile[:beforeLocalLinksmarkerPosTemplate + 1]
 
             # add local links
-            outFileList.append("  " + localLinksLine + "\n")
+            # outFileList.append("  " + localLinksLine + "\n")
             
             # add TOC from template
             beforeTOCmarker = "BEFORE_TOC_MARKER"

@@ -38,17 +38,17 @@
 }
 
 
-\newcommand{\myTarget}[2]{
-    \target{#2}
+\newcommand{\myTarget}[3][0.6]{
+    \target{#3}
     \\\\
     % \image{#1_#4_#2}
-    \myStIm{#1}
+    \myStIm[#1]{#2}
 }
 
 
-\newcommand{\myStIm}[1]{
-    \href{file:#1.png}{
-        \includegraphics[scale = 0.6]{#1}
+\newcommand{\myStIm}[2][0.6]{
+    \href{file:#2.png}{
+        \includegraphics[scale = #1]{#2}
     }
 }
 
