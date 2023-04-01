@@ -73,15 +73,15 @@ class TexFileModify:
     @classmethod
     def addImageLinkToTOC_wImage(cls, imIdx, linkName):
         currSubsection = _upan.Current.Names.Section.name()
-        imIdx = str(imIdx)
-        linkName = str(linkName)
+        imIdxStr = str(imIdx)
+        linkName = str(linkName).replace("_", " ")
+        linktext = "[{0}.{1}]: {2}".format(currSubsection, imIdxStr, linkName)
         
         pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdx + \
-        "]{" + linkName.replace("_", " ") + "} \\image[0.5]{" + \
-        imIdx + "_" + currSubsection + "_" + imIdx + "}\n\
+        \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + \
+        imIdxStr + "_" + currSubsection + "_" + imIdxStr + "}\n\
     }\n\n\n"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         
@@ -92,13 +92,16 @@ class TexFileModify:
         
     @classmethod
     def addImageLinkToTOC_woImage(cls, imIdx, linkName):
-        imIdx = str(imIdx)
-        linkName = str(linkName)
+        currSubsection = _upan.Current.Names.Section.name()
+
+        imIdxStr = str(imIdx)
+        linkName = str(linkName).replace("_", " ")
+        linktext = "[{0}.{1}]: {2}".format(currSubsection, imIdxStr, linkName)
         
         pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdx + "]{" + linkName.replace("_", " ") + "} \\textbf{!}\n\
+        \\link[" + imIdxStr + "]{" + linktext + "}\n\
     }\n\n\n"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         

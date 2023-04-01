@@ -23,19 +23,21 @@ class TexFilePopulate:
 
         topSection, subsection = fsm.Wr.Utils.stripFullName_Wprefix(subsectionName_full_WPrefix)
         
-        # listOfLocalLinks = []
+        listOfLocalLinks = []
         with open(conFilepath, 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
             
-            # linkToken = "KIK:"
+            linkToken = "id: "
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
-                # if linkToken in line:
-                #     line = line.replace(" ", "")
-                #     line = line.replace("\n", "")
-                #     lineToAdd = "\href{{KIK:{0}.{1}.{2}.}}{{}}, \n".format(bookName, topSection, subsection)
-                #     listOfLocalLinks.append(line)
+                if linkToken in line:
+                    idx = line.replace("% THIS IS CONTENT id: ", "")
+                    idx = idx.replace(" ", "")
+                    idx = idx.replace("\n", "")
+                    lineToAdd = "\href{{KIK:/{0}.{1}.{2}.{3}.full}}{{{1}.{2}.{3}}}".format(bookName, topSection, subsection, idx)
+                    lineToAdd += "\href{{KIK:/{0}.{1}.{2}.{3}.pdf}}{{[p]}}, \n".format(bookName, topSection, subsection, idx)
+                    listOfLocalLinks.append(lineToAdd)
                 if "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
@@ -52,7 +54,7 @@ class TexFilePopulate:
                     contentFile[i] = ""
 
 
-        # localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
+        localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
         
         with open(tocFilepath, 'r') as tocF:
             tocFile = tocF.readlines()
@@ -91,7 +93,7 @@ class TexFilePopulate:
             outFileList = templateFile[:beforeLocalLinksmarkerPosTemplate + 1]
 
             # add local links
-            # outFileList.append("  " + localLinksLine + "\n")
+            outFileList.append("Local links: " + localLinksLine + "\n")
             
             # add TOC from template
             beforeTOCmarker = "BEFORE_TOC_MARKER"
