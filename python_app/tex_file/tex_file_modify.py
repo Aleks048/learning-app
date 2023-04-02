@@ -3,9 +3,12 @@ import os
 import file_system.file_system_facade as fsm
 import tex_file.tex_file_populate as tfp
 import data.constants as d
+import re
+
 import _utils.logging as log
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
+
 
 class TexFileModify:
     # update the content file
@@ -70,12 +73,21 @@ class TexFileModify:
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
         
+    def __getLinkText(imIdx, linkName):
+        linkName = re.sub("([^@])_", r"\1 ", linkName)
+
+        linktext = "[{0}]: {1}".format(imIdx, linkName)
+        linktext = re.sub("([^@])_", r"\1\\\ ", linktext)
+        
+        linktext = linktext.replace("@_", "_")
+        linktext = linktext.replace(" ", "\\ ")
+        return linktext
+
     @classmethod
     def addImageLinkToTOC_wImage(cls, imIdx, linkName):
         currSubsection = _upan.Current.Names.Section.name()
         imIdxStr = str(imIdx)
-        linkName = str(linkName).replace("_", " ")
-        linktext = "[{0}.{1}]: {2}".format(currSubsection, imIdxStr, linkName)
+        linktext = cls.__getLinkText(imIdxStr, linkName)
         
         pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
@@ -95,8 +107,7 @@ class TexFileModify:
         currSubsection = _upan.Current.Names.Section.name()
 
         imIdxStr = str(imIdx)
-        linkName = str(linkName).replace("_", " ")
-        linktext = "[{0}.{1}]: {2}".format(currSubsection, imIdxStr, linkName)
+        linktext = cls.__getLinkText(imIdxStr, linkName)
         
         pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
