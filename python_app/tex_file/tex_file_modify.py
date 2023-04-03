@@ -39,8 +39,7 @@ class TexFileModify:
         currSubsectionNum = currSubsection.split("_")[0]
         extraImagePath = imIdx + "__" + currSubsectionNum + "__" + linkName
         
-        pageToAdd = "\n\n"
-        pageToAdd += d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
+        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
         pageToAdd += "\
     % TEXT BEFORE MAIN IMAGE\n\
     \n\
@@ -49,7 +48,7 @@ class TexFileModify:
     \\def\\imnum{" + imIdx + "}\n\
     \\def\\linkname{" + linkName.replace("_", " ") + "}\n\
     \\hyperdef{TOC}{\\linkname}{}\n\
-    \myTarget{" + extraImagePath + "}{\\linkname\\imnum}\n\
+    \myTarget{" + extraImagePath + "}{\\imnum}\n\
     % TEXT AFTER MAIN IMAGE\n\
     \n\
     \n\
@@ -65,7 +64,7 @@ class TexFileModify:
         % \\myGlLink{}{}\n\
     }\n\
     \\\\Local links: \n\
-    \\TOC\\newpage\n"
+    \\TOC\\newpage\n\n\n"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
 
         cls.__updateTexFile(_upan.Current.Paths.TexFiles.Content.abs(),
@@ -73,14 +72,20 @@ class TexFileModify:
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
         
-    def __getLinkText(imIdx, linkName):
-        linkName = re.sub("([^@])_", r"\1 ", linkName)
+    def __getLinkText(imIdx, linkName:str):
+        # make the start bold text
+        if linkName.count("__") == 1:
+            linkName = linkName.split("__")
+            linkName = "\\textbf{" + linkName[0] + ":}\ " + "".join(linkName[1:])
 
-        linktext = "[{0}]: {1}".format(imIdx, linkName)
-        linktext = re.sub("([^@])_", r"\1\\\ ", linktext)
+        #replace all '_' but the special ones with ' '
+        linkName = re.sub("([^@])_", r"\1\\ ", linkName)
+
+        # add a start
+        linktext = "[{0}]:\ {1}".format(imIdx, linkName)
         
+        # work with special "_" that are used in underscore
         linktext = linktext.replace("@_", "_")
-        linktext = linktext.replace(" ", "\\ ")
         return linktext
 
     @classmethod
@@ -128,13 +133,16 @@ class TexFileModify:
         imIdxLineStartNum = -1
         imIdxLineEndNum = -1
         for i in range(len(fileLines)):
-            log.autolog("The marker: '{0}' was alteady in the \n'{1}' file. Will replace it".format(startMarker, filePath))
             if startMarker in fileLines[i]:
+                log.autolog("The marker: '{0}' was alteady in the \n'{1}' file. Will replace it".format(startMarker, filePath))
                 imIdxLineStartNum = i
                 while stopMarker not in fileLines[i]:
                     i += 1
                     if i >= len(fileLines):
                         break
+                
+                if i < len(fileLines) - 2:
+                    i += 2
                 imIdxLineEndNum = i + 1
         
         if imIdxLineStartNum != -1 and imIdxLineEndNum != -1:

@@ -51,6 +51,7 @@ class TexFilePopulate:
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
                 if "Local links" in line:
+                    #NOTE: not used TODO: remove
                     contentFile[i] = ""
 
 

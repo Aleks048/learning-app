@@ -8,6 +8,12 @@ import _utils.logging as log
 import settings.facade as sf
 
 class FinderCalls:
+    @classmethod
+    def deleteFile(cls, filepath):
+        if cls.checkIfFileOrDirExists(filepath):
+            os.remove(filepath)
+        else:
+            log.autolog("Could not remove filepath: '{0}'. It does not seem to exist.".format(filepath))
 
     def copyFile(sourceFilepath, destFilepath):
         return shutil.copy2(sourceFilepath, destFilepath)

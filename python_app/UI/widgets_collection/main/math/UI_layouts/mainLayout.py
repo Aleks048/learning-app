@@ -16,6 +16,7 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.message.manager as mesm
 import layouts.layouts_facade as lf
 
 import data.constants as dc
@@ -322,7 +323,8 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
         return self.getData()
 
 
-class ImageGeneration_BTN(ww.currUIImpl.Button):
+class ImageGeneration_BTN(ww.currUIImpl.Button,
+                          dc.AppCurrDataAccessToken):
     labelOptions = ["imIdx", "imName"]
     dataFromUser = [-1, -1]
 
@@ -344,9 +346,45 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
     def cmd(self):
         
         def _createTexForTheProcessedImage():
-            bookName = sf.Wr.Manager.Book.getCurrBookName()
-            currSubsection = _upan.Current.Names.Section.name().split("_")[0]
             self.dataFromUser[1] = self.dataFromUser[1].replace(" ", "_")
+            self.dataFromUser[1] = self.dataFromUser[1].replace(":", "_")
+            
+            currSubsectionName = _upan.Current.Names.Section.name()
+            currSubsection = currSubsectionName.split("_")[0]
+
+            imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
+                                    str(self.dataFromUser[0]) + "__" + currSubsection + "__" + str(self.dataFromUser[1]))
+            
+            imID = self.dataFromUser[0]
+            linkDict = fsf.Data.Sec.imLinkDict(currSubsectionName)
+            
+            if (imID in list(linkDict.values())):
+                messManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mesm.MessageMenuManager)
+                mathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+                response = messManager.show("The index '{0}' already exists. Do you want to update?".format(imID), True)
+                
+                if response:
+                    names = []
+                    for name, id in linkDict.items():
+                        if id == imID:
+                            #remove the image
+                            prevImagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
+                                            str(self.dataFromUser[0]) + "__" + currSubsection + "__" + name + ".png")
+                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath)
+
+                            names.append(name)
+                    
+                    for name in names:
+                        linkDict.pop(name, None)
+                    fsf.Data.Sec.imLinkDict(currSubsectionName, linkDict)
+                
+                mathManager.show()
+                
+                if not response:
+                    return
+            
 
             # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
             tff.Wr.TexFileModify.addProcessedImage(self.dataFromUser[0], self.dataFromUser[1])
@@ -359,8 +397,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button):
                     # TOC ADD ENTRY WITHOUT IMAGE
                    tff.Wr.TexFileModify.addImageLinkToTOC_woImage(self.dataFromUser[0], self.dataFromUser[1])
             
-            imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
-                                    str(self.dataFromUser[0]) + "__" + currSubsection + "__" + str(self.dataFromUser[1]))
 
             # STOTE IMNUM, IMNAME AND LINK
             fsf.Wr.SectionCurrent.setImLinkAndIDX(self.dataFromUser[1], self.dataFromUser[0])
