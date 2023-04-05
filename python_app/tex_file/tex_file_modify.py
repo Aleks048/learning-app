@@ -64,8 +64,9 @@ class TexFileModify:
         % \\myGlLink{}{}\n\
     }\n\
     \\\\Local links: \n\
-    \\TOC\\newpage\n\n\n"
+    \\TOC\\newpage"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
+        pageToAdd += "\n\n\n"
 
         cls.__updateTexFile(_upan.Current.Paths.TexFiles.Content.abs(),
                             pageToAdd, 
@@ -99,8 +100,9 @@ class TexFileModify:
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + \
         imIdxStr + "_" + currSubsection + "_" + imIdxStr + "}\n\
-    }\n\n\n"
+    }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
+        pageToAdd += "\n\n\n"
         
         cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
                             pageToAdd, 
@@ -118,8 +120,9 @@ class TexFileModify:
         pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "}\n\
-    }\n\n\n"
+    }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
+        pageToAdd += "\n\n\n"
         
         cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
                             pageToAdd, 
@@ -141,9 +144,11 @@ class TexFileModify:
                     if i >= len(fileLines):
                         break
                 
-                if i < len(fileLines) - 2:
-                    i += 2
+                if i < len(fileLines) - 3:
+                    i += 3
+                
                 imIdxLineEndNum = i + 1
+                break
         
         if imIdxLineStartNum != -1 and imIdxLineEndNum != -1:
             fileLinesBefore = fileLines[:imIdxLineStartNum]

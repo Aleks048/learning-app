@@ -44,20 +44,21 @@ def processCall(url):
         return    
 
     # switch section
-    
     if newSubsection != fsf.Data.Book.currSection:
         lm.Wr.SectionLayout.close()
 
     fsf.Data.Book.currSection = topSection + "." + subsecPath
     fsf.Data.Book.currTopSection = topSection
 
-    lm.Wr.SectionLayout.set()
+    # other sections UI
+    lm.Wr.SectionLayout.set(imIdx=positionIDX)
 
+    # UI
     mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                     wf.Wr.MenuManagers.MainMenuManager.__base__)
             
     mainMenuManager.switchToSectionLayout()
 
-    # open pdf on the correct page
+    # PDF app
     ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, topSection, subsecPath, bookName)
 

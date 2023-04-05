@@ -28,7 +28,7 @@ class SectionLayout(lc.Layout,
     pyAppDimensions = [None, None]    
 
     @classmethod
-    def set(cls, menuHeight = 55):
+    def set(cls, menuHeight = 55, imIdx = _u.Token.NotDef.str_t):
         '''
         # Section: 
         #       skim Section to the right 
@@ -119,7 +119,11 @@ class SectionLayout(lc.Layout,
         TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
 
         # move vscode files to desired lines
-        currImIdx = fsf.Wr.SectionCurrent.getImIDX()
+        if imIdx == _u.Token.NotDef.str_t:
+            currImIdx = fsf.Wr.SectionCurrent.getImIDX()
+        else:
+            currImIdx = imIdx
+        
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         currSecWPrefix =  _upan.Current.Names.Section.name_wPrefix()
         conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecWPrefix, currSection, currImIdx)
