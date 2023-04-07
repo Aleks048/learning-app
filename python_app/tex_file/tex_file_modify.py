@@ -72,8 +72,8 @@ class TexFileModify:
                             pageToAdd, 
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
-        
-    def __getLinkText(imIdx, linkName:str):
+
+    def formatLinkName(linkName:str):
         # make the start bold text
         if linkName.count("__") == 1:
             linkName = linkName.split("__")
@@ -82,11 +82,18 @@ class TexFileModify:
         #replace all '_' but the special ones with ' '
         linkName = re.sub("([^@])_", r"\1\\ ", linkName)
 
+        # work with special "_" that are used in underscore
+        linkName = linkName.replace("@_", "_")
+
+        return linkName
+    
+    @classmethod
+    def __getLinkText(cls, imIdx, linkName:str):
+        linkName = cls.formatLinkName(linkName)
+        
         # add a start
         linktext = "[{0}]:\ {1}".format(imIdx, linkName)
         
-        # work with special "_" that are used in underscore
-        linktext = linktext.replace("@_", "_")
         return linktext
 
     @classmethod

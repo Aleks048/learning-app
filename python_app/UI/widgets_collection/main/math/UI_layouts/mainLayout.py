@@ -524,6 +524,9 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
         
         extraImagePath = _upan.Current.Paths.Screenshot.abs()
         extraImageName = "{0}__{1}__e__{2}".format(mainImIdx, currentSubsectionNum, extraImName)
+
+        extraImageName = extraImageName.replace(" ", "_")
+        extraImageName = extraImageName.replace(":", "_")
         
         ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath, extraImageName))
 

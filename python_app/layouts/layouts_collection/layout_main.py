@@ -54,7 +54,7 @@ class MainLayout(lc.Layout):
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
         skimFile_ID = currMaterialFilename
 
-        currPage = fsf.Data.TOC.start(currSection)
+        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
         
@@ -130,7 +130,7 @@ class MainLayout(lc.Layout):
         
         # close PDF reader window
         ownerPID = None
-
+        
         currOrigMatName = fsf.Data.Book.currOrigMatName
         currOrigMatFilename = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currOrigMatName)
         
