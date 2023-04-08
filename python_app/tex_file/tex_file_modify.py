@@ -11,6 +11,29 @@ import _utils.pathsAndNames as _upan
 
 
 class TexFileModify:
+       
+    def changeProofsVisibility(hideProofs):
+        with open(_upan.Current.Paths.TexFiles.Content.abs(),"r") as conF:
+            contentLines = conF.readlines()
+        extraImagesStartToken = "% \EXTRA IMAGES START"
+        extraImagesEndToken = "% \EXTRA IMAGES END"
+        for i in range(len(contentLines)):
+            if (extraImagesStartToken in contentLines[i]):
+                while (extraImagesEndToken not in contentLines[i]):
+                    i += 1
+                    line = contentLines[i]
+                    if "proof" in line.lower():
+                        if hideProofs:
+                            contentLines[i] = line.replace("% ", "")
+                            log.autolog("Hiding the proof for line: '{0}'".format(contentLines[i]))
+                        else:
+                            if "% " not in line:
+                                contentLines[i] = "% " + line
+                                log.autolog("Showing the proof for line: {0}".format(contentLines[i]))
+        with open(_upan.Current.Paths.TexFiles.Content.abs(),"w") as conF:
+            _waitDummy = conF.writelines(contentLines)
+
+
     # update the content file
     def addExtraImage(mainImID, extraImageName):
         marker = d.Links.Local.getIdxLineMarkerLine(mainImID)
@@ -73,14 +96,16 @@ class TexFileModify:
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
 
-    def formatLinkName(linkName:str):
+    def __formatLinkName(linkName:str, formatBold:bool = True):
         # make the start bold text
-        if linkName.count("__") == 1:
+        if linkName.count("__") == 1 and formatBold:
             linkName = linkName.split("__")
             linkName = "\\textbf{" + linkName[0] + ":}\ " + "".join(linkName[1:])
+            #replace all '_' but the special ones with ' '
+            linkName = re.sub("([^@])_", r"\1\\ ", linkName)
+        else:
+            linkName = linkName.replace(":", "_")
 
-        #replace all '_' but the special ones with ' '
-        linkName = re.sub("([^@])_", r"\1\\ ", linkName)
 
         # work with special "_" that are used in underscore
         linkName = linkName.replace("@_", "_")
@@ -89,7 +114,7 @@ class TexFileModify:
     
     @classmethod
     def __getLinkText(cls, imIdx, linkName:str):
-        linkName = cls.formatLinkName(linkName)
+        linkName = cls.__formatLinkName(linkName)
         
         # add a start
         linktext = "[{0}]:\ {1}".format(imIdx, linkName)
@@ -101,12 +126,13 @@ class TexFileModify:
         currSubsection = _upan.Current.Names.Section.name()
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
+        linkNameFormatted = cls.__formatLinkName(linkName, False)
         
         pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + \
-        imIdxStr + "_" + currSubsection + "_" + imIdxStr + "}\n\
+        imIdxStr + "__" + currSubsection + "__" + linkNameFormatted + "}\n\
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"

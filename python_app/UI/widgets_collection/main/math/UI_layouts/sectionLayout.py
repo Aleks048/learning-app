@@ -91,33 +91,12 @@ class ShowProofs_BTN(ww.currUIImpl.Button):
         
         if currLabel == self.labelOptions[0]:
             self.updateLabel(self.labelOptions[1])
-            self._changeProofsVisibility(True)
+            tff.Wr.TexFileModify.changeProofsVisibility(True)
         elif currLabel ==  self.labelOptions[1]:
             self.updateLabel(self.labelOptions[0])
-            self._changeProofsVisibility(False)
+            tff.Wr.TexFileModify.changeProofsVisibility(False)
         
-        Thread(target= ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()).start()
-    
-    def _changeProofsVisibility(self, hideProofs):
-        with open(_upan.Current.Paths.TexFiles.Content.abs(),"r") as conF:
-            contentLines = conF.readlines()
-        extraImagesStartToken = "% \EXTRA IMAGES START"
-        extraImagesEndToken = "% \EXTRA IMAGES END"
-        for i in range(len(contentLines)):
-            if (extraImagesStartToken in contentLines[i]):
-                while (extraImagesEndToken not in contentLines[i]):
-                    i += 1
-                    line = contentLines[i]
-                    if "proof" in line.lower():
-                        if hideProofs:
-                            contentLines[i] = line.replace("% ", "")
-                            log.autolog("\nHiding the proof for line:\n" + contentLines[i])
-                        else:
-                            contentLines[i] = "% " + line
-                            log.autolog("\nShow the proof for line:\n" + contentLines[i])
-                    break
-        with open(_upan.Current.Paths.TexFiles.Content.abs(),"w") as conF:
-            _waitDummy = conF.writelines(contentLines)
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
 
 class ImageSave_BTN(ww.currUIImpl.Button):
@@ -138,8 +117,8 @@ class ImageSave_BTN(ww.currUIImpl.Button):
     
     def cmd(self):
         cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
-        tff.Wr.TexFilePopulate.buildCurrentSubsectionPdf()
+        _u.runCmdAndWait(cmd)
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
 
 class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
