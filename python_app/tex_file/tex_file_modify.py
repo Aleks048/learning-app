@@ -2,47 +2,65 @@ import os
 
 import file_system.file_system_facade as fsm
 import tex_file.tex_file_populate as tfp
-import data.constants as d
+import data.constants as dc
 import re
 
 import _utils.logging as log
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
+import settings.facade as sf
 
 
 class TexFileModify:
-       
+    @classmethod
+    def removeImageFromCon(cls, bookName, subsection, imIdx):
+        filepath = _upan.Paths.TexFiles.Content.getAbs(bookName, subsection)
+        cls.__updateTexFile(filepath,
+                            "", 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+    
+    @classmethod
+    def removeImageFromToc(cls, bookName, subsection, imIdx):
+        filepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsection)
+        cls.__updateTexFile(filepath,
+                            "", 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+
+
     def changeProofsVisibility(hideProofs):
-        with open(_upan.Current.Paths.TexFiles.Content.abs(),"r") as conF:
+        with open(_upan.Paths.TexFiles.Content.getAbs(),"r") as conF:
             contentLines = conF.readlines()
-        extraImagesStartToken = "% \EXTRA IMAGES START"
-        extraImagesEndToken = "% \EXTRA IMAGES END"
+        
         for i in range(len(contentLines)):
-            if (extraImagesStartToken in contentLines[i]):
-                while (extraImagesEndToken not in contentLines[i]):
+            if (dc.TexFileTokens.extraImagesStartToken in contentLines[i]):
+                while (dc.TexFileTokens.extraImagesEndToken not in contentLines[i]):
                     i += 1
                     line = contentLines[i]
-                    if "proof" in line.lower():
+                    
+                    if dc.TexFileTokens.Proof.proofToken in line.lower():
                         if hideProofs:
                             contentLines[i] = line.replace("% ", "")
-                            log.autolog("Hiding the proof for line: '{0}'".format(contentLines[i]))
                         else:
                             if "% " not in line:
                                 contentLines[i] = "% " + line
-                                log.autolog("Showing the proof for line: {0}".format(contentLines[i]))
-        with open(_upan.Current.Paths.TexFiles.Content.abs(),"w") as conF:
+        
+        with open(_upan.Paths.TexFiles.Content.getAbs(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
 
 
     # update the content file
     def addExtraImage(mainImID, extraImageName):
-        marker = d.Links.Local.getIdxLineMarkerLine(mainImID)
-        with open(_upan.Current.Paths.TexFiles.Content.abs(), "r+") as f:
+        marker = dc.Links.Local.getIdxLineMarkerLine(mainImID)
+        
+        with open(_upan.Paths.TexFiles.Content.getAbs(), "r+") as f:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
-            extraImagesMarker = "% \\EXTRA IMAGES END"
-            while extraImagesMarker not in contentLines[lineNum]:
+            
+            while dc.TexFileTokens.extraImagesEndToken not in contentLines[lineNum]:
                 lineNum += 1
+            
             outLines = contentLines[:lineNum]
             extraImageLine = "      \\\\\myStIm{" + extraImageName + "}\n"
             outLines.append(extraImageLine)
@@ -62,7 +80,7 @@ class TexFileModify:
         currSubsectionNum = currSubsection.split("_")[0]
         extraImagePath = imIdx + "__" + currSubsectionNum + "__" + linkName
         
-        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
+        pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
         pageToAdd += "\
     % TEXT BEFORE MAIN IMAGE\n\
     \n\
@@ -76,8 +94,8 @@ class TexFileModify:
     \n\
     \n\
     % TEXT AFTER MAIN IMAGE\n\
-    % \EXTRA IMAGES START\n\
-    % \EXTRA IMAGES END\n\
+    " + dc.TexFileTokens.extraImagesStartToken + "\n\
+    " + dc.TexFileTokens.extraImagesEndToken + "\n\
     % TEXT AFTER EXTRA IMAGES\n\
     \n\
     \n\
@@ -91,10 +109,10 @@ class TexFileModify:
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
 
-        cls.__updateTexFile(_upan.Current.Paths.TexFiles.Content.abs(),
+        cls.__updateTexFile(_upan.Paths.TexFiles.Content.getAbs(),
                             pageToAdd, 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
 
     def __formatLinkName(linkName:str, formatBold:bool = True):
         # make the start bold text
@@ -128,7 +146,7 @@ class TexFileModify:
         linktext = cls.__getLinkText(imIdxStr, linkName)
         linkNameFormatted = cls.__formatLinkName(linkName, False)
         
-        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+        pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + \
@@ -137,10 +155,10 @@ class TexFileModify:
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
         
-        cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
+        cls.__updateTexFile(_upan.Paths.TexFiles.TOC.getAbs(),
                             pageToAdd, 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
         
     @classmethod
     def addImageLinkToTOC_woImage(cls, imIdx, linkName):
@@ -149,7 +167,7 @@ class TexFileModify:
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
         
-        pageToAdd = d.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+        pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "}\n\
@@ -157,10 +175,10 @@ class TexFileModify:
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
         
-        cls.__updateTexFile(_upan.Current.Paths.TexFiles.TOC.abs(),
+        cls.__updateTexFile(_upan.Paths.TexFiles.TOC.getAbs(),
                             pageToAdd, 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            d.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
+                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
     
     def __updateTexFile(filePath, linesToAdd, startMarker, stopMarker):
         with open(filePath, 'r') as f:
@@ -209,13 +227,13 @@ class TexFileModify:
         while positionToAdd < len(lines):
             line = lines[positionToAdd]
             # find the line with id
-            if "id: " + imIDX in line:
+            if dc.Links.Local.getIdxLineMarkerLine(imIDX) in line:
                 # find the line with global links start
-                while "\myGlLinks{" not in line:
+                while dc.TexFileTokens.Links.Global.linksToken not in line:
                     positionToAdd +=1
                     line = lines[positionToAdd]
                 # find the line with global links end
-                while "myGlLink" in line:
+                while dc.TexFileTokens.Links.Global.linkToken in line:
                     positionToAdd += 1   
                     line = lines[positionToAdd]
                 break

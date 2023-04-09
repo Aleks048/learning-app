@@ -38,11 +38,11 @@ class SectionLayout(lc.Layout,
         if  dt.AppState.CurrLayout != cls:
             lma.MainLayout.close()
 
-        pathToSourceFolder = _upan.Current.Paths.Section.abs()
+        pathToSourceFolder_curr = _upan.Paths.Section.getAbs()
         currSection = _upan.Current.Names.Section.name()
         
         # check if the folder is empty.
-        if len(os.listdir(_upan.Current.Paths.Screenshot.abs())) == 0: 
+        if len(os.listdir(_upan.Paths.Screenshot.getAbs())) == 0: 
             msg = "No images yet. Can't switch to section."
             
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
@@ -58,21 +58,21 @@ class SectionLayout(lc.Layout,
         else:
             ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
-            # check if PDF exists
-            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(_upan.Current.Paths.PDF.abs()):
+            # check if curr subsection PDF exists
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(_upan.Paths.PDF.getAbs()):
                 sleep(0.1)
 
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
- 
+
         #
         # SKIM
         #
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", currSection)
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
 
-        pathToCurrSecPDF = _upan.Current.Paths.PDF.abs()
+        pathToCurrSecPDF = _upan.Paths.PDF.getAbs()
         
         if ownerPID == None:
             ocf.Wr.PdfApp.openPDF(pathToCurrSecPDF)
@@ -94,7 +94,8 @@ class SectionLayout(lc.Layout,
         #
         # VSCODE
         #
-        ocf.Wr.IdeCalls.openNewWindow(pathToSourceFolder)
+
+        ocf.Wr.IdeCalls.openNewWindow(pathToSourceFolder_curr)
 
         ownerPID = None
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
@@ -115,8 +116,8 @@ class SectionLayout(lc.Layout,
         log.autolog("moved VSCODE.")
 
         # create the layout in the vscode window
-        conterntFilepath = _upan.Current.Paths.TexFiles.Content.abs()
-        TOCFilepath = _upan.Current.Paths.TexFiles.TOC.abs()
+        conterntFilepath_curr = _upan.Paths.TexFiles.Content.getAbs()
+        TOCFilepath_curr = _upan.Paths.TexFiles.TOC.getAbs()
 
         # move vscode files to desired lines
         if imIdx == _u.Token.NotDef.str_t:
@@ -126,12 +127,13 @@ class SectionLayout(lc.Layout,
         
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         currSecWPrefix =  _upan.Current.Names.Section.name_wPrefix()
-        conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecWPrefix, currSection, currImIdx)
-        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecWPrefix, currSection, currImIdx)
+        currSecName =  _upan.Current.Names.Section.name()
+        conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecName, currSection, currImIdx)
+        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecName, currSection, currImIdx)
 
-        ocf.Wr.IdeCalls.openNewTab(TOCFilepath, tocLine)
+        ocf.Wr.IdeCalls.openNewTab(TOCFilepath_curr, tocLine)
         sleep(0.3)
-        ocf.Wr.IdeCalls.openNewTab(conterntFilepath, conLine)
+        ocf.Wr.IdeCalls.openNewTab(conterntFilepath_curr, conLine)
 
         # cmd = oscr.get_SetSecVSCode_CMD()
         # _u.runCmdAndWait(cmd)

@@ -1,188 +1,154 @@
 import os
+from functools import wraps
 
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 import _utils.logging as log
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 
 
+def bookNameArg_dec(func):
+    '''
+    allows to provide bookname or bookpath to get the path
+    '''
+    @wraps(func)
+    def wrapper(bookId = _u.Token.NotDef.str_t, subSection = _u.Token.NotDef.str_t):
+        if bookId == _u.Token.NotDef.str_t:
+            bookId = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        
+        if subSection == _u.Token.NotDef.str_t:
+            subSection = fsf.Data.Book.currSection
+        
+        if bookId in sf.Wr.Manager.Book.getListOfBooksPaths():
+            return func(bookId, subSection)
+        else:
+            bookPath = sf.Wr.Manager.Book.getPathFromName(bookId)
+            return func(bookPath, subSection)
+    
+    return wrapper
 class Paths:
     class OriginalMaterial:
         class MainBook:
-            def getAbs(bookPath):
+            @bookNameArg_dec
+            def getAbs(bookPath, *args):
                 currMaterialName = fsf.Data.Book.currOrigMatName
                 return fsf.omfs.OriginalMaterialStructure.getMaterialPath(currMaterialName)      
         
-        def getAbs(bookPath):
+        @bookNameArg_dec
+        def getAbs(bookPath, *args):
             return os.path.join(bookPath, fsf.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
     
     class Section:
         sectionFolderName = "subsections"
 
-        @classmethod
-        def getAbs(cls, bookPath, section):
-            relFilepath = cls.getRel(section)
+        @bookNameArg_dec
+        def getAbs(bookPath, section, *args):
+            relFilepath = Paths.Section.getRel(bookPath, section)
             return os.path.join(bookPath, relFilepath)
-
-        @classmethod
-        def getRel(cls, sec):
-            if sec == _u.Token.NotDef.str_t:              
+        
+        @bookNameArg_dec
+        def getRel(_, subsection, *args):
+            if subsection == _u.Token.NotDef.str_t:              
                 return ""
 
             sectionsPathSeparator = fsf.Data.Book.sections_path_separator
 
-            pathList = sec.split(sectionsPathSeparator)
-            
+            pathList = subsection.split(sectionsPathSeparator)
+            pathList[0] = _upan.Names.addSectionPrefixToName(pathList[0])
+
             for i in range(len(pathList) - 1, 0, -1):
                 pathList[i] = ".".join(pathList[:i + 1])
+            
             sectionFullPath = pathList
-            sectionFullPath = os.path.join(cls.sectionFolderName, *sectionFullPath)
+            sectionFullPath = os.path.join(Paths.Section.sectionFolderName, *sectionFullPath)
             return sectionFullPath
 
     class Screenshot:
-        def getRel(secNameWPrefix):
+        @bookNameArg_dec
+        def getRel(bookPath, subsection):
+            secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
             if secNameWPrefix == _u.Token.NotDef.str_t:
                 return "Screenshot location not defined yet."
             else:
-                return  os.path.join(Paths.Section.getRel(secNameWPrefix),
+                return  os.path.join(Paths.Section.getRel(bookPath, subsection),
                                     secNameWPrefix + "_images")
 
-        def getAbs(bookPath,  secNameWPrefix):
-            return  os.path.join(Paths.Section.getAbs(bookPath, secNameWPrefix), 
+        @bookNameArg_dec
+        def getAbs(bookPath,  subsection):
+            secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+            return  os.path.join(Paths.Section.getAbs(bookPath, subsection), 
                                 secNameWPrefix + "_images")
+        
+        @bookNameArg_dec
+        def getRel_formatted(*args):
+            '''
+            Used in the main layout Label
+            '''
+
+            currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+            name = fsf.Data.TOC.text(currSecName)
+            startPage = fsf.Data.TOC.start(currSecName)
+            endPage = fsf.Data.TOC.finish(currSecName)
+            currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+
+            text = "Sec path: '{0}'. Name: '{1}'. Start p: '{2}'. End p: '{3}'.".format(currSecName, 
+                                                                                        name, 
+                                                                                        startPage,
+                                                                                        endPage)
+
+            return text
     
     class TexFiles:
         class Output:
-            def getAbs(bookPath, secName):
-                return os.path.join(Paths.Section.getAbs(bookPath, secName), "_out")
+            @bookNameArg_dec
+            def getAbs(bookPath, subsection):
+                return os.path.join(Paths.Section.getAbs(bookPath, subsection), "_out")
             
             class PDF:
-                def getAbs(bookPath, secName):
-                    return os.path.join(Paths.TexFiles.Output.getAbs(bookPath, secName), secName + "_main.pdf")
+                @bookNameArg_dec
+                def getAbs(bookPath, subsection):
+                    secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                    return os.path.join(Paths.TexFiles.Output.getAbs(bookPath, subsection), secNameWPrefix + "_main.pdf")
 
 
         class Content:
-            def getAbs(bookPath, secName):
-                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    secName + "_con.tex")
+            @bookNameArg_dec
+            def getAbs(bookPath, subsection):
+                secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
+                                    secNameWPrefix + "_con.tex")
         
         class TOC:
-            def getAbs(bookPath, secName):
-                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    secName + "_toc.tex")
+            @bookNameArg_dec
+            def getAbs(bookPath, subsection):
+                secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
+                                    secNameWPrefix + "_toc.tex")
         
         class Main:
-            def getAbs(bookPath, secName):
-                return os.path.join(Paths.Section.getAbs(bookPath, secName), 
-                                    secName + "_main.tex")
+            @bookNameArg_dec
+            def getAbs(bookPath, subsection):
+                secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
+                                    secNameWPrefix + "_main.tex")
 
     class PDF:
-        def getAbs(bookPath, secNameWprefix):
-            sectionDirPath = Paths.Section.getAbs(bookPath, secNameWprefix)
-            return os.path.join(sectionDirPath, secNameWprefix + "_main.pdf")
+        @bookNameArg_dec
+        def getAbs(bookPath, subsection):
+            secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+            sectionDirPath = Paths.Section.getAbs(bookPath, subsection)
+            return os.path.join(sectionDirPath, secNameWPrefix + "_main.pdf")
 
 class Names:
-    pass
+    def addSectionPrefixToName(subsection):
+        return fsf.Data.Book.sections_prefix + "_" + subsection
+    
+    def removeSectionPrefixFromName(subsection:str):
+        return subsection.replace(fsf.Data.Book.sections_prefix + "_", "")
 
 class Current:
-    class Paths:
-        class OriginalMaterial:
-            class MainBook:
-                @classmethod
-                def abs(cls):
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    return Paths.OriginalMaterial.MainBook.getAbs(bookPath)
-            
-            @classmethod        
-            def abs(cls):
-                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                return Paths.OriginalMaterial.getAbs(bookPath)
-
-        class Section:
-            def abs():
-                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                section = Current.Names.Section.name_wPrefix()
-                return Paths.Section.getAbs(currBookPath, section)
-
-            def rel():
-                currSec = Current.Names.Section.name_wPrefix()
-                return Paths.Section.getRel(currSec)
-        
-        
-        class Screenshot:
-            def abs():
-                currSubsection = Current.Names.Section.name_wPrefix()
-                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                return  Paths.Screenshot.getAbs(currBookPath, currSubsection)
-
-            def rel():
-                currSection = Current.Names.Section.name()
-                return Paths.Screenshot.getRel(currSection)
-            
-            @classmethod
-            def rel_formatted(cls):
-                '''
-                Used in the main layout Label
-                '''
-
-                currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
-                name = fsf.Data.TOC.text(currSecName)
-                startPage = fsf.Data.TOC.start(currSecName)
-                endPage = fsf.Data.TOC.finish(currSecName)
-                currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
-
-                text = "Sec path: '{0}'. Name: '{1}'. Start p: '{2}'. End p: '{3}'.".format(currSecName, 
-                                                                                           name, 
-                                                                                           startPage,
-                                                                                           endPage)
-
-                return text
-        
-
-        class TexFiles:
-            class Output:
-                def abs():
-                    currSubsection = Current.Names.Section.name_wPrefix()
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    return Paths.TexFiles.Output.getAbs(currBookPath, currSubsection)
-            
-                class PDF:
-                    def abs():
-                        currSubsection = Current.Names.Section.name_wPrefix()
-                        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                        return Paths.TexFiles.Output.PDF.getAbs(currBookPath, currSubsection)
-
-
-            class Content:
-                def abs():
-                    currSubsection =Current.Names.Section.name_wPrefix()
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    return Paths.TexFiles.Content.getAbs(currBookPath, currSubsection)
-            
-
-
-            class TOC:
-                def abs():
-                    currSubsection = Current.Names.Section.name_wPrefix()
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    return Paths.TexFiles.TOC.getAbs(currBookPath, currSubsection)
-            
-            
-            class Main: 
-                def abs():
-                    currSubsection =Current.Names.Section.name_wPrefix()
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    return Paths.TexFiles.Main.getAbs(currBookPath, currSubsection)
-
-
-        class PDF:
-            def abs():
-                currSubsection = Current.Names.Section.name_wPrefix()
-                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                return Paths.PDF.getAbs(currBookPath, currSubsection) 
-
-
     class Names:
         class Book:            
             def name(filepath = _u.Token.NotDef.str_t):

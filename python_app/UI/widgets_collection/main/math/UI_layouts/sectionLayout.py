@@ -334,8 +334,8 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         #
         # rebuild the pdfs
         #
-        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSectionNameWprefix)
-        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSectionNameWprefix)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSectionPath)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSectionPath)
 
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):

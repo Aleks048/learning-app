@@ -48,7 +48,7 @@ class MainLayout(lc.Layout):
         #
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
-        origMaterialBookFSPath = _upan.Current.Paths.OriginalMaterial.MainBook.abs()
+        origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
         currMaterialName = fsf.Data.Book.currOrigMatName
         currMaterialFilename = \
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
@@ -56,7 +56,7 @@ class MainLayout(lc.Layout):
 
         currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
 
-        oc.Wr.PdfApp.openPDF(origMaterialBookFSPath, currPage)
+        oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
         
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                         skimFile_ID)
@@ -86,7 +86,7 @@ class MainLayout(lc.Layout):
         if currSectionWPrefix == _u.Token.NotDef.str_t:
             log.autolog("No subssection to open yet.")
         else:
-            currScreenshotDir = _upan.Current.Paths.Screenshot.abs()
+            currScreenshotDir = _upan.Paths.Screenshot.getAbs()
             oc.Wr.FsAppCalls.openFile(currScreenshotDir)
             
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
@@ -116,8 +116,7 @@ class MainLayout(lc.Layout):
 
 
     @classmethod
-    def close(cls):  
-        pathToSourceFolder = _upan.Current.Paths.Section.abs()
+    def close(cls):
         currSection = _upan.Current.Names.Section.name()
 
         # close FS window

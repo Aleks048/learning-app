@@ -11,12 +11,15 @@ import tex_file.tex_file_facade as tff
 
 
 class MacLatex:
-    def buildPDF(bookpath, subsectionWPrefix):
+    def buildPDF(bookpath, subsection):
         def __build():
-            tff.Wr.TexFilePopulate.populateMainFile(subsectionWPrefix, bookpath)
+            tff.Wr.TexFilePopulate.populateMainFile(subsection, bookpath)
 
-            subsectionDir = _upan.Paths.Section.getAbs(bookpath, subsectionWPrefix)
-            mainTexFilepath = _upan.Paths.TexFiles.Main.getAbs(bookpath, subsectionWPrefix)
+            subsectionDir = _upan.Paths.Section.getAbs(bookpath, subsection)
+            mainTexFilepath = _upan.Paths.TexFiles.Main.getAbs(bookpath, subsection)
+
+            subsectionWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+
             cmd = "\
         pushd {1}\n\
             CMD=\"pdflatex  --shell-escape -synctex=1 -interaction=nonstopmode -file-line-error -output-directory={1}/_out {0}\"\n\
@@ -30,11 +33,11 @@ class MacLatex:
             if err != "":
                 log.autolog("While building the error occured: '{0}'.".format(err))
             
-            log.autolog("Built subsection: '{0}'.".format(subsectionWPrefix))
+            log.autolog("Built subsection: '{0}'.".format(subsection))
             
             # move generated pdf
-            mainPDFFilepath = _upan.Paths.PDF.getAbs(bookpath, subsectionWPrefix)
-            outputPDF = _upan.Paths.TexFiles.Output.PDF.getAbs(bookpath, subsectionWPrefix)
+            mainPDFFilepath = _upan.Paths.PDF.getAbs(bookpath, subsection)
+            outputPDF = _upan.Paths.TexFiles.Output.PDF.getAbs(bookpath, subsection)
             fsc.currFilesystemApp.copyFile(outputPDF, mainPDFFilepath)
         t = Thread(target = __build)
         t.start()
@@ -43,7 +46,7 @@ class MacLatex:
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        subsection = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        subsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         
         cls.buildPDF(bookPath, subsection)
 

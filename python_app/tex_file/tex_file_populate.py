@@ -9,19 +9,20 @@ import outside_calls.outside_calls_facade as ocf
 import _utils.logging as log
 import settings.facade as sf
 import tex_file.tex_file_modify as tfm
+import data.constants as dc
 
 class TexFilePopulate:
-    def populateMainFile(subsectionName_full_WPrefix, bookPath):
+    def populateMainFile(subsection, bookPath):
         contentFile = []
         tocFile = []
 
         localLinksLine = ""
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
-        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsectionName_full_WPrefix)
-        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsectionName_full_WPrefix)
-        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsectionName_full_WPrefix)
+        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection)
+        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection)
+        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsection)
 
-        topSection, subsection = fsm.Wr.Utils.stripFullName_Wprefix(subsectionName_full_WPrefix)
+        topSection = fsm.Wr.Utils.getTopSection(subsection)
         
         listOfLocalLinks = []
         with open(conFilepath, 'r') as contentF:
@@ -32,7 +33,7 @@ class TexFilePopulate:
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
                 if linkToken in line:
-                    idx = line.replace("% THIS IS CONTENT id: ", "")
+                    idx = line.replace(dc.Links.Local.idxLineMarker, "")
                     idx = idx.replace(" ", "")
                     idx = idx.replace("\n", "")
                     lineToAdd = "\href{{KIK:/{0}.{1}.{2}.{3}.full}}{{{1}.{2}.{3}}}".format(bookName, topSection, subsection, idx)
@@ -41,13 +42,13 @@ class TexFilePopulate:
                 if "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
-                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
                 if "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
-                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
                 if "Local links" in line:
@@ -73,7 +74,7 @@ class TexFilePopulate:
                 if imageToken in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
-                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsectionName_full_WPrefix),
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     tocFile[i] = line.replace(imageName, imagePath)
         
@@ -132,10 +133,10 @@ class TexFilePopulate:
             for line in outFileList:
                 outFile.write(line)
         
-        log.autolog("writing to main.tex file of section '{0}' is complete".format(subsectionName_full_WPrefix))
+        log.autolog("writing to main.tex file of section '{0}' is complete".format(subsection))
 
     @classmethod
     def populateCurrMainFile(cls):
-        currName = _upan.Current.Names.Section.name_wPrefix()
+        currName = _upan.Current.Names.Section.name()
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         cls.populateMainFile(currName, bookPath)

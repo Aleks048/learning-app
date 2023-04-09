@@ -96,26 +96,26 @@ class SectionInfoStructure:
 
         numLevels = len(sectionPath.split(sectionPathSeparator))
 
-        dirPathToSection = _upan.Current.Paths.Section.abs()
+        dirPathToSection_curr = _upan.Paths.Section.getAbs()
 
-        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(dirPathToSection):
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(dirPathToSection_curr):
             msg = "The sections structure was not present will create it.\n" + \
-                    "Creating path: '{0}'".format(dirPathToSection)
+                    "Creating path: '{0}'".format(dirPathToSection_curr)
             log.autolog(msg)
             
             # create folders
-            sectionFolderName = dirPathToSection.split("/")[-1]
-            _waitDummy = os.makedirs(dirPathToSection)
+            sectionFolderName = dirPathToSection_curr.split("/")[-1]
+            _waitDummy = os.makedirs(dirPathToSection_curr)
 
             # create images folder
-            imagesFolderFSPath = os.path.join(dirPathToSection, sectionFolderName + "_images")
+            imagesFolderFSPath = os.path.join(dirPathToSection_curr, sectionFolderName + "_images")
             _waitDummy = os.makedirs(imagesFolderFSPath)
             
             # create _con and _toc .tex files
             _waitDummy = \
-                open(os.path.join(dirPathToSection, sectionFolderName + "_toc.tex"), "w").close()
+                open(os.path.join(dirPathToSection_curr, sectionFolderName + "_toc.tex"), "w").close()
             _waitDummy = \
-                open(os.path.join(dirPathToSection, sectionFolderName + "_con.tex"), "w").close()
+                open(os.path.join(dirPathToSection_curr, sectionFolderName + "_con.tex"), "w").close()
         
         # create the json file file, _out folder, main.tex
         relSectionPath = _u.Token.NotDef.str_t
@@ -141,8 +141,8 @@ class SectionInfoStructure:
                                         sectionFolderName + "_main.tex"))
         
         # copy the settings 
-        vscodeSettings =os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
-        vscodeSettingsDirPath = os.path.join(dirPathToSection, ".vscode")
+        vscodeSettings = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
+        vscodeSettingsDirPath = os.path.join(dirPathToSection_curr, ".vscode")
         os.makedirs(vscodeSettingsDirPath)
         shutil.copy(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
     

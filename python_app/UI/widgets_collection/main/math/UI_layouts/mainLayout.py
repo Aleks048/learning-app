@@ -266,22 +266,22 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
-        text = _upan.Current.Paths.Screenshot.rel_formatted()
+        text_curr = _upan.Paths.Screenshot.getRel_formatted()
         super().__init__(prefix, 
                         name,
                         parentWidget, 
                         renderData = data, 
-                        text = text)
+                        text = text_curr)
     
     def receiveNotification(self, broadcasterName, data = None):
         if broadcasterName == ChooseTopSection_OM:
-            self.changeText(_upan.Current.Paths.Screenshot.rel_formatted())
+            self.changeText(_upan.Paths.Screenshot.getRel_formatted())
         if broadcasterName == ChooseSubsection_OM:
-            self.changeText(_upan.Current.Paths.Screenshot.rel_formatted())
+            self.changeText(_upan.Paths.Screenshot.getRel_formatted())
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        text = _upan.Current.Paths.Screenshot.rel_formatted()
-        self.changeText(text)
+        text_curr = _upan.Paths.Screenshot.getRel_formatted()
+        self.changeText(text_curr)
         return super().render(widjetObj, renderData, **kwargs)
 
 
@@ -352,7 +352,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             currSubsectionName = _upan.Current.Names.Section.name()
             currSubsection = currSubsectionName.split("_")[0]
 
-            imagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
+            imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     str(self.dataFromUser[0]) + "__" + currSubsection + "__" + str(self.dataFromUser[1]))
             
             imID = self.dataFromUser[0]
@@ -370,9 +370,9 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
                     for name, id in linkDict.items():
                         if id == imID:
                             #remove the image
-                            prevImagePath = os.path.join(_upan.Current.Paths.Screenshot.abs(),
+                            prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                             str(self.dataFromUser[0]) + "__" + currSubsection + "__" + name + ".png")
-                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath)
+                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
 
                             names.append(name)
                     
@@ -405,7 +405,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             tff.Wr.TexFilePopulate.populateCurrMainFile()
             
             # take a screenshot
-            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
+            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
                 def takeScreencapture(iPath):
                     ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
                     nextImNum = str(int(self.dataFromUser[0]) + 1)
@@ -416,7 +416,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
                 #                                 takeScreencapture, 
                 #                                 imagePath)
             else:
-                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
                 nextImNum = str(int(self.dataFromUser[0]) + 1)
                 self.notify(ImageGeneration_ETR, nextImNum)
         
@@ -522,13 +522,13 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
         currentSubsectionNum = currentSubsection.split("_")[0]
         
         
-        extraImagePath = _upan.Current.Paths.Screenshot.abs()
+        extraImagePath_curr = _upan.Paths.Screenshot.getAbs()
         extraImageName = "{0}__{1}__e__{2}".format(mainImIdx, currentSubsectionNum, extraImName)
 
         extraImageName = extraImageName.replace(" ", "_")
         extraImageName = extraImageName.replace(":", "_")
         
-        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath, extraImageName))
+        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
 
         # update the content file
         tff.Wr.TexFileModify.addExtraImage(mainImIdx, extraImageName)

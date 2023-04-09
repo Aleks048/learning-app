@@ -32,3 +32,15 @@ class Links:
         @classmethod
         def getIdxLineMarkerLine(cls, idx: int):
             return cls.idxLineMarker + str(idx)
+
+class TexFileTokens:
+    extraImagesStartToken = "% \EXTRA IMAGES START"
+    extraImagesEndToken = "% \EXTRA IMAGES END"
+    
+    class Proof:
+        proofToken = "proof"
+    
+    class Links:
+        class Global:
+            linksToken = "\myGlLinks{"
+            linkToken = "myGlLink"

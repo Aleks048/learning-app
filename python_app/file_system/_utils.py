@@ -27,7 +27,7 @@ class Utils:
         # but in the future that might not be the case
         return posIDX
     
-    def stripFullName_Wprefix(fullName):
+    def getTopSection(fullName):
         # 
         # remove prefix and split into subsection and top section
         #
@@ -43,8 +43,7 @@ class Utils:
         
         fullName = fullName.split(separator)
         topSection = fullName[0]
-        subsection = separator.join(fullName[1:])
-        return topSection, subsection
+        return topSection
 
 
 def _getSectionFilepath(sectionPath):
