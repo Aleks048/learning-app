@@ -19,17 +19,15 @@ class SkimCalls:
         log.autolog("Opened {0} in skim.".format(pdfPath))
     
     @classmethod
-    def openSubsectionPDF(cls, positionIDX, topSection, subsecPath, bookName):
-        fullSecpath = fsm.Wr.Utils.joinTopAndSubsection(topSection, subsecPath)
-        secNameWPrefix = fsm.Wr.Utils.getSectionNameWPrefix(fullSecpath)
+    def openSubsectionPDF(cls, positionIDX, subsecPath, bookName):
         pdfPage = fsm.Wr.Utils.getPDFPageFromPosIDX(positionIDX)
         bookPath = sf.Wr.Manager.Book.getPathFromName(bookName)
         if bookPath == _u.Token.NotDef.str_t:
-            log.autolog("Could not find the path for the book with name '" 
-                        + bookName + "'. Abropt processing link :'" + secNameWPrefix + "'.")
+            log.autolog("Could not find the path for the book with name '{0}'. \n\
+                        Abropt processing link :'{1}'.".format(bookName, subsecPath))
             return
 
-        pdfPath = _upan.Paths.PDF.getAbs(bookPath, secNameWPrefix)
+        pdfPath = _upan.Paths.PDF.getAbs(bookPath, subsecPath)
 
         cls.openPDF(pdfPath, pdfPage)
 

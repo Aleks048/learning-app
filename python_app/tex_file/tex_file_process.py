@@ -8,8 +8,7 @@ import file_system.file_system_facade as fsf
 class TexFileProcess:
     @classmethod
     def getTocLine(cls, bookName, subsectionFull, subsection, imIdx):
-        bookPath = sf.Wr.Manager.Book.getPathFromName(bookName)
-        tocTexFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsectionFull)
+        tocTexFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsection)
         line = cls.__getIdxLine(imIdx, tocTexFilepath)
 
         extraLines = fsf.Data.Sec.imageTOCFileMoveLinesNumber(subsection)
@@ -23,8 +22,7 @@ class TexFileProcess:
     
     @classmethod
     def getConLine(cls, bookName, subsectionFull, subsection, imIdx):
-        bookPath = sf.Wr.Manager.Book.getPathFromName(bookName)
-        conTexFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsectionFull)
+        conTexFilepath = _upan.Paths.TexFiles.Content.getAbs(bookName, subsection)
         line = cls.__getIdxLine(imIdx, conTexFilepath)
 
         extraLines = fsf.Data.Sec.imageTOCFileMoveLinesNumber(subsection)

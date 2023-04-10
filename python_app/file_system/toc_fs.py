@@ -21,6 +21,7 @@ class TOCStructure:
         START_MARKER = "[SECTION\\_START]" 
         FINISH_MARKER = "[SECTION\\_FINISH]"
         NAME_MARKER = "[SECTION\_NAME]"
+        LINK_MARKER = "[SECTION\_LINK]"
         CONTENT_MARKER = "[CONTENT\\_MARKER]"
         
         text = "TOC_text"
@@ -61,7 +62,7 @@ class TOCStructure:
                 f.write(tocTemplate)
 
         sectionsTOCLines = [""]
-        cls._getTOCLines(sectionsList, sectionsTOCLines, 0)
+        cls.__getTOCLines(sectionsList, sectionsTOCLines, 0)
 
         _u.replaceMarkerInFile(cls._getTOCFilePath(sectionPathList[0]), 
                             cls.PubPro.CONTENT_MARKER,
@@ -98,12 +99,14 @@ class TOCStructure:
                                 "[" + sectionPath + "]")
 
     @classmethod
-    def _getTOCLines(cls, sectionsData, outLines, level):
+    def __getTOCLines(cls, sectionsData, outLines, level):
+        bookname_curr = sf.Wr.Manager.Book.getCurrBookName()
+
         INTEMEDIATE_LINE = cls.PubPro.NAME_MARKER + ":\\\\\n"
-        BOTTOM_LINE = "\TOCline{[" + cls.PubPro.TEXT_MARKER + "]// [" + \
+        BOTTOM_LINE = "\TOCline{[" + cls.PubPro.NAME_MARKER + "][" + cls.PubPro.TEXT_MARKER + "]// [" + \
             cls.PubPro.START_MARKER + \
-            "] - [" + cls.PubPro.FINISH_MARKER + "]}{[" + \
-            cls.PubPro.NAME_MARKER + "]}" + \
+            "] - [" + cls.PubPro.FINISH_MARKER + "]}{" + \
+            cls.PubPro.LINK_MARKER + "}" + \
             "\\\\\n"
 
         DEFAULT_PREFIX_SPACES = " " * 4 + level * " " * 4
@@ -111,6 +114,9 @@ class TOCStructure:
         for name, section in sectionsData["sections"].items():
             nameFormatted = name.replace(" ", "\ ")
             nameFormatted = nameFormatted.replace("_", "\_")
+            topsection = _ufs.Utils.getTopSection(nameFormatted)
+            link = "{0}/{1}/{2}/1".format(bookname_curr, topsection, nameFormatted)
+            
             if type(section) == dict:
                 start = fsf.Data.TOC.start(name)
                 finish = fsf.Data.TOC.finish(name)
@@ -122,6 +128,7 @@ class TOCStructure:
 
                     lineToAdd = DEFAULT_PREFIX_SPACES \
                                 + BOTTOM_LINE.replace(cls.PubPro.NAME_MARKER, nameFormatted)
+                    lineToAdd = lineToAdd.replace(cls.PubPro.LINK_MARKER, link)
                     if text != _u.Token.NotDef.str_t:
                         lineToAdd = lineToAdd.replace(cls.PubPro.TEXT_MARKER, text)
                     if start != _u.Token.NotDef.str_t:
@@ -141,7 +148,7 @@ class TOCStructure:
                         lineToAdd = lineToAdd.replace(cls.PubPro.FINISH_MARKER, finish)
                     
                     outLines[0] = outLines[0] + lineToAdd
-                    cls._getTOCLines(section, outLines, level +1)
+                    cls.__getTOCLines(section, outLines, level +1)
     
     def _getTOCDirPath():
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()

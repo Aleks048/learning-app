@@ -278,33 +278,33 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         secPrefix = fsm.Data.Book.sections_prefix
         
         sourceSectionPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
+        # sourceSectionNameWprefix = fsm.Wr.SectionCurrent.getSectionNameWprefix()
         sourceLinkName = self.notify(SourceImageLinks_OM)
         sourceIDX = fsm.Wr.Links.LinkDict.get(sourceSectionPath)[sourceLinkName]
-        sourceSectionFilepath = _upan.Paths.Section.getAbs(bookPath, sourceSectionPath)
-        sourceContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionNameWprefix)
-        sourceMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionNameWprefix)
-        # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionNameWprefix)
-        sourcePDFFilepath = _upan.Paths.PDF.getAbs(bookPath, sourceSectionNameWprefix)
-        sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
+        # sourceSectionFilepath = _upan.Paths.Section.getAbs(bookPath, sourceSectionPath)
+        sourceContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionPath)
+        # sourceMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionPath)
+        # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionPath)
+        # sourcePDFFilepath = _upan.Paths.PDF.getAbs(bookPath, sourceSectionPath)
+        # sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
         
         wholeLinkPath = self.notify(AddGlobalLink_ETR).split(".")
         targetSectionPath = ".".join(wholeLinkPath[:-1])
-        targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
+        # targetSectionNameWprefix = secPrefix + "_" + targetSectionPath
         targetLinkName = wholeLinkPath[-1]
         targetIDX = fsm.Wr.Links.LinkDict.get(targetSectionPath)[targetLinkName]
-        targetSectionFilepath = _upan.Paths.Section.getAbs(bookPath, targetSectionPath)
-        targetContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, targetSectionNameWprefix)
-        targetMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, targetSectionNameWprefix)
-        # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionNameWprefix)
-        targetPDFFilepath = _upan.Paths.PDF.getAbs(bookPath, targetSectionNameWprefix)
-        targetPDFFilename = targetPDFFilepath.split("/")[-1]
+        # targetSectionFilepath = _upan.Paths.Section.getAbs(bookPath, targetSectionPath)
+        targetContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, targetSectionPath)
+        # targetMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, targetSectionPath)
+        # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionPath)
+        # targetPDFFilepath = _upan.Paths.PDF.getAbs(bookPath, targetSectionPath)
+        # targetPDFFilename = targetPDFFilepath.split("/")[-1]
 
         #
         # check that the section exists
         #
 
-        sectionInfo = fsm.Wr.BookInfoStructure.readProperty(targetSectionPath)
+        # sectionInfo = fsm.Wr.BookInfoStructure.readProperty(targetSectionPath)
         # if sectionInfo == None:
         #     msg = "The path: '" + targetSectionPath + "' does not exist"
         #     log.autolog(msg)

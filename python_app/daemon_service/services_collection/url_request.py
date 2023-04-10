@@ -21,7 +21,7 @@ import _utils._utils_main as _u
 def processCall(url):
     log.autolog("Processing url request: '{0}'.".format(url))
     url = url.replace("KIK:/", "")
-    url = url.split(".")
+    url = url.split("/")
     bookName = url[0]
     topSection = url[1]
     subsecPath = url[2]
@@ -30,25 +30,22 @@ def processCall(url):
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
     
-    newSubsection = topSection + "." + subsecPath
-    
     if len(url) > 4:
-        linktType = url[4]
+        linktType:str = url[4]
     
-    if linktType == "pdf":
-        log.autolog("Will only open pdf of '{0}'".format(newSubsection))
-        oscf.Wr.PdfApp.openSubsectionPDF(positionIDX, 
-                                        topSection,
+    if "pdf" in linktType.lower():
+        log.autolog("Will only open pdf of '{0}'".format(subsecPath))
+        oscf.Wr.PdfApp.openSubsectionPDF(positionIDX,
                                         subsecPath,
                                         bookName)    
         return    
 
     # switch section
-    if newSubsection != fsf.Data.Book.currSection:
+    if subsecPath != fsf.Data.Book.currSection:
         lm.Wr.SectionLayout.close()
 
-    fsf.Data.Book.currSection = topSection + "." + subsecPath
-    fsf.Data.Book.currTopSection = topSection
+        fsf.Data.Book.currSection = subsecPath
+        fsf.Data.Book.currTopSection = topSection
 
     # other sections UI
     lm.Wr.SectionLayout.set(imIdx=positionIDX)
@@ -60,5 +57,5 @@ def processCall(url):
     mainMenuManager.switchToSectionLayout()
 
     # PDF app
-    ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, topSection, subsecPath, bookName)
+    ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, subsecPath, bookName)
 

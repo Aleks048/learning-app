@@ -54,16 +54,16 @@ class LayoutManagers:
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
             self.addWidget(imageGeneration_BTN)
 
-            addExtraImage = ml.AddExtraImage_BTN(winRoot, self.prefix)
-            addExtraImage.addListenerWidget(imageGenration_ERT)
-            addExtraImage.addListenerWidget(imageGeneration_BTN)
-            self.addWidget(addExtraImage)
+            addExtraImage_BTN = ml.AddExtraImage_BTN(winRoot, self.prefix)
+            addExtraImage_BTN.addListenerWidget(imageGenration_ERT)
+            addExtraImage_BTN.addListenerWidget(imageGeneration_BTN)
+            self.addWidget(addExtraImage_BTN)
 
 
-            imageGenerationRestartBTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
-            imageGenerationRestartBTN.addListenerWidget(imageGenration_ERT)
-            imageGenerationRestartBTN.addListenerWidget(imageGeneration_BTN)
-            self.addWidget(imageGenerationRestartBTN)
+            imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
+            imageGenerationRestart_BTN.addListenerWidget(imageGenration_ERT)
+            imageGenerationRestart_BTN.addListenerWidget(imageGeneration_BTN)
+            self.addWidget(imageGenerationRestart_BTN)
 
             screenshotLocation_LBL = ml.ScreenshotLocation_LBL(winRoot, self.prefix)
             self.addWidget(screenshotLocation_LBL)
@@ -80,6 +80,7 @@ class LayoutManagers:
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
             chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
+            chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 
             switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)

@@ -87,11 +87,10 @@ class Paths:
             Used in the main layout Label
             '''
 
-            currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+            currSecName = fsf.Data.Book.currSection
             name = fsf.Data.TOC.text(currSecName)
             startPage = fsf.Data.TOC.start(currSecName)
             endPage = fsf.Data.TOC.finish(currSecName)
-            currSecName = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
 
             text = "Sec path: '{0}'. Name: '{1}'. Start p: '{2}'. End p: '{3}'.".format(currSecName, 
                                                                                         name, 

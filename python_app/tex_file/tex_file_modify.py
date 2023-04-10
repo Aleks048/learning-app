@@ -116,15 +116,17 @@ class TexFileModify:
 
     def __formatLinkName(linkName:str, formatBold:bool = True):
         # make the start bold text
+        linkName = linkName.replace(" ", "\\ ")
+        
+        linkName = linkName.replace(":", "_")
+        
         if linkName.count("__") == 1 and formatBold:
             linkName = linkName.split("__")
             linkName = "\\textbf{" + linkName[0] + ":}\ " + "".join(linkName[1:])
             #replace all '_' but the special ones with ' '
-            linkName = re.sub("([^@])_", r"\1\\ ", linkName)
-        else:
-            linkName = linkName.replace(":", "_")
-
-
+        
+        linkName = re.sub("([^@])_", r"\1\\ ", linkName)
+        
         # work with special "_" that are used in underscore
         linkName = linkName.replace("@_", "_")
 
@@ -162,8 +164,6 @@ class TexFileModify:
         
     @classmethod
     def addImageLinkToTOC_woImage(cls, imIdx, linkName):
-        currSubsection = _upan.Current.Names.Section.name()
-
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
         
@@ -251,5 +251,5 @@ class TexFileModify:
                 f.write(line + "\n")
     
     def getLinkLine(bookName, topSection, subsection, imIDX, linkName: str, linkType: str):
-        url = "KIK:/{0}.{1}.{2}.{3}".format(bookName, topSection, subsection, imIDX)
-        return "\href{" + url + "." + linkType + "}{" + linkName + "}\n"
+        url = "KIK:/{0}/{1}/{2}/{3}".format(bookName, topSection, subsection, imIDX)
+        return "\href{" + url + "/" + linkType + "}{" + linkName + "}\n"

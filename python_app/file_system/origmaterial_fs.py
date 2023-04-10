@@ -37,14 +37,13 @@ class OriginalMaterialStructure:
 
     @classmethod
     def createStructure(cls):
-        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
+        origMatAbsPath_curr = _upan.Paths.OriginalMaterial.getAbs()
         
-        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath):   
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath_curr):   
             log.autolog("\
 The structure was not present. Will create it.\n\
-Creating path: '{0}'".format(origMatAbsPath))
-            ocf.Wr.FsAppCalls.createDir(origMatAbsPath)
+Creating path: '{0}'".format(origMatAbsPath_curr))
+            ocf.Wr.FsAppCalls.createDir(origMatAbsPath_curr)
         
         # create file to track original materials with names and paths
         structureFile = cls.__getJSONfilepath()
@@ -55,9 +54,8 @@ Creating path: '{0}'".format(origMatAbsPath))
     def addOriginalMaterial(cls, filePath, structureRelPath, materialName):
         log.autolog("Adding material: '{0}' to rel path: '{1}'".format(filePath, structureRelPath))
         
-        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        basePath =  _upan.Paths.OriginalMaterial.getAbs(bookPath)
-        originnalMaterialDestinationPath = os.path.join(basePath, structureRelPath)
+        basePath_curr =  _upan.Paths.OriginalMaterial.getAbs()
+        originnalMaterialDestinationPath = os.path.join(basePath_curr, structureRelPath)
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(originnalMaterialDestinationPath):   
             log.autolog("Path '{0}' does not exist. Will create it.".format(originnalMaterialDestinationPath))
@@ -148,10 +146,9 @@ Creating path: '{0}'".format(origMatAbsPath))
         
     @classmethod
     def __getJSONfilepath(cls) -> str:
-        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        origMatAbsPath = _upan.Paths.OriginalMaterial.getAbs(bookPath)
+        origMatAbsPath_curr = _upan.Paths.OriginalMaterial.getAbs()
         # create file to track original materials with names and paths
-        return os.path.join(origMatAbsPath, "origMat.json")
+        return os.path.join(origMatAbsPath_curr, "origMat.json")
     
     @classmethod
     def __updateMaterialDict(cls, newMatDict):

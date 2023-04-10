@@ -139,18 +139,21 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currSubsection)
     
     def cmd(self):
+        newSubsection = self.getData()
+
         # close current subsection FS window
         currSection = fsf.Data.Book.currSection
-        lf.Wr.LayoutsManager.closeFSWindow(currSection)
+        if newSubsection != currSection:
+            lf.Wr.LayoutsManager.closeFSWindow(currSection)
 
-        subsection = self.getData()
+        # open new subsection
         sections = fsf.Data.Book.sections
-        topSection = self.notify(ChooseTopSection_OM)
-        sections[topSection]["prevSubsectionPath"] = subsection
+        topSection = fsf.Data.Book.currTopSection
+        sections[topSection]["prevSubsectionPath"] = newSubsection
         fsf.Data.Book.sections = sections
-        fsf.Data.Book.currSection = subsection
-        
-        self.notify(ImageGeneration_ETR, fsf.Wr.Links.ImIDX.get(subsection))
+        fsf.Data.Book.currSection = newSubsection
+
+        self.notify(ImageGeneration_ETR, fsf.Wr.Links.ImIDX.get(newSubsection))
 
         self.notify(ScreenshotLocation_LBL)
 
@@ -201,9 +204,6 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currTopSection)
     
     def cmd(self):
-        # close current subsection FS window
-        currSection = fsf.Data.Book.currSection
-        lf.Wr.LayoutsManager.closeFSWindow(currSection)
 
         topSection = self.getData()
 
@@ -213,7 +213,13 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         # update subsection
         sections = fsf.Data.Book.sections
         prevSubsectionPath = sections[topSection]["prevSubsectionPath"]
-        fsf.Data.Book.currSection = prevSubsectionPath
+        
+        # close current subsection FS window
+        currSection = fsf.Data.Book.currSection
+        
+        if currSection != prevSubsectionPath:
+            lf.Wr.LayoutsManager.closeFSWindow(currSection)
+            fsf.Data.Book.currSection = prevSubsectionPath
 
         # update image index
         secionImIndex = fsf.Wr.Links.ImIDX.get(prevSubsectionPath)        
@@ -275,9 +281,11 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     
     def receiveNotification(self, broadcasterName, data = None):
         if broadcasterName == ChooseTopSection_OM:
-            self.changeText(_upan.Paths.Screenshot.getRel_formatted())
+            text = _upan.Paths.Screenshot.getRel_formatted()
+            self.changeText(text)
         if broadcasterName == ChooseSubsection_OM:
-            self.changeText(_upan.Paths.Screenshot.getRel_formatted())
+            text = _upan.Paths.Screenshot.getRel_formatted()
+            self.changeText(text)
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
         text_curr = _upan.Paths.Screenshot.getRel_formatted()
@@ -486,9 +494,12 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()
 
         if secImIndex == _u.Token.NotDef.str_t:
-            self.updateDafaultText("1")
+            newIDX = "1"
         else:
-            self.updateDafaultText(str(int(secImIndex) + 1))
+            newIDX = str(int(secImIndex) + 1)
+        
+        self.updateDafaultText(newIDX)
+        self.setData(newIDX)
 
         return super().render(**kwargs)
 

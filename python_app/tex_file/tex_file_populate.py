@@ -36,8 +36,8 @@ class TexFilePopulate:
                     idx = line.replace(dc.Links.Local.idxLineMarker, "")
                     idx = idx.replace(" ", "")
                     idx = idx.replace("\n", "")
-                    lineToAdd = "\href{{KIK:/{0}.{1}.{2}.{3}.full}}{{{1}.{2}.{3}}}".format(bookName, topSection, subsection, idx)
-                    lineToAdd += "\href{{KIK:/{0}.{1}.{2}.{3}.pdf}}{{[p]}}, \n".format(bookName, topSection, subsection, idx)
+                    lineToAdd = "\href{{KIK:/{0}/{1}/{2}/{3}/full}}{{{2}.{3}}}".format(bookName, topSection, subsection, idx)
+                    lineToAdd += "\href{{KIK:/{0}/{1}/{2}/{3}/pdf}}{{[p]}}, \n".format(bookName, topSection, subsection, idx)
                     listOfLocalLinks.append(lineToAdd)
                 if "myTarget" in line:
                     lineArr = line.split("{")
