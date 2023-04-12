@@ -9,16 +9,25 @@ class ImIDX:
         currSec = _upan.Current.Names.Section.name()
         return cls.get(currSec)
     
-    def get(secPath):
+    def get(secPath, linkValue = None):
         d = LinkDict.get(secPath)
-        return list(d.values())[-1]
+        if linkValue == None:
+            return list(d.values())[-1]
+        else:
+            for k,v in d.items():
+                if str(k) == str(linkValue):
+                    return v
 
 
 class ImLink:
-    #NOTE: not used now
-    def get(secPath, newValue):
+    def get(secPath, idx = None):
         d = LinkDict.get(secPath)
-        return list(d.keys())[-1]
+        if idx == None:
+            return list(d.values())[-1]
+        else:
+            for k,v in d.items():
+                if str(v) == str(idx):
+                    return k
 
  
 class LinkDict:

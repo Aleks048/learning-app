@@ -10,6 +10,7 @@ import _utils.logging as log
 import settings.facade as sf
 import tex_file.tex_file_modify as tfm
 import data.constants as dc
+import tex_file.tex_file_utils as  tfu
 
 class TexFilePopulate:
     def populateMainFile(subsection, bookPath):
@@ -30,21 +31,28 @@ class TexFilePopulate:
             contentFile = contentF.readlines()
             
             linkToken = "id: "
+            currIdx = ""
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
                 if linkToken in line:
                     idx = line.replace(dc.Links.Local.idxLineMarker, "")
                     idx = idx.replace(" ", "")
                     idx = idx.replace("\n", "")
-                    lineToAdd = "\href{{KIK:/{0}/{1}/{2}/{3}/full}}{{{2}.{3}}}".format(bookName, topSection, subsection, idx)
-                    lineToAdd += "\href{{KIK:/{0}/{1}/{2}/{3}/pdf}}{{[p]}}, \n".format(bookName, topSection, subsection, idx)
+                    currIdx = idx
+
+                    lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}.{1}".format(subsection, idx), "full")
+                    lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
                     listOfLocalLinks.append(lineToAdd)
                 if "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
+                    imText = fsm.Wr.Links.ImLink.get(subsection, currIdx)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
-                    contentFile[i] = line.replace(imageName, imagePath)
+                    textToAdd = "{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}"
+                    textToAdd = tfm.TexFileModify.formatLinkName(textToAdd, True)
+                    contentFile[i] = "    " + textToAdd \
+                                    + "\\\\\n" + line.replace(imageName, imagePath)
                 if "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
@@ -62,8 +70,8 @@ class TexFilePopulate:
             tocFile = tocF.readlines()
             bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
-            bringToFrontLIne = tfm.TexFileModify.getLinkLine(bookName, topSection, subsection,
-                                                        _u.Token.NotDef.str_t, "Bring To front", "full")
+            bringToFrontLIne = tfu.getLinkLine(bookName, topSection, subsection,
+                                                _u.Token.NotDef.str_t, "Bring To front", "full")
 
             # add link to bring the subsection to the front.
             tocFile = [bringToFrontLIne] + tocFile

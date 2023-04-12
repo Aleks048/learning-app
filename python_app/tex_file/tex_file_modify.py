@@ -10,6 +10,8 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import settings.facade as sf
 
+import tex_file.tex_file_utils as tfu
+
 
 class TexFileModify:
     @classmethod
@@ -49,7 +51,6 @@ class TexFileModify:
         with open(_upan.Paths.TexFiles.Content.getAbs(),"w") as conF:
             _waitDummy = conF.writelines(contentLines)
 
-
     # update the content file
     def addExtraImage(mainImID, extraImageName):
         marker = dc.Links.Local.getIdxLineMarkerLine(mainImID)
@@ -71,6 +72,10 @@ class TexFileModify:
         
         tfp.TexFilePopulate.populateCurrMainFile()
     
+    def __getMainImageLine(subsectionNum, imIdx):
+        extraImagePath = _upan.Names.getImageName(imIdx, subsectionNum)
+        return "\myTarget{" + extraImagePath + "}{" + imIdx + "}"
+
     @classmethod
     def addProcessedImage(cls, imIdx, linkName):     
         imIdx = str(imIdx)
@@ -78,7 +83,6 @@ class TexFileModify:
         
         currSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         currSubsectionNum = currSubsection.split("_")[0]
-        extraImagePath = imIdx + "__" + currSubsectionNum + "__" + linkName
         
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
         pageToAdd += "\
@@ -86,10 +90,7 @@ class TexFileModify:
     \n\
     \n\
     % TEXT BEFORE MAIN IMAGE\n\
-    \\def\\imnum{" + imIdx + "}\n\
-    \\def\\linkname{" + linkName.replace("_", " ") + "}\n\
-    \\hyperdef{TOC}{\\linkname}{}\n\
-    \myTarget{" + extraImagePath + "}{\\imnum}\n\
+    " + cls.__getMainImageLine(currSubsectionNum, imIdx) + "\n\
     % TEXT AFTER MAIN IMAGE\n\
     \n\
     \n\
@@ -104,7 +105,6 @@ class TexFileModify:
     \\\\\\myGlLinks{\n\
         % \\myGlLink{}{}\n\
     }\n\
-    \\\\Local links: \n\
     \\TOC\\newpage"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
@@ -114,7 +114,7 @@ class TexFileModify:
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
 
-    def __formatLinkName(linkName:str, formatBold:bool = True):
+    def formatLinkName(linkName:str, formatBold:bool = True):
         # make the start bold text
         linkName = linkName.replace(" ", "\\ ")
         
@@ -122,7 +122,7 @@ class TexFileModify:
         
         if linkName.count("__") == 1 and formatBold:
             linkName = linkName.split("__")
-            linkName = "\\textbf{" + linkName[0] + ":}\ " + "".join(linkName[1:])
+            linkName = tfu.boldenTheText(linkName[0] + ":") + "\ " + "".join(linkName[1:])
             #replace all '_' but the special ones with ' '
         
         linkName = re.sub("([^@])_", r"\1\\ ", linkName)
@@ -134,7 +134,7 @@ class TexFileModify:
     
     @classmethod
     def __getLinkText(cls, imIdx, linkName:str):
-        linkName = cls.__formatLinkName(linkName)
+        linkName = cls.formatLinkName(linkName)
         
         # add a start
         linktext = "[{0}]:\ {1}".format(imIdx, linkName)
@@ -146,13 +146,13 @@ class TexFileModify:
         currSubsection = _upan.Current.Names.Section.name()
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
-        linkNameFormatted = cls.__formatLinkName(linkName, False)
+        linkNameFormatted = cls.formatLinkName(linkName, False)
         
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
+        imName = _upan.Names.getImageName(imIdxStr, currSubsection)
         pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + \
-        imIdxStr + "__" + currSubsection + "__" + linkNameFormatted + "}\n\
+        \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + imName + "}\n\
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
@@ -239,8 +239,8 @@ class TexFileModify:
                 break
             positionToAdd += 1
         
-        lineToAddFull = "        " + cls.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "full")
-        lineToAddPdfOnly = "        " + cls.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "pdf")
+        lineToAddFull = "        " + tfu.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "full")
+        lineToAddPdfOnly = "        " + tfu.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "pdf")
         outlines = lines[:positionToAdd]
         outlines.append(lineToAddFull)
         outlines.append(lineToAddPdfOnly)
@@ -249,7 +249,4 @@ class TexFileModify:
         with open(contenfFilepath, "+w") as f:
             for line in outlines:
                 f.write(line + "\n")
-    
-    def getLinkLine(bookName, topSection, subsection, imIDX, linkName: str, linkType: str):
-        url = "KIK:/{0}/{1}/{2}/{3}".format(bookName, topSection, subsection, imIDX)
-        return "\href{" + url + "/" + linkType + "}{" + linkName + "}\n"
+ 

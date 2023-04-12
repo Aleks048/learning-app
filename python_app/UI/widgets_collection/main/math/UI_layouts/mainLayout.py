@@ -25,6 +25,7 @@ import data.temp as dt
 import settings.facade as sf
 
 import scripts.osascripts as oscr
+import generalManger.generalManger as gm
 
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
@@ -354,79 +355,14 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
     def cmd(self):
         
         def _createTexForTheProcessedImage():
-            self.dataFromUser[1] = self.dataFromUser[1].replace(" ", "_")
-            self.dataFromUser[1] = self.dataFromUser[1].replace(":", "_")
+            addToTOC = self.notify(addToTOC_CHB)
+            addToTOCwIm = self.notify(addToTOCwImage_CHB)
             
-            currSubsectionName = _upan.Current.Names.Section.name()
-            currSubsection = currSubsectionName.split("_")[0]
+            entryAdded:bool = gm.GeneralManger.AddEntry(self.dataFromUser[0], self.dataFromUser[1], addToTOC, addToTOCwIm)
 
-            imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                    str(self.dataFromUser[0]) + "__" + currSubsection + "__" + str(self.dataFromUser[1]))
-            
-            imID = self.dataFromUser[0]
-            linkDict = fsf.Data.Sec.imLinkDict(currSubsectionName)
-            
-            if (imID in list(linkDict.values())):
-                messManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mesm.MessageMenuManager)
-                mathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-                response = messManager.show("The index '{0}' already exists. Do you want to update?".format(imID), True)
-                
-                if response:
-                    names = []
-                    for name, id in linkDict.items():
-                        if id == imID:
-                            #remove the image
-                            prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                            str(self.dataFromUser[0]) + "__" + currSubsection + "__" + name + ".png")
-                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
-
-                            names.append(name)
-                    
-                    for name in names:
-                        linkDict.pop(name, None)
-                    fsf.Data.Sec.imLinkDict(currSubsectionName, linkDict)
-                
-                mathManager.show()
-                
-                if not response:
-                    return
-            
-
-            # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-            tff.Wr.TexFileModify.addProcessedImage(self.dataFromUser[0], self.dataFromUser[1])
-
-            if self.notify(addToTOC_CHB):
-                if self.notify(addToTOCwImage_CHB):
-                    # TOC ADD ENTRY WITH IMAGE
-                   tff.Wr.TexFileModify.addImageLinkToTOC_wImage(self.dataFromUser[0], self.dataFromUser[1])
-                else:  
-                    # TOC ADD ENTRY WITHOUT IMAGE
-                   tff.Wr.TexFileModify.addImageLinkToTOC_woImage(self.dataFromUser[0], self.dataFromUser[1])
-            
-
-            # STOTE IMNUM, IMNAME AND LINK
-            fsf.Wr.SectionCurrent.setImLinkAndIDX(self.dataFromUser[1], self.dataFromUser[0])
-            
-            # POPULATE THE MAIN FILE
-            tff.Wr.TexFilePopulate.populateCurrMainFile()
-            
-            # take a screenshot
-            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
-                def takeScreencapture(iPath):
-                    ocf.Wr.ScreenshotCalls.takeScreenshot(iPath)
-                    nextImNum = str(int(self.dataFromUser[0]) + 1)
-                    self.notify(ImageGeneration_ETR, nextImNum)
-                    self.updateLabel(self.labelOptions[0])
-                
-                # wmes.ConfirmationMenu.createMenu("The file exists. Overrite?", 
-                #                                 takeScreencapture, 
-                #                                 imagePath)
-            else:
-                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
-                nextImNum = str(int(self.dataFromUser[0]) + 1)
-                self.notify(ImageGeneration_ETR, nextImNum)
+            nextImNum = str(int(self.dataFromUser[0]) + 1)
+            self.notify(ImageGeneration_ETR, nextImNum)
+            self.updateLabel(self.labelOptions[0])
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
@@ -534,7 +470,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
         
         
         extraImagePath_curr = _upan.Paths.Screenshot.getAbs()
-        extraImageName = "{0}__{1}__e__{2}".format(mainImIdx, currentSubsectionNum, extraImName)
+        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsectionNum, extraImName)
 
         extraImageName = extraImageName.replace(" ", "_")
         extraImageName = extraImageName.replace(":", "_")

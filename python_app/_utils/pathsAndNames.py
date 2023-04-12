@@ -146,6 +146,13 @@ class Names:
     
     def removeSectionPrefixFromName(subsection:str):
         return subsection.replace(fsf.Data.Book.sections_prefix + "_", "")
+    
+    def getImageName(imIdx, subsection):
+        return imIdx + "__" + subsection
+    
+    @classmethod
+    def getExtraImageName(cls, mainImIdx, subsection, extraImName):
+        return cls.getImageName(mainImIdx, subsection) + "__e__{0}".format(extraImName)
 
 class Current:
     class Names:
