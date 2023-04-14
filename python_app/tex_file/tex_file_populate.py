@@ -67,10 +67,10 @@ class TexFilePopulate:
                     imText = fsm.Wr.Links.ImLink.get(subsection, currIdx)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
-                    textToAdd = "{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}"
+                    textToAdd = "{{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par\\\\}}"
                     textToAdd = tfm.TexFileModify.formatLinkName(textToAdd, True)
-                    contentFile[i] = "    " + textToAdd \
-                                    + "\\\\\n" + line.replace(imageName, imagePath)
+                    line = line.replace("\n", "")
+                    contentFile[i] = line.replace(imageName, imagePath) + textToAdd + "\n"
                 if "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
