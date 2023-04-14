@@ -32,21 +32,19 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         fsf.Wr.FileSystemManager.addOriginalMaterial(originalMaterialLocation, 
                                                     originalMaterialRelPath,
                                                     originalMaterialName)
+    
     @classmethod
-    def AddEntry(cls, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
+    def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
         imText =imText.replace(" ", "_")
         imText =imText.replace(":", "_")
-        
-        currSubsectionName = _upan.Current.Names.Section.name()
-        currSubsection = currSubsectionName.split("_")[0]
 
         # imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
         #                         str(imIdx) + "__" + currSubsection + "__" + str(imText))
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                    _upan.Names.getImageName(str(imIdx), currSubsection))
+                                    _upan.Names.getImageName(str(imIdx), subsection))
         
         imID = imIdx
-        linkDict = fsf.Data.Sec.imLinkDict(currSubsectionName)
+        linkDict = fsf.Data.Sec.imLinkDict(subsection)
         
         if (imID in list(linkDict.values())):
             messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
@@ -62,7 +60,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                         #remove the image
                         # prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(), str(imIdx) + "__" + currSubsection + "__" + name + ".png")
                         prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                        _upan.Names.getImageName(str(imIdx), currSubsection) + ".png")
+                                        _upan.Names.getImageName(str(imIdx), subsection) + ".png")
                         ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
 
                         names.append(name)
@@ -70,7 +68,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 for name in names:
                     linkDict.pop(name, None)
                 
-                fsf.Data.Sec.imLinkDict(currSubsectionName, linkDict)
+                fsf.Data.Sec.imLinkDict(subsection, linkDict)
             
             mathManager.show()
             
@@ -79,15 +77,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-        tff.Wr.TexFileModify.addProcessedImage(imIdx, imText)
+        tff.Wr.TexFileModify.addProcessedImage(subsection, imIdx, imText)
 
         if addToTOC:
             if addToTOCwIm:
                 # TOC ADD ENTRY WITH IMAGE
-                tff.Wr.TexFileModify.addImageLinkToTOC_wImage(imIdx, imText)
+                tff.Wr.TexFileModify.addImageLinkToTOC_wImage(subsection, imIdx, imText)
             else:  
                 # TOC ADD ENTRY WITHOUT IMAGE
-                tff.Wr.TexFileModify.addImageLinkToTOC_woImage(imIdx, imText)
+                tff.Wr.TexFileModify.addImageLinkToTOC_woImage(subsection, imIdx, imText)
         
 
         # STOTE IMNUM, IMNAME AND LINK

@@ -23,9 +23,8 @@ class Utils:
         return topSection + separator + subsection
 
     def getPDFPageFromPosIDX(posIDX):
-        # at the moment posIDX = sec page
-        # but in the future that might not be the case
-        return posIDX
+        page = str((int(posIDX) % 5) + 1)
+        return page
     
     def getTopSection(fullName):
         # 
@@ -44,29 +43,3 @@ class Utils:
         fullName = fullName.split(separator)
         topSection = fullName[0]
         return topSection
-
-
-def _getSectionFilepath(sectionPath):
-    sectionPrefix = \
-        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
-    sectionsPathSeparator = \
-        bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
-
-    pathList = sectionPath.split(sectionsPathSeparator)
-    pathList[0] = sectionPrefix + "_" + pathList[0]
-    
-    for i in range(len(pathList) - 1, 0, -1):
-        pathList[i] = ".".join(pathList[:i + 1])
-    
-    sectionFullPath = pathList
-    sectionFullPath = os.path.join(*sectionFullPath)
-    pathToSection = _getPathToSectionsFolder()
-    pathToSection = os.path.join(_upan.Paths.Section.sectionFolderName, pathToSection, sectionFullPath)
-    return pathToSection
-
-
-def _getPathToSectionsFolder():
-    pathToSectionFolder = sf.Wr.Manager.Book.getCurrBookFolderPath()
-    pathToSectionFolder = os.path.join(pathToSectionFolder, 
-                                    bfs.BookInfoStructure.sectionsInfoBaseRelPath)
-    return pathToSectionFolder

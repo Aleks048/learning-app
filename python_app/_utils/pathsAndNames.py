@@ -1,4 +1,5 @@
 import os
+import math
 from functools import wraps
 
 import _utils._utils_main as _u
@@ -8,24 +9,27 @@ import _utils.logging as log
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 
+import outside_calls.outside_calls_facade as ocf
 
 def bookNameArg_dec(func):
     '''
     allows to provide bookname or bookpath to get the path
     '''
     @wraps(func)
-    def wrapper(bookId = _u.Token.NotDef.str_t, subSection = _u.Token.NotDef.str_t):
+    def wrapper(bookId = _u.Token.NotDef.str_t,
+                subsection = _u.Token.NotDef.str_t,
+                idx = _u.Token.NotDef.str_t):
         if bookId == _u.Token.NotDef.str_t:
             bookId = sf.Wr.Manager.Book.getCurrBookFolderPath()
         
-        if subSection == _u.Token.NotDef.str_t:
-            subSection = fsf.Data.Book.currSection
+        if subsection == _u.Token.NotDef.str_t:
+            subsection = fsf.Data.Book.currSection
         
         if bookId in sf.Wr.Manager.Book.getListOfBooksPaths():
-            return func(bookId, subSection)
+            return func(bookId, subsection, idx)
         else:
             bookPath = sf.Wr.Manager.Book.getPathFromName(bookId)
-            return func(bookPath, subSection)
+            return func(bookPath, subsection, idx)
     
     return wrapper
 class Paths:
@@ -65,6 +69,12 @@ class Paths:
             sectionFullPath = os.path.join(Paths.Section.sectionFolderName, *sectionFullPath)
             return sectionFullPath
 
+        class JSON:
+            @bookNameArg_dec
+            def getAbs(bookPath, section, *args):
+                sectionFilepath = Paths.Section.getAbs(bookPath, section)
+                return os.path.join(sectionFilepath, "sectionInfo.json")
+
     class Screenshot:
         @bookNameArg_dec
         def getRel(bookPath, subsection):
@@ -76,7 +86,7 @@ class Paths:
                                     secNameWPrefix + "_images")
 
         @bookNameArg_dec
-        def getAbs(bookPath,  subsection):
+        def getAbs(bookPath,  subsection, *args):
             secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
             return  os.path.join(Paths.Section.getAbs(bookPath, subsection), 
                                 secNameWPrefix + "_images")
@@ -100,45 +110,57 @@ class Paths:
             return text
     
     class TexFiles:
+        def getEnding(subsection, idx):
+            if idx == _u.Token.NotDef.str_t:
+                idx = fsf.Wr.Links.ImIDX.get(subsection)
+            
+            return "_" + Names.getSubsectionFilesEnding(idx)
+            
         class Output:
             @bookNameArg_dec
-            def getAbs(bookPath, subsection):
+            def getAbs(bookPath, subsection, *args):
                 return os.path.join(Paths.Section.getAbs(bookPath, subsection), "_out")
             
             class PDF:
                 @bookNameArg_dec
-                def getAbs(bookPath, subsection):
+                def getAbs(bookPath, subsection, idx, *args):
                     secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
-                    return os.path.join(Paths.TexFiles.Output.getAbs(bookPath, subsection), secNameWPrefix + "_main.pdf")
+                    ending = Paths.TexFiles.getEnding(subsection, idx)
+                    return os.path.join(Paths.TexFiles.Output.getAbs(bookPath, subsection), 
+                                        secNameWPrefix + "_main" + ending + ".pdf")
 
 
         class Content:
             @bookNameArg_dec
-            def getAbs(bookPath, subsection):
-                secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+            def getAbs(bookPath, subsection, idx, *args):
+                secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)  
+                ending = Paths.TexFiles.getEnding(subsection, idx)
                 return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
-                                    secNameWPrefix + "_con.tex")
+                                    secNameWPrefix + "_con" + ending + ".tex")
         
         class TOC:
             @bookNameArg_dec
-            def getAbs(bookPath, subsection):
+            def getAbs(bookPath, subsection, idx, *args):
                 secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                ending = Paths.TexFiles.getEnding(subsection, idx)
                 return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
-                                    secNameWPrefix + "_toc.tex")
+                                    secNameWPrefix + "_toc" + ending + ".tex")
         
         class Main:
             @bookNameArg_dec
-            def getAbs(bookPath, subsection):
+            def getAbs(bookPath, subsection, idx, *args):
                 secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
+                ending = Paths.TexFiles.getEnding(subsection, idx)
                 return os.path.join(Paths.Section.getAbs(bookPath, subsection), 
-                                    secNameWPrefix + "_main.tex")
+                                    secNameWPrefix + "_main" + ending + ".tex")
 
     class PDF:
         @bookNameArg_dec
-        def getAbs(bookPath, subsection):
+        def getAbs(bookPath, subsection, idx, *args):
             secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
             sectionDirPath = Paths.Section.getAbs(bookPath, subsection)
-            return os.path.join(sectionDirPath, secNameWPrefix + "_main.pdf")
+            ending = Paths.TexFiles.getEnding(subsection, idx)
+            return os.path.join(sectionDirPath, secNameWPrefix + "_main" + ending + ".pdf")
 
 class Names:
     def addSectionPrefixToName(subsection):
@@ -153,6 +175,14 @@ class Names:
     @classmethod
     def getExtraImageName(cls, mainImIdx, subsection, extraImName):
         return cls.getImageName(mainImIdx, subsection) + "__e__{0}".format(extraImName)
+    
+    def getSubsectionFilesEnding(idx):
+        return str(math.floor(int(idx) / 5))
+    
+    def getIdxFromSubsectionFilesname(filename):
+        bookNum = filename.split("_")[-1]
+        bookNum = bookNum.split(".")[0]
+        return str(int(bookNum) * 5)
 
 class Current:
     class Names:

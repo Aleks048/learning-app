@@ -16,7 +16,7 @@ class SkimCalls:
             url = "skim://{0}#page={1}".format(pdfPath, pdfPage)
         
         _u.runCmdAndWait('open ' + url)
-        log.autolog("Opened {0} in skim.".format(pdfPath))
+        log.autolog("Opened {0} in skim on page '{1}'.".format(pdfPath, pdfPage))
     
     @classmethod
     def openSubsectionPDF(cls, positionIDX, subsecPath, bookName):
@@ -27,7 +27,7 @@ class SkimCalls:
                         Abropt processing link :'{1}'.".format(bookName, subsecPath))
             return
 
-        pdfPath = _upan.Paths.PDF.getAbs(bookPath, subsecPath)
+        pdfPath = _upan.Paths.PDF.getAbs(bookPath, subsecPath, positionIDX)
 
         cls.openPDF(pdfPath, pdfPage)
 

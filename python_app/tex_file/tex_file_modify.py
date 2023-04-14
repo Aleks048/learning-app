@@ -11,6 +11,7 @@ import _utils.pathsAndNames as _upan
 import settings.facade as sf
 
 import tex_file.tex_file_utils as tfu
+import outside_calls.outside_calls_facade as ocf
 
 
 class TexFileModify:
@@ -77,12 +78,11 @@ class TexFileModify:
         return "\myTarget{" + extraImagePath + "}{" + imIdx + "}"
 
     @classmethod
-    def addProcessedImage(cls, imIdx, linkName):     
+    def addProcessedImage(cls, subsection, imIdx, linkName):     
         imIdx = str(imIdx)
         linkName = str(linkName)
         
-        currSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        currSubsectionNum = currSubsection.split("_")[0]
+        currSubsectionNum = subsection.split("_")[0]
         
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + "\n"
         pageToAdd += "\
@@ -109,7 +109,12 @@ class TexFileModify:
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
 
-        cls.__updateTexFile(_upan.Paths.TexFiles.Content.getAbs(),
+        conFilepath = _upan.Paths.TexFiles.Content.getAbs(idx = imIdx)
+        
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(conFilepath):
+            ocf.Wr.FsAppCalls.createFile(conFilepath)
+
+        cls.__updateTexFile(_upan.Paths.TexFiles.Content.getAbs(idx = imIdx),
                             pageToAdd, 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
@@ -142,28 +147,31 @@ class TexFileModify:
         return linktext
 
     @classmethod
-    def addImageLinkToTOC_wImage(cls, imIdx, linkName):
-        currSubsection = _upan.Current.Names.Section.name()
+    def addImageLinkToTOC_wImage(cls, subsection, imIdx, linkName):
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
         linkNameFormatted = cls.formatLinkName(linkName, False)
         
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-        imName = _upan.Names.getImageName(imIdxStr, currSubsection)
+        imName = _upan.Names.getImageName(imIdxStr, subsection)
         pageToAdd += "\
     \\mybox{\n\
         \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + imName + "}\n\
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
+
+        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(subsection = subsection, idx = imIdx)
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(tocFilepath):
+            ocf.Wr.FsAppCalls.createFile(tocFilepath)
         
-        cls.__updateTexFile(_upan.Paths.TexFiles.TOC.getAbs(),
+        cls.__updateTexFile(tocFilepath,
                             pageToAdd, 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
         
     @classmethod
-    def addImageLinkToTOC_woImage(cls, imIdx, linkName):
+    def addImageLinkToTOC_woImage(cls, subsection, imIdx, linkName):
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
         
@@ -174,8 +182,12 @@ class TexFileModify:
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
+
+        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(subsection = subsection, idx = imIdx)
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(tocFilepath):
+            ocf.Wr.FsAppCalls.createFile(tocFilepath)
         
-        cls.__updateTexFile(_upan.Paths.TexFiles.TOC.getAbs(),
+        cls.__updateTexFile(tocFilepath,
                             pageToAdd, 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))

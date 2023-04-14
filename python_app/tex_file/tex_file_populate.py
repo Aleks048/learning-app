@@ -13,19 +13,41 @@ import data.constants as dc
 import tex_file.tex_file_utils as  tfu
 
 class TexFilePopulate:
-    def populateMainFile(subsection, bookPath):
+    def populateMainFile(subsection, bookPath, imIdx = _u.Token.NotDef.str_t):
         contentFile = []
-        tocFile = []
 
         localLinksLine = ""
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
-        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection)
-        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection)
-        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsection)
+        conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection, imIdx)
+        mainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, subsection, imIdx)
 
         topSection = fsm.Wr.Utils.getTopSection(subsection)
         
         listOfLocalLinks = []
+
+        numFiles = int(int(fsm.Wr.Links.ImIDX.get(subsection)) / 5) + 1
+
+        for i in range(numFiles):
+            conFilepath_forLinks = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection, str(i * 5))
+            with open(conFilepath_forLinks, 'r') as contentF:
+                # create the local links line
+                contentFile_forLinks = contentF.readlines()
+                
+                linkToken = "id: "
+                currIdx = ""
+                for i in range(0, len(contentFile_forLinks)):
+                    line = contentFile_forLinks[i]
+                    if linkToken in line:
+                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
+                        idx = idx.replace(" ", "")
+                        idx = idx.replace("\n", "")
+                        currIdx = idx
+
+                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}.{1}".format(subsection, idx), "full")
+                        lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
+                        listOfLocalLinks.append(lineToAdd)
+            
+            
         with open(conFilepath, 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
@@ -35,14 +57,10 @@ class TexFilePopulate:
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
                 if linkToken in line:
-                    idx = line.replace(dc.Links.Local.idxLineMarker, "")
-                    idx = idx.replace(" ", "")
-                    idx = idx.replace("\n", "")
-                    currIdx = idx
-
-                    lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}.{1}".format(subsection, idx), "full")
-                    lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
-                    listOfLocalLinks.append(lineToAdd)
+                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
+                        idx = idx.replace(" ", "")
+                        idx = idx.replace("\n", "")
+                        currIdx = idx
                 if "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
@@ -65,26 +83,27 @@ class TexFilePopulate:
 
 
         localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
-        
-        with open(tocFilepath, 'r') as tocF:
-            tocFile = tocF.readlines()
-            bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
-            bringToFrontLIne = tfu.getLinkLine(bookName, topSection, subsection,
-                                                _u.Token.NotDef.str_t, "Bring To front", "full")
+        tocFile = [tfu.getLinkLine(bookName, topSection, subsection,
+                                                    _u.Token.NotDef.str_t, "Bring To front", "full")]
+        bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
+        for i in range(numFiles):
+            tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection, str(i * 5))
+            with open(tocFilepath, 'r') as tocF:
+                tocFile_links = tocF.readlines()
 
-            # add link to bring the subsection to the front.
-            tocFile = [bringToFrontLIne] + tocFile
-            imageToken = "image"
+                imageToken = "image"
 
-            for i in range(0, len(tocFile)):
-                line = tocFile[i]
-                if imageToken in line:
-                    lineArr = line.split("{")
-                    imageName = lineArr[-1][:-1]
-                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
-                                             imageName)
-                    tocFile[i] = line.replace(imageName, imagePath)
+                for i in range(0, len(tocFile_links)):
+                    line = tocFile_links[i]
+                    if imageToken in line:
+                        lineArr = line.split("{")
+                        imageName = lineArr[-1][:-1]
+                        imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
+                                                imageName)
+                        tocFile_links[i] = line.replace(imageName, imagePath)
+            
+            tocFile.extend(tocFile_links)
         
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()

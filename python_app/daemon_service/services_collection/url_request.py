@@ -1,3 +1,5 @@
+import time
+
 import outside_calls.outside_calls_facade as ocf
 
 import _utils.logging as log
@@ -15,6 +17,7 @@ import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oscf
 
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 
 
 
@@ -26,6 +29,8 @@ def processCall(url):
     topSection = url[1]
     subsecPath = url[2]
     positionIDX = url[3]
+
+    fileNum = _upan.Paths.TexFiles.getEnding(subsecPath, positionIDX)
 
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
@@ -41,21 +46,19 @@ def processCall(url):
         return    
 
     # switch section
-    if subsecPath != fsf.Data.Book.currSection:
+    if not (subsecPath == fsf.Data.Book.currSection \
+        and fileNum == str(lm.Wr.SectionLayout.currFileNum)):
         lm.Wr.SectionLayout.close()
+        time.sleep(0.3)
 
         fsf.Data.Book.currSection = subsecPath
         fsf.Data.Book.currTopSection = topSection
 
+        # UI
+        mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                        wf.Wr.MenuManagers.MainMenuManager.__base__)
+        mainMenuManager.switchToSectionLayout()
+    
     # other sections UI
     lm.Wr.SectionLayout.set(imIdx=positionIDX)
-
-    # UI
-    mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                    wf.Wr.MenuManagers.MainMenuManager.__base__)
-            
-    mainMenuManager.switchToSectionLayout()
-
-    # PDF app
-    ocf.Wr.PdfApp.openSubsectionPDF(positionIDX, subsecPath, bookName)
 

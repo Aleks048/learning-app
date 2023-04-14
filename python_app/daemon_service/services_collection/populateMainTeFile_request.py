@@ -1,20 +1,30 @@
+import os
+
 import tex_file.tex_file_facade as tff
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsf
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
-import shutil
 import _utils.logging as log
 import settings.facade as sf
 
-def processCall(callerTexFilePath):
+def processCall(callerTexFilePath:str):
     log.autolog("Processing 'populate main file' request: '{0}'.".format(callerTexFilePath))
     # get the section name from the path
-    subsectionName = callerTexFilePath.split("/")[-1]
-    subsectionName = "_".join(subsectionName.split("_")[:-1])
-    subsectionName = _upan.Names.removeSectionPrefixFromName(subsectionName)
+    subsectionDir = "/".join(callerTexFilePath.split("/")[:-1])
+    subsectionJSONfile = os.path.join(subsectionDir, "sectionInfo.json")
+    subsection = _u.JSON.readProperty(subsectionJSONfile, "_name")
+    
+    callertexFilename = callerTexFilePath.split("/")[-1]
+    idx = _upan.Names.getIdxFromSubsectionFilesname(callertexFilename)
 
-    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+    bookPaths = sf.Wr.Manager.Book.getListOfBooksPaths()
+    bookPath = ""
+
+    for bp in bookPaths:
+        if bp in callerTexFilePath:
+            bookPath = bp
+            break
     
     # #build subsection the pdf
-    ocf.Wr.LatexCalls.buildPDF(bookPath, subsectionName)
+    ocf.Wr.LatexCalls.buildPDF(bookPath, subsection, idx)

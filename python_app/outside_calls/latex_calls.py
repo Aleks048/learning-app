@@ -11,12 +11,12 @@ import tex_file.tex_file_facade as tff
 
 
 class MacLatex:
-    def buildPDF(bookpath, subsection):
+    def buildPDF(bookpath, subsection, imIdx = _u.Token.NotDef.str_t):
         def __build():
-            tff.Wr.TexFilePopulate.populateMainFile(subsection, bookpath)
+            tff.Wr.TexFilePopulate.populateMainFile(subsection, bookpath, imIdx)
 
             subsectionDir = _upan.Paths.Section.getAbs(bookpath, subsection)
-            mainTexFilepath = _upan.Paths.TexFiles.Main.getAbs(bookpath, subsection)
+            mainTexFilepath = _upan.Paths.TexFiles.Main.getAbs(bookpath, subsection, imIdx)
 
             subsectionWPrefix = _upan.Names.addSectionPrefixToName(subsection)
 
@@ -33,11 +33,11 @@ class MacLatex:
             if err != "":
                 log.autolog("While building the error occured: '{0}'.".format(err))
             
-            log.autolog("Built subsection: '{0}'.".format(subsection))
+            log.autolog("Built subsection: '{0}' from file '{1}'.".format(subsection, mainTexFilepath))
             
             # move generated pdf
-            mainPDFFilepath = _upan.Paths.PDF.getAbs(bookpath, subsection)
-            outputPDF = _upan.Paths.TexFiles.Output.PDF.getAbs(bookpath, subsection)
+            mainPDFFilepath = _upan.Paths.PDF.getAbs(bookpath, subsection, imIdx)
+            outputPDF = _upan.Paths.TexFiles.Output.PDF.getAbs(bookpath, subsection, imIdx)
             fsc.currFilesystemApp.copyFile(outputPDF, mainPDFFilepath)
         t = Thread(target = __build)
         t.start()

@@ -11,23 +11,31 @@ class ImIDX:
     
     def get(secPath, linkValue = None):
         d = LinkDict.get(secPath)
+
+        if d == _u.Token.NotDef.dict_t or d == None:
+            return 0
+
         if linkValue == None:
-            return list(d.values())[-1]
+            return list(d.keys())[-1]
         else:
             for k,v in d.items():
-                if str(k) == str(linkValue):
-                    return v
+                if str(v) == str(linkValue):
+                    return k
 
 
 class ImLink:
     def get(secPath, idx = None):
         d = LinkDict.get(secPath)
+
+        if d == _u.Token.NotDef.dict_t or d == None:
+            return _u.Token.NotDef.str_t
+
         if idx == None:
             return list(d.values())[-1]
         else:
             for k,v in d.items():
-                if str(v) == str(idx):
-                    return k
+                if str(k) == str(idx):
+                    return v
 
  
 class LinkDict:
@@ -44,18 +52,18 @@ class LinkDict:
         # check if the dict is notDefined
         if d == _u.Token.NotDef.dict_t:
             d = {}
-        d[linkName] = imIDX
+        d[imIDX] = linkName
         sfs.SectionInfoStructure.updateProperty(sectionPath, 
                                                 sfs.SectionInfoStructure.PubProp.imLinkDict, d)
 
     def getCurrImLinksSorted(secPath):
         currChImageLinksDict = LinkDict.get(secPath)
-        if str(currChImageLinksDict) == _u.Token.NotDef.str_t:
+        if currChImageLinksDict == _u.Token.NotDef.dict_t or currChImageLinksDict == None:
             return _u.Token.NotDef.list_t
         elif currChImageLinksDict != _u.Token.NotDef.dict_t:
-            currChImageIDX = list(currChImageLinksDict.values())
+            currChImageIDX = list(currChImageLinksDict.keys())
             currChImageIDX.sort(key = int)
-            return [list(currChImageLinksDict.keys())[list(currChImageLinksDict.values()).index(i)] for i in currChImageIDX]
+            return [list(currChImageLinksDict.values())[list(currChImageLinksDict.keys()).index(i)] for i in currChImageIDX]
         else:
             return _u.Token.NotDef.list_t
 

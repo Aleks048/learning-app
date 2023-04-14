@@ -27,6 +27,8 @@ class SectionLayout(lc.Layout,
     layoutUInames = []
     pyAppDimensions = [None, None]    
 
+    currFileNum = 0
+
     @classmethod
     def set(cls, menuHeight = 55, imIdx = _u.Token.NotDef.str_t):
         '''
@@ -34,6 +36,13 @@ class SectionLayout(lc.Layout,
         #       skim Section to the right 
         #       vscode to the left
         '''
+
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        currBookpath = sf.Wr.Manager.Book.getPathFromName(currBookName)
+        subsection = fsf.Data.Book.currSection
+
+        if  imIdx == _u.Token.NotDef.str_t:
+            imIdx = fsf.Wr.Links.ImIDX.get_curr()
 
         if  dt.AppState.CurrLayout != cls:
             lma.MainLayout.close()
@@ -56,10 +65,10 @@ class SectionLayout(lc.Layout,
             log.autolog(msg)
             return
         else:
-            ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
+            ocf.Wr.LatexCalls.buildPDF(currBookpath, subsection, imIdx)
 
             # check if curr subsection PDF exists
-            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(_upan.Paths.PDF.getAbs()):
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(_upan.Paths.PDF.getAbs(currBookpath, subsection, imIdx)):
                 sleep(0.1)
 
 
@@ -69,40 +78,55 @@ class SectionLayout(lc.Layout,
         #
         # SKIM
         #
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", currSection)
+        skimfileMarker = _upan.Names.getSubsectionFilesEnding(imIdx) + ".pdf"
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", skimfileMarker)
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
 
-        pathToCurrSecPDF = _upan.Paths.PDF.getAbs()
+        pathToSecPDF = _upan.Paths.PDF.getAbs(idx = imIdx)
         
         if ownerPID == None:
-            ocf.Wr.PdfApp.openPDF(pathToCurrSecPDF)
+            ocf.Wr.PdfApp.openSubsectionPDF(imIdx, subsection, currBookName)
 
         while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, currSection)
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, skimfileMarker)
             sleep(0.1)
 
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
+        cls.currFileNum = _upan.Names.getSubsectionFilesEnding(imIdx)
         
         skimBounds = [mon_halfWidth, mon_height - menuHeight - 120, mon_halfWidth, menuHeight + 90]
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 skimBounds,
-                                currSection)
-        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).wait()
+                                skimfileMarker)
+        _u.runCmdAndWait(cmd)
         log.autolog("moved SKIM")
-
 
         #
         # VSCODE
         #
 
         ocf.Wr.IdeCalls.openNewWindow(pathToSourceFolder_curr)
+        sleep(0.5)
+
+        # create the layout in the vscode window
+        conterntFilepath_curr = _upan.Paths.TexFiles.Content.getAbs(idx = imIdx)
+        TOCFilepath_curr = _upan.Paths.TexFiles.TOC.getAbs(idx = imIdx)
+
+        conLine = tf.Wr.TexFileProcess.getConLine(currBookName, subsection, imIdx)
+        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, subsection, imIdx)
+
+        ocf.Wr.IdeCalls.openNewTab(TOCFilepath_curr, tocLine)
+        sleep(0.3)
+        ocf.Wr.IdeCalls.openNewTab(conterntFilepath_curr, conLine)
 
         ownerPID = None
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
+        vscodefileMarker = \
+            _upan.Names.getSubsectionFilesEnding(imIdx) + ".tex" if imIdx != _u.Token.NotDef.str_t else currSection
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, vscodefileMarker)
         
         while ownerPID == None:
             sleep(0.1)
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, currSection)
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.vsCode_ID, vscodefileMarker)
         
         dt.OtherAppsInfo.VsCode.section_pid  = ownerPID
 
@@ -111,29 +135,9 @@ class SectionLayout(lc.Layout,
         # move vscode into position
         cmd = oscr.getMoveWindowCMD(ownerPID,
                                 vscodeBounds,
-                                currSection)
+                                vscodefileMarker)
         _u.runCmdAndWait(cmd)
         log.autolog("moved VSCODE.")
-
-        # create the layout in the vscode window
-        conterntFilepath_curr = _upan.Paths.TexFiles.Content.getAbs()
-        TOCFilepath_curr = _upan.Paths.TexFiles.TOC.getAbs()
-
-        # move vscode files to desired lines
-        if imIdx == _u.Token.NotDef.str_t:
-            currImIdx = fsf.Wr.SectionCurrent.getImIDX()
-        else:
-            currImIdx = imIdx
-        
-        currBookName = sf.Wr.Manager.Book.getCurrBookName()
-        currSecWPrefix =  _upan.Current.Names.Section.name_wPrefix()
-        currSecName =  _upan.Current.Names.Section.name()
-        conLine = tf.Wr.TexFileProcess.getConLine(currBookName, currSecName, currSection, currImIdx)
-        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, currSecName, currSection, currImIdx)
-
-        ocf.Wr.IdeCalls.openNewTab(TOCFilepath_curr, tocLine)
-        sleep(0.3)
-        ocf.Wr.IdeCalls.openNewTab(conterntFilepath_curr, conLine)
 
         # cmd = oscr.get_SetSecVSCode_CMD()
         # _u.runCmdAndWait(cmd)
@@ -146,13 +150,14 @@ class SectionLayout(lc.Layout,
 
     @classmethod
     def close(cls):
-        currSection = fsf.Wr.SectionCurrent.getSectionNameNoPrefix()
+        pdfMarker = str(cls.currFileNum) + ".pdf"
+        ideMarker = str(cls.currFileNum) + ".tex"
 
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
-            lm.LayoutsManager.closeIDEWindow(currSection, dt.OtherAppsInfo.VsCode.section_pid)
+            lm.LayoutsManager.closeIDEWindow(ideMarker, dt.OtherAppsInfo.VsCode.section_pid)
         #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
-            lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)
+            lm.LayoutsManager.closePDFwindow(pdfMarker, dt.OtherAppsInfo.Skim.section_pid)
         
         log.autolog("Closed section layout!")

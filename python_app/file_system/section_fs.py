@@ -9,6 +9,7 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
+import settings.facade as sf
 
 import file_system.file_system_manager as fsm
 
@@ -42,30 +43,29 @@ class SectionInfoStructure:
         level = "_level"
 
         levelData = "_levelData"
-        levelData_depth = "_depth"
         levelData_level = "_level"
 
     sectionPrefixForTemplate = ""
     sectionPathForTemplate = ""
 
     @classmethod
-    def _getTemplate(cls, depth, level):
-        sectionInfoEntryPrefix = cls.sectionPathForTemplate
+    def _getTemplate(cls, level):
+        
         sectionInfo_template = {
-                sectionInfoEntryPrefix + cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
-                sectionInfoEntryPrefix + cls.PrivProp.levelData:{
-                    sectionInfoEntryPrefix + cls.PrivProp.levelData_depth: str(depth),
-                    sectionInfoEntryPrefix + cls.PrivProp.levelData_level: str(level),
+                cls.PubProp.name: _u.Token.NotDef.str_t,
+                cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
+                cls.PrivProp.levelData:{
+                    cls.PrivProp.levelData_level: str(level),
                 },
-                sectionInfoEntryPrefix + cls.PrivProp.tocData:{
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.text: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.start: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + tocfs.TOCStructure.PubPro.finish: _u.Token.NotDef.str_t
+                cls.PrivProp.tocData:{
+                    tocfs.TOCStructure.PubPro.text: _u.Token.NotDef.str_t,
+                    tocfs.TOCStructure.PubPro.start: _u.Token.NotDef.str_t,
+                    tocfs.TOCStructure.PubPro.finish: _u.Token.NotDef.str_t
                 },
-                sectionInfoEntryPrefix + cls.PubProp.imageProp: {
-                    sectionInfoEntryPrefix + cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    sectionInfoEntryPrefix + cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t
+                cls.PubProp.imageProp: {
+                    cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                    cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t
                 }
                 
         }
@@ -87,16 +87,13 @@ class SectionInfoStructure:
         return
 
     @classmethod
-    def addSection(cls, sectionPath):
-        # set the curr section to new section
-        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+    def __createSubsectionFiles(cls, bookpath, sectionPath):
+        dirPathToSection_curr = _upan.Paths.Section.getAbs(bookpath, sectionPath)
 
         sectionPathSeparator = \
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator) 
 
-        numLevels = len(sectionPath.split(sectionPathSeparator))
-
-        dirPathToSection_curr = _upan.Paths.Section.getAbs()
+        depth = len(sectionPath.split(sectionPathSeparator))
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(dirPathToSection_curr):
             msg = "The sections structure was not present will create it.\n" + \
@@ -104,47 +101,43 @@ class SectionInfoStructure:
             log.autolog(msg)
             
             # create folders
-            sectionFolderName = dirPathToSection_curr.split("/")[-1]
-            _waitDummy = os.makedirs(dirPathToSection_curr)
+            _waitDummy = ocf.Wr.FsAppCalls.createDir(dirPathToSection_curr)
+            sectionJSONfilepath = _upan.Paths.Section.JSON.getAbs(bookpath, sectionPath)
+
+            with open(sectionJSONfilepath, "w+") as f:
+                jsonObj = _u.json.dumps(cls._getTemplate(depth), indent = 4)
+                f.write(jsonObj)
 
             # create images folder
-            imagesFolderFSPath = os.path.join(dirPathToSection_curr, sectionFolderName + "_images")
-            _waitDummy = os.makedirs(imagesFolderFSPath)
+            imagesFolderFSPath = \
+                ocf.Wr.FsAppCalls.createDir(_upan.Paths.Screenshot.getAbs(bookpath, sectionPath))
+            imagesFolderFSPath = \
+                ocf.Wr.FsAppCalls.createDir(_upan.Paths.TexFiles.Output.getAbs(bookpath, sectionPath))
             
             # create _con and _toc .tex files
             _waitDummy = \
-                open(os.path.join(dirPathToSection_curr, sectionFolderName + "_toc.tex"), "w").close()
+                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.TOC.getAbs(bookpath, sectionPath))
             _waitDummy = \
-                open(os.path.join(dirPathToSection_curr, sectionFolderName + "_con.tex"), "w").close()
-        
-        # create the json file file, _out folder, main.tex
-        relSectionPath = _u.Token.NotDef.str_t
-        sectionPathList = sectionPath.split(sectionPathSeparator)
-        for i,path in enumerate(sectionPathList):
-            relSectionPath = path if relSectionPath == _u.Token.NotDef.str_t else relSectionPath + "." + path
+                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.Content.getAbs(bookpath, sectionPath))
+            _waitDummy = \
+                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.Main.getAbs(bookpath, sectionPath))
             
-            cls.sectionPathForTemplate = cls.getSectionJSONKeyPrefixFormPath(relSectionPath)
-            
-            pathToTopSection = _ufs._getSectionFilepath(relSectionPath)
-            sectionFilepath = os.path.join(pathToTopSection, bfs.BookInfoStructure.sectionsInfoFilename)
-            
-            with open(sectionFilepath, "w+") as f:
-                jsonObj = _u.json.dumps(cls._getTemplate(numLevels, i + 1), indent = 4)
-                f.write(jsonObj)
-            
-            sectionFolderName = pathToTopSection.split("/")[-1]
-            mainTemplateFile = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex")
-            if not os.path.exists(os.path.join(pathToTopSection,"_out")):
-                _waitDummy = os.makedirs(os.path.join(pathToTopSection,"_out"))
-                _waitDummy = shutil.copy(mainTemplateFile, 
-                                        os.path.join(pathToTopSection, 
-                                        sectionFolderName + "_main.tex"))
-        
+
         # copy the settings 
         vscodeSettings = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
         vscodeSettingsDirPath = os.path.join(dirPathToSection_curr, ".vscode")
-        os.makedirs(vscodeSettingsDirPath)
-        shutil.copy(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
+        ocf.Wr.FsAppCalls.createDir(vscodeSettingsDirPath)
+        ocf.Wr.FsAppCalls.copyFile(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
+
+    @classmethod
+    def addSection(cls, bookpath, sectionPath):
+
+        # set the curr section to new section
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+
+        cls.__createSubsectionFiles(bookpath, sectionPath)
+
+        cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
     
     @classmethod
     def removeSection(cls, sectionPath):
@@ -162,36 +155,32 @@ class SectionInfoStructure:
         pass
 
     @classmethod
-    def readProperty(cls, sectionPath, propertyName):
-        fullPathToSection = _ufs._getSectionFilepath(sectionPath)
-        fullPathToSection = os.path.join(fullPathToSection, bfs.BookInfoStructure.sectionsInfoFilename)
+    def readProperty(cls, sectionPath, propertyName, bookPath = None):
+        if bookPath == None:
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        
+        fullPathToSection = _upan.Paths.Section.JSON.getAbs(bookPath, sectionPath)
 
         sectionPathSeparator = \
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         
-        sectionPrefixForTemplate = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
+        
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t
         else:
             return _u.JSON.readProperty(fullPathToSection, 
-                                        sectionPrefixForTemplate 
-                                            + "_" + sectionPathForTemplate 
-                                            + propertyName)
+                                        propertyName)
 
     @classmethod
-    def updateProperty(cls, sectionPath, propertyName, newValue):        
-        fullPathToSection = _ufs._getSectionFilepath(sectionPath)
-        fullPathToSection = os.path.join(fullPathToSection, bfs.BookInfoStructure.sectionsInfoFilename)
+    def updateProperty(cls, sectionPath, propertyName, newValue, bookPath = None):      
+        if bookPath == None:
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        
+        fullPathToSection = _upan.Paths.Section.JSON.getAbs(bookPath, sectionPath)
 
-        sectionPathSeparator = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
-        sectionPrefixForTemplate = \
-            bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
-        sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
         _u.JSON.updateProperty(fullPathToSection, 
-                            sectionPrefixForTemplate + "_" + sectionPathForTemplate  + propertyName,
+                            propertyName,
                             newValue)
 
 

@@ -50,8 +50,10 @@ class FileSystemManager:
                                                             materialName)
 
     def addSectionForCurrBook(sectionPath):
+        bookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
         # add to Sections structure
-        sfs.SectionInfoStructure.addSection(sectionPath)
+        sfs.SectionInfoStructure.addSection(bookpath, sectionPath)
         
         # add to BookInfo structure
         bfs.BookInfoStructure.addSection(sectionPath)

@@ -3,6 +3,7 @@ import json
 
 import _utils.logging as log
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
 
 import settings.facade as sf
 
@@ -83,20 +84,15 @@ class BookInfoStructure:
             prevRelSectionPath = relSectionPath
             relSectionPath += p if relSectionPath == "" else "." + p
 
-            pathToTopSection = _ufs._getSectionFilepath(relSectionPath)
-            sectionFilepath = os.path.join(pathToTopSection, BookInfoStructure.sectionsInfoFilename)
-
             # update the book info
             bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections)
             
             def addBookInfoSection(parentProperty):
                 parentProperty[relSectionPath] = {
-                    "path": sectionFilepath,
                     "sections": {}
                 }
             def addBookInfoTopSection(parentProperty):
                 parentProperty[relSectionPath] = {
-                    "path": sectionFilepath,
                     "prevSubsectionPath":"",
                     "sections": {}
                 }

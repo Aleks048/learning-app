@@ -358,7 +358,12 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
             
-            entryAdded:bool = gm.GeneralManger.AddEntry(self.dataFromUser[0], self.dataFromUser[1], addToTOC, addToTOCwIm)
+            currSubsection = fsf.Data.Book.currSection
+            entryAdded:bool = gm.GeneralManger.AddEntry(currSubsection, 
+                                                        self.dataFromUser[0], 
+                                                        self.dataFromUser[1], 
+                                                        addToTOC, 
+                                                        addToTOCwIm)
 
             nextImNum = str(int(self.dataFromUser[0]) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)

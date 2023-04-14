@@ -37,6 +37,9 @@ class FinderCalls:
         else:
             os.makedirs(filepath, exist_ok=True)
             return True
+    
+    def createFile(filepath):
+        open(filepath, "w").close()
 
 
 currFilesystemApp = FinderCalls
