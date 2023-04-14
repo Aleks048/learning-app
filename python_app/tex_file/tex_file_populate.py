@@ -91,17 +91,34 @@ class TexFilePopulate:
             tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection, str(i * 5))
             with open(tocFilepath, 'r') as tocF:
                 tocFile_links = tocF.readlines()
-
-                imageToken = "image"
+                currIdx = 0
 
                 for i in range(0, len(tocFile_links)):
                     line = tocFile_links[i]
-                    if imageToken in line:
-                        lineArr = line.split("{")
-                        imageName = lineArr[-1][:-1]
-                        imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
+
+                    if linkToken in line:
+                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
+                        idx = idx.replace(" ", "")
+                        idx = idx.replace("\n", "")
+                        currIdx = idx
+                    
+                    if dc.TexFileTokens.TOC.imTextToken in line:
+                        line = line.split(dc.TexFileTokens.TOC.imTextToken)[1]
+                        lineArr = line.split("}")
+                        linkName = lineArr[0].replace("{","")
+                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, currIdx, linkName, "full")
+                        lineToAdd = lineToAdd.replace("\n", lineArr[1])
+
+                        if dc.TexFileTokens.TOC.imageToken in line:
+                            lineArr = lineToAdd.split("{")
+                            imageName = lineArr[-1][:-1]
+                            imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                                 imageName)
-                        tocFile_links[i] = line.replace(imageName, imagePath)
+                            lineToAdd = lineToAdd.replace(imageName, imagePath)
+                        
+                        if len(lineArr) > 2:
+                            lineToAdd += "}\n"  
+                        tocFile_links[i] = lineToAdd
             
             tocFile.extend(tocFile_links)
         

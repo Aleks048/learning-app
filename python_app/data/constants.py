@@ -44,3 +44,7 @@ class TexFileTokens:
         class Global:
             linksToken = "\myGlLinks{"
             linkToken = "myGlLink"
+    
+    class TOC:
+        imTextToken = "imText"
+        imageToken = "image"

@@ -110,7 +110,7 @@ class TexFileModify:
         pageToAdd += "\n\n\n"
 
         conFilepath = _upan.Paths.TexFiles.Content.getAbs(idx = imIdx)
-        
+
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(conFilepath):
             ocf.Wr.FsAppCalls.createFile(conFilepath)
 
@@ -150,13 +150,12 @@ class TexFileModify:
     def addImageLinkToTOC_wImage(cls, subsection, imIdx, linkName):
         imIdxStr = str(imIdx)
         linktext = cls.__getLinkText(imIdxStr, linkName)
-        linkNameFormatted = cls.formatLinkName(linkName, False)
         
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         imName = _upan.Names.getImageName(imIdxStr, subsection)
         pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdxStr + "]{" + linktext + "} \\image[0.5]{" + imName + "}\n\
+        " + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}\\image[0.5]{" + imName + "}\n\
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
@@ -178,7 +177,7 @@ class TexFileModify:
         pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
         pageToAdd += "\
     \\mybox{\n\
-        \\link[" + imIdxStr + "]{" + linktext + "}\n\
+        " + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}\n\
     }"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
