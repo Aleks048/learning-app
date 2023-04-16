@@ -94,6 +94,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         
         return super().addTOCEntry(entry)
 
+    def populateTOC(self):
+        text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
+        
+        for s in text_curr:
+            self.addTOCEntry(s[0], s[1])
+
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        for child in self.scrollable_frame.winfo_children():
+            child.destroy()
+        
+        self.populateTOC()
+
+        return super().render(widjetObj, renderData, **kwargs)
 
 class TOC_LBL(ww.currUIImpl.Label):
     subsection = ""

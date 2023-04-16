@@ -97,11 +97,7 @@ class LayoutManagers:
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 
             tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
-            text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
-            
-            for s in text_curr:
-                tocBox_BOX.addTOCEntry(s[0], s[1])
-
+            tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
             #
             # post init
