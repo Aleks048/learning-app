@@ -14,6 +14,8 @@ import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
 import data.constants as dc
 
+import file_system.file_system_facade as fsf
+
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
@@ -28,7 +30,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 230, monHalfWidth, 0]
 
             super().__init__(winRoot, appDimensions)
 
@@ -94,6 +96,13 @@ class LayoutManagers:
             layoutsSwitchOrigMatVSMain_BTN = com.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 
+            tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
+            text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
+            
+            for s in text_curr:
+                tocBox_BOX.addTOCEntry(s[0], s[1])
+
+            self.addWidget(tocBox_BOX)
             #
             # post init
             #

@@ -38,13 +38,13 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
+        # show UI main layout
+        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+        mathMenuManager.showOnly()
+
         # show 3rd party main layout
         lm.Wr.MainLayout.set()
-
-        # show UI main layout
-        mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-        mainMathManager.showOnly()
 
 class AddBook_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):

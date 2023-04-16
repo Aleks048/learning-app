@@ -83,6 +83,11 @@ class TkWidgets (DataTranslatable_Interface):
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
             allKeys = "<Key>"
+            mouse1 = "<Button-1>"
+
+            enterWidget = "<Enter>"
+            leaveWidget = "<Leave>"
+
             class Keys:
                 enter = "Return"
                 escape = "Escape"
@@ -148,7 +153,7 @@ class TkWidgets (DataTranslatable_Interface):
                     if key == TkWidgets.Data.BindID.allKeys:
                         self.widgetObj.bind_all(key, lambda event: cmd(event))
                     else:
-                        self.widgetObj.bind(key, lambda *args: cmd())
+                        self.widgetObj.bind(key, cmd)
         
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
@@ -428,8 +433,80 @@ class TkWidgets (DataTranslatable_Interface):
             self.text = newText
             self.widjetObj.configure(text=newText)
         
+        def changeColor(self, color:str):
+            self.widjetObj.configure(foreground=color)
+        
         def bind(self):
             return super().bind()
+    
+    class ScrollableBox (Notifyable_Interface,
+                DataContainer_Interface_Impl,
+                HasChildren_Interface_Impl, 
+                RenderableWidget_Interface_Impl,
+                HasListenersWidget_Interface_Impl,
+                BindableWidget_Interface_Impl):
+        def __init__(self, 
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    extraOptions = {},
+                    bindCmd = lambda *args: (None, None)):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+
+            TkWidgets.DataContainer_Interface_Impl.__init__(self)
+
+
+
+            def on_vertical(event):
+                canvas.yview_scroll(-1 * event.delta, 'units')
+
+            def on_horizontal(event):
+                canvas.xview_scroll(-1 * event.delta, 'units')
+
+            container = ttk.Frame(rootWidget.widgetObj)
+            canvas = tk.Canvas(container, height = 150, width= 700)
+            scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+            scrollable_frame = ttk.Frame(canvas)
+            self.scrollable_frame = scrollable_frame
+
+            scrollable_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(
+                    scrollregion=canvas.bbox("all")
+                )
+            )
+
+            canvas.create_window((0, 0), window = scrollable_frame, anchor="nw")
+
+            canvas.configure(yscrollcommand=scrollbar.set)
+
+            container.grid(column = 0, row = 0)
+            canvas.pack(side="left", fill="both", expand = True)
+            scrollbar.pack(side="right", fill="y")
+
+            container.bind_all('<MouseWheel>', on_vertical)
+            # container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+            widjetObj = container
+
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            Notifyable_Interface.__init__(self)
+
+            self.bind()
+
+        def bind(self):
+            return super().bind()
+        
+        def addTOCEntry(self, entry):
+            entry.pack(fill="both")
 
     
     class RootWidget(BindableWidget_Interface_Impl,
@@ -463,6 +540,10 @@ class TkWidgets (DataTranslatable_Interface):
                 self.widgetObj.geometry(width + "x" + height)
             else:
                 self.widgetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)
+
+        
+        def getHeight(self):
+            return self.tk.winfo_height()
 
         def startMainLoop(self):
             self.tk.mainloop()

@@ -7,8 +7,6 @@ import _utils.pathsAndNames as _upan
 
 import settings.facade as sf
 
-import file_system._utils as _ufs
-
 class BookInfoStructure:
     '''
     The stucture keeps the info about the book
@@ -173,4 +171,26 @@ class BookInfoStructure:
             return _u.Token.NotDef.list_t
         return list(sections.keys())
 
+    @classmethod
+    def getSubsectionsAsTOC(cls, bookName = None):
+        sectionsDict:dict = cls.readProperty(cls.PubProp.sections)
+
+        prettySubsections = []
+        level = 0
+        for k in sectionsDict.keys():
+            subsections = []
+            if sectionsDict[k] != {}:
+                subsections.append((k, level, sectionsDict[k][cls.PubProp.sections]))
+            
+            while subsections != []:
+                s = subsections.pop(0)
+
+                prettySubsections.append(s)
+                
+                if s[1] != {}:
+                    newValues = []
+                    for k, v in s[2].items():
+                        newValues.append((k, s[1] + 1, v[cls.PubProp.sections]))
+                    subsections = newValues + subsections
+        return prettySubsections
 

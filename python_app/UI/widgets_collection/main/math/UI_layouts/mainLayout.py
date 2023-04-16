@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+from tkinter import ttk
 import subprocess
 from threading import Thread
 import time
@@ -27,6 +28,133 @@ import settings.facade as sf
 import scripts.osascripts as oscr
 import generalManger.generalManger as gm
 
+
+class TOC_BOX(ww.currUIImpl.ScrollableBox):
+    subsection = ""
+    def __init__(self, parentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        name = "_showCurrScreenshotLocation_text"
+
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = data)
+    
+    def receiveNotification(self, broadcasterName, data = None):
+        pass
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        return super().render(widjetObj, renderData, **kwargs)
+    
+    def addTOCEntry(self, subsection, level):
+        def __bindEntry():
+            def __cmd(event = None, *args):
+                # open orig material on page
+                subsectionStartPage = fsf.Data.TOC.start(subsection)
+                origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
+                ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
+
+                event.widget.configure(foreground="white")
+
+            def __changeTextColorBlue(event = None, *args):
+                event.widget.configure(foreground="blue")
+            
+            def __changeTextColorBlack(event = None, *args):
+                event.widget.configure(foreground="white")
+            
+            cmds = [__cmd, __changeTextColorBlue, __changeTextColorBlack]
+
+            events = [ww.currUIImpl.Data.BindID.mouse1,
+                    ww.currUIImpl.Data.BindID.enterWidget,
+                    ww.currUIImpl.Data.BindID.leaveWidget]
+            
+            return events, cmds
+        
+        prefix = ""
+        if level != 0:
+            prefix = "|" + int(level) * 4 * "-" + " "
+
+        currBokkpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        sectionFilepath = _upan.Paths.Section.JSON.getAbs(currBokkpath, subsection)
+        
+        subsectionText = ""
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
+            subsectionText = fsf.Data.TOC.text(subsection)
+       
+        prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
+        entry = ttk.Label(self.scrollable_frame, text = prettySubsections)
+        keys, cbs = __bindEntry()
+
+        for i in range(len(keys)):
+            entry.bind(keys[i], cbs[i])
+        
+        return super().addTOCEntry(entry)
+
+
+class TOC_LBL(ww.currUIImpl.Label):
+    subsection = ""
+    def __init__(self, parentWidget, prefix, row = 5, subsection = "", level = ""):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : row, "columnspan": 5},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        name = "_TOCEntry_text" + subsection
+        
+        self.subsection = subsection
+
+        prefix = ""
+        if level != 0:
+            prefix = "|" + int(level) * 4 * "-" + " "
+
+        currBokkpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        sectionFilepath = _upan.Paths.Section.JSON.getAbs(currBokkpath, subsection)
+        
+        subsectionText = ""
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
+            subsectionText = fsf.Data.TOC.text(subsection)
+       
+        prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
+        
+        text_curr = prettySubsections
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = data, 
+                        text = text_curr,
+                        bindCmd= self.bindCmd)
+    
+    def receiveNotification(self, broadcasterName, data = None):
+        pass
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        return super().render(widjetObj, renderData, **kwargs)
+
+    def bindCmd(self):
+        def __cmd(event = None, *args):
+            # open orig material on page
+            subsectionStartPage = fsf.Data.TOC.start(self.subsection)
+            origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
+            ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
+
+            self.changeColor("white")
+
+        def __changeTextColorBlue(event = None, *args):
+            self.changeColor("blue")
+        
+        def __changeTextColorBlack(event = None, *args):
+            self.changeColor("white")
+        
+        cmds = [__cmd, __changeTextColorBlue, __changeTextColorBlack]
+
+        events = [ww.currUIImpl.Data.BindID.mouse1,
+                  ww.currUIImpl.Data.BindID.enterWidget,
+                  ww.currUIImpl.Data.BindID.leaveWidget]
+        
+        return events, cmds
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
@@ -357,7 +485,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
         def _createTexForTheProcessedImage():
             addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
-            
+
             currSubsection = fsf.Data.Book.currSection
             entryAdded:bool = gm.GeneralManger.AddEntry(currSubsection, 
                                                         self.dataFromUser[0], 

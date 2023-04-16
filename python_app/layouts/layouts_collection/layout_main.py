@@ -37,7 +37,7 @@ class MainLayout(lc.Layout):
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
         mon_width, _ = _u.getMonitorSize()
-        cls.pyAppDimensions = [int(mon_width / 2), 90]
+        cls.pyAppDimensions = [int(mon_width / 2), 250]
         appWidth = cls.pyAppDimensions[0]
         appHeight = cls.pyAppDimensions[1]
         mon_width, mon_height = _u.getMonitorSize()
@@ -78,7 +78,11 @@ class MainLayout(lc.Layout):
         # FINDER
         #
         ownerPID = None
-        bounds = [mon_halfWidth, mon_height - appHeight - 80, appWidth, appHeight + 54]
+        subtractionNum = 30
+        bounds = [mon_halfWidth, 
+                  mon_height - appHeight - (subtractionNum + 30), 
+                  appWidth, 
+                  appHeight + (subtractionNum + 4 - 2)]
 
         currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
 
