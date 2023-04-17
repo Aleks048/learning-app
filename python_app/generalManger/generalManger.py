@@ -35,11 +35,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
-        imText =imText.replace(" ", "_")
-        imText =imText.replace(":", "_")
-
-        # imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-        #                         str(imIdx) + "__" + currSubsection + "__" + str(imText))
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     _upan.Names.getImageName(str(imIdx), subsection))
         

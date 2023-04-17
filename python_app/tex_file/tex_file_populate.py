@@ -61,23 +61,23 @@ class TexFilePopulate:
                         idx = idx.replace(" ", "")
                         idx = idx.replace("\n", "")
                         currIdx = idx
-                if "myTarget" in line:
+                elif "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
                     imText = fsm.Wr.Links.ImLink.get(subsection, currIdx)
+                    imText =tfm.TexFileModify.formatLinkName(imText)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     textToAdd = "{{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par\\\\}}"
-                    textToAdd = tfm.TexFileModify.formatLinkName(textToAdd, True)
                     line = line.replace("\n", "")
                     contentFile[i] = line.replace(imageName, imagePath) + textToAdd + "\n"
-                if "myStIm" in line:
+                elif "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     contentFile[i] = line.replace(imageName, imagePath)
-                if "Local links" in line:
+                elif "Local links" in line:
                     #NOTE: not used TODO: remove
                     contentFile[i] = ""
 
@@ -103,9 +103,10 @@ class TexFilePopulate:
                         currIdx = idx
                     
                     if dc.TexFileTokens.TOC.imTextToken in line:
-                        line = line.split(dc.TexFileTokens.TOC.imTextToken)[1]
+                        line = line.split(dc.TexFileTokens.TOC.imTextToken)[-1]
                         lineArr = line.split("}")
                         linkName = lineArr[0].replace("{","")
+                        linkName =tfm.TexFileModify.formatLinkName(linkName)
                         lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, currIdx, linkName, "full")
                         lineToAdd = lineToAdd.replace("\n", lineArr[1])
 

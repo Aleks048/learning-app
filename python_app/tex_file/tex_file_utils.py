@@ -1,5 +1,5 @@
 def boldenTheText(text):
-    return "\\begin{bfseries}" + text + "\\ \\end{bfseries}"
+    return "\\begin{bfseries}" + text + "\\end{bfseries}"
 
 def addNormalText(text):
     return "\\textrm{{{0}}}".format(text)

@@ -123,26 +123,34 @@ class TexFileModify:
         # make the start bold text
         linkName = linkName.replace(" ", "\\ ")
         
-        linkName = linkName.replace(":", "_")
-        
-        if linkName.count("__") == 1 and formatBold:
-            linkName = linkName.split("__")
-            linkName = tfu.boldenTheText(linkName[0] + ":") + "\ " + "".join(linkName[1:])
-            #replace all '_' but the special ones with ' '
+        if linkName.count(":") > 0 and formatBold:
+            linkName = linkName.split(":")
+            for i in range(len(linkName) - 1):
+                ln = linkName[i]
+                lnArr = ln.split(" ")
+                
+                end = tfu.boldenTheText(lnArr[-1] + ":")
+                if len(lnArr) > 1:
+                    end = " " + end
+
+                lnArr[-1] = end
+                linkName[i] = "".join(lnArr)
+                
+            linkName = "".join(linkName)
         
         linkName = re.sub("([^@])_", r"\1\\ ", linkName)
         
         # work with special "_" that are used in underscore
         linkName = linkName.replace("@_", "_")
 
-        return linkName
+        return "{{" + linkName + "}}"
     
     @classmethod
     def __getLinkText(cls, imIdx, linkName:str):
-        linkName = cls.formatLinkName(linkName)
+        # linkName = cls.formatLinkName(linkName)
         
         # add a start
-        linktext = "[{0}]:\ {1}".format(imIdx, linkName)
+        linktext = "[{0}]: {1}".format(imIdx, linkName)
         
         return linktext
 
