@@ -1,4 +1,5 @@
 import os
+import sys
 import tkinter as tk
 from tkinter import ttk
 import subprocess
@@ -18,6 +19,7 @@ import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.message.manager as mesm
+import UI.widgets_collection.startup.manager as stm
 import layouts.layouts_facade as lf
 
 import data.constants as dc
@@ -27,6 +29,41 @@ import settings.facade as sf
 
 import scripts.osascripts as oscr
 import generalManger.generalManger as gm
+
+class ExitApp_BTN(ww.currUIImpl.Button,
+                  dc.AppCurrDataAccessToken):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_exitApp"
+        text= "ExitApp"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        #main
+        self.rootWidget.exitApp()
+
+        #message
+        mesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                mesm.MessageMenuManager)
+        mesManager.winRoot.exitApp()
+        
+        #message
+        stManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                stm.StartupMenuManager)
+        stManager.winRoot.exitApp()
+
+        sys.exit()
+        
+        
 
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
@@ -536,7 +573,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_imageGeneration_ETR"
-        defaultText = "1"
+        defaultText = "0"
 
         super().__init__(prefix, 
                         name,
@@ -547,7 +584,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()
 
         if secImIndex == _u.Token.NotDef.str_t:
-            self.updateDafaultText(self.defaultText)
+            self.updateDafaultText(defaultText)
         else:
             self.updateDafaultText(str(int(secImIndex) + 1))
 
@@ -576,9 +613,12 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()
 
         if secImIndex == _u.Token.NotDef.str_t:
-            newIDX = "1"
+            newIDX = "0"
         else:
-            newIDX = str(int(secImIndex) + 1)
+            if secImIndex != 0:
+                newIDX = str(int(secImIndex) + 1)
+            else:
+                newIDX = "0"
         
         self.updateDafaultText(newIDX)
         self.setData(newIDX)
