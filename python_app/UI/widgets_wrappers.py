@@ -565,6 +565,9 @@ class TkWidgets (DataTranslatable_Interface):
         
         def stopWait(self, response = False):
             self.setData(response)
+        
+        def exitApp(self):
+            self.widgetObj.destroy()
     
     def startLoop():
         TkWidgets.Data.tk.mainloop()

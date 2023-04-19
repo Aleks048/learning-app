@@ -96,6 +96,9 @@ class LayoutManagers:
             layoutsSwitchOrigMatVSMain_BTN = com.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 
+            exitApp_BTN = ml.ExitApp_BTN(winRoot, self.prefix)
+            self.addWidget(exitApp_BTN)
+
             tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
