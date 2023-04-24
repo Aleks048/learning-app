@@ -150,14 +150,16 @@ class SectionLayout(lc.Layout,
 
     @classmethod
     def close(cls):
-        pdfMarker = str(cls.currFileNum) + ".pdf"
-        ideMarker = str(cls.currFileNum) + ".tex"
+        currSection = fsf.Data.Book.currSection
+
+        # pdfMarker = str(cls.currFileNum) + ".pdf"
+        # ideMarker = str(cls.currFileNum) + ".tex"
 
         #close the subsection VSCode if it is open
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
-            lm.LayoutsManager.closeIDEWindow(ideMarker, dt.OtherAppsInfo.VsCode.section_pid)
+            lm.LayoutsManager.closeIDEWindow(currSection, dt.OtherAppsInfo.VsCode.section_pid)
         #close the subsection Skim if it is open
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
-            lm.LayoutsManager.closePDFwindow(pdfMarker, dt.OtherAppsInfo.Skim.section_pid)
+            lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)
         
         log.autolog("Closed section layout!")

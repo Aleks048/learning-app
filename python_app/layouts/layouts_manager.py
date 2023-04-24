@@ -42,7 +42,7 @@ class LayoutsManager:
         cmd = oscr.closeFinderWindow(ownerPID, idToken)
         _u.runCmdAndWait(cmd)
     
-    def closePDFwindow(idToken, ownerPID = None):  
+    def closePDFwindow(idToken, ownerPID = None):
         if idToken == _u.Token.NotDef.str_t:
             return
 
