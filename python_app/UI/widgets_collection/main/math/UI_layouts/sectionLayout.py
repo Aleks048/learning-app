@@ -131,8 +131,8 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
         name = "_source_SecImIDX_OM"
 
         currSecPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(currSecPath)
-        self.sourceSubsectionImageLinks = currChImageLinks
+        currSubsectionImLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(currSecPath)
+        self.sourceSubsectionImageLinks = currSubsectionImLinks
 
         super().__init__(prefix, 
                         name, 

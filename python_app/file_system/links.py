@@ -16,7 +16,11 @@ class ImIDX:
             return 0
 
         if linkValue == None:
-            return list(d.keys())[-1]
+            keysList = list(d.keys())
+            if len(keysList) > 0:
+                return keysList[-1]
+            else:
+                return 0
         else:
             for k,v in d.items():
                 if str(v) == str(linkValue):
@@ -61,9 +65,15 @@ class LinkDict:
         if currChImageLinksDict == _u.Token.NotDef.dict_t or currChImageLinksDict == None:
             return _u.Token.NotDef.list_t
         elif currChImageLinksDict != _u.Token.NotDef.dict_t:
-            currChImageIDX = list(currChImageLinksDict.keys())
-            currChImageIDX.sort(key = int)
-            return [list(currChImageLinksDict.values())[list(currChImageLinksDict.keys()).index(i)] for i in currChImageIDX]
+            currSubsecImIDX = list(currChImageLinksDict.keys())
+            currSubsecImIDX.sort(key = int)
+
+            linksSorted = [list(currChImageLinksDict.values())[list(currChImageLinksDict.keys()).index(i)] for i in currSubsecImIDX]
+
+            if linksSorted == []:
+                return _u.Token.NotDef.list_t
+            else:
+                return linksSorted
         else:
             return _u.Token.NotDef.list_t
 
