@@ -30,21 +30,29 @@ def processCall(url):
     subsecPath = url[2]
     positionIDX = url[3]
 
-    fileNum = _upan.Paths.TexFiles.getEnding(subsecPath, positionIDX)
+    if len(url) > 4:
+        linktType:str = url[4]
+
+    if "notes" in linktType.lower():
+        notesAppLink = fsf.Data.Sec.notesAppLink(subsecPath)
+        if notesAppLink != _u.Token.NotDef.str_t:
+            log.autolog("Will only open notesapp page of '{0}'".format(subsecPath))
+            oscf.Wr.NoteAppCalls.openPage(notesAppLink)
+        else:
+            log.autolog("Notesapp link of '{0}' is empty. Cannot open it".format(subsecPath))
+        return
 
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
-    
-    if len(url) > 4:
-        linktType:str = url[4]
     
     if "pdf" in linktType.lower():
         log.autolog("Will only open pdf of '{0}'".format(subsecPath))
         oscf.Wr.PdfApp.openSubsectionPDF(positionIDX,
                                         subsecPath,
-                                        bookName)    
+                                        bookName)
         return    
 
+    fileNum = _upan.Paths.TexFiles.getEnding(subsecPath, positionIDX)
     # switch section
     if not (subsecPath == fsf.Data.Book.currSection \
         and fileNum == str(lm.Wr.SectionLayout.currFileNum)):

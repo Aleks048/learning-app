@@ -37,6 +37,9 @@ class SectionInfoStructure:
         imageTOCFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
         imLinkDict = "imLinkDict"
 
+        # link to note taking app
+        notesAppLink = "_notesAppLink"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -54,10 +57,11 @@ class SectionInfoStructure:
         sectionInfo_template = {
                 cls.PubProp.name: _u.Token.NotDef.str_t,
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
-                cls.PrivProp.levelData:{
+                cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+                cls.PrivProp.levelData: {
                     cls.PrivProp.levelData_level: str(level),
                 },
-                cls.PrivProp.tocData:{
+                cls.PrivProp.tocData: {
                     tocfs.TOCStructure.PubPro.text: _u.Token.NotDef.str_t,
                     tocfs.TOCStructure.PubPro.start: _u.Token.NotDef.str_t,
                     tocfs.TOCStructure.PubPro.finish: _u.Token.NotDef.str_t
@@ -67,7 +71,6 @@ class SectionInfoStructure:
                     cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t
                 }
-                
         }
         return sectionInfo_template
 

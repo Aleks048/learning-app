@@ -7,9 +7,14 @@ import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import settings.facade as sf
+import outside_calls.outside_calls_facade as ocf
 
 class SkimCalls:
     def openPDF(pdfPath, pdfPage = _u.Token.NotDef.str_t):
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(pdfPath):
+            log.autolog("The file '{0}' does not exist. Can't open it.".format(pdfPath))
+            return
+
         if pdfPage == _u.Token.NotDef.str_t:
             url = "skim://{0}".format(pdfPath)
         else:

@@ -1,6 +1,5 @@
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
-import _utils.logging as log
 import file_system.section_fs as sfs
 
 class ImIDX:
@@ -35,7 +34,11 @@ class ImLink:
             return _u.Token.NotDef.str_t
 
         if idx == None:
-            return list(d.values())[-1]
+            valList =  list(d.values())[-1]
+            if len(valList) > 0:
+                return valList[-1]
+            else:
+                return _u.Token.NotDef.str_t
         else:
             for k,v in d.items():
                 if str(k) == str(idx):

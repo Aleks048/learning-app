@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
@@ -82,7 +81,9 @@ class TexFilePopulate:
                     contentFile[i] = ""
 
 
-        localLinksLine = "      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
+        localLinksLine = "\href" + \
+            "{{KIK:/{0}/{1}/{2}/-1/notes}}{{notes}}".format(bookName, topSection, subsection) + \
+            "\n      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
 
         tocFile = [tfu.getLinkLine(bookName, topSection, subsection,
                                                     _u.Token.NotDef.str_t, "Bring To front", "full")]

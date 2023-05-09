@@ -3,6 +3,7 @@ import outside_calls.pdfApp_calls as sc
 import outside_calls.fsApp_calls as fc
 import outside_calls.ide_calls as idec
 import outside_calls.screenshot_app as scrc
+import outside_calls.noteApp_calls as nac
 
 class Wr:
     class PdfApp(sc.currPdfApp):
@@ -18,4 +19,7 @@ class Wr:
         pass
     
     class ScreenshotCalls(scrc.currScreenshotApp):
+        pass
+    
+    class NoteAppCalls(nac.currNoteApp):
         pass
