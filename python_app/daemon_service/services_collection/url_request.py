@@ -65,4 +65,3 @@ def processCall(url):
     
     # other sections UI
     lm.Wr.SectionLayout.set(imIdx=positionIDX)
-

@@ -45,6 +45,7 @@ class SectionLayout(lc.Layout,
             imIdx = fsf.Wr.Links.ImIDX.get_curr()
 
         if  dt.AppState.CurrLayout != cls:
+            log.autolog("Will close the section layout.")
             lma.MainLayout.close()
 
         pathToSourceFolder_curr = _upan.Paths.Section.getAbs()
@@ -74,32 +75,6 @@ class SectionLayout(lc.Layout,
 
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
-
-        #
-        # SKIM
-        #
-        skimfileMarker = _upan.Names.getSubsectionFilesEnding(imIdx) + ".pdf"
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", skimfileMarker)
-        dt.OtherAppsInfo.Skim.section_pid = ownerPID
-
-        pathToSecPDF = _upan.Paths.PDF.getAbs(idx = imIdx)
-        
-        if ownerPID == None:
-            ocf.Wr.PdfApp.openSubsectionPDF(imIdx, subsection, currBookName)
-
-        while ownerPID == None:
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, skimfileMarker)
-            sleep(0.1)
-
-        dt.OtherAppsInfo.Skim.section_pid = ownerPID
-        cls.currFileNum = _upan.Names.getSubsectionFilesEnding(imIdx)
-        
-        skimBounds = [mon_halfWidth, mon_height - menuHeight - 120, mon_halfWidth, menuHeight + 90]
-        cmd = oscr.getMoveWindowCMD(ownerPID,
-                                skimBounds,
-                                skimfileMarker)
-        _u.runCmdAndWait(cmd)
-        log.autolog("moved SKIM")
 
         #
         # VSCODE
@@ -137,10 +112,39 @@ class SectionLayout(lc.Layout,
                                 vscodeBounds,
                                 vscodefileMarker)
         _u.runCmdAndWait(cmd)
-        log.autolog("moved VSCODE.")
-
+        
         # cmd = oscr.get_SetSecVSCode_CMD()
         # _u.runCmdAndWait(cmd)
+        
+        log.autolog("moved VSCODE.")
+
+        #
+        # SKIM
+        #
+        skimfileMarker = _upan.Names.getSubsectionFilesEnding(imIdx) + ".pdf"
+        _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", skimfileMarker)
+        dt.OtherAppsInfo.Skim.section_pid = ownerPID
+        
+        if ownerPID == None:
+            ocf.Wr.PdfApp.openSubsectionPDF(0, subsection, currBookName)
+
+        # Move skim
+        while ownerPID == None:
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, skimfileMarker)
+            sleep(0.1)
+
+        dt.OtherAppsInfo.Skim.section_pid = ownerPID
+        cls.currFileNum = _upan.Names.getSubsectionFilesEnding(imIdx)
+        
+        skimBounds = [mon_halfWidth, mon_height - menuHeight - 120, mon_halfWidth, menuHeight + 90]
+        cmd = oscr.getMoveWindowCMD(ownerPID,
+                                skimBounds,
+                                skimfileMarker)
+        _u.runCmdAndWait(cmd)
+
+        sleep(0.3)
+        ocf.Wr.PdfApp.openSubsectionPDF(imIdx, subsection, currBookName)
+        log.autolog("moved SKIM")
 
         log.autolog("set VSCODE section.")
         
