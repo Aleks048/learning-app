@@ -127,8 +127,6 @@ class TexFilePopulate:
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", subsection) for i in templateFile]
-            topFilepath = fsm.Wr.TOCStructure._getTOCFilePath(topSection)
-            templateFile= [i.replace("[_TOC_PATH_]", topFilepath) for i in templateFile]
         
         with open(mainFilepath, 'w') as outFile:
             outFileList = []

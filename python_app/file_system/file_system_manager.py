@@ -1,11 +1,9 @@
 import os
 from unicodedata import name
 
-import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
-import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
 
 import outside_calls.outside_calls_facade as ocf
@@ -33,10 +31,7 @@ class FileSystemManager:
         bfs.BookInfoStructure.createStructure()
 
         #create sections structure
-        sfs.SectionInfoStructure.createStructure()
-
-        #create TOCstructure
-        tocfs.TOCStructure.createStructure()
+        sfs.SectionInfoStructure.createStructure(bookName)
 
         # create originalMaterialStructure
         omfs.OriginalMaterialStructure.createStructure()
@@ -57,9 +52,6 @@ class FileSystemManager:
         
         # add to BookInfo structure
         bfs.BookInfoStructure.addSection(sectionPath)
-
-        # add to TOC structure
-        tocfs.TOCStructure.addSection(sectionPath)
 
 
     def removeSection(secPath):

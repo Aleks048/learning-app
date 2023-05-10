@@ -5,6 +5,8 @@ import _utils.logging as log
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
+import outside_calls.outside_calls_facade as oscf
+
 import settings.facade as sf
 
 class BookInfoStructure:
@@ -66,8 +68,8 @@ class BookInfoStructure:
         expectedFileDir = os.path.join("/", *bookInfoFilepath.split("/")[:-1])
         
         log.autolog("The bookInfo structure was not present will create it at: " + expectedFileDir)
-        if not os.path.exists(expectedFileDir):
-            _waitDummy = os.makedirs(expectedFileDir)
+        if not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(expectedFileDir):
+            oscf.Wr.FsAppCalls.createDir(expectedFileDir)
         
         _u.JSON.createFromTemplate(bookInfoFilepath, cls.bookInfoTemplate)
 

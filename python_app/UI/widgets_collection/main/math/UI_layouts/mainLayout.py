@@ -90,7 +90,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         def __bindEntry():
             def __cmd(event = None, *args):
                 # open orig material on page
-                subsectionStartPage = fsf.Data.TOC.start(subsection)
+                subsectionStartPage = fsf.Data.Sec.start(subsection)
                 origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
                 ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
 
@@ -120,7 +120,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         subsectionText = ""
 
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
-            subsectionText = fsf.Data.TOC.text(subsection)
+            subsectionText = fsf.Data.Sec.text(subsection)
        
         prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
         entry = ttk.Label(self.scrollable_frame, text = prettySubsections)
@@ -165,7 +165,7 @@ class TOC_LBL(ww.currUIImpl.Label):
         
         subsectionText = ""
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
-            subsectionText = fsf.Data.TOC.text(subsection)
+            subsectionText = fsf.Data.Sec.text(subsection)
        
         prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
         
@@ -186,7 +186,7 @@ class TOC_LBL(ww.currUIImpl.Label):
     def bindCmd(self):
         def __cmd(event = None, *args):
             # open orig material on page
-            subsectionStartPage = fsf.Data.TOC.start(self.subsection)
+            subsectionStartPage = fsf.Data.Sec.start(self.subsection)
             origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
             ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
 

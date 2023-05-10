@@ -55,9 +55,9 @@ end page '{3}' for subsection: '{2}'".format(name,  startPage, subsecPath, endPa
 
         # update subsection on successful response
         if response == True:
-            fsf.Data.TOC.text(subsecPath, name)
-            fsf.Data.TOC.start(subsecPath, startPage)
-            fsf.Data.TOC.finish(subsecPath, endPage)
+            fsf.Data.Sec.text(subsecPath, name)
+            fsf.Data.Sec.start(subsecPath, startPage)
+            fsf.Data.Sec.finish(subsecPath, endPage)
 
         self.notify(CurrSectionPath_LBL, secPath = subsecPath)
         self.notify(SetSectionName_ETR, newName = name)
@@ -95,8 +95,8 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def cmd(self):
         secPath = self.getData()
 
-        name = fsf.Data.TOC.text(secPath)
-        startPage = fsf.Data.TOC.start(secPath)
+        name = fsf.Data.Sec.text(secPath)
+        startPage = fsf.Data.Sec.start(secPath)
 
         self.notify(CurrSectionPath_LBL, secPath = secPath)
         self.notify(SetSectionName_ETR, newName = name)
@@ -106,7 +106,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         if broadcasterType == ChooseTopSection_OM:
             self.updateOptions(newOptionList)
             self.setData(prevSubsectionPath)
-        if broadcasterType == ModifySubsection_BTN:
+        if broadcasterType == ModifySubsection_BTN or broadcasterType == ModifyNotesAppLink_BTN:
             if prevSubsectionPath == "":
                 return self.getData()
             else:
@@ -160,8 +160,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
         subsectionsList.sort()
-        name = fsf.Data.TOC.text(prevSubsectionPath)
-        startPage = fsf.Data.TOC.start(prevSubsectionPath)
+        name = fsf.Data.Sec.text(prevSubsectionPath)
+        startPage = fsf.Data.Sec.start(prevSubsectionPath)
         #
         # Update other widgets
         #
@@ -239,8 +239,8 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         return self.__getSectionPath_Formatted(currSecName)
         
     def __getSectionPath_Formatted(self, secName):
-        name = fsf.Data.TOC.text(secName)
-        startPage = fsf.Data.TOC.start(secName)
+        name = fsf.Data.Sec.text(secName)
+        startPage = fsf.Data.Sec.start(secName)
 
         return "working section path: {0}. Name: '{1}'. Start page: '{2}'".format(secName, name, startPage)
 
@@ -251,10 +251,80 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         return super().render(widjetObj, renderData, **kwargs)
 
 
+
+class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
+                           dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Modify Link"
+        name = "_modifyNotesAppLink_BTN"
+
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        # info from other widgets
+        subsecPath = self.notify(ChooseSubsection_OM)
+        log.autolog("Hip: " + subsecPath)
+        topSection = self.notify(ChooseTopSection_OM)
+        link = self.notify(SetSectionNoteAppLink_ETR)
+
+        # show notification with wait
+        msg = "Do you want to change notes app link: '{0}'\
+              for subsection: '{1}'".format(link, subsecPath)
+        response = wm.UI_generalManager.showNotification(msg, True)
+        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                    mmm.MathMenuManager)
+        mainManager.show()
+
+        # update subsections link on successful response
+        if response == True:
+            fsf.Data.Sec.notesAppLink(subsecPath, link)
+        
+        self.notify(CurrSectionPath_LBL, secPath = subsecPath)
+
+        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
+        subsectionsList.sort()
+        self.notify(ChooseSubsection_OM, subsectionsList, subsecPath)
+        self.notify(ChooseTopSection_OM, topSection)
+
+
+class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
+    def __init__(self, patentWidget, prefix):
+        name = "_setSectionNoteAppLink_ETR"
+        defaultText = fsf.Data.Sec.start(fsf.Data.Book.currSection)
+        
+        if defaultText == _u.Token.NotDef.str_t or defaultText == "":
+            defaultText = "Section notes app link"
+        
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        defaultText = defaultText)
+        super().setData(defaultText)
+    
+    def receiveNotification(self, broadcasterType, data = None, newStartPage = ""):
+        return self.getData()
+
+
+
 class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
-        defaultText = fsf.Data.TOC.start(fsf.Data.Book.currSection)
+        defaultText = fsf.Data.Sec.start(fsf.Data.Book.currSection)
         
         if defaultText == _u.Token.NotDef.str_t or defaultText == "":
             defaultText = "Section start page"
@@ -312,7 +382,7 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
 
     def __init__(self, patentWidget, prefix):
         name = "_setSectionName_ETR"
-        defaultText = fsf.Data.TOC.text(fsf.Data.Book.currSection)
+        defaultText = fsf.Data.Sec.text(fsf.Data.Book.currSection)
         
         if defaultText == _u.Token.NotDef.str_t or defaultText == "":
             defaultText = "Section Name"
@@ -429,6 +499,6 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         sections[topSectionName]["prevSubsectionPath"] = secPath
         fsf.Data.Book.sections = sections
 
-        fsf.Data.TOC.text(secPath, newSecName)
-        fsf.Data.TOC.start(secPath, newSecStartPage)
-        fsf.Data.TOC.finish(secPath, newSecEndPage)
+        fsf.Data.Sec.text(secPath, newSecName)
+        fsf.Data.Sec.start(secPath, newSecStartPage)
+        fsf.Data.Sec.finish(secPath, newSecEndPage)

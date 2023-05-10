@@ -48,14 +48,14 @@ class Paths:
         sectionFolderName = "subsections"
 
         @bookNameArg_dec
-        def getAbs(bookPath, section, *args):
+        def getAbs(bookPath, section = _u.Token.NotDef.str_t, *args):
             relFilepath = Paths.Section.getRel(bookPath, section)
             return os.path.join(bookPath, relFilepath)
         
         @bookNameArg_dec
         def getRel(_, subsection, *args):
-            if subsection == _u.Token.NotDef.str_t:              
-                return ""
+            if subsection == _u.Token.NotDef.str_t:           
+                return Paths.Section.sectionFolderName
 
             sectionsPathSeparator = fsf.Data.Book.sections_path_separator
 
@@ -67,6 +67,7 @@ class Paths:
             
             sectionFullPath = pathList
             sectionFullPath = os.path.join(Paths.Section.sectionFolderName, *sectionFullPath)
+            
             return sectionFullPath
 
         class JSON:
@@ -98,9 +99,9 @@ class Paths:
             '''
 
             currSecName = fsf.Data.Book.currSection
-            name = fsf.Data.TOC.text(currSecName)
-            startPage = fsf.Data.TOC.start(currSecName)
-            endPage = fsf.Data.TOC.finish(currSecName)
+            name = fsf.Data.Sec.text(currSecName)
+            startPage = fsf.Data.Sec.start(currSecName)
+            endPage = fsf.Data.Sec.finish(currSecName)
 
             text = "Sec path: '{0}'. Name: '{1}'. Start p: '{2}'. End p: '{3}'.".format(currSecName, 
                                                                                         name, 

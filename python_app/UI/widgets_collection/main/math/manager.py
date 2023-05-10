@@ -201,7 +201,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 120, monHalfWidth, 0]
 
             #
             # init
@@ -255,6 +255,14 @@ class LayoutManagers:
             modifySubsection_BTN.addListenerWidget(chooseTopSection_OM)
             modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionName_ETR)
+
+            setSectionNoteAppLink_ETR = amsl.SetSectionNoteAppLink_ETR(winRoot, self.prefix)
+            self.addWidget(setSectionNoteAppLink_ETR)
+            modifyNotesAppLink_BTN = amsl.ModifyNotesAppLink_BTN(winRoot, self.prefix)
+            self.addWidget(modifyNotesAppLink_BTN)
+            modifyNotesAppLink_BTN.addListenerWidget(setSectionNoteAppLink_ETR)
+            modifyNotesAppLink_BTN.addListenerWidget(chooseSubsection_OM)
+            modifyNotesAppLink_BTN.addListenerWidget(chooseTopSection_OM)
 
 
         def show(self):

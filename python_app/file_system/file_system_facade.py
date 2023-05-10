@@ -1,11 +1,7 @@
 import sys
 
-import _utils._utils_main as _u
-import _utils.logging as log
-
 import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
-import file_system.toc_fs as tocfs
 import file_system.book_fs as bfs
 import file_system._utils as fsu
 import file_system.links as l
@@ -65,9 +61,6 @@ class Wr:
     class SectionCurrent(sfs.SectionCurrent):
         pass
 
-    class TOCStructure(tocfs.TOCStructure):
-        pass
-
     class OriginalMaterialStructure(omfs.OriginalMaterialStructure):
         pass
 
@@ -89,10 +82,6 @@ class Wr:
 class Data:
     class Book(bfs.BookInfoStructure.PubProp,
                metaclass = ClassGetProperty):
-        pass
-    
-    class TOC(tocfs.TOCStructure.PubPro,
-              metaclass = ClassGetProperty):
         pass
     
     class Sec(sfs.SectionInfoStructure.PubProp,

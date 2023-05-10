@@ -109,52 +109,6 @@
 #         fsmain.BookInfoStructure.addSection("4.intro.2passta")
 #         self.assertEqual(imId, "1")
 
-
-
-# class Test_TOCStructure(unittest.TestCase):
-
-#     def setUp(self):
-#         _u.Settings.Book.setCurrentBook(testBookName, testBookPath)
-
-#     def test_createStructure(self):
-
-#         os.system("rm -rf " 
-#             + os.path.join(testBookPath + fsmain.BookInfoStructure.TOCbaseRelPath + "/*.tex")
-#         )
-
-#         fsmain.TOCStructure.createStructure()
-
-#         fsmain.TOCStructure.addSection("2.intro.pass")
-#         fsmain.TOCStructure.addSection("2.intro.pass2")
-#         fsmain.TOCStructure.addSection("2.intro2.pass.ando")
-#         fsmain.TOCStructure.addSection("2.intro2.pass2.ando")
-#         fsmain.TOCStructure.addSection("2.intro2.pass2.anda")
-#         fsmain.TOCStructure.addSection("3.intro.pass")
-#         fsmain.TOCStructure.addSection("3.intro.3pass")
-#         fsmain.TOCStructure.addSection("4.intro.pass")
-#         fsmain.TOCStructure.addSection("4.intro.2pass")
-#         #TODO: need to check that files with expected names and content are created
-
-#     # TODO: turned off since update now only happens in TOC structure
-#     # def test_updateProperties(self):
-#     #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.text_ID
-#     #     TOCStructure.updateProperty("2.intro.pass", propertyName, "test")
-#     #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "test")
-#     #     TOCStructure.updateProperty("2.intro.pass", propertyName, "testa")
-#     #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "testa")
-
-#     #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionStart_ID
-#     #     TOCStructure.updateProperty("2.intro.pass", propertyName, "1")
-#     #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "1")
-
-#     #     propertyName = TOCStructure.TOC_SECTION_PROPERTIES.sectionFinish_ID
-#     #     TOCStructure.updateProperty("2.intro.pass", propertyName, "3")
-#     #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "3")
-#     #     TOCStructure.updateProperty("2.intro.pass", propertyName, "4")
-#     #     self.assertEqual(TOCStructure.readProperty("2.intro.pass", propertyName), "4")
-
-#     #     #TODO: We need to check that the TOC files are updated correctly
-
 # class Test_OriginalMaterialStructure(unittest.TestCase):
 
 #     def setUp(self):

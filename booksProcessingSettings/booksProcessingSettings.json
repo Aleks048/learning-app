@@ -1,13 +1,14 @@
 {
     "currentState": {
-        "currentState_BookPath": "/Users/ashum048/books/testBooks/diffGeom",
-        "currentState_BookName": "diffGeometry",
+        "currentState_BookPath": "/Users/ashum048/books/testBooks/test",
+        "currentState_BookName": "test",
         "currentState_Layout": "Main"
     },
     "booksPaths": {
         "b_analysis_test": "/Users/ashum048/books/testBooks/b_analysis_test",
         "mT": "/Users/ashum048/books/testBooks/mT",
-        "diffGeometry": "/Users/ashum048/books/testBooks/diffGeom"
+        "diffGeometry": "/Users/ashum048/books/testBooks/diffGeom",
+        "test": "/Users/ashum048/books/testBooks/test"
     },
     "startup": {
         "startupLayout": "whole_book"

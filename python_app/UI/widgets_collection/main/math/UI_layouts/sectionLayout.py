@@ -284,7 +284,6 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         # sourceSectionFilepath = _upan.Paths.Section.getAbs(bookPath, sourceSectionPath)
         sourceContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, sourceSectionPath)
         # sourceMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, sourceSectionPath)
-        # sourceTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, sourceSectionPath)
         # sourcePDFFilepath = _upan.Paths.PDF.getAbs(bookPath, sourceSectionPath)
         # sourcePDFFilename = sourcePDFFilepath.split("/")[-1]
         
@@ -296,7 +295,6 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         # targetSectionFilepath = _upan.Paths.Section.getAbs(bookPath, targetSectionPath)
         targetContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, targetSectionPath)
         # targetMainFilepath = _upan.Paths.TexFiles.Main.getAbs(bookPath, targetSectionPath)
-        # targetTOCFilepath = fsm.Wr.Paths.TexFiles.TOC.getAbs(bookPath, targetSectionPath)
         # targetPDFFilepath = _upan.Paths.PDF.getAbs(bookPath, targetSectionPath)
         # targetPDFFilename = targetPDFFilepath.split("/")[-1]
 

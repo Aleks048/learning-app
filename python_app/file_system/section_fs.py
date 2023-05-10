@@ -1,17 +1,12 @@
 import os
-import shutil
 
 import file_system.book_fs as bfs
-import file_system.toc_fs as tocfs
-import file_system._utils as _ufs
 import file_system.links as l
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
-
-import file_system.file_system_manager as fsm
 
 class SectionInfoStructure:
     '''
@@ -40,6 +35,11 @@ class SectionInfoStructure:
         # link to note taking app
         notesAppLink = "_notesAppLink"
 
+        # TOC properties
+        text = "TOC_text"
+        start = "TOC_sectionStart"
+        finish = "TOC_sectionFinish"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -62,9 +62,9 @@ class SectionInfoStructure:
                     cls.PrivProp.levelData_level: str(level),
                 },
                 cls.PrivProp.tocData: {
-                    tocfs.TOCStructure.PubPro.text: _u.Token.NotDef.str_t,
-                    tocfs.TOCStructure.PubPro.start: _u.Token.NotDef.str_t,
-                    tocfs.TOCStructure.PubPro.finish: _u.Token.NotDef.str_t
+                    cls.PubProp.text: _u.Token.NotDef.str_t,
+                    cls.PubProp.start: _u.Token.NotDef.str_t,
+                    cls.PubProp.finish: _u.Token.NotDef.str_t
                 },
                 cls.PubProp.imageProp: {
                     cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
@@ -81,8 +81,9 @@ class SectionInfoStructure:
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_prefix)
         return secPrefix + "_" + path.replace(sectionPathSeparator, "_")   
 
-    def createStructure():
-        os.makedirs(_ufs._getPathToSectionsFolder())
+    def createStructure(bookName):
+        subsectionPath = _upan.Paths.Section.getAbs(bookName)
+        ocf.Wr.FsAppCalls.createDir(subsectionPath)
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection,
                                             _u.Token.NotDef.str_t)
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currTopSection, 
