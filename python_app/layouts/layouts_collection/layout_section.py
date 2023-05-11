@@ -125,8 +125,9 @@ class SectionLayout(lc.Layout,
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp("skim", skimfileMarker)
         dt.OtherAppsInfo.Skim.section_pid = ownerPID
         
-        if ownerPID == None:
-            ocf.Wr.PdfApp.openSubsectionPDF(0, subsection, currBookName)
+        ocf.Wr.PdfApp.openSubsectionPDF(str(int(imIdx) - (int(imIdx) % 5)), 
+                                        subsection, 
+                                        currBookName)
 
         # Move skim
         while ownerPID == None:
@@ -145,6 +146,7 @@ class SectionLayout(lc.Layout,
         sleep(0.3)
         ocf.Wr.PdfApp.openSubsectionPDF(imIdx, subsection, currBookName)
         log.autolog("moved SKIM")
+
 
         log.autolog("set VSCODE section.")
         
