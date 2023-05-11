@@ -1,4 +1,5 @@
 import time
+import os
 
 import _utils.logging as log
 
@@ -15,6 +16,8 @@ import outside_calls.outside_calls_facade as oscf
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
+import settings.facade as sf
+import scripts.osascripts as oscr
 
 
 def processCall(url):
@@ -34,6 +37,20 @@ def processCall(url):
         if notesAppLink != _u.Token.NotDef.str_t:
             log.autolog("Will only open notesapp page of '{0}'".format(subsecPath))
             oscf.Wr.NoteAppCalls.openPage(notesAppLink)
+            
+            time.sleep(0.3)
+
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.goodNotes_ID, "ex")
+
+            mon_width, mon_height = _u.getMonitorSize()
+            mon_halfWidth = mon_width / 2
+            
+            goodNotesBounds = [mon_halfWidth, mon_height, 0, 0]
+            cmd = oscr.getMoveWindowCMD(ownerPID,
+                                    goodNotesBounds,
+                                    "ex")
+            os.system(cmd)
+
         else:
             log.autolog("Notesapp link of '{0}' is empty. Cannot open it".format(subsecPath))
         return

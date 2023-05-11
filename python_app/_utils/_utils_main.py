@@ -101,14 +101,14 @@ def getWindowsList():
     return Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
 
 
-def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
+def getOwnersName_windowID_ofApp(appName:str, windowIdentifier = ""):
     activeApps = getAllRunningApps()
     
-    app = [i for i in activeApps if appName in str(i).lower()]
+    app = [i for i in activeApps if appName.lower() in str(i).lower()]
     while len(app) == 0:
         time.sleep(0.1)
         activeApps = getAllRunningApps()
-        app = [i for i in activeApps if appName in str(i).lower()]
+        app = [i for i in activeApps if appName.lower() in str(i).lower()]
 
     app = app[0]
 
@@ -119,8 +119,8 @@ def getOwnersName_windowID_ofApp(appName, windowIdentifier = ""):
     windowList = getWindowsList()
     
     for window in windowList:
-        if window["kCGWindowOwnerName"] == app.localizedName():
-            if windowIdentifier in window["kCGWindowName"]:
+        if window["kCGWindowOwnerName"].lower() == app.localizedName().lower():
+            if windowIdentifier.lower() in window["kCGWindowName"].lower():
                 ownerName = str(window["kCGWindowOwnerName"])
                 windowName = str(window["kCGWindowName"])
                 ownerPID = str(window["kCGWindowOwnerPID"])            

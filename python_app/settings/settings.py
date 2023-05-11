@@ -13,6 +13,7 @@ class IdTokens:
         skim_ID = "skim"
         vsCode_ID = "vscode"
         finder_ID = "finder"
+        goodNotes_ID = "GoodNotes"
     
     class Misc:
         wholeBook_ID= "whole_book"
