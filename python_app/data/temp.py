@@ -60,6 +60,9 @@ class AppState:
         data = False
 
 class OtherAppsInfo:
+    class GoodNotes:
+        section_pid = _u.Token.NotDef.str_t
+    
     class VsCode:
         section_pid = _u.Token.NotDef.str_t
 
