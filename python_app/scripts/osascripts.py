@@ -74,6 +74,11 @@ def closeFinderWindow(finderPID, winNameID):
     outCmd = getCmdToRunOnProcessWindow(finderPID, winNameID, cmd)
     return outCmd
 
+def closeNoteAppWindow(noteAppPID, winNameID):
+    cmd = "click button 1 of theWindow\n"
+    outCmd = getCmdToRunOnProcessWindow(noteAppPID, winNameID, cmd)
+    return outCmd
+
 
 def getCmdToRunOnProcessWindow(vscodePID, winNameID, cmd):
     outCmd = "osascript -e '\
@@ -131,4 +136,15 @@ def get_SetSecVSCode_CMD():
         end tell\n\
 	'"
     return cmd
+
+
+def openNotesAppNotebook(link):
+	cmd = "\
+osascript -e '\n\
+    tell application \"System Events\" to tell process \"GoodNotes\"\n\
+	click menu item \"New\" of menu 1 of menu bar item \"File\" of menu bar 1\n\
+end tell\n\
+do shell script \"open -a GoodNotes {0}\"\n\
+'".format(link)
+	return cmd
 

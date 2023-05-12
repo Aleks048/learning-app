@@ -168,4 +168,6 @@ class SectionLayout(lc.Layout,
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)
         
+        lm.LayoutsManager.closeNoteAppWindow(currSection)
+        
         log.autolog("Closed section layout!")

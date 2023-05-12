@@ -55,4 +55,15 @@ class LayoutsManager:
         
         cmd = oscr.closeSkimDocument(ownerPID, idToken)
         _u.runCmdAndWait(cmd)
+    
+    def closeNoteAppWindow(idToken, ownerPID = None):
+        if idToken == _u.Token.NotDef.str_t:
+            return
+
+        if ownerPID == None:
+            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.goodNotes_ID, idToken)
+        
+        if ownerPID != None:
+            cmd = oscr.closeNoteAppWindow(ownerPID, idToken)
+            _u.runCmdAndWait(cmd)
 
