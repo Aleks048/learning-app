@@ -42,7 +42,7 @@ class TexFilePopulate:
                         idx = idx.replace("\n", "")
                         currIdx = idx
 
-                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}.{1}".format(subsection, idx), "full")
+                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}\_{1}".format(subsection, idx), "full")
                         lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
                         listOfLocalLinks.append(lineToAdd)
             
@@ -67,9 +67,9 @@ class TexFilePopulate:
                     imText =tfm.TexFileModify.formatLinkName(imText)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
-                    textToAdd = "{{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par\\\\}}"
+                    textToAdd = "\\begin{}{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}\\enf{}\\normalsize"
                     line = line.replace("\n", "")
-                    contentFile[i] = line.replace(imageName, imagePath) + textToAdd + "\n"
+                    contentFile[i] = textToAdd + line.replace(imageName, imagePath) + "\n"
                 elif "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
@@ -88,6 +88,7 @@ class TexFilePopulate:
         tocFile = [tfu.getLinkLine(bookName, topSection, subsection, 
                                    imIdx, "Bring To front", "full")]
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
+
         for i in range(numFiles):
             tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection, str(i * 5))
             with open(tocFilepath, 'r') as tocF:
