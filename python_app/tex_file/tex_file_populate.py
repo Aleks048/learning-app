@@ -85,8 +85,8 @@ class TexFilePopulate:
             "{{KIK:/{0}/{1}/{2}/-1/notes}}{{notes}}".format(bookName, topSection, subsection) + \
             "\n      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
 
-        tocFile = [tfu.getLinkLine(bookName, topSection, subsection,
-                                                    _u.Token.NotDef.str_t, "Bring To front", "full")]
+        tocFile = [tfu.getLinkLine(bookName, topSection, subsection, 
+                                   imIdx, "Bring To front", "full")]
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
         for i in range(numFiles):
             tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection, str(i * 5))

@@ -273,7 +273,7 @@ class TkWidgets (DataTranslatable_Interface):
                 return
             
             if newMenuOptions[0].isnumeric():
-                newMenuOptions.sort()  
+                newMenuOptions.sort(key = int)  
             
             for om in self.getChildren():
                 om['menu'].delete(0, 'end')

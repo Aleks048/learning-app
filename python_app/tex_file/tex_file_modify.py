@@ -104,7 +104,7 @@ class TexFileModify:
     \\\\\\rule{\\textwidth}{0.4pt}\n\
     \\\\\\myGlLinks{\n\
         % \\myGlLink{}{}\n\
-    }\n\
+    }\\\\\n\
     \\TOC\\newpage"
         pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
         pageToAdd += "\n\n\n"
@@ -234,8 +234,9 @@ class TexFileModify:
             f.writelines(fileLines)
     
     @classmethod
-    def addLinkToTexFile(cls, imIDX, linkName, contenfFilepath, 
-                        bookName, topSection, subsection):
+    def addLinkToTexFile(cls, sourceImIDX, targetImIdx, 
+                        contenfFilepath, bookName, 
+                        topSection, subsection):
         #
         # add link to the current section file
         #
@@ -246,20 +247,24 @@ class TexFileModify:
         while positionToAdd < len(lines):
             line = lines[positionToAdd]
             # find the line with id
-            if dc.Links.Local.getIdxLineMarkerLine(imIDX) in line:
+            if dc.Links.Local.getIdxLineMarkerLine(sourceImIDX) in line:
                 # find the line with global links start
                 while dc.TexFileTokens.Links.Global.linksToken not in line:
                     positionToAdd +=1
                     line = lines[positionToAdd]
                 # find the line with global links end
-                while dc.TexFileTokens.Links.Global.linkToken in line:
+                while dc.TexFileTokens.Links.Global.linkToken in line or "href" in line:
                     positionToAdd += 1   
                     line = lines[positionToAdd]
                 break
             positionToAdd += 1
         
-        lineToAddFull = "        " + tfu.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "full")
-        lineToAddPdfOnly = "        " + tfu.getLinkLine(bookName, topSection, subsection, imIDX, linkName, "pdf")
+        linkName = subsection + "\_" + targetImIdx
+
+        lineToAddFull = "        " + tfu.getLinkLine(bookName, topSection, subsection, targetImIdx, linkName, "full")
+        lineToAddFull = lineToAddFull.replace("\n", "")
+        lineToAddPdfOnly = "        " + tfu.getLinkLine(bookName, topSection, subsection, targetImIdx, "[p]", "pdf")
+        lineToAddPdfOnly = lineToAddPdfOnly.replace("\n", "") + ", "
         outlines = lines[:positionToAdd]
         outlines.append(lineToAddFull)
         outlines.append(lineToAddPdfOnly)
