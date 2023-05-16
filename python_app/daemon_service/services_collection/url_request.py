@@ -32,6 +32,20 @@ def processCall(url):
     if len(url) > 4:
         linktType:str = url[4]
 
+    if "om" in linktType.lower():
+        omName = fsf.Data.Sec.origMatName(subsecPath)
+        omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+
+        pagesDict:dict = fsf.Data.Sec.imLinkOMPageDict(subsecPath)
+        if positionIDX not in pagesDict.keys():
+            log.autolog("Can't open original material for '{0}'.".format("/".join(url)))
+
+        page = pagesDict[positionIDX]
+        
+        oscf.Wr.PdfApp.openPDF(omPath, page)
+
+        return
+
     if "notes" in linktType.lower():
         notesAppLink = fsf.Data.Sec.notesAppLink(subsecPath)
         if notesAppLink != _u.Token.NotDef.str_t:

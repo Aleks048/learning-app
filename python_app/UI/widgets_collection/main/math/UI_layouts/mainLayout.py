@@ -543,17 +543,32 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
                                                         addToTOC, 
                                                         addToTOCwIm)
 
-            nextImNum = str(int(self.dataFromUser[0]) + 1)
+            currImNum = self.dataFromUser[0]
+            nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)
             self.updateLabel(self.labelOptions[0])
+
+            # original material data
+            origMatName = fsf.Data.Book.currOrigMatName
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
+            page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+
+            if str(sectionImIndex) == "0":
+                fsf.Data.Sec.origMatName(currSubsection, origMatName)
+
+            pagesDict = fsf.Data.Sec.imLinkOMPageDict(currSubsection)
+            pagesDict[currImNum] = page
+
+            fsf.Data.Sec.imLinkOMPageDict(currSubsection, pagesDict)           
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
 
+        sectionImIndex = fsf.Wr.Links.ImIDX.get_curr()
         for i in range(len(self.labelOptions)):
             if self.labelOptions[i] == self.text:
                 nextButtonName = self.labelOptions[(i+1)%len(self.labelOptions)]
-                sectionImIndex = fsf.Wr.Links.ImIDX.get_curr()
                 self.dataFromUser[i] = self.notify(ImageGeneration_ETR, sectionImIndex) 
                 buttonNamesToFunc[self.labelOptions[i]]()
                 self.updateLabel(nextButtonName)

@@ -40,6 +40,10 @@ class SectionInfoStructure:
         start = "TOC_sectionStart"
         finish = "TOC_sectionFinish"
 
+        # original material
+        origMatName = "origMatName"
+        imLinkOMPageDict = "imLinkOMPageDict"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -58,6 +62,7 @@ class SectionInfoStructure:
                 cls.PubProp.name: _u.Token.NotDef.str_t,
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+                cls.PubProp.origMatName : _u.Token.NotDef.str_t,
                 cls.PrivProp.levelData: {
                     cls.PrivProp.levelData_level: str(level),
                 },
@@ -69,7 +74,8 @@ class SectionInfoStructure:
                 cls.PubProp.imageProp: {
                     cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t
+                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t,
+                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t
                 }
         }
         return sectionInfo_template

@@ -67,7 +67,7 @@ class TexFilePopulate:
                     imText =tfm.TexFileModify.formatLinkName(imText)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
-                    textToAdd = "\\begin{}{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}\\enf{}\\normalsize"
+                    textToAdd = "\\mybox{{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}}\\normalsize"
                     line = line.replace("\n", "")
                     contentFile[i] = textToAdd + line.replace(imageName, imagePath) + "\n"
                 elif "myStIm" in line:
@@ -86,7 +86,10 @@ class TexFilePopulate:
             "\n      [" + "\n" + "".join(listOfLocalLinks) + "        ]"
 
         tocFile = [tfu.getLinkLine(bookName, topSection, subsection, 
-                                   imIdx, "Bring To front", "full")]
+                                   imIdx, "[Bring To front]", "full")]
+        tocFile.append(tfu.getLinkLine(bookName, topSection, subsection, 
+                                   imIdx, "[Original Material]", "OM"))
+        
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
         for i in range(numFiles):
@@ -149,7 +152,9 @@ class TexFilePopulate:
             outFileList.extend(templateFile[beforeLocalLinksmarkerPosTemplate + 1:beforeTOCmarkerPosTemplate + 1])          
 
             # add TOC data
+            outFileList.append("\\mybox{")
             outFileList.extend(["        " + i for i in tocFile])
+            outFileList.append("}")
             
             # get the marker of the part AFTER TOC and BEFORE IMAGES
             # 

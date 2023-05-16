@@ -29,7 +29,9 @@
 
 
 \newcommand{\mybox}[1]{
-    \\\fbox{\parbox{\linewidth}{#1}}
+    \begin{mdframed}
+        #1
+    \end{mdframed}
 }
 
 
@@ -38,7 +40,7 @@
 }
 
 
-\newcommand{\myTarget}[4][0.6]{
+\newcommand{\myTarget}[4][0.9]{
     \target{#3}
     #4
     \\\\
@@ -47,7 +49,7 @@
 }
 
 
-\newcommand{\myStIm}[2][0.6]{
+\newcommand{\myStIm}[2][0.9]{
     \href{file:#2.png}{
         \includegraphics[scale = #1]{#2}
     }
