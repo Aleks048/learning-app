@@ -22,7 +22,10 @@ import scripts.osascripts as oscr
 
 def processCall(url):
     log.autolog("Processing url request: '{0}'.".format(url))
-    url = url.replace("KIK:/", "")
+    if "KIK://" in url:
+        url = url.replace("KIK://", "")
+    else:
+        url = url.replace("KIK:/", "")
     url = url.split("/")
     bookName = url[0]
     topSection = url[1]

@@ -547,20 +547,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)
             self.updateLabel(self.labelOptions[0])
-
-            # original material data
-            origMatName = fsf.Data.Book.currOrigMatName
-            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
-
-            page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
-
-            if str(sectionImIndex) == "0":
-                fsf.Data.Sec.origMatName(currSubsection, origMatName)
-
-            pagesDict = fsf.Data.Sec.imLinkOMPageDict(currSubsection)
-            pagesDict[currImNum] = page
-
-            fsf.Data.Sec.imLinkOMPageDict(currSubsection, pagesDict)           
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}

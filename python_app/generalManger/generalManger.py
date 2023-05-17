@@ -13,6 +13,8 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.main.math.manager as mmm
 
+import scripts.osascripts as oscr
+
 
 class GeneralManger(dc.AppCurrDataAccessToken):
     def AddNewBook(bookName, bookPath, 
@@ -102,3 +104,25 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 return False
         else:
             ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
+        
+        # original material data
+        origMatName = fsf.Data.Book.currOrigMatName
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
+        page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+
+        if str(imIdx) == "0":
+            fsf.Data.Sec.origMatName(imIdx, origMatName)
+
+        pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+        pagesDict[imIdx] = page
+        numNotesOnThePage = str(len([i for i in list(pagesDict.values()) if i == page]))
+
+        fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
+
+        currOMName = fsf.Data.Book.currOrigMatName
+
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
+        currTopSection = fsf.Data.Book.currTopSection
+        url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
+        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, url, numNotesOnThePage)

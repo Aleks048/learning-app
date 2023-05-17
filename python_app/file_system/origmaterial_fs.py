@@ -24,10 +24,14 @@ class OriginalMaterialStructure:
         # book props
         path = "Path"
         currPage = "CurrPage"
+        noteSize = "NoteSize"
+        pageSize = "PageSize"
 
     bookTemplate = {
-        PubProp.path : "Path",
-        PubProp.currPage : "CurrPage"
+        PubProp.path : _u.Token.NotDef.str_t,
+        PubProp.currPage : _u.Token.NotDef.str_t,
+        PubProp.noteSize : _u.Token.NotDef.list_t,
+        PubProp.pageSize : _u.Token.NotDef.list_t
     }
 
     template = {
@@ -72,10 +76,40 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         cls.setMaterialPath(materialName, 
                             os.path.join(originnalMaterialDestinationPath, origMatFilename))
         cls.setMaterialCurrPage(materialName, "1")
-         
+
+        # set noteSize
+        cls.setNoteSize(materialName, [100,40])
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
+
+    @classmethod
+    def addNoteToOriginalMaterial(cls, omName, page, noteText, idx):
+        idx = int(idx)
+
+        filepath = cls.getMaterialPath(omName)
+        fileName = cls.__fromMatPathToFilename(filepath)
+
+        noteSize:list = cls.getMaterialNoteSize(omName)
+        nWidth = int(noteSize[0])
+        nHeight = int(noteSize[1])
+        pageSize = cls.getMaterialPageSize(omName)
+        pWidth = int(pageSize[0])
+        pHeight = int(pageSize[1])
+        
+        numCols = pWidth // nWidth
+
+        col = idx % numCols
+        row = idx // numCols
+
+        bounds = [pWidth - (numCols - col + 1) * nWidth,
+                  pHeight - row * nHeight,
+                  pWidth - (numCols - col) * nWidth,
+                  pHeight - (row + 1) * nHeight,
+                  ]
+        cmd = oscr.addNoteTheToThePage(fileName, page, noteText, bounds)
+        log.autolog(cmd)
+        _u.runCmdAndWait(cmd)
 
     @classmethod
     def getOriginalMaterialsNames(cls):
@@ -96,6 +130,24 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         books = cls.__getMaterailsDict()
         try:
             return books[bookName][OriginalMaterialStructure.PubProp.path]
+        except:
+            log.autolog("No book with name '{0}'".format(bookName))
+            return None
+    
+    @classmethod
+    def getMaterialNoteSize(cls, omName):
+        books = cls.__getMaterailsDict()
+        try:
+            return books[omName][OriginalMaterialStructure.PubProp.noteSize]
+        except:
+            log.autolog("No book with name '{0}'".format(omName))
+            return None
+
+    @classmethod
+    def getMaterialPageSize(cls, bookName):
+        books = cls.__getMaterailsDict()
+        try:
+            return books[bookName][OriginalMaterialStructure.PubProp.pageSize]
         except:
             log.autolog("No book with name '{0}'".format(bookName))
             return None
@@ -125,6 +177,27 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
             cls.setMaterialCurrPage(matName, page)
 
     @classmethod
+    def setMaterialPageSize(cls, materialName, pageSize = None):
+        if pageSize == None:
+            filepath = cls.getMaterialPath(materialName)
+            origMatFilename = cls.__fromMatPathToFilename(filepath)
+
+            # set the page size
+            cmd = oscr.get_BoundsOfThePage(origMatFilename)
+            p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
+            firstPageSize, _ = p.communicate()
+            firstPageSize = firstPageSize.decode("utf-8").replace("\n", "").split(", ")
+            cls.setMaterialPageSize(materialName, [firstPageSize[2], firstPageSize[1]])
+
+        materials = cls.__getMaterailsDict() 
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.pageSize] = pageSize
+        cls.__updateMaterialDict(materials)
+    
+    @classmethod
     def setMaterialPath(cls, materialName, materialPath):
         materials = cls.__getMaterailsDict() 
 
@@ -132,6 +205,16 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
             materials[materialName] = {}
         
         materials[materialName][OriginalMaterialStructure.PubProp.path] = materialPath
+        cls.__updateMaterialDict(materials)
+    
+    @classmethod
+    def setNoteSize(cls, materialName, noteSize):
+        materials = cls.__getMaterailsDict() 
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.noteSize] = noteSize
         cls.__updateMaterialDict(materials)
     
     @classmethod

@@ -21,7 +21,7 @@ tell application \"{0}\"\n\
 			end tell\n\
 		end if\n\
 	end repeat\n\
-end tell'".format( sf.Wr.Data.TokenIDs.AppIds.skim_ID, filename)
+end tell'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, filename)
 	return cmd
 
 
@@ -53,7 +53,10 @@ tell application \"System Events\"\n\
 				set procN to \"{1}\"\n\
 			end if\n\
 			if name of document idx of application \"{1}\" contains \"{2}\" then\n\
-				tell document idx of application \"{1}\" to close\n\
+				tell document idx of application \"{1}\"\n\
+    				save\n\
+    				close\n\
+                end tell\n\
 				exit repeat\n\
 			end if\n\
 			set idx to idx + 1\n\
@@ -147,4 +150,70 @@ end tell\n\
 do shell script \"open -a GoodNotes {0}\"\n\
 '".format(link)
 	return cmd
+
+def addNoteTheToThePage(docToken, page, noteText, bounds):
+	cmd = "\
+osascript -e '\n\
+	tell application \"{0}\"\n\
+		repeat with d in documents\n\
+			set n to name of d\n\
+			if n contains \"{1}\" then\n\
+				tell d\n\
+					tell page {2}\n\
+                        repeat with nt in notes\n\
+							set nttext to text of nt\n\
+                            if nttext contains \"{3}\"\n\
+								return\n\
+							end if\n\
+                        end repeat\n\
+						set nt to (make new note with properties {{type:text note}})\n\
+						set text of nt to \"{3}\"\n\
+						set bounds of nt to {{{4}, {5}, {6}, {7}}}\n\
+					end tell\n\
+                end tell\n\
+			end if\n\
+		end repeat\n\
+	end tell\
+'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page, noteText, *bounds)
+     
+	return cmd
+
+def get_BoundsOfThePage(docToken, page = 1):
+	cmd = "\
+osascript -e '\n\
+	tell application \"{0}\"\n\
+		repeat with d in documents\n\
+			set n to name of d\n\
+			if n contains \"{1}\" then\n\
+                tell d\n\
+                    tell page {2}\n\
+                        return bounds\n\
+                    end tell\n\
+                end tell\n\
+            end if\n\
+		end repeat\n\
+	end tell\
+'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page)
+    
+	return cmd
+
+def get_NumberOfNotes(docToken, page = 1):
+	cmd = "\
+osascript -e '\n\
+	tell application \"{0}\"\n\
+		repeat with d in documents\n\
+			set n to name of d\n\
+			if n contains \"{1}\" then\n\
+                tell d\n\
+                    tell page {2}\n\
+                        return count of notes\n\
+                    end tell\n\
+                end tell\n\
+            end if\n\
+		end repeat\n\
+	end tell\
+'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page)
+    
+	return cmd
+
 

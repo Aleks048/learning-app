@@ -72,6 +72,11 @@ class MainLayout(lc.Layout):
         _u.runCmdAndWait(cmd)
 
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
+
+        # update the bounds
+        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(currMaterialName) == _u.Token.NotDef.list_t:
+            fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(currMaterialName)
+
         log.autolog("Opened skim!")
 
         #
