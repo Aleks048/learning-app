@@ -17,5 +17,5 @@ class Wr:
         pass
    
     class TexFileUtils:
-        def getUrl(bookName, topSection, subsection, imIDX, linkType: str):
-            return tfu.getUrl(bookName, topSection, subsection, imIDX, linkType , True)
+        def getUrl(bookName, topSection, subsection, imIDX, linkType: str, notLatex = True):
+            return tfu.getUrl(bookName, topSection, subsection, imIDX, linkType , notLatex)

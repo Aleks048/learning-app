@@ -65,6 +65,11 @@ class ExitApp_BTN(ww.currUIImpl.Button,
         
         
 
+class LabelWithClick(ttk.Label):
+    '''
+    this is used to run different commands on whether the label was clicked even or odd times
+    '''
+    clicked = False
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
@@ -86,8 +91,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
     def render(self, widjetObj=None, renderData=..., **kwargs):
         return super().render(widjetObj, renderData, **kwargs)
     
-    def addTOCEntry(self, subsection, level):
-        def __bindEntry():
+    def addTOCEntry(self, subsection, level, idx):
+        def openPdfOnStartOfTheSection(widget):
             def __cmd(event = None, *args):
                 # open orig material on page
                 subsectionStartPage = fsf.Data.Sec.start(subsection)
@@ -95,20 +100,79 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
 
                 event.widget.configure(foreground="white")
+            
+            widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
+        def bindChangeColorOnInAndOut(widget):
             def __changeTextColorBlue(event = None, *args):
                 event.widget.configure(foreground="blue")
             
             def __changeTextColorBlack(event = None, *args):
                 event.widget.configure(foreground="white")
             
-            cmds = [__cmd, __changeTextColorBlue, __changeTextColorBlack]
-
-            events = [ww.currUIImpl.Data.BindID.mouse1,
-                    ww.currUIImpl.Data.BindID.enterWidget,
-                    ww.currUIImpl.Data.BindID.leaveWidget]
+            widget.bind(ww.currUIImpl.Data.BindID.enterWidget, __changeTextColorBlue)
+            widget.bind(ww.currUIImpl.Data.BindID.leaveWidget, __changeTextColorBlack)
+        
+        def openOMOnThePageOfTheImage(widget, imIdx):
+            def __cmd(event = None, *args):
+                # open orig material on page
+                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+                page = imLinkOMPageDict[imIdx]
+                origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
+                ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, page)
             
-            return events, cmds
+            widget.bind( ww.currUIImpl.Data.BindID.mouse1, __cmd)
+        
+        def openSectionOnIdx(widget, imIdx):
+            def __cmd(event = None, *args):
+                # open orig material on page
+                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+                bookName = sf.Wr.Manager.Book.getCurrBookName()
+                currTopSection = fsf.Data.Book.currTopSection
+
+                url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
+                
+                os.system("open {0}".format(url))
+                event.widget.configure(foreground="white")
+            
+            widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
+       
+        def openContentOfTheSection(frame, label):
+            def __cmd(event = None, *args):
+                # open orig material on page
+
+                links:dict = fsf.Data.Sec.imLinkDict(subsection)
+                
+                if not label.clicked:
+                    i = 0
+
+                    for k,v in links.items():
+                        tempFrame = ttk.Frame(frame, name = "contentFr" + str(i))
+                        
+                        testEntryPage = ttk.Label(tempFrame, text = k + ": " + v, name = "contentP" + str(i))
+                        testEntryFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull" + str(i))
+                        
+                        testEntryPage.grid(row=0, column=0, sticky=tk.NW)
+                        testEntryFull.grid(row=0, column=1, sticky=tk.NW)
+                        
+                        openOMOnThePageOfTheImage(testEntryPage, k)
+                        bindChangeColorOnInAndOut(testEntryPage)
+                        openSectionOnIdx(testEntryFull, k)
+                        bindChangeColorOnInAndOut(testEntryFull)
+
+                        tempFrame.grid(row=i + 2, column=2, sticky=tk.NW)
+                        i += 1
+                    
+                    label.clicked = True
+                else:
+                    for child in frame.winfo_children():
+                        if "content" in str(child):
+                            child.destroy()
+                    label.clicked = False
+
+                event.widget.configure(foreground="white")
+            
+            label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
         
         prefix = ""
         if level != 0:
@@ -123,19 +187,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             subsectionText = fsf.Data.Sec.text(subsection)
        
         prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
-        entry = ttk.Label(self.scrollable_frame, text = prettySubsections)
-        keys, cbs = __bindEntry()
-
-        for i in range(len(keys)):
-            entry.bind(keys[i], cbs[i])
         
-        return super().addTOCEntry(entry)
+        locFrame = ttk.Frame(self.scrollable_frame)
+        super().addTOCEntry(locFrame, idx, 0)
+
+        subsectionLabel = ttk.Label(locFrame, text = prettySubsections)
+        openPdfOnStartOfTheSection(subsectionLabel)
+        bindChangeColorOnInAndOut(subsectionLabel)
+
+        subsectionLabel.grid(row = 0, column= 0, sticky=tk.NW)
+
+        openContentLabel = LabelWithClick(locFrame, text = "[content]")
+        openContentOfTheSection(locFrame, openContentLabel)
+        bindChangeColorOnInAndOut(openContentLabel)
+
+        openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
+        
 
     def populateTOC(self):
         text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
         
-        for s in text_curr:
-            self.addTOCEntry(s[0], s[1])
+        for i in range(len(text_curr)):
+            self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
         for child in self.scrollable_frame.winfo_children():

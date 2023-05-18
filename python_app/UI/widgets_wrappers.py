@@ -505,8 +505,8 @@ class TkWidgets (DataTranslatable_Interface):
         def bind(self):
             return super().bind()
         
-        def addTOCEntry(self, entry):
-            entry.pack(fill="both")
+        def addTOCEntry(self, entry, row, column):
+            entry.grid(row = row, column = column, sticky=tk.NW)
 
     
     class RootWidget(BindableWidget_Interface_Impl,
