@@ -1,11 +1,13 @@
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_facade as wf
 import layouts.layouts_facade as lm
 import _utils._utils_main as _u
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
+import tkinter as tk
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
@@ -123,3 +125,26 @@ class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
             self.updateLabel(self.labelOptions[1])
 
             lm.Wr.MainLayout.set()
+
+class ShowTocWindow_BTN(ww.currUIImpl.Button,
+                  dc.AppCurrDataAccessToken):
+
+    def __init__(self, patentWidget, prefix, row = 3, column = 5):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_tocWindow"
+        text= "TOC win"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        UIManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        tocm.TOCManager)
+        
+        UIManager.show()

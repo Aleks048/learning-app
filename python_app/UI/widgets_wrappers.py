@@ -450,6 +450,8 @@ class TkWidgets (DataTranslatable_Interface):
                     name : str,
                     rootWidget, 
                     renderData : dict,
+                    width = 700,
+                    height = 150,
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None)):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
@@ -460,8 +462,6 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-
-
             def on_vertical(event):
                 canvas.yview_scroll(-1 * event.delta, 'units')
 
@@ -469,7 +469,7 @@ class TkWidgets (DataTranslatable_Interface):
                 canvas.xview_scroll(-1 * event.delta, 'units')
 
             container = ttk.Frame(rootWidget.widgetObj)
-            canvas = tk.Canvas(container, height = 150, width= 700)
+            canvas = tk.Canvas(container, height = height, width = width)
             scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
             scrollable_frame = ttk.Frame(canvas)
             self.scrollable_frame = scrollable_frame

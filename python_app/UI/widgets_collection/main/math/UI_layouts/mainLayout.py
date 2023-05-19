@@ -19,6 +19,7 @@ import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.message.manager as mesm
+import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.startup.manager as stm
 import layouts.layouts_facade as lf
 
@@ -29,6 +30,7 @@ import settings.facade as sf
 
 import scripts.osascripts as oscr
 import generalManger.generalManger as gm
+
 
 class ExitApp_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
@@ -63,7 +65,6 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
         sys.exit()
         
-        
 
 class LabelWithClick(ttk.Label):
     '''
@@ -75,7 +76,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"

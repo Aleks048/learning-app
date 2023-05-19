@@ -102,6 +102,10 @@ class LayoutManagers:
             tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
+ 
+            showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix)
+            self.addWidget(showTocWindow_BTN)
+
             #
             # post init
             #
@@ -177,6 +181,8 @@ class LayoutManagers:
             switchToCurrMainLayout_BTN = sl.SwitchToCurrMainLayout_BTN(winRoot, self.prefix)
             self.addWidget(switchToCurrMainLayout_BTN)
 
+            showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix, row=0)
+            self.addWidget(showTocWindow_BTN)
             #
             # post init
             #

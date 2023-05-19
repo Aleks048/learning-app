@@ -15,6 +15,7 @@ das.startMainServerDaemon()
 messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
 mainMenuManager = wf.Wr.MenuManagers.MainMenuManager()
 startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
+tocMenuManager = wf.Wr.MenuManagers.TOCManager()
 startupMenuManager.showOnly()
 
 wf.Wr.WidgetWrappers.startLoop()

@@ -52,7 +52,7 @@ class MainLayout(lc.Layout):
         currMaterialName = fsf.Data.Book.currOrigMatName
         currMaterialFilename = \
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
-        skimFile_ID = currMaterialFilename
+        skimFile_ID = currMaterialFilename.replace(".pdf", "")
 
         currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
 
