@@ -234,43 +234,51 @@ class TexFileModify:
             f.writelines(fileLines)
     
     @classmethod
-    def addLinkToTexFile(cls, sourceImIDX, targetImIdx, 
-                        contenfFilepath, bookName, 
-                        topSection, subsection):
+    def addLinkToTexFile(cls, sourceImIDX, contentFileLInes, link, linkName):
         #
         # add link to the current section file
         #
         # read content file
-        log.autolog("Updating file: " + contenfFilepath)
-        lines = _u.readFile(contenfFilepath)
+
+        linkName = cls.formatLinkName(linkName)
+
         positionToAdd = 0
-        while positionToAdd < len(lines):
-            line = lines[positionToAdd]
+        while positionToAdd < len(contentFileLInes):
+            line = contentFileLInes[positionToAdd]
             # find the line with id
             if dc.Links.Local.getIdxLineMarkerLine(sourceImIDX) in line:
                 # find the line with global links start
                 while dc.TexFileTokens.Links.Global.linksToken not in line:
                     positionToAdd +=1
-                    line = lines[positionToAdd]
+                    line = contentFileLInes[positionToAdd]
                 # find the line with global links end
                 while dc.TexFileTokens.Links.Global.linkToken in line or "href" in line:
                     positionToAdd += 1   
-                    line = lines[positionToAdd]
+                    line = contentFileLInes[positionToAdd]
                 break
             positionToAdd += 1
-        
-        linkName = subsection + "\_" + targetImIdx
 
-        lineToAddFull = "        " + tfu.getLinkLine(bookName, topSection, subsection, targetImIdx, linkName, "full")
-        lineToAddFull = lineToAddFull.replace("\n", "")
-        lineToAddPdfOnly = "        " + tfu.getLinkLine(bookName, topSection, subsection, targetImIdx, "[p]", "pdf")
-        lineToAddPdfOnly = lineToAddPdfOnly.replace("\n", "") + ", "
-        outlines = lines[:positionToAdd]
-        outlines.append(lineToAddFull)
-        outlines.append(lineToAddPdfOnly)
-        outlines.extend(lines[positionToAdd:])
+        outlines = contentFileLInes[:positionToAdd]
         
-        with open(contenfFilepath, "+w") as f:
-            for line in outlines:
-                f.write(line + "\n")
+        lineToAddFull = "        " + tfu.urlLatexWrapper(link, linkName)
+        
+        lineToAddPdfOnly = ""
+
+        if "KIK" in link:
+            lineToAddFull = lineToAddFull.replace("\n", "")
+            pdfLink = tfu.replaceUrlType(link, "full", "pdf")
+            lineToAddPdfOnly = "        " + tfu.urlLatexWrapper(pdfLink, "[p]")
+            lineToAddPdfOnly = lineToAddPdfOnly.replace("\n", "") + ", "
+        else:
+            lineToAddFull = lineToAddPdfOnly.replace("\n", "") + ", "
+        
+        outlines.append(lineToAddFull)
+        
+        if "KIK" in link:
+            outlines.append(lineToAddPdfOnly)
+        
+        outlines.extend(contentFileLInes[positionToAdd:])
+
+        log.autolog(outlines)
+        return [i for i in outlines]
  

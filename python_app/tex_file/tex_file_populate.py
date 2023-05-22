@@ -15,6 +15,9 @@ class TexFilePopulate:
     def populateMainFile(subsection, bookPath, imIdx = _u.Token.NotDef.str_t):
         contentFile = []
 
+        if imIdx == _u.Token.NotDef.str_t:
+            imIdx = fsm.Wr.Links.ImIDX.get(subsection)
+
         localLinksLine = ""
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
         conFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection, imIdx)
@@ -50,6 +53,22 @@ class TexFilePopulate:
         with open(conFilepath, 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
+
+            imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
+            # get links for the same fileas the idx
+            linksIndiciesRange = fsm.Wr.Links.ImIDX.getIndiciesInSameFile(imIdx)
+            
+            for id in linksIndiciesRange:
+                if str(id) in list(imGlobalLinksDict.keys()):
+                    # add link to the file as a list
+                    linksAndNames = imGlobalLinksDict[str(id)]
+                    
+                    for linkName in list(linksAndNames.keys()):
+                        link = linksAndNames[linkName]
+                        contentFile = tfm.TexFileModify.addLinkToTexFile(id,
+                                                                        contentFile,
+                                                                        link,
+                                                                        linkName)
             
             linkToken = "id: "
             currIdx = ""

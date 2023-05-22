@@ -12,4 +12,10 @@ def getUrl(bookName, topSection, subsection, imIDX, linkType: str, notLatex = Fa
 
 def getLinkLine(bookName, topSection, subsection, imIDX, linkName: str, linkType: str):
     url = getUrl(bookName, topSection, subsection, imIDX, linkType)
+    return urlLatexWrapper(url, linkName)
+
+def replaceUrlType(url:str, originalType, newType):
+    return url.replace(".{0}".format(originalType), ".{0}".format(newType))
+
+def urlLatexWrapper(url, linkName):
     return "\href{" + url + "}{" + linkName + "}\n"

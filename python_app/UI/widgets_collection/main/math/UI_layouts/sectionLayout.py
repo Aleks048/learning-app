@@ -290,36 +290,54 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         sourceTopSection = sourceSubsection.split(".")[0]
         sourceIDX = self.notify(SourceImageLinks_OM)
 
-        sourceContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, sourceSubsection, sourceIDX)
-        
         wholeLinkPath = self.notify(AddGlobalLink_ETR).split(".")
         targetSubsection = ".".join(wholeLinkPath[:-1])
         targetTopSection = targetSubsection.split(".")[0]
         targetIDX = wholeLinkPath[-1]
 
-        targetContentFilepath = _upan.Paths.TexFiles.Content.getAbs(bookPath, targetSubsection, targetIDX)
+        # add target to the source links
+        sourseSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        if sourseSectionGlobalLinksDict[sourceIDX] != _u.Token.NotDef.dict_t:
+            sourceImGlobalLinksDict = sourseSectionGlobalLinksDict[sourceIDX]
+        else:
+            sourceImGlobalLinksDict = {}
         
-        # add initial link
-        tff.Wr.TexFileModify.addLinkToTexFile(sourceIDX,
-                                            targetIDX,
-                                            sourceContentFilepath,
-                                            bookName,
-                                            targetTopSection,
-                                            targetSubsection)
+        targetUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
+                                                targetIDX, "full", False)
+        targetUrlLinkName = targetSubsection + "_" + targetIDX
+        
+        if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()):
+            sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
+        else:
+            log.autolog("the link: '{0}' is already present.".format(targetUrl))
+        
+        sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
+        fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+        
+        # add source to the target info
+        targetSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(targetSubsection)
+        if targetSectionGlobalLinksDict[targetIDX] != _u.Token.NotDef.dict_t:
+            targetImGlobalLinksDict = targetSectionGlobalLinksDict[targetIDX]
+        else:
+            targetImGlobalLinksDict = {}
 
-        # add return link 
-        tff.Wr.TexFileModify.addLinkToTexFile(targetIDX, 
-                                            sourceIDX,
-                                            targetContentFilepath,
-                                            bookName,
-                                            sourceTopSection,
-                                            sourceSubsection)
+        sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
+                                                targetIDX, "full", False)
+        sourceUrlLinkName = sourceSubsection + "_" + sourceIDX
+        
+        if sourceUrl not in list(targetImGlobalLinksDict.keys()):
+            targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
+        else:
+            log.autolog("the link: '{0}' is already present.".format(targetUrl))
+
+        targetSectionGlobalLinksDict[sourceIDX] = targetImGlobalLinksDict
+        fsm.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)
 
         #
         # rebuild the pdfs
         #
-        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubsection)
-        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSubsection)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubsection, sourceIDX)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSubsection, targetIDX)
 
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):

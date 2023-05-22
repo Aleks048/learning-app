@@ -44,6 +44,9 @@ class SectionInfoStructure:
         origMatName = "origMatName"
         imLinkOMPageDict = "imLinkOMPageDict"
 
+        # global links
+        imGlobalLinksDict = "imGlobalLinksDict"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -75,7 +78,8 @@ class SectionInfoStructure:
                     cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t
+                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t,
+                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t
                 }
         }
         return sectionInfo_template

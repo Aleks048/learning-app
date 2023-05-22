@@ -5,6 +5,7 @@ import settings.facade as sf
 import _utils.logging as log
 import tex_file.tex_file_facade as tff
 import _utils.pathsAndNames as _upan
+import _utils._utils_main as _u
 
 import data.constants as dc
 import data.temp as dt
@@ -42,6 +43,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         
         imID = imIdx
         linkDict = fsf.Data.Sec.imLinkDict(subsection)
+        imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
         
         if (imID in list(linkDict.values())):
             messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
@@ -66,6 +68,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                     linkDict.pop(name, None)
                 
                 fsf.Data.Sec.imLinkDict(subsection, linkDict)
+
+                imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t
+                fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
             
             mathManager.show()
             
@@ -117,7 +122,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
         pagesDict[imIdx] = page
         numNotesOnThePage = str(len([i for i in list(pagesDict.values()) if i == page]))
-
         fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
 
         currOMName = fsf.Data.Book.currOrigMatName

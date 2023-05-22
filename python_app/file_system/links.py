@@ -24,6 +24,12 @@ class ImIDX:
             for k,v in d.items():
                 if str(v) == str(linkValue):
                     return k
+    
+    def getIndiciesInSameFile(imIdx):
+        imIdx = int(imIdx)
+        startIdx = imIdx - (imIdx % 5)
+        endIdx = startIdx + 5
+        return range(startIdx, endIdx)
 
 
 class ImLink:
