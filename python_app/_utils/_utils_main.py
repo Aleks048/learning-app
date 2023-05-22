@@ -17,6 +17,18 @@ def runCmdAndWait(cmd):
     t.start()
     t.join()
 
+def runCmdAndGetResult(cmd, stdout = subprocess.PIPE, stderr = None):
+    p = subprocess.Popen(cmd, shell= True, stdout= stdout, stderr= stderr)
+    result, error = p.communicate()
+    
+    if result != None:
+        result = result.decode("utf-8")
+    
+    if error != None:
+        error = error.decode("utf-8")
+    
+    return result, error
+
 def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
     outPos = []
 
@@ -105,15 +117,21 @@ def getOwnersName_windowID_ofApp(appName:str, windowIdentifier = ""):
     activeApps = getAllRunningApps()
     
     app = [i for i in activeApps if appName.lower() in str(i).lower()]
-    while len(app) == 0:
+    counter = 0
+    while len(app) == 0 and counter < 5:
         time.sleep(0.1)
         activeApps = getAllRunningApps()
         app = [i for i in activeApps if appName.lower() in str(i).lower()]
+        counter += 1
+    
+    if len(app) < 1:
+        log.autolog("could not get the PID for '{0}'. Please open the app. 1".format(appName))
+        return None, None, None
 
     app = app[0]
 
     if app == None :
-        log.autolog("getOwnersName_windowID_ofApp - the app was not found")
+        log.autolog("could not get the PID for '{0}'. Please open the app. 2".format(appName))
         return None, None, None
     
     windowList = getWindowsList()
@@ -128,6 +146,7 @@ def getOwnersName_windowID_ofApp(appName:str, windowIdentifier = ""):
                 return ownerName, windowName, ownerPID
     
     # log.autolog("getOwnersName_windowID_ofApp - window was not found")
+    log.autolog("could not get the PID for '{0}'. Please open the app. 3".format(appName))
     return None, None, None
 
 

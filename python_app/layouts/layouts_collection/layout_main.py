@@ -27,11 +27,16 @@ class MainLayout(lc.Layout):
         #       full book to the left
         #       vscode/finder(with images folder) to the right
         '''
-        if dt.AppState.CurrLayout != cls:
-            ls.SectionLayout.close()      
 
+        log.autolog("-- Starting main layout")
+
+        log.autolog("--- Starting closing other layout")
         
-        currSectionWPrefix = _upan.Current.Names.Section.name_wPrefix()
+        if "section" in dt.AppState.CurrLayout.__name__.lower():
+            ls.SectionLayout.close()      
+        
+        log.autolog("--- Ended closing other layout")
+
         currSection = _upan.Current.Names.Section.name()
 
         mon_width, mon_height = _u.getMonitorSize()
@@ -43,32 +48,33 @@ class MainLayout(lc.Layout):
         mon_width, mon_height = _u.getMonitorSize()
         mon_halfWidth = mon_width / 2
        
+        
         #
         # SKIM
         #
+        log.autolog("--- Starting pdf app manipulation")
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
         origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
         currMaterialName = fsf.Data.Book.currOrigMatName
-        currMaterialFilename = \
+        pdfAppFile_ID = \
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
-        skimFile_ID = currMaterialFilename.replace(".pdf", "")
 
         currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
 
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
         
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        skimFile_ID)
+                                                        pdfAppFile_ID)
 
         while ownerPID == None:
             sleep(0.1)
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        skimFile_ID)
+                                                        pdfAppFile_ID)
 
         cmd = oscr.getMoveWindowCMD(ownerPID, 
                                     dimensions,
-                                    skimFile_ID)
+                                    pdfAppFile_ID)
         _u.runCmdAndWait(cmd)
 
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
@@ -77,11 +83,12 @@ class MainLayout(lc.Layout):
         if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(currMaterialName) == _u.Token.NotDef.list_t:
             fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(currMaterialName)
 
-        log.autolog("Opened skim!")
+        log.autolog("--- Ended Pdf app manipulation. Opened skim!")
 
         #
         # FINDER
         #
+        log.autolog("--- Starting file system manipulation")
         ownerPID = None
         subtractionNum = 30
         bounds = [mon_halfWidth, 
@@ -91,8 +98,7 @@ class MainLayout(lc.Layout):
 
         currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
 
-
-        if currSectionWPrefix == _u.Token.NotDef.str_t:
+        if currSection == _u.Token.NotDef.str_t:
             log.autolog("No subssection to open yet.")
         else:
             currScreenshotDir = _upan.Paths.Screenshot.getAbs()
@@ -117,30 +123,39 @@ class MainLayout(lc.Layout):
                                         currScreenshotFolderName)
                 _u.runCmdAndWait(cmd)
             
-            log.autolog("Moved Finder.")
+            log.autolog("Moved fs window.")
         
-        log.autolog("DONE setting section layout.")
+        log.autolog("--- File system manipulation ended.")
         
         dt.AppState.CurrLayout = cls
+        log.autolog("-- Ended main layout setting")
 
 
     @classmethod
     def close(cls):
+        log.autolog("-- Starting closing of main layout")
+
         currSection = _upan.Current.Names.Section.name()
 
         # close FS window
+        
+        log.autolog("--- Starting closing of 'FS'")
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
                                                         currSection)
+
         if ownerPID != None:
             lm.LayoutsManager.closeFSWindow(currSection, ownerPID)
         else:
             log.autolog("Could not close the 'file system' window of the main layout")
         
+        log.autolog("--- Ended closing of 'FS'")
+        
         # close PDF reader window
+        log.autolog("--- Starting closing of 'PDF editor'")
         ownerPID = None
         
         currOrigMatName = fsf.Data.Book.currOrigMatName
-        currOrigMatFilename = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currOrigMatName)
+        currOrigMatFilename:str = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currOrigMatName)
         
         _, windowName, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                                 currOrigMatFilename)
@@ -151,4 +166,7 @@ class MainLayout(lc.Layout):
         else:
             log.autolog("Could not close the 'pdf reader' window of the main layout")
         
-        log.autolog("Closed main layout")
+        log.autolog("--- Ended closing of 'PDF editor'")
+        
+
+        log.autolog("-- Ended closing of main layout")

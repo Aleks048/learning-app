@@ -279,6 +279,5 @@ class TexFileModify:
         
         outlines.extend(contentFileLInes[positionToAdd:])
 
-        log.autolog(outlines)
         return [i for i in outlines]
  

@@ -22,3 +22,4 @@ def startMainServerDaemon(port = 12345):
     t = Thread(target = server.start)
     t.daemon = True
     t.start()
+    return t, server

@@ -8,7 +8,7 @@ class ClassAttNotAccessibleType(type):
     def __getattribute__(self, __name):
         if __name == "dataAccessCounter":
             return object.__getattribute__(self, __name)
-        elif __name in ["getData", "setData"]:
+        elif __name in ["getData", "setData", "__name__"]:
             self.dataAccessCounter = 1
             return object.__getattribute__(self, __name)
         elif __name == "data" and self.dataAccessCounter == 1:

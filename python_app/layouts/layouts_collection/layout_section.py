@@ -156,18 +156,23 @@ class SectionLayout(lc.Layout,
 
     @classmethod
     def close(cls):
+        log.autolog("-- Starting closing of section layout")
         currSection = fsf.Data.Book.currSection
 
-        # pdfMarker = str(cls.currFileNum) + ".pdf"
-        # ideMarker = str(cls.currFileNum) + ".tex"
-
         #close the subsection VSCode if it is open
+        log.autolog("--- Starting closing of 'IDE'")
         if dt.OtherAppsInfo.VsCode.section_pid != _u.Token.NotDef.str_t:
             lm.LayoutsManager.closeIDEWindow(currSection, dt.OtherAppsInfo.VsCode.section_pid)
+        log.autolog("--- Ended closing of 'IDE'")
+        
         #close the subsection Skim if it is open
+        log.autolog("--- Starting closing of 'PDF editor'")
         if dt.OtherAppsInfo.Skim.section_pid != _u.Token.NotDef.str_t:
             lm.LayoutsManager.closePDFwindow(currSection, dt.OtherAppsInfo.Skim.section_pid)
+        log.autolog("--- Ended closing of 'PDF editor'")
         
+        log.autolog("--- Starting closing of 'Notes app'")
         lm.LayoutsManager.closeNoteAppWindow(currSection)
+        log.autolog("--- Ended closing of 'Notes app'")
         
-        log.autolog("Closed section layout!")
+        log.autolog("-- Ended closing of section layout")

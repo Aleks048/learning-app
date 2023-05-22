@@ -27,9 +27,8 @@ class MacLatex:
             $CMD\n\
         \n\
         popd".format(mainTexFilepath, subsectionDir, subsectionWPrefix)
-            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-            output, err = p.communicate()
-            err = err.decode("utf-8")
+            
+            _, err = _u.runCmdAndGetResult(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             if err != "":
                 log.autolog("While building the error occured: '{0}'.".format(err))
             
@@ -41,7 +40,6 @@ class MacLatex:
             fsc.currFilesystemApp.copyFile(outputPDF, mainPDFFilepath)
         t = Thread(target = __build)
         t.start()
-
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):

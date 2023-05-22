@@ -1,4 +1,5 @@
 import os
+import sys
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -11,13 +12,69 @@ import data.constants as dc
 import data.temp as dt
 
 import outside_calls.outside_calls_facade as ocf
-import UI.widgets_collection.message.manager as mesm
-import UI.widgets_collection.main.math.manager as mmm
 
-import scripts.osascripts as oscr
+import daemon_service.daemon_service as ds
+
+import layouts.layouts_facade as lf
 
 
 class GeneralManger(dc.AppCurrDataAccessToken):
+    daemonThread = None
+    dserver = None
+
+    @classmethod
+    def startApp(cls):
+        import UI.widgets_facade as wf
+        # start the daemon to process client calls
+        cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
+
+        # create startup menu
+        log.autolog("-- Srartup started: ")
+        messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
+        log.autolog("Started '{0}' UI manager".format("message menu"))
+        mainMenuManager = wf.Wr.MenuManagers.MainMenuManager()
+        log.autolog("Started '{0}' UI manager".format("main menu"))
+        startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
+        log.autolog("Started '{0}' UI manager".format("startup menu"))
+        tocMenuManager = wf.Wr.MenuManagers.TOCManager()
+        log.autolog("Started '{0}' UI manager".format("toc menu"))
+
+        startupMenuManager.showOnly()
+        log.autolog("-- Srartup ended.")
+
+        wf.Wr.WidgetWrappers.startLoop()
+
+    @classmethod
+    def exitApp(cls):
+        import UI.widgets_facade as wf
+        log.autolog("- Starting exiting the app")
+        # main
+        # mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+        #                                         wf.Wr.MenuManagers.MainMenuManager)
+        # mainManager.winRoot.exitApp()
+
+        # message
+        mesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.MessageMenuManager)
+        mesManager.winRoot.exitApp()
+        
+        # startup
+        stManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.StartupMenuManager)
+        stManager.winRoot.exitApp()
+        
+        # toc
+        tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.TOCManager)
+        tocManager.winRoot.exitApp()
+
+        lf.Wr.MainLayout.close()
+
+        cls.dserver.close()
+        cls.daemonThread.join()
+        log.autolog("- Ended Exiting the app")
+        sys.exit(0)
+
     def AddNewBook(bookName, bookPath, 
                    originalMaterialLocation, originalMaterialRelPath,
                    originalMaterialName):
@@ -38,6 +95,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
+        import UI.widgets_facade as wf
+
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     _upan.Names.getImageName(str(imIdx), subsection))
         
@@ -47,9 +106,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         
         if (imID in list(linkDict.values())):
             messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        mesm.MessageMenuManager)
+                                                        wf.Wr.MenuManagers.MessageMenuManager)
             mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
+                                                        wf.Wr.MenuManagers.MainMenuManager)
             response = messManager.show("The index '{0}' already exists. Do you want to update?".format(imID), True)
             
             if response:
@@ -57,7 +116,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 for name, id in linkDict.items():
                     if id == imID:
                         #remove the image
-                        # prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(), str(imIdx) + "__" + currSubsection + "__" + name + ".png")
                         prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                         _upan.Names.getImageName(str(imIdx), subsection) + ".png")
                         ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
@@ -99,7 +157,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # take a screenshot
         if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        mesm.MessageMenuManager)
+                                                        wf.Wr.MenuManagers.MessageMenuManager)
             
             response = mesManager.show("The image with idx '{0}' already exists. Overrite", True)
             

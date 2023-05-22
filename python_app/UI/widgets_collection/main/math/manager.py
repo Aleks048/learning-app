@@ -1,9 +1,3 @@
-import tkinter as tk
-
-import _utils._utils_main as _u
-import _utils.logging as log
-import layouts.layouts_facade as lm
-
 import UI.widgets_manager as wm
 import UI.widgets_wrappers as ww
 
@@ -14,7 +8,6 @@ import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
 import data.constants as dc
 
-import file_system.file_system_facade as fsf
 
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):

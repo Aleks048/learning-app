@@ -58,6 +58,7 @@ class LayoutsManager:
     
     def closeNoteAppWindow(idToken, ownerPID = None):
         if idToken == _u.Token.NotDef.str_t:
+            log.autolog("Something went wrong. The token is udefined")
             return
 
         if ownerPID == None:

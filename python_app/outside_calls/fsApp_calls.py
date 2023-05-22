@@ -19,7 +19,7 @@ class FinderCalls:
         return shutil.copy2(sourceFilepath, destFilepath)
 
     def openFile(filepath):
-        cmd = "open -W file://" + filepath + " &"
+        cmd = "open file://" + filepath + " &"
         _u.runCmdAndWait(cmd)
         log.autolog("Opened file: '{0}'".format(filepath))
     

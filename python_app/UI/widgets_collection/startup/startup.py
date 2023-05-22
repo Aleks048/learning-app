@@ -1,25 +1,15 @@
-import os
 import tkinter as tk
 
 import UI.widgets_data as wd
-import file_system.file_system_facade as fsf
-
-import _utils.logging as log
-import _utils._utils_main as _u
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
-import UI.widgets_collection.message.manager as mesm
-import UI.widgets_collection.startup.manager as stm
-
 
 import layouts.layouts_facade as lm
 import data.constants as dc
 import data.temp as dt
 
 import settings.facade as sf
-
-import generalManger.generalManger as gm
 
 class StartupConfirm_BTN(ww.currUIImpl.Button,
                          dc.AppCurrDataAccessToken):
@@ -39,9 +29,9 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         # show UI main layout
-        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+        mainMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         mmm.MathMenuManager)
-        mathMenuManager.showOnly()
+        mainMenuManager.showOnly()
 
         # show 3rd party main layout
         lm.Wr.MainLayout.set()
@@ -64,6 +54,8 @@ class AddBook_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
+        import generalManger.generalManger as gm
+
         # get the data from the ETRs
         bookPath = self.notify(StrtupBookLocation_ETR)
         bookName = self.notify(StrtupBookName_ETR)

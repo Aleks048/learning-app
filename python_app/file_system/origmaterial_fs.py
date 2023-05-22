@@ -119,7 +119,8 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
     @classmethod
     def getOriginalMaterialsFilename(cls, matName):
         matPath = cls.getMaterialPath(matName)
-        return cls.__fromMatPathToFilename(matPath)
+
+        return cls.__fromMatPathToFilename(matPath).replace(".pdf", "")
     
     def __fromMatPathToFilename(matPath):
         matName = matPath.split("/")[-1]
@@ -167,9 +168,7 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         materialFilename = cls.getOriginalMaterialsFilename(matName)
         # update the currPage for original material
         cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
-        p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
-        frontSkimDocumentPage, _ = p.communicate()
-        frontSkimDocumentPage = frontSkimDocumentPage.decode("utf-8")
+        frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
         
         if frontSkimDocumentPage != None:
             page = frontSkimDocumentPage.split("page ")[1]
@@ -184,9 +183,8 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
 
             # set the page size
             cmd = oscr.get_BoundsOfThePage(origMatFilename)
-            p = subprocess.Popen(cmd, shell= True, stdout= subprocess.PIPE)
-            firstPageSize, _ = p.communicate()
-            firstPageSize = firstPageSize.decode("utf-8").replace("\n", "").split(", ")
+            firstPageSize, _ = _u.runCmdAndGetResult(cmd)
+            firstPageSize = firstPageSize.replace("\n", "").split(", ")
             cls.setMaterialPageSize(materialName, [firstPageSize[2], firstPageSize[1]])
 
         materials = cls.__getMaterailsDict() 

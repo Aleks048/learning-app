@@ -18,9 +18,6 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
-import UI.widgets_collection.message.manager as mesm
-import UI.widgets_collection.toc.manager as tocm
-import UI.widgets_collection.startup.manager as stm
 import layouts.layouts_facade as lf
 
 import data.constants as dc
@@ -29,7 +26,6 @@ import data.temp as dt
 import settings.facade as sf
 
 import scripts.osascripts as oscr
-import generalManger.generalManger as gm
 
 
 class ExitApp_BTN(ww.currUIImpl.Button,
@@ -50,20 +46,8 @@ class ExitApp_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        #main
-        self.rootWidget.exitApp()
-
-        #message
-        mesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                mesm.MessageMenuManager)
-        mesManager.winRoot.exitApp()
-        
-        #message
-        stManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                stm.StartupMenuManager)
-        stManager.winRoot.exitApp()
-
-        sys.exit()
+        import generalManger.generalManger as gm
+        gm.GeneralManger.exitApp()
         
 
 class LabelWithClick(ttk.Label):
