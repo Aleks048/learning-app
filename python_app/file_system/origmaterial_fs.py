@@ -57,9 +57,8 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
     @classmethod
     def addOriginalMaterial(cls, filePath, structureRelPath, materialName):
         log.autolog("Adding material: '{0}' to rel path: '{1}'".format(filePath, structureRelPath))
-        
-        basePath_curr =  _upan.Paths.OriginalMaterial.getAbs()
-        originnalMaterialDestinationPath = os.path.join(basePath_curr, structureRelPath)
+
+        originnalMaterialDestinationPath = os.path.join(structureRelPath)
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(originnalMaterialDestinationPath):   
             log.autolog("Path '{0}' does not exist. Will create it.".format(originnalMaterialDestinationPath))
@@ -78,7 +77,8 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         cls.setMaterialCurrPage(materialName, "1")
 
         # set noteSize
-        cls.setNoteSize(materialName, [100,40])
+        cls.setNoteSize(materialName, [100, 40])
+        cls.setMaterialPageSize(materialName, [-1, -1])
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
@@ -127,12 +127,14 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         return matName
 
     @classmethod
-    def getMaterialPath(cls, bookName):
+    def getMaterialPath(cls, OMName):
         books = cls.__getMaterailsDict()
         try:
-            return books[bookName][OriginalMaterialStructure.PubProp.path]
+            basePath_curr =  _upan.Paths.OriginalMaterial.getAbs()
+            relPath =  books[OMName][OriginalMaterialStructure.PubProp.path]
+            return os.path.join(basePath_curr, relPath)
         except:
-            log.autolog("No book with name '{0}'".format(bookName))
+            log.autolog("No OM with name '{0}'".format(OMName))
             return None
     
     @classmethod
@@ -141,16 +143,16 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         try:
             return books[omName][OriginalMaterialStructure.PubProp.noteSize]
         except:
-            log.autolog("No book with name '{0}'".format(omName))
+            log.autolog("No OM with name '{0}'".format(omName))
             return None
 
     @classmethod
-    def getMaterialPageSize(cls, bookName):
+    def getMaterialPageSize(cls, OMName):
         books = cls.__getMaterailsDict()
         try:
-            return books[bookName][OriginalMaterialStructure.PubProp.pageSize]
+            return books[OMName][OriginalMaterialStructure.PubProp.pageSize]
         except:
-            log.autolog("No book with name '{0}'".format(bookName))
+            log.autolog("No OM with name '{0}'".format(OMName))
             return None
     
     @classmethod
@@ -160,7 +162,7 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
         try:
             return books[bookName][OriginalMaterialStructure.PubProp.currPage]
         except:
-            log.autolog("No book with name '{0}'".format(bookName))
+            log.autolog("No OM with name '{0}'".format(bookName))
             return None
     
     @classmethod

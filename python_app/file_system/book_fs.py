@@ -38,7 +38,7 @@ class BookInfoStructure:
         #imagesProperties
         imageProp = "imageProp"
         imageContentFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
-        imageTOCFileMoveLinesNumber = "imageContentFileMoveLinesNumber"
+        imageTOCFileMoveLinesNumber = "imageTOCFileMoveLinesNumber"
 
         currOrigMatName = "currOrigMatName"
 
@@ -67,7 +67,7 @@ class BookInfoStructure:
         
         expectedFileDir = os.path.join("/", *bookInfoFilepath.split("/")[:-1])
         
-        log.autolog("The bookInfo structure was not present will create it at: " + expectedFileDir)
+        log.autolog("The bookInfo structure was not present will create it at: '{0}'".format(expectedFileDir))
         if not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(expectedFileDir):
             oscf.Wr.FsAppCalls.createDir(expectedFileDir)
         

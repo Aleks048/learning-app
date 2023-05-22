@@ -48,6 +48,10 @@ class Paths:
         sectionFolderName = "subsections"
 
         @bookNameArg_dec
+        def getBaseAbs(bookPath, *args):
+            return os.path.join(bookPath, Paths.Section.sectionFolderName)
+        
+        @bookNameArg_dec
         def getAbs(bookPath, section = _u.Token.NotDef.str_t, *args):
             relFilepath = Paths.Section.getRel(bookPath, section)
             return os.path.join(bookPath, relFilepath)

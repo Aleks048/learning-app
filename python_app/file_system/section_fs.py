@@ -92,7 +92,7 @@ class SectionInfoStructure:
         return secPrefix + "_" + path.replace(sectionPathSeparator, "_")   
 
     def createStructure(bookName):
-        subsectionPath = _upan.Paths.Section.getAbs(bookName)
+        subsectionPath = _upan.Paths.Section.getBaseAbs(bookName)
         ocf.Wr.FsAppCalls.createDir(subsectionPath)
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection,
                                             _u.Token.NotDef.str_t)
