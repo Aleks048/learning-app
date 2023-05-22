@@ -44,9 +44,7 @@ class OriginalMaterialStructure:
         origMatAbsPath_curr = _upan.Paths.OriginalMaterial.getAbs()
         
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(origMatAbsPath_curr):   
-            log.autolog("\
-The structure was not present. Will create it.\n\
-Creating path: '{0}'".format(origMatAbsPath_curr))
+            log.autolog("The OM structure was not present. Will create it.\nCreating path: '{0}'".format(origMatAbsPath_curr))
             ocf.Wr.FsAppCalls.createDir(origMatAbsPath_curr)
         
         # create file to track original materials with names and paths
@@ -58,7 +56,10 @@ Creating path: '{0}'".format(origMatAbsPath_curr))
     def addOriginalMaterial(cls, filePath, structureRelPath, materialName):
         log.autolog("Adding material: '{0}' to rel path: '{1}'".format(filePath, structureRelPath))
 
-        originnalMaterialDestinationPath = os.path.join(structureRelPath)
+        bookFilepath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        OM_basePath = _upan.Paths.OriginalMaterial.getAbs(bookFilepath)
+
+        originnalMaterialDestinationPath = os.path.join(OM_basePath, structureRelPath)
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(originnalMaterialDestinationPath):   
             log.autolog("Path '{0}' does not exist. Will create it.".format(originnalMaterialDestinationPath))

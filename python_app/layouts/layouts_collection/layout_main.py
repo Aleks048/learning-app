@@ -55,14 +55,14 @@ class MainLayout(lc.Layout):
         log.autolog("--- Starting pdf app manipulation")
         dimensions = [mon_halfWidth, mon_height, 0, 0]
     
-        origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
-        currMaterialName = fsf.Data.Book.currOrigMatName
-        pdfAppFile_ID = \
-            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currMaterialName)
+        OMName = fsf.Data.Book.currOrigMatName
+        origMaterialBookFSPath_curr = fsf.Wr.OriginalMaterialStructure.getMaterialPath(OMName)
 
-        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currMaterialName)
-
+        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(OMName)
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
+
+        pdfAppFile_ID = \
+            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(OMName)
         
         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                         pdfAppFile_ID)
@@ -80,8 +80,8 @@ class MainLayout(lc.Layout):
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
 
         # update the bounds
-        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(currMaterialName) == _u.Token.NotDef.list_t:
-            fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(currMaterialName)
+        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(OMName) == _u.Token.NotDef.list_t:
+            fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(OMName)
 
         log.autolog("--- Ended Pdf app manipulation. Opened skim!")
 
