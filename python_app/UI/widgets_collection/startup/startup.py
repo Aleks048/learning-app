@@ -119,7 +119,7 @@ next 4 ETRs are containers for data from the user
 '''
 
 class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
-    defaultText = "Book name"
+    defaultText = "Book name. (The name of the book in the system.)"
 
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -146,7 +146,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
         return self.getData()
 
 class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
-    defaultText = "Book location"
+    defaultText = "Book location. (folder where the book will be stored)"
 
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -173,7 +173,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
         return self.getData()
 
 class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
-    defaultText = "Original Material Rel Path"
+    defaultText = "OM Rel Path (don't: st w '/' & incl book filename)"
 
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -200,7 +200,7 @@ class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
 
 
 class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
-    defaultText = "Original Material Name"
+    defaultText = "OM Name (internal not reflected in the file)"
 
     def __init__(self, patentWidget, prefix):
         renderData = {
@@ -226,13 +226,13 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
         return self.getData()
 
 class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
-    defaultText = "Original Material Location"
+    defaultText = "OM Location. (Where to copy the file from)"
 
     def __init__(self, patentWidget, prefix):
         name = "_originalMaterialLocattion"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N, }
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
