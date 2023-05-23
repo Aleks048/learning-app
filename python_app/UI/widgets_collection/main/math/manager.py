@@ -257,6 +257,9 @@ class LayoutManagers:
 
             setSectionNoteAppLink_ETR = amsl.SetSectionNoteAppLink_ETR(winRoot, self.prefix)
             self.addWidget(setSectionNoteAppLink_ETR)
+            modifySubsection_BTN.addListenerWidget(setSectionNoteAppLink_ETR)
+            chooseSubsection_OM.addListenerWidget(setSectionNoteAppLink_ETR)
+
             modifyNotesAppLink_BTN = amsl.ModifyNotesAppLink_BTN(winRoot, self.prefix)
             self.addWidget(modifyNotesAppLink_BTN)
             modifyNotesAppLink_BTN.addListenerWidget(setSectionNoteAppLink_ETR)

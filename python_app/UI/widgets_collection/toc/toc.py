@@ -160,7 +160,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
             subsectionText = fsf.Data.Sec.text(subsection)
        
-        prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
+        prettySubsections = prefix + subsection + ": " + subsectionText + "\n"
         
         locFrame = ttk.Frame(self.scrollable_frame)
         super().addTOCEntry(locFrame, idx, 0)
