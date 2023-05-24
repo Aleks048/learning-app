@@ -209,7 +209,16 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
         fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
 
         # ADD LINK TO THE ORIGINAL MATERIAL
-        numNotesOnThePage = str(len([i for i in list(pagesDict.values()) if i == page]))
+        subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
+        numNotesOnThePage = 0
+        
+        for subsec in subsectionsList:
+            if fsf.Data.Sec.origMatName(subsec) == subsectionOM:
+                subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
+                numNotesOnThePage += len([i for i in list(subsecPagesDict.values()) if i == page])
+        
+        numNotesOnThePage = str(numNotesOnThePage)
+        
         currOMName = fsf.Data.Book.currOrigMatName
         bookName = sf.Wr.Manager.Book.getCurrBookName()
         currTopSection = fsf.Data.Book.currTopSection
