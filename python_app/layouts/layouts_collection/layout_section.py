@@ -58,7 +58,7 @@ class SectionLayout(lc.Layout,
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
             
             mainMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        wf.Wr.MenuManagers.MainMenuManager.__base__)
+                                                        wf.Wr.MenuManagers.MathMenuManager)
             
             mainMenuManager.switchToMainLayout()
 

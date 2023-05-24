@@ -143,7 +143,7 @@ class TexFileModify:
         # work with special "_" that are used in underscore
         linkName = linkName.replace("@_", "_")
 
-        return "{{" + linkName + "}}"
+        return linkName
     
     @classmethod
     def __getLinkText(cls, imIdx, linkName:str):
@@ -270,7 +270,7 @@ class TexFileModify:
             lineToAddPdfOnly = "        " + tfu.urlLatexWrapper(pdfLink, "[p]")
             lineToAddPdfOnly = lineToAddPdfOnly.replace("\n", "") + ", "
         else:
-            lineToAddFull = lineToAddPdfOnly.replace("\n", "") + ", "
+            lineToAddFull = lineToAddFull.replace("\n", "") + ", "
         
         outlines.append(lineToAddFull)
         

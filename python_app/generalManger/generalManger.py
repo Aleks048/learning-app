@@ -32,7 +32,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("-- Srartup started: ")
         messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
         log.autolog("Started '{0}' UI manager".format("message menu"))
-        mainMenuManager = wf.Wr.MenuManagers.MainMenuManager()
+        mainMenuManager = wf.Wr.MenuManagers.MathMenuManager()
         log.autolog("Started '{0}' UI manager".format("main menu"))
         startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
         log.autolog("Started '{0}' UI manager".format("startup menu"))
@@ -49,9 +49,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         import UI.widgets_facade as wf
         log.autolog("- Starting exiting the app")
         # main
-        # mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-        #                                         wf.Wr.MenuManagers.MainMenuManager)
-        # mainManager.winRoot.exitApp()
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.winRoot.exitApp()
 
         # message
         mesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -108,7 +108,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MainMenuManager)
+                                                        wf.Wr.MenuManagers.MathMenuManager)
             response = messManager.show("The index '{0}' already exists. Do you want to update?".format(imID), True)
             
             if response:
@@ -162,12 +162,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             
-            response = mesManager.show("The image with idx '{0}' already exists. Overrite", True)
+            response = mesManager.show("The image with idx '{0}' already exists. Overrite".format(imIdx), True)
             
             if response:
                 ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
-            else:
-                return False
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                   wf.Wr.MenuManagers.MathMenuManager)
+
+            mainManager.show()
         else:
             ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
         

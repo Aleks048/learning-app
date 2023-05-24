@@ -11,7 +11,7 @@ class Wr:
         class UI_GeneralManager(wm.UI_generalManager):
             pass
 
-        class MainMenuManager(mm.MathMenuManager):
+        class MathMenuManager(mm.MathMenuManager):
             pass
         
         class StartupMenuManager(sm.StartupMenuManager):

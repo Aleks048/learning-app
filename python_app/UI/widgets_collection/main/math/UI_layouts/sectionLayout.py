@@ -148,12 +148,15 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def updateOptions(self, _ = ""):
         currSecPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        # currChImageLinks = fsm.Wr.Links.LinkDict.getCurrImLinksSorted(currSecPath)
-        self.sourceSubsectionImageLink = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
-        self.sourceSubsectionImageLink.sort(key = int)
+        self.sourceSubsectionImageLinks = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
+        self.sourceSubsectionImageLinks.sort(key = int)
 
         super().updateOptions(self.sourceSubsectionImageLinks)
-        self.setData(self.sourceSubsectionImageLink[-1])
+        self.setData(self.sourceSubsectionImageLinks[-1])
+
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        self.updateOptions()
+        return super().render(widjetObj, renderData, **kwargs)
 
     def receiveNotification(self, broadcasterType):
         if broadcasterType == AddGlobalLink_BTN:
@@ -297,10 +300,13 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
 
         # add target to the source links
         sourseSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(sourceSubsection)
-        if sourseSectionGlobalLinksDict[sourceIDX] != _u.Token.NotDef.dict_t:
-            sourceImGlobalLinksDict = sourseSectionGlobalLinksDict[sourceIDX]
-        else:
+        
+        if sourceIDX not in list(sourseSectionGlobalLinksDict.keys()):
             sourceImGlobalLinksDict = {}
+        elif sourseSectionGlobalLinksDict[sourceIDX] == _u.Token.NotDef.dict_t:
+            sourceImGlobalLinksDict = {}
+        else:
+            sourceImGlobalLinksDict = sourseSectionGlobalLinksDict[sourceIDX]
         
         targetUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
                                                 targetIDX, "full", False)
@@ -308,36 +314,37 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         
         if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()):
             sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
+            if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                sourseSectionGlobalLinksDict = {}
+            
+            sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
+            fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
         else:
-            log.autolog("The link: '{0}' is already present.".format(targetUrl))        
+            log.autolog("The link: '{0}' is already present.".format(targetUrl))
 
-        if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
-            sourseSectionGlobalLinksDict = {}
-        
-        sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
-        fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
-        
-        # add source to the target info
+        # add target to the target info
         targetSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(targetSubsection)
-        if targetSectionGlobalLinksDict[targetIDX] != _u.Token.NotDef.dict_t:
-            targetImGlobalLinksDict = targetSectionGlobalLinksDict[targetIDX]
-        else:
+        
+        if targetIDX not in list(targetSectionGlobalLinksDict.keys()):
             targetImGlobalLinksDict = {}
+        elif targetSectionGlobalLinksDict[targetIDX] == _u.Token.NotDef.dict_t:
+            targetImGlobalLinksDict = {}
+        else:
+            targetImGlobalLinksDict = targetSectionGlobalLinksDict[targetIDX]
 
-        sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
-                                                targetIDX, "full", False)
+        sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, sourceTopSection, sourceSubsection, 
+                                                sourceIDX, "full", False)
         sourceUrlLinkName = sourceSubsection + "_" + sourceIDX
         
-        if sourceUrl not in list(targetImGlobalLinksDict.keys()):
+        if sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
             targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
         else:
             log.autolog("the link: '{0}' is already present.".format(targetUrl))
 
-
         if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
             targetSectionGlobalLinksDict = {}
 
-        targetSectionGlobalLinksDict[sourceIDX] = targetImGlobalLinksDict
+        targetSectionGlobalLinksDict[targetIDX] = targetImGlobalLinksDict
         fsm.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)
 
         #

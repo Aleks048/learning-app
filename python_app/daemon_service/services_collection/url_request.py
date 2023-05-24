@@ -94,7 +94,7 @@ def processCall(url):
 
         # UI
         mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                        wf.Wr.MenuManagers.MainMenuManager.__base__)
+                                                        wf.Wr.MenuManagers.MathMenuManager.__base__)
         mainMenuManager.switchToSectionLayout()
     
     # other sections UI
