@@ -33,7 +33,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_exitApp"
@@ -273,7 +273,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseOriginalMaterial_OM"
@@ -293,24 +293,24 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         self.prevChoice = currOrigMatName
     
     def cmd(self):
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
-
         # close original material document
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
         prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
         _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     prevChoiceID)     
         
         if oldPID != None:
             lf.Wr.LayoutsManager.closePDFwindow(prevChoiceID, oldPID)
+        
+        time.sleep(0.3)
 
         # open another original material
         origMatName = self.getData()
         self.prevChoice = origMatName
         origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
         origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
-        t = Thread(target = ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage))
-        t.start()
-        t.join()
+        ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
+
         width, height = _u.getMonitorSize()
         halfWidth = int(width / 2)
 
@@ -322,11 +322,17 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
             _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
                                                     newChoiceID)
         cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], newChoiceID)
-        subprocess.Popen(cmd, shell=True).wait()
+        _u.runCmdAndWait(cmd)
+
+        # update book settings
+        fsf.Data.Book.currOrigMatName = origMatName
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
         names = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
         self.updateOptions(names)
+
+        currOrigMatName = fsf.Data.Book.currOrigMatName
+        self.setData(currOrigMatName)
         return super().render(widjetObj, renderData, **kwargs)
 
 
@@ -606,6 +612,9 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
                                                         addToTOC, 
                                                         addToTOCwIm)
 
+            if not entryAdded:
+                return
+            
             currImNum = self.dataFromUser[0]
             nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)

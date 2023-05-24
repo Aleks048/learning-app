@@ -150,8 +150,11 @@ class SectionInfoStructure:
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
 
         cls.__createSubsectionFiles(bookpath, sectionPath)
+        
+        origMatName =  bfs.BookInfoStructure.readProperty( bfs.BookInfoStructure.PubProp.currOrigMatName)
 
         cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
+        cls.updateProperty(sectionPath, cls.PubProp.origMatName, origMatName)
     
     @classmethod
     def removeSection(cls, sectionPath):

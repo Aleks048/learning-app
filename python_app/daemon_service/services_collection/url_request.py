@@ -40,6 +40,7 @@ def processCall(url):
         omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
 
         pagesDict:dict = fsf.Data.Sec.imLinkOMPageDict(subsecPath)
+        
         if positionIDX not in pagesDict.keys():
             log.autolog("Can't open original material for '{0}'.".format("/".join(url)))
 
@@ -51,6 +52,7 @@ def processCall(url):
 
     if "notes" in linktType.lower():
         notesAppLink = fsf.Data.Sec.notesAppLink(subsecPath)
+        
         if notesAppLink != _u.Token.NotDef.str_t:
             log.autolog("Will only open notesapp page of '{0}'".format(subsecPath))
             oscf.Wr.NoteAppCalls.openPage(notesAppLink)
@@ -67,9 +69,9 @@ def processCall(url):
                                     goodNotesBounds,
                                     subsecPath)
             os.system(cmd)
-
         else:
             log.autolog("Notesapp link of '{0}' is empty. Cannot open it".format(subsecPath))
+        
         return
 
     if positionIDX == _u.Token.NotDef.str_t:

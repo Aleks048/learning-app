@@ -97,6 +97,22 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
         import UI.widgets_facade as wf
 
+        subsectionOM = fsf.Data.Sec.origMatName(subsection)
+        currBookOM = fsf.Data.Book.currOrigMatName
+        if subsectionOM != currBookOM:
+            mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
+                                                        wf.Wr.MenuManagers.MessageMenuManager)
+            
+            response = mesManager.show("\
+The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".format(subsectionOM, currBookOM), True)
+            
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+
+            mainManager.show()
+            if not response:
+                return False
+
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     _upan.Names.getImageName(str(imIdx), subsection))
         
@@ -176,6 +192,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         
         # ORIGINAL MATERIAL DATA
         origMatName = fsf.Data.Book.currOrigMatName
+
         fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
         page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
