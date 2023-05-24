@@ -109,7 +109,6 @@ class OriginalMaterialStructure:
                   pHeight - (row + 1) * nHeight,
                   ]
         cmd = oscr.addNoteTheToThePage(fileName, page, noteText, bounds)
-        log.autolog(cmd)
         _u.runCmdAndWait(cmd)
 
     @classmethod
@@ -189,15 +188,16 @@ class OriginalMaterialStructure:
             firstPageSize, _ = _u.runCmdAndGetResult(cmd)
             firstPageSize = firstPageSize.replace("\n", "").split(", ")
             cls.setMaterialPageSize(materialName, [firstPageSize[2], firstPageSize[1]])
+            return
 
         materials = cls.__getMaterailsDict() 
 
         if materialName not in materials.keys():
             materials[materialName] = {}
-        
+
         materials[materialName][OriginalMaterialStructure.PubProp.pageSize] = pageSize
         cls.__updateMaterialDict(materials)
-    
+
     @classmethod
     def setMaterialPath(cls, materialName, materialPath):
         materials = cls.__getMaterailsDict() 

@@ -127,6 +127,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 
                 fsf.Data.Sec.imLinkDict(subsection, linkDict)
 
+                if imGlobalLinksDict == _u.Token.NotDef.dict_t:
+                    imGlobalLinksDict = {}
+
                 imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t
                 fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
             
@@ -168,23 +171,27 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         else:
             ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
         
-        # original material data
+        # ORIGINAL MATERIAL DATA
         origMatName = fsf.Data.Book.currOrigMatName
         fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
         page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
-        if str(imIdx) == "0":
-            fsf.Data.Sec.origMatName(imIdx, origMatName)
+        if fsf.Data.Sec.origMatName == _u.Token.NotDef.str_t:
+            fsf.Data.Sec.origMatName(subsection, origMatName)
 
         pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+
+        if pagesDict == _u.Token.NotDef.dict_t:
+            pagesDict = {}
+
         pagesDict[imIdx] = page
-        numNotesOnThePage = str(len([i for i in list(pagesDict.values()) if i == page]))
         fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
 
+        # ADD LINK TO THE ORIGINAL MATERIAL
+        numNotesOnThePage = str(len([i for i in list(pagesDict.values()) if i == page]))
         currOMName = fsf.Data.Book.currOrigMatName
-
         bookName = sf.Wr.Manager.Book.getCurrBookName()
         currTopSection = fsf.Data.Book.currTopSection
-        url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
-        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, url, numNotesOnThePage)
+        noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
+        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteUrl, numNotesOnThePage)

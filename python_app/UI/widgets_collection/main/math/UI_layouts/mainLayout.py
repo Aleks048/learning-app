@@ -56,11 +56,12 @@ class LabelWithClick(ttk.Label):
     '''
     clicked = False
 
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 4},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -68,7 +69,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         super().__init__(prefix, 
                         name,
                         parentWidget, 
-                        renderData = data)
+                        renderData = data,
+                        height=140,
+                        width=500)
     
     def receiveNotification(self, broadcasterName, data = None):
         pass
@@ -111,7 +114,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         def openSectionOnIdx(widget, imIdx):
             def __cmd(event = None, *args):
                 # open orig material on page
-                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
                 bookName = sf.Wr.Manager.Book.getCurrBookName()
                 currTopSection = fsf.Data.Book.currTopSection
 
@@ -182,12 +184,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         subsectionLabel.grid(row = 0, column= 0, sticky=tk.NW)
 
-        openContentLabel = LabelWithClick(locFrame, text = "[content]")
-        openContentOfTheSection(locFrame, openContentLabel)
-        bindChangeColorOnInAndOut(openContentLabel)
+        if level != 0:
+            openContentLabel = LabelWithClick(locFrame, text = "[content]")
+            openContentOfTheSection(locFrame, openContentLabel)
+            bindChangeColorOnInAndOut(openContentLabel)
 
-        openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
-        
+            openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
 
     def populateTOC(self):
         text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
@@ -202,6 +204,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         self.populateTOC()
 
         return super().render(widjetObj, renderData, **kwargs)
+
 
 class TOC_LBL(ww.currUIImpl.Label):
     subsection = ""
@@ -263,6 +266,7 @@ class TOC_LBL(ww.currUIImpl.Label):
                   ww.currUIImpl.Data.BindID.leaveWidget]
         
         return events, cmds
+
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
@@ -591,6 +595,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
     def cmd(self):
         
         def _createTexForTheProcessedImage():
+            import generalManger.generalManger as gm
             addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
 
@@ -655,16 +660,17 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             prevData = self.getData()
             self.setData(dataToSet)
             return prevData
-        elif broadcasterType == ChooseTopSection_OM:
+        elif broadcasterType == ChooseSubsection_OM or broadcasterType == ChooseTopSection_OM:
+            # TODO: find a nicer wahy without checking the dict
+            imDict = fsf.Wr.SectionCurrent.getCurrLinkIdxDict()
             currIdx = fsf.Wr.SectionCurrent.getImIDX()
-            currIdx = 0 if currIdx == '' else int(currIdx)
+            currIdx = int(currIdx)
             nextIdx = str(currIdx + 1)
-            self.setData(nextIdx)
-        elif broadcasterType == ChooseSubsection_OM:
-            currIdx = fsf.Wr.SectionCurrent.getImIDX()
-            currIdx = 0 if currIdx == '' else int(currIdx)
-            nextIdx = str(currIdx + 1)
-            self.setData(nextIdx)
+
+            if imDict == _u.Token.NotDef.dict_t:
+                self.setData(currIdx)
+            else:
+                self.setData(nextIdx)
         elif broadcasterType == AddExtraImage_BTN:
             return self.getData()
     

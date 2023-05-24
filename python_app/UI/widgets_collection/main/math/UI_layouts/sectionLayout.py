@@ -309,7 +309,10 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()):
             sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
         else:
-            log.autolog("the link: '{0}' is already present.".format(targetUrl))
+            log.autolog("The link: '{0}' is already present.".format(targetUrl))        
+
+        if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+            sourseSectionGlobalLinksDict = {}
         
         sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
         fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
@@ -329,6 +332,10 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
             targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
         else:
             log.autolog("the link: '{0}' is already present.".format(targetUrl))
+
+
+        if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+            targetSectionGlobalLinksDict = {}
 
         targetSectionGlobalLinksDict[sourceIDX] = targetImGlobalLinksDict
         fsm.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)

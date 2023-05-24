@@ -87,8 +87,10 @@ class TexFilePopulate:
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
                     textToAdd = "\\mybox{{\\Large[" + subsection + "-" + currIdx + "]" + imText + ":\\par}}\\normalsize"
+                    linkToOriginal = tfu.getLinkLine(bookName, topSection, subsection, 
+                                                currIdx, "[Original Material]", "OM")
                     line = line.replace("\n", "")
-                    contentFile[i] = textToAdd + line.replace(imageName, imagePath) + "\n"
+                    contentFile[i] = textToAdd + linkToOriginal + line.replace(imageName, imagePath) + "\n"
                 elif "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
@@ -106,8 +108,6 @@ class TexFilePopulate:
 
         tocFile = [tfu.getLinkLine(bookName, topSection, subsection, 
                                    imIdx, "[Bring To front]", "full")]
-        tocFile.append(tfu.getLinkLine(bookName, topSection, subsection, 
-                                   imIdx, "[Original Material]", "OM"))
         
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 

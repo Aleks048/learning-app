@@ -171,11 +171,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         subsectionLabel.grid(row = 0, column= 0, sticky=tk.NW)
 
-        openContentLabel = LabelWithClick(locFrame, text = "[content]")
-        openContentOfTheSection(locFrame, openContentLabel)
-        bindChangeColorOnInAndOut(openContentLabel)
+        if level != 0:
+            openContentLabel = LabelWithClick(locFrame, text = "[content]")
+            openContentOfTheSection(locFrame, openContentLabel)
+            bindChangeColorOnInAndOut(openContentLabel)
 
-        openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
+            openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
         
 
     def populateTOC(self):

@@ -80,7 +80,7 @@ class MainLayout(lc.Layout):
         dt.OtherAppsInfo.Skim.main_pid = ownerPID
 
         # update the bounds
-        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(OMName) == _u.Token.NotDef.list_t:
+        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(OMName) == [-1, -1]:
             fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(OMName)
 
         log.autolog("--- Ended Pdf app manipulation. Opened skim!")
