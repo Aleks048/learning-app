@@ -94,6 +94,7 @@ class BookInfoStructure:
             def addBookInfoTopSection(parentProperty):
                 parentProperty[relSectionPath] = {
                     "prevSubsectionPath":"",
+                    "name": "",
                     "sections": {}
                 }
             

@@ -223,6 +223,7 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
         bookName = sf.Wr.Manager.Book.getCurrBookName()
         currTopSection = fsf.Data.Book.currTopSection
         noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
-        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteUrl, numNotesOnThePage)
+        noteText = noteUrl + " " + imText
+        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
         
         return True 

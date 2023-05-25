@@ -1,5 +1,6 @@
 import os
 import subprocess
+import math
 
 import _utils._utils_main as _u
 import _utils.logging as log
@@ -78,7 +79,7 @@ class OriginalMaterialStructure:
         cls.setMaterialCurrPage(materialName, "1")
 
         # set noteSize
-        cls.setNoteSize(materialName, [100, 40])
+        cls.setNoteSize(materialName, [300, 20])
         cls.setMaterialPageSize(materialName, [-1, -1])
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
@@ -102,12 +103,26 @@ class OriginalMaterialStructure:
 
         col = idx % numCols
         row = idx // numCols
+        if col == 0:
+            col += numCols
+            row -= 1
+        
+        if idx <= 4:
+            bounds = [pWidth - (numCols - col + 1) * nWidth,
+                    pHeight - row * nHeight,
+                    pWidth - (numCols - col) * nWidth,
+                    pHeight - (row + 1) * nHeight,
+                    ]
+        else:
+            idx = idx - 4
+            row = 4 - math.ceil(idx / 2)
 
-        bounds = [pWidth - (numCols - col + 1) * nWidth,
-                  pHeight - row * nHeight,
-                  pWidth - (numCols - col) * nWidth,
-                  pHeight - (row + 1) * nHeight,
-                  ]
+            bounds = [pWidth - (numCols - col + 1) * nWidth,
+                    row * nHeight,
+                    pWidth - (numCols - col) * nWidth,
+                    (row - 1) * nHeight,
+                    ]
+        
         cmd = oscr.addNoteTheToThePage(fileName, page, noteText, bounds)
         _u.runCmdAndWait(cmd)
 
