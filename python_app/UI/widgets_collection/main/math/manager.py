@@ -269,6 +269,9 @@ class LayoutManagers:
             modifyNotesAppLink_BTN.addListenerWidget(chooseSubsection_OM)
             modifyNotesAppLink_BTN.addListenerWidget(chooseTopSection_OM)
 
+            moveToTOC_BTN = amsl.MoveToTOC_BTN(winRoot, self.prefix)
+            self.addWidget(moveToTOC_BTN)
+
 
         def show(self):
             self.winRoot.configureColumn(0, weight = 1)

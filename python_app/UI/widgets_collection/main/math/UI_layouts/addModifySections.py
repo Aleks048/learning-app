@@ -6,15 +6,41 @@ import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
-import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.main.math.manager as mmm
-import UI.widgets_data as wd
 import UI.widgets_collection.main.math.UI_layouts.common as cl
 import file_system.file_system_facade as fsf
 import layouts.layouts_facade as lf
 
+import scripts.osascripts as oscf
+import outside_calls.outside_calls_facade as ocf
+
 import data.constants as dc
 import data.temp as dt
+
+
+class MoveToTOC_BTN(ww.currUIImpl.Button,
+                           dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 3, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Move to TOC"
+        name = "_moveToTOC_BTN"
+
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        omName = fsf.Data.Book.currOrigMatName
+        filepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+        tocPage = fsf.Wr.OriginalMaterialStructure.getMaterialTOCPage(omName)
+
+        ocf.Wr.PdfApp.openPDF(filepath, tocPage)
 
 
 class ModifySubsection_BTN(ww.currUIImpl.Button,
@@ -100,7 +126,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSubsecion_optionMenu"
@@ -169,7 +195,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSection_optionMenu"
@@ -302,7 +328,6 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         return super().render(widjetObj, renderData, **kwargs)
 
 
-
 class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
                            dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
@@ -371,7 +396,6 @@ class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
             self.defaultText = newNoteAppLink
         else:
             return self.getData()
-
 
 
 class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
@@ -551,6 +575,7 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
     def cmd(self):
         # close current subsection FS window
         currSection = fsf.Data.Book.currSection
+
         lf.Wr.LayoutsManager.closeFSWindow(currSection)
 
         newSecName = self.notify(SetSectionName_ETR)

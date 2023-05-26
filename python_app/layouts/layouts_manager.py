@@ -35,12 +35,17 @@ class LayoutsManager:
         if ownerPID == None:
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, idToken)
             
+            counter = 0
             while ownerPID == None:
                 sleep(0.1)
                 _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, idToken)
-
-        cmd = oscr.closeFinderWindow(ownerPID, idToken)
-        _u.runCmdAndWait(cmd)
+                if counter == 10:
+                    break
+                counter +=1
+        
+        if ownerPID != None:
+            cmd = oscr.closeFinderWindow(ownerPID, idToken)
+            _u.runCmdAndWait(cmd)
     
     def closePDFwindow(idToken, ownerPID = None):
         if idToken == _u.Token.NotDef.str_t:

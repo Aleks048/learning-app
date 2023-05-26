@@ -28,9 +28,13 @@ class OriginalMaterialStructure:
         noteSize = "NoteSize"
         pageSize = "PageSize"
 
+        # toc page
+        tocPage = "TocPage"
+
     bookTemplate = {
         PubProp.path : _u.Token.NotDef.str_t,
         PubProp.currPage : _u.Token.NotDef.str_t,
+        PubProp.tocPage : _u.Token.NotDef.str_t,
         PubProp.noteSize : _u.Token.NotDef.list_t,
         PubProp.pageSize : _u.Token.NotDef.list_t
     }
@@ -81,6 +85,7 @@ class OriginalMaterialStructure:
         # set noteSize
         cls.setNoteSize(materialName, [300, 20])
         cls.setMaterialPageSize(materialName, [-1, -1])
+        cls.setTOCPage(materialName, _u.Token.NotDef.str_t)
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
@@ -148,6 +153,15 @@ class OriginalMaterialStructure:
             basePath_curr =  _upan.Paths.OriginalMaterial.getAbs()
             relPath =  books[OMName][OriginalMaterialStructure.PubProp.path]
             return os.path.join(basePath_curr, relPath)
+        except:
+            log.autolog("No OM with name '{0}'".format(OMName))
+            return None
+    
+    @classmethod
+    def getMaterialTOCPage(cls, OMName):
+        books = cls.__getMaterailsDict()
+        try:
+            return books[OMName][OriginalMaterialStructure.PubProp.tocPage]
         except:
             log.autolog("No OM with name '{0}'".format(OMName))
             return None
@@ -221,6 +235,16 @@ class OriginalMaterialStructure:
             materials[materialName] = {}
         
         materials[materialName][OriginalMaterialStructure.PubProp.path] = materialPath
+        cls.__updateMaterialDict(materials)
+    
+    @classmethod
+    def setTOCPage(cls, materialName, tocPage):
+        materials = cls.__getMaterailsDict() 
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.tocPage] = tocPage
         cls.__updateMaterialDict(materials)
     
     @classmethod
