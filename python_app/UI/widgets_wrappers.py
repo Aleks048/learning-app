@@ -471,7 +471,9 @@ class TkWidgets (DataTranslatable_Interface):
             container = ttk.Frame(rootWidget.widgetObj)
             canvas = tk.Canvas(container, height = height, width = width)
             scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+            scrollbar2 = ttk.Scrollbar(container, orient="horizontal", command=canvas.xview)
             scrollable_frame = ttk.Frame(canvas)
+            scrollable_frame2 = ttk.Frame(canvas)
             self.scrollable_frame = scrollable_frame
 
             scrollable_frame.bind(
@@ -480,17 +482,26 @@ class TkWidgets (DataTranslatable_Interface):
                     scrollregion=canvas.bbox("all")
                 )
             )
+            scrollable_frame2.bind(
+                "<Configure>",
+                lambda e: canvas.configure(
+                    scrollregion=canvas.bbox("all")
+                )
+            )
 
             canvas.create_window((0, 0), window = scrollable_frame, anchor="nw")
+            canvas.create_window((0, 0), window = scrollable_frame2, anchor="se")
 
             canvas.configure(yscrollcommand=scrollbar.set)
+            canvas.configure(xscrollcommand=scrollbar2.set)
 
             container.grid(column = 0, row = 0)
-            canvas.pack(side="left", fill="both", expand = True)
             scrollbar.pack(side="right", fill="y")
+            scrollbar2.pack(side="top", fill="x")
+            canvas.pack(side="top", fill="both", expand = True)
 
             container.bind_all('<MouseWheel>', on_vertical)
-            # container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+            container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
             widjetObj = container
 
             

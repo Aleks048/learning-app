@@ -172,9 +172,37 @@ osascript -e '\n\
 					end tell\n\
                 end tell\n\
 			end if\n\
+            save\n\
 		end repeat\n\
 	end tell\
 '".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page, noteText, *bounds)
+     
+	return cmd
+
+def deleteAllNotesFromThePage(docToken, page):
+	cmd = "\
+osascript -e '\n\
+	tell application \"{0}\"\n\
+		repeat with d in documents\n\
+			set n to name of d\n\
+			if n contains \"{1}\" then\n\
+				tell d\n\
+					tell page {2}\n\
+                        set nList to notes\n\
+						repeat with i from 1 to count nList\n\
+							set nt to item i of nList\n\
+							set nttext to text of nt\n\
+							if nttext contains \"KIK\" then\n\
+								delete item i of nList\n\
+							end if\n\
+						end repeat\n\
+					end tell\n\
+					save\n\
+                end tell\n\
+			end if\n\
+		end repeat\n\
+	end tell\
+'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page)
      
 	return cmd
 
@@ -191,6 +219,7 @@ osascript -e '\n\
                     end tell\n\
                 end tell\n\
             end if\n\
+            save\n\
 		end repeat\n\
 	end tell\
 '".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page)
@@ -210,6 +239,7 @@ osascript -e '\n\
                     end tell\n\
                 end tell\n\
             end if\n\
+            save\n\
 		end repeat\n\
 	end tell\
 '".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, page)

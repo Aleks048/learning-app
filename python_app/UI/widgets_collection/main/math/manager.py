@@ -98,6 +98,9 @@ class LayoutManagers:
  
             showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)
+            
+            reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
+            self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
             #
             # post init

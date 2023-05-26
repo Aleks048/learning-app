@@ -28,6 +28,60 @@ import settings.facade as sf
 import scripts.osascripts as oscr
 
 
+class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
+                  dc.AppCurrDataAccessToken):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 4},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_reAddNotes"
+        text= "ReAdd notes"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        omName = fsf.Data.Book.currOrigMatName
+        fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
+        cmd = oscr.get_PageOfSkimDoc_CMD(fileName)
+        currPage, _ = _u.runCmdAndGetResult(cmd)
+
+        if currPage != None:
+            currPage = currPage.split("page ")[1]
+            currPage = currPage.split(" ")[0]
+        
+        time.sleep(0.3)
+
+        cmd = oscr.deleteAllNotesFromThePage(fileName, currPage)
+        _u.runCmdAndWait(cmd)
+
+        time.sleep(0.3)
+        
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
+        
+        sections = fsf.Data.Book.sections
+        noteIdx = 1
+
+        for topSection in sections:
+            subsections = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
+            for subSec in subsections:
+                imPages:dict = fsf.Data.Sec.imLinkOMPageDict(subSec)
+                imTexts:dict = fsf.Data.Sec.imLinkDict(subSec)
+                for imIdx,imPage in imPages.items():
+                    if imPage == currPage:
+                        imText = imTexts[imIdx]
+                        url = tff.Wr.TexFileUtils.getUrl(bookName, topSection, subSec, 
+                                                        imIdx, "full", notLatex=True)
+                        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(omName, currPage, 
+                                                                                   url + " " + imText, noteIdx)
+                        noteIdx += 1
+
+
 class ExitApp_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 
@@ -61,7 +115,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
