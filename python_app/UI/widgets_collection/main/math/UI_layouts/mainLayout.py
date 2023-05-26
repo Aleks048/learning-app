@@ -227,7 +227,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
             subsectionText = fsf.Data.Sec.text(subsection)
 
-        if level == 0:
+        if level == 0 and subsection != _u.Token.NotDef.str_t:
             subsectionText = fsf.Data.Book.sections[subsection]["name"]
 
         prettySubsections = prefix + subsection + ": " + subsectionText + "\n"
