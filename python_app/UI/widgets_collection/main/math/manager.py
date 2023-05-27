@@ -227,12 +227,12 @@ class LayoutManagers:
             newSectionPath_ETR = amsl.NewSectionPath_ETR(winRoot, self.prefix)
             self.addWidget(newSectionPath_ETR)
             
-            createNewTopSection_BTN = amsl.CreateNewTopSection_BTN(winRoot, self.prefix)
-            self.addWidget(createNewTopSection_BTN)
+            createNewSubsection_BTN = amsl.CreateNewSubsection_BTN(winRoot, self.prefix)
+            self.addWidget(createNewSubsection_BTN)
             
-            createNewTopSection_BTN.addListenerWidget(newSectionPath_ETR)
-            createNewTopSection_BTN.addListenerWidget(setSectionStartPage_ETR)
-            createNewTopSection_BTN.addListenerWidget(setSectionName_ETR)
+            createNewSubsection_BTN.addListenerWidget(newSectionPath_ETR)
+            createNewSubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
+            createNewSubsection_BTN.addListenerWidget(setSectionName_ETR)
 
             chooseTopSection_OM = amsl.ChooseTopSection_OM(winRoot, self.prefix)
             self.addWidget(chooseTopSection_OM)

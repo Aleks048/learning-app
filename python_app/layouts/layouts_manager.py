@@ -39,7 +39,7 @@ class LayoutsManager:
             while ownerPID == None:
                 sleep(0.1)
                 _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, idToken)
-                if counter == 10:
+                if counter == 3:
                     break
                 counter +=1
         

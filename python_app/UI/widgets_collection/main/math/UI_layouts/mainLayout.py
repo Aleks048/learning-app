@@ -121,6 +121,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         }
         name = "_showCurrScreenshotLocation_text"
 
+        self.__populateClicketSubsecDict()
+
         super().__init__(prefix, 
                         name,
                         parentWidget, 
@@ -263,6 +265,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
+        self.__populateClicketSubsecDict()
+
+        for child in self.scrollable_frame.winfo_children():
+            child.destroy()
+
+        self.populateTOC()
+
+        return super().render(widjetObj, renderData, **kwargs)
+
+    def __populateClicketSubsecDict(self):
         # update the subsections dict in the toc window.
         # the subsectionsClicked:dict is used to keep the open subsection content open
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList()
@@ -270,13 +282,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         for subSec in subsectionsList:
             if subSec not in list(self.subsectionsClicked.keys()):
                 self.subsectionsClicked[subSec] = False
-
-        for child in self.scrollable_frame.winfo_children():
-            child.destroy()
-        
-        self.populateTOC()
-
-        return super().render(widjetObj, renderData, **kwargs)
 
 
 class TOC_LBL(ww.currUIImpl.Label):

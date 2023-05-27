@@ -29,9 +29,9 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         # show UI main layout
-        mainMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-        mainMenuManager.showOnly()
+        import generalManger.generalManger as gm
+        
+        gm.GeneralManger.startNonStartMenus()
 
         # show 3rd party main layout
         lm.Wr.MainLayout.set()

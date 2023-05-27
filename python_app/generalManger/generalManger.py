@@ -23,24 +23,35 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     dserver = None
 
     @classmethod
-    def startApp(cls):
+    def startNonStartMenus(cls):
         import UI.widgets_facade as wf
         # start the daemon to process client calls
         cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
 
         # create startup menu
-        log.autolog("-- Srartup started: ")
+        log.autolog("-- Srartup of other menus started: ")
         messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
         log.autolog("Started '{0}' UI manager".format("message menu"))
         mainMenuManager = wf.Wr.MenuManagers.MathMenuManager()
         log.autolog("Started '{0}' UI manager".format("main menu"))
-        startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
-        log.autolog("Started '{0}' UI manager".format("startup menu"))
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
+        log.autolog("-- Srartup  of other menus ended.")
+
+        mainMenuManager.showOnly()
+
+
+    @classmethod
+    def startApp(cls):
+        import UI.widgets_facade as wf
+        # start the daemon to process client calls 
+
+        log.autolog("-- Srartup startup menu started: ")
+        startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
+        log.autolog("Started '{0}' UI manager".format("startup menu"))
 
         startupMenuManager.showOnly()
-        log.autolog("-- Srartup ended.")
+        log.autolog("-- Srartup of startup menu ended.")
 
         wf.Wr.WidgetWrappers.startLoop()
 

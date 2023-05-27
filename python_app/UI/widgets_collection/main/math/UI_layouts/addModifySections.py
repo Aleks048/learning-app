@@ -1,4 +1,5 @@
 import tkinter as tk
+import re
 
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -40,6 +41,17 @@ class MoveToTOC_BTN(ww.currUIImpl.Button,
         filepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
         tocPage = fsf.Wr.OriginalMaterialStructure.getMaterialTOCPage(omName)
 
+        if tocPage == _u.Token.NotDef.str_t:
+            msg = "\
+NOTE: The TOC page is not set for '{0}' . Will not do anything.".format(omName)
+            wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            return
+
         ocf.Wr.PdfApp.openPDF(filepath, tocPage)
 
 
@@ -65,7 +77,8 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
         subsecPath = self.notify(ChooseSubsection_OM)
         topSection = self.notify(ChooseTopSection_OM)
 
-        changeStr = "Do you want to change "
+        DEFAULT_CHANGE_STR = "Do you want to change "
+        changeStr = DEFAULT_CHANGE_STR
         notChangedStr = "for subsection: '{0}' ".format(subsecPath)
         
         # get start page
@@ -85,14 +98,14 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
             notChangedStr += "with " + pageStr
         
         # get name
-        name = self.notify(SetSectionName_ETR)
+        text = self.notify(SetSectionName_ETR)
         nameDataChanged = True
 
-        if name == _u.Token.NotDef.str_t:
-            name = fsf.Data.Sec.name(subsecPath)
+        if text == _u.Token.NotDef.str_t:
+            text = fsf.Data.Sec.text(subsecPath)
             nameDataChanged = False
 
-        nameStr = "name: '{0}', ".format(name)
+        nameStr = "name: '{0}', ".format(text)
         
         if nameDataChanged:
             changeStr += nameStr
@@ -100,7 +113,11 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
             notChangedStr += "with " + nameStr
 
         # show notification with wait
-        msg = changeStr + notChangedStr
+        if changeStr == DEFAULT_CHANGE_STR:
+            msg = "Nothing to change for subssection '{0}'.".format(subsecPath)
+        else:
+            msg = changeStr + notChangedStr
+
         response = wm.UI_generalManager.showNotification(msg, True)
         
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -109,12 +126,12 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
 
         # update subsection on successful response
         if response == True:
-            fsf.Data.Sec.text(subsecPath, name)
+            fsf.Data.Sec.text(subsecPath, text)
             fsf.Data.Sec.start(subsecPath, startPage)
             fsf.Data.Sec.finish(subsecPath, endPage)
 
         self.notify(CurrSectionPath_LBL, secPath = subsecPath)
-        self.notify(SetSectionName_ETR, newName = name)
+        self.notify(SetSectionName_ETR, newName = text)
         self.notify(SetSectionStartPage_ETR, newStartPage = startPage)
 
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
@@ -398,7 +415,8 @@ class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
             return self.getData()
 
 
-class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
+class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
+                              dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
         startPage = fsf.Data.Sec.start(fsf.Data.Book.currSection)
@@ -426,10 +444,9 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType, data = None, newStartPage = ""):
-        if broadcasterType == CreateNewTopSection_BTN:
+        if broadcasterType == CreateNewSubsection_BTN:
             text = self.getData()
             return self.__getStartAndFinishPages(text)
-           
 
         if broadcasterType == ChooseTopSection_OM:
             self.setData(newStartPage)
@@ -453,11 +470,31 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry):
                     return startPage, endPage
     
     def __getStartAndFinishPages(self, text):
+        if not re.match("\d+[-\d*|]", text):
+            msg = "\
+The section pages format :'{0}' has wrong format.\
+the format is [0-9]+-*[0-0]*. Will return default notDef tokens.".format(text)
+            wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+            return  _u.Token.NotDef.str_t,  _u.Token.NotDef.str_t
+
         if "-" in text:
             text = text.split("-")
         
             if len(text) > 1:
                 # we have the first and last page
+                if int(text[1]) < int(text[0]):
+                    msg = "\
+NOTE: The section starting page '{0}' is larger than the end page '{1}'.".format(text[0], text[1])
+                    wm.UI_generalManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                                mmm.MathMenuManager)
+                    mainManager.show()
+
                 return text[0], text[1]
             else:
                 # we only have the last page
@@ -489,7 +526,7 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
         super().setData(defaultText)
     
     def receiveNotification(self, broadcasterType, newName = ""):
-        if broadcasterType == CreateNewTopSection_BTN:
+        if broadcasterType == CreateNewSubsection_BTN:
             text = self.getData()
             return text if text != self.defaultText else ""
         if broadcasterType == ChooseTopSection_OM:
@@ -556,7 +593,8 @@ class RemoveTopSection_BTN(ww.currUIImpl.Button):
         pass
 
 
-class CreateNewTopSection_BTN(ww.currUIImpl.Button):
+class CreateNewSubsection_BTN(ww.currUIImpl.Button,
+                              dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 3, "row" : 1},
@@ -576,24 +614,54 @@ class CreateNewTopSection_BTN(ww.currUIImpl.Button):
         # close current subsection FS window
         currSection = fsf.Data.Book.currSection
 
-        lf.Wr.LayoutsManager.closeFSWindow(currSection)
-
         newSecName = self.notify(SetSectionName_ETR)
         newSecStartPage, newSecEndPage = self.notify(SetSectionStartPage_ETR)
         secPath = self.notify(NewSectionPath_ETR)
+
+        if not re.match("[[\d]+.]*\d+", secPath):
+            msg = "\
+The section with path :'{0}' has wrong format.\
+Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+            wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+            return
+
+        if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
+            msg = "\
+The section with path :'{0}' already exists. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+            wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+            return
         
-        # TODO: check that the structure exists and ask user if we should proceed
-        fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
+        msg = "\
+Do you want to create subsection with path :'{0}', text '{1}', \
+start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+        response = wm.UI_generalManager.showNotification(msg, True)
+        
+        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                    mmm.MathMenuManager)
+        mainManager.show()
 
-        separator = fsf.Data.Book.sections_path_separator
+        if response:
+            lf.Wr.LayoutsManager.closeFSWindow(currSection)
+            
+            fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
 
-        topSectionName = secPath.split(separator)[0]
-        fsf.Data.Book.currTopSection = topSectionName
-        fsf.Data.Book.currSection = secPath
-        sections = fsf.Data.Book.sections
-        sections[topSectionName]["prevSubsectionPath"] = secPath
-        fsf.Data.Book.sections = sections
+            separator = fsf.Data.Book.sections_path_separator
 
-        fsf.Data.Sec.text(secPath, newSecName)
-        fsf.Data.Sec.start(secPath, newSecStartPage)
-        fsf.Data.Sec.finish(secPath, newSecEndPage)
+            topSectionName = secPath.split(separator)[0]
+            fsf.Data.Book.currTopSection = topSectionName
+            fsf.Data.Book.currSection = secPath
+            sections = fsf.Data.Book.sections
+            sections[topSectionName]["prevSubsectionPath"] = secPath
+            fsf.Data.Book.sections = sections
+
+            fsf.Data.Sec.text(secPath, newSecName)
+            fsf.Data.Sec.start(secPath, newSecStartPage)
+            fsf.Data.Sec.finish(secPath, newSecEndPage)
