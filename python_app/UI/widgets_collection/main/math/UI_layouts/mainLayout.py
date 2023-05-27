@@ -18,6 +18,7 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_manager as wm
 import layouts.layouts_facade as lf
 
 import data.constants as dc
@@ -682,6 +683,17 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
 
+            msg = "\
+Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromUser[0], self.dataFromUser[1])
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+            
+            if not response:
+                return
+
             currSubsection = fsf.Data.Book.currSection
             entryAdded:bool = gm.GeneralManger.AddEntry(currSubsection, 
                                                         self.dataFromUser[0], 
@@ -780,7 +792,8 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def defaultTextCMD(self):
         pass
 
-class AddExtraImage_BTN(ww.currUIImpl.Button):  
+class AddExtraImage_BTN(ww.currUIImpl.Button,
+                        dc.AppCurrDataAccessToken):  
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
@@ -798,17 +811,27 @@ class AddExtraImage_BTN(ww.currUIImpl.Button):
 
     def cmd(self):
         mainImIdx = self.notify(ImageGeneration_BTN)
-        if mainImIdx == "-1":
+        
+        if mainImIdx == _u.Token.NotDef.str_t:
             mainImIdx = fsf.Wr.Links.ImIDX.get_curr()
        
         extraImName = self.notify(ImageGeneration_ETR)
         
         currentSubsection = _upan.Current.Names.Section.name()
-        currentSubsectionNum = currentSubsection.split("_")[0]
-        
         
         extraImagePath_curr = _upan.Paths.Screenshot.getAbs()
-        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsectionNum, extraImName)
+        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsection, extraImName)
+
+        msg = "\
+Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImName)
+        response = wm.UI_generalManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                    mmm.MathMenuManager)
+        mainManager.show()
+        
+        if not response:
+            return
         
         ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
 

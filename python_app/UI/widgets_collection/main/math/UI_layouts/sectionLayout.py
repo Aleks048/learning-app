@@ -16,6 +16,7 @@ import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_manager as wm
 import layouts.layouts_facade as lf
 
 import data.constants as dc
@@ -185,9 +186,11 @@ class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         secPath = self.notify(TargetSubection_OM)
+        self.__setGlobalLinksETR(secPath)
+
+    def __setGlobalLinksETR(self, secPath):
         imLink:str = self.getData()
-        toBeRemoved = imLink.split(":")[0]
-        self.notify(AddGlobalLink_ETR, secPath + "." + toBeRemoved)
+        self.notify(AddGlobalLink_ETR, secPath + "." + imLink.split(":")[0])
 
     def updateOptions(self, secPath):
         num = list(fsm.Wr.Links.LinkDict.get(secPath).keys())
@@ -203,6 +206,7 @@ class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
         if broadcasterType == TargetSubection_OM:
             secPath = data
             self.updateOptions(secPath)
+            self.__setGlobalLinksETR(secPath)
 
 
 class TargetSubection_OM(ww.currUIImpl.OptionMenu):
@@ -266,10 +270,11 @@ class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
     def cmd(self):
         topSec = self.getData()
         self.notify(TargetSubection_OM, topSec)
-        self.notify(AddGlobalLink_ETR, topSec)
+        # self.notify(AddGlobalLink_ETR, topSec)
 
 
-class AddGlobalLink_BTN(ww.currUIImpl.Button):
+class AddGlobalLink_BTN(ww.currUIImpl.Button,
+                        dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 2},
@@ -293,10 +298,35 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         sourceTopSection = sourceSubsection.split(".")[0]
         sourceIDX = self.notify(SourceImageLinks_OM)
 
-        wholeLinkPath = self.notify(AddGlobalLink_ETR).split(".")
+        wholeLinkPathStr = self.notify(AddGlobalLink_ETR)
+        wholeLinkPath = wholeLinkPathStr.split(".")
+        
+        if _u.Token.NotDef.str_t in wholeLinkPathStr:
+            msg = "The path '{0}' is not correct. Please correct it.".format(wholeLinkPathStr)
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            return
+        
         targetSubsection = ".".join(wholeLinkPath[:-1])
         targetTopSection = targetSubsection.split(".")[0]
         targetIDX = wholeLinkPath[-1]
+
+
+        if sourceSubsection == targetSubsection:
+            msg = "\
+The source and target subsections  are the same and are '{0}'.\n\
+This is not correct. Please correct it.".format(sourceSubsection)
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            return
 
         # add target to the source links
         sourseSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(sourceSubsection)
@@ -311,16 +341,6 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         targetUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
                                                 targetIDX, "full", False)
         targetUrlLinkName = targetSubsection + "_" + targetIDX
-        
-        if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()):
-            sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
-            if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
-                sourseSectionGlobalLinksDict = {}
-            
-            sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
-            fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
-        else:
-            log.autolog("The link: '{0}' is already present.".format(targetUrl))
 
         # add target to the target info
         targetSectionGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(targetSubsection)
@@ -335,17 +355,58 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button):
         sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, sourceTopSection, sourceSubsection, 
                                                 sourceIDX, "full", False)
         sourceUrlLinkName = sourceSubsection + "_" + sourceIDX
+
+        theLinksAreNotPresentMsg = []
         
-        if sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
+        if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()) \
+            and sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
+            msg = "Do you want to add link \
+\nFrom: '{2}_{3}'\nTo: '{0}_{1}'?".format(targetSubsection, targetIDX, sourceSubsection, sourceIDX)
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            # add link to the source
+            sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
+
+            if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                sourseSectionGlobalLinksDict = {}
+            
+            sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
+            fsm.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+
+             # add link to the target
             targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
-        else:
-            log.autolog("the link: '{0}' is already present.".format(targetUrl))
 
-        if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
-            targetSectionGlobalLinksDict = {}
+            if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                targetSectionGlobalLinksDict = {}
 
-        targetSectionGlobalLinksDict[targetIDX] = targetImGlobalLinksDict
-        fsm.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)
+            targetSectionGlobalLinksDict[targetIDX] = targetImGlobalLinksDict
+            fsm.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)
+
+        elif targetUrlLinkName in list(sourceImGlobalLinksDict.keys()):
+            m = "The source link: '{0}' is already present.\n".format(sourceUrl)
+            theLinksAreNotPresentMsg.append(m)
+            log.autolog(m)
+
+        elif sourceUrlLinkName in list(targetImGlobalLinksDict.keys()): 
+            m = "The target link: '{0}' is already present.".format(targetUrl)
+            theLinksAreNotPresentMsg.append(m)
+            log.autolog(m)
+        
+        if theLinksAreNotPresentMsg != []:
+            response = wm.UI_generalManager.showNotification("".join(theLinksAreNotPresentMsg), True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            return
 
         #
         # rebuild the pdfs
