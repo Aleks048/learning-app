@@ -88,6 +88,8 @@ class TkWidgets (DataTranslatable_Interface):
             enterWidget = "<Enter>"
             leaveWidget = "<Leave>"
 
+            render = "<Map>"
+
             class Keys:
                 enter = "Return"
                 escape = "Escape"

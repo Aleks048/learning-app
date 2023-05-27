@@ -23,7 +23,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 230, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 530, monHalfWidth, 0]
 
             super().__init__(winRoot, appDimensions)
 
@@ -31,6 +31,10 @@ class LayoutManagers:
             # winRoot.configureColumn(1, weight = 1)
             # winRoot.configureColumn(2, weight = 3)
             # winRoot.configureColumn(3, weight = 1)
+
+            tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
+            tocBox_BOX.populateTOC()
+            self.addWidget(tocBox_BOX)
             
             addToTOC_CHB = ml.addToTOC_CHB(winRoot, self.prefix)
             self.addWidget(addToTOC_CHB)
@@ -47,6 +51,7 @@ class LayoutManagers:
             imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
             imageGeneration_BTN.addListenerWidget(addToTOC_CHB)
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
+            imageGeneration_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(imageGeneration_BTN)
 
             addExtraImage_BTN = ml.AddExtraImage_BTN(winRoot, self.prefix)
@@ -91,10 +96,6 @@ class LayoutManagers:
 
             exitApp_BTN = ml.ExitApp_BTN(winRoot, self.prefix)
             self.addWidget(exitApp_BTN)
-
-            tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
-            tocBox_BOX.populateTOC()
-            self.addWidget(tocBox_BOX)
  
             showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)

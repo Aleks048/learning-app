@@ -113,6 +113,7 @@ class LabelWithClick(ttk.Label):
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
+    subsectionsClicked = {}
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 2},
@@ -124,14 +125,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         name,
                         parentWidget, 
                         renderData = data,
-                        height=140,
+                        height=420,
                         width=500)
     
     def receiveNotification(self, broadcasterName, data = None):
-        pass
-    
-    def render(self, widjetObj=None, renderData=..., **kwargs):
-        return super().render(widjetObj, renderData, **kwargs)
+        self.render()
     
     def addTOCEntry(self, subsection, level, idx):
         def openPdfOnStartOfTheSection(widget):
@@ -183,15 +181,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 # open orig material on page
 
                 links:dict = fsf.Data.Sec.imLinkDict(subsection)
-                
-                if not label.clicked:
+
+                # 4 : event of mouse click
+                # 19 : event of being rendered
+                if ((not label.clicked and int(event.type) == 4)) or\
+                    ((self.subsectionsClicked[subsection] == True) and (int(event.type) == 19)):
                     i = 0
 
                     for k,v in links.items():
-                        tempFrame = ttk.Frame(frame, name = "contentFr" + str(i))
+                        subSecID = subsection.replace(".", "")
+                        tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + str(i))
                         
-                        testEntryPage = ttk.Label(tempFrame, text = k + ": " + v, name = "contentP" + str(i))
-                        testEntryFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull" + str(i))
+                        testEntryPage = ttk.Label(tempFrame, text = k + ": " + v, name = "contentP_" + subSecID +str(i))
+                        testEntryFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
                         
                         testEntryPage.grid(row=0, column=0, sticky=tk.NW)
                         testEntryFull.grid(row=0, column=1, sticky=tk.NW)
@@ -203,17 +205,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                         tempFrame.grid(row=i + 2, column=2, sticky=tk.NW)
                         i += 1
-                    
-                    label.clicked = True
+
+                    if int(event.type) == 4:
+                        label.clicked = True
+                        self.subsectionsClicked[subsection] = True
                 else:
                     for child in frame.winfo_children():
                         if "content" in str(child):
                             child.destroy()
-                    label.clicked = False
+                    
+                    if int(event.type) == 4:
+                        label.clicked = False
+                        self.subsectionsClicked[subsection] = False
 
                 event.widget.configure(foreground="white")
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
+            label.bind(ww.currUIImpl.Data.BindID.render, __cmd)
         
         prefix = ""
         if level != 0:
@@ -255,6 +263,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
+        # update the subsections dict in the toc window.
+        # the subsectionsClicked:dict is used to keep the open subsection content open
+        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList()
+        
+        for subSec in subsectionsList:
+            if subSec not in list(self.subsectionsClicked.keys()):
+                self.subsectionsClicked[subSec] = False
+
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
         
@@ -656,7 +672,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
                         self.cmd)
     
     def cmd(self):
-        
         def _createTexForTheProcessedImage():
             import generalManger.generalManger as gm
             addToTOC = self.notify(addToTOC_CHB)
@@ -675,6 +690,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             currImNum = self.dataFromUser[0]
             nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)
+            self.notify(TOC_BOX)
             self.updateLabel(self.labelOptions[0])
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
