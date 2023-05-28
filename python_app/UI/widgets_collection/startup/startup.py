@@ -232,7 +232,7 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
         name = "_originalMaterialLocattion"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N, }
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},

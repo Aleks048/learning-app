@@ -34,7 +34,7 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 4},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_reAddNotes"
@@ -88,7 +88,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 7},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_exitApp"
@@ -117,7 +117,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsectionsClicked = {}
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 2},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 12},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -129,7 +129,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         parentWidget, 
                         renderData = data,
                         height=420,
-                        width=500)
+                        width=570)
     
     def receiveNotification(self, broadcasterName, data = None):
         self.render()
@@ -191,11 +191,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                     ((self.subsectionsClicked[subsection] == True) and (int(event.type) == 19)):
                     i = 0
 
+                    subSecID = subsection.replace(".", "")
                     for k,v in links.items():
-                        subSecID = subsection.replace(".", "")
                         tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + str(i))
                         
-                        testEntryPage = ttk.Label(tempFrame, text = k + ": " + v, name = "contentP_" + subSecID +str(i))
+                        testEntryPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
                         testEntryFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
                         
                         testEntryPage.grid(row=0, column=0, sticky=tk.NW)
@@ -206,8 +206,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         openSectionOnIdx(testEntryFull, k)
                         bindChangeColorOnInAndOut(testEntryFull)
 
-                        tempFrame.grid(row=i + 2, column=2, sticky=tk.NW)
+                        tempFrame.grid(row=i + 2, column=0, sticky=tk.NW)
                         i += 1
+                    
+                    dummyFrame = ttk.Frame(frame, name = "contentDummyFr_" + subSecID + str(i))
+                    dummyEntryPage = ttk.Label(dummyFrame, text ="\n", name = "contentDummy_" + subSecID + str(i))
+                    dummyEntryPage.grid(row=0, column=0, sticky=tk.NW)
+                    dummyFrame.grid(row=i + 1, column=0, sticky=tk.NW)
 
                     if int(event.type) == 4:
                         label.clicked = True
@@ -285,74 +290,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 self.subsectionsClicked[subSec] = False
 
 
-class TOC_LBL(ww.currUIImpl.Label):
-    subsection = ""
-    def __init__(self, parentWidget, prefix, row = 5, subsection = "", level = ""):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : row, "columnspan": 5},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
-        }
-        name = "_TOCEntry_text" + subsection
-        
-        self.subsection = subsection
-
-        prefix = ""
-        if level != 0:
-            prefix = "|" + int(level) * 4 * "-" + " "
-
-        currBokkpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        sectionFilepath = _upan.Paths.Section.JSON.getAbs(currBokkpath, subsection)
-        
-        subsectionText = ""
-        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(sectionFilepath):
-            subsectionText = fsf.Data.Sec.text(subsection)
-       
-        prettySubsections = prefix + subsection + ":" + subsectionText + "\n"
-        
-        text_curr = prettySubsections
-        super().__init__(prefix, 
-                        name,
-                        parentWidget, 
-                        renderData = data, 
-                        text = text_curr,
-                        bindCmd= self.bindCmd)
-    
-    def receiveNotification(self, broadcasterName, data = None):
-        pass
-    
-    def render(self, widjetObj=None, renderData=..., **kwargs):
-        return super().render(widjetObj, renderData, **kwargs)
-
-    def bindCmd(self):
-        def __cmd(event = None, *args):
-            # open orig material on page
-            subsectionStartPage = fsf.Data.Sec.start(self.subsection)
-            origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
-            ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
-
-            self.changeColor("white")
-
-        def __changeTextColorBlue(event = None, *args):
-            self.changeColor("blue")
-        
-        def __changeTextColorBlack(event = None, *args):
-            self.changeColor("white")
-        
-        cmds = [__cmd, __changeTextColorBlue, __changeTextColorBlack]
-
-        events = [ww.currUIImpl.Data.BindID.mouse1,
-                  ww.currUIImpl.Data.BindID.enterWidget,
-                  ww.currUIImpl.Data.BindID.leaveWidget]
-        
-        return events, cmds
-
-
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 13},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseOriginalMaterial_OM"
@@ -420,7 +363,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_swritchToCurrSectionLayout_BTN"
@@ -444,7 +387,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSubsecion_optionMenu"
@@ -507,7 +450,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 9},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSection_optionMenu"
@@ -594,7 +537,7 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 2, "columnspan": 4},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2, "columnspan": 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -622,7 +565,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_create_toc"
@@ -641,7 +584,7 @@ class addToTOC_CHB(ww.currUIImpl.Checkbox):
 class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
     def __init__(self, parentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_toc_w_image"
@@ -664,7 +607,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_imageGeneration_process_BTN"
@@ -732,8 +675,12 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
 class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "columnspan": 6}
+        }
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {},
+            ww.TkWidgets.__name__ : {"width": 240}
         }
         name = "_imageGeneration_ETR"
         defaultText = "0"
@@ -742,6 +689,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                         name,
                         patentWidget, 
                         data,
+                        extraBuildOptions,
                         defaultText = defaultText)
 
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()
@@ -796,7 +744,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
                         dc.AppCurrDataAccessToken):  
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text= "addExtraIm"
@@ -842,7 +790,7 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_imageGenerationRestart"

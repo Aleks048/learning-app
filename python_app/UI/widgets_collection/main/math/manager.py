@@ -137,7 +137,7 @@ class LayoutManagers:
             addGlobalLink_ETR = sl.AddGlobalLink_ETR(winRoot, self.prefix)
             self.addWidget(addGlobalLink_ETR)
 
-            layouts_OM = com.Layouts_OM(winRoot, self.prefix)
+            layouts_OM = com.Layouts_OM(winRoot, self.prefix, 0, 0)
             self.addWidget(layouts_OM)
 
             showProof_BTN = sl.ShowProofs_BTN(winRoot, self.prefix)

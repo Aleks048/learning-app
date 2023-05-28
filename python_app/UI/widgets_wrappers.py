@@ -300,6 +300,7 @@ class TkWidgets (DataTranslatable_Interface):
                     defaultText = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+            
             if "fg" not in extraOptions.keys():
                 extraOptions["fg"] = wd.Data.ENT.defaultTextColor
 
