@@ -245,4 +245,131 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
         msg = "Adding entry: " + subsection + "_" + imIdx
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        return True 
+        return True
+
+    @classmethod
+    def AddLink(cls, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection):
+        import UI.widgets_facade as wf
+
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
+
+        wholeLinkPath = wholeLinkPathStr.split(".")
+        
+        if _u.Token.NotDef.str_t in wholeLinkPathStr:
+            msg = "The path '{0}' is not correct. Please correct it.".format(wholeLinkPathStr)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            return
+        
+        targetSubsection = ".".join(wholeLinkPath[:-1])
+        targetTopSection = targetSubsection.split(".")[0]
+        targetIDX = wholeLinkPath[-1]
+
+
+        if sourceSubsection == targetSubsection:
+            msg = "\
+The source and target subsections  are the same and are '{0}'.\n\
+This is not correct. Please correct it.".format(sourceSubsection)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            return
+
+        # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        
+        if sourceIDX not in list(sourseSectionGlobalLinksDict.keys()):
+            sourceImGlobalLinksDict = {}
+        elif sourseSectionGlobalLinksDict[sourceIDX] == _u.Token.NotDef.dict_t:
+            sourceImGlobalLinksDict = {}
+        else:
+            sourceImGlobalLinksDict = sourseSectionGlobalLinksDict[sourceIDX]
+        
+        targetUrl = tff.Wr.TexFileUtils.getUrl(bookName, targetTopSection, targetSubsection, 
+                                                targetIDX, "full", False)
+        targetUrlLinkName = targetSubsection + "_" + targetIDX
+
+        # add target to the target info
+        targetSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(targetSubsection)
+        
+        if targetIDX not in list(targetSectionGlobalLinksDict.keys()):
+            targetImGlobalLinksDict = {}
+        elif targetSectionGlobalLinksDict[targetIDX] == _u.Token.NotDef.dict_t:
+            targetImGlobalLinksDict = {}
+        else:
+            targetImGlobalLinksDict = targetSectionGlobalLinksDict[targetIDX]
+
+        sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, sourceTopSection, sourceSubsection, 
+                                                sourceIDX, "full", False)
+        sourceUrlLinkName = sourceSubsection + "_" + sourceIDX
+
+        theLinksAreNotPresentMsg = []
+
+        if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()) \
+            and sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
+            msg = "Do you want to add link \
+\nFrom: '{2}_{3}'\nTo: '{0}_{1}'?".format(targetSubsection, targetIDX, sourceSubsection, sourceIDX)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            # add link to the source
+            sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
+
+            if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                sourseSectionGlobalLinksDict = {}
+            
+            sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
+            fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+
+             # add link to the target
+            targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
+
+            if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                targetSectionGlobalLinksDict = {}
+
+            targetSectionGlobalLinksDict[targetIDX] = targetImGlobalLinksDict
+            fsf.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)
+
+        elif targetUrlLinkName in list(sourceImGlobalLinksDict.keys()):
+            m = "The source link: '{0}' is already present.\n".format(sourceUrl)
+            theLinksAreNotPresentMsg.append(m)
+            log.autolog(m)
+
+        elif sourceUrlLinkName in list(targetImGlobalLinksDict.keys()): 
+            m = "The target link: '{0}' is already present.".format(targetUrl)
+            theLinksAreNotPresentMsg.append(m)
+            log.autolog(m)
+        
+        if theLinksAreNotPresentMsg != []:
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification("".join(theLinksAreNotPresentMsg), True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            return
+
+        #
+        # rebuild the pdfs
+        #
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubsection, sourceIDX)
+        ocf.Wr.LatexCalls.buildPDF(bookPath, targetSubsection, targetIDX)
+
+        # Updating the remote
+        msg = "Adding global link from: '{0}_{1}' to: '{2}_{3}'".format(sourceSubsection, sourceIDX,
+                                                                        targetSubsection, targetIDX)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
