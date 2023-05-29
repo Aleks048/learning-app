@@ -122,6 +122,8 @@ class TexFileModify:
     def formatLinkName(linkName:str, formatBold:bool = True):
         # make the start bold text
         linkName = linkName.replace(" ", "\\ ")
+        linkName = linkName.replace("->", "\\rightarrow")
+        linkName = linkName.replace("<-", "\\leftarrow")
         
         if linkName.count(":") > 0 and formatBold:
             linkName = linkName.split(":")

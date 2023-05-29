@@ -60,6 +60,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     def exitApp(cls):
         import UI.widgets_facade as wf
         log.autolog("- Starting exiting the app")
+
+        # Updating the remote
+        msg = "Closing the book."
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
         # main
         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.MathMenuManager)
