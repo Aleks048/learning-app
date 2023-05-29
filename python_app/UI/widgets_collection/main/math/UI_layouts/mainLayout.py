@@ -159,10 +159,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         def openOMOnThePageOfTheImage(widget, imIdx):
             def __cmd(event = None, *args):
                 # open orig material on page
+                imOMName = fsf.Data.Sec.origMatNameDict(subsection)[imIdx]
+                omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(imOMName)
+                
                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
                 page = imLinkOMPageDict[imIdx]
-                origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
-                ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, page)
+                
+                ocf.Wr.PdfApp.openPDF(omFilepath, page)
             
             widget.bind( ww.currUIImpl.Data.BindID.mouse1, __cmd)
         

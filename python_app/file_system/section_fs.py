@@ -33,7 +33,7 @@ class SectionInfoStructure:
         imLinkDict = "imLinkDict"
         imLinkOMPageDict = "imLinkOMPageDict"
         imGlobalLinksDict = "imGlobalLinksDict"
-        origMatNameDict = "origMatName"
+        origMatNameDict = "origMatNameDict"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"

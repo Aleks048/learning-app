@@ -125,7 +125,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
                                                         wf.Wr.MenuManagers.MathMenuManager)
-            response = messManager.show("The index '{0}' already exists. Do you want to update?".format(imID), True)
+            response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imID), True)
             
             if response:
                 names = []
@@ -178,7 +178,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             
-            response = mesManager.show("The image with idx '{0}' already exists. Overrite".format(imIdx), True)
+            response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
             
             if response:
                 ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
@@ -199,7 +199,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         origMatNameDict = {}
 
-        if fsf.Data.Sec.origMatNameDict != _u.Token.NotDef.dict_t:
+        if fsf.Data.Sec.origMatNameDict(subsection) != _u.Token.NotDef.dict_t:
             origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
 
         origMatNameDict[imIdx] = origMatName
