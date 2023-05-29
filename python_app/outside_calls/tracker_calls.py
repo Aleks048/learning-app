@@ -7,7 +7,8 @@ import _utils._utils_main as _u
 import data.constants as dc
 
 class GitTracker:
-    def initBook(bookPath, remoteAddress = _u.Token.NotDef.str_t):
+    @classmethod
+    def initBook(cls, bookPath, remoteAddress = _u.Token.NotDef.str_t):
         gitFolder = os.path.join(bookPath, ".git")
 
         if fsc.currFilesystemApp.checkIfFileOrDirExists(gitFolder):
@@ -27,17 +28,22 @@ class GitTracker:
         cmd = "cd \"{0}\" && git branch -M main".format(bookPath)
         _u.runCmdAndWait(cmd)
         time.sleep(0.3)
+        
         if remoteAddress != _u.Token.NotDef.str_t:
             cmd = "cd \"{0}\" && git remote add origin {1}".format(bookPath, remoteAddress)
-            _u.runCmdAndWait(cmd)
-    
-    def stampChanges(bookPath, id):
-        cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\"".format(bookPath, id)
-        _u.runCmdAndWait(cmd)
-
-        if dc.StartupConsts.WITH_TRACKING:
+            _u.runCmdAndGetResult(cmd)
             time.sleep(0.3)
-            cmd = "cd \"{0}\" && git push origin main".format(bookPath, id)
-            _u.runCmdAndWait(cmd)
+            cls.stampChanges(bookPath, "Book init.", force = True)
+
+    def stampChanges(bookPath, id, force = False):
+        if dc.StartupConsts.WITH_TRACKING:
+            if not force:
+                cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\" && git push origin main".format(bookPath, id)
+            else:
+                cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\" && git push -f origin main".format(bookPath, id)
+        else:
+            cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\"".format(bookPath, id)
+
+        _u.runCmdAndWait(cmd)
 
 currrtrackerApp = GitTracker

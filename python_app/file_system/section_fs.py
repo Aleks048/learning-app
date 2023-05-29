@@ -31,6 +31,9 @@ class SectionInfoStructure:
         imageContentFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
         imageTOCFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
         imLinkDict = "imLinkDict"
+        imLinkOMPageDict = "imLinkOMPageDict"
+        imGlobalLinksDict = "imGlobalLinksDict"
+        origMatNameDict = "origMatName"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -39,13 +42,6 @@ class SectionInfoStructure:
         text = "TOC_text"
         start = "TOC_sectionStart"
         finish = "TOC_sectionFinish"
-
-        # original material
-        origMatName = "origMatName"
-        imLinkOMPageDict = "imLinkOMPageDict"
-
-        # global links
-        imGlobalLinksDict = "imGlobalLinksDict"
 
     class PrivProp:
         tocData = "_tocData"
@@ -65,7 +61,6 @@ class SectionInfoStructure:
                 cls.PubProp.name: _u.Token.NotDef.str_t,
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
-                cls.PubProp.origMatName : _u.Token.NotDef.str_t,
                 cls.PrivProp.levelData: {
                     cls.PrivProp.levelData_level: str(level),
                 },
@@ -79,7 +74,8 @@ class SectionInfoStructure:
                     cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t,
                     cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t
+                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t,
+                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t
                 }
         }
         return sectionInfo_template
@@ -150,11 +146,8 @@ class SectionInfoStructure:
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
 
         cls.__createSubsectionFiles(bookpath, sectionPath)
-        
-        origMatName =  bfs.BookInfoStructure.readProperty( bfs.BookInfoStructure.PubProp.currOrigMatName)
 
         cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
-        cls.updateProperty(sectionPath, cls.PubProp.origMatName, origMatName)
     
     @classmethod
     def removeSection(cls, sectionPath):

@@ -36,7 +36,9 @@ def processCall(url):
         linktType:str = url[4]
 
     if "om" in linktType.lower():
-        omName = fsf.Data.Sec.origMatName(subsecPath)
+        omNameDict = fsf.Data.Sec.origMatNameDict(subsecPath)
+        omName = omNameDict[positionIDX]
+
         omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
 
         pagesDict:dict = fsf.Data.Sec.imLinkOMPageDict(subsecPath)

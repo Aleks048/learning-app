@@ -113,22 +113,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
         import UI.widgets_facade as wf
 
-        subsectionOM = fsf.Data.Sec.origMatName(subsection)
-        currBookOM = fsf.Data.Book.currOrigMatName
-        if subsectionOM != currBookOM:
-            mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        wf.Wr.MenuManagers.MessageMenuManager)
-            
-            response = mesManager.show("\
-The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".format(subsectionOM, currBookOM), True)
-            
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-
-            mainManager.show()
-            if not response:
-                return False
-
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     _upan.Names.getImageName(str(imIdx), subsection))
         
@@ -213,8 +197,13 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
 
         page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
-        if fsf.Data.Sec.origMatName == _u.Token.NotDef.str_t:
-            fsf.Data.Sec.origMatName(subsection, origMatName)
+        origMatNameDict = {}
+
+        if fsf.Data.Sec.origMatNameDict != _u.Token.NotDef.dict_t:
+            origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+
+        origMatNameDict[imIdx] = origMatName
+        fsf.Data.Sec.origMatNameDict(subsection, origMatNameDict)
 
         pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
 
@@ -229,10 +218,14 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
         numNotesOnThePage = 0
         
         for subsec in subsectionsList:
-            if fsf.Data.Sec.origMatName(subsec) == subsectionOM:
+            origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
+            
+            for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
                 subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
-                numNotesOnThePage += len([i for i in list(subsecPagesDict.values()) if i == page])
-        
+
+                if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
+                    numNotesOnThePage += 1
+
         numNotesOnThePage = str(numNotesOnThePage)
         
         currOMName = fsf.Data.Book.currOrigMatName
@@ -433,7 +426,6 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
             msg = "Adding the subsection: '{0}'".format(secPath)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-    @classmethod
     def AddOM(origMatFilepath, origMatDestRelPath, origMatName):
         fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
                                                             origMatDestRelPath,
