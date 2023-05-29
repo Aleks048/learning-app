@@ -3,12 +3,11 @@ import tkinter as tk
 import UI.widgets_data as wd
 
 import UI.widgets_wrappers as ww
-import UI.widgets_collection.main.math.manager as mmm
+
+import _utils._utils_main as _u
 
 import layouts.layouts_facade as lm
 import data.constants as dc
-import data.temp as dt
-
 import settings.facade as sf
 
 class StartupConfirm_BTN(ww.currUIImpl.Button,
@@ -40,7 +39,7 @@ class AddBook_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 7},
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 8},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Add Book"
@@ -62,6 +61,7 @@ class AddBook_BTN(ww.currUIImpl.Button,
         originalMaterialLocation = self.notify(StrtupOriginalMaterialLocation_ETR)
         originalMaterialRelPath = self.notify(StrtupOriginalMaterialRelPath_ETR)
         originalMaterialName = self.notify(StrtupOriginalMaterialName_ETR)
+        remoteLink = self.notify(StrtupRemoteLink_ETR)
 
         if bookPath == StrtupBookLocation_ETR.defaultText:
             raise("Please provide bookpath")
@@ -73,12 +73,15 @@ class AddBook_BTN(ww.currUIImpl.Button,
             raise("Please provide original material name")
         if originalMaterialRelPath == StrtupOriginalMaterialRelPath_ETR.defaultText:
             originalMaterialRelPath = ""
+        if remoteLink == StrtupRemoteLink_ETR.defaultText:
+            remoteLink = _u.Token.NotDef.str_t
 
         gm.GeneralManger.AddNewBook(bookName, 
                                     bookPath,
                                     originalMaterialLocation,
                                     originalMaterialRelPath,
-                                    originalMaterialName)
+                                    originalMaterialName,
+                                    remoteLink)
 
         # update choosing book OM
         self.notify(ChooseStartupBook_OM)
@@ -128,7 +131,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
-            ww.TkWidgets.__name__ : {}
+            ww.TkWidgets.__name__ : {"width": 100}
         }
         name = "_bookName"
 
@@ -155,7 +158,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
-            ww.TkWidgets.__name__ : {}
+            ww.TkWidgets.__name__ : {"width": 100}
         }
         name = "_bookLocation"
 
@@ -182,7 +185,7 @@ class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
-            ww.TkWidgets.__name__ : {}
+            ww.TkWidgets.__name__ : {"width": 100}
         }
         name = "_originalMaterialRelPath"
 
@@ -209,7 +212,7 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
-            ww.TkWidgets.__name__ : {}
+            ww.TkWidgets.__name__ : {"width": 100}
         }
         name = "_originalMaterialName"
 
@@ -236,7 +239,33 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
-            ww.TkWidgets.__name__ : {}
+            ww.TkWidgets.__name__ : {"width": 100}
+        }
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        extraBuildOptions,
+                        defaultText = self.defaultText)
+        super().setData(self.defaultText)
+    
+    def receiveNotification(self, _):
+        return self.getData()
+
+
+class StrtupRemoteLink_ETR(ww.currUIImpl.TextEntry):
+    defaultText = "Remote link. (Used for tracking app)"
+
+    def __init__(self, patentWidget, prefix):
+        name = "_remoteTrackingAppLink"
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 7},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
+            ww.TkWidgets.__name__ : {"width": 100}
         }
 
         super().__init__(prefix, 

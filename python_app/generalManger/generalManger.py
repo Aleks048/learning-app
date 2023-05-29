@@ -88,7 +88,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     def AddNewBook(bookName, bookPath, 
                    originalMaterialLocation, originalMaterialRelPath,
-                   originalMaterialName):
+                   originalMaterialName,
+                   bookRemoteAddress):
         # update settings
         sf.Wr.Manager.Book.addNewBook(bookName, bookPath)
         
@@ -103,6 +104,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         fsf.Wr.FileSystemManager.addOriginalMaterial(originalMaterialLocation, 
                                                     originalMaterialRelPath,
                                                     originalMaterialName)
+        
+        # init the tracking system
+        ocf.Wr.TrackerAppCalls.initBook(bookPath, bookRemoteAddress)
     
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
@@ -236,5 +240,9 @@ The OM for the section '{0}' and the current open '{1}' don't match. Proceed?".f
         noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
         noteText = noteUrl + " " + imText
         fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
-        
+
+        # Updating the remote
+        msg = "Adding entry: " + subsection + "_" + imIdx
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
         return True 

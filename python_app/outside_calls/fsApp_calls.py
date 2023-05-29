@@ -38,6 +38,14 @@ class FinderCalls:
             os.makedirs(filepath, exist_ok=True)
             return True
     
+    @classmethod
+    def removeDir(cls, filepath):
+        if not cls.checkIfFileOrDirExists(filepath):
+            return False
+        else:
+            shutil.rmtree(filepath)
+            return True
+    
     def createFile(filepath):
         open(filepath, "w").close()
 

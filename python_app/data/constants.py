@@ -20,6 +20,10 @@ class ClassGetOnly(type):
     def getData(self):
         return self.data
 
+class StartupConsts:
+    DEBUG=False
+    WITH_TRACKING=True
+
 class AppCurrDataAccessToken:
     appCurrDataAccessToken = "I can access the current data of the app"
 

@@ -30,6 +30,8 @@ class StartupLayout(wm.MenuLayout_Interface):
         self.addWidget(originalMaterialName_ETR)
         originalMaterialLocation_ETR = sw.StrtupOriginalMaterialLocation_ETR(winRoot, self.prefix)
         self.addWidget(originalMaterialLocation_ETR)
+        strtupRemoteLink_ETR = sw.StrtupRemoteLink_ETR(winRoot, self.prefix)
+        self.addWidget(strtupRemoteLink_ETR)
 
         addbook_BTN = sw.AddBook_BTN(winRoot, self.prefix)
         addbook_BTN.addListenerWidget(books_OM)
@@ -38,6 +40,7 @@ class StartupLayout(wm.MenuLayout_Interface):
         addbook_BTN.addListenerWidget(originalMaterialRelPath_ETR)
         addbook_BTN.addListenerWidget(originalMaterialName_ETR)
         addbook_BTN.addListenerWidget(originalMaterialLocation_ETR)
+        addbook_BTN.addListenerWidget(strtupRemoteLink_ETR)
         self.addWidget(addbook_BTN)
 
 
