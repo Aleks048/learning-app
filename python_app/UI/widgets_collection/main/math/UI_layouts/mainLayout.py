@@ -164,7 +164,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 
                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
                 page = imLinkOMPageDict[imIdx]
-                
+
                 ocf.Wr.PdfApp.openPDF(omFilepath, page)
             
             widget.bind( ww.currUIImpl.Data.BindID.mouse1, __cmd)
@@ -673,6 +673,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
         if broadcasterType == ImageGenerationRestart_BTN:
             self.updateLabel(self.labelOptions[0])
         if broadcasterType == AddExtraImage_BTN:
+            self.updateLabel(self.labelOptions[0])
             return self.dataFromUser[0]
 
 class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
