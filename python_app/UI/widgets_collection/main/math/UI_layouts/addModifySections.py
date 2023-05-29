@@ -17,6 +17,7 @@ import outside_calls.outside_calls_facade as ocf
 
 import data.constants as dc
 import data.temp as dt
+import settings.facade as sf
 
 
 class MoveToTOC_BTN(ww.currUIImpl.Button,
@@ -611,57 +612,11 @@ class CreateNewSubsection_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        # close current subsection FS window
-        currSection = fsf.Data.Book.currSection
+        import generalManger.generalManger as gm
 
         newSecName = self.notify(SetSectionName_ETR)
         newSecStartPage, newSecEndPage = self.notify(SetSectionStartPage_ETR)
         secPath = self.notify(NewSectionPath_ETR)
 
-        if not re.match("[[\d]+.]*\d+", secPath):
-            msg = "\
-The section with path :'{0}' has wrong format.\
-Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
-            wm.UI_generalManager.showNotification(msg, True)
+        gm.GeneralManger.AddSubsection(secPath, newSecName, newSecStartPage, newSecEndPage)
 
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
-            return
-
-        if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
-            msg = "\
-The section with path :'{0}' already exists. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
-            wm.UI_generalManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
-            return
-        
-        msg = "\
-Do you want to create subsection with path :'{0}', text '{1}', \
-start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
-        response = wm.UI_generalManager.showNotification(msg, True)
-        
-        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                    mmm.MathMenuManager)
-        mainManager.show()
-
-        if response:
-            lf.Wr.LayoutsManager.closeFSWindow(currSection)
-            
-            fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
-
-            separator = fsf.Data.Book.sections_path_separator
-
-            topSectionName = secPath.split(separator)[0]
-            fsf.Data.Book.currTopSection = topSectionName
-            fsf.Data.Book.currSection = secPath
-            sections = fsf.Data.Book.sections
-            sections[topSectionName]["prevSubsectionPath"] = secPath
-            fsf.Data.Book.sections = sections
-
-            fsf.Data.Sec.text(secPath, newSecName)
-            fsf.Data.Sec.start(secPath, newSecStartPage)
-            fsf.Data.Sec.finish(secPath, newSecEndPage)

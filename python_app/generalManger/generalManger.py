@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -373,3 +374,61 @@ This is not correct. Please correct it.".format(sourceSubsection)
         msg = "Adding global link from: '{0}_{1}' to: '{2}_{3}'".format(sourceSubsection, sourceIDX,
                                                                         targetSubsection, targetIDX)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+    @classmethod
+    def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage):
+        import UI.widgets_facade as wf
+
+        if not re.match("[[\d]+.]*\d+", secPath):
+            msg = "\
+The section with path :'{0}' has wrong format.\
+Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+            wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+            return
+
+        if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
+            msg = "\
+The section with path :'{0}' already exists. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+            wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+            return
+        
+        msg = "\
+Do you want to create subsection with path :'{0}', text '{1}', \
+start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+        
+        mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if response:
+            # close current subsection FS window
+            currSection = fsf.Data.Book.currSection
+            lf.Wr.LayoutsManager.closeFSWindow(currSection)
+            
+            fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
+
+            separator = fsf.Data.Book.sections_path_separator
+
+            topSectionName = secPath.split(separator)[0]
+            fsf.Data.Book.currTopSection = topSectionName
+            fsf.Data.Book.currSection = secPath
+            sections = fsf.Data.Book.sections
+            sections[topSectionName]["prevSubsectionPath"] = secPath
+            fsf.Data.Book.sections = sections
+
+            fsf.Data.Sec.text(secPath, newSecName)
+            fsf.Data.Sec.start(secPath, newSecStartPage)
+            fsf.Data.Sec.finish(secPath, newSecEndPage)
+
+            # Updating the remote
+            msg = "Adding the subsection: '{0}'".format(secPath)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
