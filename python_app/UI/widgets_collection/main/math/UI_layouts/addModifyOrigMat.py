@@ -1,17 +1,8 @@
 import tkinter as tk
 
-import _utils.logging as log
-import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
-import UI.widgets_collection.message.manager as mesm
-import UI.widgets_collection.main.math.manager as mmm
-import UI.widgets_data as wd
-import file_system.file_system_facade as fsf
 import UI.widgets_collection.main.math.UI_layouts.common as cl
-
-import data.constants as dc
-import data.temp as dt
 
 class LayoutsSwitchOrigMatVSMain_BTN(cl.LayoutsSwitchOrigMatVSMain_BTN):
     labelOptions = ["Orig Mat", "Main"]
@@ -48,13 +39,13 @@ class AddOrigMaterial_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
+        import generalManger.generalManger as gm
+
         origMatFilepath = self.notify(GetOrigMatPath_ETR)
         origMatDestRelPath = self.notify(GetOrigMatDestRelPath_ETR)
         origMatName = self.notify(GetOrigMatName_ETR)
 
-        fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
-                                                            origMatDestRelPath,
-                                                            origMatName)
+        gm.GeneralManger.AddOM(origMatFilepath, origMatDestRelPath, origMatName)
 
 
 class GetOrigMatPath_ETR(ww.currUIImpl.TextEntry):

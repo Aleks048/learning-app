@@ -432,3 +432,13 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
             # Updating the remote
             msg = "Adding the subsection: '{0}'".format(secPath)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+    @classmethod
+    def AddOM(origMatFilepath, origMatDestRelPath, origMatName):
+        fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
+                                                            origMatDestRelPath,
+                                                            origMatName)
+
+        # Updating the remote
+        msg = "Adding the OM with name: '{0}'".format(origMatName)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
