@@ -29,27 +29,13 @@ class TexFilePopulate:
 
         numFiles = int(int(fsm.Wr.Links.ImIDX.get(subsection)) / 5) + 1
 
-        for i in range(numFiles):
-            conFilepath_forLinks = _upan.Paths.TexFiles.Content.getAbs(bookPath, subsection, str(i * 5))
-            with open(conFilepath_forLinks, 'r') as contentF:
-                # create the local links line
-                contentFile_forLinks = contentF.readlines()
-                
-                linkToken = "id: "
-                currIdx = ""
-                for i in range(0, len(contentFile_forLinks)):
-                    line = contentFile_forLinks[i]
-                    if linkToken in line:
-                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
-                        idx = idx.replace(" ", "")
-                        idx = idx.replace("\n", "")
-                        currIdx = idx
+        imTextDict = fsm.Data.Sec.imLinkDict(subsection)
 
-                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}\_{1}".format(subsection, idx), "full")
-                        lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
-                        listOfLocalLinks.append(lineToAdd)
-            
-            
+        for idx,_ in imTextDict.items():
+            lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, idx, "{0}\_{1}".format(subsection, idx), "full")
+            lineToAdd += tfu.getLinkLine(bookName, topSection, subsection, idx, "[p]", "pdf") + ", \n"
+            listOfLocalLinks.append(lineToAdd)
+
         with open(conFilepath, 'r') as contentF:
             # create the local links line
             contentFile = contentF.readlines()
@@ -72,6 +58,8 @@ class TexFilePopulate:
             
             linkToken = "id: "
             currIdx = ""
+
+
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
                 if linkToken in line:
@@ -82,7 +70,7 @@ class TexFilePopulate:
                 elif "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
-                    imText = fsm.Wr.Links.ImLink.get(subsection, currIdx)
+                    imText = imTextDict[currIdx]
                     imText =tfm.TexFileModify.formatLinkName(imText)
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                              imageName)
@@ -100,7 +88,6 @@ class TexFilePopulate:
                 elif "Local links" in line:
                     #NOTE: not used TODO: remove
                     contentFile[i] = ""
-
 
         localLinksLine = "\href" + \
             "{{KIK:/{0}/{1}/{2}/-1/notes}}{{notes}}".format(bookName, topSection, subsection) + \
@@ -142,7 +129,8 @@ class TexFilePopulate:
                             lineToAdd = lineToAdd.replace(imageName, imagePath)
                         
                         if len(lineArr) > 2:
-                            lineToAdd += "}\n"  
+                            lineToAdd += "}\n"
+
                         tocFile_links[i] = lineToAdd
             
             tocFile.extend(tocFile_links)
