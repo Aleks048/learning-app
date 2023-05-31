@@ -78,8 +78,7 @@ class OriginalMaterialStructure:
         
         # update data structure to keep the dict of books and paths to them
         origMatFilename = cls.__fromMatPathToFilename(filePath)
-        cls.setMaterialPath(materialName, 
-                            os.path.join(originnalMaterialDestinationPath, origMatFilename))
+        cls.setMaterialPath(materialName, os.path.join(structureRelPath, origMatFilename))
         cls.setMaterialCurrPage(materialName, "1")
 
         # set noteSize
