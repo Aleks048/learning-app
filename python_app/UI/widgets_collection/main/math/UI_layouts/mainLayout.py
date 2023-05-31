@@ -5,6 +5,7 @@ from tkinter import ttk
 import subprocess
 from threading import Thread
 import time
+import re
 
 import file_system.file_system_facade as fsf
 import tex_file.tex_file_facade as tff
@@ -626,6 +627,17 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
     def cmd(self):
         def _createTexForTheProcessedImage():
             import generalManger.generalManger as gm
+
+            if not re.match("^[0-9]+$", self.dataFromUser[0]):
+                msg = "Incorrect image index \nId: '{0}'.".format(self.dataFromUser[0])
+                wm.UI_generalManager.showNotification(msg, True)
+
+                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+                mainManager.show()
+
+                return
+
             addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
 
@@ -763,19 +775,47 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         mainImIdx = self.notify(ImageGeneration_BTN)
+        extraImageIdx = _u.Token.NotDef.str_t
+
+        if "_" in mainImIdx:
+            mainAndExtraIndex = mainImIdx.split("_")
+
+            for idx in mainAndExtraIndex:
+                if not re.match("^[0-9]+$", idx):
+                    msg = "Incorrect image index \nId: '{0}'.".format(idx)
+                    wm.UI_generalManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                                mmm.MathMenuManager)
+                    mainManager.show()
+
+                    return
+
+            mainImIdx = mainAndExtraIndex[0]
+            extraImageIdx = mainAndExtraIndex[1]
+        else:
+            if not re.match("^[0-9]+$", mainImIdx):
+                msg = "Incorrect main image index \nId: '{0}'.".format(mainImIdx)
+                wm.UI_generalManager.showNotification(msg, True)
+
+                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+                mainManager.show()
+
+                return
+
         
         if mainImIdx == _u.Token.NotDef.str_t:
             mainImIdx = fsf.Wr.Links.ImIDX.get_curr()
        
-        extraImName = self.notify(ImageGeneration_ETR)
+        extraImText = self.notify(ImageGeneration_ETR)
         
         currentSubsection = _upan.Current.Names.Section.name()
         
         extraImagePath_curr = _upan.Paths.Screenshot.getAbs()
-        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsection, extraImName)
 
         msg = "\
-Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImName)
+Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImText)
         response = wm.UI_generalManager.showNotification(msg, True)
 
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -784,11 +824,45 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
         
         if not response:
             return
-        
-        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
 
         # update the content file
-        tff.Wr.TexFileModify.addExtraImage(mainImIdx, extraImageName)
+        extraImagesDict = fsf.Data.Sec.extraImagesDict(currentSubsection)
+
+        extraImagesList = []
+
+        if extraImagesDict == _u.Token.NotDef.dict_t:
+            extraImagesDict = {}
+
+        if mainImIdx in list(extraImagesDict.keys()):
+            extraImagesList = extraImagesDict[mainImIdx]
+        
+        if extraImageIdx != _u.Token.NotDef.str_t:
+            extraImageIdx = int(extraImageIdx)
+            if extraImageIdx < len(extraImagesList):
+                extraImagesList[extraImageIdx] = extraImText
+            else:
+                msg = "\
+Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".format(extraImageIdx)
+                wm.UI_generalManager.showNotification(msg, True)
+
+                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+                mainManager.show()
+
+                return
+        else:
+            extraImagesList.append(extraImText)
+
+        extraImagesDict[mainImIdx] = extraImagesList
+        fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
+        
+        if extraImageIdx == _u.Token.NotDef.str_t:
+            extraImageIdx = len(extraImagesList) - 1
+        
+        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsection, extraImageIdx)
+        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
+
+        tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 

@@ -60,11 +60,17 @@ class TexFileModify:
             contentLines = f.readlines()
             lineNum = [i for i in range(len(contentLines)) if marker in contentLines[i]][0]
             
+            extraImageLine = "\myStIm{" + extraImageName + "}%__EXTRA__"
             while dc.TexFileTokens.extraImagesEndToken not in contentLines[lineNum]:
+                if extraImageLine in contentLines[lineNum]:
+                    log.autolog("The exttra image '{0}' was already present. Nothing to add.".format(extraImageName))
+
+                    return
+
                 lineNum += 1
             
+            extraImageLine = "      \\\\" + extraImageLine + "\n"
             outLines = contentLines[:lineNum]
-            extraImageLine = "      \\\\\myStIm{" + extraImageName + "}\n"
             outLines.append(extraImageLine)
             outLines.extend(contentLines[lineNum:])
 

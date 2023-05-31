@@ -34,6 +34,7 @@ class SectionInfoStructure:
         imLinkOMPageDict = "imLinkOMPageDict"
         imGlobalLinksDict = "imGlobalLinksDict"
         origMatNameDict = "origMatNameDict"
+        extraImagesDict = "extraImagesDict"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -75,7 +76,8 @@ class SectionInfoStructure:
                     cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t,
                     cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t,
                     cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t
+                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t,
+                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t
                 }
         }
         return sectionInfo_template

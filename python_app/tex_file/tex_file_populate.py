@@ -82,9 +82,13 @@ class TexFilePopulate:
                 elif "myStIm" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[-1][:-1]
-                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
-                                             imageName)
-                    contentFile[i] = line.replace(imageName, imagePath)
+                    imageNameOriginal = imageName
+
+                    if "__EXTRA__" in line:
+                        imageName = _upan.Names.getExtraImageName(currIdx, subsection, imageName)
+
+                    imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection), imageName)
+                    contentFile[i] = line.replace(imageNameOriginal, imagePath)
                 elif "Local links" in line:
                     #NOTE: not used TODO: remove
                     contentFile[i] = ""
