@@ -248,10 +248,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                 links:dict = fsf.Data.Sec.imLinkDict(subsection)
 
+                def closeAllSubsections():
+                    for wTop1 in event.widget.master.master.winfo_children():
+                        for wTop2 in wTop1.winfo_children():
+                            if "labelwithclick" in str(wTop2):
+                                wTop2.clicked = False
+                            if "contentFr_"  in str(wTop2) or "contentDummyFr_" in str(wTop2):
+                                wTop2.destroy()
+
                 # 4 : event of mouse click
                 # 19 : event of being rendered
                 if ((not label.clicked and int(event.type) == 4)) or\
                     ((self.subsectionsClicked[subsection] == True) and (int(event.type) == 19)):
+                    closeAllSubsections()
+
                     i = 0
 
                     subSecID = subsection.replace(".", "")
@@ -294,8 +304,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                             child.destroy()
                     
                     if int(event.type) == 4:
+                        closeAllSubsections()
+                            
                         label.clicked = False
-                        self.subsectionsClicked[subsection] = False
+
+                        for k in list(self.subsectionsClicked.keys()):
+                            self.subsectionsClicked[k] = False
 
                 event.widget.configure(foreground="white")
             
