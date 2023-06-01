@@ -1,11 +1,9 @@
 import os
-import sys
 import tkinter as tk
 from tkinter import ttk
-import subprocess
-from threading import Thread
 import time
 import re
+from PIL import ImageTk,Image
 
 import file_system.file_system_facade as fsf
 import tex_file.tex_file_facade as tff
@@ -111,11 +109,14 @@ class LabelWithClick(ttk.Label):
     this is used to run different commands on whether the label was clicked even or odd times
     '''
     clicked = False
+    imIdx = ""
 
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     subsectionsClicked = {}
+    displayedImages = []
+
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 12},
@@ -182,7 +183,65 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 event.widget.configure(foreground="white")
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
-       
+        
+        def __showIMagesONClick(event, subSecID, *args):
+            label = event.widget
+            imIdx = label.imIdx
+            tframe = label.master
+            gpframe = tframe.master
+
+            imageWidgetID = "imageWidget"
+            
+            def closeAllImages():
+                for parent in gpframe.winfo_children():
+                    for child in parent.winfo_children():
+                        if "contentOfImages_" in str(child):
+                            child.clicked = False
+
+                        if imageWidgetID in str(child):
+                            child.destroy()
+
+                self.displayedImages = []
+
+            def __cmd(event, *args):
+                if ((not label.clicked and int(event.type) == 4)):
+                    closeAllImages()
+                    label.clicked = True
+
+                    # mainImage
+                    currBookName = sf.Wr.Manager.Book.getCurrBookName()
+                    screenshotFolder = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
+                    mainImageName = _upan.Names.getImageName(str(imIdx), subsection)
+                    mainImagePath = os.path.join(screenshotFolder,  mainImageName + ".png")
+                    img = ImageTk.PhotoImage(Image.open(mainImagePath))
+                    self.displayedImages.append(img)
+                    
+                    imLabel = LabelWithClick(tframe, image=img, name = imageWidgetID + subSecID + imIdx)
+                    imLabel.grid(row = 1, column = 0, columnspan = 100)
+
+                    # extraImages
+                    if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
+                        extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
+
+                        for i in range(0, len(extraImages)):
+                            extraImName = _upan.Names.getExtraImageName(str(imIdx), subsection, i)
+                            extraImFilepath = os.path.join(screenshotFolder, extraImName + ".png")
+                            img = ImageTk.PhotoImage(Image.open(extraImFilepath))
+                            self.displayedImages.append(img)
+
+                            imLabel = LabelWithClick(tframe, image=img, 
+                                                    name=imageWidgetID + subSecID + imIdx + "e" + str(i))
+                            imLabel.grid(row = i + 2, column = 0, columnspan = 100)
+                    
+                    if int(event.type) == 4:
+                        for child in tframe.winfo_children():
+                            if "contentImages_" + subSecID in str(child):
+                                child.clicked = True
+                else:
+                    closeAllImages()
+     
+            __cmd(event, *args)
+
         def openContentOfTheSection(frame, label):
             def __cmd(event = None, *args):
                 # open orig material on page
@@ -197,20 +256,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                     subSecID = subsection.replace(".", "")
                     for k,v in links.items():
-                        tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + str(i))
-                        
-                        testEntryPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
-                        testEntryFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
-                        
-                        testEntryPage.grid(row=0, column=0, sticky=tk.NW)
-                        testEntryFull.grid(row=0, column=1, sticky=tk.NW)
-                        
-                        openOMOnThePageOfTheImage(testEntryPage, k)
-                        bindChangeColorOnInAndOut(testEntryPage)
-                        openSectionOnIdx(testEntryFull, k)
-                        bindChangeColorOnInAndOut(testEntryFull)
+                        tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + "_" + str(i))
 
-                        tempFrame.grid(row=i + 2, column=0, sticky=tk.NW)
+                        testLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
+                        testLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
+                        showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + subSecID + str(i))
+
+                        showImages.imIdx = k
+                        showImages.clicked = False
+
+                        showImages.grid(row=0, column=2, sticky=tk.NW)  
+                        showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                        lambda e, *args: __showIMagesONClick(e, subSecID, *args))
+                        testLabelPage.grid(row=0, column=0, sticky=tk.NW)
+                        testLabelFull.grid(row=0, column=1, sticky=tk.NW)
+
+                        openOMOnThePageOfTheImage(testLabelPage, k)
+                        bindChangeColorOnInAndOut(testLabelPage)
+                        bindChangeColorOnInAndOut(showImages)
+                        openSectionOnIdx(testLabelFull, k)
+                        bindChangeColorOnInAndOut(testLabelFull)
+
+                        tempFrame.grid(row=i + 2, column=0, columnspan = 100, sticky=tk.NW)
                         i += 1
                     
                     dummyFrame = ttk.Frame(frame, name = "contentDummyFr_" + subSecID + str(i))
