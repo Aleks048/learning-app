@@ -46,6 +46,8 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
+        import generalManger.generalManger as gm
+
         omName = fsf.Data.Book.currOrigMatName
         fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
         cmd = oscr.get_PageOfSkimDoc_CMD(fileName)
@@ -54,32 +56,8 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
         if currPage != None:
             currPage = currPage.split("page ")[1]
             currPage = currPage.split(" ")[0]
-        
-        time.sleep(0.3)
 
-        cmd = oscr.deleteAllNotesFromThePage(fileName, currPage)
-        _u.runCmdAndWait(cmd)
-
-        time.sleep(0.3)
-        
-        bookName = sf.Wr.Manager.Book.getCurrBookName()
-        
-        sections = fsf.Data.Book.sections
-        noteIdx = 1
-
-        for topSection in sections:
-            subsections = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
-            for subSec in subsections:
-                imPages:dict = fsf.Data.Sec.imLinkOMPageDict(subSec)
-                imTexts:dict = fsf.Data.Sec.imLinkDict(subSec)
-                for imIdx,imPage in imPages.items():
-                    if imPage == currPage:
-                        imText = imTexts[imIdx]
-                        url = tff.Wr.TexFileUtils.getUrl(bookName, topSection, subSec, 
-                                                        imIdx, "full", notLatex=True)
-                        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(omName, currPage, 
-                                                                                   url + " " + imText, noteIdx)
-                        noteIdx += 1
+        gm.GeneralManger.readdNotesToPage(currPage)
 
 
 class ExitApp_BTN(ww.currUIImpl.Button,
@@ -110,6 +88,7 @@ class LabelWithClick(ttk.Label):
     '''
     clicked = False
     imIdx = ""
+    subsection = ""
 
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
@@ -255,6 +234,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                                 wTop2.clicked = False
                             if "contentFr_"  in str(wTop2) or "contentDummyFr_" in str(wTop2):
                                 wTop2.destroy()
+                
+                def removeEntryCmd(event, *args):
+                    widget = event.widget
+                    fsf.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
+                    self.render()
+
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -268,24 +253,33 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                     for k,v in links.items():
                         tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + "_" + str(i))
 
-                        testLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
-                        testLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
+                        textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
+                        textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
                         showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + subSecID + str(i))
+                        removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + subSecID + str(i))
 
                         showImages.imIdx = k
                         showImages.clicked = False
 
+                        removeEntry.grid(row=0, column=3, sticky=tk.NW)  
+                        removeEntry.imIdx = k
+                        removeEntry.subsection = subsection
+                        removeEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
+                                         removeEntryCmd)
+
                         showImages.grid(row=0, column=2, sticky=tk.NW)  
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, *args))
-                        testLabelPage.grid(row=0, column=0, sticky=tk.NW)
-                        testLabelFull.grid(row=0, column=1, sticky=tk.NW)
 
-                        openOMOnThePageOfTheImage(testLabelPage, k)
-                        bindChangeColorOnInAndOut(testLabelPage)
+                        textLabelPage.grid(row=0, column=0, sticky=tk.NW)
+                        textLabelFull.grid(row=0, column=1, sticky=tk.NW)
+
+                        openOMOnThePageOfTheImage(textLabelPage, k)
+                        bindChangeColorOnInAndOut(textLabelPage)
                         bindChangeColorOnInAndOut(showImages)
-                        openSectionOnIdx(testLabelFull, k)
-                        bindChangeColorOnInAndOut(testLabelFull)
+                        bindChangeColorOnInAndOut(removeEntry)
+                        openSectionOnIdx(textLabelFull, k)
+                        bindChangeColorOnInAndOut(textLabelFull)
 
                         tempFrame.grid(row=i + 2, column=0, columnspan = 100, sticky=tk.NW)
                         i += 1
