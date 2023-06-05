@@ -15,6 +15,11 @@ class FinderCalls:
         else:
             log.autolog("Could not remove filepath: '{0}'. It does not seem to exist.".format(filepath))
 
+    @classmethod
+    def moveFile(cls, sourceFilepath, destFilepath):
+        cls.copyFile(sourceFilepath, destFilepath)
+        cls.deleteFile(sourceFilepath)
+
     def copyFile(sourceFilepath, destFilepath):
         return shutil.copy2(sourceFilepath, destFilepath)
 

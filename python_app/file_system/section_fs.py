@@ -7,6 +7,10 @@ import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
+import UI.widgets_facade as wf
+import data.constants as dc
+import data.temp as dt
+import tex_file.tex_file_facade as tff
 
 class SectionInfoStructure:
     '''
@@ -151,10 +155,194 @@ class SectionInfoStructure:
 
         cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
     
+    def __shiftTheItemsInTheDict(dict, startShiftIdx):
+        # shift each item of the dict starting from the idx to the left
+        outDict = {}
+
+        for k in list(dict.keys()):
+            if int(k) < int(startShiftIdx):
+                outDict[k] = dict[k]
+            else:
+                outDict[str(int(k)-1)] = dict[k]
+
+        return outDict
+
+    @classmethod
+    def removeEntry(cls, subsection, imIdx):
+        import generalManger.generalManger as gm
+
+        # ask the user if we wnat to proceed.
+        msg = "Do you want to remove '{0}_{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        # NOTE: ask twice if the user is sure.
+        msg = "Still sure you want to remove '{0}_{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+        
+        # track all the changes berore and after removal
+        msg = "Before removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
+
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        imGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+
+        # move the extra images
+        if imIdx in list(extraImagesDict.keys()):
+            extraImNames = extraImagesDict[imIdx]
+
+            if extraImNames != None:
+                for extraImIdx in range(len(extraImNames)):
+                    extraImFilename = _upan.Names.getExtraImageName(imIdx, subsection, extraImIdx)
+                    ocf.Wr.FsAppCalls.deleteFile(os.path.join(imagesPath, extraImFilename + ".png"))
+        
+
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+       
+        if imIdx == list(imLinkDict.keys())[-1]:
+            imName = _upan.Names.getImageName(imIdx, subsection)
+            ocf.Wr.FsAppCalls.deleteFile(os.path.join(imagesPath, imName + ".png"))
+        else:
+            # take care of the rest of the images in the subsesction
+            for imLinkId in list(imLinkDict.keys()):
+                if int(imLinkId) > int(imIdx):
+                    # move the main image files
+                    imNameOld = _upan.Names.getImageName(imLinkId, subsection)
+                    imNameNew = _upan.Names.getImageName(str(int(imLinkId) - 1), subsection)
+                    ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
+                                            os.path.join(imagesPath, imNameNew + ".png"))
+                    
+                    # move the extra images
+                    if imLinkId in list(extraImagesDict.keys()):
+                        extraImNames = extraImagesDict[imLinkId]
+
+                        if extraImNames != None:
+                            for extraImIdx in range(len(extraImNames)):
+                                extraImOldFilename = _upan.Names.getExtraImageName(imLinkId, subsection, extraImIdx)
+                                extraImNewFilename = _upan.Names.getExtraImageName(str(int(imLinkId) - 1), subsection, extraImIdx)
+
+                                ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
+                                                            os.path.join(imagesPath, extraImNewFilename + ".png"))
+
+        #T update the tex files
+        tff.Wr.TexFileModify.removeImageFromCon(currBookName, subsection, imIdx)
+        tff.Wr.TexFileModify.removeImageFromToc(currBookName, subsection, imIdx)
+
+        
+        # remove all the global links that lead to this entry
+        if imIdx in list(imGlobalLinksDict.keys()):
+            glLinksListImDict = imGlobalLinksDict[imIdx]
+            for glLink in list(glLinksListImDict.keys()):
+                linkSubsection = glLink.split("_")[0]
+                linkIdx = glLink.split("_")[1]
+                
+                linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
+                linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
+                linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
+                if linkGlobalLinksImDict == {}:
+                    linkGlobalLinksDict.pop(linkIdx)
+                else:
+                    linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
+                if linkGlobalLinksDict == {}:
+                    linkGlobalLinksDict = _u.Token.NotDef.dict_t
+
+                cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+        
+        # update links to other images
+        for imLinkId in list(imLinkDict.keys()):
+            if int(imLinkId) > int(imIdx):
+                if imLinkId in list(imGlobalLinksDict.keys()):
+                    glLinksListImDict = imGlobalLinksDict[imLinkId]
+                    for glLink in list(glLinksListImDict.keys()):
+                        linkSubsection = glLink.split("_")[0]
+                        linkIdx = glLink.split("_")[1]
+                        
+                        linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
+                        linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
+                        linkGlobalLinksImDict.pop(subsection + "_" + imLinkId)
+
+                        linkGlobalLinksImDict[subsection + "_" + str(int(imLinkId) - 1)] = \
+                                        tff.Wr.TexFileUtils.getUrl(currBookName, 
+                                                                subsection, 
+                                                                subsection.split(".")[0],
+                                                                str(int(imLinkId) - 1),
+                                                                "full",
+                                                                False)
+
+                        linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
+
+                        cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+
+        imLinkDict.pop(imIdx, None)
+        imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx)
+
+        if imLinkDict == {}:
+            imLinkDict = _u.Token.NotDef.dict_t
+
+        cls.updateProperty(subsection, cls.PubProp.imLinkDict, imLinkDict)
+
+        imLinkOMPageDict:dict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
+        imLinkOMPageDict.pop(imIdx, None)
+        imLinkOMPageDict = cls.__shiftTheItemsInTheDict(imLinkOMPageDict, imIdx)
+
+        if imLinkOMPageDict == {}:
+            imLinkOMPageDict = _u.Token.NotDef.dict_t
+
+        cls.updateProperty(subsection, cls.PubProp.imLinkOMPageDict, imLinkOMPageDict)
+
+        imGlobalLinksDict.pop(imIdx, None)
+        imGlobalLinksDict = cls.__shiftTheItemsInTheDict(imGlobalLinksDict, imIdx)
+
+        if imLinkOMPageDict == {}:
+            imLinkOMPageDict = _u.Token.NotDef.dict_t
+
+        cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, imGlobalLinksDict)
+
+        origMatNameDict = cls.readProperty(subsection, cls.PubProp.origMatNameDict)
+        origMatNameDict.pop(imIdx, None)
+        origMatNameDict = cls.__shiftTheItemsInTheDict(origMatNameDict, imIdx)
+
+        if origMatNameDict == {}:
+            origMatNameDict = _u.Token.NotDef.dict_t
+
+        cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
+
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        extraImNames = extraImagesDict.pop(imIdx, None)
+        extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
+
+        if extraImagesDict == {}:
+            extraImagesDict = _u.Token.NotDef.dict_t
+
+        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
+
+        # update the links on the OM file
+        for page in set(list(imLinkOMPageDict.values())):
+            gm.GeneralManger.readdNotesToPage(page)
+
+        # track all the changes berore and after removal
+        msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
     @classmethod
     def removeSection(cls, sectionPath):
         # take care if the section is current section
-
 
         currSection = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
         # set the curr section to not defined

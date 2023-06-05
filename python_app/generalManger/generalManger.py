@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import time
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -17,6 +18,7 @@ import outside_calls.outside_calls_facade as ocf
 import daemon_service.daemon_service as ds
 
 import layouts.layouts_facade as lf
+import scripts.osascripts as oscr
 
 
 class GeneralManger(dc.AppCurrDataAccessToken):
@@ -439,3 +441,31 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
         # Updating the remote
         msg = "Adding the OM with name: '{0}'".format(origMatName)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+    
+
+    def readdNotesToPage(currPage):
+        omName = fsf.Data.Book.currOrigMatName
+        fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
+        
+        time.sleep(0.3)
+
+        cmd = oscr.deleteAllNotesFromThePage(fileName, currPage)
+        _u.runCmdAndWait(cmd)
+
+        time.sleep(0.3)
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
+        noteIdx = 1
+        sections = fsf.Data.Book.sections
+        for topSection in sections:
+            subsections = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
+            for subSec in subsections:
+                imPages:dict = fsf.Data.Sec.imLinkOMPageDict(subSec)
+                imTexts:dict = fsf.Data.Sec.imLinkDict(subSec)
+                for imIdx,imPage in imPages.items():
+                    if imPage == currPage:
+                        imText = imTexts[imIdx]
+                        url = tff.Wr.TexFileUtils.getUrl(bookName, topSection, subSec, 
+                                                        imIdx, "full", notLatex=True)
+                        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(omName, currPage, 
+                                                                                    url + " " + imText, noteIdx)
+                        noteIdx += 1
