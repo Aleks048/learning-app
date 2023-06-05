@@ -13,6 +13,9 @@ import data.constants as dc
 import data.temp as dt
 import UI.widgets_collection.toc.manager as tocm
 
+import _utils._utils_main as _u
+import scripts.osascripts as oscr
+
 class Hide_BTN(ww.currUIImpl.Button,
                          dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
@@ -69,9 +72,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         def openPdfOnStartOfTheSection(widget):
             def __cmd(event = None, *args):
                 # open orig material on page
+                omName = fsf.Data.Sec.origMatNameDict(subsection)[idx]
+
+                omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
                 subsectionStartPage = fsf.Data.Sec.start(subsection)
-                origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
-                ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
+
+                ocf.Wr.PdfApp.openPDF(omFilepath, subsectionStartPage)
+
+                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
+                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+                _u.runCmdAndWait(cmd)
 
                 event.widget.configure(foreground="white")
             
@@ -91,15 +102,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             def __cmd(event = None, *args):
                 # open orig material on page
                 imOMName = fsf.Data.Sec.origMatNameDict(subsection)[imIdx]
+
                 omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(imOMName)
-                
                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
                 page = imLinkOMPageDict[imIdx]
-                
+
                 ocf.Wr.PdfApp.openPDF(omFilepath, page)
-            
+                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(imOMName)
+                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
+                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+                _u.runCmdAndWait(cmd)
+
             widget.bind( ww.currUIImpl.Data.BindID.mouse1, __cmd)
-        
+
         def openSectionOnIdx(widget, imIdx):
             def __cmd(event = None, *args):
                 # open orig material on page

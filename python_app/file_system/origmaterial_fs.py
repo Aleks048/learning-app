@@ -27,6 +27,7 @@ class OriginalMaterialStructure:
         currPage = "CurrPage"
         noteSize = "NoteSize"
         pageSize = "PageSize"
+        zoomLevel = "ZoomLevel"
 
         # toc page
         tocPage = "TocPage"
@@ -36,7 +37,8 @@ class OriginalMaterialStructure:
         PubProp.currPage : _u.Token.NotDef.str_t,
         PubProp.tocPage : _u.Token.NotDef.str_t,
         PubProp.noteSize : _u.Token.NotDef.list_t,
-        PubProp.pageSize : _u.Token.NotDef.list_t
+        PubProp.pageSize : _u.Token.NotDef.list_t,
+        PubProp.zoomLevel : _u.Token.NotDef.str_t
     }
 
     template = {
@@ -85,6 +87,7 @@ class OriginalMaterialStructure:
         cls.setNoteSize(materialName, [300, 20])
         cls.setMaterialPageSize(materialName, [-1, -1])
         cls.setTOCPage(materialName, _u.Token.NotDef.str_t)
+        cls.setZoomLevel(materialName, "100")
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
@@ -161,6 +164,15 @@ class OriginalMaterialStructure:
         books = cls.__getMaterailsDict()
         try:
             return books[OMName][OriginalMaterialStructure.PubProp.tocPage]
+        except:
+            log.autolog("No OM with name '{0}'".format(OMName))
+            return None
+
+    @classmethod
+    def getMaterialZoomLevel(cls, OMName):
+        books = cls.__getMaterailsDict()
+        try:
+            return books[OMName][OriginalMaterialStructure.PubProp.zoomLevel]
         except:
             log.autolog("No OM with name '{0}'".format(OMName))
             return None
@@ -244,6 +256,16 @@ class OriginalMaterialStructure:
             materials[materialName] = {}
         
         materials[materialName][OriginalMaterialStructure.PubProp.tocPage] = tocPage
+        cls.__updateMaterialDict(materials)
+
+    @classmethod
+    def setZoomLevel(cls, materialName, zoomLevel):
+        materials = cls.__getMaterailsDict() 
+
+        if materialName not in materials.keys():
+            materials[materialName] = {}
+        
+        materials[materialName][OriginalMaterialStructure.PubProp.zoomLevel] = zoomLevel
         cls.__updateMaterialDict(materials)
     
     @classmethod

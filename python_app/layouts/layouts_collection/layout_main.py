@@ -61,6 +61,11 @@ class MainLayout(lc.Layout):
         currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(OMName)
         oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
 
+        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(OMName)
+        pdfToken:str = origMaterialBookFSPath_curr.split("/")[-1].replace(".pdf", "")
+        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+        _u.runCmdAndWait(cmd)
+
         pdfAppFile_ID = \
             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(OMName)
         

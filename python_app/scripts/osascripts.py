@@ -246,4 +246,21 @@ osascript -e '\n\
     
 	return cmd
 
+def setDocumentScale(docToken, percentage):
+	cmd = "\
+osascript -e '\n\
+	tell application \"{0}\"\n\
+		repeat with d in documents\n\
+			set n to name of d\n\
+			if n contains \"{1}\" then\n\
+                tell d\n\
+                    set view settings of d to {{scale factor: {2}}}\n\
+                end tell\n\
+            end if\n\
+            save\n\
+		end repeat\n\
+	end tell\
+'".format(sf.Wr.Data.TokenIDs.AppIds.skim_ID, docToken, float(percentage)/100.0)
+
+	return cmd
 

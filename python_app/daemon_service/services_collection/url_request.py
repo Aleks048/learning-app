@@ -36,19 +36,23 @@ def processCall(url):
         linktType:str = url[4]
 
     if "om" in linktType.lower():
-        omNameDict = fsf.Data.Sec.origMatNameDict(subsecPath)
-        omName = omNameDict[positionIDX]
-
-        omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
-
         pagesDict:dict = fsf.Data.Sec.imLinkOMPageDict(subsecPath)
         
         if positionIDX not in pagesDict.keys():
             log.autolog("Can't open original material for '{0}'.".format("/".join(url)))
 
+        omNameDict = fsf.Data.Sec.origMatNameDict(subsecPath)
+        omName = omNameDict[positionIDX]
+
+        omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
         page = pagesDict[positionIDX]
         
         oscf.Wr.PdfApp.openPDF(omPath, page)
+
+        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+        pdfToken:str = omPath.split("/")[-1].replace(".pdf", "")
+        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+        _u.runCmdAndWait(cmd)
 
         return
 

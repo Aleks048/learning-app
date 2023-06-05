@@ -119,9 +119,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         def openPdfOnStartOfTheSection(widget):
             def __cmd(event = None, *args):
                 # open orig material on page
+                omName = fsf.Data.Sec.origMatNameDict(subsection)[idx]
+
+                omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
                 subsectionStartPage = fsf.Data.Sec.start(subsection)
-                origMaterialBookFSPath_curr = _upan.Paths.OriginalMaterial.MainBook.getAbs()
-                ocf.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, subsectionStartPage)
+
+                ocf.Wr.PdfApp.openPDF(omFilepath, subsectionStartPage)
+
+                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
+                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+                _u.runCmdAndWait(cmd)
 
                 event.widget.configure(foreground="white")
             
@@ -141,12 +149,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             def __cmd(event = None, *args):
                 # open orig material on page
                 imOMName = fsf.Data.Sec.origMatNameDict(subsection)[imIdx]
-                omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(imOMName)
-                
+
+                omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(imOMName)                
                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
                 page = imLinkOMPageDict[imIdx]
 
                 ocf.Wr.PdfApp.openPDF(omFilepath, page)
+
+                omName = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(imOMName)
+                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
+                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+                _u.runCmdAndWait(cmd)
             
             widget.bind( ww.currUIImpl.Data.BindID.mouse1, __cmd)
         
@@ -408,9 +422,16 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         # open another original material
         origMatName = self.getData()
         self.prevChoice = origMatName
+
         origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
         origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+
         ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
+
+        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName)
+        pdfToken:str = origMatPath.split("/")[-1].replace(".pdf", "")
+        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+        _u.runCmdAndWait(cmd)
 
         width, height = _u.getMonitorSize()
         halfWidth = int(width / 2)

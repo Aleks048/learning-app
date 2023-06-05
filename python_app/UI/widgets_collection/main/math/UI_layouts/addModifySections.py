@@ -39,7 +39,7 @@ class MoveToTOC_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         omName = fsf.Data.Book.currOrigMatName
-        filepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+
         tocPage = fsf.Wr.OriginalMaterialStructure.getMaterialTOCPage(omName)
 
         if tocPage == _u.Token.NotDef.str_t:
@@ -53,7 +53,15 @@ NOTE: The TOC page is not set for '{0}' . Will not do anything.".format(omName)
 
             return
 
+        filepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+
         ocf.Wr.PdfApp.openPDF(filepath, tocPage)
+
+        omName = fsf.Data.Book.currOrigMatName
+        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+        pdfToken:str = filepath.split("/")[-1].replace(".pdf", "")
+        cmd = oscf.setDocumentScale(pdfToken, zoomLevel)
+        _u.runCmdAndWait(cmd)
 
 
 class ModifySubsection_BTN(ww.currUIImpl.Button,
