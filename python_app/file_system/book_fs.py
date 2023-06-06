@@ -95,6 +95,7 @@ class BookInfoStructure:
                 parentProperty[relSectionPath] = {
                     "prevSubsectionPath":"",
                     "name": "",
+                    "showSubsections": "1",
                     "sections": {}
                 }
             

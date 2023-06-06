@@ -79,6 +79,9 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         import generalManger.generalManger as gm
+
+        self.notify(TOC_BOX)
+
         gm.GeneralManger.exitApp()
         
 
@@ -94,6 +97,7 @@ class LabelWithClick(ttk.Label):
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     subsectionsClicked = {}
+    showSubsectionsForTopSection = {}
     displayedImages = []
 
     def __init__(self, parentWidget, prefix):
@@ -105,16 +109,31 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         self.__populateClicketSubsecDict()
 
-        super().__init__(prefix, 
+        tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+        
+        for ts in tsList:
+            self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
+
+        super().__init__(prefix,
                         name,
-                        parentWidget, 
+                        parentWidget,
                         renderData = data,
                         height=420,
                         width=570)
     
-    def receiveNotification(self, broadcasterName, data = None):
-        self.render()
-    
+    def receiveNotification(self, broadcasterType, data = None):
+        if broadcasterType == ExitApp_BTN:
+            tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+
+            sections = fsf.Data.Book.sections
+
+            for ts in tsList:
+                sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
+
+            fsf.Data.Book.sections = sections
+        else:
+            self.render()
+
     def addTOCEntry(self, subsection, level, idx):
         def openPdfOnStartOfTheSection(widget):
             def __cmd(event = None, *args):
@@ -322,8 +341,30 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 event.widget.configure(foreground="white")
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
-            label.bind(ww.currUIImpl.Data.BindID.render, __cmd)
-        
+       
+        def openContentOfTheTopSection(frame, label):
+            def __cmd(event = None, *args):
+                
+                # 4 : event of mouse click
+                # 19 : event of being rendered
+                if ((not label.clicked and int(event.type) == 4)) or\
+                    ((self.showSubsectionsForTopSection[subsection] == True) and (int(event.type) == 19)):
+                    self.showSubsectionsForTopSection[subsection] = True
+                    self.render()
+                else:
+                    if int(event.type) == 4:
+                        self.showSubsectionsForTopSection[subsection] = False
+                        self.render()
+
+                event.widget.configure(foreground="white")
+            
+            label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
+       
+        if level != 0:
+            topSection = subsection.split(".")[0]
+            if not self.showSubsectionsForTopSection[topSection]:
+                return
+
         prefix = ""
         if level != 0:
             prefix = "|" + int(level) * 4 * "-" + " "
@@ -341,10 +382,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         prettySubsections = prefix + subsection + ": " + subsectionText + "\n"
         
-        locFrame = ttk.Frame(self.scrollable_frame)
+        labelName = subsection.replace(".", "")
+
+        locFrame = ttk.Frame(self.scrollable_frame, name=labelName)
         super().addTOCEntry(locFrame, idx, 0)
 
-        subsectionLabel = ttk.Label(locFrame, text = prettySubsections)
+        if level == 0:
+            subsectionLabel = ttk.Label(locFrame, text = prettySubsections, padding= [0, 20, 0, 0])
+        else:
+            subsectionLabel = ttk.Label(locFrame, text = prettySubsections)
+
         openPdfOnStartOfTheSection(subsectionLabel)
         bindChangeColorOnInAndOut(subsectionLabel)
 
@@ -353,6 +400,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         if level != 0:
             openContentLabel = LabelWithClick(locFrame, text = "[content]")
             openContentOfTheSection(locFrame, openContentLabel)
+            bindChangeColorOnInAndOut(openContentLabel)
+
+            openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
+        else:
+            openContentLabel = LabelWithClick(locFrame, text = "[content]", padding= [0, 20, 0, 0])
+            openContentLabel.clicked = self.showSubsectionsForTopSection[subsection]
+            openContentOfTheTopSection(locFrame, openContentLabel)
             bindChangeColorOnInAndOut(openContentLabel)
 
             openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
@@ -381,7 +435,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         for subSec in subsectionsList:
             if subSec not in list(self.subsectionsClicked.keys()):
                 self.subsectionsClicked[subSec] = False
-
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""

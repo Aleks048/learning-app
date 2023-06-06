@@ -96,6 +96,7 @@ class LayoutManagers:
 
             exitApp_BTN = ml.ExitApp_BTN(winRoot, self.prefix)
             self.addWidget(exitApp_BTN)
+            exitApp_BTN.addListenerWidget(tocBox_BOX)
  
             showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)
@@ -114,7 +115,7 @@ class LayoutManagers:
             self.winRoot.configureColumn(3, weight = 1)
             self.winRoot.configureColumn(4, weight = 1)
             return super().show()
-    
+
 
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
