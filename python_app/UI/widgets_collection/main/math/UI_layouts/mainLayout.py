@@ -697,7 +697,10 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
         self.setData(False)
     
     def receiveNotification(self, broadcasterName):
-        return self.getData()
+        prevChoice = self.getData()
+        self.setData(False)
+
+        return prevChoice
 
 
 class ImageGeneration_BTN(ww.currUIImpl.Button,
