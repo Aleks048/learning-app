@@ -165,15 +165,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
         tff.Wr.TexFileModify.addProcessedImage(subsection, imIdx, imText)
 
-        if addToTOC:
-            if addToTOCwIm:
-                # TOC ADD ENTRY WITH IMAGE
-                tff.Wr.TexFileModify.addImageLinkToTOC_wImage(subsection, imIdx, imText)
-            else:  
-                # TOC ADD ENTRY WITHOUT IMAGE
-                tff.Wr.TexFileModify.addImageLinkToTOC_woImage(subsection, imIdx, imText)
-        
-
         # STOTE IMNUM, IMNAME AND LINK
         fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
         
@@ -219,6 +210,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         pagesDict[imIdx] = page
         fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
+
+        # toc w image
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(subsection)
+
+        if tocWImageDict == _u.Token.NotDef.dict_t:
+            tocWImageDict = {}
+        
+        tocWImageDict[imIdx] = "1" if addToTOCwIm else "0"
+        fsf.Data.Sec.tocWImageDict(subsection, tocWImageDict)
 
         # ADD LINK TO THE ORIGINAL MATERIAL
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()

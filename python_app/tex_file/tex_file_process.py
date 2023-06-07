@@ -6,19 +6,6 @@ import settings.facade as sf
 import file_system.file_system_facade as fsf
 
 class TexFileProcess:
-    @classmethod
-    def getTocLine(cls, bookName, subsection, imIdx):
-        tocTexFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsection, imIdx)
-        line = cls.__getIdxLine(imIdx, tocTexFilepath)
-
-        extraLines = fsf.Data.Sec.imageTOCFileMoveLinesNumber(subsection)
-        
-        if extraLines == _u.Token.NotDef.str_t:
-            extraLines = fsf.Data.Book.imageTOCFileMoveLinesNumber
-        
-        line = str(int(line) + int(extraLines))
-        
-        return line
     
     @classmethod
     def getConLine(cls, bookName, subsection, imIdx):

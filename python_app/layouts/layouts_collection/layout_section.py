@@ -85,12 +85,9 @@ class SectionLayout(lc.Layout,
 
         # create the layout in the vscode window
         conterntFilepath_curr = _upan.Paths.TexFiles.Content.getAbs(idx = imIdx)
-        TOCFilepath_curr = _upan.Paths.TexFiles.TOC.getAbs(idx = imIdx)
 
         conLine = tf.Wr.TexFileProcess.getConLine(currBookName, subsection, imIdx)
-        tocLine = tf.Wr.TexFileProcess.getTocLine(currBookName, subsection, imIdx)
 
-        ocf.Wr.IdeCalls.openNewTab(TOCFilepath_curr, tocLine)
         sleep(0.3)
         ocf.Wr.IdeCalls.openNewTab(conterntFilepath_curr, conLine)
 

@@ -39,6 +39,7 @@ class SectionInfoStructure:
         imGlobalLinksDict = "imGlobalLinksDict"
         origMatNameDict = "origMatNameDict"
         extraImagesDict = "extraImagesDict"
+        tocWImageDict = "tocWImageDict"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -81,7 +82,8 @@ class SectionInfoStructure:
                     cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t,
                     cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t,
                     cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t,
-                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t
+                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t,
+                    cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t
                 }
         }
         return sectionInfo_template
@@ -131,8 +133,6 @@ class SectionInfoStructure:
                 ocf.Wr.FsAppCalls.createDir(_upan.Paths.TexFiles.Output.getAbs(bookpath, sectionPath))
             
             # create _con and _toc .tex files
-            _waitDummy = \
-                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.TOC.getAbs(bookpath, sectionPath))
             _waitDummy = \
                 ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.Content.getAbs(bookpath, sectionPath))
             _waitDummy = \
@@ -240,10 +240,8 @@ class SectionInfoStructure:
                                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
                                                             os.path.join(imagesPath, extraImNewFilename + ".png"))
 
-        #T update the tex files
+        # update the tex files
         tff.Wr.TexFileModify.removeImageFromCon(currBookName, subsection, imIdx)
-        tff.Wr.TexFileModify.removeImageFromToc(currBookName, subsection, imIdx)
-
         
         # remove all the global links that lead to this entry
         if imIdx in list(imGlobalLinksDict.keys()):
@@ -326,6 +324,11 @@ class SectionInfoStructure:
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
+
+        tocWImageDict = cls.readProperty(subsection, cls.PubProp.tocWImageDict)
+        tocWImageDict.pop(imIdx, None)
+        tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
 
         if extraImagesDict == {}:
             extraImagesDict = _u.Token.NotDef.dict_t

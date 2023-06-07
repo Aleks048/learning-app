@@ -102,43 +102,37 @@ class TexFilePopulate:
         
         bookName = sf.Wr.Manager.Book.getNameFromPath(bookPath)
 
-        for i in range(numFiles):
-            tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(bookPath, subsection, str(i * 5))
-            with open(tocFilepath, 'r') as tocF:
-                tocFile_links = tocF.readlines()
-                currIdx = 0
+        localLinksDict = fsm.Data.Sec.imLinkDict(subsection)
+        tocFile.append("\\\\")
+        for id, linkText in localLinksDict.items():
+            linkTextFormatted = tfm.TexFileModify.formatLinkName(linkText)
+            prefix = tfu.boldenTheText("[{0}]:".format(id))
+            linkTextFormatted = "{0} {1}".format(prefix, 
+                                                tfu.getLinkLine(bookName, 
+                                                                topSection, 
+                                                                subsection, 
+                                                                id, 
+                                                                linkTextFormatted, 
+                                                                "full"))
+            linkTextFormatted = linkTextFormatted.replace("\n", "")
 
-                for i in range(0, len(tocFile_links)):
-                    line = tocFile_links[i]
+            wImage = fsm.Data.Sec.tocWImageDict(subsection)[id]
 
-                    if linkToken in line:
-                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
-                        idx = idx.replace(" ", "")
-                        idx = idx.replace("\n", "")
-                        currIdx = idx
-                    
-                    if dc.TexFileTokens.TOC.imTextToken in line:
-                        line = line.split(dc.TexFileTokens.TOC.imTextToken)[-1]
-                        lineArr = line.split("}")
-                        linkName = lineArr[0].replace("{","")
-                        linkName =tfm.TexFileModify.formatLinkName(linkName)
-                        lineToAdd = tfu.getLinkLine(bookName, topSection, subsection, currIdx, linkName, "full")
-                        lineToAdd = lineToAdd.replace("\n", lineArr[1])
+            if wImage == "0":
+                tocFile.append("\
+\\mybox{{\n\
+	" + tfm.TexFileModify.getTOClineWoImage(linkTextFormatted) + "\n\
+}}\n".format(linkTextFormatted))
+            else:
+                imName = _upan.Names.getImageName(id, subsection)
+                imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
+                                        imName)
+                log.autolog(imagePath)
+                tocFile.append("\
+\\mybox{\n\
+    " + tfm.TexFileModify.getTOClineWImage(linkTextFormatted, imagePath) + "\n\
+}")
 
-                        if dc.TexFileTokens.TOC.imageToken in line:
-                            lineArr = lineToAdd.split("{")
-                            imageName = lineArr[-1][:-1]
-                            imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
-                                                imageName)
-                            lineToAdd = lineToAdd.replace(imageName, imagePath)
-                        
-                        if len(lineArr) > 2:
-                            lineToAdd += "}\n"
-
-                        tocFile_links[i] = lineToAdd
-            
-            tocFile.extend(tocFile_links)
-        
         with open(os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"),"main_template.tex"), 'r') as templateF:
             templateFile = templateF.readlines()
             templateFile= [i.replace("[_PLACEHOLDER_CHAPTER_]", subsection) for i in templateFile]

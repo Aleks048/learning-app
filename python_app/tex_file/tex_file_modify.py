@@ -36,41 +36,6 @@ class TexFileModify:
                             cls.__getMainImageLine(subsection, imLinkId), 
                             cls.__getMainImageLine(subsection, imLinkId))
 
-    
-    @classmethod
-    def removeImageFromToc(cls, bookName, subsection, imIdx):
-        filepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsection, imIdx)
-        cls.__updateTexFile(filepath,
-                            "", 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
-
-        imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
-        for imLinkId in list(imLinkDict.keys()):
-            if int(imLinkId) > int(imIdx):
-                filepath = _upan.Paths.TexFiles.TOC.getAbs(bookName, subsection, imLinkId)
-
-                cls.__updateTexFile(filepath, 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imLinkId) - 1) + "\n", 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imLinkId)), 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imLinkId)))
-                
-
-                oldLinkText = cls.__getLinkText(imLinkId, imLinkDict[imLinkId])
-                newLinkText = cls.__getLinkText(str(int(imLinkId) - 1), imLinkDict[imLinkId])
-                oldName = _upan.Names.getImageName(imLinkId, subsection)
-                newName = _upan.Names.getImageName(str(int(imLinkId) - 1), subsection)
-
-                cls.__updateTexFile(filepath, 
-                            "\t" + cls.getTOClineWImage(newLinkText, newName) + "\n", 
-                            cls.getTOClineWImage(oldLinkText, oldName), 
-                            cls.getTOClineWImage(oldLinkText, oldName))
-                cls.__updateTexFile(filepath, 
-                                    "\t" + cls.getTOClineWoImage(newLinkText) + "\n", 
-                                    cls.getTOClineWoImage(oldLinkText), 
-                                    cls.getTOClineWoImage(oldLinkText))
-
-
     def changeProofsVisibility(hideProofs):
         with open(_upan.Paths.TexFiles.Content.getAbs(),"r") as conF:
             contentLines = conF.readlines()
@@ -202,56 +167,11 @@ class TexFileModify:
         return linktext
 
     def getTOClineWImage(linktext, imName):
-        return dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}\\image[0.5]{" + imName + "}"
-
-    @classmethod
-    def addImageLinkToTOC_wImage(cls, subsection, imIdx, linkName):
-        imIdxStr = str(imIdx)
-        linktext = cls.__getLinkText(imIdxStr, linkName)
-        
-        pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-        imName = _upan.Names.getImageName(imIdxStr, subsection)
-        pageToAdd += "\
-    \\mybox{\n\
-        " + cls.getTOClineWImage(linktext, imName) + "\n\
-    }"
-        pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
-        pageToAdd += "\n\n\n"
-
-        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(subsection = subsection, idx = imIdx)
-        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(tocFilepath):
-            ocf.Wr.FsAppCalls.createFile(tocFilepath)
-        
-        cls.__updateTexFile(tocFilepath,
-                            pageToAdd, 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
+        return "\\" + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}\\image[0.5]{" + imName + "}"
 
     def getTOClineWoImage(linktext):
-        return dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}"
+        return "\\" + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}"
 
-    @classmethod
-    def addImageLinkToTOC_woImage(cls, subsection, imIdx, linkName):
-        imIdxStr = str(imIdx)
-        linktext = cls.__getLinkText(imIdxStr, linkName)
-        
-        pageToAdd = dc.Links.Local.getIdxLineMarkerLine(imIdx) + " \n"
-        pageToAdd += "\
-    \\mybox{\n\
-        " + cls.getTOClineWoImage(linktext) + "\n\
-    }"
-        pageToAdd = [i + "\n" for i in pageToAdd.split("\n")]
-        pageToAdd += "\n\n\n"
-
-        tocFilepath = _upan.Paths.TexFiles.TOC.getAbs(subsection = subsection, idx = imIdx)
-        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(tocFilepath):
-            ocf.Wr.FsAppCalls.createFile(tocFilepath)
-        
-        cls.__updateTexFile(tocFilepath,
-                            pageToAdd, 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx)), 
-                            dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
-    
     def __updateTexFile(filePath, linesToAdd, startMarker, stopMarker):
         with open(filePath, 'r') as f:
             fileLines = f.readlines()
