@@ -111,8 +111,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
         
-        for ts in tsList:
-            self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
+        if tsList != _u.Token.NotDef.list_t:
+            for ts in tsList:
+                self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
 
         super().__init__(prefix,
                         name,
@@ -134,11 +135,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         else:
             self.render()
 
-    def addTOCEntry(self, subsection, level, idx):
+    def addTOCEntry(self, subsection, level, row):
         def openPdfOnStartOfTheSection(widget):
             def __cmd(event = None, *args):
                 # open orig material on page
-                omName = fsf.Data.Sec.origMatNameDict(subsection)[idx]
+                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+                omName = origMatNameDict[list(origMatNameDict.keys())[-1]]
 
                 omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
                 subsectionStartPage = fsf.Data.Sec.start(subsection)
@@ -385,7 +387,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         labelName = subsection.replace(".", "")
 
         locFrame = ttk.Frame(self.scrollable_frame, name=labelName)
-        super().addTOCEntry(locFrame, idx, 0)
+        super().addTOCEntry(locFrame, row, 0)
 
         if level == 0:
             subsectionLabel = ttk.Label(locFrame, text = prettySubsections, padding= [0, 20, 0, 0])
@@ -422,6 +424,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
+
+        if self.showSubsectionsForTopSection == {}:
+            tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+
+            if tsList != _u.Token.NotDef.list_t:
+                for ts in tsList:
+                    self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
 
         self.populateTOC()
 
@@ -508,6 +517,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
         currOrigMatName = fsf.Data.Book.currOrigMatName
         self.setData(currOrigMatName)
+
         return super().render(widjetObj, renderData, **kwargs)
 
 

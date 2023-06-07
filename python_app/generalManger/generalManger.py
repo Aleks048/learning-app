@@ -168,9 +168,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # STOTE IMNUM, IMNAME AND LINK
         fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
         
-        # POPULATE THE MAIN FILE
-        tff.Wr.TexFilePopulate.populateCurrMainFile()
-        
         # take a screenshot
         if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
@@ -245,6 +242,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # Updating the remote
         msg = "Adding entry: " + subsection + "_" + imIdx
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        # POPULATE THE MAIN FILE
+        tff.Wr.TexFilePopulate.populateCurrMainFile()
 
         return True
 
