@@ -177,8 +177,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                 ocf.Wr.PdfApp.openPDF(omFilepath, page)
 
-                omName = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(imOMName)
-                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
+                zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(imOMName)
                 pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
                 cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
                 _u.runCmdAndWait(cmd)
@@ -343,6 +342,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 event.widget.configure(foreground="white")
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
+
+            if self.subsectionsClicked[subsection] and level != 0:
+                label.event_generate(ww.currUIImpl.Data.BindID.mouse1, x=10, y=10)         
        
         def openContentOfTheTopSection(frame, label):
             def __cmd(event = None, *args):
