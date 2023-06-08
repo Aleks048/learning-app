@@ -100,28 +100,6 @@ class ShowProofs_BTN(ww.currUIImpl.Button):
         ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
 
-class ImageSave_BTN(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_saveImg_BTN"
-        text = "saveIM"
-
-        super().__init__(prefix, 
-                        name,
-                        text, 
-                        patentWidget,
-                        data, 
-                        self.cmd)
-    
-    def cmd(self):
-        cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
-        _u.runCmdAndWait(cmd)
-        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
-
-
 class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def __init__(self, patentWidget, prefix):

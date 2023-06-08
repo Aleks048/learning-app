@@ -97,6 +97,7 @@ class LabelWithClick(ttk.Label):
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
     subsectionClicked = _u.Token.NotDef.str_t
+    entryClicked = _u.Token.NotDef.str_t
     showSubsectionsForTopSection = {}
     displayedImages = []
 
@@ -108,6 +109,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         name = "_showCurrScreenshotLocation_text"
 
         self.subsectionClicked = fsf.Data.Book.subsectionOpenInTOC_UI
+        self.entryClicked = fsf.Data.Book.entryImOpenInTOC_UI
 
         tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
 
@@ -134,6 +136,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             fsf.Data.Book.sections = sections
 
             fsf.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
+            fsf.Data.Book.entryImOpenInTOC_UI = self.entryClicked
         else:
             self.render()
 
@@ -222,16 +225,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 if ((not label.clicked and int(event.type) == 4)):
                     closeAllImages()
                     label.clicked = True
+                    self.entryClicked = imIdx
 
                     # mainImage
                     currBookName = sf.Wr.Manager.Book.getCurrBookName()
                     screenshotFolder = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
                     mainImageName = _upan.Names.getImageName(str(imIdx), subsection)
                     mainImagePath = os.path.join(screenshotFolder,  mainImageName + ".png")
-                    img = ImageTk.PhotoImage(Image.open(mainImagePath))
+                    pilIm = Image.open(mainImagePath)
+                    pilIm.thumbnail([550,1000], Image.ANTIALIAS)
+                    img = ImageTk.PhotoImage(pilIm)
                     self.displayedImages.append(img)
                     
                     imLabel = LabelWithClick(tframe, image=img, name = imageWidgetID + subSecID + imIdx)
+                    imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                 lambda *args: os.system("open " + "\"" + mainImagePath + "\""))
                     imLabel.grid(row = 1, column = 0, columnspan = 100)
 
                     # extraImages
@@ -241,11 +249,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         for i in range(0, len(extraImages)):
                             extraImName = _upan.Names.getExtraImageName(str(imIdx), subsection, i)
                             extraImFilepath = os.path.join(screenshotFolder, extraImName + ".png")
-                            img = ImageTk.PhotoImage(Image.open(extraImFilepath))
+
+                            pilIm = Image.open(extraImFilepath)
+                            pilIm.thumbnail([550,1000], Image.ANTIALIAS)
+                            img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
                             imLabel = LabelWithClick(tframe, image=img, 
                                                     name=imageWidgetID + subSecID + imIdx + "e" + str(i))
+                            imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                        lambda *args: os.system("open " + "\"" + extraImFilepath + "\""))
                             imLabel.grid(row = i + 2, column = 0, columnspan = 100)
                     
                     if int(event.type) == 4:
@@ -254,6 +267,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                                 child.clicked = True
                 else:
                     closeAllImages()
+                    self.entryClicked = _u.Token.NotDef.str_t
      
             __cmd(event, *args)
 
@@ -306,6 +320,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         showImages.grid(row=0, column=2, sticky=tk.NW)  
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, *args))
+
+                        if subsection == self.subsectionClicked and k == self.entryClicked:
+                            showImages.event_generate(ww.currUIImpl.Data.BindID.mouse1)
 
                         textLabelPage.grid(row=0, column=0, sticky=tk.NW)
                         textLabelFull.grid(row=0, column=1, sticky=tk.NW)

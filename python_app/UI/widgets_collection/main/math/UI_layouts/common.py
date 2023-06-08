@@ -8,6 +8,8 @@ import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
 import tkinter as tk
+import scripts.osascripts as oscr
+import outside_calls.outside_calls_facade as ocf
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
@@ -148,3 +150,25 @@ class ShowTocWindow_BTN(ww.currUIImpl.Button,
                                                         tocm.TOCManager)
         
         UIManager.show()
+
+class ImageSave_BTN(ww.currUIImpl.Button):
+    def __init__(self, patentWidget, prefix, column = 2, row = 0):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_saveImg_BTN"
+        text = "saveIM"
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
+    
+    def cmd(self):
+        cmd = oscr.get_NameOfFrontPreviewDoc_CMD()
+        _u.runCmdAndWait(cmd)
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
+        self.notifyAllListeners()

@@ -104,6 +104,11 @@ class LayoutManagers:
             reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
             self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
+
+            saveImage_BTN = com.ImageSave_BTN(winRoot, self.prefix, column = 5, row = 14)
+            self.addWidget(saveImage_BTN)
+            saveImage_BTN.addListenerWidget(tocBox_BOX)
+
             #
             # post init
             #
@@ -144,7 +149,7 @@ class LayoutManagers:
             showProof_BTN = sl.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)
 
-            saveImage_BTN = sl.ImageSave_BTN(winRoot, self.prefix)
+            saveImage_BTN = com.ImageSave_BTN(winRoot, self.prefix)
             self.addWidget(saveImage_BTN)
 
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)

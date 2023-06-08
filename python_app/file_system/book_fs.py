@@ -44,6 +44,7 @@ class BookInfoStructure:
 
         # UI
         subsectionOpenInTOC_UI = "subsectionOpenInTOC_UI"
+        entryImOpenInTOC_UI = "entryImOpenInTOC_UI"
 
 
     bookInfoTemplate = {
@@ -51,6 +52,7 @@ class BookInfoStructure:
         PubProp.sections_prefix: "sec",
         PubProp.sections_path_separator: ".",
         PubProp.subsectionOpenInTOC_UI: _u.Token.NotDef.str_t,
+        PubProp.entryImOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.sections: {
         },
         PubProp.currentState: {
