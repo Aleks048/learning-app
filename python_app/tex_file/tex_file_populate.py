@@ -55,7 +55,7 @@ class TexFilePopulate:
                                                                         contentFile,
                                                                         link,
                                                                         linkName)
-            
+
             linkToken = "id: "
             currIdx = ""
 
@@ -63,10 +63,10 @@ class TexFilePopulate:
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
                 if linkToken in line:
-                        idx = line.replace(dc.Links.Local.idxLineMarker, "")
-                        idx = idx.replace(" ", "")
-                        idx = idx.replace("\n", "")
-                        currIdx = idx
+                    idx = line.replace(dc.Links.Local.idxLineMarker, "")
+                    idx = idx.replace(" ", "")
+                    idx = idx.replace("\n", "")
+                    currIdx = idx
                 elif "myTarget" in line:
                     lineArr = line.split("{")
                     imageName = lineArr[1][:-1]
@@ -120,9 +120,9 @@ class TexFilePopulate:
 
             if wImage == "0":
                 tocFile.append("\
-\\mybox{{\n\
+\\mybox{\n\
 	" + tfm.TexFileModify.getTOClineWoImage(linkTextFormatted) + "\n\
-}}\n".format(linkTextFormatted))
+}\n")
             else:
                 imName = _upan.Names.getImageName(id, subsection)
                 imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
