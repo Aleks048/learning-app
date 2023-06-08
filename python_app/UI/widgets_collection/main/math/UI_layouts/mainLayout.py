@@ -96,7 +96,7 @@ class LabelWithClick(ttk.Label):
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
     subsection = ""
-    subsectionsClicked = {}
+    subsectionClicked = _u.Token.NotDef.str_t
     showSubsectionsForTopSection = {}
     displayedImages = []
 
@@ -107,10 +107,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         }
         name = "_showCurrScreenshotLocation_text"
 
-        self.__populateClicketSubsecDict()
+        self.subsectionClicked = fsf.Data.Book.subsectionOpenInTOC_UI
 
         tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        
+
         if tsList != _u.Token.NotDef.list_t:
             for ts in tsList:
                 self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
@@ -132,6 +132,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
 
             fsf.Data.Book.sections = sections
+
+            fsf.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
         else:
             self.render()
 
@@ -278,7 +280,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 # 4 : event of mouse click
                 # 19 : event of being rendered
                 if ((not label.clicked and int(event.type) == 4)) or\
-                    ((self.subsectionsClicked[subsection] == True) and (int(event.type) == 19)):
+                    ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
                     closeAllSubsections()
 
                     i = 0
@@ -325,7 +327,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                     if int(event.type) == 4:
                         label.clicked = True
-                        self.subsectionsClicked[subsection] = True
+                        self.subsectionClicked = subsection
                 else:
                     for child in frame.winfo_children():
                         if "content" in str(child):
@@ -336,14 +338,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                             
                         label.clicked = False
 
-                        for k in list(self.subsectionsClicked.keys()):
-                            self.subsectionsClicked[k] = False
+                        self.subsectionClicked = _u.Token.NotDef.str_t
 
                 event.widget.configure(foreground="white")
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-            if self.subsectionsClicked[subsection] and level != 0:
+            if self.subsectionClicked == subsection and level != 0:
                 label.event_generate(ww.currUIImpl.Data.BindID.mouse1, x=10, y=10)         
        
         def openContentOfTheTopSection(frame, label):
@@ -422,7 +423,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        self.__populateClicketSubsecDict()
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
@@ -437,15 +437,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         self.populateTOC()
 
         return super().render(widjetObj, renderData, **kwargs)
-
-    def __populateClicketSubsecDict(self):
-        # update the subsections dict in the toc window.
-        # the subsectionsClicked:dict is used to keep the open subsection content open
-        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList()
-        
-        for subSec in subsectionsList:
-            if subSec not in list(self.subsectionsClicked.keys()):
-                self.subsectionsClicked[subSec] = False
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""

@@ -150,6 +150,8 @@ class SectionInfoStructure:
 
         # set the curr section to new section
         bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+        # update things here for the book open subsection
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.subsectionOpenInTOC_UI, sectionPath)
 
         cls.__createSubsectionFiles(bookpath, sectionPath)
 

@@ -42,10 +42,15 @@ class BookInfoStructure:
 
         currOrigMatName = "currOrigMatName"
 
+        # UI
+        subsectionOpenInTOC_UI = "subsectionOpenInTOC_UI"
+
+
     bookInfoTemplate = {
         PubProp.version: "0.1",
         PubProp.sections_prefix: "sec",
         PubProp.sections_path_separator: ".",
+        PubProp.subsectionOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.sections: {
         },
         PubProp.currentState: {
