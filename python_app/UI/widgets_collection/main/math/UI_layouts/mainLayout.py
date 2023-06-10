@@ -17,6 +17,7 @@ import outside_calls.outside_calls_facade as ocf
 import UI.widgets_wrappers as ww
 
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.main.math.UI_layouts.common as comui
 import UI.widgets_manager as wm
 import layouts.layouts_facade as lf
 
@@ -103,7 +104,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 12},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -121,7 +122,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         name,
                         parentWidget,
                         renderData = data,
-                        height=420,
+                        height=370,
                         width=570)
     
     def receiveNotification(self, broadcasterType, data = None):
@@ -838,6 +839,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)
             self.notify(TOC_BOX)
+            self.notify(comui.SourceImageLinks_OM)
             self.updateLabel(self.labelOptions[0])
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),

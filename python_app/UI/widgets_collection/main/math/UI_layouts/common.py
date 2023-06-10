@@ -10,6 +10,8 @@ import data.temp as dt
 import tkinter as tk
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
+import file_system.file_system_facade as fsm
+import _utils.logging as log
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
@@ -172,3 +174,236 @@ class ImageSave_BTN(ww.currUIImpl.Button):
         _u.runCmdAndWait(cmd)
         ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
         self.notifyAllListeners()
+
+
+class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
+
+    def __init__(self, patentWidget, prefix, column = 3, row = 1):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_source_SecImIDX_OM"
+
+        currSecPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        self.sourceSubsectionImageLinks = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
+        self.sourceSubsectionImageLinks.sort(key = int)
+
+        super().__init__(prefix, 
+                        name, 
+                        self.sourceSubsectionImageLinks,
+                        patentWidget, 
+                        renderData,
+                        self.cmd)
+        
+        self.updateOptions()
+    
+    def cmd(self):
+        pass
+
+    def updateOptions(self, _ = ""):
+        currSec = fsm.Data.Book.currSection
+        self.sourceSubsectionImageLinks = list(fsm.Data.Sec.imLinkDict(currSec).keys())
+        self.sourceSubsectionImageLinks.sort(key = int)
+
+        super().updateOptions(self.sourceSubsectionImageLinks)
+        self.setData(self.sourceSubsectionImageLinks[-1])
+
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        self.updateOptions()
+        return super().render(widjetObj, renderData, **kwargs)
+
+    def receiveNotification(self, broadcasterType):
+        if broadcasterType == AddGlobalLink_BTN:
+            return self.getData()
+        else:
+            self.updateOptions()
+
+
+class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
+    def __init__(self, patentWidget, prefix, column = 2, row = 1):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_target_SecImIDX_OM"
+
+        self.targetSubsectionImageLinks = _u.Token.NotDef.list_t
+
+        super().__init__(prefix, 
+                        name, 
+                        self.targetSubsectionImageLinks,
+                        patentWidget, 
+                        renderData,
+                        self.cmd)
+    
+    def cmd(self):
+        secPath = self.notify(TargetSubection_OM)
+        self.__setGlobalLinksETR(secPath)
+
+    def __setGlobalLinksETR(self, secPath):
+        imLink:str = self.getData()
+        self.notify(AddGlobalLink_ETR, secPath + "." + imLink.split(":")[0])
+
+    def updateOptions(self, secPath):
+        num = list(fsm.Wr.Links.LinkDict.get(secPath).keys())
+        names = list(fsm.Wr.Links.LinkDict.get(secPath).values())
+        formatted = []
+
+        for i in range(len(num)):
+            formatted.append("{0}:{1}".format(num[i], names[i]))
+
+        return super().updateOptions(formatted)
+
+    def receiveNotification(self, broadcasterType, data = None) -> None:
+        if broadcasterType == TargetSubection_OM:
+            secPath = data
+            self.updateOptions(secPath)
+            self.__setGlobalLinksETR(secPath)
+
+
+class TargetSubection_OM(ww.currUIImpl.OptionMenu):
+    def __init__(self, patentWidget, prefix, column = 1, row = 1):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_GlLink_TargetSubsection_OM"
+
+        # if topSectionsList != _u.Token.NotDef.list_t:
+        #     topSectionsList.sort(key = int)
+        
+        currTopSection = fsm.Data.Book.currTopSection
+
+        self.subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
+
+        super().__init__(prefix, 
+                        name, 
+                        self.subsectionsList,
+                        patentWidget, 
+                        renderData,
+                        cmd=self.cmd)
+
+        subsections = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
+        currSubsection = fsm.Data.Book.currSection
+
+        if currSubsection == subsections[0]:
+            self.setData(currSubsection)
+        else:
+            currSubsIdx = subsections.index(currSubsection)
+            self.setData(subsections[currSubsIdx - 1])
+    
+    def cmd(self):
+        secPath =  self.getData()
+        self.notify(TargetImageLinks_OM, secPath)
+        # self.notify(AddGlobalLink_ETR, secPath)
+    
+    def receiveNotification(self, broadcasterType, data = None):
+        if broadcasterType == TargetTopSection_OM:
+            subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(data)
+            subsectionsList.sort()
+            self.updateOptions(subsectionsList)
+            sectiopPath =  self.getData()
+            self.notify(TargetImageLinks_OM, sectiopPath)
+        elif broadcasterType == TargetImageLinks_OM:
+            return self.getData()
+
+
+class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
+
+    def __init__(self, patentWidget, prefix, column = 0, row = 1):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_GlLink_TargetTopSection_OM"
+
+        self.topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
+
+
+        super().__init__(prefix, 
+                        name, 
+                        self.topSectionsList,
+                        patentWidget, 
+                        renderData,
+                        cmd=self.cmd)
+        
+        currTopSection = fsm.Data.Book.currTopSection
+
+        self.setData(currTopSection)
+    
+    def cmd(self):
+        topSec = self.getData()
+        self.notify(TargetSubection_OM, topSec)
+        # self.notify(AddGlobalLink_ETR, topSec)
+
+
+class AddGlobalLink_BTN(ww.currUIImpl.Button,
+                        dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix, column = 2, row = 2):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_addGlobalLink_BTN"
+        text = "Create gl link"
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
+    
+    def cmd(self):
+        import generalManger.generalManger as gm
+
+        sourceSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        sourceTopSection = sourceSubsection.split(".")[0]
+        sourceIDX = self.notify(SourceImageLinks_OM)
+
+        wholeLinkPathStr = self.notify(AddGlobalLink_ETR)
+
+        gm.GeneralManger.AddLink(wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection)
+
+
+class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
+    def __init__(self, patentWidget, prefix, column = 0, row = 2):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        defaultText = ""
+        name = "_addGlobalLink_ETR"
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        bindCmd = self.bindCmd,
+                        defaultText = defaultText,
+                        )
+
+        super().setData(self.defaultText)
+    
+    def receiveNotification(self, broadcasterType, data = None):
+        if broadcasterType == AddGlobalLink_BTN:
+            return self.getData()
+        elif broadcasterType == TargetTopSection_OM:
+            newText = str(data) + "."
+            self.updateDafaultText(newText)
+            self.setData(newText)
+        elif broadcasterType == TargetSubection_OM:
+            self.updateDafaultText(data)
+            self.setData(data)
+        elif broadcasterType == TargetImageLinks_OM:
+            self.updateDafaultText(data)
+            self.setData(data)
+        elif broadcasterType == AddGlobalLink_BTN:
+            return self.getData()
+    
+    def bindCmd(self):
+        def __cmd(event, *args):
+            if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
+                lambda _: self.notify(TargetImageLinks_OM, self.getData())
+        return [ww.currUIImpl.Data.BindID.allKeys] , [__cmd]

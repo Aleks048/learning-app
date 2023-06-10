@@ -109,9 +109,39 @@ class LayoutManagers:
             self.addWidget(saveImage_BTN)
             saveImage_BTN.addListenerWidget(tocBox_BOX)
 
+
+            sourceImageLinks_OM = com.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
+            self.addWidget(sourceImageLinks_OM)
+            targetImageLinks_OM = com.TargetImageLinks_OM(winRoot, self.prefix, column = 2, row = 13)
+            self.addWidget(targetImageLinks_OM)
+            targetSubsection_OM = com.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
+            self.addWidget(targetSubsection_OM)
+            targetTopSection_OM = com.TargetTopSection_OM(winRoot, self.prefix, column = 0, row = 13)
+            self.addWidget(targetTopSection_OM)
+            addGlobalLink_BTN = com.AddGlobalLink_BTN(winRoot, self.prefix, column = 2, row = 14)
+            self.addWidget(addGlobalLink_BTN)
+            addGlobalLink_ETR = com.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
+            self.addWidget(addGlobalLink_ETR)
+
+
+            addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
+            addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
+
+            targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
+            targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
+            targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
+            targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
+
+            targetTopSection_OM.addListenerWidget(targetSubsection_OM)
+            targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
+
+            imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
+
             #
             # post init
             #
+            targetSubsection_OM.cmd()
+            targetImageLinks_OM.cmd()
 
         def show(self):
             self.winRoot.configureColumn(0, weight = 1)
@@ -140,7 +170,7 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            addGlobalLink_ETR = sl.AddGlobalLink_ETR(winRoot, self.prefix)
+            addGlobalLink_ETR = com.AddGlobalLink_ETR(winRoot, self.prefix)
             self.addWidget(addGlobalLink_ETR)
 
             layouts_OM = com.Layouts_OM(winRoot, self.prefix, 0, 0)
@@ -155,16 +185,16 @@ class LayoutManagers:
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrSection_BTN)
 
-            targetTopSection_OM = sl.TargetTopSection_OM(winRoot, self.prefix)
+            targetTopSection_OM = com.TargetTopSection_OM(winRoot, self.prefix)
             self.addWidget(targetTopSection_OM)
             
-            targetSubsection_OM = sl.TargetSubection_OM(winRoot, self.prefix)
+            targetSubsection_OM = com.TargetSubection_OM(winRoot, self.prefix)
             self.addWidget(targetSubsection_OM)
 
             targetTopSection_OM.addListenerWidget(targetSubsection_OM)
             targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
 
-            targetImageLinks_OM = sl.TargetImageLinks_OM(winRoot, self.prefix)
+            targetImageLinks_OM = com.TargetImageLinks_OM(winRoot, self.prefix)
             self.addWidget(targetImageLinks_OM)
 
             targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
@@ -172,10 +202,10 @@ class LayoutManagers:
             targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
             targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
 
-            sourceImageLinks_OM = sl.SourceImageLinks_OM(winRoot, self.prefix)
+            sourceImageLinks_OM = com.SourceImageLinks_OM(winRoot, self.prefix)
             self.addWidget(sourceImageLinks_OM)
 
-            addGlobalLink_BTN = sl.AddGlobalLink_BTN(winRoot, self.prefix)
+            addGlobalLink_BTN = com.AddGlobalLink_BTN(winRoot, self.prefix)
             self.addWidget(addGlobalLink_BTN)
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
