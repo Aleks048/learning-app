@@ -29,6 +29,47 @@ import settings.facade as sf
 import scripts.osascripts as oscr
 
 
+class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
+    def __init__(self, parentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 14},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+        }
+        name = "_latestExtraImForEntry_LBL_text"
+
+        text_curr = self.getText(True)
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = data, 
+                        text = text_curr)
+    
+    def getText(self, init = False):
+        currSection = fsf.Data.Book.currSection
+        entriesDict = fsf.Data.Sec.imLinkDict(currSection)
+        extraImagesDict = fsf.Data.Sec.extraImagesDict(currSection)
+        
+        if init:
+            latestEntry = list(entriesDict.keys())[-1]
+        else:
+            latestEntry = self.notify(comui.SourceImageLinks_OM)
+
+        latestExtraImName = "No"
+
+        if latestEntry in list(extraImagesDict.keys()):
+            latestExtraImName = extraImagesDict[latestEntry][-1]
+
+        return "E IM: \"" + latestExtraImName + "\""
+
+    def receiveNotification(self, broadcasterName, data = None):
+        self.render()
+    
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        text_curr = self.getText()
+        self.changeText(text_curr)
+        return super().render(widjetObj, renderData, **kwargs)
+
+
 class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 
@@ -840,6 +881,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             self.notify(ImageGeneration_ETR, nextImNum)
             self.notify(TOC_BOX)
             self.notify(comui.SourceImageLinks_OM)
+            self.notify(LatestExtraImForEntry_LBL)
             self.updateLabel(self.labelOptions[0])
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
@@ -1012,6 +1054,7 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
         
         if extraImageIdx != _u.Token.NotDef.str_t:
             extraImageIdx = int(extraImageIdx)
+
             if extraImageIdx < len(extraImagesList):
                 extraImagesList[extraImageIdx] = extraImText
             else:
@@ -1027,6 +1070,17 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         else:
             extraImagesList.append(extraImText)
 
+        if extraImText in extraImagesList:
+            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
         extraImagesDict[mainImIdx] = extraImagesList
         fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
         
@@ -1037,6 +1091,9 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
 
         tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
+
+        self.notify(LatestExtraImForEntry_LBL)
+        self.notify(TOC_BOX)
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 

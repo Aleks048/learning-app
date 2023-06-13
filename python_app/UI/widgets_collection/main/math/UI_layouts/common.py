@@ -2,6 +2,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_facade as wf
+import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
 import layouts.layouts_facade as lm
 import _utils._utils_main as _u
 import settings.facade as sf
@@ -199,7 +200,7 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
         self.updateOptions()
     
     def cmd(self):
-        pass
+        self.notifyAllListeners()
 
     def updateOptions(self, _ = ""):
         currSec = fsm.Data.Book.currSection
@@ -215,6 +216,8 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def receiveNotification(self, broadcasterType):
         if broadcasterType == AddGlobalLink_BTN:
+            return self.getData()
+        elif broadcasterType == mui.LatestExtraImForEntry_LBL:
             return self.getData()
         else:
             self.updateOptions()

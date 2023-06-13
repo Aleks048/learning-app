@@ -57,8 +57,8 @@ class LayoutManagers:
             addExtraImage_BTN = ml.AddExtraImage_BTN(winRoot, self.prefix)
             addExtraImage_BTN.addListenerWidget(imageGenration_ERT)
             addExtraImage_BTN.addListenerWidget(imageGeneration_BTN)
+            addExtraImage_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(addExtraImage_BTN)
-
 
             imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
             imageGenerationRestart_BTN.addListenerWidget(imageGenration_ERT)
@@ -123,6 +123,8 @@ class LayoutManagers:
             addGlobalLink_ETR = com.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
+            latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
+            self.addWidget(latestExtraImForEntry_LBL)
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
@@ -135,6 +137,11 @@ class LayoutManagers:
             targetTopSection_OM.addListenerWidget(targetSubsection_OM)
             targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
 
+            imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
+
+            sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
+            latestExtraImForEntry_LBL.addListenerWidget(sourceImageLinks_OM)
+            addExtraImage_BTN.addListenerWidget(sourceImageLinks_OM)
             imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
 
             #
