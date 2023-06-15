@@ -27,7 +27,7 @@ import data.temp as dt
 import settings.facade as sf
 
 import scripts.osascripts as oscr
-
+import outside_calls.outside_calls_facade as oscf
 
 class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
@@ -142,6 +142,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
     entryClicked = _u.Token.NotDef.str_t
     showSubsectionsForTopSection = {}
     displayedImages = []
+    style = ttk.Style()
+    parent = None
+    openedMainImg = None
 
     def __init__(self, parentWidget, prefix):
         data = {
@@ -149,6 +152,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
+
+        self.parent = parentWidget.widgetObj
 
         self.subsectionClicked = fsf.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsf.Data.Book.entryImOpenInTOC_UI
@@ -158,6 +163,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
         if tsList != _u.Token.NotDef.list_t:
             for ts in tsList:
                 self.showSubsectionsForTopSection[ts] = bool(int(fsf.Data.Book.sections[ts]["showSubsections"]))
+
+        self.style.configure('TFrame',  highlightbackground="blue", highlightthickness=1)
 
         super().__init__(prefix,
                         name,
@@ -244,7 +251,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
         
-        def __showIMagesONClick(event, subSecID, *args):
+        def __showIMagesONClick(event, subSecID, shouklScroll = False, *args):
             label = event.widget
             imIdx = label.imIdx
             tframe = label.master
@@ -262,6 +269,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                             child.destroy()
 
                 self.displayedImages = []
+                self.openedMainImg = None
 
             def __cmd(event, *args):
                 if ((not label.clicked and int(event.type) == 4)):
@@ -282,7 +290,40 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                     imLabel = LabelWithClick(tframe, image=img, name = imageWidgetID + subSecID + imIdx)
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda *args: os.system("open " + "\"" + mainImagePath + "\""))
+
+                    def scroll_into_view():
+                        posy = 0
+                        pwidget = imLabel
+
+                        self.scrollBar.yview_scroll(-100, "units")
+                        self.scrollBar.update()
+                        imLabel.update()
+
+                        while pwidget != self.parent:
+                            posy += pwidget.winfo_y()
+                            pwidget = pwidget.master
+
+                        canvas_top = self.scrollBar.winfo_y()
+                        
+                        widget_top = posy
+
+                        while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
+                            posy = 0
+                            pwidget = imLabel
+                            while pwidget != self.parent:
+                                posy += pwidget.winfo_y()
+                                pwidget = pwidget.master
+
+                            imLabel.update()
+                            widget_top = posy
+                            self.scrollBar.yview_scroll(1, "units")
+                            self.scrollBar.update()
+
+                    imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda *args: scroll_into_view())
+
                     imLabel.grid(row = 1, column = 0, columnspan = 100)
+
+                    self.openedMainImg = imLabel
 
                     # extraImages
                     if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
@@ -297,16 +338,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                             img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
-                            imLabel = LabelWithClick(tframe, image=img, 
+                            eimLabel = LabelWithClick(tframe, image=img, 
                                                     name=imageWidgetID + subSecID + imIdx + "e" + str(i))
-                            imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                            eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda *args: os.system("open " + "\"" + extraImFilepath + "\""))
-                            imLabel.grid(row = i + 2, column = 0, columnspan = 100)
+                            eimLabel.grid(row = i + 2, column = 0, columnspan = 100)
                     
                     if int(event.type) == 4:
                         for child in tframe.winfo_children():
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
+
+                    if shouklScroll:
+                        imLabel.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     closeAllImages()
                     self.entryClicked = _u.Token.NotDef.str_t
@@ -343,7 +387,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                     subSecID = subsection.replace(".", "")
                     for k,v in links.items():
-                        tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + "_" + str(i))
+                        tempFrame = ttk.Frame(frame, name = "contentFr_" + subSecID + "_" + str(i), style= "TFrame")
 
                         textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
@@ -359,12 +403,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         removeEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
                                          removeEntryCmd)
 
-                        showImages.grid(row=0, column=2, sticky=tk.NW)  
+                        showImages.grid(row=0, column=2, sticky=tk.NW)
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                        lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
+                        showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, *args))
 
                         if subsection == self.subsectionClicked and k == self.entryClicked:
-                            showImages.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+                            showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
                         textLabelPage.grid(row=0, column=0, sticky=tk.NW)
                         textLabelFull.grid(row=0, column=1, sticky=tk.NW)
@@ -495,7 +541,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
         self.populateTOC()
 
-        return super().render(widjetObj, renderData, **kwargs)
+        super().render(widjetObj, renderData, **kwargs)
+
+        if self.openedMainImg != None:
+            self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
@@ -1088,11 +1137,16 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
             extraImageIdx = len(extraImagesList) - 1
         
         extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsection, extraImageIdx)
-        ocf.Wr.ScreenshotCalls.takeScreenshot(os.path.join(extraImagePath_curr, extraImageName))
+        extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
+        ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePathFull)
 
         tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
         self.notify(LatestExtraImForEntry_LBL)
+
+        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull + ".png"):
+            time.sleep(0.3)
+
         self.notify(TOC_BOX)
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):

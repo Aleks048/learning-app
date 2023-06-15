@@ -90,6 +90,8 @@ class TkWidgets (DataTranslatable_Interface):
 
             render = "<Map>"
 
+            customTOCMove = "<<TOCMove>>"
+
             class Keys:
                 enter = "Return"
                 escape = "Escape"
@@ -448,6 +450,7 @@ class TkWidgets (DataTranslatable_Interface):
                 RenderableWidget_Interface_Impl,
                 HasListenersWidget_Interface_Impl,
                 BindableWidget_Interface_Impl):
+        scrollBar = None
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -474,6 +477,7 @@ class TkWidgets (DataTranslatable_Interface):
             container = ttk.Frame(rootWidget.widgetObj)
             canvas = tk.Canvas(container, height = height, width = width)
             scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+            self.scrollBar = canvas
             scrollbar2 = ttk.Scrollbar(container, orient="horizontal", command=canvas.xview)
             scrollable_frame = ttk.Frame(canvas)
             scrollable_frame2 = ttk.Frame(canvas)

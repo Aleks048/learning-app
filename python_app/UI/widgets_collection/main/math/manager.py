@@ -139,10 +139,10 @@ class LayoutManagers:
 
             imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
 
-            sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
             latestExtraImForEntry_LBL.addListenerWidget(sourceImageLinks_OM)
-            addExtraImage_BTN.addListenerWidget(sourceImageLinks_OM)
-            imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
+            sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
+            addExtraImage_BTN.addListenerWidget(latestExtraImForEntry_LBL)
+            imageGeneration_BTN.addListenerWidget(latestExtraImForEntry_LBL)
 
             #
             # post init
