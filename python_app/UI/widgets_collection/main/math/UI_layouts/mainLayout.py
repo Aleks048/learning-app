@@ -272,7 +272,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                 self.openedMainImg = None
 
             def __cmd(event, *args):
-                if ((not label.clicked and int(event.type) == 4)):
+                if ((not label.clicked and int(event.type) == 4)) or\
+                    ((not label.clicked and int(event.type) == 35)):
                     closeAllImages()
                     label.clicked = True
                     self.entryClicked = imIdx
@@ -344,7 +345,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                                         lambda *args: os.system("open " + "\"" + extraImFilepath + "\""))
                             eimLabel.grid(row = i + 2, column = 0, columnspan = 100)
                     
-                    if int(event.type) == 4:
+                    if int(event.type) == 4 or \
+                       int(event.type) == 35:
                         for child in tframe.winfo_children():
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
@@ -407,7 +409,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
                         showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
-                                        lambda e, *args: __showIMagesONClick(e, subSecID, *args))
+                                        lambda e, *args: __showIMagesONClick(e, subSecID, False, *args))
 
                         if subsection == self.subsectionClicked and k == self.entryClicked:
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
