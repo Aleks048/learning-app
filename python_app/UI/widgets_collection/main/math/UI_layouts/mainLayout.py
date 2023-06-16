@@ -134,6 +134,7 @@ class LabelWithClick(ttk.Label):
     clicked = False
     imIdx = ""
     subsection = ""
+    imagePath = ""
 
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox):
@@ -289,8 +290,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
                     self.displayedImages.append(img)
                     
                     imLabel = LabelWithClick(tframe, image=img, name = imageWidgetID + subSecID + imIdx)
+                    imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
-                                 lambda *args: os.system("open " + "\"" + mainImagePath + "\""))
+                                 lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
 
                     def scroll_into_view():
                         posy = 0
@@ -341,8 +343,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                             eimLabel = LabelWithClick(tframe, image=img, 
                                                     name=imageWidgetID + subSecID + imIdx + "e" + str(i))
+                            eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
-                                        lambda *args: os.system("open " + "\"" + extraImFilepath + "\""))
+                                        lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
                             eimLabel.grid(row = i + 2, column = 0, columnspan = 100)
                     
                     if int(event.type) == 4 or \
