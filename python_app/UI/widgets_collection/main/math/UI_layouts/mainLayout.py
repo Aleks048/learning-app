@@ -568,6 +568,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if self.openedMainImg != None and shouldScroll:
             self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
+
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     prevChoice = ""
 
@@ -975,6 +976,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             self.updateLabel(self.labelOptions[0])
             return self.dataFromUser[0]
 
+
 class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         data = {
@@ -1042,6 +1044,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
     def defaultTextCMD(self):
         pass
+
 
 class AddExtraImage_BTN(ww.currUIImpl.Button,
                         dc.AppCurrDataAccessToken):  
@@ -1172,6 +1175,7 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
 
         self.notify(TOC_BOX)
 
+
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def __init__(self, patentWidget, prefix):
@@ -1190,6 +1194,7 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def cmd(self):
         self.notifyAllListeners()
+
 
 class ImageCreation:
     pass
