@@ -176,7 +176,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         height=370,
                         width=570)
     
-    def receiveNotification(self, broadcasterType, data = None):
+    def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == ExitApp_BTN:
             tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
 
@@ -191,6 +191,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             fsf.Data.Book.entryImOpenInTOC_UI = self.entryClicked
         elif broadcasterType == AddExtraImage_BTN:
             self.render(shouldScroll = False)
+        elif broadcasterType == ImageGeneration_BTN:
+            self.entryClicked = entryClicked
+            self.render()
         else:
             self.render()
 
@@ -951,7 +954,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             currImNum = self.dataFromUser[0]
             nextImNum = str(int(currImNum) + 1)
             self.notify(ImageGeneration_ETR, nextImNum)
-            self.notify(TOC_BOX)
+            self.notify(TOC_BOX, entryClicked = self.dataFromUser[0])
             self.notify(comui.SourceImageLinks_OM)
             self.notify(LatestExtraImForEntry_LBL)
             self.updateLabel(self.labelOptions[0])
@@ -1155,10 +1158,6 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         else:
             extraImagesList.append(extraImText)
 
-
-        extraImagesDict[mainImIdx] = extraImagesList
-        fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
-        
         if extraImageIdx == _u.Token.NotDef.str_t:
             extraImageIdx = len(extraImagesList) - 1
         
@@ -1166,12 +1165,19 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
         ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePathFull)
 
-        tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
-
-        self.notify(LatestExtraImForEntry_LBL)
+        timer = 0
 
         while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull + ".png"):
             time.sleep(0.3)
+            timer += 1
+            if timer > 30:
+                return False
+
+        extraImagesDict[mainImIdx] = extraImagesList
+        fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
+
+        self.notify(LatestExtraImForEntry_LBL)
+        tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
         self.notify(TOC_BOX)
 

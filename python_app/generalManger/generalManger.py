@@ -123,6 +123,31 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                     _upan.Names.getImageName(str(imIdx), subsection))
         
+        # take a screenshot
+        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
+            mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
+                                                        wf.Wr.MenuManagers.MessageMenuManager)
+            
+            response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
+            
+            if response:
+                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                   wf.Wr.MenuManagers.MathMenuManager)
+
+            mainManager.show()
+        else:
+            ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
+
+        timer = 1
+
+        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath_curr + ".png"):
+            time.sleep(0.3)
+            timer += 1
+            if timer > 30:
+                return False
+
         imID = imIdx
         linkDict = fsf.Data.Sec.imLinkDict(subsection)
         imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
@@ -160,30 +185,12 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             
             if not response:
                 return False
-        
 
         # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
         tff.Wr.TexFileModify.addProcessedImage(subsection, imIdx, imText)
 
         # STOTE IMNUM, IMNAME AND LINK
         fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
-        
-        # take a screenshot
-        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
-            mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        wf.Wr.MenuManagers.MessageMenuManager)
-            
-            response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
-            
-            if response:
-                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                   wf.Wr.MenuManagers.MathMenuManager)
-
-            mainManager.show()
-        else:
-            ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
         
         # ORIGINAL MATERIAL DATA
         origMatName = fsf.Data.Book.currOrigMatName
