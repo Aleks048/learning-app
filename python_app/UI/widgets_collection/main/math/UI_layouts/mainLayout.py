@@ -189,6 +189,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             fsf.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
             fsf.Data.Book.entryImOpenInTOC_UI = self.entryClicked
+        elif broadcasterType == AddExtraImage_BTN:
+            self.render(shouldScroll = False)
         else:
             self.render()
 
@@ -547,7 +549,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         for i in range(len(text_curr)):
             self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self, widjetObj=None, shouldScroll = True, renderData=..., **kwargs):
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
@@ -563,7 +565,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(widjetObj, renderData, **kwargs)
 
-        if self.openedMainImg != None:
+        if self.openedMainImg != None and shouldScroll:
             self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
@@ -1120,6 +1122,17 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
 
         if mainImIdx in list(extraImagesDict.keys()):
             extraImagesList = extraImagesDict[mainImIdx]
+
+        if extraImText in extraImagesList:
+            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
+            response = wm.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
         
         if extraImageIdx != _u.Token.NotDef.str_t:
             extraImageIdx = int(extraImageIdx)
@@ -1139,16 +1152,6 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         else:
             extraImagesList.append(extraImText)
 
-        if extraImText in extraImagesList:
-            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
-            response = wm.UI_generalManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
 
         extraImagesDict[mainImIdx] = extraImagesList
         fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
