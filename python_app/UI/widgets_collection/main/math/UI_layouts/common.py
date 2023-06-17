@@ -53,7 +53,7 @@ class Layouts_OM(ww.currUIImpl.OptionMenu,
 
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
-    labelOptions = ["Add/Modify", "Main"]
+    labelOptions = ["To Add/Modify L", "To Main L"]
 
     def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
         if data == None:
@@ -93,7 +93,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
-    labelOptions = ["Orig Mat", "Main"]
+    labelOptions = ["To Orig Mat L", "To Main L"]
 
     def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
         if data == None:

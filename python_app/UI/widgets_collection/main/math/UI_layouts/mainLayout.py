@@ -642,7 +642,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_swritchToCurrSectionLayout_BTN"
-        text= "To section"
+        text= "To Section L"
         super().__init__(prefix, 
                         name, 
                         text, 
