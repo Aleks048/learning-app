@@ -9,10 +9,12 @@ import _utils.logging as log
 import settings.facade as sf
 import tex_file.tex_file_modify as tfm
 import data.constants as dc
+import data.temp as dt
 import tex_file.tex_file_utils as  tfu
 
-class TexFilePopulate:
-    def populateMainFile(subsection, bookPath, imIdx = _u.Token.NotDef.str_t):
+class TexFilePopulate (dc.AppCurrDataAccessToken):
+    @classmethod
+    def populateMainFile(cls, subsection, bookPath, imIdx = _u.Token.NotDef.str_t):
         contentFile = []
 
         if imIdx == _u.Token.NotDef.str_t:
@@ -59,6 +61,7 @@ class TexFilePopulate:
             linkToken = "id: "
             currIdx = ""
 
+            showProofs = dt.AppState.ShowProofs.getData(cls.appCurrDataAccessToken)
 
             for i in range(0, len(contentFile)):
                 line = contentFile[i]
@@ -85,6 +88,13 @@ class TexFilePopulate:
                     imageNameOriginal = imageName
 
                     if "__EXTRA__" in line:
+                        extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+                        extraImageText = extraImagesDict[currIdx][int(imageName.split("}")[0])]
+
+                        if "proof" in extraImageText.lower()\
+                            and not showProofs:
+                            continue
+
                         imageName = _upan.Names.getExtraImageName(currIdx, subsection, imageName)
 
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection), imageName)

@@ -59,6 +59,9 @@ class AppState:
     class Wait(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         data = False
 
+    class ShowProofs(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        data = True
+
 class OtherAppsInfo:
     class GoodNotes:
         section_pid = _u.Token.NotDef.str_t

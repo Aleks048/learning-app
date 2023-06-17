@@ -137,7 +137,8 @@ class LabelWithClick(ttk.Label):
     imagePath = ""
 
 
-class TOC_BOX(ww.currUIImpl.ScrollableBox):
+class TOC_BOX(ww.currUIImpl.ScrollableBox,
+              dc.AppCurrDataAccessToken):
     subsection = ""
     subsectionClicked = _u.Token.NotDef.str_t
     entryClicked = _u.Token.NotDef.str_t
@@ -334,6 +335,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox):
 
                         for i in range(0, len(extraImages)):
                             extraImName = _upan.Names.getExtraImageName(str(imIdx), subsection, i)
+
+                            if "proof" in extraImages[i].lower()\
+                                and not dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
+                                continue
+
                             extraImFilepath = os.path.join(screenshotFolder, extraImName + ".png")
 
                             pilIm = Image.open(extraImFilepath)

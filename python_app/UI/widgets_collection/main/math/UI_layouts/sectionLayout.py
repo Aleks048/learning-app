@@ -16,6 +16,7 @@ import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.main.math.UI_layouts.common as comui
 import UI.widgets_manager as wm
 import layouts.layouts_facade as lf
 
@@ -69,37 +70,6 @@ class RebuildCurrSection_BTN(ww.currUIImpl.Button):
     def cmd(self):
         ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
 
-
-class ShowProofs_BTN(ww.currUIImpl.Button):
-    labelOptions = ["Show Proofs", "Hide Proofs"]
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_showProofs_BTN"
-        text = self.labelOptions[0]
-
-        super().__init__(prefix, 
-                        name,
-                        text, 
-                        patentWidget,
-                        data, 
-                        self.cmd)
-    
-    def cmd(self):
-        currLabel = self.getLabel()
-        
-        if currLabel == self.labelOptions[0]:
-            self.updateLabel(self.labelOptions[1])
-            tff.Wr.TexFileModify.changeProofsVisibility(True)
-        elif currLabel ==  self.labelOptions[1]:
-            self.updateLabel(self.labelOptions[0])
-            tff.Wr.TexFileModify.changeProofsVisibility(False)
-        
-        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
-
-
 class ChangeSubsection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
@@ -140,15 +110,6 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
         #change the current subsection for the app
         fsm.Data.Book.currTopSection = topSection
         fsm.Data.Book.currSection = subsection
-        
 
-        # rerender the layout???
-        # mon_width, _ = _u.getMonitorSize()
-        # width = int(mon_width / 2)
-        # height = 70
-        # wu.showCurrentLayout(mainWinRoot, 
-        #                     width, 
-        #                     height)
-        # lf.Wr.SectionLayout.set(mainWinRoot, width, height)
 
-        self.notify(SourceImageLinks_OM, subsection)
+        self.notify(comui.SourceImageLinks_OM, subsection)

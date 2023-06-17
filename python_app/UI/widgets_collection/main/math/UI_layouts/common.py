@@ -154,6 +154,53 @@ class ShowTocWindow_BTN(ww.currUIImpl.Button,
         
         UIManager.show()
 
+
+
+class ShowProofs_BTN(ww.currUIImpl.Button,
+                     dc.AppCurrDataAccessToken):
+    labelOptions = ["Show Proofs", "Hide Proofs"]
+    def __init__(self, patentWidget, prefix, column = 1, row = 0):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_showProofs_BTN"
+        if dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
+            text = self.labelOptions[1]
+        else:
+            text = self.labelOptions[0]
+
+        super().__init__(prefix, 
+                        name,
+                        text, 
+                        patentWidget,
+                        data, 
+                        self.cmd)
+    
+    def cmd(self):
+        currLabel = self.getLabel()
+        
+        if currLabel == self.labelOptions[0]:
+            self.updateLabel(self.labelOptions[1])
+            dt.AppState.ShowProofs.setData(self.appCurrDataAccessToken,
+                                           True)
+        elif currLabel ==  self.labelOptions[1]:
+            self.updateLabel(self.labelOptions[0])
+            dt.AppState.ShowProofs.setData(self.appCurrDataAccessToken,
+                                           False)
+        
+        self.notify(mui.TOC_BOX)
+        ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
+    
+    def render(self, **kwargs):
+        if dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
+            self.updateLabel(self.labelOptions[1])
+        else:
+            self.updateLabel(self.labelOptions[0])
+
+        return super().render(**kwargs)
+
+
 class ImageSave_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix, column = 2, row = 0):
         data = {

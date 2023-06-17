@@ -36,26 +36,6 @@ class TexFileModify:
                             cls.__getMainImageLine(subsection, imLinkId), 
                             cls.__getMainImageLine(subsection, imLinkId))
 
-    def changeProofsVisibility(hideProofs):
-        with open(_upan.Paths.TexFiles.Content.getAbs(),"r") as conF:
-            contentLines = conF.readlines()
-        
-        for i in range(len(contentLines)):
-            if (dc.TexFileTokens.extraImagesStartToken in contentLines[i]):
-                while (dc.TexFileTokens.extraImagesEndToken not in contentLines[i]):
-                    i += 1
-                    line = contentLines[i]
-                    
-                    if dc.TexFileTokens.Proof.proofToken in line.lower():
-                        if hideProofs:
-                            contentLines[i] = line.replace("% ", "")
-                        else:
-                            if "% " not in line:
-                                contentLines[i] = "% " + line
-        
-        with open(_upan.Paths.TexFiles.Content.getAbs(),"w") as conF:
-            _waitDummy = conF.writelines(contentLines)
-
     # update the content file
     def addExtraImage(mainImID, extraImageName):
         marker = dc.Links.Local.getIdxLineMarkerLine(mainImID)

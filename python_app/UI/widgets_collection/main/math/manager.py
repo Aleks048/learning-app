@@ -27,11 +27,6 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            # winRoot.configureColumn(0, weight = 1)
-            # winRoot.configureColumn(1, weight = 1)
-            # winRoot.configureColumn(2, weight = 3)
-            # winRoot.configureColumn(3, weight = 1)
-
             tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
@@ -126,6 +121,10 @@ class LayoutManagers:
             latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
             self.addWidget(latestExtraImForEntry_LBL)
 
+            showProof_BTN = com.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 11)
+            self.addWidget(showProof_BTN)
+            showProof_BTN.addListenerWidget(tocBox_BOX)
+
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
 
@@ -183,7 +182,7 @@ class LayoutManagers:
             layouts_OM = com.Layouts_OM(winRoot, self.prefix, 0, 0)
             self.addWidget(layouts_OM)
 
-            showProof_BTN = sl.ShowProofs_BTN(winRoot, self.prefix)
+            showProof_BTN = com.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)
 
             saveImage_BTN = com.ImageSave_BTN(winRoot, self.prefix)
