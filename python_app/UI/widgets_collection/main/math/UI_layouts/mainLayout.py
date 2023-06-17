@@ -4,6 +4,7 @@ from tkinter import ttk
 import time
 import re
 from PIL import ImageTk,Image
+import Pmw
 
 import file_system.file_system_facade as fsf
 import tex_file.tex_file_facade as tff
@@ -258,6 +259,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             imIdx = label.imIdx
             tframe = label.master
             gpframe = tframe.master
+            balloon = Pmw.Balloon(tframe)
 
             imageWidgetID = "imageWidget"
             
@@ -327,6 +329,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     imLabel.grid(row = 1, column = 0, columnspan = 100)
 
+                    imText = fsf.Data.Sec.imLinkDict(subsection)[str(imIdx)]
+                    balloon.bind(imLabel, "{0}".format(imText))
+
                     self.openedMainImg = imLabel
 
                     # extraImages
@@ -334,9 +339,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
 
                         for i in range(0, len(extraImages)):
+                            eImText = extraImages[i]
+
                             extraImName = _upan.Names.getExtraImageName(str(imIdx), subsection, i)
 
-                            if "proof" in extraImages[i].lower()\
+                            if "proof" in eImText.lower()\
                                 and not dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
                                 continue
 
@@ -353,6 +360,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
                             eimLabel.grid(row = i + 2, column = 0, columnspan = 100)
+
+                            balloon.bind(eimLabel, "{0}".format(eImText))
                     
                     if int(event.type) == 4 or \
                        int(event.type) == 35:
