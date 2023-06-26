@@ -145,7 +145,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath_curr + ".png"):
             time.sleep(0.3)
             timer += 1
-            if timer > 30:
+
+            if timer > 50:
                 return False
 
         imID = imIdx

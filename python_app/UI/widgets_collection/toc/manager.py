@@ -1,6 +1,7 @@
 import UI.widgets_collection.toc.toc as tocw
 
 import UI.widgets_manager as wm
+import UI.widgets_collection.common as comw
 
 
 class LayoutManagers:
@@ -11,7 +12,7 @@ class LayoutManagers:
             appDimensions = [700, 500, 200, 200]
             super().__init__(winRoot, appDimensions)
 
-            tocBox = tocw.TOC_BOX(winRoot, self.prefix)
+            tocBox = comw.TOC_BOX(winRoot, self.prefix)
             self.addWidget(tocBox)
 
             hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)

@@ -1,11 +1,12 @@
 import UI.widgets_manager as wm
 import UI.widgets_wrappers as ww
 
-import UI.widgets_collection.main.math.UI_layouts.common as com
+import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as ml
 import UI.widgets_collection.main.math.UI_layouts.sectionLayout as sl
 import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
+import UI.widgets_collection.common as comw
 import data.constants as dc
 
 
@@ -27,7 +28,7 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            tocBox_BOX = ml.TOC_BOX(winRoot, self.prefix)
+            tocBox_BOX = comw.TOC_BOX(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
             
@@ -36,7 +37,7 @@ class LayoutManagers:
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
             self.addWidget(addToTOCwImage_CHB)
 
-            layouts_OM = com.Layouts_OM(winRoot, self.prefix)
+            layouts_OM = commw.Layouts_OM(winRoot, self.prefix)
             self.addWidget(layouts_OM)
             
             imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
@@ -77,7 +78,7 @@ class LayoutManagers:
             chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
             chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 
-            switchLayout_BTN = com.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
+            switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
             switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
@@ -86,42 +87,42 @@ class LayoutManagers:
             chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
             self.addWidget(chooseOriginalMaterial_OM)
 
-            layoutsSwitchOrigMatVSMain_BTN = com.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
+            layoutsSwitchOrigMatVSMain_BTN = commw.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 
             exitApp_BTN = ml.ExitApp_BTN(winRoot, self.prefix)
             self.addWidget(exitApp_BTN)
             exitApp_BTN.addListenerWidget(tocBox_BOX)
  
-            showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix)
+            showTocWindow_BTN = commw.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)
             
             reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
             self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
 
-            saveImage_BTN = com.ImageSave_BTN(winRoot, self.prefix, column = 5, row = 14)
+            saveImage_BTN = commw.ImageSave_BTN(winRoot, self.prefix, column = 5, row = 14)
             self.addWidget(saveImage_BTN)
             saveImage_BTN.addListenerWidget(tocBox_BOX)
 
 
-            sourceImageLinks_OM = com.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
+            sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
             self.addWidget(sourceImageLinks_OM)
-            targetImageLinks_OM = com.TargetImageLinks_OM(winRoot, self.prefix, column = 2, row = 13)
+            targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix, column = 2, row = 13)
             self.addWidget(targetImageLinks_OM)
-            targetSubsection_OM = com.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
+            targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
             self.addWidget(targetSubsection_OM)
-            targetTopSection_OM = com.TargetTopSection_OM(winRoot, self.prefix, column = 0, row = 13)
+            targetTopSection_OM = commw.TargetTopSection_OM(winRoot, self.prefix, column = 0, row = 13)
             self.addWidget(targetTopSection_OM)
-            addGlobalLink_BTN = com.AddGlobalLink_BTN(winRoot, self.prefix, column = 2, row = 14)
+            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix, column = 2, row = 14)
             self.addWidget(addGlobalLink_BTN)
-            addGlobalLink_ETR = com.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
+            addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
             latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
             self.addWidget(latestExtraImForEntry_LBL)
 
-            showProof_BTN = com.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 11)
+            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 11)
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
@@ -176,31 +177,31 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            addGlobalLink_ETR = com.AddGlobalLink_ETR(winRoot, self.prefix)
+            addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix)
             self.addWidget(addGlobalLink_ETR)
 
-            layouts_OM = com.Layouts_OM(winRoot, self.prefix, 0, 0)
+            layouts_OM = commw.Layouts_OM(winRoot, self.prefix, 0, 0)
             self.addWidget(layouts_OM)
 
-            showProof_BTN = com.ShowProofs_BTN(winRoot, self.prefix)
+            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)
 
-            saveImage_BTN = com.ImageSave_BTN(winRoot, self.prefix)
+            saveImage_BTN = commw.ImageSave_BTN(winRoot, self.prefix)
             self.addWidget(saveImage_BTN)
 
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrSection_BTN)
 
-            targetTopSection_OM = com.TargetTopSection_OM(winRoot, self.prefix)
+            targetTopSection_OM = commw.TargetTopSection_OM(winRoot, self.prefix)
             self.addWidget(targetTopSection_OM)
             
-            targetSubsection_OM = com.TargetSubection_OM(winRoot, self.prefix)
+            targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix)
             self.addWidget(targetSubsection_OM)
 
             targetTopSection_OM.addListenerWidget(targetSubsection_OM)
             targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
 
-            targetImageLinks_OM = com.TargetImageLinks_OM(winRoot, self.prefix)
+            targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix)
             self.addWidget(targetImageLinks_OM)
 
             targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
@@ -208,10 +209,10 @@ class LayoutManagers:
             targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
             targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
 
-            sourceImageLinks_OM = com.SourceImageLinks_OM(winRoot, self.prefix)
+            sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix)
             self.addWidget(sourceImageLinks_OM)
 
-            addGlobalLink_BTN = com.AddGlobalLink_BTN(winRoot, self.prefix)
+            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix)
             self.addWidget(addGlobalLink_BTN)
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
@@ -220,7 +221,7 @@ class LayoutManagers:
             switchToCurrMainLayout_BTN = sl.SwitchToCurrMainLayout_BTN(winRoot, self.prefix)
             self.addWidget(switchToCurrMainLayout_BTN)
 
-            showTocWindow_BTN = com.ShowTocWindow_BTN(winRoot, self.prefix, row=0)
+            showTocWindow_BTN = commw.ShowTocWindow_BTN(winRoot, self.prefix, row=0)
             self.addWidget(showTocWindow_BTN)
             #
             # post init
@@ -382,7 +383,7 @@ class LayoutManagers:
 
 class MathMenuManager(wm.MenuManager_Interface):
     def __init__(self):
-        winRoot = com.MainMenuRoot(0, 0)
+        winRoot = commw.MainMenuRoot(0, 0)
         layouts = []
 
         for lm in LayoutManagers.listOfLayouts():
