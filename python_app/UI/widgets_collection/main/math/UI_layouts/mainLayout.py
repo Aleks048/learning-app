@@ -204,6 +204,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
                 omName = origMatNameDict[list(origMatNameDict.keys())[-1]]
 
+                if str(omName) == _u.Token.NotDef.str_t:
+                    # when there is no entries yet we use the current origMaterial name
+                    omName = fsf.Data.Book.currOrigMatName
+
                 omFilepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
                 subsectionStartPage = fsf.Data.Sec.start(subsection)
 
