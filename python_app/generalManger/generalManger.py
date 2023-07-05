@@ -225,6 +225,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         tocWImageDict[imIdx] = "1" if addToTOCwIm else "0"
         fsf.Data.Sec.tocWImageDict(subsection, tocWImageDict)
 
+        # images group
+        imagesGroupDict = fsf.Data.Sec.imagesGroupDict(subsection)
+
+        if imagesGroupDict == _u.Token.NotDef.dict_t:
+            imagesGroupDict = {}
+
+        imagesGroupDict[imIdx] = _u.Token.NotDef.str_t
+        fsf.Data.Sec.tocWImageDict(subsection, imagesGroupDict)
+
         # ADD LINK TO THE ORIGINAL MATERIAL
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
         numNotesOnThePage = 0
