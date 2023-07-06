@@ -28,6 +28,27 @@ class LabelWithClick(ttk.Label):
     imagePath = ""
 
 
+class ImageGroupOM(ttk.OptionMenu):
+    var = None
+    subsection = None
+    imIdx = None
+    tocBox = None
+
+    def __init__(self, tocBox, subsection, imIdx, master, variable, default: str, *values: str):
+        self.var = variable
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.tocBox = tocBox
+
+        super().__init__(master, variable, default, *values, command=lambda *args: self.chooseGroupCmd())
+                        
+    def chooseGroupCmd(self):
+        imagesGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsection)
+        imagesGroupDict[self.imIdx] = self.var.get() if self.var.get() != "No group" else _u.Token.NotDef.str_t
+        fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
+
+        self.tocBox.render()
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsection = ""
@@ -278,7 +299,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 # open orig material on page
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
-                imagesGroupDict = fsm.Data.Sec.imagesGroupDict(subsection)
+                imagesGroupDict:dict = fsm.Data.Sec.imagesGroupDict(subsection)
+                imagesGroups:list = list(set(imagesGroupDict.values()))
+                imagesGroups = ["No group"] + [i for i in imagesGroups if i != _u.Token.NotDef.str_t]
 
                 def closeAllSubsections():
                     for wTop1 in event.widget.master.master.winfo_children():
@@ -323,6 +346,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 imageGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 gridRowStartIdx = 1
 
+                        currGroup = imagesGroupDict[k] if imagesGroupDict[k] != _u.Token.NotDef.str_t else "No group"
+                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
                         textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
                         showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + subSecID + str(i))
@@ -331,6 +356,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.imIdx = k
                         showImages.clicked = False
 
+                        imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
+                        
                         removeEntry.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)  
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
