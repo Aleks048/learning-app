@@ -177,12 +177,17 @@ class JSON:
         def _readProperty(jsonData):
             if propertyName in jsonData:
                 return jsonData[propertyName]
-            for _, v in jsonData.items():
+
+            for k, v in jsonData.items():
                 if type(v) is list:
-                    for i in v:
-                        property = _readProperty(i)
-                        if property != None:
-                            return property
+                    if v == [] or type(v[0]) is str:
+                        if propertyName == k:
+                            return v
+                    else:
+                        for i in v:
+                            property = _readProperty(i)
+                            if property != None:
+                                return property
                 elif type(v) is dict:
                     property = _readProperty(v)
                     if property != None:

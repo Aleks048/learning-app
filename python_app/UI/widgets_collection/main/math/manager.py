@@ -126,6 +126,13 @@ class LayoutManagers:
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
+            imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
+            self.addWidget(imageGroupAdd_BTN)
+
+            imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
+            imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
+            imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)  
+
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
 

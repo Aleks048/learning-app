@@ -50,6 +50,9 @@ class SectionInfoStructure:
         start = "TOC_sectionStart"
         finish = "TOC_sectionFinish"
 
+        #list of image groups
+        imagesGroupsList = "imagesGroupsList"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -68,6 +71,7 @@ class SectionInfoStructure:
                 cls.PubProp.name: _u.Token.NotDef.str_t,
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+                cls.PubProp.imagesGroupsList: ["No group"],   
                 cls.PrivProp.levelData: {
                     cls.PrivProp.levelData_level: str(level),
                 },
@@ -333,6 +337,11 @@ class SectionInfoStructure:
         tocWImageDict.pop(imIdx, None)
         tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
+
+        imagesGroupDict = cls.readProperty(subsection, cls.PubProp.imagesGroupDict)
+        imagesGroupDict.pop(imIdx, None)
+        imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
 
         if extraImagesDict == {}:
             extraImagesDict = _u.Token.NotDef.dict_t

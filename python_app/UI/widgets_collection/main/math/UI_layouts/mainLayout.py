@@ -582,6 +582,8 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                 self.setData(nextIdx)
         elif broadcasterType == AddExtraImage_BTN:
             return self.getData()
+        elif broadcasterType == ImageGroupAdd_BTN:
+            return self.getData()
     
     def render(self, **kwargs):
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()
@@ -742,7 +744,7 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_imageGenerationRestart"
         text= "restart"
@@ -755,6 +757,57 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
     def cmd(self):
         self.notifyAllListeners()
+
+    def receiveNotification(self, broadcasterType):
+        self.cmd()  
+
+class ImageGroupAdd_BTN(ww.currUIImpl.Button,
+                        dc.AppCurrDataAccessToken):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NE}
+        }
+        name = "_imageGroupAdd"
+        text= "Group Add"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        # get Data from the entry
+        groupName = self.notify(ImageGeneration_ETR)
+        currSubsection = fsf.Data.Book.currSection
+
+        # run restart cmd
+        self.notify(ImageGenerationRestart_BTN)
+
+        # ask the user if we want to proceed
+        msg = "\
+Do you want to add \n\
+group: '{0}' to\n\
+subsection: '{1}'?".format(groupName, currSubsection)
+        response = wm.UI_generalManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                    mmm.MathMenuManager)
+        mainManager.show()
+        
+        if not response:
+            return
+
+        # update the groups list for the subsection
+        imGroupsList:list = fsf.Data.Sec.imagesGroupsList(currSubsection)
+        imGroupsList.append(groupName)
+        fsf.Data.Sec.imagesGroupsList(currSubsection, imGroupsList)
+
+        # re-render toc
+        self.notify(comw.TOC_BOX)
+
 
 
 class ImageCreation:

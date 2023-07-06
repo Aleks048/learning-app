@@ -102,6 +102,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
             self.render()
+        elif broadcasterType == mui.ImageGroupAdd_BTN:
+            self.render()
         else:
             self.render()
 
@@ -300,8 +302,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
                 imagesGroupDict:dict = fsm.Data.Sec.imagesGroupDict(subsection)
-                imagesGroups:list = list(set(imagesGroupDict.values()))
-                imagesGroups = ["No group"] + [i for i in imagesGroups if i != _u.Token.NotDef.str_t]
+                imagesGroups:list = fsm.Data.Sec.imagesGroupsList(subsection)
 
                 def closeAllSubsections():
                     for wTop1 in event.widget.master.master.winfo_children():
@@ -334,7 +335,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         gridRowStartIdx = 0
 
                         if currImGroupName != prevImGroupName:
-                            topPad = 20
+                            if k != "0":
+                                topPad = 20
 
                         tempFrame = ttk.Frame(frame,
                                               name = "contentFr_" + subSecID + "_" + str(i),
@@ -347,6 +349,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 gridRowStartIdx = 1
 
                         currGroup = imagesGroupDict[k] if imagesGroupDict[k] != _u.Token.NotDef.str_t else "No group"
+                        
+                        if currGroup not in imagesGroups:
+                            currGroup = "No group"
+                            imagesGroupDict[k] = _u.Token.NotDef.str_t
+                            fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
+                        
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
                         textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))

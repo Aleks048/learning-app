@@ -231,8 +231,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         if imagesGroupDict == _u.Token.NotDef.dict_t:
             imagesGroupDict = {}
 
-        imagesGroupDict[imIdx] = _u.Token.NotDef.str_t
-        fsf.Data.Sec.tocWImageDict(subsection, imagesGroupDict)
+        if imagesGroupDict != {}:
+            lastGroup = list(imagesGroupDict.values())[-1]
+            imagesGroupDict[imIdx] = lastGroup
+        else:
+            imagesGroupDict[imIdx] = "No group"
+
+        fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
         # ADD LINK TO THE ORIGINAL MATERIAL
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
