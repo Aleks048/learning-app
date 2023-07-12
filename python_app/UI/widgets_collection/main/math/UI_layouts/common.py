@@ -248,8 +248,12 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def updateOptions(self, _ = ""):
         currSec = fsm.Data.Book.currSection
-        self.sourceSubsectionImageLinks = list(fsm.Data.Sec.imLinkDict(currSec).keys())
-        self.sourceSubsectionImageLinks.sort(key = int)
+        imLinkDict = fsm.Data.Sec.imLinkDict(currSec)
+        if type(imLinkDict) == dict:
+            self.sourceSubsectionImageLinks = list(imLinkDict.keys())
+            self.sourceSubsectionImageLinks.sort(key = int)
+        else:
+            self.sourceSubsectionImageLinks = _u.Token.NotDef.list_t
 
         super().updateOptions(self.sourceSubsectionImageLinks)
         self.setData(self.sourceSubsectionImageLinks[-1])

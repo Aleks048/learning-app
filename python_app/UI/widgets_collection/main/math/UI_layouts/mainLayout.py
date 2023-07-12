@@ -49,14 +49,20 @@ class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
         extraImagesDict = fsf.Data.Sec.extraImagesDict(currSection)
         
         if init:
-            latestEntry = list(entriesDict.keys())[-1]
+            if type(entriesDict) == dict:
+                latestEntry = list(entriesDict.keys())[-1]
+            else:
+                latestEntry = _u.Token.NotDef.str_t
         else:
             latestEntry = self.notify(commw.SourceImageLinks_OM)
 
         latestExtraImName = "No"
 
-        if latestEntry in list(extraImagesDict.keys()):
-            latestExtraImName = extraImagesDict[latestEntry][-1]
+        if type(extraImagesDict) == dict:
+            if latestEntry in list(extraImagesDict.keys()):
+                latestExtraImName = extraImagesDict[latestEntry][-1]
+        else:
+            latestExtraImName = _u.Token.NotDef.str_t
 
         return "E IM: \"" + latestExtraImName + "\""
 

@@ -5,7 +5,6 @@ import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
-import _utils._utils_main as _u
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
@@ -13,6 +12,7 @@ import tkinter as tk
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
+import _utils._utils_main as _u
 import _utils.logging as log
 import _utils.pathsAndNames as _upan
 import tex_file.tex_file_facade as tff
@@ -91,6 +91,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             sections = fsm.Data.Book.sections
 
             for ts in tsList:
+                if ts == _u.Token.NotDef.str_t:
+                    return
+
                 sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
 
             fsm.Data.Book.sections = sections
@@ -248,7 +251,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     imLabel.grid(row = 1, column = 0, columnspan = 100)
 
-                    imText = fsm.Data.Sec.imLinkDict(subsection)[str(imIdx)]
+                    imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
+
+                    if type(imLinkDict) == dict:
+                        if str(imIdx) in list(imLinkDict.keys()):
+                            imText = imLinkDict[str(imIdx)]
+                        else:
+                            imText = _u.Token.NotDef.str_t
+                    else:
+                        imText = _u.Token.NotDef.str_t
+
                     balloon.bind(imLabel, "{0}".format(imText))
 
                     self.openedMainImg = imLabel
