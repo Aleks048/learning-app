@@ -183,7 +183,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             gpframe = tframe.master
             balloon = Pmw.Balloon(tframe)
 
-            imageWidgetID = "imageWidget"
+            imageWidgetID = "imageWidget_"
             
             def closeAllImages():
                 for parent in gpframe.winfo_children():
@@ -214,18 +214,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     img = ImageTk.PhotoImage(pilIm)
                     self.displayedImages.append(img)
                     
-                    imLabel = LabelWithClick(tframe, image=img, name = imageWidgetID + subSecID + imIdx)
+                    name:str = imageWidgetID + subSecID + imIdx
+                    name = name.replace(".", "")
+                    imLabel = LabelWithClick(tframe, image=img, name = name)
                     imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
 
-                    def scroll_into_view():
+                    def scroll_into_view(event):
                         posy = 0
-                        pwidget = imLabel
+                        pwidget = event.widget
 
                         self.scrollBar.yview_scroll(-100, "units")
                         self.scrollBar.update()
-                        imLabel.update()
+                        event.widget.update()
 
                         while pwidget != self.parent:
                             posy += pwidget.winfo_y()
@@ -235,21 +237,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         
                         widget_top = posy
 
+                        count = 1
                         while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
+                            if count > 20:
+                                break
+
+                            count +=1
                             posy = 0
-                            pwidget = imLabel
+                            pwidget = event.widget
+
                             while pwidget != self.parent:
                                 posy += pwidget.winfo_y()
                                 pwidget = pwidget.master
 
-                            imLabel.update()
+                            event.widget.update()
                             widget_top = posy
-                            self.scrollBar.yview_scroll(1, "units")
-                            self.scrollBar.update()
+                            if self.scrollBar != None:
+                                self.scrollBar.yview_scroll(1, "units")
+                                self.scrollBar.update()
 
-                    imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda *args: scroll_into_view())
+                    imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: scroll_into_view(event))
 
-                    imLabel.grid(row = 1, column = 0, columnspan = 100)
+                    imLabel.grid(row = 2, column = 0, columnspan = 100)
 
                     imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
 
@@ -285,8 +294,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
-                            eimLabel = LabelWithClick(tframe, image=img, 
-                                                    name=imageWidgetID + subSecID + imIdx + "e" + str(i))
+                            name = imageWidgetID + subSecID + imIdx + "e" + str(i)
+                            name = name.replace(".", "")
+                            eimLabel = LabelWithClick(tframe, image=img, name = name)
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -303,8 +313,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouklScroll:
                         imLabel.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
-                    closeAllImages()
                     self.entryClicked = _u.Token.NotDef.str_t
+                    closeAllImages()
      
             __cmd(event, *args)
 
@@ -350,8 +360,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if k != "0":
                                 topPad = 20
 
+                        nameId = subSecID +str(i)
+                        nameId = nameId.replace(".", "")
+
                         tempFrame = ttk.Frame(frame,
-                                              name = "contentFr_" + subSecID + "_" + str(i),
+                                              name = "contentFr_" + nameId,
                                               padding=[0, topPad, 0, 0])
 
                         if currImGroupName != prevImGroupName:
@@ -366,25 +379,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             currGroup = "No group"
                             imagesGroupDict[k] = _u.Token.NotDef.str_t
                             fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
-                        
+
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
-                        textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + subSecID +str(i))
-                        textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + subSecID + str(i))
-                        showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + subSecID + str(i))
-                        removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + subSecID + str(i))
+                        textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + nameId)
+                        textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
+                        showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + nameId)
+                        removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + nameId)
 
                         showImages.imIdx = k
                         showImages.clicked = False
 
-                        imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
                         
-                        removeEntry.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)  
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
                         removeEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
                                          removeEntryCmd)
 
-                        showImages.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
                         showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
@@ -395,6 +405,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
                         textLabelFull.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
+                        showImages.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
+                        removeEntry.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)  
+                        imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
 
                         openOMOnThePageOfTheImage(textLabelPage, k)
                         bindChangeColorOnInAndOut(textLabelPage)
@@ -407,8 +420,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         prevImGroupName = currImGroupName
                         i += 1
                     
-                    dummyFrame = ttk.Frame(frame, name = "contentDummyFr_" + subSecID + str(i))
-                    dummyEntryPage = ttk.Label(dummyFrame, text ="\n", name = "contentDummy_" + subSecID + str(i))
+                    dummyFrame = ttk.Frame(frame, name = "contentDummyFr_" + nameId)
+                    dummyEntryPage = ttk.Label(dummyFrame, text ="\n", name = "contentDummy_" + nameId)
                     dummyEntryPage.grid(row=0, column=0, sticky=tk.NW)
                     dummyFrame.grid(row=i + 1, column=0, sticky=tk.NW)
 
@@ -484,15 +497,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         prettySubsections = prefix + subsection + ": " + subsectionText + "\n"
         
-        labelName = subsection.replace(".", "")
+        labelName = "label_" + subsection.replace(".", "")
 
         locFrame = ttk.Frame(self.scrollable_frame, name=labelName)
         super().addTOCEntry(locFrame, row, 0)
 
+        nameId = "subsecLabel_" + subsection 
+        nameId = nameId.replace(".", "")
+
         if level == 0:
-            subsectionLabel = ttk.Label(locFrame, text = prettySubsections, padding= [0, 20, 0, 0])
+            subsectionLabel = ttk.Label(locFrame, text = prettySubsections, padding= [0, 20, 0, 0], name = nameId)
         else:
-            subsectionLabel = ttk.Label(locFrame, text = prettySubsections)
+            subsectionLabel = ttk.Label(locFrame, text = prettySubsections, name = nameId)
 
         openPdfOnStartOfTheSection(subsectionLabel)
         bindChangeColorOnInAndOut(subsectionLabel)
