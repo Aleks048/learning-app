@@ -772,8 +772,8 @@ class ImageGroupAdd_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NE}
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_imageGroupAdd"
         text= "Group Add"
