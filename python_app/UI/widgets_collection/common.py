@@ -61,7 +61,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 5, "rowspan": 10},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
@@ -81,8 +81,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         name,
                         parentWidget,
                         renderData = data,
-                        height=370,
-                        width=570)
+                        height=570,
+                        width=700)
     
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
@@ -258,7 +258,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: scroll_into_view(event))
 
-                    imLabel.grid(row = 2, column = 0, columnspan = 100)
+                    imLabel.grid(row = 2, column = 0, columnspan = 1000, sticky=tk.NW)
 
                     imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
 
@@ -294,13 +294,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
-                            name = imageWidgetID + subSecID + imIdx + "e" + str(i)
-                            name = name.replace(".", "")
-                            eimLabel = LabelWithClick(tframe, image=img, name = name)
+                            ename = imageWidgetID + subSecID + imIdx + "_e_" + str(i)
+                            ename = ename.replace(".", "")
+                            eimLabel = LabelWithClick(tframe, image=img, name = ename)
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
-                            eimLabel.grid(row = i + 2, column = 0, columnspan = 100)
+                            eimLabel.grid(row = i + 3, column = 0, columnspan = 1000, sticky=tk.NW)
 
                             balloon.bind(eimLabel, "{0}".format(eImText))
                     
@@ -383,7 +383,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
                         textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + nameId)
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
-                        showImages = LabelWithClick(tempFrame, text = "[images]", name = "contentOfImages_" + nameId)
+                        showImages = LabelWithClick(tempFrame, text = "[im]", name = "contentOfImages_" + nameId)
                         removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + nameId)
 
                         showImages.imIdx = k
@@ -404,8 +404,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
                         textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
-                        textLabelFull.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
-                        showImages.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
+                        textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
+                        showImages.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
                         removeEntry.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)  
                         imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
 

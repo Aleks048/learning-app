@@ -137,6 +137,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                    wf.Wr.MenuManagers.MathMenuManager)
 
             mainManager.show()
+
+            if not response:
+                return
         else:
             ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
 
@@ -232,7 +235,10 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             imagesGroupDict = {}
 
         if imagesGroupDict != {}:
-            lastGroup = list(imagesGroupDict.values())[-1]
+            if not dt.AppState.UseLatestGroup.getData(cls.appCurrDataAccessToken):
+                lastGroup = list(imagesGroupDict.values())[-1]
+            else:
+                lastGroup = fsf.Data.Sec.imagesGroupsList(subsection)[-1]
             imagesGroupDict[imIdx] = lastGroup
         else:
             imagesGroupDict[imIdx] = _u.Token.NotDef.str_t
@@ -267,6 +273,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         # POPULATE THE MAIN FILE
         tff.Wr.TexFilePopulate.populateCurrMainFile()
+
+        dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
 
         return True
 

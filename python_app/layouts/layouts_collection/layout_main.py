@@ -93,42 +93,42 @@ class MainLayout(lc.Layout):
         #
         # FINDER
         #
-        log.autolog("--- Starting file system manipulation")
-        ownerPID = None
-        subtractionNum = 30
-        bounds = [int(mon_halfWidth), 
-                  mon_height - appHeight - (subtractionNum + 30), 
-                  appWidth, 
-                  appHeight + (subtractionNum + 4 - 2)]
+        # log.autolog("--- Starting file system manipulation")
+        # ownerPID = None
+        # subtractionNum = 30
+        # bounds = [int(mon_halfWidth), 
+        #           mon_height - appHeight - (subtractionNum + 30), 
+        #           appWidth, 
+        #           appHeight + (subtractionNum + 4 - 2)]
 
-        currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
+        # currScreenshotFolderName = _upan.Current.Names.Section.Screenshot.name_wPrefix()
 
-        if currSection == _u.Token.NotDef.str_t:
-            log.autolog("No subssection to open yet.")
-        else:
-            currScreenshotDir = _upan.Paths.Screenshot.getAbs()
-            oc.Wr.FsAppCalls.openFile(currScreenshotDir)
+        # if currSection == _u.Token.NotDef.str_t:
+        #     log.autolog("No subssection to open yet.")
+        # else:
+        #     currScreenshotDir = _upan.Paths.Screenshot.getAbs()
+        #     oc.Wr.FsAppCalls.openFile(currScreenshotDir)
             
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
-                                                             currScreenshotFolderName)
+        #     _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+        #                                                      currScreenshotFolderName)
             
-            while ownerPID == None:
-                sleep(0.1)
-                _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
-                                                                currScreenshotFolderName)
+        #     while ownerPID == None:
+        #         sleep(0.1)
+        #         _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+        #                                                         currScreenshotFolderName)
             
-            dt.OtherAppsInfo.Finder.main_pid = ownerPID
+        #     dt.OtherAppsInfo.Finder.main_pid = ownerPID
             
-            if ownerPID == None: 
-                log.autolog(currScreenshotFolderName)
-                print("setMainLayout - Something went wrong. Finder could not open the folder")
-            else:
-                cmd = oscr.getMoveWindowCMD(ownerPID,
-                                        bounds,
-                                        currScreenshotFolderName)
-                _u.runCmdAndWait(cmd)
+        #     if ownerPID == None: 
+        #         log.autolog(currScreenshotFolderName)
+        #         print("setMainLayout - Something went wrong. Finder could not open the folder")
+        #     else:
+        #         cmd = oscr.getMoveWindowCMD(ownerPID,
+        #                                 bounds,
+        #                                 currScreenshotFolderName)
+        #         _u.runCmdAndWait(cmd)
             
-            log.autolog("Moved fs window.")
+        #     log.autolog("Moved fs window.")
         
         log.autolog("--- File system manipulation ended.")
         
@@ -144,16 +144,16 @@ class MainLayout(lc.Layout):
 
         # close FS window
         
-        log.autolog("--- Starting closing of 'FS'")
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
-                                                        currSection)
+        # log.autolog("--- Starting closing of 'FS'")
+        # _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.finder_ID, 
+        #                                                 currSection)
 
-        if ownerPID != None:
-            lm.LayoutsManager.closeFSWindow(currSection, ownerPID)
-        else:
-            log.autolog("Could not close the 'file system' window of the main layout")
+        # if ownerPID != None:
+        #     lm.LayoutsManager.closeFSWindow(currSection, ownerPID)
+        # else:
+        #     log.autolog("Could not close the 'file system' window of the main layout")
         
-        log.autolog("--- Ended closing of 'FS'")
+        # log.autolog("--- Ended closing of 'FS'")
         
         # close PDF reader window
         log.autolog("--- Starting closing of 'PDF editor'")

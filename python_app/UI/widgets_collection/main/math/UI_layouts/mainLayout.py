@@ -80,7 +80,7 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 5},
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 15},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_reAddNotes"
@@ -112,7 +112,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 7},
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 15},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_exitApp"
@@ -137,7 +137,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 13},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 16},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseOriginalMaterial_OM"
@@ -213,7 +213,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 3},
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 16},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_swritchToCurrSectionLayout_BTN"
@@ -237,7 +237,7 @@ class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 10},
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 15},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSubsecion_optionMenu"
@@ -300,7 +300,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 9},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 15},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSection_optionMenu"
@@ -810,6 +810,8 @@ subsection: '{1}'?".format(groupName, currSubsection)
         imGroupsList:list = fsf.Data.Sec.imagesGroupsList(currSubsection)
         imGroupsList.append(groupName)
         fsf.Data.Sec.imagesGroupsList(currSubsection, imGroupsList)
+
+        dt.AppState.UseLatestGroup.setData(self.appCurrDataAccessToken, True)
 
         # re-render toc
         self.notify(comw.TOC_BOX)

@@ -24,7 +24,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 530, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 830, monHalfWidth, 0]
 
             super().__init__(winRoot, appDimensions)
 
@@ -122,7 +122,7 @@ class LayoutManagers:
             latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
             self.addWidget(latestExtraImForEntry_LBL)
 
-            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 11)
+            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 15)
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 

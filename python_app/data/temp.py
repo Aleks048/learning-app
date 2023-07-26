@@ -62,6 +62,9 @@ class AppState:
     class ShowProofs(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         data = True
 
+    class UseLatestGroup(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
+        data = False
+
 class OtherAppsInfo:
     class GoodNotes:
         section_pid = _u.Token.NotDef.str_t

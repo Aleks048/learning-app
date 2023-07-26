@@ -18,7 +18,7 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
 
 class Layouts_OM(ww.currUIImpl.OptionMenu,
                  dc.AppCurrDataAccessToken):
-    def __init__(self, patentWidget, prefix, row = 8, column = 5):
+    def __init__(self, patentWidget, prefix, row = 16, column = 1):
         self.layoutOptions = {
             "Main" : [mmm.LayoutManagers._Main, lm.Wr.MainLayout], 
             "Section" : [mmm.LayoutManagers._Section, lm.Wr.SectionLayout], 
@@ -55,7 +55,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
         if data == None:
             data = {
-                ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 6},
+                ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 16},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
             }
         if name == None:
@@ -95,7 +95,7 @@ class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix, data = None, name = None, text = None):
         if data == None:
             data = {
-                ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 12},
+                ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 16},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
             }
         if name == None:
@@ -131,7 +131,7 @@ class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
 class ShowTocWindow_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 
-    def __init__(self, patentWidget, prefix, row =4, column = 5):
+    def __init__(self, patentWidget, prefix, row =16, column = 4):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
