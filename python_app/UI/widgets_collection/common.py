@@ -192,7 +192,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             child.clicked = False
 
                         if imageWidgetID in str(child):
-                            child.destroy()
+                            try:
+                                child.destroy()
+                            except:
+                                pass
 
                 self.displayedImages = []
                 self.openedMainImg = None
@@ -222,39 +225,42 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
 
                     def scroll_into_view(event):
-                        posy = 0
-                        pwidget = event.widget
-
-                        self.scrollBar.yview_scroll(-100, "units")
-                        self.scrollBar.update()
-                        event.widget.update()
-
-                        while pwidget != self.parent:
-                            posy += pwidget.winfo_y()
-                            pwidget = pwidget.master
-
-                        canvas_top = self.scrollBar.winfo_y()
-                        
-                        widget_top = posy
-
-                        count = 1
-                        while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
-                            if count > 20:
-                                break
-
-                            count +=1
+                        try:
                             posy = 0
                             pwidget = event.widget
+
+                            self.scrollBar.yview_scroll(-100, "units")
+                            self.scrollBar.update()
+                            event.widget.update()
 
                             while pwidget != self.parent:
                                 posy += pwidget.winfo_y()
                                 pwidget = pwidget.master
 
-                            event.widget.update()
+                            canvas_top = self.scrollBar.winfo_y()
+
                             widget_top = posy
-                            if self.scrollBar != None:
-                                self.scrollBar.yview_scroll(1, "units")
-                                self.scrollBar.update()
+
+                            count = 1
+                            while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
+                                if count > 20:
+                                    break
+
+                                count +=1
+                                posy = 0
+                                pwidget = event.widget
+
+                                while pwidget != self.parent:
+                                    posy += pwidget.winfo_y()
+                                    pwidget = pwidget.master
+
+                                event.widget.update()
+                                widget_top = posy
+                                if self.scrollBar != None:
+                                    self.scrollBar.yview_scroll(1, "units")
+                                    self.scrollBar.update()
+                        except:
+                            pass
 
                     imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: scroll_into_view(event))
 
@@ -552,4 +558,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         super().render(widjetObj, renderData, **kwargs)
 
         if self.openedMainImg != None and shouldScroll:
-            self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
+            try:
+                self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
+            except:
+                pass
