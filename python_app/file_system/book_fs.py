@@ -186,9 +186,13 @@ class BookInfoStructure:
     def getSubsectionsAsTOC(cls, bookName = None):
         sectionsDict:dict = cls.readProperty(cls.PubProp.sections)
 
+        topSectionsList = list(sectionsDict.keys())
+        topSectionsList.sort(key = int)
+
         prettySubsections = []
         level = 0
-        for k in sectionsDict.keys():
+
+        for k in topSectionsList:
             subsections = []
             if sectionsDict[k] != {}:
                 subsections.append((k, level, sectionsDict[k][cls.PubProp.sections]))
