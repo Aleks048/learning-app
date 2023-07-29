@@ -49,6 +49,47 @@ class ImageGroupOM(ttk.OptionMenu):
 
         self.tocBox.render()
 
+class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
+    subsection = None
+    imidx = None
+    var = None
+    tocBox = None
+    
+    def __init__(self, parent, subsection, imIdx, name, tocBox):
+        self.subsection = subsection
+        self.imidx = str(imIdx)
+        self.tocBox = tocBox
+
+        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
+        if tocWImageDict == _u.Token.NotDef.dict_t:
+            alwaysShow = "0"
+        else:
+            alwaysShow = tocWImageDict[self.imidx]
+
+        self.var = tk.IntVar()
+        self.var.set(int(alwaysShow))
+
+        super().__init__(parent, 
+                        text ='', 
+                        takefocus = 0, 
+                        variable= self.var,
+                        name = name,
+                        command = lambda *args: self.__cmd())
+
+    def __cmd(self):
+        if self.var == None:
+            return
+
+        if self.tocBox == None:
+            return
+
+        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
+        tocWImageDict[self.imidx] = str(self.var.get())
+        fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
+
+        self.tocBox.render()
+
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsection = ""
@@ -189,16 +230,25 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 for parent in gpframe.winfo_children():
                     for child in parent.winfo_children():
                         if "contentOfImages_" in str(child):
-                            child.clicked = False
+                            subsection = str(child).split("_")[-2].replace("$", ".")
+                            idx = str(child).split("_")[-1]
+                            alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+
+                            if not alwaysShow: 
+                                child.clicked = False
+                            else: 
+                                child.clicked = True
 
                         if imageWidgetID in str(child):
-                            try:
-                                child.destroy()
-                            except:
-                                pass
+                            subsection = str(child).split("_")[-2].replace("$", ".")
+                            idx = str(child).split("_")[-1]
+                            alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                self.displayedImages = []
-                self.openedMainImg = None
+                            if not alwaysShow: 
+                                try:
+                                    child.destroy()
+                                except:
+                                    pass
 
             def __cmd(event, *args):
                 if ((not label.clicked and int(event.type) == 4)) or\
@@ -217,8 +267,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     img = ImageTk.PhotoImage(pilIm)
                     self.displayedImages.append(img)
                     
-                    name:str = imageWidgetID + subSecID + imIdx
-                    name = name.replace(".", "")
+                    name:str = imageWidgetID + "_" + subSecID + "_" + imIdx
+                    name = name.replace(".", "$")
                     imLabel = LabelWithClick(tframe, image=img, name = name)
                     imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
@@ -300,8 +350,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
-                            ename = imageWidgetID + subSecID + imIdx + "_e_" + str(i)
-                            ename = ename.replace(".", "")
+                            ename = imageWidgetID + "_e_" + str(i) + "_" + subSecID + "_" + imIdx
+                            ename = ename.replace(".", "$")
                             eimLabel = LabelWithClick(tframe, image=img, name = ename)
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
@@ -354,7 +404,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     i = 0
 
-                    subSecID = subsection.replace(".", "")
+                    subSecID = subsection.replace(".", "$")
                     prevImGroupName = _u.Token.NotDef.str_t
 
                     for k,v in links.items():
@@ -366,7 +416,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if k != "0":
                                 topPad = 20
 
-                        nameId = subSecID +str(i)
+                        nameId = subSecID + "_" + str(i)
                         nameId = nameId.replace(".", "")
 
                         tempFrame = ttk.Frame(frame,
@@ -375,7 +425,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if currImGroupName != prevImGroupName:
                             if currImGroupName != _u.Token.NotDef.str_t:
-                                imageGroupLabel = ttk.Label(tempFrame, text = " "* 8 + currImGroupName, name = "contentGroupP_" + subSecID +str(i))
+                                imageGroupLabel = ttk.Label(tempFrame, 
+                                                            text = currImGroupName, 
+                                                            name = "contentGroupP_" + subSecID +str(i),
+                                                            padding= [30, 0, 0, 0])
                                 imageGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 gridRowStartIdx = 1
 
@@ -387,8 +440,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
-                        textLabelPage = ttk.Label(tempFrame, text = "\t" + k + ": " + v, name = "contentP_" + nameId)
+                        textLabelPage = ttk.Label(tempFrame, 
+                                                  text = k + ": " + v, 
+                                                  name = "contentP_" + nameId, 
+                                                  wraplength=450,
+                                                  padding=[60, 0, 0, 0])
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
+                        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
+                                                                             subsection, str(i), 
+                                                                             "contentShowAlways_" + nameId,
+                                                                             self)
                         showImages = LabelWithClick(tempFrame, text = "[im]", name = "contentOfImages_" + nameId)
                         removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + nameId)
 
@@ -406,14 +467,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, False, *args))
 
-                        if subsection == self.subsectionClicked and k == self.entryClicked:
+                        alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[str(i)] == "1"
+                        if (subsection == self.subsectionClicked and k == self.entryClicked) or alwaysShow:
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
                         textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
-                        textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
                         showImages.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
-                        removeEntry.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)  
+                        textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
+                        chkbtnShowPermamently.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)
                         imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
+                        removeEntry.grid(row = gridRowStartIdx, column = 5, sticky=tk.NW)  
 
                         openOMOnThePageOfTheImage(textLabelPage, k)
                         bindChangeColorOnInAndOut(textLabelPage)
