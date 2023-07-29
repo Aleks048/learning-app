@@ -269,7 +269,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     
                     name:str = imageWidgetID + "_" + subSecID + "_" + imIdx
                     name = name.replace(".", "$")
-                    imLabel = LabelWithClick(tframe, image=img, name = name)
+                    imLabel = LabelWithClick(tframe, image=img, name = name, padding= [90, 0, 0, 0])
                     imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -352,7 +352,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             ename = imageWidgetID + "_e_" + str(i) + "_" + subSecID + "_" + imIdx
                             ename = ename.replace(".", "$")
-                            eimLabel = LabelWithClick(tframe, image=img, name = ename)
+                            eimLabel = LabelWithClick(tframe, image=img, name = ename, padding= [90, 0, 0, 0])
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -467,7 +467,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, False, *args))
 
-                        alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[str(i)] == "1"
+                        tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
+
+                        if tocWImageDict == _u.Token.NotDef.dict_t:
+                            alwaysShow = False
+                        else:
+                            log.autolog(str(i))
+                            alwaysShow = tocWImageDict[str(i)] == "1"
+
                         if (subsection == self.subsectionClicked and k == self.entryClicked) or alwaysShow:
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
