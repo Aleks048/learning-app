@@ -370,7 +370,7 @@ class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
         name = "_GlLink_TargetTopSection_OM"
 
         self.topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
-
+        self.topSectionsList.sort(key = int)
 
         super().__init__(prefix, 
                         name, 

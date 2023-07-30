@@ -238,7 +238,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             if not dt.AppState.UseLatestGroup.getData(cls.appCurrDataAccessToken):
                 lastGroup = list(imagesGroupDict.values())[-1]
             else:
-                lastGroup = fsf.Data.Sec.imagesGroupsList(subsection)[-1]
+                lastGroup = list(fsf.Data.Sec.imagesGroupsList(subsection).keys())[-1]
             imagesGroupDict[imIdx] = lastGroup
         else:
             imagesGroupDict[imIdx] = _u.Token.NotDef.str_t

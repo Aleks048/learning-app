@@ -71,7 +71,7 @@ class SectionInfoStructure:
                 cls.PubProp.name: _u.Token.NotDef.str_t,
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
-                cls.PubProp.imagesGroupsList: ["No group"],   
+                cls.PubProp.imagesGroupsList: {"No group": True},
                 cls.PrivProp.levelData: {
                     cls.PrivProp.levelData_level: str(level),
                 },

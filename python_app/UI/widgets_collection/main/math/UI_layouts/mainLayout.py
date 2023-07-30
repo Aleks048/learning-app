@@ -300,7 +300,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 15},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 15},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseSection_optionMenu"
@@ -807,9 +807,9 @@ subsection: '{1}'?".format(groupName, currSubsection)
             return
 
         # update the groups list for the subsection
-        imGroupsList:list = fsf.Data.Sec.imagesGroupsList(currSubsection)
-        imGroupsList.append(groupName)
-        fsf.Data.Sec.imagesGroupsList(currSubsection, imGroupsList)
+        imGroups:dict = fsf.Data.Sec.imagesGroupsList(currSubsection)
+        imGroups[groupName] = True
+        fsf.Data.Sec.imagesGroupsList(currSubsection, imGroups)
 
         dt.AppState.UseLatestGroup.setData(self.appCurrDataAccessToken, True)
 
