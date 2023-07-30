@@ -259,6 +259,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.entryClicked = imIdx
 
                     imageGroup = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
+
+                    if imageGroup == _u.Token.NotDef.str_t:
+                        imageGroup = "No group"
+
                     shouldShowGroup = fsm.Data.Sec.imagesGroupsList(subsection)[imageGroup]
 
                     if not shouldShowGroup:
