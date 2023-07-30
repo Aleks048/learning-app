@@ -430,7 +430,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         gridRowStartIdx = 0
 
                         if currImGroupName != prevImGroupName:
-                            if imagesGroupsList[currImGroupName]:
+                            if not imagesGroupsList[currImGroupName]:
                                 topPad = 10
                             elif (k != "0"):
                                 topPad = 20
