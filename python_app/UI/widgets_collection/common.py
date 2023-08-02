@@ -177,15 +177,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-        def bindChangeColorOnInAndOut(widget):
+        def bindChangeColorOnInAndOut(widget, shouldBeRed = False):
             def __changeTextColorBlue(event = None, *args):
                 event.widget.configure(foreground="blue")
-            
-            def __changeTextColorBlack(event = None, *args):
+
+            def __changeTextColorRed(event = None, *args):
+                event.widget.configure(foreground="red")
+
+            def __changeTextColorWhite(event = None, *args):
                 event.widget.configure(foreground="white")
             
             widget.bind(ww.currUIImpl.Data.BindID.enterWidget, __changeTextColorBlue)
-            widget.bind(ww.currUIImpl.Data.BindID.leaveWidget, __changeTextColorBlack)
+            if not shouldBeRed:
+                widget.bind(ww.currUIImpl.Data.BindID.leaveWidget, __changeTextColorWhite)
+            else:
+                widget.bind(ww.currUIImpl.Data.BindID.leaveWidget, __changeTextColorRed)
         
         def openOMOnThePageOfTheImage(widget:LabelWithClick, targetSubsection, targetImIdx):
             def __cmd(event = None, *args):
@@ -492,6 +498,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                   name = "contentP_" + nameId, 
                                                   wraplength=450,
                                                   padding=[60, 0, 0, 0])
+
+                        if "excercise" in v.lower():
+                            textLabelPage.configure(foreground="red")
+
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
                                                                              subsection, str(i), 
@@ -565,7 +575,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             linksFrame.grid(row = gridRowStartIdx + 1, column = 0, columnspan = 6, sticky=tk.NW)
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
-                        bindChangeColorOnInAndOut(textLabelPage)
+
+                        if "excercise" in v.lower():
+                            bindChangeColorOnInAndOut(textLabelPage, True)
+                        else:
+                            bindChangeColorOnInAndOut(textLabelPage, False)
+
                         bindChangeColorOnInAndOut(showImages)
                         bindChangeColorOnInAndOut(removeEntry)
                         openSectionOnIdx(textLabelFull, k)
