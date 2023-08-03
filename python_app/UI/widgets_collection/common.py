@@ -44,8 +44,9 @@ class ImageGroupOM(ttk.OptionMenu):
         super().__init__(master, variable, default, *values, command=lambda *args: self.chooseGroupCmd())
                         
     def chooseGroupCmd(self):
+        imagesGroupList:list = list(fsm.Data.Sec.imagesGroupsList(self.subsection).keys())
         imagesGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsection)
-        imagesGroupDict[self.imIdx] = self.var.get() if self.var.get() != "No group" else _u.Token.NotDef.str_t
+        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.var.get())
         fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
 
         self.tocBox.render()
@@ -264,10 +265,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     label.clicked = True
                     self.entryClicked = imIdx
 
-                    imageGroup = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
-
-                    if imageGroup == _u.Token.NotDef.str_t:
-                        imageGroup = "No group"
+                    imageGroups = list(fsm.Data.Sec.imagesGroupsList(subsection).keys())
+                    imageGroupidx = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
+                    imageGroup = imageGroups[imageGroupidx]
 
                     shouldShowGroup = fsm.Data.Sec.imagesGroupsList(subsection)[imageGroup]
 
@@ -397,7 +397,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
                 imagesGroupDict:dict = fsm.Data.Sec.imagesGroupDict(subsection)
-                imagesGroups:list = list(fsm.Data.Sec.imagesGroupsList(subsection).keys())
+                imagesGroupsWShouldShow:list = fsm.Data.Sec.imagesGroupsList(subsection)
+                imagesGroups:list = list(imagesGroupsWShouldShow.keys())
 
                 def closeAllSubsections():
                     for wTop1 in event.widget.master.master.winfo_children():
@@ -424,19 +425,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     subSecID = subsection.replace(".", "$")
                     prevImGroupName = _u.Token.NotDef.str_t
 
-                    imagesGroupsList = fsm.Data.Sec.imagesGroupsList(subsection)
-
                     for k,v in links.items():
-                        currImGroupName = imagesGroupDict[k]
-
-                        if currImGroupName == _u.Token.NotDef.str_t:
-                            currImGroupName = "No group"
+                        currImGroupidx = imagesGroupDict[k]
+                        currImGroupName = imagesGroups[currImGroupidx]
 
                         topPad = 0
                         gridRowStartIdx = 0
 
                         if currImGroupName != prevImGroupName:
-                            if not imagesGroupsList[currImGroupName]:
+                            if not imagesGroupsWShouldShow[currImGroupName]:
                                 topPad = 10
                             elif (k != "0"):
                                 topPad = 20
@@ -485,14 +482,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 imageNoGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 gridRowStartIdx = 1
 
-                        currGroup = imagesGroupDict[k] if imagesGroupDict[k] != _u.Token.NotDef.str_t else "No group"
-                        
-                        if currGroup not in imagesGroups:
-                            currGroup = "No group"
-                            imagesGroupDict[k] = _u.Token.NotDef.str_t
+                        if currImGroupName not in imagesGroups:
+                            currImGroupName = imagesGroups[0]
+                            imagesGroupDict[k] = 0
                             fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
-                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, tk.StringVar(), currGroup, *imagesGroups)
+                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, 
+                                                   tk.StringVar(), currImGroupName, *imagesGroups)
                         textLabelPage = ttk.Label(tempFrame, 
                                                   text = k + ": " + v, 
                                                   name = "contentP_" + nameId, 
@@ -565,7 +561,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if (subsection == self.subsectionClicked and k == self.entryClicked) or alwaysShow:
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
-                        if imagesGroupsList[currImGroupName]:
+                        if imagesGroupsWShouldShow[currImGroupName]:
                             textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
                             showImages.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
                             textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)

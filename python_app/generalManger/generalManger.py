@@ -229,6 +229,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         fsf.Data.Sec.tocWImageDict(subsection, tocWImageDict)
 
         # images group
+        imagesGroupList = list(fsf.Data.Sec.imagesGroupsList(subsection).keys())
         imagesGroupDict = fsf.Data.Sec.imagesGroupDict(subsection)
 
         if imagesGroupDict == _u.Token.NotDef.dict_t:
@@ -236,12 +237,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         if imagesGroupDict != {}:
             if not dt.AppState.UseLatestGroup.getData(cls.appCurrDataAccessToken):
-                lastGroup = list(imagesGroupDict.values())[-1]
+                lastGroup = int(list(imagesGroupDict.values())[-1])
             else:
-                lastGroup = list(fsf.Data.Sec.imagesGroupsList(subsection).keys())[-1]
+                lastGroup = len(imagesGroupList) - 1
+
             imagesGroupDict[imIdx] = lastGroup
         else:
-            imagesGroupDict[imIdx] = _u.Token.NotDef.str_t
+            imagesGroupDict[imIdx] = _u.Token.NotDef.int_t
 
         fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
