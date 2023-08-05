@@ -13,6 +13,7 @@ class LayoutManagers:
             super().__init__(winRoot, appDimensions)
 
             tocBox = comw.TOC_BOX(winRoot, self.prefix)
+            tocBox.populateTOC()
             self.addWidget(tocBox)
 
             hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)

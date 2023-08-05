@@ -243,7 +243,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
             imagesGroupDict[imIdx] = lastGroup
         else:
-            imagesGroupDict[imIdx] = _u.Token.NotDef.int_t
+            imagesGroupDict[imIdx] = 0
 
         fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
