@@ -19,6 +19,11 @@ class LayoutManagers:
             hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)
             self.addWidget(hide_BTN)
 
+            filter_ETR = tocw.Filter_ETR(winRoot, self.prefix)
+            self.addWidget(filter_ETR)
+
+            filter_ETR.addListenerWidget(tocBox)
+
             winRoot.setGeometry(*self.appDimensions)
 
     @classmethod

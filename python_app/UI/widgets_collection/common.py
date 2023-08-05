@@ -5,6 +5,7 @@ import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
+import UI.widgets_collection.toc.toc as tocw
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
@@ -102,6 +103,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     parent = None
     openedMainImg = None
 
+    # used to filter toc data when the search is performed
+    filterToken = ""
+
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
@@ -149,6 +153,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.entryClicked = entryClicked
             self.render()
         elif broadcasterType == mui.ImageGroupAdd_BTN:
+            self.render()
+        elif broadcasterType == tocw.Filter_ETR:
+            self.filterToken = data
             self.render()
         else:
             self.render()
@@ -426,6 +433,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     prevImGroupName = _u.Token.NotDef.str_t
 
                     for k,v in links.items():
+                        if (self.filterToken != _u.Token.NotDef.str_t) and \
+                           (self.filterToken.lower() not in v.lower()):
+                            continue
+
                         currImGroupidx = imagesGroupDict[k]
                         currImGroupName = imagesGroups[currImGroupidx]
 
@@ -437,6 +448,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 topPad = 10
                             elif (k != "0"):
                                 topPad = 20
+
+                        if self.filterToken != _u.Token.NotDef.str_t:
+                            topPad = 0
 
                         nameId = subSecID + "_" + str(i)
                         nameId = nameId.replace(".", "")
@@ -637,7 +651,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 event.widget.configure(foreground="white")
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
-       
+
         if level != 0:
             topSection = subsection.split(".")[0]
             if not self.showSubsectionsForTopSection[topSection]:
@@ -695,12 +709,31 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def populateTOC(self):
         text_curr = fsm.Wr.BookInfoStructure.getSubsectionsAsTOC()
-        
-        for i in range(len(text_curr)):
-            self.addTOCEntry(text_curr[i][0], text_curr[i][1], i)
+
+        text_curr_filtered = []
+
+        if self.filterToken != _u.Token.NotDef.str_t:
+            for i in range(len(text_curr)):
+                subsection = text_curr[i][0]
+                if "." not in subsection:
+                    continue
+
+                imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
+                
+                for k,v in imLinkDict.items():
+                    if self.filterToken.lower() in v.lower():
+                        text_curr_filtered.append(text_curr[i])
+                        break
+        else:
+            text_curr_filtered = text_curr
+
+        for i in range(len(text_curr_filtered)):
+            subsection = text_curr_filtered[i][0]
+            level = text_curr_filtered[i][1]
+
+            self.addTOCEntry(subsection, level, i)
 
     def render(self, widjetObj=None, shouldScroll = True, renderData=..., **kwargs):
-
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
 

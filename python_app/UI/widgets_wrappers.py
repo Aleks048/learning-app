@@ -154,6 +154,7 @@ class TkWidgets (DataTranslatable_Interface):
                 for i in range(len(keys)):
                     key = keys[i]
                     cmd = cmds[i]
+
                     if key == TkWidgets.Data.BindID.allKeys:
                         self.widgetObj.bind_all(key, lambda event: cmd(event))
                     else:
@@ -310,8 +311,14 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
 
             def bindCmdWrapper(*args):
-                bindCmd(*args)
-                return self.__bindCMD()
+                keys, cmds = bindCmd(*args)
+                dtKeys, dtCmds = self.__bindCMD()
+
+                if type(keys) == list and type(cmds) == list:
+                    dtKeys.extend(keys)
+                    dtCmds.extend(cmds)
+
+                return dtKeys, dtCmds
             
             self.bindCmd = bindCmdWrapper
             self.defaultText = defaultText

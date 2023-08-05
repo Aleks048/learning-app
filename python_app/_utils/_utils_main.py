@@ -8,6 +8,7 @@ import _utils.logging as log
 
 class Token:
     class NotDef:
+        int_t = -1
         str_t = "-1"
         list_t = [str_t]
         dict_t = {str_t: str_t}

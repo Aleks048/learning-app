@@ -4,6 +4,7 @@ import UI.widgets_wrappers as ww
 import data.constants as dc
 import data.temp as dt
 import UI.widgets_collection.toc.manager as tocm
+import UI.widgets_collection.common as comw
 
 
 class Hide_BTN(ww.currUIImpl.Button,
@@ -26,6 +27,31 @@ class Hide_BTN(ww.currUIImpl.Button,
         tocManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                             tocm.TOCManager)
         tocManager.hide()
+
+
+class Filter_ETR(ww.currUIImpl.TextEntry):
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "columnspan": 5}
+        }
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {},
+            ww.TkWidgets.__name__ : {"width": 54}
+        }
+        name = "_filter_ETR"
+        defaultText = "Filter token"
+
+        super().__init__(prefix, 
+                        name,
+                        patentWidget, 
+                        data,
+                        extraBuildOptions,
+                        bindCmd=self.bindCmd,
+                        defaultText = defaultText)        
+
+    def bindCmd(self):
+        return [ww.currUIImpl.Data.BindID.allKeys], [lambda *args: self.notify(comw.TOC_BOX, self.getData())]
 
 
 class TOCRoot(ww.currUIImpl.RootWidget):

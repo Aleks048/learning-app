@@ -452,7 +452,7 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
             self.setData(data)
         elif broadcasterType == AddGlobalLink_BTN:
             return self.getData()
-    
+
     def bindCmd(self):
         def __cmd(event, *args):
             if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
