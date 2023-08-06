@@ -9,10 +9,10 @@ class LayoutManagers:
         prefix = "_TOCLayout_"
 
         def __init__(self, winRoot):
-            appDimensions = [700, 500, 200, 200]
+            appDimensions = [850, 500, 200, 200]
             super().__init__(winRoot, appDimensions)
 
-            tocBox = comw.TOC_BOX(winRoot, self.prefix, True)
+            tocBox = comw.TOC_BOX(winRoot, self.prefix, windth = 800, height = 650, showAll = True)
             tocBox.populateTOC()
             self.addWidget(tocBox)
 

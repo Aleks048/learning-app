@@ -107,7 +107,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     filterToken = ""
     showAll = None
 
-    def __init__(self, parentWidget, prefix, showAll = False):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 570, showAll = False):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -133,8 +133,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         name,
                         parentWidget,
                         renderData = data,
-                        height=570,
-                        width=700)
+                        height = height,
+                        width = windth)
     
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
