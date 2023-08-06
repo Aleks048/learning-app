@@ -322,7 +322,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             count = 1
                             while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
-                                if count > 20:
+                                if count > 200:
                                     break
 
                                 count +=1
