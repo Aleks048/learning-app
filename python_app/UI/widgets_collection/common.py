@@ -105,8 +105,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     # used to filter toc data when the search is performed
     filterToken = ""
+    showAll = None
 
-    def __init__(self, parentWidget, prefix):
+    def __init__(self, parentWidget, prefix, showAll = False):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -114,6 +115,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         name = "_showCurrScreenshotLocation_text"
 
         self.parent = parentWidget.widgetObj
+        self.showAll = showAll
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
@@ -122,7 +124,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if tsList != _u.Token.NotDef.list_t:
             for ts in tsList:
-                self.showSubsectionsForTopSection[ts] = bool(int(fsm.Data.Book.sections[ts]["showSubsections"]))
+                if self.showAll:
+                    self.showSubsectionsForTopSection[ts] = True
+                else:
+                    self.showSubsectionsForTopSection[ts] = bool(int(fsm.Data.Book.sections[ts]["showSubsections"]))
 
         super().__init__(prefix,
                         name,
@@ -423,9 +428,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
-                if ((not label.clicked and int(event.type) == 4)) or\
-                    ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
-                    closeAllSubsections()
+                if ((not label.clicked) and (int(event.type) == 4)) or\
+                    ((self.subsectionClicked == subsection) and (int(event.type) == 19)) or\
+                    self.showAll:
+
+                    if not self.showAll:
+                        closeAllSubsections()
 
                     i = 0
 
@@ -433,7 +441,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     prevImGroupName = _u.Token.NotDef.str_t
 
                     for k,v in links.items():
-                        if (self.filterToken != _u.Token.NotDef.str_t) and \
+                        if (self.filterToken != "") and \
                            (self.filterToken.lower() not in v.lower()):
                             continue
 
@@ -449,7 +457,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             elif (k != "0"):
                                 topPad = 20
 
-                        if self.filterToken != _u.Token.NotDef.str_t:
+                        if self.filterToken != "":
                             topPad = 0
 
                         nameId = subSecID + "_" + str(i)
@@ -624,7 +632,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             label.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-            if self.subsectionClicked == subsection and level != 0:
+            if (self.subsectionClicked == subsection and level != 0) or self.showAll:
                 label.event_generate(ww.currUIImpl.Data.BindID.mouse1, x=10, y=10)         
        
         def openContentOfTheTopSection(frame, label):
@@ -632,8 +640,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
-                if ((not label.clicked and int(event.type) == 4)) or\
-                    ((self.showSubsectionsForTopSection[subsection] == True) and (int(event.type) == 19)):
+                if ((not label.clicked) and (int(event.type) == 4)) or\
+                    ((self.showSubsectionsForTopSection[subsection] == True) and (int(event.type) == 19)) or\
+                    self.showAll:
                     label.clicked = True
                     self.showSubsectionsForTopSection[subsection] = True
                     self.render()
@@ -695,6 +704,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if level != 0:
             openContentLabel = LabelWithClick(locFrame, text = "[content]")
+
+            if self.showAll:
+                openContentLabel.clicked = True
+
             openContentOfTheSection(locFrame, openContentLabel)
             bindChangeColorOnInAndOut(openContentLabel)
 

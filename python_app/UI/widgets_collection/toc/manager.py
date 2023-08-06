@@ -12,7 +12,7 @@ class LayoutManagers:
             appDimensions = [700, 500, 200, 200]
             super().__init__(winRoot, appDimensions)
 
-            tocBox = comw.TOC_BOX(winRoot, self.prefix)
+            tocBox = comw.TOC_BOX(winRoot, self.prefix, True)
             tocBox.populateTOC()
             self.addWidget(tocBox)
 
