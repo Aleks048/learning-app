@@ -1,5 +1,7 @@
 from tkinter import ttk
-from PIL import ImageTk,Image
+from PIL import ImageTk,Image, ImageChops
+import matplotlib.pyplot as plt
+import io
 import Pmw
 import os
 
@@ -28,6 +30,7 @@ class LabelWithClick(ttk.Label):
     subsection = ""
     imagePath = ""
     group = ""
+    image = None
 
 
 class ImageGroupOM(ttk.OptionMenu):
@@ -473,6 +476,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             name = "contentImageGroupFr_" + nameId,
                                                             padding=[0, topPad, 0, 0])
                                 imageGroupFrame.grid(row = 0, column = 0, sticky=tk.NW)
+
                                 imageGroupLabel = ttk.Label(imageGroupFrame, 
                                                             text = currImGroupName, 
                                                             name = "contentGroupP_" + subSecID +str(i),
@@ -511,14 +515,80 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, 
                                                    tk.StringVar(), currImGroupName, *imagesGroups)
-                        textLabelPage = ttk.Label(tempFrame, 
-                                                  text = k + ": " + v, 
-                                                  name = "contentP_" + nameId, 
-                                                  wraplength=450,
-                                                  padding=[60, 0, 0, 0])
 
-                        if "excercise" in v.lower():
-                            textLabelPage.configure(foreground="red")
+                        # textLabelPage = ttk.Label(tempFrame, 
+                        #                           text = k + ": " + v, 
+                        #                           name = "contentP_" + nameId, 
+                        #                           wraplength=450,
+                        #                           padding=[60, 0, 0, 0])
+                        
+                        def latex_to_img(tex):
+                            buf = io.BytesIO()
+
+                            plt.rcParams.update({
+                                'font.size': 12,
+                                'font.family': "serif",
+                                'text.usetex': True,
+                                'text.latex.preamble': r'\usepackage{amsfonts}'
+                            })
+
+                            if "excercise" in tex.lower():
+                                plt.rcParams.update({
+                                    'text.color': "red",
+                                })
+                            else:
+                                plt.rcParams.update({
+                                    'text.color': "black",
+                                })
+                                
+
+                            plt.axis('off')
+                            plt.text(0.05, 0.05, f'${tex}$', size = 14, wrap = True)
+                            plt.savefig(buf, format='png')
+                            plt.close()
+
+                            im = Image.open(buf)
+                            white = (255, 255, 255, 255)
+                            bg = Image.new(im.mode, im.size, white)
+                            bg = bg.convert('RGB')
+                            im = im.convert('RGB')
+                            diff = ImageChops.difference(im, bg)
+                            # diff = ImageChops.add(diff, diff, 2.0, -100)
+                            bbox = diff.getbbox()
+                            im = im.crop(bbox)
+                             
+                            right = 10
+                            left = 10
+                            top = 10
+                            bottom = 10
+                            
+                            width, height = im.size
+                            
+                            new_width = width + right + left
+                            new_height = height + top + bottom
+                            
+                            result = Image.new(im.mode, (new_width, new_height), (255, 255, 255))
+                            
+                            result.paste(im, (left, top))
+
+                            return result
+
+                        latexTxt = "\\textbf{" + k+ ":} " + v
+                        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(latexTxt)
+                        pilIm = latex_to_img(latexTxt)
+
+                        shrink = 0.7
+                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                        img = ImageTk.PhotoImage(pilIm)
+                        
+                        textLabelPage = LabelWithClick(tempFrame,
+                                                 image=img, 
+                                                 name = "contentP_" + nameId, 
+                                                 padding= [60, 0, 0, 0])
+                        textLabelPage.image = img
+
+                        # if "excercise" in v.lower():
+                        #     textLabelPage.configure(foreground="red")
 
                         textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 

@@ -17,5 +17,9 @@ class Wr:
         pass
    
     class TexFileUtils:
+        def formatEntrytext(text:str):
+            text = text.replace(" ", "\ ")
+            return text
+
         def getUrl(bookName, topSection, subsection, imIDX, linkType: str, notLatex = True):
             return tfu.getUrl(bookName, topSection, subsection, imIDX, linkType , notLatex)
