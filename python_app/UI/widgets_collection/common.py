@@ -144,6 +144,45 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         height = height,
                         width = windth)
     
+
+    def scroll_into_view(self, event):
+        try:
+            posy = 0
+            pwidget = event.widget
+
+            self.scrollBar.yview_scroll(-100, "units")
+            self.scrollBar.update()
+            event.widget.update()
+
+            while pwidget != self.parent:
+                posy += pwidget.winfo_y()
+                pwidget = pwidget.master
+
+            canvas_top = self.scrollBar.winfo_y()
+
+            widget_top = posy
+
+            count = 1
+            while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
+                if count > 200:
+                    break
+
+                count +=1
+                posy = 0
+                pwidget = event.widget
+
+                while pwidget != self.parent:
+                    posy += pwidget.winfo_y()
+                    pwidget = pwidget.master
+
+                event.widget.update()
+                widget_top = posy
+                if self.scrollBar != None:
+                    self.scrollBar.yview_scroll(1, "units")
+                    self.scrollBar.update()
+        except:
+            pass
+
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
             tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
@@ -311,45 +350,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
 
-                    def scroll_into_view(event):
-                        try:
-                            posy = 0
-                            pwidget = event.widget
-
-                            self.scrollBar.yview_scroll(-100, "units")
-                            self.scrollBar.update()
-                            event.widget.update()
-
-                            while pwidget != self.parent:
-                                posy += pwidget.winfo_y()
-                                pwidget = pwidget.master
-
-                            canvas_top = self.scrollBar.winfo_y()
-
-                            widget_top = posy
-
-                            count = 1
-                            while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
-                                if count > 200:
-                                    break
-
-                                count +=1
-                                posy = 0
-                                pwidget = event.widget
-
-                                while pwidget != self.parent:
-                                    posy += pwidget.winfo_y()
-                                    pwidget = pwidget.master
-
-                                event.widget.update()
-                                widget_top = posy
-                                if self.scrollBar != None:
-                                    self.scrollBar.yview_scroll(1, "units")
-                                    self.scrollBar.update()
-                        except:
-                            pass
-
-                    imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: scroll_into_view(event))
+                    imLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: self.scroll_into_view(event))
 
                     imLabel.grid(row = 3, column = 0, columnspan = 1000, sticky=tk.NW)
 
@@ -407,6 +408,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imLabel.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     self.entryClicked = _u.Token.NotDef.str_t
+                    self.scroll_into_view(event)
                     closeAllImages()
      
             __cmd(event, *args)
@@ -653,6 +655,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if int(event.type) == 4:
                         label.clicked = True
                         self.subsectionClicked = subsection
+
+                    self.scroll_into_view(event)
                 else:
                     for child in frame.winfo_children():
                         if "content" in str(child):
@@ -664,6 +668,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         label.clicked = False
 
                         self.subsectionClicked = _u.Token.NotDef.str_t
+
+                    self.scroll_into_view(event)
 
                 event.widget.configure(foreground="white")
             
