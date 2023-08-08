@@ -8,6 +8,7 @@ import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
 import UI.widgets_facade as wf
+import UI.widgets_collection.common as wcom
 import data.constants as dc
 import data.temp as dt
 import tex_file.tex_file_facade as tff
@@ -355,6 +356,21 @@ class SectionInfoStructure:
         # track all the changes berore and after removal
         msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        cls.rebuildSubsectionLatex(subsection, wcom.getWidgetNameID)
+    
+    @classmethod
+    def rebuildSubsectionLatex(cls, subsection, fromSubAndEntryIdxToNameId):
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+        secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        subsection)
+
+        for k, v in imLinkDict.items():
+            filename = "_" + fromSubAndEntryIdxToNameId(subsection, k) + ".png"
+            entryImgPath = os.path.join(secreenshotPath, filename)
+            tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
+
+            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
 
     @classmethod
     def removeSection(cls, sectionPath):

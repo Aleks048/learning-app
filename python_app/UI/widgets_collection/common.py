@@ -1,7 +1,5 @@
 from tkinter import ttk
-from PIL import ImageTk,Image, ImageChops
-import matplotlib.pyplot as plt
-import io
+from PIL import Image, ImageTk
 import Pmw
 import os
 
@@ -95,6 +93,13 @@ class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
 
         self.tocBox.render()
 
+def getWidgetSubsecId(subsection):
+    return subsection.replace(".", "$")
+
+def getWidgetNameID(subsection, idx):
+    subSecID = getWidgetSubsecId(subsection)
+    nameId:str = subSecID + "_" + str(idx)
+    return nameId.replace(".", "")
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
@@ -440,7 +445,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     i = 0
 
-                    subSecID = subsection.replace(".", "$")
+                    subSecID = getWidgetSubsecId(subsection)
                     prevImGroupName = _u.Token.NotDef.str_t
 
                     for k,v in links.items():
@@ -449,6 +454,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             continue
 
                         currImGroupidx = imagesGroupDict[k]
+
+                        if currImGroupidx == _u.Token.NotDef.str_t:
+                            currImGroupidx = 0
+
                         currImGroupName = imagesGroups[currImGroupidx]
 
                         topPad = 0
@@ -463,8 +472,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if self.filterToken != "":
                             topPad = 0
 
-                        nameId = subSecID + "_" + str(i)
-                        nameId = nameId.replace(".", "")
+                        nameId = getWidgetNameID(subsection, k)
 
                         tempFrame = ttk.Frame(frame,
                                               name = "contentFr_" + nameId,
@@ -479,7 +487,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                 imageGroupLabel = ttk.Label(imageGroupFrame, 
                                                             text = currImGroupName, 
-                                                            name = "contentGroupP_" + subSecID +str(i),
+                                                            name = "contentGroupP_" + nameId,
                                                             padding= [30, 0, 0, 0])
                                 imageGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 hideImageGroupLabel = LabelWithClick(imageGroupFrame, 
@@ -502,8 +510,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 gridRowStartIdx = 1
                             else:
                                 imageNoGroupLabel = ttk.Label(tempFrame, 
-                                                            text = "No group", 
-                                                            name = "contentNoGroupP_" + subSecID +str(i),
+                                                            text = "No group",
+                                                            name = "contentNoGroupP_" + nameId,
                                                             padding= [30, 0, 0, 0])
                                 imageNoGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 gridRowStartIdx = 1
@@ -522,60 +530,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         #                           wraplength=450,
                         #                           padding=[60, 0, 0, 0])
                         
-                        def latex_to_img(tex):
-                            buf = io.BytesIO()
+                        def getEntryImg(tex):
+                            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
+                            entryImgPath = os.path.join(secreenshotPath, f"_{nameId}.png")
 
-                            plt.rcParams.update({
-                                'font.size': 12,
-                                'font.family': "serif",
-                                'text.usetex': True,
-                                'text.latex.preamble': r'\usepackage{amsfonts}'
-                            })
-
-                            if "excercise" in tex.lower():
-                                plt.rcParams.update({
-                                    'text.color': "red",
-                                })
+                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
+                                result = Image.open(entryImgPath)
                             else:
-                                plt.rcParams.update({
-                                    'text.color': "black",
-                                })
-                                
-
-                            plt.axis('off')
-                            plt.text(0.05, 0.05, f'${tex}$', size = 14, wrap = True)
-                            plt.savefig(buf, format='png')
-                            plt.close()
-
-                            im = Image.open(buf)
-                            white = (255, 255, 255, 255)
-                            bg = Image.new(im.mode, im.size, white)
-                            bg = bg.convert('RGB')
-                            im = im.convert('RGB')
-                            diff = ImageChops.difference(im, bg)
-                            # diff = ImageChops.add(diff, diff, 2.0, -100)
-                            bbox = diff.getbbox()
-                            im = im.crop(bbox)
-                             
-                            right = 10
-                            left = 10
-                            top = 10
-                            bottom = 10
-                            
-                            width, height = im.size
-                            
-                            new_width = width + right + left
-                            new_height = height + top + bottom
-                            
-                            result = Image.new(im.mode, (new_width, new_height), (255, 255, 255))
-                            
-                            result.paste(im, (left, top))
+                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath) 
 
                             return result
 
-                        latexTxt = "\\textbf{" + k+ ":} " + v
-                        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(latexTxt)
-                        pilIm = latex_to_img(latexTxt)
+                        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
+                        pilIm = getEntryImg(latexTxt)
 
                         shrink = 0.7
                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
@@ -774,14 +741,25 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if level != 0:
             openContentLabel = LabelWithClick(locFrame, text = "[content]")
+            rebuildLatex = LabelWithClick(locFrame, text = "[rebuild latex]")
+            rebuildLatex.subsection = subsection
 
             if self.showAll:
                 openContentLabel.clicked = True
 
             openContentOfTheSection(locFrame, openContentLabel)
             bindChangeColorOnInAndOut(openContentLabel)
+            bindChangeColorOnInAndOut(rebuildLatex)
+
+            def rebuildSubsectionLatexWrapper(subsection):
+                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, getWidgetNameID)
+                self.render()
+
+            rebuildLatex.bind(ww.currUIImpl.Data.BindID.mouse1,
+                              lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection))
 
             openContentLabel.grid(row = 0, column= 1, sticky=tk.NW)
+            rebuildLatex.grid(row = 0, column= 2, sticky=tk.NW)
         else:
             openContentLabel = LabelWithClick(locFrame, text = "[content]", padding= [0, 20, 0, 0])
             openContentLabel.clicked = self.showSubsectionsForTopSection[subsection]
