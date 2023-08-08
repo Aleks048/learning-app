@@ -163,7 +163,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget_top = posy
 
             count = 1
-            while widget_top not in range(int(canvas_top) + 150, int(canvas_top) + 200):
+            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 250):
                 if count > 200:
                     break
 
@@ -177,6 +177,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 event.widget.update()
                 widget_top = posy
+                
                 if self.scrollBar != None:
                     self.scrollBar.yview_scroll(1, "units")
                     self.scrollBar.update()
