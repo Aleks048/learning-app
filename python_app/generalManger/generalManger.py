@@ -304,17 +304,17 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         targetIDX = wholeLinkPath[-1]
 
 
-        if sourceSubsection == targetSubsection:
-            msg = "\
-The source and target subsections  are the same and are '{0}'.\n\
-This is not correct. Please correct it.".format(sourceSubsection)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+#         if sourceSubsection == targetSubsection:
+#             msg = "\
+# The source and target subsections  are the same and are '{0}'.\n\
+# This is not correct. Please correct it.".format(sourceSubsection)
+#             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
+#             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+#                                                         wf.Wr.MenuManagers.MathMenuManager)
+#             mainManager.show()
 
-            return
+#             return
 
         # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
@@ -368,7 +368,16 @@ This is not correct. Please correct it.".format(sourceSubsection)
             sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
             fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
 
-             # add link to the target
+            # add link to the target
+            targetSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(targetSubsection)
+
+            if targetIDX not in list(targetSectionGlobalLinksDict.keys()):
+                targetImGlobalLinksDict = {}
+            elif targetSectionGlobalLinksDict[targetIDX] == _u.Token.NotDef.dict_t:
+                targetImGlobalLinksDict = {}
+            else:
+                targetImGlobalLinksDict = targetSectionGlobalLinksDict[targetIDX]
+
             targetImGlobalLinksDict[sourceUrlLinkName] = sourceUrl
 
             if targetSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
