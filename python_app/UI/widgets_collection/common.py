@@ -533,7 +533,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         #                           wraplength=450,
                         #                           padding=[60, 0, 0, 0])
                         
-                        def getEntryImg(tex):
+                        def getEntryImg(tex, subsection, nameId):
                             secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
                             entryImgPath = os.path.join(secreenshotPath, f"_{nameId}.png")
 
@@ -545,7 +545,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             return result
 
                         latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
-                        pilIm = getEntryImg(latexTxt)
+                        pilIm = getEntryImg(latexTxt, subsection, nameId)
 
                         shrink = 0.7
                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
@@ -581,19 +581,40 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             glLinkLablel = ttk.Label(linksFrame, 
                                                     text = "Links: ", 
                                                     name = "contentLinksIntroFr_" + nameId,
-                                                    padding=[60, 0, 0, 0])
+                                                    padding=[90, 0, 0, 0])
+                            glLinkLablel.grid(row = 0, column = 0, sticky=tk.NW)
                             glLinkId = 0
 
                             for lk, _ in glLinks.items():
                                 targetSubsection = lk.split("_")[0]
-                                glLinkLablel.subsection = targetSubsection
                                 targetImIdx = lk.split("_")[1]
-                                glLinkLablel.imIdx = targetImIdx
+                                targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
+
+                                glLinkSubsectioLbl = ttk.Label(linksFrame, 
+                                                               text = targetSubsection + ": ", 
+                                                               padding = [120, 0, 0, 0],
+                                                               name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
+                                glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
 
                                 imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
-                                glLinkLablel = LabelWithClick(linksFrame, text = lk + ": " + imLinkDict[targetImIdx], name = "contentGlLinks_" + nameId + "_" + str(glLinkId))
-                                glLinkLablel.grid(row = 0, column = glLinkId + 1, sticky=tk.NW)
+                                latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(lk, imLinkDict[targetImIdx])
+                                pilIm = getEntryImg(latexTxt, targetSubsection, targetNameId)
+
+                                shrink = 0.7
+                                pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                                img = ImageTk.PhotoImage(pilIm)
+
+                                glLinkLablel = LabelWithClick(linksFrame,
+                                                              image = img,
+                                                              text = lk + ": " + imLinkDict[targetImIdx], 
+                                                              name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
+                                                              )
+                                glLinkLablel.subsection = targetSubsection
+                                glLinkLablel.imIdx = targetImIdx
+                                glLinkLablel.image = img
+
+                                glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
                                 bindChangeColorOnInAndOut(glLinkLablel)
 
                                 openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
