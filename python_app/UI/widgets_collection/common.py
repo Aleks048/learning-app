@@ -101,6 +101,12 @@ def getWidgetNameID(subsection, idx):
     nameId:str = subSecID + "_" + str(idx)
     return nameId.replace(".", "")
 
+
+def formatGroupText(text:str):
+    text = text.replace(".", "$")
+    text = text.replace(" ", "_")
+    return text
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsection = ""
@@ -340,13 +346,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     mainImageName = _upan.Names.getImageName(str(imIdx), subsection)
                     mainImagePath = os.path.join(screenshotFolder,  mainImageName + ".png")
                     pilIm = Image.open(mainImagePath)
-                    pilIm.thumbnail([550,1000], Image.ANTIALIAS)
+                    pilIm.thumbnail([450,1000], Image.ANTIALIAS)
                     img = ImageTk.PhotoImage(pilIm)
                     self.displayedImages.append(img)
                     
                     name:str = imageWidgetID + "_" + subSecID + "_" + imIdx
                     name = name.replace(".", "$")
-                    imLabel = LabelWithClick(tframe, image=img, name = name, padding= [90, 0, 0, 0])
+                    imLabel = LabelWithClick(tframe, image=img, name = name, padding= [120, 0, 0, 0])
                     imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -385,13 +391,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             extraImFilepath = os.path.join(screenshotFolder, extraImName + ".png")
 
                             pilIm = Image.open(extraImFilepath)
-                            pilIm.thumbnail([550,1000], Image.ANTIALIAS)
+                            pilIm.thumbnail([450,1000], Image.ANTIALIAS)
                             img = ImageTk.PhotoImage(pilIm)
                             self.displayedImages.append(img)
 
                             ename = imageWidgetID + "_e_" + str(i) + "_" + subSecID + "_" + imIdx
                             ename = ename.replace(".", "$")
-                            eimLabel = LabelWithClick(tframe, image=img, name = ename, padding= [90, 0, 0, 0])
+                            eimLabel = LabelWithClick(tframe, image=img, name = ename, padding= [120, 0, 0, 0])
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -468,9 +474,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if currImGroupName != prevImGroupName:
                             if not imagesGroupsWShouldShow[currImGroupName]:
-                                topPad = 10
+                                topPad = 0
                             elif (k != "0"):
-                                topPad = 20
+                                topPad = 5
 
                         if self.filterToken != "":
                             topPad = 0
@@ -481,6 +487,24 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                               name = "contentFr_" + nameId,
                                               padding=[0, topPad, 0, 0])
 
+                        def getGroupImg(subsection, currImGroupName):
+
+                            tex = tff.Wr.TexFileUtils.formatEntrytext(currImGroupName)
+                            fileId = formatGroupText(currImGroupName)
+
+                            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
+                            groupImgPath = os.path.join(secreenshotPath, f"_g_{fileId}.png")
+
+                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
+                                result = Image.open(groupImgPath)
+                            else:
+                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding= 10) 
+
+                            shrink = 0.8
+                            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+                            result = ImageTk.PhotoImage(result)
+                            return result
+
                         if currImGroupName != prevImGroupName:
                             if currImGroupName != "No group":
                                 imageGroupFrame = ttk.Frame(tempFrame,
@@ -488,10 +512,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             padding=[0, topPad, 0, 0])
                                 imageGroupFrame.grid(row = 0, column = 0, sticky=tk.NW)
 
-                                imageGroupLabel = ttk.Label(imageGroupFrame, 
-                                                            text = currImGroupName, 
+                                img = getGroupImg(subsection, currImGroupName)
+                                imageGroupLabel = LabelWithClick(imageGroupFrame, 
+                                                            image=img, 
                                                             name = "contentGroupP_" + nameId,
                                                             padding= [30, 0, 0, 0])
+                                imageGroupLabel.image = img
                                 imageGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 hideImageGroupLabel = LabelWithClick(imageGroupFrame, 
                                                                      text = "[show/hide]", 
@@ -512,10 +538,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 hideImageGroupLabel.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
                                 gridRowStartIdx = 1
                             else:
-                                imageNoGroupLabel = ttk.Label(tempFrame, 
-                                                            text = "No group",
+                                img = getGroupImg(subsection, currImGroupName)
+                                imageNoGroupLabel = LabelWithClick(tempFrame, 
+                                                            image=img,
                                                             name = "contentNoGroupP_" + nameId,
                                                             padding= [30, 0, 0, 0])
+                                imageNoGroupLabel.image = img
                                 imageNoGroupLabel.grid(row = 0, column = 0, sticky=tk.NW)
                                 gridRowStartIdx = 1
 
@@ -780,7 +808,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             bindChangeColorOnInAndOut(rebuildLatex)
 
             def rebuildSubsectionLatexWrapper(subsection):
-                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, getWidgetNameID)
+                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, getWidgetNameID, formatGroupText)
                 self.render()
 
             rebuildLatex.bind(ww.currUIImpl.Data.BindID.mouse1,

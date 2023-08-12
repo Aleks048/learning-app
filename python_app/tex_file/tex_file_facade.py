@@ -25,9 +25,25 @@ class Wr:
             text = text.replace(" ", "\ ")
             return text
 
-        def fromTexToImage(tex, savePath):
+        def fromTexToImage(tex, savePath, padding = 10):
+            texList = tex.split("\\ ")
+            chCounter = 0
+            tex = ""
+
+            for w in texList:
+                wordLen = len(w + "\\ ")
+                chCounter += wordLen
+                tex += w + "\\ " 
+    
+                if chCounter > 55:
+                    tex += "\\\\"
+                    chCounter = 0
+
+            imageColor = "#3295a8"
+
             buf = io.BytesIO()
             plt.rcParams.update({
+                'figure.facecolor': imageColor,
                 'font.size': 12,
                 'font.family': "serif",
                 'text.usetex': True,
@@ -42,17 +58,16 @@ class Wr:
                 plt.rcParams.update({
                     'text.color': "black",
                 })
-                
 
             plt.ioff()
             plt.axis('off')
-            plt.text(0.05, 0.05, f'${tex}$', size = 14, wrap = True)
+            plt.tight_layout()
+            plt.text(0.05, 0.05, f'\\noindent${tex}$', size = 14)
             plt.savefig(buf, format='png')
             plt.clf()
 
             im = Image.open(buf)
-            white = (255, 255, 255, 255)
-            bg = Image.new(im.mode, im.size, white)
+            bg = Image.new(im.mode, im.size, imageColor)
             bg = bg.convert('RGB')
             im = im.convert('RGB')
             diff = ImageChops.difference(im, bg)
@@ -60,17 +75,17 @@ class Wr:
             bbox = diff.getbbox()
             im = im.crop(bbox)
             
-            right = 10
-            left = 10
-            top = 10
-            bottom = 10
+            right = padding
+            left = padding
+            top = padding
+            bottom = padding
             
             width, height = im.size
             
             new_width = width + right + left
             new_height = height + top + bottom
             
-            result = Image.new(im.mode, (new_width, new_height), (255, 255, 255))
+            result = Image.new(im.mode, (new_width, new_height), imageColor)
             result.paste(im, (left, top))
 
             result.save(savePath)

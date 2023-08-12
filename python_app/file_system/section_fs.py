@@ -357,13 +357,15 @@ class SectionInfoStructure:
         msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        cls.rebuildSubsectionLatex(subsection, wcom.getWidgetNameID)
+        cls.rebuildSubsectionLatex(subsection, wcom.getWidgetNameID, wcom.formatGroupText)
     
     @classmethod
-    def rebuildSubsectionLatex(cls, subsection, fromSubAndEntryIdxToNameId):
+    def rebuildSubsectionLatex(cls, subsection, fromSubAndEntryIdxToNameId, fromGroupNameToFilename):
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
         secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                         subsection)
+
+        groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 
         for k, v in imLinkDict.items():
             filename = "_" + fromSubAndEntryIdxToNameId(subsection, k) + ".png"
@@ -371,6 +373,12 @@ class SectionInfoStructure:
             tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
 
             tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
+        
+        for g in groups:
+            filename = "_g_" + fromGroupNameToFilename(g) + ".png"
+            tex = tff.Wr.TexFileUtils.formatEntrytext(g)
+            groupImgPath = os.path.join(secreenshotPath, filename)
+            tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10)
 
     @classmethod
     def removeSection(cls, sectionPath):
