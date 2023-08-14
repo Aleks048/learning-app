@@ -1,5 +1,6 @@
 from PIL import ImageTk,Image, ImageChops
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import io
 
 import tex_file.tex_file_populate as tfpo
@@ -25,7 +26,7 @@ class Wr:
             text = text.replace(" ", "\ ")
             return text
 
-        def fromTexToImage(tex, savePath, padding = 10):
+        def fromTexToImage(tex, savePath, padding = 10, imageColor = "#3295a8"):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -39,32 +40,30 @@ class Wr:
                     tex += "\\\\"
                     chCounter = 0
 
-            imageColor = "#3295a8"
-
             buf = io.BytesIO()
-            plt.rcParams.update({
-                'figure.facecolor': imageColor,
-                'font.size': 12,
-                'font.family': "serif",
-                'text.usetex': True,
-                'text.latex.preamble': r'\usepackage{amsfonts}'
-            })
+            params = plt.rcParams.copy()
+            params ['font.size'] = 12
+            params ['font.family'] = "serif"
+            params ['text.usetex'] = True
+            params ['text.latex.preamble'] =  r'\usepackage{amsfonts}'
+            params['figure.facecolor'] = imageColor
 
             if "excercise" in tex.lower():
-                plt.rcParams.update({
-                    'text.color': "red",
-                })
+                params['text.color'] = "red"
             else:
-                plt.rcParams.update({
-                    'text.color': "black",
-                })
+                params['text.color'] = "black"
 
-            plt.ioff()
-            plt.axis('off')
-            plt.tight_layout()
-            plt.text(0.05, 0.05, f'\\noindent${tex}$', size = 14)
-            plt.savefig(buf, format='png')
-            plt.clf()
+            with mpl.rc_context(params):
+                fig, ax = plt.subplots()
+                fig.set_facecolor(mpl.rcParams['figure.facecolor'])
+                ax.set_facecolor(mpl.rcParams['axes.facecolor'])
+                plt.rcParams.update(params)
+                plt.ioff()
+                plt.axis('off')
+                plt.tight_layout()
+                plt.text(0.05, 0.05, f'\\noindent${tex}$', size = 14)
+                plt.savefig(buf, format='png')
+                plt.clf()
 
             im = Image.open(buf)
             bg = Image.new(im.mode, im.size, imageColor)

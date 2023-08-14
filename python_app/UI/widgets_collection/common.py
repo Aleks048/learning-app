@@ -107,6 +107,16 @@ def formatGroupText(text:str):
     text = text.replace(" ", "_")
     return text
 
+def formatSubsectionText(text:str):
+    text = text.replace(".", "$")
+    text = text.replace(" ", "_")
+    return text
+
+def getSubsectionPretty(subsection):
+    secLevel = fsm.Data.Sec.level(subsection)
+    secText = fsm.Data.Sec.text(subsection)
+    return "|" + int(secLevel) * "-" + " " + subsection + ": " + secText
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsection = ""
@@ -775,7 +785,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if level == 0 and subsection != _u.Token.NotDef.str_t:
             subsectionText = fsm.Data.Book.sections[subsection]["name"]
 
-        prettySubsections = prefix + subsection + ": " + subsectionText + "\n"
+        if level == 0:
+            prettySubsections = prefix + subsection + ": " + subsectionText
+        else:
+            prettySubsections = getSubsectionPretty(subsection)
         
         labelName = "label_" + subsection.replace(".", "")
 
@@ -788,7 +801,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if level == 0:
             subsectionLabel = ttk.Label(locFrame, text = prettySubsections, padding= [0, 20, 0, 0], name = nameId)
         else:
-            subsectionLabel = ttk.Label(locFrame, text = prettySubsections, name = nameId)
+            tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
+            fileId = formatSubsectionText(subsection)
+
+            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
+            subsectionImgPath = os.path.join(secreenshotPath, f"_sub_{fileId}.png")
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+                result = Image.open(subsectionImgPath)
+            else:
+                result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath) 
+
+            shrink = 0.8
+            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+            result = ImageTk.PhotoImage(result)
+
+            subsectionLabel = LabelWithClick(locFrame, image = result, name = nameId)
+            subsectionLabel.image = result
 
         openPdfOnStartOfTheSection(subsectionLabel)
         bindChangeColorOnInAndOut(subsectionLabel)
@@ -808,7 +837,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             bindChangeColorOnInAndOut(rebuildLatex)
 
             def rebuildSubsectionLatexWrapper(subsection):
-                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, getWidgetNameID, formatGroupText)
+                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
+                                                                   getWidgetNameID, 
+                                                                   formatGroupText,
+                                                                   formatSubsectionText,
+                                                                   getSubsectionPretty)
                 self.render()
 
             rebuildLatex.bind(ww.currUIImpl.Data.BindID.mouse1,

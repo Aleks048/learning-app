@@ -54,12 +54,12 @@ class SectionInfoStructure:
         #list of image groups
         imagesGroupsList = "imagesGroupsList"
 
+        level = "_level"
+        levelData = "_levelData"
+
     class PrivProp:
         tocData = "_tocData"
 
-        level = "_level"
-
-        levelData = "_levelData"
         levelData_level = "_level"
 
     sectionPrefixForTemplate = ""
@@ -73,8 +73,8 @@ class SectionInfoStructure:
                 cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
                 cls.PubProp.imagesGroupsList: {"No group": True},
-                cls.PrivProp.levelData: {
-                    cls.PrivProp.levelData_level: str(level),
+                cls.PubProp.levelData: {
+                    cls.PubProp.levelData: str(level),
                 },
                 cls.PrivProp.tocData: {
                     cls.PubProp.text: _u.Token.NotDef.str_t,
@@ -357,10 +357,18 @@ class SectionInfoStructure:
         msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        cls.rebuildSubsectionLatex(subsection, wcom.getWidgetNameID, wcom.formatGroupText)
+        cls.rebuildSubsectionLatex(subsection, 
+                                   wcom.getWidgetNameID, 
+                                   wcom.formatGroupText,
+                                   wcom.formatSubsectionText,
+                                   wcom.getSubsectionPretty)
     
     @classmethod
-    def rebuildSubsectionLatex(cls, subsection, fromSubAndEntryIdxToNameId, fromGroupNameToFilename):
+    def rebuildSubsectionLatex(cls, subsection, 
+                               fromSubAndEntryIdxToNameId, 
+                               fromGroupNameToFilename, 
+                               fromSubSectionToFileID,
+                               createPrettySubsection):
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
         secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                         subsection)
@@ -379,6 +387,11 @@ class SectionInfoStructure:
             tex = tff.Wr.TexFileUtils.formatEntrytext(g)
             groupImgPath = os.path.join(secreenshotPath, filename)
             tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10)
+
+        filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
+        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubsection(subsection))
+        subsectionImgPath = os.path.join(secreenshotPath, filename)
+        tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
 
     @classmethod
     def removeSection(cls, sectionPath):
