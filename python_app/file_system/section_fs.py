@@ -360,18 +360,23 @@ class SectionInfoStructure:
         cls.rebuildSubsectionLatex(subsection, 
                                    wcom.getWidgetNameID, 
                                    wcom.formatGroupText,
-                                   wcom.formatSubsectionText,
-                                   wcom.getSubsectionPretty)
+                                   wcom.formatSectionText,
+                                   wcom.getSubsectionPretty,
+                                   wcom.getTopSectionPretty)
     
     @classmethod
     def rebuildSubsectionLatex(cls, subsection, 
                                fromSubAndEntryIdxToNameId, 
                                fromGroupNameToFilename, 
                                fromSubSectionToFileID,
-                               createPrettySubsection):
+                               createPrettySubSection,
+                               createPrettyTopSection):
+        topSection = subsection.split(".")[0]
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
         secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                         subsection)
+        topSectionPath = _upan.Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                topSection)
 
         groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 
@@ -389,9 +394,14 @@ class SectionInfoStructure:
             tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10)
 
         filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
-        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubsection(subsection))
+        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))
         subsectionImgPath = os.path.join(secreenshotPath, filename)
         tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
+
+        filename = "_top_" + fromSubSectionToFileID(topSection) + ".png"
+        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
+        topsSctionImgPath = os.path.join(topSectionPath, filename)
+        tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
 
     @classmethod
     def removeSection(cls, sectionPath):
