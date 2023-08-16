@@ -391,7 +391,7 @@ class SectionInfoStructure:
             filename = "_g_" + fromGroupNameToFilename(g) + ".png"
             tex = tff.Wr.TexFileUtils.formatEntrytext(g)
             groupImgPath = os.path.join(secreenshotPath, filename)
-            tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10)
+            tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
 
         filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))

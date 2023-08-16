@@ -512,7 +512,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
                                 result = Image.open(groupImgPath)
                             else:
-                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding= 10) 
+                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding= 10, imageColor="#109464") 
 
                             shrink = 0.8
                             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
