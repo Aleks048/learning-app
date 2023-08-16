@@ -798,7 +798,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
                 result = Image.open(topSectionImgPath)
             else:
-                result = tff.Wr.TexFileUtils.fromTexToImage(tex, topSectionImgPath) 
+                result = tff.Wr.TexFileUtils.fromTexToImage(tex, topSectionImgPath, imageColor = "#ed8a82") 
 
             shrink = 0.8
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
@@ -816,7 +816,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
                 result = Image.open(subsectionImgPath)
             else:
-                result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath) 
+                result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
 
             shrink = 0.8
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
