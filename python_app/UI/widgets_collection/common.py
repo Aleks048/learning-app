@@ -134,8 +134,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     # used to filter toc data when the search is performed
     filterToken = ""
     showAll = None
+    shouldScroll = None
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 570, showAll = False):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 570, 
+                 showAll = False, makeScrollable = True, shouldScroll = True):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -147,6 +149,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
+        self.shouldScroll = shouldScroll
 
         tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
 
@@ -162,23 +165,27 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         parentWidget,
                         renderData = data,
                         height = height,
-                        width = windth)
+                        width = windth,
+                        makeScrollable = makeScrollable)
     
 
     def scroll_into_view(self, event):
+        if not self.shouldScroll:
+            return
+
         try:
             posy = 0
             pwidget = event.widget
 
-            self.scrollBar.yview_scroll(-100, "units")
-            self.scrollBar.update()
+            self.canvas.yview_scroll(-100, "units")
+            self.canvas.update()
             event.widget.update()
 
             while pwidget != self.parent:
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            canvas_top = self.scrollBar.winfo_y()
+            canvas_top = self.canvas.winfo_y()
 
             widget_top = posy
 
@@ -198,9 +205,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 event.widget.update()
                 widget_top = posy
                 
-                if self.scrollBar != None:
-                    self.scrollBar.yview_scroll(1, "units")
-                    self.scrollBar.update()
+                if self.canvas != None:
+                    self.canvas.yview_scroll(1, "units")
+                    self.canvas.update()
         except:
             pass
 
