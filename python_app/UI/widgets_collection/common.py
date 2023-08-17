@@ -29,6 +29,7 @@ class LabelWithClick(ttk.Label):
     imagePath = ""
     group = ""
     image = None
+    alwaysShow = None
 
 
 class ImageGroupOM(ttk.OptionMenu):
@@ -228,7 +229,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
             fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
         elif broadcasterType == mui.AddExtraImage_BTN:
-            self.render(shouldScroll = False)
+            self.render()
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
             self.render()
@@ -350,7 +351,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     ((not label.clicked and int(event.type) == 35)):
                     closeAllImages()
                     label.clicked = True
-                    self.entryClicked = imIdx
+
+                    if not label.alwaysShow:
+                        self.entryClicked = imIdx
 
                     imageGroups = list(fsm.Data.Sec.imagesGroupsList(subsection).keys())
                     imageGroupidx = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
@@ -690,7 +693,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         else:
                             alwaysShow = tocWImageDict[str(i)] == "1"
 
+                        showImages.alwaysShow = alwaysShow
+
                         if (subsection == self.subsectionClicked and k == self.entryClicked) or alwaysShow:
+                            showImages.clicked = False
                             showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
 
                         if imagesGroupsWShouldShow[currImGroupName]:
