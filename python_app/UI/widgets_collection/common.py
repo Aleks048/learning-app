@@ -193,7 +193,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget_top = posy
 
             count = 1
-            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 250):
+            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 350):
                 if count > 200:
                     break
 
@@ -324,7 +324,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-        def moveTOCtoSubsection(widget:LabelWithClick, imIdx):
+        def moveTOCtoSubsection(widget:LabelWithClick):
             def __cmd(event = None, *args):
                 # move toc to 
                 self.subsectionClicked = widget.subsection
@@ -702,7 +702,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     linkLabelFull.imIdx = ln.split("_")[-1]
 
                                     bindChangeColorOnInAndOut(linkLabelFull)
-                                    moveTOCtoSubsection(linkLabelFull, k)
+                                    moveTOCtoSubsection(linkLabelFull)
                                 elif "http" in lk:
                                     glLinkSubsectioLbl = ttk.Label(linksFrame, 
                                                                text = "web: ", 
@@ -780,7 +780,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         bindChangeColorOnInAndOut(showImages)
                         bindChangeColorOnInAndOut(removeEntry)
-                        moveTOCtoSubsection(textLabelFull, k)
+                        moveTOCtoSubsection(textLabelFull)
                         bindChangeColorOnInAndOut(textLabelFull)
 
                         tempFrame.grid(row=i + 2, column=0, columnspan = 100, sticky=tk.NW)
