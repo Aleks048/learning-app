@@ -131,6 +131,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
             
             if response:
+                ocf.Wr.FsAppCalls.deleteFile(imagePath_curr + ".png")
                 ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
@@ -303,19 +304,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         targetTopSection = targetSubsection.split(".")[0]
         targetIDX = wholeLinkPath[-1]
 
-
-#         if sourceSubsection == targetSubsection:
-#             msg = "\
-# The source and target subsections  are the same and are '{0}'.\n\
-# This is not correct. Please correct it.".format(sourceSubsection)
-#             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-#             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-#                                                         wf.Wr.MenuManagers.MathMenuManager)
-#             mainManager.show()
-
-#             return
-
         # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
         
@@ -414,6 +402,72 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # Updating the remote
         msg = "Adding global link from: '{0}_{1}' to: '{2}_{3}'".format(sourceSubsection, sourceIDX,
                                                                         targetSubsection, targetIDX)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+    @classmethod
+    def AddWebLink(cls, linkeName, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection):
+        import UI.widgets_facade as wf
+
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        bookName = sf.Wr.Manager.Book.getCurrBookName()
+
+        # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+
+        if sourceIDX not in list(sourseSectionGlobalLinksDict.keys()):
+            sourceImGlobalLinksDict = {}
+        elif sourseSectionGlobalLinksDict[sourceIDX] == _u.Token.NotDef.dict_t:
+            sourceImGlobalLinksDict = {}
+        else:
+            sourceImGlobalLinksDict = sourseSectionGlobalLinksDict[sourceIDX]
+
+        sourceUrl = tff.Wr.TexFileUtils.getUrl(bookName, sourceTopSection, sourceSubsection, 
+                                                sourceIDX, "full", False)
+
+        theLinksAreNotPresentMsg = []
+
+        if linkeName not in list(sourceImGlobalLinksDict.keys()):
+            msg = "Do you want to add web link From: '{1}_{2}'\nWith name: '{0}'?".format(wholeLinkPathStr, 
+                                                                               sourceSubsection, 
+                                                                               sourceIDX)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            # add link to the source
+            sourceImGlobalLinksDict[linkeName] = wholeLinkPathStr
+
+            if sourseSectionGlobalLinksDict == _u.Token.NotDef.dict_t:
+                sourseSectionGlobalLinksDict = {}
+
+            sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
+            fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+        else:
+            m = "The source link: '{0}' is already present.\n".format(sourceUrl)
+            theLinksAreNotPresentMsg.append(m)
+            log.autolog(m)
+
+        if theLinksAreNotPresentMsg != []:
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification("".join(theLinksAreNotPresentMsg), True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            return
+
+        #
+        # rebuild the pdfs
+        #
+        ocf.Wr.LatexCalls.buildPDF(bookPath, sourceSubsection, sourceIDX)
+
+        # Updating the remote
+        msg = "Adding web link: '{0}' from: '{1}_{2}'".format(wholeLinkPathStr, sourceSubsection, sourceIDX)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod

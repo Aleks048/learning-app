@@ -267,6 +267,8 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
             return self.getData()
         elif broadcasterType == mui.LatestExtraImForEntry_LBL:
             return self.getData()
+        elif broadcasterType == AddWebLink_BTN:
+            return self.getData()
         else:
             self.updateOptions()
 
@@ -452,9 +454,42 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
             self.setData(data)
         elif broadcasterType == AddGlobalLink_BTN:
             return self.getData()
+        elif broadcasterType == AddWebLink_BTN:
+            return self.getData()
 
     def bindCmd(self):
         def __cmd(event, *args):
             if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
                 lambda _: self.notify(TargetImageLinks_OM, self.getData())
         return [ww.currUIImpl.Data.BindID.allKeys] , [__cmd]
+
+
+
+class AddWebLink_BTN(ww.currUIImpl.Button,
+                        dc.AppCurrDataAccessToken):
+    def __init__(self, patentWidget, prefix, column = 3, row = 2):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_addWebLink_BTN"
+        text = "Create web link"
+
+        super().__init__(prefix,
+                        name,
+                        text,
+                        patentWidget,
+                        data,
+                        self.cmd)
+    
+    def cmd(self):
+        import generalManger.generalManger as gm
+
+        sourceSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
+        sourceTopSection = sourceSubsection.split(".")[0]
+        sourceIDX = self.notify(SourceImageLinks_OM)
+
+        webAddress = self.notify(AddGlobalLink_ETR)
+        linkName = self.notify(mui.ImageGeneration_ETR)
+
+        gm.GeneralManger.AddWebLink(linkName, webAddress, sourceSubsection, sourceIDX, sourceTopSection)

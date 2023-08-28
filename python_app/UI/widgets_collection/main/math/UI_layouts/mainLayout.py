@@ -590,6 +590,8 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             return self.getData()
         elif broadcasterType == ImageGroupAdd_BTN:
             return self.getData()
+        elif broadcasterType == commw.AddWebLink_BTN:
+            return self.getData()
     
     def render(self, **kwargs):
         secImIndex = fsf.Wr.Links.ImIDX.get_curr()

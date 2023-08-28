@@ -119,6 +119,9 @@ class LayoutManagers:
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
+            addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 3, row = 14)
+            self.addWidget(addWebLink_BTN)
+
             latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
             self.addWidget(latestExtraImForEntry_LBL)
 
@@ -135,6 +138,10 @@ class LayoutManagers:
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
+
+            addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
+            addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
+            addWebLink_BTN.addListenerWidget(imageGenration_ERT)
 
             targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
             targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
