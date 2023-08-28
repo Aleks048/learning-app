@@ -124,9 +124,11 @@ def getTopSectionPretty(topSsection):
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
-    subsection = ""
     subsectionClicked = _u.Token.NotDef.str_t
     entryClicked = _u.Token.NotDef.str_t
+
+    widgetToScrollTo = None
+
     showSubsectionsForTopSection = {}
     displayedImages = []
     parent = None
@@ -235,6 +237,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
         elif broadcasterType == mui.ImageGroupAdd_BTN:
             self.render()
+        elif broadcasterType == mui.RebuildCurrentSubsectionLatex_BTN:
+            self.render()
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data
             self.render()
@@ -319,8 +323,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 event.widget.configure(foreground="white")
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
-        
-        def __showIMagesONClick(event, subSecID, shouklScroll = False, *args):
+
+        def moveTOCtoSubsection(widget:LabelWithClick, imIdx):
+            def __cmd(event = None, *args):
+                # move toc to 
+                self.subsectionClicked = widget.subsection
+                self.showSubsectionsForTopSection[widget.subsection.split(".")[0]] = True
+                self.entryClicked = widget.imIdx
+
+                self.render()
+            
+            widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
+
+        def __showIMagesONClick(event, subSecID, shouldScroll = False, *args):
             label = event.widget
             imIdx = label.imIdx
             tframe = label.master
@@ -356,7 +371,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event, *args):
                 if ((not label.clicked and int(event.type) == 4)) or\
                     ((not label.clicked and int(event.type) == 35)):
-                    closeAllImages()
+                    if shouldScroll:
+                        closeAllImages()
+
                     label.clicked = True
 
                     if not label.alwaysShow:
@@ -442,7 +459,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
-                    if shouklScroll:
+                    if shouldScroll:
                         imLabel.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     self.entryClicked = _u.Token.NotDef.str_t
@@ -616,10 +633,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                  padding= [60, 0, 0, 0])
                         textLabelPage.image = img
 
-                        # if "excercise" in v.lower():
-                        #     textLabelPage.configure(foreground="red")
+                        textLabelFull = LabelWithClick(tempFrame, text = "[full]", name = "contentFull_" + nameId)
+                        textLabelFull.subsection = subsection
+                        textLabelFull.imIdx = str(i)
 
-                        textLabelFull = ttk.Label(tempFrame, text = "[full]", name = "contentFull_" + nameId)
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
                                                                              subsection, str(i), 
                                                                              "contentShowAlways_" + nameId,
@@ -675,8 +692,25 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                     glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
                                     openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+
+                                    linkLabelFull = LabelWithClick(linksFrame, 
+                                                                   text = "[full]", 
+                                                                   name = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId))
+                                    linkLabelFull.grid(row = glLinkId + 1, column = 2, sticky=tk.NW)
+
+                                    linkLabelFull.subsection = ln.split("_")[0]
+                                    linkLabelFull.imIdx = ln.split("_")[-1]
+
+                                    bindChangeColorOnInAndOut(linkLabelFull)
+                                    moveTOCtoSubsection(linkLabelFull, k)
                                 elif "http" in lk:
-                                    latexTxt = tff.Wr.TexFileUtils.formatEntrytext(f"web: {ln}")
+                                    glLinkSubsectioLbl = ttk.Label(linksFrame, 
+                                                               text = "web: ", 
+                                                               padding = [150, 0, 0, 0],
+                                                               name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
+                                    glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+
+                                    latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
                                     pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
 
                                     shrink = 0.7
@@ -720,9 +754,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         showImages.alwaysShow = alwaysShow
 
-                        if (subsection == self.subsectionClicked and k == self.entryClicked) or alwaysShow:
+                        if (subsection == self.subsectionClicked and str(k) == self.entryClicked) or alwaysShow:
                             showImages.clicked = False
-                            showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
+
+                            if not (subsection == self.subsectionClicked and str(k) == self.entryClicked):
+                                showImages.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
+                            else:
+                                self.widgetToScrollTo = showImages
 
                         if imagesGroupsWShouldShow[currImGroupName]:
                             textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
@@ -742,7 +780,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         bindChangeColorOnInAndOut(showImages)
                         bindChangeColorOnInAndOut(removeEntry)
-                        openSectionOnIdx(textLabelFull, k)
+                        moveTOCtoSubsection(textLabelFull, k)
                         bindChangeColorOnInAndOut(textLabelFull)
 
                         tempFrame.grid(row=i + 2, column=0, columnspan = 100, sticky=tk.NW)
@@ -756,7 +794,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     if int(event.type) == 4:
                         label.clicked = True
-                        self.subsectionClicked = subsection
+
+                        if not alwaysShow:
+                            self.subsectionClicked = subsection
 
                     self.scroll_into_view(event)
                 else:
@@ -769,7 +809,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             
                         label.clicked = False
 
-                        self.subsectionClicked = _u.Token.NotDef.str_t
+                        if not alwaysShow:
+                            self.subsectionClicked = _u.Token.NotDef.str_t
 
                     self.scroll_into_view(event)
 
@@ -942,6 +983,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.populateTOC()
 
         super().render(widjetObj, renderData, **kwargs)
+
+        if self.widgetToScrollTo != None:
+            self.widgetToScrollTo.event_generate(ww.currUIImpl.Data.BindID.mouse1)
 
         if self.openedMainImg != None and shouldScroll:
             try:

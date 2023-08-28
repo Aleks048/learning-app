@@ -107,6 +107,34 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
         gm.GeneralManger.readdNotesToPage(currPage)
 
 
+class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
+                  dc.AppCurrDataAccessToken):
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 15},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_RebuildCurrentSubsectionLatex"
+        text= "Rebuild Latex"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        subsection = _upan.Current.Names.Section.name()
+        fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
+                                                           comw.getWidgetNameID, 
+                                                           comw.formatGroupText,
+                                                           comw.formatSectionText,
+                                                           comw.getSubsectionPretty,
+                                                           comw.getTopSectionPretty)
+        self.notify(comw.TOC_BOX)
+
+
 class ExitApp_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 

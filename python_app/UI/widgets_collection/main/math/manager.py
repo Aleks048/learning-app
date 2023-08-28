@@ -100,11 +100,12 @@ class LayoutManagers:
             reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
             self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
+            rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
+            self.addWidget(rebuildCurrentSubsectionLatex_BTN)
 
             saveImage_BTN = commw.ImageSave_BTN(winRoot, self.prefix, column = 5, row = 14)
             self.addWidget(saveImage_BTN)
             saveImage_BTN.addListenerWidget(tocBox_BOX)
-
 
             sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
             self.addWidget(sourceImageLinks_OM)
@@ -157,6 +158,8 @@ class LayoutManagers:
             sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
             addExtraImage_BTN.addListenerWidget(latestExtraImForEntry_LBL)
             imageGeneration_BTN.addListenerWidget(latestExtraImForEntry_LBL)
+
+            rebuildCurrentSubsectionLatex_BTN.addListenerWidget(tocBox_BOX)
 
             #
             # post init

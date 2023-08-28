@@ -393,15 +393,27 @@ class SectionInfoStructure:
             groupImgPath = os.path.join(secreenshotPath, filename)
             tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
 
+        # subsection image
         filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))
         subsectionImgPath = os.path.join(secreenshotPath, filename)
         tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
 
+        # top section image
         filename = "_top_" + fromSubSectionToFileID(topSection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
         topsSctionImgPath = os.path.join(topSectionPath, filename)
         tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
+
+        # rebuild web links
+        imGlLinkDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+        for k, ld in imGlLinkDict.items():
+            for ln, lk in ld.items():
+                if "http" in lk:
+                    latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
+                    filename = "_" + fromSubAndEntryIdxToNameId(subsection, k + "_" + ln) + ".png"
+                    linkImgPath = os.path.join(secreenshotPath, filename)
+                    tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkImgPath)
 
     @classmethod
     def removeSection(cls, sectionPath):
