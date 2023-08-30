@@ -135,6 +135,10 @@ class LayoutManagers:
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
+            scrollToCurrSubsectionAndBack_BTN = ml.ScrollToCurrSubsectionAndBack_BTN(winRoot, self.prefix)
+            self.addWidget(scrollToCurrSubsectionAndBack_BTN)
+            scrollToCurrSubsectionAndBack_BTN.addListenerWidget(tocBox_BOX)
+
             imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
             self.addWidget(imageGroupAdd_BTN)
 

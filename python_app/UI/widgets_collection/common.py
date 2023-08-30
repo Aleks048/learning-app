@@ -130,6 +130,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     widgetToScrollTo = None
 
+    currEntryWidget = None
+    currSubsectionWidget = None
+
     showSubsectionsForTopSection = {}
     displayedImages = []
     parent = None
@@ -242,6 +245,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
         elif broadcasterType == mcomui.AddGlobalLink_BTN:
             self.render()
+        elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
+            toSubsection = data
+            if toSubsection:
+                if self.currSubsectionWidget != None:
+                    self.currSubsectionWidget.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
+            else:
+                if self.currSubsectionWidget != None:
+                    self.currEntryWidget.clicked = False
+                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data
             self.render()
@@ -378,6 +390,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event, *args):
                 if ((not label.clicked and int(event.type) == 4)) or\
                     ((not label.clicked and int(event.type) == 35)):
+                    if (int(event.type) == 4) or (shouldScroll):
+                        self.currEntryWidget = event.widget
+
                     if shouldScroll:
                         closeAllImages()
 
@@ -469,6 +484,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouldScroll:
                         imLabel.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
+                    if int(event.type) == 4:
+                        self.currEntryWidget = event.widget
+
                     self.entryClicked = _u.Token.NotDef.str_t
                     self.scroll_into_view(event)
                     closeAllImages()
@@ -657,6 +675,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.imIdx = k
                         showImages.subsection = subsection
                         showImages.clicked = False
+
                         showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
                         showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
@@ -950,6 +969,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if level != 0:
             openContentLabel = LabelWithClick(locFrame, text = "[content]")
+
+            self.currSubsectionWidget = openContentLabel
+            openContentLabel.bind(ww.currUIImpl.Data.BindID.customTOCMove, lambda event: self.scroll_into_view(event))
+
             rebuildLatex = LabelWithClick(locFrame, text = "[rebuild latex]")
             rebuildLatex.subsection = subsection
 
