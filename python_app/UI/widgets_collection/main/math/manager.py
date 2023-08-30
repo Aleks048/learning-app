@@ -14,6 +14,7 @@ class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
         tocBox = None
+        linkSourceImIdx = None
 
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
             #
@@ -112,6 +113,7 @@ class LayoutManagers:
 
             sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
             self.addWidget(sourceImageLinks_OM)
+            self.linkSourceImIdx = sourceImageLinks_OM
             targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix, column = 2, row = 13)
             self.addWidget(targetImageLinks_OM)
             targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
@@ -430,6 +432,12 @@ class MathMenuManager(wm.MenuManager_Interface):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
                 layout.tocBox.render()
+                return
+
+    def getSelectedImIdx(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                return layout.linkSourceImIdx.getData()
 
     def switchToSectionLayout(self):
         self.switchUILayout(LayoutManagers._Section)

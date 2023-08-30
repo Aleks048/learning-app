@@ -412,6 +412,11 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button,
     def receiveNotification(self, broadcasterType, data, *args) -> None:
         if broadcasterType == comw.TOC_BOX:
             import generalManger.generalManger as gm
+            # we render the toc widget from the main win.
+            # NOTE: done in a weird way since we call it from the toc window
+            mmManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+
             targetSubsection = data[0]
             targetImIdx = data[1]
 
@@ -420,17 +425,13 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button,
             sourceIDX = self.notify(SourceImageLinks_OM)
 
             if sourceIDX == None:
-                sourceIDX = list(fsm.Data.Sec.imLinkDict(sourceSubsection).keys())[-1]
+                sourceIDX = mmManager.getSelectedImIdx()
 
             gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
                                      sourceSubsection,
                                      sourceIDX,
                                      sourceTopSection)
             
-            # we render the toc widget from the main win.
-            # NOTE: done in a weird way since we call it from the toc window
-            mmManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
             mmManager.renderTocWidget()
 
     def cmd(self):
