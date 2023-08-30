@@ -124,6 +124,10 @@ class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
                         data, 
                         self.cmd)
 
+    def receiveNotification(self, broadcasterType) -> None:
+        if broadcasterType == commw.AddGlobalLink_BTN:
+            self.cmd()
+
     def cmd(self):
         subsection = _upan.Current.Names.Section.name()
         fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 

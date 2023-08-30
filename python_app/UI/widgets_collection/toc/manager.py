@@ -3,6 +3,7 @@ import UI.widgets_collection.toc.toc as tocw
 import UI.widgets_manager as wm
 import UI.widgets_collection.common as comw
 
+import UI.widgets_collection.main.math.UI_layouts.common as commw
 
 class LayoutManagers:
     class TOCLayout(wm.MenuLayout_Interface):
@@ -22,10 +23,14 @@ class LayoutManagers:
             hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)
             self.addWidget(hide_BTN)
 
+            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix, column = 6, row = 0)
+            self.addWidget(addGlobalLink_BTN)
+
             filter_ETR = tocw.Filter_ETR(winRoot, self.prefix)
             self.addWidget(filter_ETR)
 
             filter_ETR.addListenerWidget(tocBox)
+            tocBox.addListenerWidget(addGlobalLink_BTN)
 
             winRoot.setGeometry(*self.appDimensions)
 

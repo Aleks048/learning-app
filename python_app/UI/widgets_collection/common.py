@@ -5,6 +5,7 @@ import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
+import UI.widgets_collection.main.math.UI_layouts.common as mcomui
 import UI.widgets_collection.toc.toc as tocw
 import settings.facade as sf
 import data.constants as dc
@@ -239,6 +240,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
         elif broadcasterType == mui.RebuildCurrentSubsectionLatex_BTN:
             self.render()
+        elif broadcasterType == mcomui.AddGlobalLink_BTN:
+            self.render()
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data
             self.render()
@@ -335,9 +338,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-        def __showIMagesONClick(event, subSecID, shouldScroll = False, *args):
-            label = event.widget
+        def __showIMagesONClick(event, subSecID, shouldScroll = False, imPad = 120, *args):
+            label:LabelWithClick = event.widget
             imIdx = label.imIdx
+            subsection = label.subsection
             tframe = label.master
             gpframe = tframe.master
             balloon = Pmw.Balloon(tframe)
@@ -356,6 +360,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 child.clicked = False
                             else: 
                                 child.clicked = True
+
+                        if "contentGlLinksOfImages_" in str(child):
+                            child.clicked = False
 
                         if imageWidgetID in str(child):
                             subsection = str(child).split("_")[-2].replace("$", ".")
@@ -400,7 +407,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     
                     name:str = imageWidgetID + "_" + subSecID + "_" + imIdx
                     name = name.replace(".", "$")
-                    imLabel = LabelWithClick(tframe, image=img, name = name, padding= [120, 0, 0, 0])
+                    imLabel = LabelWithClick(tframe, image=img, name = name, padding= [imPad, 0, 0, 0])
                     imLabel.imagePath = mainImagePath
                     imLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                  lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -445,7 +452,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             ename = imageWidgetID + "_e_" + str(i) + "_" + subSecID + "_" + imIdx
                             ename = ename.replace(".", "$")
-                            eimLabel = LabelWithClick(tframe, image=img, name = ename, padding= [120, 0, 0, 0])
+                            eimLabel = LabelWithClick(tframe, image=img, name = ename, padding= [imPad, 0, 0, 0])
                             eimLabel.imagePath = extraImFilepath
                             eimLabel.bind(ww.currUIImpl.Data.BindID.mouse1, 
                                         lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\""))
@@ -490,6 +497,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
                     self.render()
 
+                def addGlLinkCmd(event, *args):
+                    widget:LabelWithClick = event.widget
+                    self.notify(mcomui.AddGlobalLink_BTN, 
+                                [widget.subsection, widget.imIdx])
+                    self.render()
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -642,7 +654,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                              "contentShowAlways_" + nameId,
                                                                              self)
                         showImages = LabelWithClick(tempFrame, text = "[im]", name = "contentOfImages_" + nameId)
+                        showImages.imIdx = k
+                        showImages.subsection = subsection
+                        showImages.clicked = False
+                        showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                        lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
+                        showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
+                                        lambda e, *args: __showIMagesONClick(e, subSecID, False, *args))
+
                         removeEntry = LabelWithClick(tempFrame, text = "[delete]", name = "contentRemoveEntry" + nameId)
+                        removeEntry.imIdx = k
+                        removeEntry.subsection = subsection
+                        removeEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
+                                         removeEntryCmd)
+
+
+                        addLinkEntry = LabelWithClick(tempFrame, 
+                                                      text = "[link]", 
+                                                      name = "contentAddGlLinkEntry" + nameId)
+                        addLinkEntry.imIdx = k
+                        addLinkEntry.subsection = subsection
+                        addLinkEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
+                                          addGlLinkCmd)
 
                         # adding a frame to show global links
                         linksFrame = ttk.Frame(tempFrame,
@@ -663,14 +696,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             for ln, lk in glLinks.items():
                                 if "KIK" in lk:
+                                    glLinkImLablel = ttk.Label(linksFrame, 
+                                                            name = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                            padding=[120, 0, 0, 0])
+                                    glLinkImLablel.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+    
                                     targetSubsection = ln.split("_")[0]
                                     targetImIdx = ln.split("_")[1]
                                     targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
-                                    glLinkSubsectioLbl = ttk.Label(linksFrame, 
+                                    glLinkSubsectioLbl = ttk.Label(glLinkImLablel, 
                                                                text = targetSubsection + ": ", 
                                                                padding = [150, 0, 0, 0],
                                                                name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
-                                    glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+                                    glLinkSubsectioLbl.grid(row = 0, column = 0, sticky=tk.NW)
 
                                     imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
@@ -681,7 +719,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
                                     img = ImageTk.PhotoImage(pilIm)
 
-                                    glLinkLablel = LabelWithClick(linksFrame,
+                                    glLinkLablel = LabelWithClick(glLinkImLablel,
                                                                 image = img,
                                                                 text = ln + ": " + imLinkDict[targetImIdx], 
                                                                 name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
@@ -690,19 +728,32 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     glLinkLablel.imIdx = targetImIdx
                                     glLinkLablel.image = img
 
-                                    glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
+                                    glLinkLablel.grid(row = 0, column = 1, sticky=tk.NW)
                                     openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
-                                    linkLabelFull = LabelWithClick(linksFrame, 
+                                    linkLabelFull = LabelWithClick(glLinkImLablel, 
                                                                    text = "[full]", 
                                                                    name = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId))
-                                    linkLabelFull.grid(row = glLinkId + 1, column = 2, sticky=tk.NW)
+                                    linkLabelFull.grid(row = 0, column = 2, sticky=tk.NW)
 
                                     linkLabelFull.subsection = ln.split("_")[0]
                                     linkLabelFull.imIdx = ln.split("_")[-1]
 
                                     bindChangeColorOnInAndOut(linkLabelFull)
                                     moveTOCtoSubsection(linkLabelFull)
+
+                                    glLinksShowImages = LabelWithClick(glLinkImLablel, 
+                                                                       text = "[im]", 
+                                                                       name = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId))
+                                    glLinksShowImages.imIdx = ln.split("_")[-1]
+                                    glLinksShowImages.subsection = ln.split("_")[0]
+                                    glLinksShowImages.clicked = False
+                                    glLinksShowImages.grid(row = 0, column = 3, sticky=tk.NW)
+                                    glLinkSubSecID = getWidgetSubsecId(ln.split("_")[0])
+
+                                    bindChangeColorOnInAndOut(glLinksShowImages)
+                                    glLinksShowImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                        lambda e, *args: __showIMagesONClick(e, glLinkSubSecID, True, 150, *args))
                                 elif "http" in lk:
                                     glLinkSubsectioLbl = ttk.Label(linksFrame, 
                                                                text = "web: ", 
@@ -731,20 +782,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                 glLinkId += 1
 
-                        showImages.imIdx = k
-                        showImages.clicked = False
-
-                        
-                        removeEntry.imIdx = k
-                        removeEntry.subsection = subsection
-                        removeEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                         removeEntryCmd)
-
-                        showImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
-                                        lambda e, *args: __showIMagesONClick(e, subSecID, True, *args))
-                        showImages.bind(ww.currUIImpl.Data.BindID.customTOCMove, 
-                                        lambda e, *args: __showIMagesONClick(e, subSecID, False, *args))
-
                         tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
 
                         if tocWImageDict == _u.Token.NotDef.dict_t:
@@ -769,6 +806,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             chkbtnShowPermamently.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)
                             imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
                             removeEntry.grid(row = gridRowStartIdx, column = 5, sticky=tk.NW)
+                            addLinkEntry.grid(row = gridRowStartIdx, column = 6, sticky=tk.NW)
                             linksFrame.grid(row = gridRowStartIdx + 1, column = 0, columnspan = 6, sticky=tk.NW)
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
@@ -780,6 +818,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         bindChangeColorOnInAndOut(showImages)
                         bindChangeColorOnInAndOut(removeEntry)
+                        bindChangeColorOnInAndOut(addLinkEntry)
                         moveTOCtoSubsection(textLabelFull)
                         bindChangeColorOnInAndOut(textLabelFull)
 

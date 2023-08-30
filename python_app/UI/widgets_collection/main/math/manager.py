@@ -13,6 +13,8 @@ import data.constants as dc
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
+        tocBox = None
+
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
             #
             # pre init
@@ -31,6 +33,7 @@ class LayoutManagers:
             tocBox_BOX = comw.TOC_BOX(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
+            self.tocBox = tocBox_BOX
             
             addToTOC_CHB = ml.addToTOC_CHB(winRoot, self.prefix)
             self.addWidget(addToTOC_CHB)
@@ -133,12 +136,15 @@ class LayoutManagers:
             imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
             self.addWidget(imageGroupAdd_BTN)
 
+            tocBox_BOX.addListenerWidget(addGlobalLink_BTN)
+
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
             imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)  
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
+            addGlobalLink_BTN.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
@@ -399,9 +405,10 @@ class LayoutManagers:
         return results
 
 class MathMenuManager(wm.MenuManager_Interface):
+    layouts = []
     def __init__(self):
         winRoot = commw.MainMenuRoot(0, 0)
-        layouts = []
+        layouts = self.layouts
 
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))
@@ -418,6 +425,11 @@ class MathMenuManager(wm.MenuManager_Interface):
     
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
-    
+
+    def renderTocWidget(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.tocBox.render()
+
     def switchToSectionLayout(self):
         self.switchUILayout(LayoutManagers._Section)
