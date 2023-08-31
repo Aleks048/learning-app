@@ -213,7 +213,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 widget_top = posy
                 
                 if self.canvas != None:
-                    self.canvas.yview_scroll(1, "units")
+                    self.canvas.yview_scroll(2, "units")
                     self.canvas.update()
         except:
             pass
@@ -368,7 +368,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             idx = str(child).split("_")[-1]
                             alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                            if not alwaysShow: 
+                            if (not alwaysShow) or self.showAll: 
                                 child.clicked = False
                             else: 
                                 child.clicked = True
@@ -381,15 +381,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             idx = str(child).split("_")[-1]
                             alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                            if not alwaysShow: 
+                            if (not alwaysShow) or self.showAll: 
                                 try:
                                     child.destroy()
                                 except:
                                     pass
 
             def __cmd(event, *args):
-                if ((not label.clicked and int(event.type) == 4)) or\
-                    ((not label.clicked and int(event.type) == 35)):
+                if ((not label.clicked) and ((int(event.type) == 4) or self.showAll)) or\
+                    ((not label.clicked) and ((int(event.type) == 35) or self.showAll)):
                     if (int(event.type) == 4) or (shouldScroll):
                         self.currEntryWidget = event.widget
 
@@ -524,8 +524,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 # 4 : event of mouse click
                 # 19 : event of being rendered
                 if ((not label.clicked) and (int(event.type) == 4)) or\
-                    ((self.subsectionClicked == subsection) and (int(event.type) == 19)) or\
-                    self.showAll:
+                    ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
 
                     if not self.showAll:
                         closeAllSubsections()
@@ -600,7 +599,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 hideImageGroupLabel = LabelWithClick(imageGroupFrame, 
                                                                      text = "[show/hide]", 
                                                                      name = "contentHideImageGroupLabel_" + nameId)
-                                hideImageGroupLabel.grid(row = 0, column = 1, sticky=tk.NW)
+
+                                if not self.showAll:
+                                    hideImageGroupLabel.grid(row = 0, column = 1, sticky=tk.NW)
+
                                 hideImageGroupLabel.subsection = subsection
                                 hideImageGroupLabel.imIdx = str(i)
                                 hideImageGroupLabel.group = currImGroupName
@@ -633,12 +635,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, 
                                                    tk.StringVar(), currImGroupName, *imagesGroups)
 
-                        # textLabelPage = ttk.Label(tempFrame, 
-                        #                           text = k + ": " + v, 
-                        #                           name = "contentP_" + nameId, 
-                        #                           wraplength=450,
-                        #                           padding=[60, 0, 0, 0])
-                        
                         def getEntryImg(tex, subsection, nameId):
                             secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
                             entryImgPath = os.path.join(secreenshotPath, f"_{nameId}.png")
@@ -810,7 +806,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         showImages.alwaysShow = alwaysShow
 
-                        if (subsection == self.subsectionClicked and str(k) == self.entryClicked) or alwaysShow:
+                        if ((subsection == self.subsectionClicked and str(k) == self.entryClicked) or alwaysShow) and\
+                            (not self.showAll):
                             showImages.clicked = False
 
                             if not (subsection == self.subsectionClicked and str(k) == self.entryClicked):
@@ -818,13 +815,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             else:
                                 self.widgetToScrollTo = showImages
 
-                        if imagesGroupsWShouldShow[currImGroupName]:
+                        if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
                             textLabelPage.grid(row = gridRowStartIdx, column = 0, sticky=tk.NW)
                             showImages.grid(row = gridRowStartIdx, column = 1, sticky=tk.NW)
-                            textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
-                            chkbtnShowPermamently.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)
-                            imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
-                            removeEntry.grid(row = gridRowStartIdx, column = 5, sticky=tk.NW)
+
+                            if not self.showAll:
+                                textLabelFull.grid(row = gridRowStartIdx, column = 2, sticky=tk.NW)
+                                chkbtnShowPermamently.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)
+                                imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)  
+                                removeEntry.grid(row = gridRowStartIdx, column = 5, sticky=tk.NW)
+
                             addLinkEntry.grid(row = gridRowStartIdx, column = 6, sticky=tk.NW)
                             linksFrame.grid(row = gridRowStartIdx + 1, column = 0, columnspan = 6, sticky=tk.NW)
 
@@ -863,8 +863,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             child.destroy()
                     
                     if int(event.type) == 4:
-                        closeAllSubsections()
-                            
+                        if not self.showAll:
+                            closeAllSubsections()
+
                         label.clicked = False
 
                         if not alwaysShow:
@@ -977,7 +978,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             rebuildLatex.subsection = subsection
 
             if self.showAll:
-                openContentLabel.clicked = True
+                openContentLabel.clicked = False
 
             openContentOfTheSection(locFrame, openContentLabel)
             bindChangeColorOnInAndOut(openContentLabel)

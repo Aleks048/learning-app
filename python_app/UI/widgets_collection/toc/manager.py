@@ -10,7 +10,7 @@ class LayoutManagers:
         prefix = "_TOCLayout_"
 
         def __init__(self, winRoot):
-            appDimensions = [850, 500, 200, 200]
+            appDimensions = [850, 720, 300, 100]
             super().__init__(winRoot, appDimensions)
 
             tocBox = comw.TOC_BOX(winRoot, self.prefix, 
@@ -45,7 +45,7 @@ class LayoutManagers:
 
 class TOCManager(wm.MenuManager_Interface):
     def __init__(self):
-        winRoot = tocw.TOCRoot(100, 100)
+        winRoot = tocw.TOCRoot(50, 50)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))
