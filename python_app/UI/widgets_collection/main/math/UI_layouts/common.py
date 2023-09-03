@@ -277,7 +277,7 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix, column = 2, row = 1):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_target_SecImIDX_OM"

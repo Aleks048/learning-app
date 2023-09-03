@@ -60,8 +60,6 @@ class SectionInfoStructure:
     class PrivProp:
         tocData = "_tocData"
 
-        levelData_level = "_level"
-
     sectionPrefixForTemplate = ""
     sectionPathForTemplate = ""
 
@@ -74,7 +72,7 @@ class SectionInfoStructure:
                 cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
                 cls.PubProp.imagesGroupsList: {"No group": True},
                 cls.PubProp.levelData: {
-                    cls.PubProp.levelData: str(level),
+                    cls.PubProp.level: str(level),
                 },
                 cls.PrivProp.tocData: {
                     cls.PubProp.text: _u.Token.NotDef.str_t,
@@ -408,12 +406,13 @@ class SectionInfoStructure:
         # rebuild web links
         imGlLinkDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
         for k, ld in imGlLinkDict.items():
-            for ln, lk in ld.items():
-                if "http" in lk:
-                    latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                    filename = "_" + fromSubAndEntryIdxToNameId(subsection, k + "_" + ln) + ".png"
-                    linkImgPath = os.path.join(secreenshotPath, filename)
-                    tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkImgPath)
+            if ld != _u.Token.NotDef.str_t:
+                for ln, lk in ld.items():
+                    if "http" in lk:
+                        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
+                        filename = "_" + fromSubAndEntryIdxToNameId(subsection, k + "_" + ln) + ".png"
+                        linkImgPath = os.path.join(secreenshotPath, filename)
+                        tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkImgPath)
 
     @classmethod
     def removeSection(cls, sectionPath):
