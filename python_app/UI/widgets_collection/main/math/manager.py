@@ -155,6 +155,7 @@ class LayoutManagers:
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
             addWebLink_BTN.addListenerWidget(imageGenration_ERT)
+            addWebLink_BTN.addListenerWidget(tocBox_BOX)
 
             targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
             targetImageLinks_OM.addListenerWidget(targetSubsection_OM)

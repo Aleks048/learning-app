@@ -432,9 +432,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         theLinksAreNotPresentMsg = []
 
         if linkeName not in list(sourceImGlobalLinksDict.keys()):
-            msg = "Do you want to add web link From: '{1}_{2}'\nWith name: '{0}'?".format(wholeLinkPathStr, 
-                                                                               sourceSubsection, 
-                                                                               sourceIDX)
+            msg = "Do you want to add web link From: '{1}_{2}'.\nWith name: '{3}'\nWith address: '{0}'?"\
+                    .format(wholeLinkPathStr, 
+                            sourceSubsection, 
+                            sourceIDX,
+                            linkeName)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,

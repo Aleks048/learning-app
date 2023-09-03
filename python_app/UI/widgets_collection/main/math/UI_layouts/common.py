@@ -520,3 +520,4 @@ class AddWebLink_BTN(ww.currUIImpl.Button,
         linkName = self.notify(mui.ImageGeneration_ETR)
 
         gm.GeneralManger.AddWebLink(linkName, webAddress, sourceSubsection, sourceIDX, sourceTopSection)
+        self.notify(comw.TOC_BOX)

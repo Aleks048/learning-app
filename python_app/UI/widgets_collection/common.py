@@ -245,6 +245,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
         elif broadcasterType == mcomui.AddGlobalLink_BTN:
             self.render()
+        elif broadcasterType == mcomui.AddWebLink_BTN:
+            self.render()
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             toSubsection = data
             if toSubsection:
