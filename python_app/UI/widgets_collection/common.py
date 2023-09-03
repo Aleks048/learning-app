@@ -352,7 +352,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.bind(ww.currUIImpl.Data.BindID.mouse1, __cmd)
 
-        def __showIMagesONClick(event, subSecID, shouldScroll = False, imPad = 120, *args):
+        def __showIMagesONClick(event, subSecID, shouldScroll = False, imPad = 120, link = False, *args):
             label:LabelWithClick = event.widget
             imIdx = label.imIdx
             subsection = label.subsection
@@ -383,7 +383,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             idx = str(child).split("_")[-1]
                             alwaysShow = fsm.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                            if (not alwaysShow) or self.showAll: 
+                            if (not alwaysShow) or self.showAll or link: 
                                 try:
                                     child.destroy()
                                 except:
@@ -770,7 +770,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                     bindChangeColorOnInAndOut(glLinksShowImages)
                                     glLinksShowImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
-                                        lambda e, *args: __showIMagesONClick(e, glLinkSubSecID, True, 150, *args))
+                                        lambda e, *args: __showIMagesONClick(e, glLinkSubSecID, True, 150, True, *args))
                                 elif "http" in lk:
                                     glLinkSubsectioLbl = ttk.Label(linksFrame, 
                                                                text = "web: ", 
