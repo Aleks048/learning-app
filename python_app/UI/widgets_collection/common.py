@@ -2,6 +2,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import Pmw
 import os
+import tkinter as tk
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
@@ -10,7 +11,6 @@ import UI.widgets_collection.toc.toc as tocw
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
-import tkinter as tk
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
@@ -138,13 +138,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     parent = None
     openedMainImg = None
 
+    showLinks = None
+
     # used to filter toc data when the search is performed
     filterToken = ""
     showAll = None
     shouldScroll = None
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 570, 
-                 showAll = False, makeScrollable = True, shouldScroll = True):
+                 showAll = False, makeScrollable = True, shouldScroll = True,
+                 showLinks = False):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -153,6 +156,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.parent = parentWidget.widgetObj
         self.showAll = showAll
+        self.showLinks = showLinks
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
@@ -246,6 +250,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         elif broadcasterType == mcomui.AddGlobalLink_BTN:
             self.render()
         elif broadcasterType == mcomui.AddWebLink_BTN:
+            self.render()
+        elif broadcasterType == mui.ShowHideLinks_BTN:
+            self.showLinks = not self.showLinks
             self.render()
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             toSubsection = data
@@ -694,110 +701,111 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         addLinkEntry.bind(ww.currUIImpl.Data.BindID.mouse1,
                                           addGlLinkCmd)
 
-                        # adding a frame to show global links
-                        linksFrame = ttk.Frame(tempFrame,
-                                              name = "contentLinksFr_" + nameId,
-                                              padding=[0, 0, 0, 0])
-                        
-                        imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
+                        if self.showLinks:
+                            # adding a frame to show global links
+                            linksFrame = ttk.Frame(tempFrame,
+                                                name = "contentLinksFr_" + nameId,
+                                                padding=[0, 0, 0, 0])
+                            
+                            imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
 
-                        if str(i) in imGlobalLinksDict.keys():
-                            glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[str(i)]
+                            if str(i) in imGlobalLinksDict.keys():
+                                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[str(i)]
 
-                            glLinkLablel = ttk.Label(linksFrame, 
-                                                    text = "Links: ", 
-                                                    name = "contentLinksIntroFr_" + nameId,
-                                                    padding=[120, 0, 0, 0])
-                            glLinkLablel.grid(row = 0, column = 0, sticky=tk.NW)
-                            glLinkId = 0
+                                glLinkLablel = ttk.Label(linksFrame, 
+                                                        text = "Links: ", 
+                                                        name = "contentLinksIntroFr_" + nameId,
+                                                        padding=[120, 0, 0, 0])
+                                glLinkLablel.grid(row = 0, column = 0, sticky=tk.NW)
+                                glLinkId = 0
 
-                            for ln, lk in glLinks.items():
-                                if "KIK" in lk:
-                                    glLinkImLablel = ttk.Label(linksFrame, 
-                                                            name = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                            padding=[120, 0, 0, 0])
-                                    glLinkImLablel.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
-    
-                                    targetSubsection = ln.split("_")[0]
-                                    targetImIdx = ln.split("_")[1]
-                                    targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
-                                    glLinkSubsectioLbl = ttk.Label(glLinkImLablel, 
-                                                               text = targetSubsection + ": ", 
-                                                               padding = [150, 0, 0, 0],
-                                                               name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
-                                    glLinkSubsectioLbl.grid(row = 0, column = 0, sticky=tk.NW)
+                                for ln, lk in glLinks.items():
+                                    if "KIK" in lk:
+                                        glLinkImLablel = ttk.Label(linksFrame, 
+                                                                name = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                padding=[120, 0, 0, 0])
+                                        glLinkImLablel.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+        
+                                        targetSubsection = ln.split("_")[0]
+                                        targetImIdx = ln.split("_")[1]
+                                        targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
+                                        glLinkSubsectioLbl = ttk.Label(glLinkImLablel, 
+                                                                text = targetSubsection + ": ", 
+                                                                padding = [150, 0, 0, 0],
+                                                                name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
+                                        glLinkSubsectioLbl.grid(row = 0, column = 0, sticky=tk.NW)
 
-                                    imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
+                                        imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
-                                    latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
-                                    pilIm = getEntryImg(latexTxt, targetSubsection, targetNameId)
+                                        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
+                                        pilIm = getEntryImg(latexTxt, targetSubsection, targetNameId)
 
-                                    shrink = 0.7
-                                    pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
-                                    img = ImageTk.PhotoImage(pilIm)
+                                        shrink = 0.7
+                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                                        img = ImageTk.PhotoImage(pilIm)
 
-                                    glLinkLablel = LabelWithClick(glLinkImLablel,
-                                                                image = img,
-                                                                text = ln + ": " + imLinkDict[targetImIdx], 
-                                                                name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
-                                                                )
-                                    glLinkLablel.subsection = targetSubsection
-                                    glLinkLablel.imIdx = targetImIdx
-                                    glLinkLablel.image = img
+                                        glLinkLablel = LabelWithClick(glLinkImLablel,
+                                                                    image = img,
+                                                                    text = ln + ": " + imLinkDict[targetImIdx], 
+                                                                    name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
+                                                                    )
+                                        glLinkLablel.subsection = targetSubsection
+                                        glLinkLablel.imIdx = targetImIdx
+                                        glLinkLablel.image = img
 
-                                    glLinkLablel.grid(row = 0, column = 1, sticky=tk.NW)
-                                    openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+                                        glLinkLablel.grid(row = 0, column = 1, sticky=tk.NW)
+                                        openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
-                                    linkLabelFull = LabelWithClick(glLinkImLablel, 
-                                                                   text = "[full]", 
-                                                                   name = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId))
-                                    linkLabelFull.grid(row = 0, column = 2, sticky=tk.NW)
+                                        linkLabelFull = LabelWithClick(glLinkImLablel, 
+                                                                    text = "[full]", 
+                                                                    name = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId))
+                                        linkLabelFull.grid(row = 0, column = 2, sticky=tk.NW)
 
-                                    linkLabelFull.subsection = ln.split("_")[0]
-                                    linkLabelFull.imIdx = ln.split("_")[-1]
+                                        linkLabelFull.subsection = ln.split("_")[0]
+                                        linkLabelFull.imIdx = ln.split("_")[-1]
 
-                                    bindChangeColorOnInAndOut(linkLabelFull)
-                                    moveTOCtoSubsection(linkLabelFull)
+                                        bindChangeColorOnInAndOut(linkLabelFull)
+                                        moveTOCtoSubsection(linkLabelFull)
 
-                                    glLinksShowImages = LabelWithClick(glLinkImLablel, 
-                                                                       text = "[im]", 
-                                                                       name = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId))
-                                    glLinksShowImages.imIdx = ln.split("_")[-1]
-                                    glLinksShowImages.subsection = ln.split("_")[0]
-                                    glLinksShowImages.clicked = False
-                                    glLinksShowImages.grid(row = 0, column = 3, sticky=tk.NW)
-                                    glLinkSubSecID = getWidgetSubsecId(ln.split("_")[0])
+                                        glLinksShowImages = LabelWithClick(glLinkImLablel, 
+                                                                        text = "[im]", 
+                                                                        name = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId))
+                                        glLinksShowImages.imIdx = ln.split("_")[-1]
+                                        glLinksShowImages.subsection = ln.split("_")[0]
+                                        glLinksShowImages.clicked = False
+                                        glLinksShowImages.grid(row = 0, column = 3, sticky=tk.NW)
+                                        glLinkSubSecID = getWidgetSubsecId(ln.split("_")[0])
 
-                                    bindChangeColorOnInAndOut(glLinksShowImages)
-                                    glLinksShowImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
-                                        lambda e, *args: __showIMagesONClick(e, glLinkSubSecID, True, 150, True, *args))
-                                elif "http" in lk:
-                                    glLinkSubsectioLbl = ttk.Label(linksFrame, 
-                                                               text = "web: ", 
-                                                               padding = [150, 0, 0, 0],
-                                                               name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
-                                    glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+                                        bindChangeColorOnInAndOut(glLinksShowImages)
+                                        glLinksShowImages.bind(ww.currUIImpl.Data.BindID.mouse1, 
+                                            lambda e, *args: __showIMagesONClick(e, glLinkSubSecID, True, 150, True, *args))
+                                    elif "http" in lk:
+                                        glLinkSubsectioLbl = ttk.Label(linksFrame, 
+                                                                text = "web: ", 
+                                                                padding = [150, 0, 0, 0],
+                                                                name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
+                                        glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
 
-                                    latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                                    pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
+                                        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
+                                        pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
 
-                                    shrink = 0.7
-                                    pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
-                                    img = ImageTk.PhotoImage(pilIm)
+                                        shrink = 0.7
+                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                                        img = ImageTk.PhotoImage(pilIm)
 
-                                    glLinkLablel = LabelWithClick(linksFrame,
-                                                                image = img,
-                                                                text = ln, 
-                                                                name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
-                                                                )
-                                    glLinkLablel.subsection = subsection
-                                    glLinkLablel.imIdx = k
-                                    glLinkLablel.image = img
+                                        glLinkLablel = LabelWithClick(linksFrame,
+                                                                    image = img,
+                                                                    text = ln, 
+                                                                    name = "contentGlLinks_" + nameId + "_" + str(glLinkId)
+                                                                    )
+                                        glLinkLablel.subsection = subsection
+                                        glLinkLablel.imIdx = k
+                                        glLinkLablel.image = img
 
-                                    glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
-                                    openWebOfTheImage(glLinkLablel, lk)
+                                        glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
+                                        openWebOfTheImage(glLinkLablel, lk)
 
-                                glLinkId += 1
+                                    glLinkId += 1
 
                         tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
 
@@ -828,7 +836,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 removeEntry.grid(row = gridRowStartIdx, column = 5, sticky=tk.NW)
 
                             addLinkEntry.grid(row = gridRowStartIdx, column = 6, sticky=tk.NW)
-                            linksFrame.grid(row = gridRowStartIdx + 1, column = 0, columnspan = 6, sticky=tk.NW)
+                            if self.showLinks:
+                                linksFrame.grid(row = gridRowStartIdx + 1, column = 0, columnspan = 6, sticky=tk.NW)
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 

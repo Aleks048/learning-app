@@ -142,6 +142,9 @@ class LayoutManagers:
             imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
             self.addWidget(imageGroupAdd_BTN)
 
+            showHideLinks_BTN = ml.ShowHideLinks_BTN(winRoot, self.prefix)
+            self.addWidget(showHideLinks_BTN)
+
             tocBox_BOX.addListenerWidget(addGlobalLink_BTN)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
@@ -151,6 +154,8 @@ class LayoutManagers:
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
             addGlobalLink_BTN.addListenerWidget(tocBox_BOX)
+
+            showHideLinks_BTN.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
