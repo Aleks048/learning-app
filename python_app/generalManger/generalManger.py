@@ -40,6 +40,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
         log.autolog("-- Srartup  of other menus ended.")
+        exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
+        log.autolog("Started '{0}' UI manager".format("excercise menu"))
+        log.autolog("-- Srartup  of other menus ended.")
 
         mainMenuManager.showOnly()
 
@@ -86,6 +89,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.TOCManager)
         tocManager.winRoot.exitApp()
+        
+        # ex
+        exManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.ExcerciseManager)
+        exManager.winRoot.exitApp()
 
         lf.Wr.MainLayout.close()
 

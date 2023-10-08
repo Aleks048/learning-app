@@ -95,7 +95,7 @@ class TexFilePopulate (dc.AppCurrDataAccessToken):
                             and not showProofs:
                             continue
 
-                        imageName = _upan.Names.getExtraImageName(currIdx, subsection, imageName)
+                        imageName = _upan.Names.getExtraImageFilename(currIdx, subsection, imageName)
 
                     imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection), imageName)
                     contentFile[i] = line.replace(imageNameOriginal, imagePath)

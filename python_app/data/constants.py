@@ -52,3 +52,7 @@ class TexFileTokens:
     class TOC:
         imTextToken = "imText"
         imageToken = "image"
+
+class UIConsts:
+    # an entry 
+    imageWidgetID = "imageWidget_"

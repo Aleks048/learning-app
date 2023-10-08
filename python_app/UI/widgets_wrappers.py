@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import _utils.logging as log
+import _utils._utils_main as _u
 import UI.widgets_data as wd
 
 class DataContainer_Interface: 
@@ -53,6 +54,11 @@ class HasListenersWidget_Interface:
 class Notifyable_Interface:
     def receiveNotification(self, broadcasterType) -> None:
         raise NotImplementedError
+
+class EventGeneratable_Interface:
+    def generateEvent(self, event, *args, **kwars) -> None:
+        raise NotImplementedError
+
 
 class DataTranslatable_Interface:
     def translateExtraBuildOptions(extraOptions):
@@ -116,7 +122,7 @@ class TkWidgets (DataTranslatable_Interface):
         
         def getChildren(self):
             return self.widgetObj.winfo_children()
-    
+
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
         def __init__(self, widgetObj = None, renderData = {}, *args, **kwargs):
             self.wasRendered = False
@@ -135,7 +141,15 @@ class TkWidgets (DataTranslatable_Interface):
         
         def hide(self, **kwargs):
             self.widjetObj.grid_remove()
-    
+
+    class EventGeneratable_Interface_Impl(EventGeneratable_Interface):
+        def __init__(self, widgetObj = None,  *args, **kwargs):
+            self.widgetObj = widgetObj
+            super().__init__()
+
+        def generateEvent(self, event, *args, **kwargs) -> None:
+            self.widgetObj.event_generate(event, *args, **kwargs)
+
 
     class HasListenersWidget_Interface_Impl(HasListenersWidget_Interface):
         def __init__(self, *args, **kwargs):
@@ -159,7 +173,18 @@ class TkWidgets (DataTranslatable_Interface):
                         self.widgetObj.bind_all(key, lambda event: cmd(event))
                     else:
                         self.widgetObj.bind(key, cmd)
-        
+
+        def rebind(self, keys, cmds):
+            for i in range(len(keys)):
+                key = keys[i]
+                cmd = cmds[i]
+
+                if key == TkWidgets.Data.BindID.allKeys:
+                    self.widgetObj.bind_all(key, lambda event: cmd(event))
+                else:
+                    self.widgetObj.bind(key, cmd)
+
+
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
                 RenderableWidget_Interface_Impl,
@@ -413,7 +438,8 @@ class TkWidgets (DataTranslatable_Interface):
                 HasChildren_Interface_Impl, 
                 RenderableWidget_Interface_Impl,
                 HasListenersWidget_Interface_Impl,
-                BindableWidget_Interface_Impl):
+                BindableWidget_Interface_Impl,
+                EventGeneratable_Interface_Impl):
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -421,22 +447,29 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData : dict,
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
-                    text = ""):
+                    padding = [0, 0, 0, 0],
+                    image = None,
+                    text = _u.Token.NotDef.str_t):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
+            # self.name = self.name.replace(".", "")
+            # self.name = self.name.replace("_", "")
             self.rootWidget = rootWidget
             self.text = text
+            self.image = image
+            self.padding = padding
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             widjetObj = tk.Label(self.rootWidget.widjetObj, text = self.text)
-            
+
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            TkWidgets.EventGeneratable_Interface_Impl.__init__(self, widgetObj = widjetObj)
             Notifyable_Interface.__init__(self)
 
             self.bind()
@@ -450,7 +483,42 @@ class TkWidgets (DataTranslatable_Interface):
         
         def bind(self):
             return super().bind()
-    
+
+        def render(self, **kwargs):
+            return super().render(self.widjetObj, self.renderData, **kwargs)
+
+
+    class Frame(Notifyable_Interface,
+                RenderableWidget_Interface_Impl,
+                HasChildren_Interface_Impl):
+        def __init__(self, 
+            prefix: str, 
+            name : str,
+            rootWidget, 
+            renderData : dict,
+            extraOptions = {},
+            bindCmd = lambda *args: (None, None),
+            padding = [0, 0, 0, 0]):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+            self.padding = padding
+            
+            
+            if (type(self.rootWidget) == ttk.Frame):
+                widjetObj = ttk.Frame(self.rootWidget, padding = self.padding)
+            else:
+                widjetObj = ttk.Frame(self.rootWidget.widjetObj, padding = self.padding)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            Notifyable_Interface.__init__(self)
+        
+        def render(self, **kwargs):
+            return super().render(self.widjetObj, self.renderData, **kwargs)
+
     class ScrollableBox (Notifyable_Interface,
                 DataContainer_Interface_Impl,
                 HasChildren_Interface_Impl, 

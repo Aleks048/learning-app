@@ -69,10 +69,10 @@ class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
     def receiveNotification(self, broadcasterName, data = None):
         self.render()
     
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         text_curr = self.getText()
         self.changeText(text_curr)
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render()
 
 
 class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
@@ -480,10 +480,10 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
             text = _upan.Paths.Screenshot.getRel_formatted()
             self.changeText(text)
     
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         text_curr = _upan.Paths.Screenshot.getRel_formatted()
         self.changeText(text_curr)
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render()
 
 
 class addToTOC_CHB(ww.currUIImpl.Checkbox):
@@ -799,7 +799,7 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         if extraImageIdx == _u.Token.NotDef.str_t:
             extraImageIdx = len(extraImagesList) - 1
         
-        extraImageName = _upan.Names.getExtraImageName(mainImIdx, currentSubsection, extraImageIdx)
+        extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, currentSubsection, extraImageIdx)
         extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
         ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePathFull)
 

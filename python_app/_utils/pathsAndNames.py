@@ -5,6 +5,7 @@ from functools import wraps
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import _utils.logging as log
+import data.constants as dc
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -18,7 +19,8 @@ def bookNameArg_dec(func):
     @wraps(func)
     def wrapper(bookId = _u.Token.NotDef.str_t,
                 subsection = _u.Token.NotDef.str_t,
-                idx = _u.Token.NotDef.str_t):
+                idx = _u.Token.NotDef.str_t,
+                *args):
         if bookId == _u.Token.NotDef.str_t:
             bookId = sf.Wr.Manager.Book.getCurrBookFolderPath()
         
@@ -26,10 +28,10 @@ def bookNameArg_dec(func):
             subsection = fsf.Data.Book.currSection
         
         if bookId in sf.Wr.Manager.Book.getListOfBooksPaths():
-            return func(bookId, subsection, idx)
+            return func(bookId, subsection, idx, *args)
         else:
             bookPath = sf.Wr.Manager.Book.getPathFromName(bookId)
-            return func(bookPath, subsection, idx)
+            return func(bookPath, subsection, idx, *args)
     
     return wrapper
 class Paths:
@@ -113,7 +115,22 @@ class Paths:
                                                                                         endPage)
 
             return text
-    
+
+        class Images:     
+            @bookNameArg_dec
+            def getMainEntryImageAbs(bookPath, subsection, imIdx, *args):
+                screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
+                mainImageName = _upan.Names.getImageName(str(imIdx), subsection)
+                return os.path.join(screenshotFolder,  mainImageName + ".png")
+
+            @bookNameArg_dec
+            def getExtraEntryImageAbs(bookPath, subsection, imIdx, *args):
+                extraImName = args[0]
+                screenshotFolder = _upan.Paths.Screenshot.getAbs(bookPath, subsection)
+                extraImFilename = _upan.Names.getExtraImageFilename(str(imIdx), subsection, extraImName)
+                return os.path.join(screenshotFolder, extraImFilename + ".png")
+                
+  
     class TexFiles:
         def getEnding(subsection, idx):
             if idx == _u.Token.NotDef.str_t:
@@ -178,7 +195,7 @@ class Names:
         return imIdx + "__" + subsection
     
     @classmethod
-    def getExtraImageName(cls, mainImIdx, subsection, extraImName):
+    def getExtraImageFilename(cls, mainImIdx, subsection, extraImName):
         return cls.getImageName(mainImIdx, subsection) + "__e__{0}".format(extraImName)
     
     def getSubsectionFilesEnding(idx):
@@ -188,6 +205,27 @@ class Names:
         bookNum = filename.split("_")[-1]
         bookNum = bookNum.split(".")[0]
         return str(int(bookNum) * 5)
+    
+    class UI:
+        def getWidgetSubsecId(subsection):
+            '''
+            Entry Image ID 
+            '''
+            return subsection.replace(".", "$")
+
+        def getMainEntryWidgetName(subsection, imIdx):
+            mainWidgetName:str = \
+                dc.UIConsts.imageWidgetID + \
+                "_" + _upan.Names.UI.getWidgetSubsecId(subsection) + "_" + imIdx
+            mainWidgetName = mainWidgetName.replace(".", "$")
+            return mainWidgetName
+
+        def getExtraEntryWidgetName(subsection, imIdx, eImNum):
+            ename = dc.UIConsts.imageWidgetID + "_e_" \
+                    + str(eImNum) + "_" +  _upan.Names.UI.getWidgetSubsecId(subsection)\
+                    + "_" + imIdx
+            ename = ename.replace(".", "$")
+            return ename
 
 class Current:
     class Names:

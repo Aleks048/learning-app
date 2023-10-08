@@ -216,7 +216,7 @@ class SectionInfoStructure:
 
             if extraImNames != None:
                 for extraImIdx in range(len(extraImNames)):
-                    extraImFilename = _upan.Names.getExtraImageName(imIdx, subsection, extraImIdx)
+                    extraImFilename = _upan.Names.getExtraImageFilename(imIdx, subsection, extraImIdx)
                     ocf.Wr.FsAppCalls.deleteFile(os.path.join(imagesPath, extraImFilename + ".png"))
         
 
@@ -241,8 +241,8 @@ class SectionInfoStructure:
 
                         if extraImNames != None:
                             for extraImIdx in range(len(extraImNames)):
-                                extraImOldFilename = _upan.Names.getExtraImageName(imLinkId, subsection, extraImIdx)
-                                extraImNewFilename = _upan.Names.getExtraImageName(str(int(imLinkId) - 1), subsection, extraImIdx)
+                                extraImOldFilename = _upan.Names.getExtraImageFilename(imLinkId, subsection, extraImIdx)
+                                extraImNewFilename = _upan.Names.getExtraImageFilename(str(int(imLinkId) - 1), subsection, extraImIdx)
 
                                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
                                                             os.path.join(imagesPath, extraImNewFilename + ".png"))
