@@ -1,10 +1,14 @@
 from tkinter import ttk
+from PIL import Image, ImageTk
+import os
 import tkinter as tk
 
 import UI.widgets_wrappers as ww
 import file_system.file_system_facade as fsf
 import data.constants as dc
-import UI.widgets_collection.common as comw
+import _utils.pathsAndNames as _upan
+import settings.facade as sf
+import _utils._utils_main as _u
 
 
 
@@ -62,6 +66,95 @@ class TOCLabelWithClick(ttk.Label):
 
     def getChildren(self):
         return self.winfo_children()
+
+
+def getImageWidget(root, imagePath, widgetName, 
+                   imPad = 0, imageSize = [450, 1000], 
+                   row = 0, column = 0, columnspan = 1):
+    pilIm = Image.open(imagePath)
+    pilIm.thumbnail(imageSize, Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(pilIm)
+
+    imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
+                                row = row, column = column, columnspan = columnspan)
+    imLabel.imagePath = imagePath
+    imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                   [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
+    return img, imLabel
+
+
+def addMainEntryImageWidget(rootLabel,
+                            subsection, imIdx,
+                            imPadLeft, 
+                            displayedImagesContainer,
+                            imageBaloon,
+                            mainImgBindData = None):
+    # mainImage
+    currBookName = sf.Wr.Manager.Book.getCurrBookName()
+    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
+                                                                   subsection,
+                                                                   imIdx)
+
+    mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
+    img, imLabel = getImageWidget(rootLabel, imagePath, 
+                                  mainWidgetName, imPadLeft,
+                                  row = 3, column = 0, columnspan = 100)
+
+    displayedImagesContainer.append(img)
+
+    if mainImgBindData != None:
+        imLabel.rebind(*mainImgBindData)
+
+    imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
+
+    if type(imLinkDict) == dict:
+        if str(imIdx) in list(imLinkDict.keys()):
+            imText = imLinkDict[str(imIdx)]
+        else:
+            imText = _u.Token.NotDef.str_t
+    else:
+        imText = _u.Token.NotDef.str_t
+
+    imageBaloon.bind(imLabel, "{0}".format(imText))
+    return imLabel
+
+
+def addExtraEntryImagesWidgets(rootLabel, 
+                               subsection, imIdx,
+                               imPadLeft, 
+                               displayedImagesContainer,
+                               imageBaloon, 
+                               skippConditionFn = lambda *args: False):
+    outLabels = []
+    # extraImages
+    if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
+
+        for i in range(0, len(extraImages)):
+            if skippConditionFn(subsection, imIdx, i):
+                continue
+
+            eImText = extraImages[i]
+
+            extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookName,
+                                                                                  subsection,
+                                                                                  imIdx,
+                                                                                  i)
+
+            eImWidgetName = _upan.Names.UI.getExtraEntryWidgetName(subsection,
+                                                                   imIdx,
+                                                                   i)
+
+            eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
+                                            eImWidgetName, imPadLeft,
+                                            row = i + 4, column = 0, columnspan = 1000)
+            displayedImagesContainer.append(eImg)
+
+            outLabels.append(eimLabel)
+
+            imageBaloon.bind(eimLabel, "{0}".format(eImText))
+    return outLabels
 
 
 def closeAllImages(gpframe, showAll, isWidgetLink):

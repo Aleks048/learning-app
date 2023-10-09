@@ -87,19 +87,6 @@ class ImageGroupOM(ttk.OptionMenu):
 
         self.tocBox.render()
 
-def getImageWidget(root, imagePath, widgetName, 
-                   imPad = 0, imageSize = [450, 1000], 
-                   row = 0, column = 0, columnspan = 1):
-    pilIm = Image.open(imagePath)
-    pilIm.thumbnail(imageSize, Image.ANTIALIAS)
-    img = ImageTk.PhotoImage(pilIm)
-
-    imLabel = _uuicom.TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
-                                row = row, column = column, columnspan = columnspan)
-    imLabel.imagePath = imagePath
-    imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                   [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
-    return img, imLabel
 
 class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
     subsection = None
@@ -423,10 +410,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouldScroll:
                         _uuicom.closeAllImages(gpframe, self.showAll, link)
 
-                    label.clicked = True
-
                     if not label.alwaysShow:
                         self.entryClicked = imIdx
+
+                    label.clicked = True
 
                     imageGroups = list(fsm.Data.Sec.imagesGroupsList(subsection).keys())
                     imageGroupidx = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
@@ -438,65 +425,27 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         return
 
                     # mainImage
-                    currBookName = sf.Wr.Manager.Book.getCurrBookName()
-                    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
-                                                                                   subsection,
-                                                                                   imIdx)
-
-                    mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
-                    img, imLabel = getImageWidget(tframe, imagePath, 
-                                                  mainWidgetName, imPad,
-                                                  row = 3, column = 0, columnspan = 100)
-
-                    self.displayedImages.append(img)
-                    imLabel.rebind([ww.currUIImpl.Data.BindID.customTOCMove], 
-                                   [lambda event: self.scroll_into_view(event)])
+                    bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
+                                 [lambda event: self.scroll_into_view(event)]]
+                    imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
+                                                              imPad, self.displayedImages, 
+                                                              balloon, bindData)
 
                     imLabel.render()
-
-                    imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
-
-                    if type(imLinkDict) == dict:
-                        if str(imIdx) in list(imLinkDict.keys()):
-                            imText = imLinkDict[str(imIdx)]
-                        else:
-                            imText = _u.Token.NotDef.str_t
-                    else:
-                        imText = _u.Token.NotDef.str_t
-
-                    balloon.bind(imLabel, "{0}".format(imText))
-
                     self.openedMainImg = imLabel
 
                     # extraImages
-                    if imIdx in list(fsm.Data.Sec.extraImagesDict(subsection).keys()):
+                    def skippProof(subsection, imIdx, exImIdx):
                         extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
+                        eImText = extraImages[exImIdx]
+                        return "proof" in eImText.lower()\
+                                and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
 
-                        for i in range(0, len(extraImages)):
-                            eImText = extraImages[i]
-
-
-                            if "proof" in eImText.lower()\
-                                and not dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
-                                continue
-
-                            extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookName,
-                                                                                                  subsection,
-                                                                                                  imIdx,
-                                                                                                  i)
-
-                            eImWidgetName = _upan.Names.UI.getExtraEntryWidgetName(subsection,
-                                                                                   imIdx,
-                                                                                   i)
-
-                            eImg, eimLabel = getImageWidget(tframe, extraImFilepath, 
-                                                            eImWidgetName, imPad,
-                                                            row = i + 4, column = 0, columnspan = 1000)
-                            self.displayedImages.append(eImg)
-
-                            eimLabel.render()
-
-                            balloon.bind(eimLabel, "{0}".format(eImText))
+                    exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
+                                                                    imPad, self.displayedImages, balloon,
+                                                                    skippProof)
+                    for l in exImLabels:
+                        l.render()
                     
                     if int(event.type) == 4 or \
                        int(event.type) == 35:
@@ -513,7 +462,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.entryClicked = _u.Token.NotDef.str_t
                     self.scroll_into_view(event)
                     _uuicom.closeAllImages(gpframe, self.showAll, link)
-     
+
             __cmd(event, *args)
 
         def openContentOfTheSection(frame:_uuicom.TOCFrame, label:_uuicom.TOCLabelWithClick):
@@ -547,7 +496,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def openExcerciseMenu(event, *args):
                     exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.ExcerciseManager)
-                    
+                    exMenuManger.subsection = event.widget.subsection
+                    exMenuManger.imIdx = event.widget.imIdx
+
                     event.widget.shouldShowExMenu = not event.widget.shouldShowExMenu
                     if (event.widget.shouldShowExMenu):
                         exMenuManger.show()
