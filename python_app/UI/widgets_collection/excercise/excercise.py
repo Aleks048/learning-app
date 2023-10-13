@@ -259,8 +259,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             '''
             paste
             '''
-            pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteLine_" + str(i), 
-                                                    i + 1, 3, text = "Paste")
+            pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
+                                                    i + 1, 3, text = "PB")
             pasteLabel.lineImIdx = i
 
             def pasteLineIdx(event, *args):
@@ -279,11 +279,31 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             _ucomw.bindChangeColorOnInAndOut(pasteLabel)
             pasteLabel.render()
 
+            pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
+                                                    i + 1, 4, text = "PA")
+            pasteLabel.lineImIdx = i
+
+            def pasteLineIdx(event, *args):
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                linesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
+                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList,
+                                                        bookPath)
+                fsf.Wr.EntryInfoStructure.addLine(self.subsection, 
+                                                  self.imIdx,
+                                                  linesList[self.currLineCopyIdx],
+                                                  bookPath, 
+                                                  event.widget.lineImIdx + 1)
+                self.render()
+
+            pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [pasteLineIdx])
+            _ucomw.bindChangeColorOnInAndOut(pasteLabel)
+            pasteLabel.render()
+
             '''
             delete
             '''
             deleteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
-                                                    i + 1, 4, text = "Del")
+                                                    i + 1, 5, text = "Del")
             deleteLabel.lineImIdx = i
 
             def deleteLineIdx(event, *args):

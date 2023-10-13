@@ -118,7 +118,7 @@ class EntryInfoStructure:
     def removeEntry(cls, subsection, imIdx, bookName):
        log.autolog(f"Remove all lines for '{subsection}' '{imIdx}'")
        entryPath = _upan.Paths.Entry.getAbs(bookName, subsection, imIdx)
-       ocf.Wr.FsAppCalls.deleteFile(entryPath)
+       ocf.Wr.FsAppCalls.removeDir(entryPath)
 
     @classmethod
     def readProperty(cls, sectionPath, imIdx, propertyName, bookPath = None):

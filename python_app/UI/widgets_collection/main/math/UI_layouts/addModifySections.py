@@ -351,7 +351,7 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         text = self.__getCurrSectionPath_Formatted()
         self.changeText(text)
 
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render(**kwargs)
 
 
 class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,

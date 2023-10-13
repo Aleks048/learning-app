@@ -1,6 +1,7 @@
 import os
 
 import file_system.book_fs as bfs
+import file_system.entry_fs as efs
 import file_system.links as l
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
@@ -334,11 +335,19 @@ class SectionInfoStructure:
 
         tocWImageDict = cls.readProperty(subsection, cls.PubProp.tocWImageDict)
         tocWImageDict.pop(imIdx, None)
+
+        if tocWImageDict == {}:
+            tocWImageDict = _u.Token.NotDef.dict_t
+
         tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
 
         imagesGroupDict = cls.readProperty(subsection, cls.PubProp.imagesGroupDict)
         imagesGroupDict.pop(imIdx, None)
+
+        if imagesGroupDict == {}:
+            imagesGroupDict = _u.Token.NotDef.dict_t
+
         imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
 
@@ -350,6 +359,9 @@ class SectionInfoStructure:
         # update the links on the OM file
         for page in set(list(imLinkOMPageDict.values())):
             gm.GeneralManger.readdNotesToPage(page)
+
+
+        efs.EntryInfoStructure.removeEntry(subsection, imIdx, currBookName)
 
         # track all the changes berore and after removal
         msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
