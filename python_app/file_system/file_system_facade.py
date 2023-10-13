@@ -3,6 +3,7 @@ import sys
 import file_system.origmaterial_fs as omfs
 import file_system.section_fs as sfs
 import file_system.book_fs as bfs
+import file_system.entry_fs as efs
 import file_system._utils as fsu
 import file_system.links as l
 import file_system.file_system_manager as fsm
@@ -59,6 +60,9 @@ class Wr:
         pass
     
     class SectionCurrent(sfs.SectionCurrent):
+        pass
+
+    class EntryInfoStructure(efs.EntryInfoStructure):
         pass
 
     class OriginalMaterialStructure(omfs.OriginalMaterialStructure):

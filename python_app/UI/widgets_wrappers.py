@@ -350,11 +350,18 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Entry(self.rootWidget.widjetObj,
-                        textvariable = self.getDataObject(),
-                        name = self.name,
-                        **extraOptions)
-            
+            # NOTE: this is to alow 
+            if hasattr(self.rootWidget, "widjetObj"):
+                widgetObj = tk.Entry(self.rootWidget.widjetObj,
+                            textvariable = self.getDataObject(),
+                            name = self.name,
+                            **extraOptions)
+            else:
+                widgetObj = tk.Entry(self.rootWidget,
+                            textvariable = self.getDataObject(),
+                            name = self.name,
+                            **extraOptions)
+
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)

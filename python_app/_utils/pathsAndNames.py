@@ -82,6 +82,27 @@ class Paths:
                 sectionFilepath = Paths.Section.getAbs(bookPath, section)
                 return os.path.join(sectionFilepath, "sectionInfo.json")
 
+    class Entry:
+        @bookNameArg_dec
+        def getAbs(bookPath, section, imIdx, *args):
+            sectionFilepath = Paths.Section.getAbs(bookPath, section)
+            return os.path.join(sectionFilepath, str(imIdx))
+
+        class LineImage:
+            @bookNameArg_dec
+            def getAbs(bookPath, section, imIdx, *args):
+                lineIdx = args[0]
+                filename = Names.Entry.Line.name(imIdx, lineIdx)
+                entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
+
+                return os.path.join(entryPath, filename)
+        
+        class JSON:
+            @bookNameArg_dec
+            def getAbs(bookPath, section, imIdx, *args):
+                entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
+                return os.path.join(entryPath, "entryInfo.json")
+
     class Screenshot:
         @bookNameArg_dec
         def getRel(bookPath, subsection):
@@ -206,6 +227,12 @@ class Names:
         bookNum = bookNum.split(".")[0]
         return str(int(bookNum) * 5)
     
+
+    class Entry:
+        class Line:
+            def name(imIdx, lineIdx):
+                return f"{imIdx}_{lineIdx}.png"
+
     class UI:
         def getWidgetSubsecId(subsection):
             '''
@@ -238,7 +265,7 @@ class Current:
                             return n
                 else:
                     pass
-        
+
         class Section:
             class Screenshot:
                 def name_wPrefix():

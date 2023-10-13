@@ -26,7 +26,7 @@ class Wr:
             text = text.replace(" ", "\ ")
             return text
 
-        def fromTexToImage(tex, savePath, padding = 10, imageColor = "#3295a8"):
+        def fromTexToImage(tex, savePath, padding = 10, imageColor = "#3295a8", fixedWidth = None):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -81,7 +81,12 @@ class Wr:
             
             width, height = im.size
             
-            new_width = width + right + left
+            # NOTE: this will allow to set the fixed width for the created image
+            if fixedWidth == None:
+                new_width = width + right + left
+            else:
+                new_width = fixedWidth
+
             new_height = height + top + bottom
             
             result = Image.new(im.mode, (new_width, new_height), imageColor)

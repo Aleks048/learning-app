@@ -324,22 +324,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        def bindChangeColorOnInAndOut(widget:_uuicom.TOCLabelWithClick, shouldBeRed = False):
-            def __changeTextColorBlue(event = None, *args):
-                event.widget.configure(foreground="blue")
-
-            def __changeTextColorRed(event = None, *args):
-                event.widget.configure(foreground="red")
-
-            def __changeTextColorWhite(event = None, *args):
-                event.widget.configure(foreground="white")
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
-            if not shouldBeRed:
-                widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
-            else:
-                widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
-        
         def openOMOnThePageOfTheImage(widget:_uuicom.TOCLabelWithClick, targetSubsection, targetImIdx):
             def __cmd(event = None, *args):
                 # open orig material on page
@@ -594,7 +578,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 hideImageGroupLabel.imIdx = str(i)
                                 hideImageGroupLabel.group = currImGroupName
 
-                                bindChangeColorOnInAndOut(hideImageGroupLabel)
+                                _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
 
                                 def __cmd(e):
                                     imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
@@ -766,7 +750,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         linkLabelFull.subsection = ln.split("_")[0]
                                         linkLabelFull.imIdx = ln.split("_")[-1]
 
-                                        bindChangeColorOnInAndOut(linkLabelFull)
+                                        _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
                                         moveTOCtoSubsection(linkLabelFull)
 
                                         glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
@@ -778,7 +762,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         glLinksShowImages.grid(row = 0, column = 3, sticky=tk.NW)
                                         glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
 
-                                        bindChangeColorOnInAndOut(glLinksShowImages)
+                                        _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
                                         glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
                                                                 [lambda e, *args: __showIMagesONClick(e, 
                                                                                                       glLinksShowImages,
@@ -851,16 +835,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
                         if "excercise" in v.lower():
-                            bindChangeColorOnInAndOut(textLabelPage, True)
+                            _uuicom.bindChangeColorOnInAndOut(textLabelPage, True)
                         else:
-                            bindChangeColorOnInAndOut(textLabelPage, False)
+                            _uuicom.bindChangeColorOnInAndOut(textLabelPage, False)
 
-                        bindChangeColorOnInAndOut(showImages)
-                        bindChangeColorOnInAndOut(removeEntry)
-                        bindChangeColorOnInAndOut(addLinkEntry)
+                        _uuicom.bindChangeColorOnInAndOut(showImages)
+                        _uuicom.bindChangeColorOnInAndOut(removeEntry)
+                        _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         moveTOCtoSubsection(textLabelFull)
-                        bindChangeColorOnInAndOut(textLabelFull)
-                        bindChangeColorOnInAndOut(openExUIEntry)
+                        _uuicom.bindChangeColorOnInAndOut(textLabelFull)
+                        _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
 
                         tempFrame.render()
                         prevImGroupName = currImGroupName
@@ -994,7 +978,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsectionLabel.image = result
 
         openPdfOnStartOfTheSection(subsectionLabel)
-        bindChangeColorOnInAndOut(subsectionLabel)
+        _uuicom.bindChangeColorOnInAndOut(subsectionLabel)
 
         subsectionLabel.render()
 
@@ -1016,8 +1000,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 openContentLabel.clicked = False
 
             openContentOfTheSection(locFrame, openContentLabel)
-            bindChangeColorOnInAndOut(openContentLabel)
-            bindChangeColorOnInAndOut(rebuildLatex)
+            _uuicom.bindChangeColorOnInAndOut(openContentLabel)
+            _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
 
             def rebuildSubsectionLatexWrapper(subsection):
                 fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
@@ -1040,7 +1024,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                  row = 0, column= 1)
             openContentLabel.clicked = self.showSubsectionsForTopSection[subsection]
             openContentOfTheTopSection(locFrame, openContentLabel)
-            bindChangeColorOnInAndOut(openContentLabel)
+            _uuicom.bindChangeColorOnInAndOut(openContentLabel)
 
             openContentLabel.render()
 

@@ -39,6 +39,7 @@ class TOCLabelWithClick(ttk.Label):
     image = None
     alwaysShow = None
     shouldShowExMenu = False
+    lineImIdx = _u.Token.NotDef.str_t
 
     def rebind(self, keys, cmds):
         for i in range(len(keys)):
@@ -68,8 +69,25 @@ class TOCLabelWithClick(ttk.Label):
         return self.winfo_children()
 
 
+def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False):
+    def __changeTextColorBlue(event = None, *args):
+        event.widget.configure(foreground="blue")
+
+    def __changeTextColorRed(event = None, *args):
+        event.widget.configure(foreground="red")
+
+    def __changeTextColorWhite(event = None, *args):
+        event.widget.configure(foreground="white")
+    
+    widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
+    if not shouldBeRed:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
+    else:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
+
+
 def getImageWidget(root, imagePath, widgetName, 
-                   imPad = 0, imageSize = [450, 1000], 
+                   imPad = 0, imageSize = [450, 200], 
                    row = 0, column = 0, columnspan = 1):
     pilIm = Image.open(imagePath)
     pilIm.thumbnail(imageSize, Image.ANTIALIAS)
