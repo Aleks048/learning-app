@@ -707,19 +707,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                 for ln, lk in glLinks.items():
                                     if "KIK" in lk:
-                                        glLinkImLablel = ttk.Label(linksFrame, 
-                                                                name = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                padding=[120, 0, 0, 0])
-                                        glLinkImLablel.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+                                        glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                                linksFrame, 
+                                                                prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                padding = [120, 0, 0, 0],
+                                                                row = glLinkId + 1, column = 0)
+                                        glLinkImLablel.render()
         
                                         targetSubsection = ln.split("_")[0]
                                         targetImIdx = ln.split("_")[1]
                                         targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
-                                        glLinkSubsectioLbl = ttk.Label(glLinkImLablel, 
+                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
+                                                                glLinkImLablel, 
+                                                                prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
                                                                 text = targetSubsection + ": ", 
                                                                 padding = [150, 0, 0, 0],
-                                                                name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
-                                        glLinkSubsectioLbl.grid(row = 0, column = 0, sticky=tk.NW)
+                                                                row = 0, column = 0)
+                                        glLinkSubsectioLbl.render()
 
                                         imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
@@ -733,19 +737,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
                                                                     image = img,
                                                                     text = ln + ": " + imLinkDict[targetImIdx], 
-                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId)
+                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                                    row = 0, column = 1
                                                                     )
                                         glLinkLablel.subsection = targetSubsection
                                         glLinkLablel.imIdx = targetImIdx
                                         glLinkLablel.image = img
 
-                                        glLinkLablel.grid(row = 0, column = 1, sticky=tk.NW)
+                                        glLinkLablel.render()
                                         openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
                                         linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                     text = "[full]", 
-                                                                    prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId))
-                                        linkLabelFull.grid(row = 0, column = 2, sticky=tk.NW)
+                                                                    prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
+                                                                    row = 0, column= 2)
+                                        linkLabelFull.render()
 
                                         linkLabelFull.subsection = ln.split("_")[0]
                                         linkLabelFull.imIdx = ln.split("_")[-1]
@@ -755,11 +761,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                         glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                         text = "[im]", 
-                                                                        prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId))
+                                                                        prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
+                                                                        row = 0, column = 3)
                                         glLinksShowImages.imIdx = ln.split("_")[-1]
                                         glLinksShowImages.subsection = ln.split("_")[0]
                                         glLinksShowImages.clicked = False
-                                        glLinksShowImages.grid(row = 0, column = 3, sticky=tk.NW)
+                                        glLinksShowImages.render()
                                         glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
 
                                         _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
@@ -772,11 +779,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                                                       True, 
                                                                                                       *args)])
                                     elif "http" in lk:
-                                        glLinkSubsectioLbl = ttk.Label(linksFrame, 
+                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(linksFrame, 
                                                                 text = "web: ", 
                                                                 padding = [150, 0, 0, 0],
-                                                                name = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),)
-                                        glLinkSubsectioLbl.grid(row = glLinkId + 1, column = 0, sticky=tk.NW)
+                                                                prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
+                                                                row = glLinkId + 1, column = 0)
+                                        glLinkSubsectioLbl.render()
 
                                         latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
                                         pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
@@ -788,12 +796,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame,
                                                                     image = img,
                                                                     text = ln, 
-                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId))
+                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                                    row = glLinkId + 1, column = 1)
                                         glLinkLablel.subsection = subsection
                                         glLinkLablel.imIdx = k
                                         glLinkLablel.image = img
 
-                                        glLinkLablel.grid(row = glLinkId + 1, column = 1, sticky=tk.NW)
+                                        glLinkLablel.render()
                                         openWebOfTheImage(glLinkLablel, lk)
 
                                     glLinkId += 1
