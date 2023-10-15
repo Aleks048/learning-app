@@ -115,7 +115,7 @@ class ShowHideLinks_BTN(ww.currUIImpl.Button,
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_ShowHideLinks"
-        text= "S/H Links"
+        text= "Show/Hide Links"
         super().__init__(prefix, 
                         name, 
                         text, 
