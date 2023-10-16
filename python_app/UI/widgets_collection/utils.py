@@ -40,6 +40,7 @@ class TOCLabelWithClick(ttk.Label):
     alwaysShow = None
     shouldShowExMenu = False
     lineImIdx = _u.Token.NotDef.str_t
+    etrWidget = _u.Token.NotDef.str_t
 
     def rebind(self, keys, cmds):
         for i in range(len(keys)):

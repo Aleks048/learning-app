@@ -19,6 +19,7 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import tex_file.tex_file_facade as tff
 import UI.widgets_collection.utils as _uuicom
+import UI.widgets_data as wd
 
 
 # class _uuicom.TOCLabelWithClick(ww.currUIImpl.Label):
@@ -63,6 +64,42 @@ import UI.widgets_collection.utils as _uuicom
 #                         parentWidget, 
 #                         renderData = data,
 #                         padding = padding)
+
+
+class ImageText_ETR(ww.currUIImpl.TextEntry):
+    subsection = None
+    imIdx = None
+    textETR = None
+
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text):
+        name = "_textImageTOC_ETR" + str(imIdx)
+        self.defaultText = text
+
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+
+
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
+                                            "font": ('Georgia 20')},
+            ww.TkWidgets.__name__ : {"width": 20}
+        }
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        extraBuildOptions,
+                        defaultText = self.defaultText)
+        super().setData(self.defaultText)
+    
+    def receiveNotification(self, _):
+        return self.getData()
+    
+    def defaultTextCMD(self):
+        pass
 
 
 class ImageGroupOM(ttk.OptionMenu):
@@ -170,6 +207,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     showLinks = None
 
+    # this data structure is used to store the
+    # entry image widget that is turned into ETR for update
+    class entryAsETR:
+        subsection = _u.Token.NotDef.str_t
+        imIdx = _u.Token.NotDef.str_t
+        widget = None
+
+        def reset(self):
+            self.subsection = _u.Token.NotDef.str_t
+            self.imIdx = _u.Token.NotDef.str_t
+            self.widget = None
+
     # used to filter toc data when the search is performed
     filterToken = ""
     showAll = None
@@ -187,6 +236,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.parent = parentWidget.widgetObj
         self.showAll = showAll
         self.showLinks = showLinks
+
+        self.entryAsETR = TOC_BOX.entryAsETR()
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
@@ -502,6 +553,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         exMenuManger.hide()
 
+                def updateEntry(event, *args):
+                    if (self.entryAsETR.subsection != _u.Token.NotDef.str_t) and \
+                        (self.entryAsETR.imIdx != _u.Token.NotDef.str_t):
+                        newText = self.entryAsETR.widget.getData()
+                        imLinkDict = fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection)
+                        imLinkDict[self.entryAsETR.imIdx] = newText
+                        fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection, imLinkDict)
+                        fsm.Wr.SectionInfoStructure.rebuildEntryLatex(self.entryAsETR.subsection,
+                                                                      getWidgetNameID,
+                                                                      self.entryAsETR.imIdx,
+                                                                      newText
+                                                                      )
+                        self.entryAsETR.reset()
+                        self.render()
+                    else:
+                        self.entryAsETR.subsection = event.widget.subsection
+                        self.entryAsETR.imIdx = event.widget.imIdx
+                        self.entryAsETR.widget =event.widget.etrWidget
+                        self.render()
+
                 # 4 : event of mouse click
                 # 19 : event of being rendered
                 if ((not label.clicked) and (int(event.type) == 4)) or\
@@ -638,12 +709,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
                         img = ImageTk.PhotoImage(pilIm)
 
-                        textLabelPage = _uuicom.TOCLabelWithClick(tempFrame,
-                                                          image = img, 
-                                                          prefix = "contentP_" + nameId, 
-                                                          padding= [60, 0, 0, 0],
-                                                          row = gridRowStartIdx, column = 0)
-                        textLabelPage.image = img
+                        if (subsection == self.entryAsETR.subsection)\
+                            and (str(i) == self.entryAsETR.imIdx) :
+                            textLabelPage = ImageText_ETR(tempFrame, "contentP_" + nameId, 
+                                                          gridRowStartIdx, 0, 
+                                                          i, 
+                                                          v)
+                            self.entryAsETR.widget = textLabelPage
+                        else:
+                            textLabelPage = _uuicom.TOCLabelWithClick(tempFrame,
+                                                            image = img, 
+                                                            prefix = "contentP_" + nameId, 
+                                                            padding= [60, 0, 0, 0],
+                                                            row = gridRowStartIdx, column = 0)
+                            textLabelPage.image = img
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
                                                        text = "[full]", 
@@ -698,6 +777,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         openExUIEntry.subsection = subsection
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
+
+                        changeImText = _uuicom.TOCLabelWithClick(tempFrame, 
+                                                      text = "[update]", 
+                                                      prefix = "contentUpdateEntryText" + nameId,
+                                                      row = gridRowStartIdx, 
+                                                      column = 8)
+                        changeImText.imIdx = str(i)
+                        changeImText.subsection = subsection
+                        changeImText.etrWidget = textLabelPage
+                        changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [updateEntry])
 
                         if self.showLinks:
                             # adding a frame to show global links
@@ -853,6 +943,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 linksFrame.render()
 
                             openExUIEntry.render()
+                            changeImText.render()
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
@@ -867,6 +958,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         moveTOCtoSubsection(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
+                        _uuicom.bindChangeColorOnInAndOut(changeImText)
 
                         tempFrame.render()
                         prevImGroupName = currImGroupName

@@ -375,6 +375,21 @@ class SectionInfoStructure:
                                    wcom.getTopSectionPretty)
     
     @classmethod
+    def rebuildEntryLatex(cls, 
+                          subsection, 
+                          fromSubAndEntryIdxToNameId,
+                          imIdx,
+                          linkText):
+        secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        subsection)        
+
+        filename = "_" + fromSubAndEntryIdxToNameId(subsection, imIdx) + ".png"
+        entryImgPath = os.path.join(secreenshotPath, filename)
+        tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(imIdx, linkText)
+
+        tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
+
+    @classmethod
     def rebuildSubsectionLatex(cls, subsection, 
                                fromSubAndEntryIdxToNameId, 
                                fromGroupNameToFilename, 
@@ -391,11 +406,7 @@ class SectionInfoStructure:
         groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 
         for k, v in imLinkDict.items():
-            filename = "_" + fromSubAndEntryIdxToNameId(subsection, k) + ".png"
-            entryImgPath = os.path.join(secreenshotPath, filename)
-            tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
-
-            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
+            cls.rebuildEntryLatex(subsection, fromSubAndEntryIdxToNameId, k, v)
         
         for g in groups:
             filename = "_g_" + fromGroupNameToFilename(g) + ".png"
