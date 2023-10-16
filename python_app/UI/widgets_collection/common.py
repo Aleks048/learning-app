@@ -368,6 +368,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.subsectionClicked = widget.subsection
                 self.showSubsectionsForTopSection[widget.subsection.split(".")[0]] = True
                 self.entryClicked = widget.imIdx
+                
+                # update to show the group when we show the entry
+                groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
+                imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
+                groupName = list(groupsList.keys())[imGroupDict[self.entryClicked]]
+                groupsList[groupName] = True
+                fsm.Data.Sec.imagesGroupsList(subsection, groupsList)
 
                 self.render()
             
@@ -385,6 +392,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             gpframe = tframe.master
             balloon = Pmw.Balloon(tframe)
 
+            isWdgetLink = "gllink" in str(label).lower().split(".")[-1]
+
             def __cmd(event, *args):
                 if ((not label.clicked) and ((int(event.type) == 4) or self.showAll)) or\
                     ((not label.clicked) and ((int(event.type) == 35) or self.showAll)):
@@ -394,7 +403,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouldScroll:
                         _uuicom.closeAllImages(gpframe, self.showAll, link)
 
-                    if not label.alwaysShow:
+                    if (not label.alwaysShow) and (not isWdgetLink):
                         self.entryClicked = imIdx
 
                     label.clicked = True
@@ -405,7 +414,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     shouldShowGroup = fsm.Data.Sec.imagesGroupsList(subsection)[imageGroup]
 
-                    if not shouldShowGroup:
+                    if (not shouldShowGroup) and (not isWdgetLink):
                         return
 
                     # mainImage
@@ -416,7 +425,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                               balloon, bindData)
 
                     imLabel.render()
-                    self.openedMainImg = imLabel
+
+                    if not isWdgetLink:
+                        self.openedMainImg = imLabel
 
                     # extraImages
                     def skippProof(subsection, imIdx, exImIdx):
@@ -440,11 +451,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouldScroll:
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
-                    if int(event.type) == 4:
-                        self.currEntryWidget = event.widget
+                    if not isWdgetLink:
+                        if int(event.type) == 4:
+                            self.currEntryWidget = event.widget
 
-                    self.entryClicked = _u.Token.NotDef.str_t
-                    self.scroll_into_view(event)
+                        self.entryClicked = _u.Token.NotDef.str_t
+                        self.scroll_into_view(event)
+
                     _uuicom.closeAllImages(gpframe, self.showAll, link)
 
             __cmd(event, *args)
