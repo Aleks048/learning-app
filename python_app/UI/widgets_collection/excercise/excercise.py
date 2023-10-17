@@ -58,7 +58,7 @@ class ExcerciseImageLabel(ttk.Label):
 
             imagePath = _upan.Paths.Entry.LineImage.getAbs(bookName, subsection, imIdx, lineIdx)
             pilIm = Image.open(imagePath)
-            pilIm.thumbnail([300, 50], Image.ANTIALIAS)
+            pilIm.thumbnail([450, 1000], Image.ANTIALIAS)
             img = ImageTk.PhotoImage(pilIm)
             images.append(img)
             return super().__init__(root, name = name, image = img, padding = [120, 0, 0, 0])

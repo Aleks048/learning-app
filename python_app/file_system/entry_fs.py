@@ -19,8 +19,10 @@ class EntryInfoStructure:
     '''
 
     currStucturePath = ""
-    fixedWidth = 400
+    fixedWidth = 420
     lineImageFontSize = 10
+    lineImagePadding = 5
+    lineImageTextSize = 10
 
     class PubProp:
         name = "_name"
@@ -85,7 +87,9 @@ class EntryInfoStructure:
         tff.Wr.TexFileUtils.fromTexToImage(text, 
                                            savePath, 
                                            fixedWidth = cls.fixedWidth,
-                                           fontSize = cls.lineImageFontSize)
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
@@ -103,7 +107,9 @@ class EntryInfoStructure:
         tff.Wr.TexFileUtils.fromTexToImage(text,
                                            savePath,
                                            fixedWidth = cls.fixedWidth,
-                                           fontSize = cls.lineImageFontSize)
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

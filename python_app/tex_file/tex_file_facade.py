@@ -26,8 +26,14 @@ class Wr:
             text = text.replace(" ", "\ ")
             return text
 
-        def fromTexToImage(tex, savePath, padding = 10, 
-                           imageColor = "#3295a8", fixedWidth = None, fontSize = 12):
+        def fromTexToImage(tex, 
+                           savePath, 
+                           padding = 10, 
+                           imageColor = "#3295a8", 
+                           fixedWidth = None, 
+                           fixedHeight = None,
+                           fontSize = 12,
+                           textSize = 14):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -62,7 +68,7 @@ class Wr:
                 plt.ioff()
                 plt.axis('off')
                 plt.tight_layout()
-                plt.text(0.05, 0.05, f'\\noindent${tex}$', size = 14)
+                plt.text(0.05, 0.05, f'\\noindent${tex}$', size = textSize)
                 plt.savefig(buf, format='png')
                 plt.clf()
 
@@ -87,8 +93,12 @@ class Wr:
                 new_width = width + right + left
             else:
                 new_width = fixedWidth
+            
+            if fixedHeight == None:
+                new_height = height + top + bottom
+            else:
+                new_height = fixedHeight
 
-            new_height = height + top + bottom
             
             result = Image.new(im.mode, (new_width, new_height), imageColor)
             result.paste(im, (left, top))
