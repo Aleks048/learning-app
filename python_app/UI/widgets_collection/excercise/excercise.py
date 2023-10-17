@@ -6,6 +6,7 @@ import time
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.excercise.manager as exm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -13,6 +14,7 @@ import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import UI.widgets_data as wd
+import data.temp as dt
 
 images = []
 
@@ -22,15 +24,15 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
 
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
-                                            "font": ('Georgia 20')},
-            ww.TkWidgets.__name__ : {"width": 40}
+                                            "font": ('Georgia 14')},
+            ww.TkWidgets.__name__ : {"width": 50, "fg": "white"}
         }
 
         super().__init__(prefix, 
@@ -40,6 +42,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
                         extraBuildOptions,
                         defaultText = self.defaultText)
         super().setData(self.defaultText)
+        self.setTextColor("white")
     
     def receiveNotification(self, _):
         return self.getData()
@@ -55,7 +58,7 @@ class ExcerciseImageLabel(ttk.Label):
 
             imagePath = _upan.Paths.Entry.LineImage.getAbs(bookName, subsection, imIdx, lineIdx)
             pilIm = Image.open(imagePath)
-            pilIm.thumbnail([700, 100], Image.ANTIALIAS)
+            pilIm.thumbnail([300, 50], Image.ANTIALIAS)
             img = ImageTk.PhotoImage(pilIm)
             images.append(img)
             return super().__init__(root, name = name, image = img, padding = [120, 0, 0, 0])
@@ -70,7 +73,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_excerciseImage_LBL"
@@ -133,13 +136,37 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
         # update the box UI
         self.notify(Excercise_BOX)
 
+class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Hide"
+        name = "_HideExcerciseWindow_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            exm.ExcerciseManager)
+        excerciseManager.hide()
+
 
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_getExcerciseNewLineText_ETR"
         defaultText = "New excercise line text"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -181,7 +208,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 1, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 2, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"

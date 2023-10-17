@@ -26,7 +26,8 @@ class Wr:
             text = text.replace(" ", "\ ")
             return text
 
-        def fromTexToImage(tex, savePath, padding = 10, imageColor = "#3295a8", fixedWidth = None):
+        def fromTexToImage(tex, savePath, padding = 10, 
+                           imageColor = "#3295a8", fixedWidth = None, fontSize = 12):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -42,7 +43,7 @@ class Wr:
 
             buf = io.BytesIO()
             params = plt.rcParams.copy()
-            params ['font.size'] = 12
+            params ['font.size'] = fontSize
             params ['font.family'] = "serif"
             params ['text.usetex'] = True
             params ['text.latex.preamble'] =  r'\usepackage{amsfonts}'

@@ -20,6 +20,7 @@ class EntryInfoStructure:
 
     currStucturePath = ""
     fixedWidth = 400
+    lineImageFontSize = 10
 
     class PubProp:
         name = "_name"
@@ -81,7 +82,11 @@ class EntryInfoStructure:
         savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
         filename = _upan.Names.Entry.Line.name(imIdx, str(len(entryLinesList) - 1))
         savePath = os.path.join(savePath, filename)
-        tff.Wr.TexFileUtils.fromTexToImage(text, savePath, fixedWidth = cls.fixedWidth)
+        tff.Wr.TexFileUtils.fromTexToImage(text, 
+                                           savePath, 
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize)
+
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
     @classmethod
@@ -95,7 +100,10 @@ class EntryInfoStructure:
         savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
         filename = _upan.Names.Entry.Line.name(imIdx, lineIdx)
         savePath = os.path.join(savePath, filename)
-        tff.Wr.TexFileUtils.fromTexToImage(text, savePath, fixedWidth = cls.fixedWidth)
+        tff.Wr.TexFileUtils.fromTexToImage(text,
+                                           savePath,
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

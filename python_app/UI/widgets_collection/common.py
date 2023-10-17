@@ -83,8 +83,8 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
 
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
-                                            "font": ('Georgia 20')},
-            ww.TkWidgets.__name__ : {"width": 20}
+                                            "font": ('Georgia 14')},
+            ww.TkWidgets.__name__ : {"width": 40}
         }
 
         super().__init__(prefix, 
