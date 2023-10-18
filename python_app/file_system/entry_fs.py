@@ -19,7 +19,7 @@ class EntryInfoStructure:
     '''
 
     currStucturePath = ""
-    fixedWidth = 420
+    fixedWidth = 530
     lineImageFontSize = 10
     lineImagePadding = 5
     lineImageTextSize = 10

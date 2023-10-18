@@ -32,7 +32,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
                                             "font": ('Georgia 14')},
-            ww.TkWidgets.__name__ : {"width": 50, "fg": "white"}
+            ww.TkWidgets.__name__ : {"width": 60, "fg": "white"}
         }
 
         super().__init__(prefix, 
@@ -58,12 +58,12 @@ class ExcerciseImageLabel(ttk.Label):
 
             imagePath = _upan.Paths.Entry.LineImage.getAbs(bookName, subsection, imIdx, lineIdx)
             pilIm = Image.open(imagePath)
-            pilIm.thumbnail([450, 1000], Image.ANTIALIAS)
+            pilIm.thumbnail([530, 1000], Image.ANTIALIAS)
             img = ImageTk.PhotoImage(pilIm)
             images.append(img)
-            return super().__init__(root, name = name, image = img, padding = [120, 0, 0, 0])
+            return super().__init__(root, name = name, image = img, padding = [0, 0, 0, 0])
         else:
-            return super().__init__(root, name = name, text = text, padding = [120, 0, 0, 0])
+            return super().__init__(root, name = name, text = text, padding = [0, 0, 0, 0])
 
 
 class ExcerciseImage(ww.currUIImpl.Frame):
@@ -235,15 +235,15 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             if str(i) != self.lineIdxShownInText:
                 label = ExcerciseImageLabel(self.scrollable_frame, "linesImage_" + str(i), 
                                             self.subsection, self.imIdx, i)
-                label.grid(row = i + 1, column = 0)
+                label.grid(row = i + 1, column = 5)
             else:
-                label = ImageText_ETR(self.scrollable_frame, "linesImage_", i + 1, 0, i, lines[i])
+                label = ImageText_ETR(self.scrollable_frame, "linesImage_", i + 1, 5, i, lines[i])
                 self.currEtr = label
                 label.render()
 
             # showtext
             showTextLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_showText_" + str(i), 
-                                                    i + 1, 1, text = "To text")
+                                                    i + 1, 0, text = "To text")
             showTextLabel.lineImIdx = str(i)
 
             def showTextOrImage(event, *args):
@@ -273,7 +273,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             copy
             '''
             copyLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_copyLine_" + str(i), 
-                                                    i + 1, 2, text = "Copy")
+                                                    i + 1, 1, text = "Copy")
             copyLabel.lineImIdx = i
 
             def setCopyLineIdx(event, *args):
@@ -287,7 +287,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             paste
             '''
             pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
-                                                    i + 1, 3, text = "PB")
+                                                    i + 1, 2, text = "PB")
             pasteLabel.lineImIdx = i
 
             def pasteLineIdx(event, *args):
@@ -307,7 +307,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             pasteLabel.render()
 
             pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
-                                                    i + 1, 4, text = "PA")
+                                                    i + 1, 3, text = "PA")
             pasteLabel.lineImIdx = i
 
             def pasteLineIdx(event, *args):
@@ -330,7 +330,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             delete
             '''
             deleteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
-                                                    i + 1, 5, text = "Del")
+                                                    i + 1, 4, text = "Del")
             deleteLabel.lineImIdx = i
 
             def deleteLineIdx(event, *args):
