@@ -151,6 +151,9 @@ class LayoutManagers:
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
             imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)  
 
+            chooseSubsection_OM.addListenerWidget(sourceImageLinks_OM)
+            chooseTopSection_OM.addListenerWidget(sourceImageLinks_OM)
+
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
             addGlobalLink_BTN.addListenerWidget(tocBox_BOX)

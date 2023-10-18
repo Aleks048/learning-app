@@ -350,6 +350,8 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
 
         self.notify(ScreenshotLocation_LBL)
 
+        self.notify(commw.SourceImageLinks_OM)
+
         lf.Wr.MainLayout.set()
     
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
@@ -428,6 +430,9 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         # subsection option menu widget
         # notify choose subsection OM
         self.notify(ChooseSubsection_OM, subsectionsList, prevSubsectionPath)
+
+        # update screenshot widget
+        self.notify(commw.SourceImageLinks_OM)
 
         # update screenshot widget
         self.notify(ScreenshotLocation_LBL)

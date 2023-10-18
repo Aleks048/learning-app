@@ -223,6 +223,8 @@ class ImageSave_BTN(ww.currUIImpl.Button):
 
 
 class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
+    prevOptionIdx = _u.Token.NotDef.str_t
+    prevOptionSubsection = _u.Token.NotDef.str_t
 
     def __init__(self, patentWidget, prefix, column = 3, row = 1):
         renderData = {
@@ -242,12 +244,17 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
                         renderData,
                         self.cmd)
         
+        self.prevOptionSubsection = fsm.Data.Book.currSection
+        self.prevOptionIdx = fsm.Data.Book.entryImOpenInTOC_UI
+        
         self.updateOptions()
     
     def cmd(self):
         self.notifyAllListeners()
 
-    def updateOptions(self, _ = ""):
+    def updateOptions(self,
+                      _ = "" # this is just a hack to override the parent method
+                      ):
         currSec = fsm.Data.Book.currSection
         imLinkDict = fsm.Data.Sec.imLinkDict(currSec)
         if type(imLinkDict) == dict:
@@ -257,7 +264,19 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
             self.sourceSubsectionImageLinks = _u.Token.NotDef.list_t
 
         super().updateOptions(self.sourceSubsectionImageLinks)
-        self.setData(self.sourceSubsectionImageLinks[-1])
+
+        if currSec != self.prevOptionSubsection:
+            self.setData(self.sourceSubsectionImageLinks[-1], notParentUpdCall = True)
+        else:
+            self.setData(self.prevOptionIdx, notParentUpdCall = True)
+
+    def setData(self, newData, **kwargs):
+        # NOTE: this is a hack so that we don't consider the 
+        # setting of the data by the parent
+        if "notParentUpdCall" in list(kwargs.keys()):
+            self.prevOptionSubsection = fsm.Data.Book.currSection
+            self.prevOptionIdx = str(newData)
+        return super().setData(newData, **kwargs)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
         self.updateOptions()
@@ -265,6 +284,7 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def receiveNotification(self, broadcasterType):
         if broadcasterType == AddGlobalLink_BTN:
+            self.prevOptionIdx = self.getData()
             return self.getData()
         elif broadcasterType == mui.LatestExtraImForEntry_LBL:
             return self.getData()
