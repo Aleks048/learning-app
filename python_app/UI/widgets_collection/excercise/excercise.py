@@ -221,7 +221,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         renderData = data,
                         height = height,
                         width = windth,
-                        makeScrollable = True)\
+                        makeScrollable = False)
 
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
