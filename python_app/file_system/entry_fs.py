@@ -90,7 +90,7 @@ class EntryInfoStructure:
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = 90)
+                                           numSymPerLine = 50)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
@@ -111,7 +111,7 @@ class EntryInfoStructure:
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = 90)
+                                           numSymPerLine = 50)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

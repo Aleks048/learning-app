@@ -2,6 +2,7 @@ from PIL import ImageTk,Image, ImageChops
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import io
+import re
 
 import tex_file.tex_file_populate as tfpo
 import tex_file.tex_file_modify as tfm
@@ -41,7 +42,8 @@ class Wr:
             tex = ""
 
             for w in texList:
-                wordLen = len(w + "\\ ")
+                # NOTE: we remove the newLine and latex tokens
+                wordLen = len("".join(re.split(r"\\*{", w)).replace("\\", "").replace("}", ""))
                 chCounter += wordLen
                 tex += w + "\\ " 
     

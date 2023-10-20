@@ -32,8 +32,9 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
     
     def getData(self):
         binString = self.get('1.0', tk.END)
-        print(binString)
-        return binString
+        bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
+
+        return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
 
     def render(self):
         self.grid(row = self.row, column = self.column)
