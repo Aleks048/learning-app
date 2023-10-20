@@ -33,7 +33,8 @@ class Wr:
                            fixedWidth = None, 
                            fixedHeight = None,
                            fontSize = 12,
-                           textSize = 14):
+                           textSize = 14,
+                           numSymPerLine = 55):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -43,7 +44,7 @@ class Wr:
                 chCounter += wordLen
                 tex += w + "\\ " 
     
-                if chCounter > 55:
+                if chCounter > numSymPerLine:
                     tex += "\\\\"
                     chCounter = 0
 
@@ -52,7 +53,7 @@ class Wr:
             params ['font.size'] = fontSize
             params ['font.family'] = "serif"
             params ['text.usetex'] = True
-            params ['text.latex.preamble'] =  r'\usepackage{amsfonts}'
+            params ['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb, xcolor}'
             params['figure.facecolor'] = imageColor
 
             if "excercise" in tex.lower():

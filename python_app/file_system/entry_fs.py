@@ -89,7 +89,8 @@ class EntryInfoStructure:
                                            fixedWidth = cls.fixedWidth,
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
-                                           padding = cls.lineImagePadding)
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = 90)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
@@ -109,7 +110,8 @@ class EntryInfoStructure:
                                            fixedWidth = cls.fixedWidth,
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
-                                           padding = cls.lineImagePadding)
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = 90)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

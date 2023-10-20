@@ -237,8 +237,37 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                             self.subsection, self.imIdx, i)
                 label.grid(row = i + 1, column = 5)
             else:
-                label = ImageText_ETR(self.scrollable_frame, "linesImage_", i + 1, 5, i, lines[i])
-                self.currEtr = label
+                label = _ucomw.TOCFrame(self.scrollable_frame, 
+                                "linesImageFRM_" + str(i),
+                                i + 1, 5, 1
+                                )
+                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
+                                            self.subsection, self.imIdx, i)
+                labIm.grid(row = 0, column = 0)
+
+                labETR = ImageText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
+                self.currEtr = labETR
+
+                labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
+                                                2, 0, text = "Rebuild")
+                labRebuild.lineImIdx = str(i)
+
+                def rebuildETRImage(event, *args):
+                    text = self.currEtr.getData()
+                    if text != self.currEtr.defaultText:
+                        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
+                                                            self.imIdx,
+                                                            event.widget.lineImIdx,
+                                                            text,
+                                                            bookPath)
+                    self.render()
+
+                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
+                _ucomw.bindChangeColorOnInAndOut(labRebuild)
+
+                labETR.render()
+                labRebuild.render()
                 label.render()
 
             # showtext
