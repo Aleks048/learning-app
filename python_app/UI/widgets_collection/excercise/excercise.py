@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import scrolledtext
 from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
@@ -18,6 +19,24 @@ import data.temp as dt
 
 images = []
 
+
+class MultilineText_ETR(scrolledtext.ScrolledText):
+    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
+        self.defaultText = text
+        self.row = row
+        self.column = column
+
+        super().__init__(patentWidget, wrap=tk.WORD, 
+                         width = 70, height = 5)
+        self.insert(tk.END, text)
+    
+    def getData(self):
+        binString = self.get('1.0', tk.END)
+        print(binString)
+        return binString
+
+    def render(self):
+        self.grid(row = self.row, column = self.column)
 
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
@@ -233,7 +252,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         for i in range(len(lines)):
             # image / text
             if str(i) != self.lineIdxShownInText:
-                label = ExcerciseImageLabel(self.scrollable_frame, "linesImage_" + str(i), 
+                label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
                 label.grid(row = i + 1, column = 5)
             else:
@@ -245,7 +264,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                             self.subsection, self.imIdx, i)
                 labIm.grid(row = 0, column = 0)
 
-                labETR = ImageText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
+                labETR = MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
                 self.currEtr = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
@@ -254,6 +273,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
                 def rebuildETRImage(event, *args):
                     text = self.currEtr.getData()
+
                     if text != self.currEtr.defaultText:
                         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,

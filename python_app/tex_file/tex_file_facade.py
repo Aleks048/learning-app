@@ -24,6 +24,7 @@ class Wr:
     class TexFileUtils:
         def formatEntrytext(text:str):
             text = text.replace(" ", "\ ")
+            text = text.replace("\n", "\\\\")
             return text
 
         def fromTexToImage(tex, 
