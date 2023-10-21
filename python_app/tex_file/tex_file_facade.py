@@ -42,8 +42,20 @@ class Wr:
             tex = ""
 
             for w in texList:
-                # NOTE: we remove the newLine and latex tokens
-                wordLen = len("".join(re.split(r"\\*{", w)).replace("\\", "").replace("}", ""))
+                # NOTE: we remove the newLine + latex tokens + "}"
+                splittedWord = re.split(r"\\+[[a-z]+|[A-Z]+]+", w)
+
+                # NOTE: we do use this to add one to count for the
+                # symbols of the kind ex: '\subset'
+                if len([i for i in splittedWord if i != ""]) == 0:
+                    splittedWord = ["1"]
+
+                filteredWord = "".join(splittedWord)\
+                              .replace("\\", "")\
+                              .replace("}", "")\
+                              .replace("{", "")
+
+                wordLen = len(filteredWord)
                 chCounter += wordLen
                 tex += w + "\\ " 
     
