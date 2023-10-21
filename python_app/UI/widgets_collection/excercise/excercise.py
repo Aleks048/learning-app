@@ -34,6 +34,10 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         binString = self.get('1.0', tk.END)
         bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
 
+        # removing the unnecessary newlines from the end
+        while binString[-1] == "\n":
+            binString = binString[:-1]
+
         return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
 
     def render(self):
