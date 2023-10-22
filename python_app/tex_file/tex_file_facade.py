@@ -87,6 +87,8 @@ class Wr:
                 params['text.color'] = "red"
             elif "important!" in tex.lower():
                 params['text.color'] = "blue"
+            elif "\\square" in tex.lower():
+                params['text.color'] = "#700470"
             else:
                 params['text.color'] = "black"
 
