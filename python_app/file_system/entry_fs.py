@@ -23,6 +23,7 @@ class EntryInfoStructure:
     lineImageFontSize = 10
     lineImagePadding = 5
     lineImageTextSize = 10
+    numSymbolsPerLine = 75
 
     class PubProp:
         name = "_name"
@@ -90,7 +91,7 @@ class EntryInfoStructure:
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = 50)
+                                           numSymPerLine = cls.numSymbolsPerLine)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
@@ -111,7 +112,7 @@ class EntryInfoStructure:
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = 50)
+                                           numSymPerLine = cls.numSymbolsPerLine)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

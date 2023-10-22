@@ -45,6 +45,9 @@ class Wr:
                 # NOTE: we remove the newLine + latex tokens + "}"
                 splittedWord = re.split(r"\\+[[a-z]+|[A-Z]+]+", w)
 
+                for i in range(len(splittedWord)):
+                    splittedWord[i] = re.sub(r"{[a-z]+}", "", splittedWord[i])
+
                 # NOTE: we do use this to add one to count for the
                 # symbols of the kind ex: '\subset'
                 if len([i for i in splittedWord if i != ""]) == 0:
@@ -56,23 +59,34 @@ class Wr:
                               .replace("{", "")
 
                 wordLen = len(filteredWord)
-                chCounter += wordLen
+                chCounter += wordLen + 1
                 tex += w + "\\ " 
     
                 if chCounter > numSymPerLine:
                     tex += "\\\\"
                     chCounter = 0
 
+            texList = tex.split("\\\\")
+            fullTex = f"\\noindent${tex}$"
+            # NOTE: this is left here in case
+            # I will want to split the lines into separate formulas
+            # fullTex = f"\\noindent"
+            # for line in texList:
+            #     fullTex += f'${line}$' + "\\\\"
+            # fullTex = fullTex[:-2]
+
             buf = io.BytesIO()
             params = plt.rcParams.copy()
-            params ['font.size'] = fontSize
-            params ['font.family'] = "serif"
-            params ['text.usetex'] = True
-            params ['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb, xcolor}'
+            params['font.size'] = fontSize
+            params['font.family'] = "serif"
+            params['text.usetex'] = True
+            params['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb}'
             params['figure.facecolor'] = imageColor
 
             if "excercise" in tex.lower():
                 params['text.color'] = "red"
+            elif "important!" in tex.lower():
+                params['text.color'] = "blue"
             else:
                 params['text.color'] = "black"
 
@@ -84,7 +98,8 @@ class Wr:
                 plt.ioff()
                 plt.axis('off')
                 plt.tight_layout()
-                plt.text(0.05, 0.05, f'\\noindent${tex}$', size = textSize)
+                plt.text(0.15, 0.35, fullTex,
+                         size = textSize)
                 plt.savefig(buf, format='png')
                 plt.clf()
 
