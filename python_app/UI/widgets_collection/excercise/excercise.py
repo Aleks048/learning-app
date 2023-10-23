@@ -38,6 +38,10 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         while binString[-1] == "\n":
             binString = binString[:-1]
 
+            if len(binString) == 0:
+                binString = _u.Token.NotDef.str_t
+                break
+
         return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
 
     def render(self):

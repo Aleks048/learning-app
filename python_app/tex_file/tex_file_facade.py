@@ -60,9 +60,13 @@ class Wr:
 
                 wordLen = len(filteredWord)
                 chCounter += wordLen + 1
-                tex += w + "\\ " 
-    
-                if chCounter > numSymPerLine:
+                tex += w + "\\ "
+
+                for sw in splittedWord:
+                    if "\\\\" in sw:
+                        chCounter = 0
+
+                if (chCounter > numSymPerLine):
                     tex += "\\\\"
                     chCounter = 0
 
