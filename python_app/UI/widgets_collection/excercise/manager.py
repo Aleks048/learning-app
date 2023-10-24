@@ -27,9 +27,12 @@ class LayoutManagers:
             self.addWidget(hideExcerciseWindow_BTN)
             addExcerciseLine_ETR = exw.AddExcerciseLine_ETR(winRoot, self.prefix)
             self.addWidget(addExcerciseLine_ETR)
+            hideAllETRsWindow_BTN = exw.HideAllETRsWindow_BTN(winRoot, self.prefix)
+            self.addWidget(hideAllETRsWindow_BTN)
 
             self.addExcerciseLine_BTN.addListenerWidget(addExcerciseLine_ETR)
             self.addExcerciseLine_BTN.addListenerWidget(self.excercise_BOX)
+            hideAllETRsWindow_BTN.addListenerWidget(self.excercise_BOX)
 
             winRoot.setGeometry(*self.appDimensions)
         def show(self):

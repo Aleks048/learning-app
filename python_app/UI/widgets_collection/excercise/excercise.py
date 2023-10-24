@@ -52,7 +52,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 2},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
@@ -101,7 +101,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 2},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_excerciseImage_LBL"
@@ -164,6 +164,28 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
         # update the box UI
         self.notify(Excercise_BOX)
 
+class HideAllETRsWindow_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Hide All ETRs"
+        name = "_HideAllETRsWindow_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        self.notify(Excercise_BOX)
+
 class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
                          dc.AppCurrDataAccessToken):
     subsection = None
@@ -194,7 +216,7 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         name = "_getExcerciseNewLineText_ETR"
         defaultText = "New excercise line text"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 2},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 3},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -226,17 +248,17 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
     subsection = None
     imIdx = None
+
     currLineCopyIdx = _u.Token.NotDef.int_t
 
-    showImg = False
-    lineIdxShownInText = _u.Token.NotDef.str_t
-    currEtr = None
+    lineIdxShownInText = _u.Token.NotDef.list_t.copy()
+    currEtr = _u.Token.NotDef.dict_t.copy()
 
     displayedImages = []
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 2, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 3, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"
@@ -260,7 +282,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         '''
         for i in range(len(lines)):
             # image / text
-            if str(i) != self.lineIdxShownInText:
+            if str(i) not in self.lineIdxShownInText:
                 label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
                 label.grid(row = i + 1, column = 5)
@@ -274,16 +296,17 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labIm.grid(row = 0, column = 0)
 
                 labETR = MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
-                self.currEtr = labETR
+                self.currEtr[str(i)] = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
                                                 2, 0, text = "Rebuild")
                 labRebuild.lineImIdx = str(i)
 
                 def rebuildETRImage(event, *args):
-                    text = self.currEtr.getData()
+                    widgetlineImIdx = event.widget.lineImIdx
+                    text = self.currEtr[widgetlineImIdx].getData()
 
-                    if text != self.currEtr.defaultText:
+                    if text != self.currEtr[widgetlineImIdx].defaultText:
                         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
                                                             self.imIdx,
@@ -305,21 +328,23 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             showTextLabel.lineImIdx = str(i)
 
             def showTextOrImage(event, *args):
-                self.showImg = not self.showImg
+                widgetlineImIdx = str(event.widget.lineImIdx)
 
-                if str(self.lineIdxShownInText) == str(event.widget.lineImIdx):
-                    self.lineIdxShownInText = _u.Token.NotDef.str_t
+                if widgetlineImIdx in self.lineIdxShownInText:
+                    self.lineIdxShownInText.remove(widgetlineImIdx)
+                    text = self.currEtr[widgetlineImIdx].getData()
 
-                    text = self.currEtr.getData()
-                    if text != self.currEtr.defaultText:
+                    if text != self.currEtr[widgetlineImIdx].defaultText:
                         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
                                                               self.imIdx,
                                                               event.widget.lineImIdx,
                                                               text,
                                                               bookPath)
+
+                    self.currEtr.pop(widgetlineImIdx)
                 else:
-                    self.lineIdxShownInText = event.widget.lineImIdx
+                    self.lineIdxShownInText.append(str(event.widget.lineImIdx))
 
                 self.render()
 
@@ -405,6 +430,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def receiveNotification(self, broadcasterType) -> None:
         if broadcasterType == AddExcerciseLine_BTN:
+            self.render()
+        if broadcasterType == HideAllETRsWindow_BTN:
+            self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
+            self.currEtr = _u.Token.NotDef.dict_t.copy()
             self.render()
 
     def render(self, widjetObj=None, renderData=..., **kwargs):

@@ -83,13 +83,13 @@ class SectionInfoStructure:
                 cls.PubProp.imageProp: {
                     cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
                     cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t,
-                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t,
-                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t,
-                    cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t,
-                    cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t
+                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy()
                 }
         }
         return sectionInfo_template
@@ -266,7 +266,7 @@ class SectionInfoStructure:
                 else:
                     linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
                 if linkGlobalLinksDict == {}:
-                    linkGlobalLinksDict = _u.Token.NotDef.dict_t
+                    linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
 
                 cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
         
@@ -299,7 +299,7 @@ class SectionInfoStructure:
         imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx)
 
         if imLinkDict == {}:
-            imLinkDict = _u.Token.NotDef.dict_t
+            imLinkDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.imLinkDict, imLinkDict)
 
@@ -308,7 +308,7 @@ class SectionInfoStructure:
         imLinkOMPageDict = cls.__shiftTheItemsInTheDict(imLinkOMPageDict, imIdx)
 
         if imLinkOMPageDict == {}:
-            imLinkOMPageDict = _u.Token.NotDef.dict_t
+            imLinkOMPageDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.imLinkOMPageDict, imLinkOMPageDict)
 
@@ -316,7 +316,7 @@ class SectionInfoStructure:
         imGlobalLinksDict = cls.__shiftTheItemsInTheDict(imGlobalLinksDict, imIdx)
 
         if imLinkOMPageDict == {}:
-            imLinkOMPageDict = _u.Token.NotDef.dict_t
+            imLinkOMPageDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, imGlobalLinksDict)
 
@@ -325,7 +325,7 @@ class SectionInfoStructure:
         origMatNameDict = cls.__shiftTheItemsInTheDict(origMatNameDict, imIdx)
 
         if origMatNameDict == {}:
-            origMatNameDict = _u.Token.NotDef.dict_t
+            origMatNameDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
 
@@ -337,7 +337,7 @@ class SectionInfoStructure:
         tocWImageDict.pop(imIdx, None)
 
         if tocWImageDict == {}:
-            tocWImageDict = _u.Token.NotDef.dict_t
+            tocWImageDict = _u.Token.NotDef.dict_t.copy()
 
         tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
@@ -346,13 +346,13 @@ class SectionInfoStructure:
         imagesGroupDict.pop(imIdx, None)
 
         if imagesGroupDict == {}:
-            imagesGroupDict = _u.Token.NotDef.dict_t
+            imagesGroupDict = _u.Token.NotDef.dict_t.copy()
 
         imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
 
         if extraImagesDict == {}:
-            extraImagesDict = _u.Token.NotDef.dict_t
+            extraImagesDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
 

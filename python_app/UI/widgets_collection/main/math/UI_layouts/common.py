@@ -261,7 +261,7 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
             self.sourceSubsectionImageLinks = list(imLinkDict.keys())
             self.sourceSubsectionImageLinks.sort(key = int)
         else:
-            self.sourceSubsectionImageLinks = _u.Token.NotDef.list_t
+            self.sourceSubsectionImageLinks = _u.Token.NotDef.list_t.copy()
 
         super().updateOptions(self.sourceSubsectionImageLinks)
 
@@ -302,7 +302,7 @@ class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
         }
         name = "_target_SecImIDX_OM"
 
-        self.targetSubsectionImageLinks = _u.Token.NotDef.list_t
+        self.targetSubsectionImageLinks = _u.Token.NotDef.list_t.copy()
 
         super().__init__(prefix, 
                         name, 

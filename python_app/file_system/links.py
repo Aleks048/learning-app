@@ -54,7 +54,7 @@ class ImLink:
 class LinkDict:
     def get(sectionPath):
         if sectionPath == _u.Token.NotDef.str_t:
-            return _u.Token.NotDef.dict_t
+            return _u.Token.NotDef.dict_t.copy()
         else:
             return sfs.SectionInfoStructure.readProperty(sectionPath, 
                                                     sfs.SectionInfoStructure.PubProp.imLinkDict)
@@ -72,7 +72,7 @@ class LinkDict:
     def getCurrImLinksSorted(secPath):
         currChImageLinksDict = LinkDict.get(secPath)
         if currChImageLinksDict == _u.Token.NotDef.dict_t or currChImageLinksDict == None:
-            return _u.Token.NotDef.list_t
+            return _u.Token.NotDef.list_t.copy()
         elif currChImageLinksDict != _u.Token.NotDef.dict_t:
             currSubsecImIDX = list(currChImageLinksDict.keys())
             currSubsecImIDX.sort(key = int)
@@ -80,9 +80,9 @@ class LinkDict:
             linksSorted = [list(currChImageLinksDict.values())[list(currChImageLinksDict.keys()).index(i)] for i in currSubsecImIDX]
 
             if linksSorted == []:
-                return _u.Token.NotDef.list_t
+                return _u.Token.NotDef.list_t.copy()
             else:
                 return linksSorted
         else:
-            return _u.Token.NotDef.list_t
+            return _u.Token.NotDef.list_t.copy()
 

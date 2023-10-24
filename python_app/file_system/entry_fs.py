@@ -37,7 +37,7 @@ class EntryInfoStructure:
     def _getTemplate(cls):   
         sectionInfo_template = {
             cls.PubProp.name: _u.Token.NotDef.str_t,
-            cls.PubProp.entryLinesList: _u.Token.NotDef.list_t
+            cls.PubProp.entryLinesList: _u.Token.NotDef.list_t.copy()
         }
         return sectionInfo_template
 

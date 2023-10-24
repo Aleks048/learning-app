@@ -191,7 +191,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 if imGlobalLinksDict == _u.Token.NotDef.dict_t:
                     imGlobalLinksDict = {}
 
-                imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t
+                imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t.copy()
                 fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
             
             mathManager.show()

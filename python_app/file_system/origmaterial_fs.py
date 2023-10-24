@@ -36,8 +36,8 @@ class OriginalMaterialStructure:
         PubProp.path : _u.Token.NotDef.str_t,
         PubProp.currPage : _u.Token.NotDef.str_t,
         PubProp.tocPage : _u.Token.NotDef.str_t,
-        PubProp.noteSize : _u.Token.NotDef.list_t,
-        PubProp.pageSize : _u.Token.NotDef.list_t,
+        PubProp.noteSize : _u.Token.NotDef.list_t.copy(),
+        PubProp.pageSize : _u.Token.NotDef.list_t.copy(),
         PubProp.zoomLevel : _u.Token.NotDef.str_t
     }
 
@@ -308,6 +308,6 @@ class OriginalMaterialStructure:
         materialsDict = _u.JSON.readProperty(jsonFilepath,
                                     cls.PubProp.materials)
         if materialsDict == None:
-            return _u.Token.NotDef.dict_t
+            return _u.Token.NotDef.dict_t.copy()
         else:
             return materialsDict

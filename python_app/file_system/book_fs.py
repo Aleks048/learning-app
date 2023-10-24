@@ -142,7 +142,7 @@ class BookInfoStructure:
     @classmethod      
     def getSubsectionsList(cls, sectionPath = ""):
         if sectionPath == _u.Token.NotDef.str_t:
-            return _u.Token.NotDef.list_t
+            return _u.Token.NotDef.list_t.copy()
 
         sections = cls.PubProp.sections
         outSubsectionsList = []
@@ -179,7 +179,7 @@ class BookInfoStructure:
     def getTopSectionsList(cls):
         sections =cls.readProperty(cls.PubProp.sections)
         if sections == {}:
-            return _u.Token.NotDef.list_t
+            return _u.Token.NotDef.list_t.copy()
         return list(sections.keys())
 
     @classmethod
