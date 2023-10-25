@@ -43,6 +43,7 @@ class SectionInfoStructure:
         extraImagesDict = "extraImagesDict"
         tocWImageDict = "tocWImageDict"
         imagesGroupDict = "imagesGroupDict"
+        imageUIResize = "imageUIResize"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -89,7 +90,8 @@ class SectionInfoStructure:
                     cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t.copy(),
                     cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t.copy(),
                     cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy()
+                    cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy(),
+                    cls.PubProp.imageUIResize : _u.Token.NotDef.dict_t.copy()
                 }
         }
         return sectionInfo_template
@@ -329,6 +331,15 @@ class SectionInfoStructure:
 
         cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
 
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+        imageUIResize.pop(imIdx, None)
+        imageUIResize = cls.__shiftTheItemsInTheDict(imageUIResize, imIdx)
+
+        if imageUIResize == {}:
+            imageUIResize = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
+
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
@@ -462,7 +473,7 @@ class SectionInfoStructure:
             bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator)
         
         sectionPathForTemplate = sectionPath.replace(sectionPathSeparator, "_")
-        
+
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t
         else:
@@ -470,7 +481,7 @@ class SectionInfoStructure:
                                         propertyName)
 
     @classmethod
-    def updateProperty(cls, sectionPath, propertyName, newValue, bookPath = None):      
+    def updateProperty(cls, sectionPath, propertyName, newValue, bookPath = None):
         if bookPath == None:
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         

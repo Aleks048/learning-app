@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 import Pmw
 import os
 import tkinter as tk
+import re
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -471,9 +472,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     # mainImage
                     bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
                                  [lambda event: self.scroll_into_view(event)]]
+
+                    uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
+
+                    if imIdx in list(uiResizeEntryIdx.keys()):
+                        resizeFactor = float(uiResizeEntryIdx[imIdx])
+                    else:
+                        resizeFactor = 1.0
+
                     imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
                                                               imPad, self.displayedImages, 
-                                                              balloon, bindData)
+                                                              balloon, bindData, resizeFactor = resizeFactor)
 
                     imLabel.render()
 
@@ -489,7 +498,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                     imPad, self.displayedImages, balloon,
-                                                                    skippProof)
+                                                                    skippProof, resizeFactor)
                     for l in exImLabels:
                         l.render()
                     
@@ -537,11 +546,35 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 def addGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
-                    self.notify(mcomui.AddGlobalLink_BTN, 
+                    self.notify(mcomui.AddGlobalLink_BTN,
                                 [widget.subsection, widget.imIdx])
                     self.render()
                 
-                def openExcerciseMenu(event, *args):
+                def resizeEntryImgCMD(event, *args):
+                    resizeFactor = event.widget.get()
+
+                    # check if the format is right
+                    if not re.match("^[0-9]\.[0-9]$", resizeFactor):
+                        _u.log.autolog(\
+                            f"The format of the resize factor '{resizeFactor}'is not correct")
+                        return
+                    
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+                    
+                    uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
+
+                    if (uiResizeEntryIdx == None) \
+                        or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
+                        uiResizeEntryIdx = {}
+
+                    uiResizeEntryIdx[imIdx] = resizeFactor
+
+                    fsm.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
+
+                    self.render()
+
+                def openExcerciseMenu():
                     exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.ExcerciseManager)
                     exMenuManger.subsection = event.widget.subsection
@@ -789,6 +822,27 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [updateEntry])
 
+
+                        uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
+
+                        if str(i) in list(uiResizeEntryIdx.keys()):
+                            resizeFactor = float(uiResizeEntryIdx[str(i)])
+                        else:
+                            resizeFactor = 1.0
+
+                        changeImSize = _uuicom.ImageSize_ETR(tempFrame,
+                                                      prefix = "contentUpdateEntryText" + nameId,
+                                                      row = gridRowStartIdx, 
+                                                      column = 9,
+                                                      imIdx = str(i),
+                                                      text = resizeFactor)
+                        changeImSize.imIdx = str(i)
+                        changeImSize.widgetObj.imIdx = str(i)
+                        changeImSize.subsection = subsection
+                        changeImSize.widgetObj.subsection = subsection
+                        changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                             [resizeEntryImgCMD])
+
                         if self.showLinks:
                             # adding a frame to show global links
                             linksFrame = _uuicom.TOCFrame(tempFrame,
@@ -944,6 +998,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             openExUIEntry.render()
                             changeImText.render()
+                            changeImSize.render()
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 

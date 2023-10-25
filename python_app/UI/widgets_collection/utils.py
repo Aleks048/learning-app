@@ -4,12 +4,49 @@ import os
 import tkinter as tk
 
 import UI.widgets_wrappers as ww
+import UI.widgets_data as wd
 import file_system.file_system_facade as fsf
 import data.constants as dc
 import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
 
+
+
+class ImageSize_ETR(ww.currUIImpl.TextEntry):
+    subsection = None
+    imIdx = None
+    textETR = None
+
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text):
+        name = "_imageSizeTOC_ETR" + str(imIdx)
+        self.defaultText = text
+
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+
+
+        extraBuildOptions = {
+            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
+                                            "font": ('Georgia 14')},
+            ww.TkWidgets.__name__ : {"width": 3}
+        }
+
+        super().__init__(prefix, 
+                        name, 
+                        patentWidget, 
+                        renderData,
+                        extraBuildOptions,
+                        defaultText = self.defaultText)
+        super().setData(self.defaultText)
+
+    def receiveNotification(self, _):
+        return self.getData()
+
+    def defaultTextCMD(self):
+        pass
 
 
 class TOCFrame(ttk.Frame):
@@ -89,9 +126,10 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False):
 
 def getImageWidget(root, imagePath, widgetName, 
                    imPad = 0, imageSize = [450, 200], 
-                   row = 0, column = 0, columnspan = 1):
+                   row = 0, column = 0, columnspan = 1,
+                   resizeFactor = 1.0):
     pilIm = Image.open(imagePath)
-    pilIm.thumbnail(imageSize, Image.ANTIALIAS)
+    pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.ANTIALIAS)
     img = ImageTk.PhotoImage(pilIm)
 
     imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
@@ -107,7 +145,8 @@ def addMainEntryImageWidget(rootLabel,
                             imPadLeft, 
                             displayedImagesContainer,
                             imageBaloon,
-                            mainImgBindData = None):
+                            mainImgBindData = None,
+                            resizeFactor = 1.0):
     # mainImage
     currBookName = sf.Wr.Manager.Book.getCurrBookName()
     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
@@ -117,7 +156,8 @@ def addMainEntryImageWidget(rootLabel,
     mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
     img, imLabel = getImageWidget(rootLabel, imagePath, 
                                   mainWidgetName, imPadLeft,
-                                  row = 3, column = 0, columnspan = 100)
+                                  row = 3, column = 0, columnspan = 100,
+                                  resizeFactor = resizeFactor)
 
     displayedImagesContainer.append(img)
 
@@ -143,7 +183,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                imPadLeft, 
                                displayedImagesContainer,
                                imageBaloon, 
-                               skippConditionFn = lambda *args: False):
+                               skippConditionFn = lambda *args: False,
+                               resizeFactor = 1.0):
     outLabels = []
     # extraImages
     if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
@@ -167,7 +208,8 @@ def addExtraEntryImagesWidgets(rootLabel,
 
             eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
                                             eImWidgetName, imPadLeft,
-                                            row = i + 4, column = 0, columnspan = 1000)
+                                            row = i + 4, column = 0, columnspan = 1000,
+                                            resizeFactor = resizeFactor)
             displayedImagesContainer.append(eImg)
 
             outLabels.append(eimLabel)

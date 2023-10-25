@@ -99,8 +99,8 @@ class TkWidgets (DataTranslatable_Interface):
             customTOCMove = "<<TOCMove>>"
 
             class Keys:
-                enter = "Return"
-                escape = "Escape"
+                enter = "<Return>"
+                escape = "<Escape>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
