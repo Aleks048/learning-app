@@ -289,6 +289,40 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         return True
 
+
+    @classmethod
+    def RemoveGlLink(cls, targetSubsection, sourceSubsection, sourceIDX, targetIDX):
+        # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        sourceLinks = sourseSectionGlobalLinksDict[sourceIDX]
+        sourceLinks.pop(f"{targetSubsection}_{targetIDX}")
+        
+        if sourceLinks == {}:
+            sourseSectionGlobalLinksDict.pop(sourceIDX)
+
+        fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)        
+
+        targetSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(targetSubsection)
+        targetLinks = targetSectionGlobalLinksDict[targetIDX]
+        targetLinks.pop(f"{sourceSubsection}_{sourceIDX}")
+
+        if sourceLinks == {}:
+            targetSectionGlobalLinksDict.pop(targetIDX)
+
+        fsf.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)        
+
+    @classmethod
+    def RemoveWebLink(cls, sourceSubsection, sourceIDX, webLinkName):
+        # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        sourceLinks = sourseSectionGlobalLinksDict[sourceIDX]
+        sourceLinks.pop(f"{webLinkName}")
+        
+        if sourceLinks == {}:
+            sourseSectionGlobalLinksDict.pop(sourceIDX)
+
+        fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+
     @classmethod
     def AddLink(cls, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection):
         import UI.widgets_facade as wf

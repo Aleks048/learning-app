@@ -21,6 +21,7 @@ import _utils.pathsAndNames as _upan
 import tex_file.tex_file_facade as tff
 import UI.widgets_collection.utils as _uuicom
 import UI.widgets_data as wd
+import generalManger.generalManger as gm
 
 
 # class _uuicom.TOCLabelWithClick(ww.currUIImpl.Label):
@@ -545,6 +546,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
                     self.render()
 
+                def delGlLinkCmd(event, *args):
+                    widget = event.widget
+                    gm.GeneralManger.RemoveGlLink(widget.targetSubssection,
+                                                  widget.sourceSubssection,
+                                                  widget.targetImIdx,
+                                                  widget.sourceImIdx)
+                    self.render()
+
+                def delWebLinkCmd(event, *args):
+                    widget = event.widget
+                    gm.GeneralManger.RemoveWebLink(widget.sourceSubssection,
+                                                   widget.sourceImIdx,
+                                                   widget.sourceWebLinkName)
+                    self.render()
+
                 def addGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
                     self.notify(mcomui.AddGlobalLink_BTN,
@@ -979,6 +995,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                                                       150, 
                                                                                                       True, 
                                                                                                       *args)])
+
+                                        linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                    text = "[del]", 
+                                                                    prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                                    row = 0, column= 4)
+                                        linkLabelDelete.render()
+                                        
+                                        linkLabelDelete.targetSubssection = ln.split("_")[0]
+                                        linkLabelDelete.sourceSubssection = subsection
+                                        linkLabelDelete.targetImIdx = ln.split("_")[-1]
+                                        linkLabelDelete.sourceImIdx = str(i)
+
+                                        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
+
+                                        _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+
                                     elif "http" in lk:
                                         glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(linksFrame, 
                                                                 text = "web: ", 
@@ -1005,6 +1037,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                         glLinkLablel.render()
                                         openWebOfTheImage(glLinkLablel, lk)
+
+                                        linkLabelDelete = _uuicom.TOCLabelWithClick(linksFrame, 
+                                                                    text = "[del]", 
+                                                                    prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                                    row = glLinkId + 1, column= 2)
+                                        linkLabelDelete.render()
+
+                                        linkLabelDelete.sourceSubssection = subsection
+                                        linkLabelDelete.sourceImIdx = str(i)
+                                        linkLabelDelete.sourceWebLinkName = ln
+
+                                        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
+
+                                        _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
 
                                     glLinkId += 1
 

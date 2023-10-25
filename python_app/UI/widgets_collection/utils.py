@@ -117,6 +117,12 @@ class TOCLabelWithClick(ttk.Label):
     lineImIdx = _u.Token.NotDef.str_t
     etrWidget = _u.Token.NotDef.str_t
 
+    targetSubssection = None
+    targetImIdx = None
+    sourceSubssection = None
+    sourceImIdx= None
+    sourceWebLinkName = None
+
     def rebind(self, keys, cmds):
         for i in range(len(keys)):
             key = keys[i]
