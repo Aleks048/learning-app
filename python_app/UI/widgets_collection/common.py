@@ -550,7 +550,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.notify(mcomui.AddGlobalLink_BTN,
                                 [widget.subsection, widget.imIdx])
                     self.render()
-                
+
+                def pasteGlLinkCmd(event, *args):
+                    subsection = dt.UITemp.Link.subsection
+                    imIdx = dt.UITemp.Link.imIdx
+
+                    if subsection != _u.Token.NotDef.str_t\
+                        and imIdx != _u.Token.NotDef.str_t:
+                        self.notify(mcomui.AddGlobalLink_BTN,
+                                    [subsection, imIdx])
+                        self.render()
+
+                def copyGlLinkCmd(event, *args):
+                    widget:_uuicom.TOCLabelWithClick = event.widget
+                    dt.UITemp.Link.subsection = widget.subsection
+                    dt.UITemp.Link.imIdx = widget.imIdx
+
                 def resizeEntryImgCMD(event, *args):
                     resizeFactor = event.widget.get()
 
@@ -814,11 +829,27 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addGlLinkCmd])
 
+                        copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
+                                                         text = "[cl]",
+                                                         prefix = "contentCopyGlLinkEntry" + nameId,
+                                                         row = gridRowStartIdx, column = 7)
+                        copyLinkEntry.imIdx = k
+                        copyLinkEntry.subsection = subsection
+                        copyLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                            [copyGlLinkCmd])
+
+                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
+                                                         text = "[pl]",
+                                                         prefix = "contentPasteGlLinkEntry" + nameId,
+                                                         row = gridRowStartIdx, column = 8)
+                        pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                            [pasteGlLinkCmd])
+
                         openExUIEntry = _uuicom.TOCLabelWithClick(tempFrame, 
                                                       text = "[ex]", 
                                                       prefix = "contentOpenExcerciseUIEntry" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 7)
+                                                      column = 9)
                         openExUIEntry.imIdx = k
                         openExUIEntry.subsection = subsection
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
@@ -1006,6 +1037,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 removeEntry.render()
 
                             addLinkEntry.render()
+                            copyLinkEntry.render()
+                            pasteLinkEntry.render()
+
                             if self.showLinks:
                                 linksFrame.render()
 
@@ -1018,6 +1052,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(showImages)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
+                        _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
+                        _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
                         moveTOCtoSubsection(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)

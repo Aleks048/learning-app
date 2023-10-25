@@ -79,3 +79,8 @@ class OtherAppsInfo:
 
     class Finder:
         main_pid = _u.Token.NotDef.str_t
+
+class UITemp:
+    class Link:
+        subsection = _u.Token.NotDef.str_t
+        imIdx = _u.Token.NotDef.str_t

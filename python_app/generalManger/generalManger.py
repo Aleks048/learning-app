@@ -344,12 +344,14 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()) \
             and sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
-            msg = "Do you want to add link \nFrom: '{2}_{3}'\nTo: '{0}_{1}'\nWith text '{4}'?"\
+            msg = "\
+Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with text: '{5}'?"\
                                                 .format(targetSubsection, 
                                                         targetIDX, 
                                                         sourceSubsection, 
                                                         sourceIDX,
-                                                        fsf.Data.Sec.imLinkDict(targetSubsection)[targetIDX]
+                                                        fsf.Data.Sec.imLinkDict(targetSubsection)[targetIDX],
+                                                        fsf.Data.Sec.imLinkDict(sourceSubsection)[sourceIDX]
                                                         )
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
