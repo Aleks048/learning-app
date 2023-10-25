@@ -71,6 +71,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
     subsection = None
     imIdx = None
     textETR = None
+    etrWidget = None # note this is set top the object so the <ENTER> bind workss
 
     def __init__(self, patentWidget, prefix, row, column, imIdx, text):
         name = "_textImageTOC_ETR" + str(imIdx)
@@ -748,6 +749,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                           gridRowStartIdx, 0, 
                                                           i, 
                                                           v)
+                            textLabelPage.imIdx = str(i)
+                            textLabelPage.subsection = subsection
+                            textLabelPage.etrWidget = textLabelPage
+                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                                 [updateEntry])
                             self.entryAsETR.widget = textLabelPage
                         else:
                             textLabelPage = _uuicom.TOCLabelWithClick(tempFrame,
@@ -755,6 +761,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             prefix = "contentP_" + nameId, 
                                                             padding= [60, 0, 0, 0],
                                                             row = gridRowStartIdx, column = 0)
+                            textLabelPage.imIdx = str(i)
+                            textLabelPage.subsection = subsection
+                            textLabelPage.etrWidget = textLabelPage
+                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                                 [updateEntry])
                             textLabelPage.image = img
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
@@ -785,7 +796,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                      text = "[delete]",
                                                      prefix = "contentRemoveEntry" + nameId,
                                                      row = gridRowStartIdx, 
-                                                     column = 5)
+                                                     column = 11)
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
                         removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
@@ -815,7 +826,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                       text = "[update]", 
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 8)
+                                                      column = 10)
                         changeImText.imIdx = str(i)
                         changeImText.subsection = subsection
                         changeImText.etrWidget = textLabelPage
