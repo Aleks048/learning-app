@@ -2,6 +2,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 import tkinter as tk
+from tkinter import scrolledtext
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -11,6 +12,42 @@ import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
 
+
+
+class MultilineText_ETR(scrolledtext.ScrolledText):
+    imIdx = None
+    subsection = None
+    etrWidget = None
+
+    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
+        self.defaultText = text
+        self.row = row
+        self.column = column
+
+        super().__init__(patentWidget, wrap=tk.WORD, 
+                         width = 70, height = 5)
+        self.insert(tk.END, text)
+    
+    def getData(self):
+        binString = self.get('1.0', tk.END)
+        bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
+
+        # removing the unnecessary newlines from the end
+        while binString[-1] == "\n":
+            binString = binString[:-1]
+
+            if len(binString) == 0:
+                binString = _u.Token.NotDef.str_t
+                break
+
+        return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
+
+    def rebind(self, keys, funcs):
+        for i in range(len(keys)):
+            self.bind(keys[i], funcs[i])
+
+    def render(self):
+        self.grid(row = self.row, column = self.column)
 
 
 class ImageSize_ETR(ww.currUIImpl.TextEntry):

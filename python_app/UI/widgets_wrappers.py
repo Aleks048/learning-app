@@ -101,6 +101,7 @@ class TkWidgets (DataTranslatable_Interface):
 
             class Keys:
                 enter = "<Return>"
+                shenter = "<Shift-Return>"
                 escape = "<Escape>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):

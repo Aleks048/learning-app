@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import scrolledtext
 from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
@@ -19,33 +18,6 @@ import data.temp as dt
 
 images = []
 
-
-class MultilineText_ETR(scrolledtext.ScrolledText):
-    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
-        self.defaultText = text
-        self.row = row
-        self.column = column
-
-        super().__init__(patentWidget, wrap=tk.WORD, 
-                         width = 70, height = 5)
-        self.insert(tk.END, text)
-    
-    def getData(self):
-        binString = self.get('1.0', tk.END)
-        bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
-
-        # removing the unnecessary newlines from the end
-        while binString[-1] == "\n":
-            binString = binString[:-1]
-
-            if len(binString) == 0:
-                binString = _u.Token.NotDef.str_t
-                break
-
-        return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
-
-    def render(self):
-        self.grid(row = self.row, column = self.column)
 
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
@@ -295,7 +267,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                             self.subsection, self.imIdx, i)
                 labIm.grid(row = 0, column = 0)
 
-                labETR = MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
+                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
                 self.currEtr[str(i)] = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 

@@ -575,7 +575,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     self.render()
 
-                def openExcerciseMenu():
+                def openExcerciseMenu(event, *args):
                     exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.ExcerciseManager)
                     exMenuManger.subsection = event.widget.subsection
@@ -745,16 +745,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if (subsection == self.entryAsETR.subsection)\
                             and (str(i) == self.entryAsETR.imIdx) :
-                            textLabelPage = ImageText_ETR(tempFrame, "contentP_" + nameId, 
-                                                          gridRowStartIdx, 0, 
-                                                          i, 
-                                                          v)
+                            textLabelPage = _uuicom.MultilineText_ETR(tempFrame, 
+                                                                      "contentP_" + nameId, 
+                                                                      gridRowStartIdx, 0, 
+                                                                      i, 
+                                                                      v)
                             textLabelPage.imIdx = str(i)
                             textLabelPage.subsection = subsection
                             textLabelPage.etrWidget = textLabelPage
-                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                                  [updateEntry])
                             self.entryAsETR.widget = textLabelPage
+                            textLabelPage.focus_force()
                         else:
                             textLabelPage = _uuicom.TOCLabelWithClick(tempFrame,
                                                             image = img, 
