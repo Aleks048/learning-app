@@ -18,6 +18,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
     imIdx = None
     subsection = None
     etrWidget = None
+    lineImIdx = None
 
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
         self.defaultText = text

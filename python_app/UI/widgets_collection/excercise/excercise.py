@@ -286,7 +286,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                             text,
                                                             bookPath)
                     self.render()
+                    self.currEtr[widgetlineImIdx].focus_force()
 
+                labETR.lineImIdx = str(i)
+                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
                 labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)
 

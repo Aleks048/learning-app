@@ -1015,11 +1015,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
-                        if "excercise" in v.lower():
-                            _uuicom.bindChangeColorOnInAndOut(textLabelPage, True)
-                        else:
-                            _uuicom.bindChangeColorOnInAndOut(textLabelPage, False)
-
                         _uuicom.bindChangeColorOnInAndOut(showImages)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
