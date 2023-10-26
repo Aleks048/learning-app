@@ -9,8 +9,6 @@ import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
 import UI.widgets_facade as wf
-import UI.widgets_collection.common as wcom
-import data.constants as dc
 import data.temp as dt
 import tex_file.tex_file_facade as tff
 
@@ -379,11 +377,11 @@ class SectionInfoStructure:
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         cls.rebuildSubsectionLatex(subsection, 
-                                   wcom.getWidgetNameID, 
-                                   wcom.formatGroupText,
-                                   wcom.formatSectionText,
-                                   wcom.getSubsectionPretty,
-                                   wcom.getTopSectionPretty)
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
     
     @classmethod
     def rebuildEntryLatex(cls, 

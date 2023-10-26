@@ -233,6 +233,32 @@ class Names:
             def name(imIdx, lineIdx):
                 return f"{imIdx}_{lineIdx}.png"
 
+        def getEntryNameID(subsection, idx):
+            subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
+            nameId:str = subSecID + "_" + str(idx)
+            return nameId.replace(".", "")
+
+    class Group:
+        def formatGroupText(text:str):
+            text = text.replace(".", "$")
+            text = text.replace(" ", "_")
+            return text
+
+    class Subsection:
+        def formatSectionText(text:str):
+            text = text.replace(".", "$")
+            text = text.replace(" ", "_")
+            return text
+
+        def getSubsectionPretty(subsection):
+            secLevel = fsf.Data.Sec.level(subsection)
+            secText = fsf.Data.Sec.text(subsection)
+            return "|" + int(secLevel) * "-" + " " + subsection + ": " + secText
+
+        def getTopSectionPretty(topSsection):
+            secText = fsf.Data.Book.sections[topSsection]["name"]
+            return  topSsection + ": " + secText
+
     class UI:
         def getWidgetSubsecId(subsection):
             '''

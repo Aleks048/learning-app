@@ -151,11 +151,11 @@ class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
     def cmd(self):
         subsection = _upan.Current.Names.Section.name()
         fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                           comw.getWidgetNameID, 
-                                                           comw.formatGroupText,
-                                                           comw.formatSectionText,
-                                                           comw.getSubsectionPretty,
-                                                           comw.getTopSectionPretty)
+                                                           _upan.Names.Entry.getEntryNameID, 
+                                                           _upan.Names.Group.formatGroupText,
+                                                           _upan.Names.Subsection.formatSectionText,
+                                                           _upan.Names.Subsection.getSubsectionPretty,
+                                                           _upan.Names.Subsection.getTopSectionPretty)
         self.notify(comw.TOC_BOX)
 
 class ScrollToCurrSubsectionAndBack_BTN(ww.currUIImpl.Button,

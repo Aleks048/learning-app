@@ -168,30 +168,6 @@ class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
 
         self.tocBox.render()
 
-def getWidgetNameID(subsection, idx):
-    subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
-    nameId:str = subSecID + "_" + str(idx)
-    return nameId.replace(".", "")
-
-
-def formatGroupText(text:str):
-    text = text.replace(".", "$")
-    text = text.replace(" ", "_")
-    return text
-
-def formatSectionText(text:str):
-    text = text.replace(".", "$")
-    text = text.replace(" ", "_")
-    return text
-
-def getSubsectionPretty(subsection):
-    secLevel = fsm.Data.Sec.level(subsection)
-    secText = fsm.Data.Sec.text(subsection)
-    return "|" + int(secLevel) * "-" + " " + subsection + ": " + secText
-
-def getTopSectionPretty(topSsection):
-    secText = fsm.Data.Book.sections[topSsection]["name"]
-    return  topSsection + ": " + secText
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
@@ -626,7 +602,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imLinkDict[self.entryAsETR.imIdx] = newText
                         fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection, imLinkDict)
                         fsm.Wr.SectionInfoStructure.rebuildEntryLatex(self.entryAsETR.subsection,
-                                                                      getWidgetNameID,
+                                                                      _upan.Names.Entry.getEntryNameID,
                                                                       self.entryAsETR.imIdx,
                                                                       newText
                                                                       )
@@ -675,7 +651,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if self.filterToken != "":
                             topPad = 0
 
-                        nameId = getWidgetNameID(subsection, k)
+                        nameId = _upan.Names.Entry.getEntryNameID(subsection, k)
 
                         tempFrame = _uuicom.TOCFrame(frame,
                                               prefix = "contentFr_" + nameId,
@@ -685,7 +661,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         def getGroupImg(subsection, currImGroupName):
 
                             tex = tff.Wr.TexFileUtils.formatEntrytext(currImGroupName)
-                            fileId = formatGroupText(currImGroupName)
+                            fileId = _upan.Names.Group.formatGroupText(currImGroupName)
 
                             secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
                             groupImgPath = os.path.join(secreenshotPath, f"_g_{fileId}.png")
@@ -933,7 +909,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         
                                         targetSubsection = ln.split("_")[0]
                                         targetImIdx = ln.split("_")[1]
-                                        targetNameId = getWidgetNameID(targetSubsection, targetImIdx)
+                                        targetNameId = _upan.Names.Entry.getEntryNameID(targetSubsection, targetImIdx)
                                         glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
                                                                 glLinkImLablel, 
                                                                 prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
@@ -1182,9 +1158,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         topSection = subsection.split(".")[0]
 
         if level == 0:
-            prettySubsections = getTopSectionPretty(topSection)
+            prettySubsections = _upan.Names.Subsection.getTopSectionPretty(topSection)
         else:
-            prettySubsections = getSubsectionPretty(subsection)
+            prettySubsections = _upan.Names.Subsection.getSubsectionPretty(subsection)
         
         labelName = "label_" + subsection.replace(".", "")
 
@@ -1198,7 +1174,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if level == 0:
             tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-            fileId = formatSectionText(subsection)
+            fileId = _upan.Names.Subsection.formatSectionText(subsection)
 
             sectionPath = _upan.Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
             topSectionImgPath = os.path.join(sectionPath, f"_top_{fileId}.png")
@@ -1218,7 +1194,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsectionLabel.image = result
         else:
             tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-            fileId = formatSectionText(subsection)
+            fileId = _upan.Names.Subsection.formatSectionText(subsection)
 
             secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
             subsectionImgPath = os.path.join(secreenshotPath, f"_sub_{fileId}.png")
@@ -1264,11 +1240,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             def rebuildSubsectionLatexWrapper(subsection):
                 fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                                   getWidgetNameID, 
-                                                                   formatGroupText,
-                                                                   formatSectionText,
-                                                                   getSubsectionPretty,
-                                                                   getTopSectionPretty)
+                                                                   _upan.Names.Entry.getEntryNameID, 
+                                                                   _upan.Names.Group.formatGroupText,
+                                                                   _upan.Names.Subsection.formatSectionText,
+                                                                   _upan.Names.Subsection.getSubsectionPretty,
+                                                                   _upan.Names.Subsection.getTopSectionPretty)
                 self.render()
 
             rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
