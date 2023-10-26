@@ -238,7 +238,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         height = height,
                         width = windth,
                         makeScrollable = makeScrollable)
-    
+
+    def scrollToEntry(self, subsection, imIdx):
+        # move toc to
+        self.subsectionClicked = subsection
+        self.showSubsectionsForTopSection[subsection.split(".")[0]] = True
+        self.entryClicked = imIdx
+
+        # update to show the group when we show the entry
+        groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
+        imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
+        groupName = list(groupsList.keys())[imGroupDict[self.entryClicked]]
+        groupsList[groupName] = True
+        fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
+
+        self.render()
 
     def scroll_into_view(self, event):
         if not self.shouldScroll:
@@ -394,19 +408,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         def moveTOCtoSubsection(widget:_uuicom.TOCLabelWithClick):
             def __cmd(event = None, *args):
-                # move toc to
-                self.subsectionClicked = widget.subsection
-                self.showSubsectionsForTopSection[widget.subsection.split(".")[0]] = True
-                self.entryClicked = widget.imIdx
-                
-                # update to show the group when we show the entry
-                groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
-                imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
-                groupName = list(groupsList.keys())[imGroupDict[self.entryClicked]]
-                groupsList[groupName] = True
-                fsm.Data.Sec.imagesGroupsList(subsection, groupsList)
-
-                self.render()
+                widget = event.widget
+                self.scrollToEntry(widget.subsection, widget.imIdx)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
