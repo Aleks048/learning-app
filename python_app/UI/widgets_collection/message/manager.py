@@ -91,8 +91,10 @@ class MessageMenuManager(wm.MenuManager_Interface):
          
         self.currLayout.setProps(text)
         super().show()
+
         if shouldWait:
             self.wait()
+
             return self.winRoot.getData()
     
     def wait(self):
@@ -103,6 +105,7 @@ class MessageMenuManager(wm.MenuManager_Interface):
     
     def showOnly(self, text, cmd = lambda *args: None):
         self.hideAllWidgets()
+
         return self.show(text, cmd)
     
     def hide(self):

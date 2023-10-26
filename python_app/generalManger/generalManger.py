@@ -39,9 +39,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("main menu"))
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
-        log.autolog("-- Srartup  of other menus ended.")
         exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
         log.autolog("Started '{0}' UI manager".format("excercise menu"))
+
         log.autolog("-- Srartup  of other menus ended.")
 
         mainMenuManager.showOnly()
@@ -306,7 +306,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         targetLinks = targetSectionGlobalLinksDict[targetIDX]
         targetLinks.pop(f"{sourceSubsection}_{sourceIDX}")
 
-        if sourceLinks == {}:
+        if targetLinks == {}:
             targetSectionGlobalLinksDict.pop(targetIDX)
 
         fsf.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)        
@@ -380,13 +380,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             and sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
             msg = "\
 Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with text: '{5}'?"\
-                                                .format(targetSubsection, 
-                                                        targetIDX, 
-                                                        sourceSubsection, 
-                                                        sourceIDX,
-                                                        fsf.Data.Sec.imLinkDict(targetSubsection)[targetIDX],
-                                                        fsf.Data.Sec.imLinkDict(sourceSubsection)[sourceIDX]
-                                                        )
+                    .format(targetSubsection, 
+                            targetIDX, 
+                            sourceSubsection, 
+                            sourceIDX,
+                            fsf.Data.Sec.imLinkDict(targetSubsection)[targetIDX],
+                            fsf.Data.Sec.imLinkDict(sourceSubsection)[sourceIDX]
+                            )
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,

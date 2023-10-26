@@ -41,16 +41,7 @@ class NonInstantiable_Interface:
 
 
 class AppState:
-    class CurrMenu(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
-        pass
-    
     class CurrLayout(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
-        pass
-
-    class CurrUILayoutName(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
-        data = ""
-
-    class CurrUIImplementation(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         pass
     
     class UIManagers(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):

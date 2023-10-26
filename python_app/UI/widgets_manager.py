@@ -32,7 +32,8 @@ class MenuLayout_Interface(dc.AppCurrDataAccessToken):
 
 class MenuManager_Interface(dc.AppCurrDataAccessToken):
     currLayout:MenuLayout_Interface
-    
+    __isShown = False
+
     def __init__(self, rootWidget, layouts, currLayout):
         super().__init__()
 
@@ -65,6 +66,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         self.winRoot.render()
         self.winRoot.widgetObj.focus_force()
         self.currLayout.show()
+        self.__isShown = True
     
     def showOnly(self):
         self.hideAllWidgets()
@@ -72,8 +74,11 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     
     def hide(self):
         self.winRoot.hide()
+
         for l in self.layouts:
             l.hide()
+
+        self.__isShown = False
 
     def hideAllWidgets(self):
         '''
@@ -86,15 +91,27 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     def startManager(self):
         self.show()
 
+    def isShown(self):
+        return self.__isShown
+
 
 class UI_generalManager(dc.AppCurrDataAccessToken):
     @classmethod
     def showNotification(cls, msg, shouldWait):
+        allManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
+        managersShown = [i for i in allManagers if i.isShown()]
+
         messsageMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                     wf.Wr.MenuManagers.MessageMenuManager)
         
+        response = None
+
         if shouldWait:
             response = messsageMenuManager.show(msg, shouldWait)
-            return response
         else:
             messsageMenuManager.show(msg, shouldWait)
+
+        for m in managersShown:
+            m.show()
+
+        return response
