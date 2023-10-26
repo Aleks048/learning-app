@@ -5,8 +5,8 @@ from PIL import Image, ImageTk
 import time
 
 import UI.widgets_wrappers as ww
+import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
-import UI.widgets_collection.excercise.manager as exm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -25,7 +25,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 4},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
@@ -74,7 +74,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 4},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_excerciseImage_LBL"
@@ -108,8 +108,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         return super().render(**kwargs)
 
 
-class AddExcerciseLine_BTN(ww.currUIImpl.Button,
-                         dc.AppCurrDataAccessToken):
+class AddExcerciseLine_BTN(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
 
@@ -135,8 +134,7 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
         # update the box UI
         self.notify(Excercise_BOX)
 
-class PasteGlLink_BTN(ww.currUIImpl.Button,
-                         dc.AppCurrDataAccessToken):
+class PasteGlLink_BTN(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
 
@@ -168,8 +166,7 @@ class PasteGlLink_BTN(ww.currUIImpl.Button,
                                     sourceImIdx,
                                     sourceTopSection)
 
-class HideAllETRsWindow_BTN(ww.currUIImpl.Button,
-                         dc.AppCurrDataAccessToken):
+class HideAllETRsWindow_BTN(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
 
@@ -190,8 +187,31 @@ class HideAllETRsWindow_BTN(ww.currUIImpl.Button,
     def cmd(self):
         self.notify(Excercise_BOX)
 
-class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
-                         dc.AppCurrDataAccessToken):
+class MoveTOCtoExcerciseEntry_BTN(ww.currUIImpl.Button,
+                                  dc.AppCurrDataAccessToken):
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 4, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Move TOC"
+        name = "_MoveTOCToEntry_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.MathMenuManager)
+        excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
+
+class HideExcerciseWindow_BTN(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
 
@@ -211,7 +231,7 @@ class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            exm.ExcerciseManager)
+                                                          wf.Wr.MenuManagers.ExcerciseManager)
         excerciseManager.hide()
 
 
@@ -220,7 +240,7 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         name = "_getExcerciseNewLineText_ETR"
         defaultText = "New excercise line text"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 4},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 5},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -262,7 +282,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 4, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 5, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"

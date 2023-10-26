@@ -447,6 +447,12 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.render()
                 return
 
+    def moveTocToEntry(self, subsection, imIdx):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.tocBox.scrollToEntry(subsection, imIdx)
+                return
+
     def getSelectedImIdx(self):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:

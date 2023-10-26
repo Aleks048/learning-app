@@ -29,6 +29,8 @@ class LayoutManagers:
             self.addWidget(self.pasteGlLink_BTN)
             addExcerciseLine_ETR = exw.AddExcerciseLine_ETR(winRoot, self.prefix)
             self.addWidget(addExcerciseLine_ETR)
+            self.moveTOCtoExcerciseEntry_BTN = exw.MoveTOCtoExcerciseEntry_BTN(winRoot, self.prefix)
+            self.addWidget(self.moveTOCtoExcerciseEntry_BTN)
             hideAllETRsWindow_BTN = exw.HideAllETRsWindow_BTN(winRoot, self.prefix)
             self.addWidget(hideAllETRsWindow_BTN)
 
@@ -43,6 +45,9 @@ class LayoutManagers:
 
             self.pasteGlLink_BTN.subsection = self.subsection
             self.pasteGlLink_BTN.imIdx = self.imIdx
+
+            self.moveTOCtoExcerciseEntry_BTN.subsection = self.subsection
+            self.moveTOCtoExcerciseEntry_BTN.imIdx = self.imIdx
 
             self.addExcerciseLine_BTN.subsection = self.subsection
             self.addExcerciseLine_BTN.imIdx = self.imIdx
