@@ -15,6 +15,7 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import UI.widgets_data as wd
 import data.temp as dt
+import generalManger.generalManger as gm
 
 images = []
 
@@ -24,7 +25,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
@@ -73,7 +74,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_excerciseImage_LBL"
@@ -98,13 +99,11 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         self.imLabel.render()
         self.imLabel.focus_force()
 
-        # NOTE: I've commented this out since the I don't think 
-        # the extra images should be shown
-        # exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
-        #                                                self.subsection, self.entryIdx,
-        #                                                120, self.displayedImages, balloon)
-        # for l in exImLabels:
-        #     l.render()
+        exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
+                                                       self.subsection, self.entryIdx,
+                                                       120, self.displayedImages, balloon)
+        for l in exImLabels:
+            l.render()
 
         return super().render(**kwargs)
 
@@ -116,7 +115,7 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
+            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Add"
@@ -136,6 +135,39 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
         # update the box UI
         self.notify(Excercise_BOX)
 
+class PasteGlLink_BTN(ww.currUIImpl.Button,
+                         dc.AppCurrDataAccessToken):
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Paste Gl Link"
+        name = "_PasteGlLink_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        sourceSubsection = self.subsection
+        sourceTopSection = sourceSubsection.split(".")[0]
+        sourceImIdx = self.imIdx
+        targetSubsection = dt.UITemp.Link.subsection
+        targetImIdx = dt.UITemp.Link.imIdx
+
+        if targetSubsection != _u.Token.NotDef.str_t\
+            and targetImIdx != _u.Token.NotDef.str_t:
+            gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
+                                    sourceSubsection,
+                                    sourceImIdx,
+                                    sourceTopSection)
+
 class HideAllETRsWindow_BTN(ww.currUIImpl.Button,
                          dc.AppCurrDataAccessToken):
     subsection = None
@@ -143,7 +175,7 @@ class HideAllETRsWindow_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
+            ww.Data.GeneralProperties_ID :{"column" : 3, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Hide All ETRs"
@@ -165,7 +197,7 @@ class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
+            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         text = "Hide"
@@ -188,7 +220,7 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         name = "_getExcerciseNewLineText_ETR"
         defaultText = "New excercise line text"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 3},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 4},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -230,7 +262,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 3, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 4, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"

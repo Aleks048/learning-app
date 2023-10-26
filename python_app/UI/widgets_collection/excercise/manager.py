@@ -25,6 +25,8 @@ class LayoutManagers:
             self.addWidget(self.addExcerciseLine_BTN)
             hideExcerciseWindow_BTN = exw.HideExcerciseWindow_BTN(winRoot, self.prefix)
             self.addWidget(hideExcerciseWindow_BTN)
+            self.pasteGlLink_BTN = exw.PasteGlLink_BTN(winRoot, self.prefix)
+            self.addWidget(self.pasteGlLink_BTN)
             addExcerciseLine_ETR = exw.AddExcerciseLine_ETR(winRoot, self.prefix)
             self.addWidget(addExcerciseLine_ETR)
             hideAllETRsWindow_BTN = exw.HideAllETRsWindow_BTN(winRoot, self.prefix)
@@ -39,10 +41,15 @@ class LayoutManagers:
             self.excerciseImage.subsection = self.subsection
             self.excerciseImage.entryIdx = self.imIdx
 
+            self.pasteGlLink_BTN.subsection = self.subsection
+            self.pasteGlLink_BTN.imIdx = self.imIdx
+
             self.addExcerciseLine_BTN.subsection = self.subsection
             self.addExcerciseLine_BTN.imIdx = self.imIdx
+
             self.excercise_BOX.subsection = self.subsection
             self.excercise_BOX.imIdx = self.imIdx
+
             super().show()
 
             # resize the solution box in respect to the size of the excercise image

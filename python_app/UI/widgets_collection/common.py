@@ -544,13 +544,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.render()
 
                 def pasteGlLinkCmd(event, *args):
-                    subsection = dt.UITemp.Link.subsection
-                    imIdx = dt.UITemp.Link.imIdx
+                    widget = event.widget
+                    sourceSubsection = widget.subsection
+                    sourceTopSection = sourceSubsection.split(".")[0]
+                    sourceImIdx = widget.imIdx
+                    targetSubsection = dt.UITemp.Link.subsection
+                    targetImIdx = dt.UITemp.Link.imIdx
 
-                    if subsection != _u.Token.NotDef.str_t\
-                        and imIdx != _u.Token.NotDef.str_t:
-                        self.notify(mcomui.AddGlobalLink_BTN,
-                                    [subsection, imIdx])
+                    if targetSubsection != _u.Token.NotDef.str_t\
+                        and targetImIdx != _u.Token.NotDef.str_t:
+                        gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
+                                                sourceSubsection,
+                                                sourceImIdx,
+                                                sourceTopSection)
                         self.render()
 
                 def copyGlLinkCmd(event, *args):
@@ -834,6 +840,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                          text = "[pl]",
                                                          prefix = "contentPasteGlLinkEntry" + nameId,
                                                          row = gridRowStartIdx, column = 8)
+                        pasteLinkEntry.imIdx = k
+                        pasteLinkEntry.subsection = subsection
                         pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [pasteGlLinkCmd])
 
