@@ -805,7 +805,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                      text = "[delete]",
                                                      prefix = "contentRemoveEntry" + nameId,
                                                      row = gridRowStartIdx, 
-                                                     column = 11)
+                                                     column = 12)
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
                         removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
@@ -841,7 +841,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                       text = "[ex]", 
                                                       prefix = "contentOpenExcerciseUIEntry" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 9)
+                                                      column = 10)
                         openExUIEntry.imIdx = k
                         openExUIEntry.subsection = subsection
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
@@ -851,7 +851,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                       text = "[update]", 
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 10)
+                                                      column = 11)
                         changeImText.imIdx = str(i)
                         changeImText.subsection = subsection
                         changeImText.etrWidget = textLabelPage
