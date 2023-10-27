@@ -198,6 +198,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.imIdx = _u.Token.NotDef.str_t
             self.widget = None
 
+    class subsectionAsETR:
+        subsection = _u.Token.NotDef.str_t
+        widget = None
+
+        def reset(self):
+            self.subsection = _u.Token.NotDef.str_t
+            self.widget = None
+
     # used to filter toc data when the search is performed
     filterToken = ""
     showAll = None
@@ -217,6 +225,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.showLinks = showLinks
 
         self.entryAsETR = TOC_BOX.entryAsETR()
+        self.subsectionAsETR = TOC_BOX.entryAsETR()
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
@@ -1200,28 +1209,62 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             result = ImageTk.PhotoImage(result)
 
             subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, 
-                                             prefix = nameId, padding = [0, 20, 0, 0],
-                                             row = 0, column= 0)
+                                            prefix = nameId, padding = [0, 20, 0, 0],
+                                            row = 0, column= 0)
             subsectionLabel.image = result
         else:
-            tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-            fileId = _upan.Names.Subsection.formatSectionText(subsection)
+            def updateSubsection(event, *args):
+                if (self.subsectionAsETR.subsection != _u.Token.NotDef.str_t):
+                    newText = self.subsectionAsETR.widget.getData()
+                    fsm.Data.Sec.text(self.subsectionAsETR.subsection, newText)
+                    
+                    fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(self.subsectionAsETR.subsection, 
+                                                                   _upan.Names.Entry.getEntryNameID, 
+                                                                   _upan.Names.Group.formatGroupText,
+                                                                   _upan.Names.Subsection.formatSectionText,
+                                                                   _upan.Names.Subsection.getSubsectionPretty,
+                                                                   _upan.Names.Subsection.getTopSectionPretty)
+                    self.subsectionAsETR.reset()
+                    self.render()
+                else:
+                    self.subsectionAsETR.subsection = event.widget.subsection
+                    self.subsectionAsETR.widget =event.widget.etrWidget
+                    self.render()
 
-            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
-            subsectionImgPath = os.path.join(secreenshotPath, f"_sub_{fileId}.png")
+            if subsection != self.subsectionAsETR.subsection:
+                tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
+                fileId = _upan.Names.Subsection.formatSectionText(subsection)
 
-            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
-                result = Image.open(subsectionImgPath)
+                secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
+                subsectionImgPath = os.path.join(secreenshotPath, f"_sub_{fileId}.png")
+
+                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+                    result = Image.open(subsectionImgPath)
+                else:
+                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
+
+                shrink = 0.8
+                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+                result = ImageTk.PhotoImage(result)
+
+                subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
+                                                    row = 0, column= 0)
+                subsectionLabel.image = result
+                subsectionLabel.subsection = subsection
+                subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                        [updateSubsection])
             else:
-                result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
-
-            shrink = 0.8
-            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
-            result = ImageTk.PhotoImage(result)
-
-            subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
-                                                row = 0, column= 0)
-            subsectionLabel.image = result
+                subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
+                                                            "contentP_" + nameId, 
+                                                            0, 0, 
+                                                            "", # NOTE: not used anywhere  
+                                                            fsm.Data.Sec.text(subsection))
+                subsectionLabel.subsection = subsection
+                subsectionLabel.etrWidget = subsectionLabel
+                subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                        [updateSubsection])
+                self.subsectionAsETR.widget = subsectionLabel
+                subsectionLabel.focus_force()
 
         openPdfOnStartOfTheSection(subsectionLabel)
         _uuicom.bindChangeColorOnInAndOut(subsectionLabel)
