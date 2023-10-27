@@ -206,6 +206,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.subsection = _u.Token.NotDef.str_t
             self.widget = None
 
+    class groupAsETR:
+        subsection = _u.Token.NotDef.str_t
+        group = _u.Token.NotDef.str_t
+        widget = None
+
+        def reset(self):
+            self.subsection = _u.Token.NotDef.str_t
+            self.group = _u.Token.NotDef.str_t
+            self.widget = None
+
     # used to filter toc data when the search is performed
     filterToken = ""
     showAll = None
@@ -226,6 +236,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.entryAsETR = TOC_BOX.entryAsETR()
         self.subsectionAsETR = TOC_BOX.entryAsETR()
+        self.groupAsETR = TOC_BOX.groupAsETR()
 
         self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
         self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
@@ -701,13 +712,58 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             padding=[0, topPad, 0, 0], row = 0, column = 0)
                                 imageGroupFrame.render()
 
-                                img = getGroupImg(subsection, currImGroupName)
-                                imageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
-                                                            image = img, 
-                                                            prefix = "contentGroupP_" + nameId,
-                                                            padding = [30, 0, 0, 0], 
-                                                            row = 0, column = 0)
-                                imageGroupLabel.image = img
+                                def updateGroup(event, *args):
+                                    if (self.groupAsETR.subsection != _u.Token.NotDef.str_t) and\
+                                        (self.groupAsETR.group != _u.Token.NotDef.str_t):
+                                        newText = self.groupAsETR.widget.getData()
+                                        oldGroupName = self.groupAsETR.group
+                                        imagesGroupsList = \
+                                            fsm.Data.Sec.imagesGroupsList(event.widget.subsection)
+                                        imagesGroupsList = \
+                                            {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
+                                        fsm.Data.Sec.imagesGroupsList(self.subsectionAsETR.subsection,
+                                                                      imagesGroupsList)
+
+                                        fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
+                                                                   _upan.Names.Entry.getEntryNameID, 
+                                                                   _upan.Names.Group.formatGroupText,
+                                                                   _upan.Names.Subsection.formatSectionText,
+                                                                   _upan.Names.Subsection.getSubsectionPretty,
+                                                                   _upan.Names.Subsection.getTopSectionPretty)
+
+                                        self.groupAsETR.reset()
+                                    else:
+                                        self.groupAsETR.subsection = event.widget.subsection
+                                        self.groupAsETR.group = event.widget.group
+
+                                    self.render()
+
+                                if (subsection != self.groupAsETR.subsection) or\
+                                    (currImGroupName != self.groupAsETR.group):
+                                    img = getGroupImg(subsection, currImGroupName)
+                                    imageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
+                                                                image = img, 
+                                                                prefix = "contentGroupP_" + nameId,
+                                                                padding = [30, 0, 0, 0], 
+                                                                row = 0, column = 0)
+                                    imageGroupLabel.image = img
+                                    imageGroupLabel.subsection = subsection
+                                    imageGroupLabel.group = currImGroupName
+                                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                                            [updateGroup])
+                                else:
+                                    imageGroupLabel = _uuicom.MultilineText_ETR(imageGroupFrame, 
+                                                            "contentGroupP_" + nameId, 
+                                                            0, 0, 
+                                                            "", # NOTE: not used anywhere  
+                                                            currImGroupName)
+                                    imageGroupLabel.subsection = subsection
+                                    imageGroupLabel.etrWidget = imageGroupLabel
+                                    self.groupAsETR.widget = imageGroupLabel
+                                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                                            [updateGroup])
+                                    imageGroupLabel.focus_force()
+
                                 imageGroupLabel.render()
                                 hideImageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
                                                                         text = "[show/hide]",
