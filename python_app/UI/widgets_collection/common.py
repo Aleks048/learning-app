@@ -467,7 +467,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     shouldShowGroup = fsm.Data.Sec.imagesGroupsList(subsection)[imageGroup]
 
-                    if (not shouldShowGroup) and (not isWdgetLink):
+                    if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
                     # mainImage
