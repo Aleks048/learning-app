@@ -261,7 +261,10 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         if broadcasterType == AddExcerciseLine_BTN:
             self.setData(self.defaultText)
 
-        return text
+        if text != self.defaultText:
+            return text
+        else:
+            return "-1"
       
     def getData(self, **kwargs):
         text = super().getData(**kwargs)
@@ -457,6 +460,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def receiveNotification(self, broadcasterType) -> None:
         if broadcasterType == AddExcerciseLine_BTN:
+            lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                       self.imIdx, 
+                                                       fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
+            self.lineIdxShownInText = lines[-1]
             self.render()
         if broadcasterType == HideAllETRsWindow_BTN:
             self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
