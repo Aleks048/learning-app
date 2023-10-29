@@ -84,7 +84,7 @@ class Data:
 class TkWidgets (DataTranslatable_Interface):
     class Data:
         textColor_ID = "fg"
-        tk = tk.Tk()
+        tk = tk.Toplevel()
         class BindID:
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
@@ -209,9 +209,6 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            ttk.Style().configure('green/black.TButton', 
-                                foreground='white', 
-                                background='black')
             
             widgetObj = ttk.Button(self.rootWidget.widjetObj, 
                                 name = self.name,
@@ -219,6 +216,10 @@ class TkWidgets (DataTranslatable_Interface):
                                 style='green/black.TButton',
                                 **extraOptions
                                 )
+
+            ttk.Style().configure('green/black.TButton', 
+                                foreground='white', 
+                                background='black')
             
             def btnCmd():
                 cmd()

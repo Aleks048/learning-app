@@ -59,7 +59,7 @@ class ExcerciseImageLabel(ttk.Label):
 
             imagePath = _upan.Paths.Entry.LineImage.getAbs(bookName, subsection, imIdx, lineIdx)
             pilIm = Image.open(imagePath)
-            pilIm.thumbnail([530, 1000], Image.ANTIALIAS)
+            pilIm.thumbnail([530, 1000], Image.LANCZOS)
             img = ImageTk.PhotoImage(pilIm)
             images.append(img)
             return super().__init__(root, name = name, image = img, padding = [0, 0, 0, 0])
@@ -211,7 +211,8 @@ class MoveTOCtoExcerciseEntry_BTN(ww.currUIImpl.Button,
                                                           wf.Wr.MenuManagers.MathMenuManager)
         excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
 
-class HideExcerciseWindow_BTN(ww.currUIImpl.Button):
+class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
+                              dc.AppCurrDataAccessToken):
     subsection = None
     imIdx = None
 

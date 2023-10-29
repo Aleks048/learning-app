@@ -173,7 +173,7 @@ def getImageWidget(root, imagePath, widgetName,
                    row = 0, column = 0, columnspan = 1,
                    resizeFactor = 1.0):
     pilIm = Image.open(imagePath)
-    pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.ANTIALIAS)
+    pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
     img = ImageTk.PhotoImage(pilIm)
 
     imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],

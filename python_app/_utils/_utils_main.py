@@ -1,7 +1,6 @@
 import sys, os, json, time, subprocess
 from threading import Thread
-from screeninfo import get_monitors
-from AppKit import NSWorkspace
+from AppKit import NSScreen, NSWorkspace
 import Quartz
 
 import _utils.logging as log
@@ -63,9 +62,14 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
 
 
 def getMonitorSize():
-    for m in get_monitors():
-       return(m.width,m.height)
-
+    # NOTE: this is an alternative way to get screen size. Might be better?
+    # from screeninfo import get_monitors
+    # import tkinter
+    # root = tkinter.Toplevel()
+    # root.withdraw()
+    # return [root.winfo_screenwidth(), root.winfo_screenheight()]
+    return [(screen.frame().size.width, screen.frame().size.height)
+            for screen in NSScreen.screens()][0]
 
 def readFile(fp):
     '''

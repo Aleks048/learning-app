@@ -1,4 +1,4 @@
-from PIL import ImageTk,Image, ImageChops
+from PIL import Image, ImageChops
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import io

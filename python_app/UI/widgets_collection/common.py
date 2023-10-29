@@ -701,7 +701,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 result = tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding= 10, imageColor="#109464") 
 
                             shrink = 0.8
-                            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+                            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
                             result = ImageTk.PhotoImage(result)
                             return result
 
@@ -821,7 +821,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         pilIm = getEntryImg(latexTxt, subsection, nameId)
 
                         shrink = 0.7
-                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
                         img = ImageTk.PhotoImage(pilIm)
 
                         if (subsection == self.entryAsETR.subsection)\
@@ -1000,7 +1000,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         pilIm = getEntryImg(latexTxt, targetSubsection, targetNameId)
 
                                         shrink = 0.7
-                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
                                         img = ImageTk.PhotoImage(pilIm)
 
                                         glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
@@ -1075,7 +1075,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
 
                                         shrink = 0.7
-                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.ANTIALIAS)
+                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
                                         img = ImageTk.PhotoImage(pilIm)
 
                                         glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame,
@@ -1286,7 +1286,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     result = tff.Wr.TexFileUtils.fromTexToImage(tex, topSectionImgPath, imageColor = "#ed8a82") 
 
                 shrink = 0.8
-                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
                 result = ImageTk.PhotoImage(result)
 
                 subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, 
@@ -1322,7 +1322,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
 
                 shrink = 0.8
-                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.ANTIALIAS)
+                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
                 result = ImageTk.PhotoImage(result)
 
                 subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
