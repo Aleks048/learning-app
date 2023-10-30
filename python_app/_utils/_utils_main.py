@@ -2,6 +2,8 @@ import sys, os, json, time, subprocess
 from threading import Thread
 from AppKit import NSScreen, NSWorkspace
 import Quartz
+from PIL import Image
+import pytesseract
 
 import _utils.logging as log
 
@@ -11,6 +13,12 @@ class Token:
         str_t = "-1"
         list_t = [str_t]
         dict_t = {str_t: str_t}
+
+def getTextFromImage(imPath):
+    pilImg = Image.open(imPath)
+    text = pytesseract.image_to_string(pilImg)
+    pilImg.close()
+    return text
 
 def runCmdAndWait(cmd):
     t = Thread(target = lambda *args: subprocess.Popen(cmd, shell = True))
@@ -208,7 +216,8 @@ class JSON:
                 if type(newValue) != type(jsonData[propertyName]):
                     log.autolog("\
     ERROR: JSON.updateProperty - did not update the json file. \
-    Type of new value type '{0}' does not match the type of the property '{1}'".format(type(newValue), type(jsonData[propertyName])))
+    Type of new value type '{0}' does not match the type of the property '{1}'"\
+                                .format(type(newValue), type(jsonData[propertyName])))
                 else:
                     jsonData[propertyName] = newValue
             else:
@@ -224,6 +233,11 @@ class JSON:
         _updateProperty(jsonData, newValue)
         JSON.writeFile(jsonFilepath, jsonData)
 
+    def createProperty(jsonFilepath, propertyName, parentName):
+        # TODO: a feature to create json property when its not there
+        # NOTE: this might lead to inconsistency in data but we will be able to add 
+        #       new properties to existing sections without much problems
+        pass
 '''
 DICT
 '''
