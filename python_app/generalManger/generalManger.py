@@ -19,6 +19,9 @@ import daemon_service.daemon_service as ds
 
 import layouts.layouts_facade as lf
 import scripts.osascripts as oscr
+import outside_calls.outside_calls_facade as oscf
+
+import UI.widgets_facade as wf
 
 
 class GeneralManger(dc.AppCurrDataAccessToken):
@@ -124,6 +127,108 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # init the tracking system
         ocf.Wr.TrackerAppCalls.initBook(bookPath, bookRemoteAddress)
     
+    def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None):
+        ocf.Wr.ScreenshotCalls.takeScreenshot(imPath)
+        timer = 0
+
+        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath + ".png"):
+            time.sleep(0.3)
+            timer += 1
+
+            if timer > 50:
+                break
+
+        if eImIdx == None:
+            imText = _u.getTextFromImage(imPath + ".png")
+            imageTextsDict = fsf.Data.Sec.imageText(subsection)
+            imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
+            imageTextsDict[mainImIdx] = imText
+            fsf.Data.Sec.imageText(subsection, imageTextsDict)
+        else:
+            eImText = _u.getTextFromImage(imPath + ".png")
+            eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
+            eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
+
+            if mainImIdx not in list(eImageTextsDict.keys()):
+                eImageTextsList = []
+            else:
+                eImageTextsList = eImageTextsDict[mainImIdx]
+
+            if int(eImIdx) == len(eImageTextsList):
+                eImageTextsList.append(eImText)
+            else:
+                eImageTextsList[int(eImIdx)] = eImText
+
+            eImageTextsDict[mainImIdx] = eImageTextsList
+            fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
+
+    @classmethod
+    def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):
+        print(f"{extraImageIdx}, {extraImText}")
+        # update the content file
+        extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+
+        extraImagesList = []
+
+        if extraImagesDict == _u.Token.NotDef.dict_t:
+            extraImagesDict = {}
+
+        if mainImIdx in list(extraImagesDict.keys()):
+            extraImagesList = extraImagesDict[mainImIdx]
+
+        if extraImText in extraImagesList:
+            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
+            response = wf.Wr.UI_generalManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+        
+        if extraImageIdx != _u.Token.NotDef.str_t:
+            extraImageIdx = int(extraImageIdx)
+
+            if extraImageIdx < len(extraImagesList):
+                extraImagesList[extraImageIdx] = extraImText
+            else:
+                msg = "\
+Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".format(extraImageIdx)
+                wf.Wr.UI_generalManager.showNotification(msg, True)
+
+                mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+                mainManager.show()
+
+                return
+        else:
+            extraImagesList.append(extraImText)
+
+        if extraImageIdx == _u.Token.NotDef.str_t:
+            extraImageIdx = len(extraImagesList) - 1
+
+        currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
+
+        extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
+        extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
+        #TODO: get text from extra image as well
+        cls.AddNewImageData(subsection, mainImIdx, extraImagePathFull, extraImageIdx)
+        # _u.getTextFromImage(extraImagePathFull + ".png")
+
+        timer = 0
+
+        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull + ".png"):
+            time.sleep(0.3)
+            timer += 1
+
+            if timer > 50:
+                return False
+
+        extraImagesDict[mainImIdx] = extraImagesList
+        fsf.Data.Sec.extraImagesDict(subsection, extraImagesDict)
+
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
         import UI.widgets_facade as wf
@@ -132,7 +237,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                     _upan.Names.getImageName(str(imIdx), subsection))
         
         # take a screenshot
-        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr):
+        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr + ".png"):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             
@@ -150,7 +255,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             if not response:
                 return
         else:
-            ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
+            cls.AddNewImageData(subsection, imIdx, imagePath_curr)
 
         timer = 1
 

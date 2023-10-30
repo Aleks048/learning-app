@@ -26,5 +26,8 @@ class Wr:
         class ExcerciseManager(exm.ExcerciseManager):
             pass
     
+    class UI_generalManager(wm.UI_generalManager):
+        pass
+
     class WidgetWrappers(ww.currUIImpl):
         pass

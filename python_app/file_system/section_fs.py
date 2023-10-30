@@ -42,6 +42,8 @@ class SectionInfoStructure:
         tocWImageDict = "tocWImageDict"
         imagesGroupDict = "imagesGroupDict"
         imageUIResize = "imageUIResize"
+        imageText = "imageText"
+        extraImText = "extraImText"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -64,35 +66,47 @@ class SectionInfoStructure:
     sectionPathForTemplate = ""
 
     @classmethod
-    def _getTemplate(cls, level):
-        
+    def _getTemplate(cls, level = 0):
         sectionInfo_template = {
-                cls.PubProp.name: _u.Token.NotDef.str_t,
-                cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
-                cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
-                cls.PubProp.imagesGroupsList: {"No group": True},
-                cls.PubProp.levelData: {
-                    cls.PubProp.level: str(level),
-                },
-                cls.PrivProp.tocData: {
-                    cls.PubProp.text: _u.Token.NotDef.str_t,
-                    cls.PubProp.start: _u.Token.NotDef.str_t,
-                    cls.PubProp.finish: _u.Token.NotDef.str_t
-                },
-                cls.PubProp.imageProp: {
-                    cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
-                    cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy(),
-                    cls.PubProp.imageUIResize : _u.Token.NotDef.dict_t.copy()
-                }
+            cls.PubProp.name: _u.Token.NotDef.str_t,
+            cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
+            cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+            cls.PubProp.imagesGroupsList: {"No group": True},
+            cls.PubProp.levelData: {
+                cls.PubProp.level: str(level),
+            },
+            cls.PrivProp.tocData: {
+                cls.PubProp.text: _u.Token.NotDef.str_t,
+                cls.PubProp.start: _u.Token.NotDef.str_t,
+                cls.PubProp.finish: _u.Token.NotDef.str_t
+            },
+            cls.PubProp.imageProp: {
+                cls.PubProp.imageContentFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                cls.PubProp.imageTOCFileMoveLinesNumber: _u.Token.NotDef.str_t,
+                cls.PubProp.imLinkDict: _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.imLinkOMPageDict: _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.imGlobalLinksDict: _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.origMatNameDict : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.extraImagesDict : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.tocWImageDict : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.imageUIResize : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.imageText : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.extraImText : _u.Token.NotDef.dict_t.copy()
+            }
         }
         return sectionInfo_template
+
+    @classmethod
+    def getDefaultTemplateValue(cls, propertyName):
+        template = cls._getTemplate()
+        for k,v in template.items():
+            if k == propertyName:
+                return template[k] , ""
+            if type(v) == dict:
+                for k2,_ in v.items():
+                    if k2 == propertyName:
+                        return v[k2], k
 
     def getSectionJSONKeyPrefixFormPath(path):
         sectionPathSeparator = \
@@ -360,6 +374,19 @@ class SectionInfoStructure:
         imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
 
+        imagesText = cls.readProperty(subsection, cls.PubProp.imageText)
+        imagesText.pop(imIdx, None)
+
+        if imagesText == {}:
+            imagesText = _u.Token.NotDef.dict_t.copy()
+
+        imagesText = cls.__shiftTheItemsInTheDict(imagesText, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.imagesText, imagesText)
+
+        extraImagesText = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        extraImagesText = extraImagesText.pop(imIdx, None)
+        extraImagesText = cls.__shiftTheItemsInTheDict(extraImagesText, imIdx)
+
         if extraImagesDict == {}:
             extraImagesDict = _u.Token.NotDef.dict_t.copy()
 
@@ -382,7 +409,26 @@ class SectionInfoStructure:
                                    _upan.Names.Subsection.formatSectionText,
                                    _upan.Names.Subsection.getSubsectionPretty,
                                    _upan.Names.Subsection.getTopSectionPretty)
-    
+
+    @classmethod
+    def getEntryImText(cls, subsection, imIdx):
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        entryImTexts = cls.readProperty(subsection, cls.PubProp.imageText, currBookpath)
+        entryEImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookpath)
+
+        if entryImTexts == None:
+            entryImText = ""
+        elif imIdx not in list(entryImTexts.keys()):
+            entryImText = ""                  
+        else:
+            entryImText = entryImTexts[imIdx].replace("\n", "")
+        
+        if imIdx in list(entryEImTextDict.keys()):
+            for t in  entryEImTextDict[imIdx]:
+                entryImText += t
+
+        return entryImText
+
     @classmethod
     def rebuildEntryLatex(cls, 
                           subsection, 

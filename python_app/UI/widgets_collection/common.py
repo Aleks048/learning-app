@@ -647,7 +647,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 # 19 : event of being rendered
                 if ((not label.clicked) and (int(event.type) == 4)) or\
                     ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
-
                     if not self.showAll:
                         closeAllSubsections()
 
@@ -656,10 +655,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
                     prevImGroupName = _u.Token.NotDef.str_t
 
+                    extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+
                     for k,v in links.items():
-                        if (self.filterToken != "") and \
-                           (self.filterToken.lower() not in v.lower()):
-                            continue
+                        entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
+                        
+                        if k in list(extraImagesDict.keys()):
+                            for t in extraImagesDict[k]:
+                                entryImText += t
+
+                        if (self.filterToken != ""):
+                            if (self.filterToken.lower() not in v.lower())\
+                                and (self.filterToken.lower() not in entryImText.lower()):
+                                continue
 
                         currImGroupidx = imagesGroupDict[k]
 
@@ -1160,13 +1168,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         tempFrame.render()
                         prevImGroupName = currImGroupName
                         i += 1
-                    
-                    dummyFrame = _uuicom.TOCFrame(frame, prefix = "contentDummyFr_" + nameId,
-                                          row = i + 1, column = 0)
+
+                    dummyFrame = _uuicom.TOCFrame(frame, prefix = "contentDummyFr_" + subSecID,
+                                        row = i + 1, column = 0)
                     dummyEntryPage = _uuicom.TOCLabelWithClick(dummyFrame, 
-                                                       text ="\n", 
-                                                       prefix = "contentDummy_" + nameId,
-                                                       row=0, column=0)
+                                                    text ="\n", 
+                                                    prefix = "contentDummy_" + subSecID,
+                                                    row=0, column=0)
                     dummyEntryPage.render()
                     dummyFrame.render()
 
@@ -1406,9 +1414,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     continue
 
                 imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
-                
+                extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+
                 for k,v in imLinkDict.items():
-                    if self.filterToken.lower() in v.lower():
+                    entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
+
+                    if k in list(extraImagesDict.keys()):
+                        for t in extraImagesDict[k]:
+                            entryImText += t
+
+                    if (self.filterToken.lower() in v.lower()) \
+                        or (self.filterToken.lower() in entryImText.lower()):
                         text_curr_filtered.append(text_curr[i])
                         break
         else:

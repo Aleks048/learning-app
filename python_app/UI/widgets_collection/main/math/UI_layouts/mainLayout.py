@@ -27,6 +27,8 @@ import settings.facade as sf
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oscf
 
+import generalManger.generalManger as gm
+
 
 class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
@@ -747,8 +749,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
         extraImText = self.notify(ImageGeneration_ETR)
         
         currentSubsection = _upan.Current.Names.Section.name()
-        
-        extraImagePath_curr = _upan.Paths.Screenshot.getAbs()
+
 
         msg = "\
 Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImText)
@@ -761,67 +762,11 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
         if not response:
             return
 
-        # update the content file
-        extraImagesDict = fsf.Data.Sec.extraImagesDict(currentSubsection)
-
-        extraImagesList = []
-
-        if extraImagesDict == _u.Token.NotDef.dict_t:
-            extraImagesDict = {}
-
-        if mainImIdx in list(extraImagesDict.keys()):
-            extraImagesList = extraImagesDict[mainImIdx]
-
-        if extraImText in extraImagesList:
-            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
-            response = wm.UI_generalManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
-        
-        if extraImageIdx != _u.Token.NotDef.str_t:
-            extraImageIdx = int(extraImageIdx)
-
-            if extraImageIdx < len(extraImagesList):
-                extraImagesList[extraImageIdx] = extraImText
-            else:
-                msg = "\
-Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".format(extraImageIdx)
-                wm.UI_generalManager.showNotification(msg, True)
-
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-                mainManager.show()
-
-                return
-        else:
-            extraImagesList.append(extraImText)
-
-        if extraImageIdx == _u.Token.NotDef.str_t:
-            extraImageIdx = len(extraImagesList) - 1
-        
-        extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, currentSubsection, extraImageIdx)
-        extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
-        ocf.Wr.ScreenshotCalls.takeScreenshot(extraImagePathFull)
-
-        timer = 0
-
-        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull + ".png"):
-            time.sleep(0.3)
-            timer += 1
-
-            if timer > 50:
-                return False
-
-        extraImagesDict[mainImIdx] = extraImagesList
-        fsf.Data.Sec.extraImagesDict(currentSubsection, extraImagesDict)
+        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, currentSubsection, extraImageIdx, extraImText)
 
         self.notify(LatestExtraImForEntry_LBL)
-        tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
+        # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
+        # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
         self.notify(comw.TOC_BOX)
 
