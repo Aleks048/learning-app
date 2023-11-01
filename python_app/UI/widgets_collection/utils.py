@@ -117,6 +117,12 @@ class TOCLabelWithClick(ttk.Label):
     lineImIdx = _u.Token.NotDef.str_t
     etrWidget = _u.Token.NotDef.str_t
 
+    sticky = None
+
+    tocFrame = None
+
+    eImIdx = None
+
     targetSubssection = None
     targetImIdx = None
     sourceSubssection = None
@@ -133,16 +139,17 @@ class TOCLabelWithClick(ttk.Label):
             else:
                 self.bind(key, cmd)
     
-    def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
+    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, *args, **kwargs) -> None:
         self.row = row
         self.column = column
         self.columnspan = columnspan
+        self.sticky = sticky
 
         super().__init__(root, name = prefix, *args, **kwargs)
     
     def render(self):
         self.grid(row = self.row, column = self.column,
-                  columnspan = self.columnspan, sticky=tk.NW)
+                  columnspan = self.columnspan, sticky = self.sticky)
 
     def generateEvent(self, event, *args, **kwargs):
         self.event_generate(event, *args, **kwargs)
@@ -228,7 +235,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                displayedImagesContainer,
                                imageBaloon, 
                                skippConditionFn = lambda *args: False,
-                               resizeFactor = 1.0):
+                               resizeFactor = 1.0,
+                               tocFrame = None):
     outLabels = []
     # extraImages
     if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
@@ -251,14 +259,40 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                                    i)
 
             eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
-                                            eImWidgetName, imPadLeft,
-                                            row = i + 4, column = 0, columnspan = 1000,
+                                            eImWidgetName, 0,
+                                            row = i + 4, column = 1, columnspan = 1000,
                                             resizeFactor = resizeFactor)
+            removeEntry = TOCLabelWithClick(rootLabel,
+                                            text = "[delete]",
+                                            prefix = "delete_" + eImWidgetName,
+                                            row =  i + 4, 
+                                            column = 0,
+                                            sticky = tk.NW)
+            removeEntry.imIdx = imIdx
+            removeEntry.subsection = subsection
+            removeEntry.eImIdx = i
+            removeEntry.tocFrame = tocFrame
+
+            def delEIm(event, *args):
+                widget:TOCLabelWithClick = event.widget
+                fsf.Wr.SectionInfoStructure.removeExtraIm(widget.subsection,
+                                                          widget.imIdx,
+                                                          eImIdx = widget.eImIdx)
+                
+                if widget.tocFrame != None:
+                    tocFrame.render()
+
+            removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
+
+            bindChangeColorOnInAndOut(removeEntry)
+            removeEntry.render()
+
             displayedImagesContainer.append(eImg)
 
             outLabels.append(eimLabel)
 
             imageBaloon.bind(eimLabel, "{0}".format(eImText))
+
     return outLabels
 
 

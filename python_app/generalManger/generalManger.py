@@ -164,7 +164,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     @classmethod
     def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):
-        print(f"{extraImageIdx}, {extraImText}")
         # update the content file
         extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
 

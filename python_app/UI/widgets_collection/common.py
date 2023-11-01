@@ -499,7 +499,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                     imPad, self.displayedImages, balloon,
-                                                                    skippProof, resizeFactor)
+                                                                    skippProof, resizeFactor, tocFrame = self)
                     for l in exImLabels:
                         l.render()
                     
@@ -1437,6 +1437,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.addTOCEntry(subsection, level, i)
 
     def render(self, widjetObj=None, shouldScroll = True, renderData=..., **kwargs):
+        self.displayedImages = []
+
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
 

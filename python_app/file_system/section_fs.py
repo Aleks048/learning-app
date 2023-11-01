@@ -410,6 +410,38 @@ class SectionInfoStructure:
                                    _upan.Names.Subsection.getSubsectionPretty,
                                    _upan.Names.Subsection.getTopSectionPretty)
 
+
+    @classmethod
+    def removeExtraIm(cls, subsection, mainImIdx, eImIdx = None):
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
+        extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
+
+        eImList:list = extraImagesDict.pop(mainImIdx)
+        eImTextsList:list = extraImTextDict.pop(mainImIdx)
+
+        if eImIdx != None:
+            eImList.pop(eImIdx)
+            eImTextsList.pop(eImIdx)
+        # NOTE: this is left here for 
+        # elif eImName != None:
+        #     eImList.remove(eImName)
+        #     eImTextsList.remove(eImName)
+
+        if eImList != []:
+            extraImagesDict[mainImIdx] = eImList
+        if eImTextsList != []:
+            extraImTextDict[mainImIdx] = eImTextsList
+        
+        extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                                  subsection,
+                                                                                  mainImIdx,
+                                                                                  eImIdx)
+        ocf.Wr.FsAppCalls.deleteFile(extraImFilepath)
+
+        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
+
     @classmethod
     def getEntryImText(cls, subsection, imIdx):
         currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()

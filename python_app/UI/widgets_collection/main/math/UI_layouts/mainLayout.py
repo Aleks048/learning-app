@@ -716,6 +716,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
         extraImageIdx = _u.Token.NotDef.str_t
 
         if "_" in mainImIdx:
+            # NOTE: here we obtain the extra image index together with the mainImIdx
             mainAndExtraIndex = mainImIdx.split("_")
 
             for idx in mainAndExtraIndex:
