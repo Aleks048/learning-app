@@ -276,8 +276,9 @@ class SectionInfoStructure:
                                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
                                                             os.path.join(imagesPath, extraImNewFilename + ".png"))
 
+        # NOTE: not used at this time
         # update the tex files
-        tff.Wr.TexFileModify.removeImageFromCon(currBookName, subsection, imIdx)
+        #tff.Wr.TexFileModify.removeImageFromCon(currBookName, subsection, imIdx)
         
         # remove all the global links that lead to this entry
         if imIdx in list(imGlobalLinksDict.keys()):
@@ -396,16 +397,16 @@ class SectionInfoStructure:
             imagesText = _u.Token.NotDef.dict_t.copy()
 
         imagesText = cls.__shiftTheItemsInTheDict(imagesText, imIdx)
-        cls.updateProperty(subsection, cls.PubProp.imagesText, imagesText)
+        cls.updateProperty(subsection, cls.PubProp.imageText, imagesText)
 
-        extraImagesText = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
-        extraImagesText = extraImagesText.pop(imIdx, None)
-        extraImagesText = cls.__shiftTheItemsInTheDict(extraImagesText, imIdx)
+        extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText)
+        extraImTextDict.pop(imIdx, None)
+        extraImTextDict = cls.__shiftTheItemsInTheDict(extraImTextDict, imIdx)
 
-        if extraImagesDict == {}:
-            extraImagesDict = _u.Token.NotDef.dict_t.copy()
+        if extraImTextDict == {}:
+            extraImTextDict = _u.Token.NotDef.dict_t.copy()
 
-        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
+        cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict)
 
         # update the links on the OM file
         for page in set(list(imLinkOMPageDict.values())):
