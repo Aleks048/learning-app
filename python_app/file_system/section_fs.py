@@ -458,9 +458,42 @@ class SectionInfoStructure:
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
 
-        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+
+        #deal with the excercises
+        for i in range(len(list(imLinkDict.keys())) - 1, -1, -1):
+            entryImIdx = list(imLinkDict.keys())[i]
+            if int(entryImIdx) >= int(imIdx):
+                oldEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, subsection, entryImIdx)
+
+                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(oldEntryLinesPath):
+                    lines = efs.EntryInfoStructure.readProperty(subsection,
+                                                                entryImIdx, 
+                                                                efs.EntryInfoStructure.PubProp.entryLinesList)
+
+                    for lineIdx in range(len(lines) - 1, -1, -1):
+                        savePath = _upan.Paths.Entry.getAbs(currBookName, subsection, entryImIdx)
+                        oldFilename = _upan.Names.Entry.Line.name(entryImIdx, lineIdx)
+                        oldPath = os.path.join(savePath, oldFilename)
+                        newFilename = _upan.Names.Entry.Line.name(str(int(entryImIdx) + 1), lineIdx)
+                        newPath = os.path.join(savePath, newFilename)
+                        ocf.Wr.FsAppCalls.moveFile(oldPath, newPath)
+
+                    oldName = efs.EntryInfoStructure.readProperty(subsection,
+                                                                entryImIdx, 
+                                                                efs.EntryInfoStructure.PubProp.name)
+                    efs.EntryInfoStructure.updateProperty(subsection,
+                                                        entryImIdx, 
+                                                        efs.EntryInfoStructure.PubProp.name,
+                                                        str(int(oldName) + 1))
+
+                    newEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, 
+                                                                subsection,
+                                                                str(int(entryImIdx) + 1))
+                    ocf.Wr.FsAppCalls.moveFolder(oldEntryLinesPath, newEntryLinesPath)
 
         # move the extra images
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
         extraImFilenames = []
 
         if imIdx in list(extraImagesDict.keys()):
@@ -478,8 +511,6 @@ class SectionInfoStructure:
 
         for i in range(len(extraImFilenames) - 1, -1):
             ocf.Wr.FsAppCalls.moveFile(extraImFilenames[i][0], extraImFilenames[i][1])
-
-        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
 
         # take care of the of the images in the subsesction
         for i in range(len(list(imLinkDict.keys())) - 1, -1, -1):
@@ -511,6 +542,7 @@ class SectionInfoStructure:
                             ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
                                                         os.path.join(imagesPath, extraImNewFilename + ".png"))
 
+        # deal with the links
         imGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
 
         linksKeysSorted = list(imGlobalLinksDict.keys())

@@ -23,6 +23,9 @@ class FinderCalls:
     def copyFile(sourceFilepath, destFilepath):
         return shutil.copy2(sourceFilepath, destFilepath)
 
+    def moveFolder(sourceFilepath, destFilepath):
+        return shutil.move(sourceFilepath, destFilepath)
+
     def openFile(filepath):
         cmd = "open file://" + filepath + " &"
         _u.runCmdAndWait(cmd)
