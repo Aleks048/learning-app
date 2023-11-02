@@ -481,7 +481,7 @@ class SectionInfoStructure:
 
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
 
-        # take care of the rest of the images in the subsesction
+        # take care of the of the images in the subsesction
         for i in range(len(list(imLinkDict.keys())) - 1, -1, -1):
             imLinkId = list(imLinkDict.keys())[i]
 
@@ -491,7 +491,14 @@ class SectionInfoStructure:
                 imNameNew = _upan.Names.getImageName(str(int(imLinkId) + 1), subsection)
                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
                                         os.path.join(imagesPath, imNameNew + ".png"))
-                
+
+                oldLinkImgName = _upan.Names.Entry.getEntryNameID(subsection, imLinkId)
+                newLinkImgName = _upan.Names.Entry.getEntryNameID(subsection, str(int(imLinkId) + 1))
+                secreenshotPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
+                oldEntryImgPath = os.path.join(secreenshotPath, f"_{oldLinkImgName}.png")
+                newEntryImgPath = os.path.join(secreenshotPath, f"_{newLinkImgName}.png")
+                ocf.Wr.FsAppCalls.moveFile(oldEntryImgPath, newEntryImgPath)
+
                 # move the extra images
                 if imLinkId in list(extraImagesDict.keys()):
                     extraImNames = extraImagesDict[imLinkId]
