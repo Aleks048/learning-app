@@ -131,7 +131,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         ocf.Wr.ScreenshotCalls.takeScreenshot(imPath)
         timer = 0
 
-        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath + ".png"):
+        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
             time.sleep(0.3)
             timer += 1
 
@@ -139,13 +139,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 break
 
         if eImIdx == None:
-            imText = _u.getTextFromImage(imPath + ".png")
+            imText = _u.getTextFromImage(imPath)
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
             imageTextsDict[mainImIdx] = imText
             fsf.Data.Sec.imageText(subsection, imageTextsDict)
         else:
-            eImText = _u.getTextFromImage(imPath + ".png")
+            eImText = _u.getTextFromImage(imPath)
             eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
             eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
 
@@ -232,19 +232,22 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
     def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
         import UI.widgets_facade as wf
 
-        imagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                    _upan.Names.getImageName(str(imIdx), subsection))
-        
+        currBorrPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+        imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBorrPath,
+                                                                       subsection,
+                                                                       str(imIdx))
+
         # take a screenshot
-        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath_curr + ".png"):
+        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
             mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             
             response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
             
             if response:
-                ocf.Wr.FsAppCalls.deleteFile(imagePath_curr + ".png")
-                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath_curr)
+                ocf.Wr.FsAppCalls.deleteFile(imagePath)
+                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
                                                    wf.Wr.MenuManagers.MathMenuManager)
@@ -254,32 +257,31 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
             if not response:
                 return
         else:
-            cls.AddNewImageData(subsection, imIdx, imagePath_curr)
+            cls.AddNewImageData(subsection, imIdx, imagePath)
 
         timer = 1
 
-        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath_curr + ".png"):
+        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
             time.sleep(0.3)
             timer += 1
 
             if timer > 50:
                 return False
 
-        imID = imIdx
         linkDict = fsf.Data.Sec.imLinkDict(subsection)
         imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
         
-        if (imID in list(linkDict.values())):
+        if (imIdx in list(linkDict.values())):
             messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
                                                         wf.Wr.MenuManagers.MessageMenuManager)
             mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
                                                         wf.Wr.MenuManagers.MathMenuManager)
-            response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imID), True)
+            response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imIdx), True)
             
             if response:
                 names = []
                 for name, id in linkDict.items():
-                    if id == imID:
+                    if id == imIdx:
                         #remove the image
                         prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
                                         _upan.Names.getImageName(str(imIdx), subsection) + ".png")

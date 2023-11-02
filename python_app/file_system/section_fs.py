@@ -177,15 +177,29 @@ class SectionInfoStructure:
 
         cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
     
-    def __shiftTheItemsInTheDict(dict, startShiftIdx):
+    def __shiftTheItemsInTheDict(dict, startShiftIdx, left = True):
         # shift each item of the dict starting from the idx to the left
         outDict = {}
 
-        for k in list(dict.keys()):
+        if left:
+            r = range(0, len(list(dict.keys())))
+        else:
+            r = range(len(list(dict.keys())) - 1, -1, -1)
+
+        for i in r:
+            k = list(dict.keys())[i]
+
             if int(k) < int(startShiftIdx):
                 outDict[k] = dict[k]
             else:
-                outDict[str(int(k)-1)] = dict[k]
+                if left:
+                    outDict[str(int(k) - 1)] = dict[k]
+                else:
+                    outDict[str(int(k) + 1)] = dict[k]
+
+        keys = [int(i) for i in list(outDict.keys())]
+        keys.sort()
+        outDict = {str(i): outDict[str(i)] for i in keys}
 
         return outDict
 
@@ -268,6 +282,7 @@ class SectionInfoStructure:
         # remove all the global links that lead to this entry
         if imIdx in list(imGlobalLinksDict.keys()):
             glLinksListImDict = imGlobalLinksDict[imIdx]
+
             for glLink in list(glLinksListImDict.keys()):
                 linkSubsection = glLink.split("_")[0]
                 linkIdx = glLink.split("_")[1]
@@ -410,6 +425,169 @@ class SectionInfoStructure:
                                    _upan.Names.Subsection.getSubsectionPretty,
                                    _upan.Names.Subsection.getTopSectionPretty)
 
+    @classmethod
+    def shiftEntryRight(cls, subsection, imIdx):
+        import generalManger.generalManger as gm
+
+        # ask the user if we wnat to proceed.
+        msg = "Do you want to shift entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        # NOTE: ask twice if the user is sure.
+        msg = "Do you want to shift entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        # track all the changes berore and after removal
+        msg = "Before shifting the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
+
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+
+        # move the extra images
+        extraImFilenames = []
+
+        if imIdx in list(extraImagesDict.keys()):
+            extraImNames = extraImagesDict[imIdx]
+
+            if extraImNames != None:
+                for extraImIdx in range(len(extraImNames)):
+                    extraImFilename = _upan.Names.getExtraImageFilename(imIdx, subsection, extraImIdx)
+                    extraImFilename = os.path.join(imagesPath, extraImFilename + ".png")
+
+                    newExtraImFilename = _upan.Names.getExtraImageFilename(str(int(imIdx) + 1), subsection, extraImIdx)
+                    newExtraImFilename = os.path.join(imagesPath, newExtraImFilename + ".png")
+                    extraImFilenames.append([extraImFilename,
+                                             newExtraImFilename])
+
+        for i in range(len(extraImFilenames) - 1, -1):
+            ocf.Wr.FsAppCalls.moveFile(extraImFilenames[i][0], extraImFilenames[i][1])
+
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+
+        # take care of the rest of the images in the subsesction
+        for i in range(len(list(imLinkDict.keys())) - 1, -1, -1):
+            imLinkId = list(imLinkDict.keys())[i]
+
+            if int(imLinkId) >= int(imIdx):
+                # move the main image files
+                imNameOld = _upan.Names.getImageName(imLinkId, subsection)
+                imNameNew = _upan.Names.getImageName(str(int(imLinkId) + 1), subsection)
+                ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
+                                        os.path.join(imagesPath, imNameNew + ".png"))
+                
+                # move the extra images
+                if imLinkId in list(extraImagesDict.keys()):
+                    extraImNames = extraImagesDict[imLinkId]
+
+                    if extraImNames != None:
+                        for extraImIdx in range(len(extraImNames)):
+                            extraImOldFilename = _upan.Names.getExtraImageFilename(imLinkId, subsection, extraImIdx)
+                            extraImNewFilename = _upan.Names.getExtraImageFilename(str(int(imLinkId) + 1), subsection, extraImIdx)
+
+                            ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, extraImOldFilename + ".png"),
+                                                        os.path.join(imagesPath, extraImNewFilename + ".png"))
+
+        imGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+
+        linksKeysSorted = list(imGlobalLinksDict.keys())
+        linksKeysSorted.sort(key = int, reverse = True)
+
+        topSection = subsection.split(".")[0]
+
+        # shift all the global links that lead to this entry
+        for linkIdx in linksKeysSorted:
+            if int(linkIdx) >= int(imIdx):
+                linksDict = imGlobalLinksDict.pop(linkIdx)
+
+                for lk in linksDict.keys():
+                    llinkSubsection = lk.split("_")[0]
+                    llinkIdx = lk.split("_")[1]
+
+                    llinkIdx = str(int(llinkIdx))
+
+                    linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                    linkReturnLinks = linkGlobalLinksDict[llinkIdx]
+                    linkReturnLinks.pop(subsection + "_" + linkIdx)
+                    newUrl = tff.Wr.TexFileUtils.getUrl(currBookName, topSection, subsection, 
+                                            str(int(linkIdx) + 1), "full", False)
+
+                    linkReturnLinks[subsection + "_" + str(int(linkIdx) + 1)] = newUrl
+
+                    linkGlobalLinksDict[llinkIdx] = linkReturnLinks
+                    cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                    
+        for linkIdx in linksKeysSorted:
+            newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+            oldDict =newImGlobalLinksDict.pop(linkIdx)
+            newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
+            cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
+
+
+        imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.imLinkDict, imLinkDict)
+
+        imLinkOMPageDict:dict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
+        imLinkOMPageDict = cls.__shiftTheItemsInTheDict(imLinkOMPageDict, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.imLinkOMPageDict, imLinkOMPageDict)
+
+        origMatNameDict = cls.readProperty(subsection, cls.PubProp.origMatNameDict)
+        origMatNameDict = cls.__shiftTheItemsInTheDict(origMatNameDict, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
+
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+        imageUIResize = cls.__shiftTheItemsInTheDict(imageUIResize, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
+
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx, False)
+
+        tocWImageDict = cls.readProperty(subsection, cls.PubProp.tocWImageDict)
+        tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
+
+        imagesGroupDict = cls.readProperty(subsection, cls.PubProp.imagesGroupDict)
+        imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
+
+        imagesText = cls.readProperty(subsection, cls.PubProp.imageText)
+        imagesText = cls.__shiftTheItemsInTheDict(imagesText, imIdx, False)
+        cls.updateProperty(subsection, cls.PubProp.imageText, imagesText)
+
+        extraImagesText = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        extraImagesText = cls.__shiftTheItemsInTheDict(extraImagesText, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
+
+        # update the links on the OM file
+        for page in set(list(imLinkOMPageDict.values())):
+            gm.GeneralManger.readdNotesToPage(page)
+
+        # track all the changes berore and after removal
+        msg = "After shifting the subsection: '{0}_{1}'.".format(subsection, imIdx)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        cls.rebuildSubsectionLatex(subsection, 
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
 
     @classmethod
     def removeExtraIm(cls, subsection, mainImIdx, eImIdx = None):

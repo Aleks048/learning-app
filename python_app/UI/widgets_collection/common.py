@@ -539,7 +539,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 wTop2.clicked = False
                             if "contentFr_"  in str(wTop2) or "contentDummyFr_" in str(wTop2):
                                 wTop2.destroy()
-                
+
+                def shiftEntryCmd(event, *args):
+                    widget = event.widget
+                    fsm.Wr.SectionInfoStructure.shiftEntryRight(widget.subsection,
+                                                                widget.imIdx)
+                    self.render()
+
                 def removeEntryCmd(event, *args):
                     widget = event.widget
                     fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
@@ -782,7 +788,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     hideImageGroupLabel.render()
 
                                 hideImageGroupLabel.subsection = subsection
-                                hideImageGroupLabel.imIdx = str(i)
+                                hideImageGroupLabel.imIdx = k
                                 hideImageGroupLabel.group = currImGroupName
 
                                 _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
@@ -833,13 +839,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         img = ImageTk.PhotoImage(pilIm)
 
                         if (subsection == self.entryAsETR.subsection)\
-                            and (str(i) == self.entryAsETR.imIdx) :
+                            and (k == self.entryAsETR.imIdx) :
                             textLabelPage = _uuicom.MultilineText_ETR(tempFrame, 
                                                                       "contentP_" + nameId, 
                                                                       gridRowStartIdx, 0, 
                                                                       i, 
                                                                       v)
-                            textLabelPage.imIdx = str(i)
+                            textLabelPage.imIdx = k
                             textLabelPage.subsection = subsection
                             textLabelPage.etrWidget = textLabelPage
                             textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
@@ -852,7 +858,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             prefix = "contentP_" + nameId, 
                                                             padding= [60, 0, 0, 0],
                                                             row = gridRowStartIdx, column = 0)
-                            textLabelPage.imIdx = str(i)
+                            textLabelPage.imIdx = k
                             textLabelPage.subsection = subsection
                             textLabelPage.etrWidget = textLabelPage
                             textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
@@ -864,10 +870,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                        prefix = "contentFull_" + nameId,
                                                        row = gridRowStartIdx, column = 2)
                         textLabelFull.subsection = subsection
-                        textLabelFull.imIdx = str(i)
+                        textLabelFull.imIdx = k
 
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
-                                                                             subsection, str(i), 
+                                                                             subsection, k, 
                                                                              "contentShowAlways_" + nameId,
                                                                              self)
                         showImages = _uuicom.TOCLabelWithClick(tempFrame, 
@@ -893,6 +899,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                            [removeEntryCmd])
 
+                        shiftEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                               text = "[shift]",
+                                                               prefix = "contentShiftEntry" + nameId,
+                                                               row = gridRowStartIdx, 
+                                                               column = 13)
+                        shiftEntry.imIdx = k
+                        shiftEntry.subsection = subsection
+                        shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                           [shiftEntryCmd])
 
                         addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
                                                          text = "[link]",
@@ -936,7 +951,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
                                                       column = 11)
-                        changeImText.imIdx = str(i)
+                        changeImText.imIdx = k
                         changeImText.subsection = subsection
                         changeImText.etrWidget = textLabelPage
                         changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
@@ -945,8 +960,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
 
-                        if str(i) in list(uiResizeEntryIdx.keys()):
-                            resizeFactor = float(uiResizeEntryIdx[str(i)])
+                        if k in list(uiResizeEntryIdx.keys()):
+                            resizeFactor = float(uiResizeEntryIdx[k])
                         else:
                             resizeFactor = 1.0
 
@@ -954,10 +969,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
                                                       column = 9,
-                                                      imIdx = str(i),
+                                                      imIdx = k,
                                                       text = resizeFactor)
-                        changeImSize.imIdx = str(i)
-                        changeImSize.widgetObj.imIdx = str(i)
+                        changeImSize.imIdx = k
+                        changeImSize.widgetObj.imIdx = k
                         changeImSize.subsection = subsection
                         changeImSize.widgetObj.subsection = subsection
                         changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
@@ -971,8 +986,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             
                             imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
 
-                            if str(i) in imGlobalLinksDict.keys():
-                                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[str(i)]
+                            if k in imGlobalLinksDict.keys():
+                                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[k]
 
                                 glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame, 
                                                         text = "Links: ", 
@@ -1065,7 +1080,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         linkLabelDelete.targetSubssection = ln.split("_")[0]
                                         linkLabelDelete.sourceSubssection = subsection
                                         linkLabelDelete.targetImIdx = ln.split("_")[-1]
-                                        linkLabelDelete.sourceImIdx = str(i)
+                                        linkLabelDelete.sourceImIdx = k
 
                                         linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
 
@@ -1105,7 +1120,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         linkLabelDelete.render()
 
                                         linkLabelDelete.sourceSubssection = subsection
-                                        linkLabelDelete.sourceImIdx = str(i)
+                                        linkLabelDelete.sourceImIdx = k
                                         linkLabelDelete.sourceWebLinkName = ln
 
                                         linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
@@ -1119,7 +1134,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if tocWImageDict == _u.Token.NotDef.dict_t:
                             alwaysShow = False
                         else:
-                            alwaysShow = tocWImageDict[str(i)] == "1"
+                            alwaysShow = tocWImageDict[k] == "1"
 
                         showImages.alwaysShow = alwaysShow
 
@@ -1150,6 +1165,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 linksFrame.render()
 
                             openExUIEntry.render()
+                            shiftEntry.render()
                             changeImText.render()
                             changeImSize.render()
 
@@ -1157,6 +1173,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         _uuicom.bindChangeColorOnInAndOut(showImages)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
+                        _uuicom.bindChangeColorOnInAndOut(shiftEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)

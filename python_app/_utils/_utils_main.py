@@ -4,6 +4,7 @@ from AppKit import NSScreen, NSWorkspace
 import Quartz
 from PIL import Image
 import pytesseract
+from oslo_concurrency import lockutils
 
 import _utils.logging as log
 
@@ -180,10 +181,12 @@ class JSON:
 
     def writeFile(filePath, dataTowrite):
         # print("JSON.writeFile - writing to json file: " + filePath)
+
         with open(filePath, 'w') as f:
             jsonObj = json.dumps(dataTowrite, indent=4)
             f.write(jsonObj)
 
+    @lockutils.synchronized('not_thread_safe')
     def readProperty(jsonFilepath, propertyName):
         jsonData = JSON.readFile(jsonFilepath)
         
@@ -208,6 +211,7 @@ class JSON:
         property = _readProperty(jsonData)
         return property
 
+    @lockutils.synchronized('not_thread_safe')
     def updateProperty(jsonFilepath, propertyName, newValue):
         # print("JSON.updateProperty - updating property " + propertyName + " in settings file")
     
@@ -228,11 +232,12 @@ class JSON:
                                 _updateProperty(v[i], newValue)
                     elif type(v) is dict:
                         _updateProperty(v, newValue)
-        
+
         jsonData = JSON.readFile(jsonFilepath)
         _updateProperty(jsonData, newValue)
         JSON.writeFile(jsonFilepath, jsonData)
 
+    @lockutils.synchronized('not_thread_safe')
     def createProperty(jsonFilepath, propertyName, parentName):
         # TODO: a feature to create json property when its not there
         # NOTE: this might lead to inconsistency in data but we will be able to add 

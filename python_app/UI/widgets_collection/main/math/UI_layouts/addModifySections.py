@@ -479,7 +479,8 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
                     return startPage, endPage
     
     def __getStartAndFinishPages(self, text):
-        if not re.match("\d+[-\d*|]", text):
+        # if not re.match("^[0-9]+$", text):
+        if not True:
             msg = "\
 The section pages format :'{0}' has wrong format.\
 the format is [0-9]+-*[0-0]*. Will return default notDef tokens.".format(text)
