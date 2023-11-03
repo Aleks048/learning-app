@@ -656,10 +656,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                         cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
 
         for linkIdx in linksKeysSorted:
-            newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
-            oldDict =newImGlobalLinksDict.pop(linkIdx)
-            newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
-            cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
+            if int(linkIdx) >= int(imIdx):
+                newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                oldDict = newImGlobalLinksDict.pop(linkIdx)
+                newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
+                cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
         def updateProperty(propertyName):
             dataDict = cls.readProperty(subsection, propertyName)
@@ -787,7 +788,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         linksKeysSorted = list(imGlobalLinksDict.keys())
         linksKeysSorted.sort(key = int, reverse = True)
 
-        topSection = subsection.split(".")[0]
+        # global links
         targetTopSection = targetSubsection.split(".")[0]
 
         if imIdx in list(imGlobalLinksDict.keys()):
@@ -796,12 +797,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                 for lk in linksDict.keys():
                     llinkSubsection = lk.split("_")[0]
                     llinkIdx = lk.split("_")[1]
-
-                    llinkIdx = str(int(llinkIdx))
+                    llinkIdx = str(llinkIdx)
 
                     linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
                     linkReturnLinks = linkGlobalLinksDict[llinkIdx]
-                    linkReturnLinks.pop(subsection + "_" + linkIdx)
+
                     newUrl = tff.Wr.TexFileUtils.getUrl(currBookName,
                                                         targetTopSection,
                                                         targetSubsection,
@@ -815,8 +815,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                     cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
                         
                 for linkIdx in linksKeysSorted:
-                    newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
-                    oldDict = newImGlobalLinksDict.pop(linkIdx)
+                    oldImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                    oldDict = oldImGlobalLinksDict[linkIdx]
+
+                    newImGlobalLinksDict = cls.readProperty(targetSubsection, cls.PubProp.imGlobalLinksDict)
                     newImGlobalLinksDict[targetImIdx] = oldDict
                     cls.updateProperty(targetSubsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
