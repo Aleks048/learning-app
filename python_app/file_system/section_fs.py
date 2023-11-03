@@ -11,6 +11,7 @@ import settings.facade as sf
 import UI.widgets_facade as wf
 import data.temp as dt
 import tex_file.tex_file_facade as tff
+import generalManger.generalManger as gm
 
 class SectionInfoStructure:
     '''
@@ -202,6 +203,12 @@ class SectionInfoStructure:
         outDict = {str(i): outDict[str(i)] for i in keys}
 
         return outDict
+
+    @classmethod
+    def insertEntryAfterIdx(cls, targetSubsection, targetImIdx, sourceSubsection, sourceImIdx):
+        cls.shiftEntryUp(targetSubsection, targetImIdx)
+
+        cls.removeEntry(sourceSubsection, sourceImIdx)
 
     @classmethod
     def removeEntry(cls, subsection, imIdx):
@@ -427,7 +434,7 @@ class SectionInfoStructure:
                                    _upan.Names.Subsection.getTopSectionPretty)
 
     @classmethod
-    def shiftEntryRight(cls, subsection, imIdx):
+    def shiftEntryUp(cls, subsection, imIdx):
         import generalManger.generalManger as gm
 
         # ask the user if we wnat to proceed.
@@ -623,6 +630,202 @@ class SectionInfoStructure:
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         cls.rebuildSubsectionLatex(subsection, 
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
+
+    @classmethod
+    def copyEntry(cls, subsection, imIdx, targetSubsection, targetImIdx):
+        import generalManger.generalManger as gm
+
+        # ask the user if we wnat to proceed.
+        msg = "Do you want to copy entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        # NOTE: ask twice if the user is sure.
+        msg = "Do you want to copy entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        # track all the changes berore and after removal
+        msg = "Before moving the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        currBookName = sf.Wr.Manager.Book.getCurrBookName()
+        imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
+
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+
+        #deal with the excercises
+        
+        oldEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, subsection, imIdx)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(oldEntryLinesPath):
+            lines = efs.EntryInfoStructure.readProperty(subsection,
+                                                        imIdx, 
+                                                        efs.EntryInfoStructure.PubProp.entryLinesList)
+
+            for lineIdx in range(len(lines) - 1, -1, -1):
+                oldSavePath = _upan.Paths.Entry.getAbs(currBookName, subsection, imIdx)
+                oldFilename = _upan.Names.Entry.Line.name(imIdx, lineIdx)
+                oldPath = os.path.join(oldSavePath, oldFilename)
+                newSavePath = _upan.Paths.Entry.getAbs(currBookName, targetSubsection, targetImIdx)
+                newFilename = _upan.Names.Entry.Line.name(targetImIdx, lineIdx)
+                newPath = os.path.join(newSavePath, newFilename)
+                ocf.Wr.FsAppCalls.copyFile(oldPath, newPath)
+
+            oldName = efs.EntryInfoStructure.readProperty(subsection,
+                                                          imIdx, 
+                                                          efs.EntryInfoStructure.PubProp.name)
+            efs.EntryInfoStructure.updateProperty(targetSubsection,
+                                                  imIdx, 
+                                                  efs.EntryInfoStructure.PubProp.name,
+                                                  targetImIdx)
+
+            newEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, 
+                                                        targetSubsection,
+                                                        targetImIdx)
+            ocf.Wr.FsAppCalls.moveFolder(oldEntryLinesPath, newEntryLinesPath)
+
+        # copy the extra images
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
+        extraImFilenames = []
+
+        if imIdx in list(extraImagesDict.keys()):
+            extraImNames = extraImagesDict[imIdx]
+
+            if extraImNames != None:
+                for extraImIdx in range(len(extraImNames)):
+                    eImagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookName,
+                                                                                     subsection,
+                                                                                     imIdx,
+                                                                                     extraImIdx)
+                    newEImagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookName,
+                                                                                     targetSubsection,
+                                                                                     targetImIdx,
+                                                                                     extraImIdx)
+
+                    extraImFilenames.append([eImagePath,
+                                             newEImagePath])
+                    
+
+        for i in range(len(extraImFilenames)):
+            ocf.Wr.FsAppCalls.copyFile(extraImFilenames[i][0], extraImFilenames[i][1])
+
+        tex = imLinkDict[imIdx]
+        imNameNew = _upan.Names.getImageName(targetImIdx, targetSubsection)
+        tff.Wr.TexFileUtils.fromTexToImage(tex,
+                                           os.path.join(imagesPath, imNameNew + ".png"))
+
+        oldsSecreenshotPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName, 
+                                                                                 subsection,
+                                                                                 imIdx)
+        newsecreenshotPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName, 
+                                                                                targetSubsection,
+                                                                                targetImIdx)
+
+        ocf.Wr.FsAppCalls.copyFile(oldsSecreenshotPath, newsecreenshotPath)
+
+        # deal with the links
+        imGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+
+        linksKeysSorted = list(imGlobalLinksDict.keys())
+        linksKeysSorted.sort(key = int, reverse = True)
+
+        topSection = subsection.split(".")[0]
+        targetTopSection = targetSubsection.split(".")[0]
+
+        if imIdx in list(imGlobalLinksDict.keys()):
+            linksDict = imGlobalLinksDict[imIdx]
+
+            for lk in linksDict.keys():
+                llinkSubsection = lk.split("_")[0]
+                llinkIdx = lk.split("_")[1]
+
+                llinkIdx = str(int(llinkIdx))
+
+                linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                linkReturnLinks = linkGlobalLinksDict[llinkIdx]
+                linkReturnLinks.pop(subsection + "_" + linkIdx)
+                newUrl = tff.Wr.TexFileUtils.getUrl(currBookName,
+                                                    targetTopSection,
+                                                    targetSubsection,
+                                                    targetImIdx,
+                                                    "full", 
+                                                    False)
+
+                linkReturnLinks[targetSubsection + "_" + targetImIdx] = newUrl
+
+                linkGlobalLinksDict[llinkIdx] = linkReturnLinks
+                cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                        
+            for linkIdx in linksKeysSorted:
+                newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                oldDict = newImGlobalLinksDict.pop(linkIdx)
+                newImGlobalLinksDict[targetImIdx] = oldDict
+                cls.updateProperty(targetSubsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
+
+        cls.updateProperty(targetSubsection, cls.PubProp.imLinkDict, imLinkDict)
+
+        def updateProperty(propertyName):
+            dataDict = cls.readProperty(subsection, propertyName)
+
+            if imIdx not in list(dataDict.keys()):
+                return
+
+            data = dataDict[imIdx]
+            targetDataDict = cls.readProperty(targetSubsection, propertyName)
+            targetDataDict[targetImIdx] = data
+            cls.updateProperty(targetSubsection, propertyName, targetDataDict)
+
+        propertiesList = [
+                         cls.PubProp.imLinkDict,
+                         cls.PubProp.imLinkOMPageDict,
+                         cls.PubProp.extraImagesDict,
+                         cls.PubProp.origMatNameDict,
+                         cls.PubProp.imageUIResize,
+                         cls.PubProp.tocWImageDict,
+                         cls.PubProp.imagesGroupDict,
+                         cls.PubProp.imageText,
+                         cls.PubProp.extraImText
+                         ]
+
+        for p in propertiesList:
+            updateProperty(p)
+
+
+        # update the links on the OM file
+        imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
+
+        for page in set(list(imLinkOMPageDict.values())):
+            gm.GeneralManger.readdNotesToPage(page)
+
+        # track all the changes berore and after removal
+        msg = "After copying the entry: '{0}_{1}'.".format(subsection, imIdx)
+        # ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        cls.rebuildSubsectionLatex(subsection, 
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
+        cls.rebuildSubsectionLatex(targetSubsection, 
                                    _upan.Names.Entry.getEntryNameID, 
                                    _upan.Names.Group.formatGroupText,
                                    _upan.Names.Subsection.formatSectionText,

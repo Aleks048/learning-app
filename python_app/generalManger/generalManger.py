@@ -198,8 +198,8 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
 
                 mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
                                                             wf.Wr.MenuManagers.MathMenuManager)
+                log.autolog(msg)
                 mainManager.show()
-
                 return
         else:
             extraImagesList.append(extraImText)
@@ -211,18 +211,20 @@ Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".f
         extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
 
         extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
-        extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName)
-        #TODO: get text from extra image as well
+        extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
+
         cls.AddNewImageData(subsection, mainImIdx, extraImagePathFull, extraImageIdx)
-        # _u.getTextFromImage(extraImagePathFull + ".png")
 
         timer = 0
 
-        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull + ".png"):
+        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
             time.sleep(0.3)
             timer += 1
 
             if timer > 50:
+                log.autolog(f"\
+The correct extra image was not created for \n\
+'{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
                 return False
 
         extraImagesDict[mainImIdx] = extraImagesList

@@ -108,6 +108,7 @@ class Wr:
                          size = textSize)
                 plt.savefig(buf, format='png')
                 plt.clf()
+                plt.close()
 
             im = Image.open(buf)
             bg = Image.new(im.mode, im.size, imageColor)

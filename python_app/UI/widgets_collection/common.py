@@ -186,6 +186,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     showLinks = None
 
+    entryCopySubsection = None
+    entryCopyImIdx = None
+
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
     class entryAsETR:
@@ -542,8 +545,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 def shiftEntryCmd(event, *args):
                     widget = event.widget
-                    fsm.Wr.SectionInfoStructure.shiftEntryRight(widget.subsection,
+                    fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
                                                                 widget.imIdx)
+                    self.render()
+                
+                def copyEntryCmd(event, *args):
+                    widget = event.widget
+                    self.entryCopySubsection = widget.subsection
+                    self.entryCopyImIdx = widget.imIdx
+
+                def pasteEntryCmd(event, *args):
+                    widget = event.widget
+                    fsm.Wr.SectionInfoStructure.copyEntry(self.entryCopySubsection,
+                                                          self.entryCopyImIdx,
+                                                          widget.subsection,
+                                                          str(int(widget.imIdx) + 1))
                     self.render()
 
                 def removeEntryCmd(event, *args):
@@ -909,6 +925,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                            [shiftEntryCmd])
 
+                        copyEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                               text = "[c]",
+                                                               prefix = "contentCopyEntry" + nameId,
+                                                               row = gridRowStartIdx, 
+                                                               column = 14)
+                        copyEntry.imIdx = k
+                        copyEntry.subsection = subsection
+                        copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                           [copyEntryCmd])
+
+                        pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                               text = "[pa]",
+                                                               prefix = "contentPasteAfterEntry" + nameId,
+                                                               row = gridRowStartIdx, 
+                                                               column = 15)
+                        pasteAfterEntry.imIdx = k
+                        pasteAfterEntry.subsection = subsection
+                        pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                           [pasteEntryCmd])
+
                         addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
                                                          text = "[link]",
                                                          prefix = "contentAddGlLinkEntry" + nameId,
@@ -1166,6 +1202,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             openExUIEntry.render()
                             shiftEntry.render()
+                            copyEntry.render()
+                            pasteAfterEntry.render()
                             changeImText.render()
                             changeImSize.render()
 
@@ -1174,6 +1212,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(showImages)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
                         _uuicom.bindChangeColorOnInAndOut(shiftEntry)
+                        _uuicom.bindChangeColorOnInAndOut(copyEntry)
+                        _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
