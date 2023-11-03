@@ -205,40 +205,108 @@ class SectionInfoStructure:
         return outDict
 
     @classmethod
-    def insertEntryAfterIdx(cls, targetSubsection, targetImIdx, sourceSubsection, sourceImIdx):
-        cls.shiftEntryUp(targetSubsection, targetImIdx)
+    def insertEntryAfterIdx(cls, sourceSubsection, sourceImIdx, targetSubsection, targetImIdx):
+         # ask the user if we wnat to proceed.
+        msg = "\
+Do you want to move entry from \n\
+'{0}':'{1}'\n\
+to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
 
-        cls.removeEntry(sourceSubsection, sourceImIdx)
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        msg = "\
+Before moving entry from \n\
+'{0}':'{1}'\n\
+to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+
+        cls.shiftEntryUp(targetSubsection, targetImIdx, False)
+        cls.__copyEntry(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
+        cls.removeEntry(sourceSubsection, sourceImIdx, False)
+
+
+        # update the links on the OM file
+        imLinkOMPageDict = cls.readProperty(sourceSubsection, cls.PubProp.imLinkOMPageDict)
+
+        for page in set(list(imLinkOMPageDict.values())):
+            gm.GeneralManger.readdNotesToPage(page)
+
+        imLinkOMPageDict = cls.readProperty(targetSubsection, cls.PubProp.imLinkOMPageDict)
+
+        for page in set(list(imLinkOMPageDict.values())):
+            gm.GeneralManger.readdNotesToPage(page)
+
+        msg = "\
+After moving entry from \n\
+'{0}':'{1}'\n\
+to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        cls.rebuildSubsectionLatex(sourceSubsection, 
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
+        cls.rebuildSubsectionLatex(targetSubsection, 
+                                   _upan.Names.Entry.getEntryNameID, 
+                                   _upan.Names.Group.formatGroupText,
+                                   _upan.Names.Subsection.formatSectionText,
+                                   _upan.Names.Subsection.getSubsectionPretty,
+                                   _upan.Names.Subsection.getTopSectionPretty)
 
     @classmethod
-    def removeEntry(cls, subsection, imIdx):
+    def removeEntry(cls, subsection, imIdx, shouldConfirm = True):
         import generalManger.generalManger as gm
 
-        # ask the user if we wnat to proceed.
-        msg = "Do you want to remove '{0}_{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+        if shouldConfirm:
+            # ask the user if we wnat to proceed.
+            msg = "Do you want to remove '{0}_{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
 
-        # NOTE: ask twice if the user is sure.
-        msg = "Still sure you want to remove '{0}_{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            # NOTE: ask twice if the user is sure.
+            msg = "Still sure you want to remove '{0}_{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
         
         # track all the changes berore and after removal
         msg = "Before removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        log.autolog(msg)
+
+        if shouldConfirm:
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
@@ -291,46 +359,48 @@ class SectionInfoStructure:
         if imIdx in list(imGlobalLinksDict.keys()):
             glLinksListImDict = imGlobalLinksDict[imIdx]
 
-            for glLink in list(glLinksListImDict.keys()):
-                linkSubsection = glLink.split("_")[0]
-                linkIdx = glLink.split("_")[1]
-                
-                linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
-                linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
-                linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
-                if linkGlobalLinksImDict == {}:
-                    linkGlobalLinksDict.pop(linkIdx)
-                else:
-                    linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
-                if linkGlobalLinksDict == {}:
-                    linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
+            if type(glLinksListImDict) == dict:
+                for glLink in list(glLinksListImDict.keys()):
+                    linkSubsection = glLink.split("_")[0]
+                    linkIdx = glLink.split("_")[1]
+                    
+                    linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
+                    linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
+                    linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
+                    if linkGlobalLinksImDict == {}:
+                        linkGlobalLinksDict.pop(linkIdx)
+                    else:
+                        linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
+                    if linkGlobalLinksDict == {}:
+                        linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
 
-                cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                    cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
         
         # update links to other images
         for imLinkId in list(imLinkDict.keys()):
             if int(imLinkId) > int(imIdx):
                 if imLinkId in list(imGlobalLinksDict.keys()):
                     glLinksListImDict = imGlobalLinksDict[imLinkId]
-                    for glLink in list(glLinksListImDict.keys()):
-                        linkSubsection = glLink.split("_")[0]
-                        linkIdx = glLink.split("_")[1]
-                        
-                        linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
-                        linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
-                        linkGlobalLinksImDict.pop(subsection + "_" + imLinkId)
+                    if type(glLinksListImDict) == dict:
+                        for glLink in list(glLinksListImDict.keys()):
+                            linkSubsection = glLink.split("_")[0]
+                            linkIdx = glLink.split("_")[1]
+                            
+                            linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
+                            linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
+                            linkGlobalLinksImDict.pop(subsection + "_" + imLinkId)
 
-                        linkGlobalLinksImDict[subsection + "_" + str(int(imLinkId) - 1)] = \
-                                        tff.Wr.TexFileUtils.getUrl(currBookName, 
-                                                                subsection, 
-                                                                subsection.split(".")[0],
-                                                                str(int(imLinkId) - 1),
-                                                                "full",
-                                                                False)
+                            linkGlobalLinksImDict[subsection + "_" + str(int(imLinkId) - 1)] = \
+                                            tff.Wr.TexFileUtils.getUrl(currBookName, 
+                                                                    subsection, 
+                                                                    subsection.split(".")[0],
+                                                                    str(int(imLinkId) - 1),
+                                                                    "full",
+                                                                    False)
 
-                        linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
+                            linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
 
-                        cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                            cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
 
         imLinkDict.pop(imIdx, None)
         imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx)
@@ -415,53 +485,60 @@ class SectionInfoStructure:
 
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict)
 
-        # update the links on the OM file
-        for page in set(list(imLinkOMPageDict.values())):
-            gm.GeneralManger.readdNotesToPage(page)
-
-
-        efs.EntryInfoStructure.removeEntry(subsection, imIdx, currBookName)
-
-        # track all the changes berore and after removal
         msg = "After removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        log.autolog(msg)
 
-        cls.rebuildSubsectionLatex(subsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
+        if shouldConfirm:
+            # update the links on the OM file
+            for page in set(list(imLinkOMPageDict.values())):
+                gm.GeneralManger.readdNotesToPage(page)
+
+
+            efs.EntryInfoStructure.removeEntry(subsection, imIdx, currBookName)
+
+            # track all the changes berore and after removal
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+            cls.rebuildSubsectionLatex(subsection, 
+                                    _upan.Names.Entry.getEntryNameID, 
+                                    _upan.Names.Group.formatGroupText,
+                                    _upan.Names.Subsection.formatSectionText,
+                                    _upan.Names.Subsection.getSubsectionPretty,
+                                    _upan.Names.Subsection.getTopSectionPretty)
 
     @classmethod
-    def shiftEntryUp(cls, subsection, imIdx):
+    def shiftEntryUp(cls, subsection, imIdx, shouldConfirm = True):
         import generalManger.generalManger as gm
 
-        # ask the user if we wnat to proceed.
-        msg = "Do you want to shift entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+        if shouldConfirm:
+            # ask the user if we wnat to proceed.
+            msg = "Do you want to shift entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
 
-        # NOTE: ask twice if the user is sure.
-        msg = "Do you want to shift entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            # NOTE: ask twice if the user is sure.
+            msg = "Do you want to shift entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
 
         # track all the changes berore and after removal
         msg = "Before shifting the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        log.autolog(msg)
+
+        if shouldConfirm:
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
@@ -586,85 +663,54 @@ class SectionInfoStructure:
             newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
             cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
+        def updateProperty(propertyName):
+            dataDict = cls.readProperty(subsection, propertyName)
+            dataDict = cls.__shiftTheItemsInTheDict(dataDict, imIdx, False)
+            cls.updateProperty(subsection, propertyName, dataDict)
 
-        imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.imLinkDict, imLinkDict)
+        properties = [
+            cls.PubProp.imLinkDict,
+            cls.PubProp.imLinkOMPageDict,
+            cls.PubProp.origMatNameDict,
+            cls.PubProp.imageUIResize,
+            cls.PubProp.extraImagesDict,
+            cls.PubProp.tocWImageDict,
+            cls.PubProp.imagesGroupDict,
+            cls.PubProp.imageText,
+            cls.PubProp.extraImText
 
-        imLinkOMPageDict:dict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
-        imLinkOMPageDict = cls.__shiftTheItemsInTheDict(imLinkOMPageDict, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.imLinkOMPageDict, imLinkOMPageDict)
+        ]
 
-        origMatNameDict = cls.readProperty(subsection, cls.PubProp.origMatNameDict)
-        origMatNameDict = cls.__shiftTheItemsInTheDict(origMatNameDict, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
+        for p in properties:
+            updateProperty(p)
 
-        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
-        imageUIResize = cls.__shiftTheItemsInTheDict(imageUIResize, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
-
-        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
-        extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx, False)
-
-        tocWImageDict = cls.readProperty(subsection, cls.PubProp.tocWImageDict)
-        tocWImageDict = cls.__shiftTheItemsInTheDict(tocWImageDict, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.tocWImageDict, tocWImageDict)
-
-        imagesGroupDict = cls.readProperty(subsection, cls.PubProp.imagesGroupDict)
-        imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
-
-        imagesText = cls.readProperty(subsection, cls.PubProp.imageText)
-        imagesText = cls.__shiftTheItemsInTheDict(imagesText, imIdx, False)
-        cls.updateProperty(subsection, cls.PubProp.imageText, imagesText)
-
-        extraImagesText = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
-        extraImagesText = cls.__shiftTheItemsInTheDict(extraImagesText, imIdx)
-        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
-
-        # update the links on the OM file
-        for page in set(list(imLinkOMPageDict.values())):
-            gm.GeneralManger.readdNotesToPage(page)
-
-        # track all the changes berore and after removal
         msg = "After shifting the subsection: '{0}_{1}'.".format(subsection, imIdx)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        log.autolog(msg)
 
-        cls.rebuildSubsectionLatex(subsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
+        if shouldConfirm:
+            # update the links on the OM file
+            imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
+
+            for page in set(list(imLinkOMPageDict.values())):
+                gm.GeneralManger.readdNotesToPage(page)
+
+            # track all the changes after removal
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+            cls.rebuildSubsectionLatex(subsection, 
+                                    _upan.Names.Entry.getEntryNameID, 
+                                    _upan.Names.Group.formatGroupText,
+                                    _upan.Names.Subsection.formatSectionText,
+                                    _upan.Names.Subsection.getSubsectionPretty,
+                                    _upan.Names.Subsection.getTopSectionPretty)
 
     @classmethod
-    def copyEntry(cls, subsection, imIdx, targetSubsection, targetImIdx):
+    def __copyEntry(cls, subsection, imIdx, targetSubsection, targetImIdx):
         import generalManger.generalManger as gm
-
-        # ask the user if we wnat to proceed.
-        msg = "Do you want to copy entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
-
-        if not response:
-            return
-
-        # NOTE: ask twice if the user is sure.
-        msg = "Do you want to copy entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
-
-        if not response:
-            return
 
         # track all the changes berore and after removal
         msg = "Before moving the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        log.autolog(msg)
 
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
@@ -722,7 +768,6 @@ class SectionInfoStructure:
 
                     extraImFilenames.append([eImagePath,
                                              newEImagePath])
-                    
 
         for i in range(len(extraImFilenames)):
             ocf.Wr.FsAppCalls.copyFile(extraImFilenames[i][0], extraImFilenames[i][1])
@@ -752,33 +797,33 @@ class SectionInfoStructure:
 
         if imIdx in list(imGlobalLinksDict.keys()):
             linksDict = imGlobalLinksDict[imIdx]
+            if type(linksDict) == dict:
+                for lk in linksDict.keys():
+                    llinkSubsection = lk.split("_")[0]
+                    llinkIdx = lk.split("_")[1]
 
-            for lk in linksDict.keys():
-                llinkSubsection = lk.split("_")[0]
-                llinkIdx = lk.split("_")[1]
+                    llinkIdx = str(int(llinkIdx))
 
-                llinkIdx = str(int(llinkIdx))
+                    linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                    linkReturnLinks = linkGlobalLinksDict[llinkIdx]
+                    linkReturnLinks.pop(subsection + "_" + linkIdx)
+                    newUrl = tff.Wr.TexFileUtils.getUrl(currBookName,
+                                                        targetTopSection,
+                                                        targetSubsection,
+                                                        targetImIdx,
+                                                        "full", 
+                                                        False)
 
-                linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
-                linkReturnLinks = linkGlobalLinksDict[llinkIdx]
-                linkReturnLinks.pop(subsection + "_" + linkIdx)
-                newUrl = tff.Wr.TexFileUtils.getUrl(currBookName,
-                                                    targetTopSection,
-                                                    targetSubsection,
-                                                    targetImIdx,
-                                                    "full", 
-                                                    False)
+                    linkReturnLinks[targetSubsection + "_" + targetImIdx] = newUrl
 
-                linkReturnLinks[targetSubsection + "_" + targetImIdx] = newUrl
-
-                linkGlobalLinksDict[llinkIdx] = linkReturnLinks
-                cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                    linkGlobalLinksDict[llinkIdx] = linkReturnLinks
+                    cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
                         
-            for linkIdx in linksKeysSorted:
-                newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
-                oldDict = newImGlobalLinksDict.pop(linkIdx)
-                newImGlobalLinksDict[targetImIdx] = oldDict
-                cls.updateProperty(targetSubsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
+                for linkIdx in linksKeysSorted:
+                    newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                    oldDict = newImGlobalLinksDict.pop(linkIdx)
+                    newImGlobalLinksDict[targetImIdx] = oldDict
+                    cls.updateProperty(targetSubsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
         cls.updateProperty(targetSubsection, cls.PubProp.imLinkDict, imLinkDict)
 
@@ -808,29 +853,9 @@ class SectionInfoStructure:
         for p in propertiesList:
             updateProperty(p)
 
-
-        # update the links on the OM file
-        imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
-
-        for page in set(list(imLinkOMPageDict.values())):
-            gm.GeneralManger.readdNotesToPage(page)
-
         # track all the changes berore and after removal
         msg = "After copying the entry: '{0}_{1}'.".format(subsection, imIdx)
-        # ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-
-        cls.rebuildSubsectionLatex(subsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
-        cls.rebuildSubsectionLatex(targetSubsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
+        log.autolog(msg)
 
     @classmethod
     def removeExtraIm(cls, subsection, mainImIdx, eImIdx = None):

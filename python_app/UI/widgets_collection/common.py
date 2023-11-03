@@ -556,10 +556,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 def pasteEntryCmd(event, *args):
                     widget = event.widget
-                    fsm.Wr.SectionInfoStructure.copyEntry(self.entryCopySubsection,
-                                                          self.entryCopyImIdx,
-                                                          widget.subsection,
-                                                          str(int(widget.imIdx) + 1))
+                    fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
+                                                                    self.entryCopyImIdx,
+                                                                    widget.subsection,
+                                                                    str(int(widget.imIdx) + 1))
                     self.render()
 
                 def removeEntryCmd(event, *args):

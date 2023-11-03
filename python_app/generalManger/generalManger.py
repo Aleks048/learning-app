@@ -391,7 +391,7 @@ The correct extra image was not created for \n\
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         # POPULATE THE MAIN FILE
-        tff.Wr.TexFilePopulate.populateCurrMainFile()
+        # tff.Wr.TexFilePopulate.populateCurrMainFile()
 
         dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
 
