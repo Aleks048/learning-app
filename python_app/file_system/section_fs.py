@@ -244,14 +244,12 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
 
 
         # update the links on the OM file
-        imLinkOMPageDict = cls.readProperty(sourceSubsection, cls.PubProp.imLinkOMPageDict)
+        oldImLinkOMPageDict = cls.readProperty(sourceSubsection, cls.PubProp.imLinkOMPageDict).values()
+        newImLinkOMPageDict = cls.readProperty(targetSubsection, cls.PubProp.imLinkOMPageDict).values()
 
-        for page in set(list(imLinkOMPageDict.values())):
-            gm.GeneralManger.readdNotesToPage(page)
+        imLinkOMPageDict = sorted(list(oldImLinkOMPageDict) + list(newImLinkOMPageDict))
 
-        imLinkOMPageDict = cls.readProperty(targetSubsection, cls.PubProp.imLinkOMPageDict)
-
-        for page in set(list(imLinkOMPageDict.values())):
+        for page in set(imLinkOMPageDict):
             gm.GeneralManger.readdNotesToPage(page)
 
         msg = "\
@@ -639,24 +637,24 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         for linkIdx in linksKeysSorted:
             if int(linkIdx) >= int(imIdx):
                 linksDict = imGlobalLinksDict.pop(linkIdx)
+                if type(linksDict) == dict:
+                    for lk in linksDict.keys():
+                        llinkSubsection = lk.split("_")[0]
+                        llinkIdx = lk.split("_")[1]
 
-                for lk in linksDict.keys():
-                    llinkSubsection = lk.split("_")[0]
-                    llinkIdx = lk.split("_")[1]
+                        llinkIdx = str(int(llinkIdx))
 
-                    llinkIdx = str(int(llinkIdx))
+                        linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                        linkReturnLinks = linkGlobalLinksDict[llinkIdx]
+                        linkReturnLinks.pop(subsection + "_" + linkIdx)
+                        newUrl = tff.Wr.TexFileUtils.getUrl(currBookName, topSection, subsection, 
+                                                str(int(linkIdx) + 1), "full", False)
 
-                    linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
-                    linkReturnLinks = linkGlobalLinksDict[llinkIdx]
-                    linkReturnLinks.pop(subsection + "_" + linkIdx)
-                    newUrl = tff.Wr.TexFileUtils.getUrl(currBookName, topSection, subsection, 
-                                            str(int(linkIdx) + 1), "full", False)
+                        linkReturnLinks[subsection + "_" + str(int(linkIdx) + 1)] = newUrl
 
-                    linkReturnLinks[subsection + "_" + str(int(linkIdx) + 1)] = newUrl
+                        linkGlobalLinksDict[llinkIdx] = linkReturnLinks
+                        cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
 
-                    linkGlobalLinksDict[llinkIdx] = linkReturnLinks
-                    cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
-                    
         for linkIdx in linksKeysSorted:
             newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
             oldDict =newImGlobalLinksDict.pop(linkIdx)
@@ -735,9 +733,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                 newPath = os.path.join(newSavePath, newFilename)
                 ocf.Wr.FsAppCalls.copyFile(oldPath, newPath)
 
-            oldName = efs.EntryInfoStructure.readProperty(subsection,
-                                                          imIdx, 
-                                                          efs.EntryInfoStructure.PubProp.name)
             efs.EntryInfoStructure.updateProperty(targetSubsection,
                                                   imIdx, 
                                                   efs.EntryInfoStructure.PubProp.name,
@@ -824,8 +819,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                     oldDict = newImGlobalLinksDict.pop(linkIdx)
                     newImGlobalLinksDict[targetImIdx] = oldDict
                     cls.updateProperty(targetSubsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
-
-        cls.updateProperty(targetSubsection, cls.PubProp.imLinkDict, imLinkDict)
 
         def updateProperty(propertyName):
             dataDict = cls.readProperty(subsection, propertyName)
@@ -1030,6 +1023,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
     def updateProperty(cls, sectionPath, propertyName, newValue, bookPath = None):
         if bookPath == None:
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+        template = cls._getTemplate()
+
+        # sort the dict
+        if (type(newValue) == dict) \
+            and (propertyName in list(template[cls.PubProp.imageProp].keys())):
+            keysSorted = list(newValue.keys())
+            keysSorted.sort(key = int)
+            newValue = {i: newValue[i] for i in keysSorted} 
         
         fullPathToSection = _upan.Paths.Section.JSON.getAbs(bookPath, sectionPath)
 
