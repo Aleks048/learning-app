@@ -717,32 +717,34 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
 
         #deal with the excercises
-        
         oldEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, subsection, imIdx)
 
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(oldEntryLinesPath):
+            newEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, 
+                                                        targetSubsection,
+                                                        targetImIdx)
+            ocf.Wr.FsAppCalls.copyFile(oldEntryLinesPath, newEntryLinesPath)
+
             lines = efs.EntryInfoStructure.readProperty(subsection,
                                                         imIdx, 
                                                         efs.EntryInfoStructure.PubProp.entryLinesList)
 
             for lineIdx in range(len(lines) - 1, -1, -1):
-                oldSavePath = _upan.Paths.Entry.getAbs(currBookName, subsection, imIdx)
+                savePath = _upan.Paths.Entry.getAbs(currBookName, targetSubsection, targetImIdx)
                 oldFilename = _upan.Names.Entry.Line.name(imIdx, lineIdx)
-                oldPath = os.path.join(oldSavePath, oldFilename)
-                newSavePath = _upan.Paths.Entry.getAbs(currBookName, targetSubsection, targetImIdx)
+                oldPath = os.path.join(savePath, oldFilename)
                 newFilename = _upan.Names.Entry.Line.name(targetImIdx, lineIdx)
-                newPath = os.path.join(newSavePath, newFilename)
-                ocf.Wr.FsAppCalls.copyFile(oldPath, newPath)
+                newPath = os.path.join(savePath, newFilename)
+                # NOTE: we move since we moved the folder before and now only need to change the
+                # images names
+                ocf.Wr.FsAppCalls.moveFile(oldPath, newPath)
+            
 
             efs.EntryInfoStructure.updateProperty(targetSubsection,
-                                                  imIdx, 
+                                                  targetImIdx, 
                                                   efs.EntryInfoStructure.PubProp.name,
                                                   targetImIdx)
 
-            newEntryLinesPath = _upan.Paths.Entry.getAbs(currBookName, 
-                                                        targetSubsection,
-                                                        targetImIdx)
-            ocf.Wr.FsAppCalls.moveFolder(oldEntryLinesPath, newEntryLinesPath)
 
         # copy the extra images
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
