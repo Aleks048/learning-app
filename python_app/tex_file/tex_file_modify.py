@@ -17,6 +17,7 @@ import outside_calls.outside_calls_facade as ocf
 class TexFileModify:
     @classmethod
     def removeImageFromCon(cls, bookName, subsection, imIdx):
+        return
         filepath = _upan.Paths.TexFiles.Content.getAbs(bookName, subsection, imIdx)
         cls.__updateTexFile(filepath,
                             "", 
@@ -38,6 +39,7 @@ class TexFileModify:
 
     # update the content file
     def addExtraImage(mainImID, extraImageName):
+        return
         marker = dc.Links.Local.getIdxLineMarkerLine(mainImID)
         
         with open(_upan.Paths.TexFiles.Content.getAbs(), "r+") as f:
@@ -64,11 +66,13 @@ class TexFileModify:
         tfp.TexFilePopulate.populateCurrMainFile()
     
     def __getMainImageLine(subsectionNum, imIdx):
+        return
         extraImagePath = _upan.Names.getImageName(imIdx, subsectionNum)
         return "\myTarget{" + extraImagePath + "}{" + imIdx + "}"
 
     @classmethod
     def addProcessedImage(cls, subsection, imIdx, linkName):     
+        return
         imIdx = str(imIdx)
         linkName = str(linkName)
         
@@ -110,6 +114,7 @@ class TexFileModify:
                             dc.Links.Local.getIdxLineMarkerLine(int(imIdx) + 1))
 
     def formatLinkName(linkName:str, formatBold:bool = True):
+        return
         # make the start bold text
         linkName = linkName.replace(" ", "\\ ")
         linkName = linkName.replace("->", "\\rightarrow")
@@ -147,12 +152,15 @@ class TexFileModify:
         return linktext
 
     def getTOClineWImage(linktext, imName):
+        return
         return "\\" + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}\\image[0.5]{" + imName + "}"
 
     def getTOClineWoImage(linktext):
+        return
         return "\\" + dc.TexFileTokens.TOC.imTextToken + "{" + linktext + "}"
 
     def __updateTexFile(filePath, linesToAdd, startMarker, stopMarker):
+        return
         with open(filePath, 'r') as f:
             fileLines = f.readlines()
         
@@ -199,6 +207,7 @@ class TexFileModify:
     
     @classmethod
     def addLinkToTexFile(cls, sourceImIDX, contentFileLInes, link, linkName):
+        return
         #
         # add link to the current section file
         #

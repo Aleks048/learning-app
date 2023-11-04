@@ -15,6 +15,7 @@ import tex_file.tex_file_utils as  tfu
 class TexFilePopulate (dc.AppCurrDataAccessToken):
     @classmethod
     def populateMainFile(cls, subsection, bookPath, imIdx = _u.Token.NotDef.str_t):
+        return
         contentFile = []
 
         if imIdx == _u.Token.NotDef.str_t:
@@ -202,6 +203,7 @@ class TexFilePopulate (dc.AppCurrDataAccessToken):
 
     @classmethod
     def populateCurrMainFile(cls):
+        return
         currName = _upan.Current.Names.Section.name()
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         cls.populateMainFile(currName, bookPath)

@@ -1129,7 +1129,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         # NOTE: should be a frame here!
                                         glLinkImLablel = _uuicom.TOCLabelWithClick(
                                                                 linksFrame, 
-                                                                prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
                                                                 padding = [120, 0, 0, 0],
                                                                 row = glLinkId + 1, column = 0)
                                         glLinkImLablel.render()
