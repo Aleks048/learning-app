@@ -1033,8 +1033,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 glLinkLablel.render()
                                 glLinkId = 0
 
+                                # NOTE: should put all the links into 
+                                # one frame. This way they will be aligned correctly
                                 for ln, lk in glLinks.items():
                                     if "KIK" in lk:
+                                        # NOTE: probably should be a frame here
                                         glLinkImLablel = _uuicom.TOCLabelWithClick(
                                                                 linksFrame, 
                                                                 prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
@@ -1123,7 +1126,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
 
                                     elif "http" in lk:
-                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(linksFrame, 
+                                        # NOTE: should be a frame here!
+                                        glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                                linksFrame, 
+                                                                prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                padding = [120, 0, 0, 0],
+                                                                row = glLinkId + 1, column = 0)
+                                        glLinkImLablel.render()
+
+                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                 text = "web: ", 
                                                                 padding = [150, 0, 0, 0],
                                                                 prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
@@ -1137,7 +1148,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
                                         img = ImageTk.PhotoImage(pilIm)
 
-                                        glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame,
+                                        glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
                                                                     image = img,
                                                                     text = ln, 
                                                                     prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
@@ -1149,10 +1160,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         glLinkLablel.render()
                                         openWebOfTheImage(glLinkLablel, lk)
 
-                                        linkLabelDelete = _uuicom.TOCLabelWithClick(linksFrame, 
+                                        linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                     text = "[del]", 
                                                                     prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                    row = glLinkId + 1, column= 2)
+                                                                    row = glLinkId + 1, column = 2)
                                         linkLabelDelete.render()
 
                                         linkLabelDelete.sourceSubssection = subsection

@@ -237,7 +237,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-
+        # CORE OPERATIONS
         cls.shiftEntryUp(targetSubsection, targetImIdx, False)
         cls.__copyEntry(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
         cls.removeEntry(sourceSubsection, sourceImIdx, False)
