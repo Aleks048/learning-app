@@ -149,6 +149,7 @@ class LayoutManagers:
             tocBox_BOX.addListenerWidget(chooseSubsection_OM)
             tocBox_BOX.addListenerWidget(chooseTopSection_OM)
             tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
+            tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)

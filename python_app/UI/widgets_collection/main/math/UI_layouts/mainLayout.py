@@ -487,7 +487,10 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
         if broadcasterName == ChooseTopSection_OM:
             text = _upan.Paths.Screenshot.getRel_formatted()
             self.changeText(text)
-        if broadcasterName == ChooseSubsection_OM:
+        elif broadcasterName == ChooseSubsection_OM:
+            text = _upan.Paths.Screenshot.getRel_formatted()
+            self.changeText(text)
+        elif broadcasterName == comw.TOC_BOX:
             text = _upan.Paths.Screenshot.getRel_formatted()
             self.changeText(text)
     

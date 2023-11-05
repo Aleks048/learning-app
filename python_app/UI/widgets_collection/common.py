@@ -446,6 +446,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.notify(mui.ChooseTopSection_OM)
                     self.notify(mui.ChooseSubsection_OM)
                     self.notify(mcomui.SourceImageLinks_OM)
+                    self.notify(mui.ScreenshotLocation_LBL)
 
                 self.scrollToEntry(currSubsection, currImIdx)
             
