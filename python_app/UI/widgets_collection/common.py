@@ -1516,6 +1516,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def render(self, widjetObj=None, shouldScroll = True, renderData=..., **kwargs):
         self.displayedImages = []
+        self.subsectionContentLabels = []
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()

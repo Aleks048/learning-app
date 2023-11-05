@@ -186,8 +186,8 @@ class ShowProofs_BTN(ww.currUIImpl.Button,
             self.updateLabel(self.labelOptions[0])
             dt.AppState.ShowProofs.setData(self.appCurrDataAccessToken,
                                            False)
-        
-        self.notify(mui.TOC_BOX)
+
+        self.notify(comw.TOC_BOX)
         ocf.Wr.LatexCalls.buildCurrentSubsectionPdf()
     
     def render(self, **kwargs):
@@ -446,6 +446,16 @@ class AddGlobalLink_BTN(ww.currUIImpl.Button,
 
             if sourceIDX == None:
                 sourceIDX = mmManager.getSelectedImIdx()
+
+            linkData = [targetSubsection, targetImIdx,
+                        sourceSubsection, sourceIDX, sourceTopSection]
+
+            for l in linkData:
+                if l == _u.Token.NotDef.str_t:
+                    _u.log.autolog(f"\
+Some of the data for link creation is not correct.\n\
+Please check the data. N o link added")
+                    return
 
             gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
                                      sourceSubsection,
