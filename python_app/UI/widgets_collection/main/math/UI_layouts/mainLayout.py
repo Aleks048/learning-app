@@ -359,7 +359,9 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
         if broadcasterType == ChooseTopSection_OM:
             self.updateOptions(newOptionList)
-            self.setData(prevSubsectionPath)
+            self.setData(prevSubsectionPath)   
+        elif broadcasterType == comw.TOC_BOX:
+            self.render()
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
@@ -448,6 +450,8 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ChooseSubsection_OM:
             return self.getData()
+        elif broadcasterType == comw.TOC_BOX:
+            self.render()
     
     def render(self, widjetObj=None, renderData=..., **kwargs):
         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()

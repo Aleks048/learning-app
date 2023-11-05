@@ -146,6 +146,9 @@ class LayoutManagers:
             self.addWidget(showHideLinks_BTN)
 
             tocBox_BOX.addListenerWidget(addGlobalLink_BTN)
+            tocBox_BOX.addListenerWidget(chooseSubsection_OM)
+            tocBox_BOX.addListenerWidget(chooseTopSection_OM)
+            tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)

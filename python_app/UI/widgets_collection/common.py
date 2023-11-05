@@ -434,7 +434,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         def moveTOCtoSubsection(widget:_uuicom.TOCLabelWithClick):
             def __cmd(event = None, *args):
                 widget = event.widget
-                self.scrollToEntry(widget.subsection, widget.imIdx)
+                if not self.showAll:
+                    currSubsection = widget.subsection
+                    currImIdx = widget.imIdx
+                    currTopSection = currSubsection.split(".", 0)
+                    fsm.Data.Book.currTopSection = currTopSection
+                    fsm.Data.Book.currSection = currSubsection
+                    fsm.Data.Book.subsectionOpenInTOC_UI = currSubsection
+                    fsm.Data.Book.entryImOpenInTOC_UI = currImIdx
+
+                    self.notify(mui.ChooseTopSection_OM)
+                    self.notify(mui.ChooseSubsection_OM)
+                    self.notify(mcomui.SourceImageLinks_OM)
+
+                self.scrollToEntry(currSubsection, currImIdx)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -1431,7 +1444,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         subsectionLabel.render()
 
         if level != 0:
-            openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[contenta]", 
+            openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[content]", 
                                                  prefix = "subsecContent" + subsection.replace(".", ""),
                                                  row = 0, column= 1)
 

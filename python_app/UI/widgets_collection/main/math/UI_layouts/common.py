@@ -290,6 +290,9 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
             return self.getData()
         elif broadcasterType == AddWebLink_BTN:
             return self.getData()
+        elif broadcasterType == comw.TOC_BOX:
+            self.updateOptions()
+            self.setData(fsm.Data.Book.entryImOpenInTOC_UI)
         else:
             self.updateOptions()
 
