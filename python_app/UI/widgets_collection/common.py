@@ -189,6 +189,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     entryCopySubsection = None
     entryCopyImIdx = None
 
+    subsectionContentLabels = []
+
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
     class entryAsETR:
@@ -674,6 +676,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     i = 0
 
+                    for conWidget in self.subsectionContentLabels:
+                        if conWidget.subsection != subsection:
+                            conWidget.clicked = False
+
                     subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
                     prevImGroupName = _u.Token.NotDef.str_t
 
@@ -742,7 +748,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             padding=[0, topPad, 0, 0], row = 0, column = 0)
                                 imageGroupFrame.render()
 
-                                def updateGroup(event, *args):
+                                def __updateGroup(event, *args):
                                     if (self.groupAsETR.subsection != _u.Token.NotDef.str_t) and\
                                         (self.groupAsETR.group != _u.Token.NotDef.str_t):
                                         newText = self.groupAsETR.widget.getData()
@@ -780,7 +786,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     imageGroupLabel.subsection = subsection
                                     imageGroupLabel.group = currImGroupName
                                     imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                                            [updateGroup])
+                                                            [__updateGroup])
                                 else:
                                     imageGroupLabel = _uuicom.MultilineText_ETR(imageGroupFrame, 
                                                             "contentGroupP_" + nameId, 
@@ -791,7 +797,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     imageGroupLabel.etrWidget = imageGroupLabel
                                     self.groupAsETR.widget = imageGroupLabel
                                     imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                                            [updateGroup])
+                                                            [__updateGroup])
                                     imageGroupLabel.focus_force()
 
                                 imageGroupLabel.render()
@@ -1425,24 +1431,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         subsectionLabel.render()
 
         if level != 0:
-            openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[content]", 
+            openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[contenta]", 
                                                  prefix = "subsecContent" + subsection.replace(".", ""),
                                                  row = 0, column= 1)
 
-            self.currSubsectionWidget = openContentLabel
-            openContentLabel.rebind([ww.currUIImpl.Data.BindID.customTOCMove], 
-                                    [lambda event: self.scroll_into_view(event)])
+            openContentLabel.subsection = subsection
+
+            if subsection == fsm.Data.Book.currSection:
+                self.currSubsectionWidget = openContentLabel
+
+            openContentOfTheSection(locFrame, openContentLabel)
+            _uuicom.bindChangeColorOnInAndOut(openContentLabel)
+
+            self.subsectionContentLabels.append(openContentLabel)
+
+            if self.showAll or (subsection == fsm.Data.Book.currSection):
+                openContentLabel.clicked = False
 
             rebuildLatex = _uuicom.TOCLabelWithClick(locFrame, text = "[rebuild latex]",
                                              prefix = "subsecRebuild" + subsection.replace(".", ""),
                                              row = 0, column= 2)
             rebuildLatex.subsection = subsection
 
-            if self.showAll:
-                openContentLabel.clicked = False
-
-            openContentOfTheSection(locFrame, openContentLabel)
-            _uuicom.bindChangeColorOnInAndOut(openContentLabel)
             _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
 
             def rebuildSubsectionLatexWrapper(subsection):
