@@ -239,6 +239,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
 
         # CORE OPERATIONS
         cls.shiftEntryUp(targetSubsection, targetImIdx, False)
+
+        if (sourceSubsection == targetSubsection) and (int(sourceImIdx) > int(targetImIdx)):
+            sourceImIdx = str(int(sourceImIdx) + 1)
+
         cls.__copyEntry(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
         cls.removeEntry(sourceSubsection, sourceImIdx, False)
 
