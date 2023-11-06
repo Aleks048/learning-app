@@ -582,6 +582,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             break
 
                     if linkShouldBePresent:
+                        glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
+
+                        for ln in glLinks:
+                            if not self.showLinks:
+                                self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
+
                         self.showLinksForSubsections.append(liskShpowId)
 
                     self.render()
@@ -1111,9 +1117,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         
                                         targetSubsection = ln.split("_")[0]
                                         targetImIdx = ln.split("_")[1]
-
-                                        if not self.showLinks:
-                                            self.showLinksForSubsections.append(subsection + "_" + k + "_" + ln)
 
                                         targetNameId = _upan.Names.Entry.getEntryNameID(targetSubsection, targetImIdx)
                                         glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
