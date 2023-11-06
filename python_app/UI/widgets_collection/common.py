@@ -4,6 +4,7 @@ import Pmw
 import os
 import tkinter as tk
 import re
+import time
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -597,6 +598,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.entryCopySubsection = widget.subsection
                     self.entryCopyImIdx = widget.imIdx
 
+                def retakeImageCmd(event, *args):
+                    widget = event.widget
+                    subsection = widget.subsection
+                    imIdx = widget.imIdx
+
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
+                                                                                subsection,
+                                                                                str(imIdx))
+                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
+                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+
+                    timer = 0
+                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                        time.sleep(0.3)
+                        timer += 1
+
+                        if timer > 50:
+                            break
+
+                    self.render()
+
                 def pasteEntryCmd(event, *args):
                     widget = event.widget
 
@@ -1008,6 +1031,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [showLinksForEntryCmd])
 
+                        retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                               text = "[retake]",
+                                                               prefix = "contentRetakeImageForEntry" + nameId,
+                                                               row = gridRowStartIdx, 
+                                                               column = 17)
+                        retakeImageForEntry.imIdx = k
+                        retakeImageForEntry.subsection = subsection
+                        retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                                 [retakeImageCmd])
+
                         addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
                                                          text = "[link]",
                                                          prefix = "contentAddGlLinkEntry" + nameId,
@@ -1278,6 +1311,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             addLinkEntry.render()
                             copyLinkEntry.render()
                             pasteLinkEntry.render()
+                            retakeImageForEntry.render()
 
                             showLinks = False
 
@@ -1304,6 +1338,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(shiftEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
+                        _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
                         _uuicom.bindChangeColorOnInAndOut(showLinksForEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
