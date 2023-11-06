@@ -185,6 +185,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     openedMainImg = None
 
     showLinks = None
+    showLinksForSubsections = []
 
     entryCopySubsection = None
     entryCopyImIdx = None
@@ -352,6 +353,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
         elif broadcasterType == mui.ShowHideLinks_BTN:
             self.showLinks = not self.showLinks
+            self.showLinksForSubsections = []
             self.render()
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             toSubsection = data
@@ -437,7 +439,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if not self.showAll:
                     currSubsection = widget.subsection
                     currImIdx = widget.imIdx
-                    currTopSection = currSubsection.split(".", 0)
+                    currTopSection = currSubsection.split(".")[0]
                     fsm.Data.Book.currTopSection = currTopSection
                     fsm.Data.Book.currSection = currSubsection
                     fsm.Data.Book.subsectionOpenInTOC_UI = currSubsection
@@ -564,7 +566,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
                                                                 widget.imIdx)
                     self.render()
-                
+
+                def showLinksForEntryCmd(event, *args):
+                    widget = event.widget
+                    subsection = widget.subsection
+                    imIdx =  widget.imIdx
+                    liskShpowId = subsection + "_" + imIdx
+
+                    linkShouldBePresent = True
+
+                    for l in self.showLinksForSubsections:
+                        if liskShpowId in l:
+                            self.showLinksForSubsections = []
+                            linkShouldBePresent = False
+                            break
+
+                    if linkShouldBePresent:
+                        self.showLinksForSubsections.append(liskShpowId)
+
+                    self.render()
+
                 def copyEntryCmd(event, *args):
                     widget = event.widget
                     self.entryCopySubsection = widget.subsection
@@ -572,6 +593,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 def pasteEntryCmd(event, *args):
                     widget = event.widget
+
+                    if None in [self.entryCopySubsection, self.entryCopyImIdx] or\
+                       _u.Token.NotDef.str_t in [self.entryCopySubsection, self.entryCopyImIdx]:
+                        _u.log.autolog("Did not paste entry. The copy data is not correct.")
+                        return
+
                     fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
                                                                     self.entryCopyImIdx,
                                                                     widget.subsection,
@@ -943,7 +970,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         shiftEntry.imIdx = k
                         shiftEntry.subsection = subsection
                         shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                           [shiftEntryCmd])
+                                          [shiftEntryCmd])
 
                         copyEntry = _uuicom.TOCLabelWithClick(tempFrame,
                                                                text = "[c]",
@@ -953,7 +980,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         copyEntry.imIdx = k
                         copyEntry.subsection = subsection
                         copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                           [copyEntryCmd])
+                                         [copyEntryCmd])
 
                         pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrame,
                                                                text = "[pa]",
@@ -963,7 +990,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         pasteAfterEntry.imIdx = k
                         pasteAfterEntry.subsection = subsection
                         pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                           [pasteEntryCmd])
+                                               [pasteEntryCmd])
+
+                        showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                               text = "[showLinks]",
+                                                               prefix = "contentShowLinksForEntry" + nameId,
+                                                               row = gridRowStartIdx, 
+                                                               column = 16)
+                        showLinksForEntry.imIdx = k
+                        showLinksForEntry.subsection = subsection
+                        showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                                 [showLinksForEntryCmd])
 
                         addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
                                                          text = "[link]",
@@ -1034,7 +1071,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                              [resizeEntryImgCMD])
 
-                        if self.showLinks:
+                        showLinks = False
+
+                        for l in self.showLinksForSubsections:
+                            if subsection + "_" + k in l:
+                                showLinks = True
+                                break
+
+                        if self.showLinks or showLinks:
                             # adding a frame to show global links
                             linksFrame = _uuicom.TOCFrame(tempFrame,
                                                 prefix = "contentLinksFr_" + nameId,
@@ -1067,6 +1111,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         
                                         targetSubsection = ln.split("_")[0]
                                         targetImIdx = ln.split("_")[1]
+
+                                        if not self.showLinks:
+                                            self.showLinksForSubsections.append(subsection + "_" + k + "_" + ln)
+
                                         targetNameId = _upan.Names.Entry.getEntryNameID(targetSubsection, targetImIdx)
                                         glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
                                                                 glLinkImLablel, 
@@ -1228,10 +1276,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             copyLinkEntry.render()
                             pasteLinkEntry.render()
 
-                            if self.showLinks:
+                            showLinks = False
+
+                            for l in self.showLinksForSubsections:
+                                if subsection + "_" + k in l:
+                                    showLinks = True
+                                    break
+
+                            if self.showLinks or showLinks:
                                 linksFrame.render()
 
                             openExUIEntry.render()
+                            showLinksForEntry.render()
                             shiftEntry.render()
                             copyEntry.render()
                             pasteAfterEntry.render()
@@ -1245,6 +1301,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(shiftEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
+                        _uuicom.bindChangeColorOnInAndOut(showLinksForEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)

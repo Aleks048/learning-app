@@ -220,8 +220,10 @@ class JSON:
                 if type(newValue) != type(jsonData[propertyName]):
                     log.autolog("\
     ERROR: JSON.updateProperty - did not update the json file. \
-    Type of new value type '{0}' does not match the type of the property '{1}'"\
-                                .format(type(newValue), type(jsonData[propertyName])))
+    Type of new value type '{0}' does not match the type of the property '{1}' with name {2}"\
+                                .format(type(newValue),
+                                        type(jsonData[propertyName]),
+                                        propertyName))
                 else:
                     jsonData[propertyName] = newValue
             else:
