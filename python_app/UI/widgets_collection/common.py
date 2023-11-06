@@ -192,6 +192,29 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     entryCopyImIdx = None
 
     subsectionContentLabels = []
+    
+    class __EntryUIs:
+        class __EntryUIData:
+            def __init__(self, name, column) -> None:
+                self.name = name
+                self.column = column
+
+        im = __EntryUIData("[im]", 1)
+        full = __EntryUIData("[full]", 2)
+        alwaysShow = __EntryUIData("", 3)
+        group = __EntryUIData("", 4)
+        link = __EntryUIData("[link]", 6)
+        copyLink = __EntryUIData("[cl]", 7)
+        pasteLink = __EntryUIData("[pl]", 8)
+        changeImSize = __EntryUIData("", 9)
+        excercises = __EntryUIData("[ex]", 10)
+        update = __EntryUIData("[update]", 11)
+        delete = __EntryUIData("[delete]", 12)
+        shift = __EntryUIData("[shift]", 13)
+        copy = __EntryUIData("[c]", 14)
+        pasteAfter = __EntryUIData("[pa]", 15)
+        showLinks = __EntryUIData("[ShowLinks]", 16)
+        retake = __EntryUIData("[Retake]", 17)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -934,7 +957,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             and (k == self.entryAsETR.imIdx) :
                             textLabelPage = _uuicom.MultilineText_ETR(tempFrame, 
                                                                       "contentP_" + nameId, 
-                                                                      gridRowStartIdx, 0, 
+                                                                      gridRowStartIdx,
+                                                                      0, 
                                                                       i, 
                                                                       v)
                             textLabelPage.imIdx = k
@@ -958,9 +982,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             textLabelPage.image = img
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                       text = "[full]", 
+                                                       text = self.__EntryUIs.full.name, 
                                                        prefix = "contentFull_" + nameId,
-                                                       row = gridRowStartIdx, column = 2)
+                                                       row = gridRowStartIdx, 
+                                                       column = self.__EntryUIs.full.column)
                         textLabelFull.subsection = subsection
                         textLabelFull.imIdx = k
 
@@ -969,10 +994,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                              "contentShowAlways_" + nameId,
                                                                              self)
                         showImages = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                    text = "[im]",
+                                                    text = self.__EntryUIs.im.name,
                                                     prefix = "contentOfImages_" + nameId,
                                                     row = gridRowStartIdx,
-                                                    column = 1)
+                                                    column = self.__EntryUIs.im.column)
                         showImages.imIdx = k
                         showImages.subsection = subsection
                         showImages.clicked = False
@@ -982,107 +1007,110 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
 
                         removeEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                     text = "[delete]",
+                                                     text = self.__EntryUIs.delete.name,
                                                      prefix = "contentRemoveEntry" + nameId,
                                                      row = gridRowStartIdx, 
-                                                     column = 12)
+                                                     column = self.__EntryUIs.delete.column)
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
                         removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                            [removeEntryCmd])
 
                         shiftEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                               text = "[shift]",
+                                                               text = self.__EntryUIs.shift.name,
                                                                prefix = "contentShiftEntry" + nameId,
                                                                row = gridRowStartIdx, 
-                                                               column = 13)
+                                                               column = self.__EntryUIs.shift.column)
                         shiftEntry.imIdx = k
                         shiftEntry.subsection = subsection
                         shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                           [shiftEntryCmd])
 
                         copyEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                               text = "[c]",
+                                                               text = self.__EntryUIs.copy.name,
                                                                prefix = "contentCopyEntry" + nameId,
                                                                row = gridRowStartIdx, 
-                                                               column = 14)
+                                                               column = self.__EntryUIs.copy.column)
                         copyEntry.imIdx = k
                         copyEntry.subsection = subsection
                         copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                          [copyEntryCmd])
 
                         pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                               text = "[pa]",
+                                                               text = self.__EntryUIs.pasteAfter.name,
                                                                prefix = "contentPasteAfterEntry" + nameId,
                                                                row = gridRowStartIdx, 
-                                                               column = 15)
+                                                               column = self.__EntryUIs.pasteAfter.column)
                         pasteAfterEntry.imIdx = k
                         pasteAfterEntry.subsection = subsection
                         pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                [pasteEntryCmd])
 
                         showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                               text = "[showLinks]",
+                                                               text = self.__EntryUIs.showLinks.name,
                                                                prefix = "contentShowLinksForEntry" + nameId,
                                                                row = gridRowStartIdx, 
-                                                               column = 16)
+                                                               column = self.__EntryUIs.showLinks.column)
                         showLinksForEntry.imIdx = k
                         showLinksForEntry.subsection = subsection
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [showLinksForEntryCmd])
 
                         retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrame,
-                                                               text = "[retake]",
+                                                               text =  self.__EntryUIs.retake.name,
                                                                prefix = "contentRetakeImageForEntry" + nameId,
                                                                row = gridRowStartIdx, 
-                                                               column = 17)
+                                                               column =  self.__EntryUIs.retake.column)
                         retakeImageForEntry.imIdx = k
                         retakeImageForEntry.subsection = subsection
                         retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [retakeImageCmd])
 
                         addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                         text = "[link]",
+                                                         text = self.__EntryUIs.link.name,
                                                          prefix = "contentAddGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, column = 6)
+                                                         row = gridRowStartIdx, 
+                                                         column = self.__EntryUIs.link.column)
                         addLinkEntry.imIdx = k
                         addLinkEntry.subsection = subsection
                         addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addGlLinkCmd])
 
                         copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                         text = "[cl]",
+                                                         text = self.__EntryUIs.copyLink.name,
                                                          prefix = "contentCopyGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, column = 7)
+                                                         row = gridRowStartIdx, 
+                                                         column = self.__EntryUIs.copyLink.column)
                         copyLinkEntry.imIdx = k
                         copyLinkEntry.subsection = subsection
                         copyLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [copyGlLinkCmd])
 
-                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                         text = "[pl]",
+                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                                                         text = self.__EntryUIs.pasteLink.name,
                                                          prefix = "contentPasteGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, column = 8)
+                                                         row = gridRowStartIdx, 
+                                                         column = self.__EntryUIs.pasteLink.column)
                         pasteLinkEntry.imIdx = k
                         pasteLinkEntry.subsection = subsection
                         pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [pasteGlLinkCmd])
 
                         openExUIEntry = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                      text = "[ex]", 
+                                                      text = self.__EntryUIs.excercises.name, 
                                                       prefix = "contentOpenExcerciseUIEntry" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 10)
+                                                      column = self.__EntryUIs.excercises.column)
                         openExUIEntry.imIdx = k
                         openExUIEntry.subsection = subsection
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
 
                         changeImText = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                      text = "[update]", 
+                                                      text = self.__EntryUIs.update.name, 
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 11)
+                                                      column = self.__EntryUIs.update.column)
                         changeImText.imIdx = k
                         changeImText.subsection = subsection
                         changeImText.etrWidget = textLabelPage
@@ -1100,7 +1128,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         changeImSize = _uuicom.ImageSize_ETR(tempFrame,
                                                       prefix = "contentUpdateEntryText" + nameId,
                                                       row = gridRowStartIdx, 
-                                                      column = 9,
+                                                      column = self.__EntryUIs.changeImSize.column,
                                                       imIdx = k,
                                                       text = resizeFactor)
                         changeImSize.imIdx = k
@@ -1304,8 +1332,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             if not self.showAll:
                                 textLabelFull.render()
-                                chkbtnShowPermamently.grid(row = gridRowStartIdx, column = 3, sticky=tk.NW)
-                                imagesGroup.grid(row = gridRowStartIdx, column = 4, sticky=tk.NW)
+                                chkbtnShowPermamently.grid(row = gridRowStartIdx, 
+                                                           column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+                                imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
                                 removeEntry.render()
 
                             addLinkEntry.render()
