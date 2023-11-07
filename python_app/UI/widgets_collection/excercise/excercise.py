@@ -474,7 +474,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
                                                        self.imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
-            self.lineIdxShownInText.append(lines[-1])
+            self.lineIdxShownInText.append(str(len(lines) - 1))
             self.render()
         if broadcasterType == HideAllETRsWindow_BTN:
             self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
