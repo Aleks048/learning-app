@@ -238,6 +238,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         # CORE OPERATIONS
+        if (sourceSubsection == targetSubsection) and (int(sourceImIdx) < int(targetImIdx)):
+            targetImIdx = str(int(targetImIdx) + 1)
+
         cls.shiftEntryUp(targetSubsection, targetImIdx, False)
 
         if (sourceSubsection == targetSubsection) and (int(sourceImIdx) > int(targetImIdx)):

@@ -654,7 +654,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
                                                                     self.entryCopyImIdx,
                                                                     widget.subsection,
-                                                                    str(int(widget.imIdx) + 1))
+                                                                    widget.imIdx)
                     self.render()
 
                 def removeEntryCmd(event, *args):
