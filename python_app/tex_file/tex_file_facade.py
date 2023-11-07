@@ -43,15 +43,24 @@ class Wr:
 
             for w in texList:
                 # NOTE: we remove the newLine + latex tokens + "}"
-                splittedWord = re.split(r"\\+[[a-z]+|[A-Z]+]+", w)
+                # to avoid incorrect calculations and newline being ignored
+                # we replece it withthe token and then bring back
+                w = w.replace("\\\\", "__NEWLINE__")
+                splittedWord = re.split(r"\\[[a-z]+|[A-Z]+]+", w)
+                w = w.replace("__NEWLINE__", "\\\\")
 
                 for i in range(len(splittedWord)):
+                    splittedWord[i] = splittedWord[i].replace("__NEWLINE__", "\\\\")
                     splittedWord[i] = re.sub(r"{[a-z]+}", "", splittedWord[i])
 
                 # NOTE: we do use this to add one to count for the
                 # symbols of the kind ex: '\subset'
                 if len([i for i in splittedWord if i != ""]) == 0:
                     splittedWord = ["1"]
+
+                for sw in splittedWord:
+                    if "\\\\" in sw:
+                        chCounter = 0
 
                 filteredWord = "".join(splittedWord)\
                               .replace("\\", "")\
@@ -61,10 +70,6 @@ class Wr:
                 wordLen = len(filteredWord)
                 chCounter += wordLen + 1
                 tex += w + "\\ "
-
-                for sw in splittedWord:
-                    if "\\\\" in sw:
-                        chCounter = 0
 
                 if (chCounter > numSymPerLine):
                     tex += "\\\\"
