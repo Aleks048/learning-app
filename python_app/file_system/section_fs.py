@@ -455,6 +455,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
 
+        if imageUIResize == {}:
+            extraImagesDict = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
+
         tocWImageDict = cls.readProperty(subsection, cls.PubProp.tocWImageDict)
         tocWImageDict.pop(imIdx, None)
 
