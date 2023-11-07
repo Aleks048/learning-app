@@ -35,6 +35,7 @@ class LayoutManagers:
             self.addWidget(hideAllETRsWindow_BTN)
 
             self.addExcerciseLine_BTN.addListenerWidget(addExcerciseLine_ETR)
+            addExcerciseLine_ETR.addListenerWidget(self.addExcerciseLine_BTN)
             self.addExcerciseLine_BTN.addListenerWidget(self.excercise_BOX)
             hideAllETRsWindow_BTN.addListenerWidget(self.excercise_BOX)
 

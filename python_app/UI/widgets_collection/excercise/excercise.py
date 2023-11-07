@@ -134,6 +134,11 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button):
         # update the box UI
         self.notify(Excercise_BOX)
 
+    def receiveNotification(self, broadcasterType):
+        if broadcasterType == AddExcerciseLine_ETR:
+            self.cmd()
+
+
 class PasteGlLink_BTN(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
@@ -254,7 +259,8 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
                         patentWidget, 
                         renderData,
                         extraOptions = extraOptions,
-                        defaultText = defaultText)
+                        defaultText = defaultText,
+                        bindCmd = self.bindCmd)
     
     def receiveNotification(self, broadcasterType):
         text = self.getData()
@@ -262,7 +268,7 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         if broadcasterType == AddExcerciseLine_BTN:
             self.setData(self.defaultText)
 
-        if text != self.defaultText:
+        if (text != self.defaultText) and (text != ""):
             return text
         else:
             return "-1"
@@ -270,6 +276,10 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def getData(self, **kwargs):
         text = super().getData(**kwargs)
         return text
+      
+    def bindCmd(self):
+        return [ww.currUIImpl.Data.BindID.Keys.shenter], \
+                [lambda *args: self.notify(AddExcerciseLine_BTN)]
 
 
 class Excercise_BOX(ww.currUIImpl.ScrollableBox,
