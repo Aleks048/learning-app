@@ -1360,7 +1360,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             changeImText.render()
                             changeImSize.render()
 
-                        openOMOnThePageOfTheImage(textLabelPage, subsection, k)
+                        if self.entryAsETR.widget == None:
+                            openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
                         _uuicom.bindChangeColorOnInAndOut(showImages)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
