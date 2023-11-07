@@ -515,6 +515,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
+                    fsm.Data.Book.entryImOpenInTOC_UI = str(imIdx)
+
+                    fsm.Data.Book.currTopSection = subsection.split(".")[0]
+                    fsm.Data.Book.currSection = subsection
+                    fsm.Data.Book.subsectionOpenInTOC_UI = subsection
+                    self.notify(mui.ChooseTopSection_OM)
+                    self.notify(mui.ChooseSubsection_OM)
+                    self.notify(mcomui.SourceImageLinks_OM)
+
                     # mainImage
                     bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
                                  [lambda event: self.scroll_into_view(event)]]
