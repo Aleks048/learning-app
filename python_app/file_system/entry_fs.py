@@ -95,6 +95,13 @@ class EntryInfoStructure:
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
+        msg = "\
+After adding the line for  \n\
+'{0}':'{1}'\n\
+at position '{2}'.".format(subsection, imIdx, position)
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
     @classmethod
     def rebuildLine(cls, subsection, imIdx, lineIdx, text, bookPath):
         log.autolog(f"Rebuild line '{lineIdx}' for '{subsection}' '{imIdx}'")

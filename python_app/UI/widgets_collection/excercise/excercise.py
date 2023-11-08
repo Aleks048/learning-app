@@ -240,6 +240,12 @@ class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
                                                           wf.Wr.MenuManagers.ExcerciseManager)
         excerciseManager.hide()
 
+        msg = "\
+After updating the excercises for \n\
+'{0}':'{1}'.".format(self.subsection, self.imIdx)
+        _u.log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
 
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
