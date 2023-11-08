@@ -4,6 +4,8 @@ from tkinter import ttk
 import _utils.logging as log
 import _utils._utils_main as _u
 import UI.widgets_data as wd
+import outside_calls.outside_calls_facade as ocf
+import settings.facade as sf
 
 class DataContainer_Interface: 
     def __init__(self):
@@ -676,6 +678,17 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.destroy()
     
     def startLoop():
-        TkWidgets.Data.tk.mainloop()
+        def tick():
+            # this function stamps the changes every 180 seconds
+            msg = "After time has passed'."
+            log.autolog(msg)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+            root.after(180000, tick)
+            return None
+
+        root= TkWidgets.Data.tk
+
+        tick()
+        root.mainloop()
 
 currUIImpl = TkWidgets
