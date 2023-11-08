@@ -168,23 +168,36 @@ def getOwnersName_windowID_ofApp(appName:str, windowIdentifier = ""):
 JSON
 '''
 class JSON:
+    __tempFiles = {}
+
+    @classmethod
+    def saveFilesToDisk(cls):
+        for fp, data in cls.__tempFiles.items():
+            with open(fp, 'w') as f:
+                jsonObj = json.dumps(data, indent=4)
+                f.write(jsonObj)
+
     def createFromTemplate(path, template):
         with open(path, "w+") as f:
             jsonObj = json.dumps(template, indent = 4)
             f.write(jsonObj)
 
-    def readFile(filePath):
+    @classmethod
+    def readFile(cls, filePath):
         # print("JSON.readFile - reading json file: " + filePath)
-        with open(filePath, 'r') as f:
-            outputList = json.loads(f.read())
-            return outputList
 
-    def writeFile(filePath, dataTowrite):
+        if filePath not in list(cls.__tempFiles.keys()):
+            with open(filePath, 'r') as f:
+                outputList = json.loads(f.read())
+                cls.__tempFiles[filePath] = outputList
+                return outputList
+        else:
+            return cls.__tempFiles[filePath]
+
+    @classmethod
+    def writeFile(cls, filePath, dataTowrite):
         # print("JSON.writeFile - writing to json file: " + filePath)
-
-        with open(filePath, 'w') as f:
-            jsonObj = json.dumps(dataTowrite, indent=4)
-            f.write(jsonObj)
+        cls.__tempFiles[filePath] = dataTowrite
 
     @lockutils.synchronized('not_thread_safe')
     def readProperty(jsonFilepath, propertyName):

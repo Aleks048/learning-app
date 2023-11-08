@@ -36,6 +36,8 @@ class GitTracker:
             cls.stampChanges(bookPath, "Book init.", force = True)
 
     def stampChanges(bookPath, id, force = False):
+        _u.JSON.saveFilesToDisk()
+
         if dc.StartupConsts.WITH_TRACKING:
             if not force:
                 cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\" && git push origin main".format(bookPath, id)
