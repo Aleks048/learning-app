@@ -12,6 +12,7 @@ import tex_file.tex_file_facade as tff
 
 class MacLatex:
     def buildPDF(bookpath, subsection, imIdx = _u.Token.NotDef.str_t):
+        return
         def __build():
             tff.Wr.TexFilePopulate.populateMainFile(subsection, bookpath, imIdx)
 
@@ -43,6 +44,7 @@ class MacLatex:
 
     @classmethod 
     def buildCurrentSubsectionPdf(cls):
+        return
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         subsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         

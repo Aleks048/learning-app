@@ -94,10 +94,9 @@ class OriginalMaterialStructure:
 
     @classmethod
     def addNoteToOriginalMaterial(cls, omName, page, noteText, idx):
-        idx = int(idx)
+        idx = int(idx) - 1
 
-        filepath = cls.getMaterialPath(omName)
-        fileName = cls.__fromMatPathToFilename(filepath)
+        leftPad = 20
 
         noteSize:list = cls.getMaterialNoteSize(omName)
         nWidth = int(noteSize[0])
@@ -105,31 +104,32 @@ class OriginalMaterialStructure:
         pageSize = cls.getMaterialPageSize(omName)
         pWidth = int(pageSize[0])
         pHeight = int(pageSize[1])
-        
-        numCols = pWidth // nWidth
+
+        numCols = (pWidth - leftPad) // nWidth
+        # NOTE: we hardwire 5 rows of notes per page
+        numRowsBorttom = 5
 
         col = idx % numCols
         row = idx // numCols
-        if col == 0:
-            col += numCols
-            row -= 1
-        
-        if idx <= 4:
-            bounds = [pWidth - (numCols - col + 1) * nWidth,
-                    pHeight - row * nHeight,
-                    pWidth - (numCols - col) * nWidth,
-                    pHeight - (row + 1) * nHeight,
-                    ]
-        else:
-            idx = idx - 4
-            row = 4 - math.ceil(idx / 2)
+        leftW = col * nWidth + leftPad
+        rightW = (col + 1) * nWidth + leftPad
 
-            bounds = [pWidth - (numCols - col + 1) * nWidth,
-                    row * nHeight,
-                    pWidth - (numCols - col) * nWidth,
-                    (row - 1) * nHeight,
-                    ]
-        
+        if row < 2:
+            bounds = [leftW,
+                        pHeight - row * nHeight,
+                        rightW,
+                        pHeight - (row + 1) * nHeight,
+                        ]
+        else:
+            bounds = [leftW,
+                        (numRowsBorttom - row) * nHeight,
+                        rightW,
+                        (numRowsBorttom - row - 1) * nHeight,
+                        ]
+
+        filepath = cls.getMaterialPath(omName)
+        fileName = cls.__fromMatPathToFilename(filepath)
+
         cmd = oscr.addNoteTheToThePage(fileName, page, noteText, bounds)
         _u.runCmdAndWait(cmd)
 
