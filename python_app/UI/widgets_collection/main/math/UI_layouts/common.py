@@ -206,7 +206,7 @@ class ImageSave_BTN(ww.currUIImpl.Button):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_saveImg_BTN"
-        text = "saveIM"
+        text = "SaveIM"
 
         super().__init__(prefix, 
                         name,
