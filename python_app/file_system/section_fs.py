@@ -383,28 +383,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             if type(glLinksListImDict) == dict:
                 for glLink in list(glLinksListImDict.keys()):
                     if "KIK" in glLinksListImDict[glLink]:
-                        # NOTE: we use try catch here since other entries might have changed the
-                        # linked entry and trying to access it with old data does not work
-                        # we need to fix it properly ASAP
-                        try:
-                            llinkSubsection = glLink.split("_")[0]
-                            llinkIdx = glLink.split("_")[1]
-                            
-                            linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
-                            linkGlobalLinksImDict = linkGlobalLinksDict[llinkIdx]
-                            linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
-                            if linkGlobalLinksImDict == {}:
-                                linkGlobalLinksDict.pop(llinkIdx)
-                            else:
-                                linkGlobalLinksDict[llinkIdx] = linkGlobalLinksImDict
+                        llinkSubsection = glLink.split("_")[0]
+                        llinkIdx = glLink.split("_")[1]
+                        gm.GeneralManger.RemoveGlLink(llinkSubsection, subsection,
+                                                      imIdx, llinkIdx)
 
-                            if linkGlobalLinksDict == {}:
-                                linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
-
-                            cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
-                        except:
-                            pass
-        
         # update links to other images
         imLinkDictKeys = list(imLinkDict.keys())
 
