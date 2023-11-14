@@ -420,6 +420,47 @@ The correct extra image was not created for \n\
         fsf.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)        
 
     @classmethod
+    def CopyGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
+         # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        sourceLinks = sourseSectionGlobalLinksDict[sourceIDX].copy()
+        targetTopSection = targetSubsection.split(".")[0]
+
+        for sl, slfull in sourceLinks.items():
+            if "KIK:" in slfull:
+                slsubsection = sl.split("_")[0]
+                slImIdx = sl.split("_")[1]
+                cls.AddLink(slsubsection + "." + slImIdx, 
+                            targetSubsection, targetIDX, targetTopSection, False)
+            else:
+                cls.AddWebLink(sl, slfull, targetSubsection, targetIDX, targetTopSection, False)
+
+    @classmethod
+    def RetargetGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
+         # add target to the source links
+        sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+        sourceLinks = sourseSectionGlobalLinksDict[sourceIDX].copy()
+
+        for sl, slfull in sourceLinks.items():
+            if "KIK:" in slfull:
+                slsubsection = sl.split("_")[0]
+                slImIdx = sl.split("_")[1]
+                cls.RemoveGlLink(slsubsection, sourceSubsection, sourceIDX, slImIdx)
+            else:
+                cls.RemoveWebLink(sourceSubsection, sourceIDX, sl)
+
+        targetTopSection = targetSubsection.split(".")[0]
+
+        for sl, slfull in sourceLinks.items():
+            if "KIK:" in slfull:
+                slsubsection = sl.split("_")[0]
+                slImIdx = sl.split("_")[1]
+                cls.AddLink(slsubsection + "." + slImIdx, 
+                            targetSubsection, targetIDX, targetTopSection, False)
+            else:
+                cls.AddWebLink(sl, slfull, targetSubsection, targetIDX, targetTopSection, False)
+
+    @classmethod
     def RemoveWebLink(cls, sourceSubsection, sourceIDX, webLinkName):
         # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
@@ -429,10 +470,13 @@ The correct extra image was not created for \n\
         if sourceLinks == {}:
             sourseSectionGlobalLinksDict.pop(sourceIDX)
 
+            if sourseSectionGlobalLinksDict == {}:
+                sourseSectionGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
+
         fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
 
     @classmethod
-    def AddLink(cls, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection):
+    def AddLink(cls, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection, shouldConfirm = True):
         import UI.widgets_facade as wf
 
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -486,7 +530,9 @@ The correct extra image was not created for \n\
 
         if targetUrlLinkName not in list(sourceImGlobalLinksDict.keys()) \
             and sourceUrlLinkName not in list(targetImGlobalLinksDict.keys()):
-            msg = "\
+
+            if shouldConfirm:
+                msg = "\
 Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with text: '{5}'?"\
                     .format(targetSubsection, 
                             targetIDX, 
@@ -495,14 +541,14 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
                             fsf.Data.Sec.imLinkDict(targetSubsection)[targetIDX],
                             fsf.Data.Sec.imLinkDict(sourceSubsection)[sourceIDX]
                             )
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+                response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
+                mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+                mainManager.show()
 
-            if not response:
-                return
+                if not response:
+                    return
 
             # add link to the source
             sourceImGlobalLinksDict[targetUrlLinkName] = targetUrl
@@ -541,7 +587,7 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
             theLinksAreNotPresentMsg.append(m)
             log.autolog(m)
         
-        if theLinksAreNotPresentMsg != []:
+        if theLinksAreNotPresentMsg != [] and shouldConfirm:
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification("".join(theLinksAreNotPresentMsg), True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
@@ -562,7 +608,9 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
-    def AddWebLink(cls, linkeName, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection):
+    def AddWebLink(cls, linkeName, wholeLinkPathStr, 
+                   sourceSubsection, sourceIDX, sourceTopSection,
+                   shouldConfirm = True):
         import UI.widgets_facade as wf
 
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -584,19 +632,20 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
         theLinksAreNotPresentMsg = []
 
         if linkeName not in list(sourceImGlobalLinksDict.keys()):
-            msg = "Do you want to add web link From: '{1}_{2}'.\nWith name: '{3}'\nWith address: '{0}'?"\
-                    .format(wholeLinkPathStr, 
-                            sourceSubsection, 
-                            sourceIDX,
-                            linkeName)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            if shouldConfirm:
+                msg = "Do you want to add web link From: '{1}_{2}'.\nWith name: '{3}'\nWith address: '{0}'?"\
+                        .format(wholeLinkPathStr, 
+                                sourceSubsection, 
+                                sourceIDX,
+                                linkeName)
+                response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
+                mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+                mainManager.show()
 
-            if not response:
-                return
+                if not response:
+                    return
 
             # add link to the source
             sourceImGlobalLinksDict[linkeName] = wholeLinkPathStr
