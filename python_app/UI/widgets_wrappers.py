@@ -92,6 +92,7 @@ class TkWidgets (DataTranslatable_Interface):
             focusOut = "<FocusOut>"
             allKeys = "<Key>"
             mouse1 = "<Button-1>"
+            shmouse1 = "<Shift-Button-1>"
             mouse2 = "<Button-2>"
 
             enterWidget = "<Enter>"

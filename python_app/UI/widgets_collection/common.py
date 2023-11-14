@@ -191,6 +191,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     entryCopySubsection = None
     entryCopyImIdx = None
 
+    cutEntry = False
+
     subsectionContentLabels = []
     
     class __EntryUIs:
@@ -630,6 +632,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     widget = event.widget
                     self.entryCopySubsection = widget.subsection
                     self.entryCopyImIdx = widget.imIdx
+                    self.cutEntry = False
+
+                def cutEntryCmd(event, *args):
+                    widget = event.widget
+                    self.entryCopySubsection = widget.subsection
+                    self.entryCopyImIdx = widget.imIdx
+                    self.cutEntry = True
 
                 def retakeImageCmd(event, *args):
                     widget = event.widget
@@ -664,7 +673,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
                                                                     self.entryCopyImIdx,
                                                                     widget.subsection,
-                                                                    widget.imIdx)
+                                                                    widget.imIdx,
+                                                                    self.cutEntry)
                     self.render()
 
                 def removeEntryCmd(event, *args):
@@ -1045,6 +1055,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         copyEntry.subsection = subsection
                         copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                          [copyEntryCmd])
+                        copyEntry.rebind([ww.currUIImpl.Data.BindID.shmouse1],
+                                         [cutEntryCmd])
 
                         pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrame,
                                                                text = self.__EntryUIs.pasteAfter.name,

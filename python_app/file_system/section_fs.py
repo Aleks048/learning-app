@@ -205,12 +205,24 @@ class SectionInfoStructure:
         return outDict
 
     @classmethod
-    def insertEntryAfterIdx(cls, sourceSubsection, sourceImIdx, targetSubsection, targetImIdx):
+    def insertEntryAfterIdx(cls,
+                            sourceSubsection, sourceImIdx, 
+                            targetSubsection, targetImIdx,
+                            cutEntry):
+        # CORE OPERATIONS
+        # if (sourceSubsection == targetSubsection) \
+        #         and (int(sourceImIdx) <= int(targetImIdx)) \
+        #         and cutEntry:
+        #     targetImIdx = str(int(targetImIdx) + 1)
+
          # ask the user if we wnat to proceed.
+        cutEntryStr = "cut" if cutEntry else "copy"
         msg = "\
-Do you want to move entry from \n\
+Do you want to {4} entry from \n\
 '{0}':'{1}'\n\
-to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
+to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
+                        targetSubsection, targetImIdx,
+                        cutEntryStr)
 
         response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
@@ -231,15 +243,14 @@ to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
             return
 
         msg = "\
-Before moving entry from \n\
+Before {4} entry from \n\
 '{0}':'{1}'\n\
-to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
+to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, 
+                        targetSubsection, targetImIdx,
+                        cutEntryStr)
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        # CORE OPERATIONS
-        if (sourceSubsection == targetSubsection) and (int(sourceImIdx) < int(targetImIdx)):
-            targetImIdx = str(int(targetImIdx) + 1)
 
         cls.shiftEntryUp(targetSubsection, targetImIdx, False)
 
@@ -247,8 +258,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
             sourceImIdx = str(int(sourceImIdx) + 1)
 
         cls.__copyEntry(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
-        cls.removeEntry(sourceSubsection, sourceImIdx, False)
 
+        if cutEntry:
+            log.autolog("Cutting the entry.")
+            cls.removeEntry(sourceSubsection, sourceImIdx, False)
 
         # update the links on the OM file
         oldImLinkOMPageDict = cls.readProperty(sourceSubsection, cls.PubProp.imLinkOMPageDict).values()
@@ -260,11 +273,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
             gm.GeneralManger.readdNotesToPage(page)
 
         msg = "\
-After moving entry from \n\
+After {4} entry from \n\
 '{0}':'{1}'\n\
-to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetImIdx)
-        log.autolog(msg)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, 
+                        targetSubsection, targetImIdx,
+                        cutEntryStr)
 
         cls.rebuildSubsectionLatex(sourceSubsection, 
                                    _upan.Names.Entry.getEntryNameID, 
@@ -278,6 +291,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
                                    _upan.Names.Subsection.formatSectionText,
                                    _upan.Names.Subsection.getSubsectionPretty,
                                    _upan.Names.Subsection.getTopSectionPretty)
+
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
     def removeEntry(cls, subsection, imIdx, shouldConfirm = True):
@@ -367,48 +383,71 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
             if type(glLinksListImDict) == dict:
                 for glLink in list(glLinksListImDict.keys()):
                     if "KIK" in glLinksListImDict[glLink]:
-                        llinkSubsection = glLink.split("_")[0]
-                        llinkIdx = glLink.split("_")[1]
-                        
-                        linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
-                        linkGlobalLinksImDict = linkGlobalLinksDict[llinkIdx]
-                        linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
-                        if linkGlobalLinksImDict == {}:
-                            linkGlobalLinksDict.pop(llinkIdx)
-                        else:
-                            linkGlobalLinksDict[llinkIdx] = linkGlobalLinksImDict
+                        # NOTE: we use try catch here since other entries might have changed the
+                        # linked entry and trying to access it with old data does not work
+                        # we need to fix it properly ASAP
+                        try:
+                            llinkSubsection = glLink.split("_")[0]
+                            llinkIdx = glLink.split("_")[1]
+                            
+                            linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                            linkGlobalLinksImDict = linkGlobalLinksDict[llinkIdx]
+                            linkGlobalLinksImDict.pop(subsection + "_" + imIdx)
+                            if linkGlobalLinksImDict == {}:
+                                linkGlobalLinksDict.pop(llinkIdx)
+                            else:
+                                linkGlobalLinksDict[llinkIdx] = linkGlobalLinksImDict
 
-                        if linkGlobalLinksDict == {}:
-                            linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
+                            if linkGlobalLinksDict == {}:
+                                linkGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
 
-                        cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                            cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                        except:
+                            pass
         
         # update links to other images
-        for imLinkId in list(imLinkDict.keys()):
-            if int(imLinkId) > int(imIdx):
+        imLinkDictKeys = list(imLinkDict.keys())
+
+        for imLinkId in imLinkDictKeys:
+            if int(imLinkId) >= int(imIdx):
                 if imLinkId in list(imGlobalLinksDict.keys()):
                     glLinksListImDict = imGlobalLinksDict[imLinkId]
+
                     if type(glLinksListImDict) == dict:
                         for glLink in list(glLinksListImDict.keys()):
                             if "KIK" in glLinksListImDict[glLink]:
-                                linkSubsection = glLink.split("_")[0]
-                                linkIdx = glLink.split("_")[1]
-                                
-                                linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
-                                linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
-                                linkGlobalLinksImDict.pop(subsection + "_" + imLinkId)
+                                # NOTE: we use try catch here since other entries might have changed the
+                                # linked entry and trying to access it with old data does not work
+                                # we need to fix it properly ASAP
+                                try:
+                                    linkSubsection = glLink.split("_")[0]
+                                    linkIdx = glLink.split("_")[1]
+                                    
+                                    linkGlobalLinksDict = cls.readProperty(linkSubsection, cls.PubProp.imGlobalLinksDict)
+                                    linkGlobalLinksImDict = linkGlobalLinksDict[linkIdx]
+                                    linkGlobalLinksImDict.pop(subsection + "_" + imLinkId)
 
-                                linkGlobalLinksImDict[subsection + "_" + str(int(imLinkId) - 1)] = \
-                                                tff.Wr.TexFileUtils.getUrl(currBookName, 
-                                                                        subsection, 
-                                                                        subsection.split(".")[0],
-                                                                        str(int(imLinkId) - 1),
-                                                                        "full",
-                                                                        False)
+                                    linkGlobalLinksImDict[subsection + "_" + str(int(imLinkId) - 1)] = \
+                                                    tff.Wr.TexFileUtils.getUrl(currBookName, 
+                                                                            subsection, 
+                                                                            subsection.split(".")[0],
+                                                                            str(int(imLinkId) - 1),
+                                                                            "full",
+                                                                            False)
 
-                                linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
+                                    linkGlobalLinksDict[linkIdx] = linkGlobalLinksImDict
 
-                                cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                                    cls.updateProperty(linkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                                except:
+                                    pass
+
+                        newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                        oldDict = newImGlobalLinksDict.pop(imLinkId)
+
+                        if imLinkId != imIdx:
+                            newImGlobalLinksDict[str(int(imLinkId) - 1)] = oldDict
+
+                        cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
         imLinkDict.pop(imIdx, None)
         imLinkDict = cls.__shiftTheItemsInTheDict(imLinkDict, imIdx)
@@ -427,14 +466,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
 
         cls.updateProperty(subsection, cls.PubProp.imLinkOMPageDict, imLinkOMPageDict)
 
-        imGlobalLinksDict:dict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
-        imGlobalLinksDict.pop(imIdx, None)
-        imGlobalLinksDict = cls.__shiftTheItemsInTheDict(imGlobalLinksDict, imIdx)
+        # imGlobalLinksDict:dict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+        # imGlobalLinksDict.pop(imIdx, None)
+        # imGlobalLinksDict = cls.__shiftTheItemsInTheDict(imGlobalLinksDict, imIdx)
 
-        if imGlobalLinksDict == {}:
-            imGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
+        # if imGlobalLinksDict == {}:
+        #     imGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
 
-        cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, imGlobalLinksDict)
+        # cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, imGlobalLinksDict)
 
         origMatNameDict = cls.readProperty(subsection, cls.PubProp.origMatNameDict)
         origMatNameDict.pop(imIdx, None)
@@ -652,32 +691,35 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         # shift all the global links that lead to this entry
         for linkIdx in linksKeysSorted:
             if int(linkIdx) >= int(imIdx):
-                linksDict = imGlobalLinksDict.pop(linkIdx)
+                linksDict = imGlobalLinksDict[linkIdx].copy()
+
                 if type(linksDict) == dict:
                     for lk in linksDict.keys():
                         if "KIK" in linksDict[lk]:
                             llinkSubsection = lk.split("_")[0]
                             llinkIdx = lk.split("_")[1]
+                            # NOTE: we use try catch here since other entries might have changed the
+                            # linked entry and trying to access it with old data does not work
+                            # we need to fix it properly ASAP
+                            try:
+                                linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                                linkReturnLinks = linkGlobalLinksDict[llinkIdx]
+                                linkReturnLinks.pop(subsection + "_" + linkIdx)
+                                newUrl = tff.Wr.TexFileUtils.getUrl(currBookName, topSection, subsection, 
+                                                        str(int(linkIdx) + 1), "full", False)
 
-                            llinkIdx = str(int(llinkIdx))
+                                linkReturnLinks[subsection + "_" + str(int(linkIdx) + 1)] = newUrl
 
-                            linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
-                            linkReturnLinks = linkGlobalLinksDict[llinkIdx]
-                            linkReturnLinks.pop(subsection + "_" + linkIdx)
-                            newUrl = tff.Wr.TexFileUtils.getUrl(currBookName, topSection, subsection, 
-                                                    str(int(linkIdx) + 1), "full", False)
+                                linkGlobalLinksDict[llinkIdx] = linkReturnLinks
+                                cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
+                            except:
+                                linkGlobalLinksDict = cls.readProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict)
+                                log.autolog(f"The algorithm got an error since already updated. {linkGlobalLinksDict}")
 
-                            linkReturnLinks[subsection + "_" + str(int(linkIdx) + 1)] = newUrl
-
-                            linkGlobalLinksDict[llinkIdx] = linkReturnLinks
-                            cls.updateProperty(llinkSubsection, cls.PubProp.imGlobalLinksDict, linkGlobalLinksDict)
-
-        for linkIdx in linksKeysSorted:
-            if int(linkIdx) >= int(imIdx):
-                newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
-                oldDict = newImGlobalLinksDict.pop(linkIdx)
-                newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
-                cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
+                    newImGlobalLinksDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+                    oldDict = newImGlobalLinksDict.pop(linkIdx)
+                    newImGlobalLinksDict[str(int(linkIdx) + 1)] = oldDict
+                    cls.updateProperty(subsection, cls.PubProp.imGlobalLinksDict, newImGlobalLinksDict)
 
         def updateProperty(propertyName):
             dataDict = cls.readProperty(subsection, propertyName)
@@ -811,7 +853,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx, targetSubsection, targetI
         targetTopSection = targetSubsection.split(".")[0]
 
         if imIdx in list(imGlobalLinksDict.keys()):
-            linksDict = imGlobalLinksDict[imIdx]
+            linksDict = imGlobalLinksDict[imIdx].copy()
+
             if type(linksDict) == dict:
                 # update the return links in other subsections
                 for lk in linksDict.keys():

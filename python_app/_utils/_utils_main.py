@@ -192,7 +192,7 @@ class JSON:
                 cls.__tempFiles[filePath] = outputList
                 return outputList
         else:
-            return cls.__tempFiles[filePath]
+            return cls.__tempFiles[filePath].copy()
 
     @classmethod
     def writeFile(cls, filePath, dataTowrite):
@@ -205,24 +205,42 @@ class JSON:
         
         def _readProperty(jsonData):
             if propertyName in jsonData:
-                return jsonData[propertyName]
+                out = jsonData[propertyName]
+
+                if type(out) != str and type(out) != int:
+                    return jsonData[propertyName].copy()
+                else:
+                    return jsonData[propertyName]
 
             for k, v in jsonData.items():
                 if type(v) is list:
                     if v == [] or type(v[0]) is str:
                         if propertyName == k:
-                            return v
+                            if type(v) != str and type(v) != int:
+                                return v.copy()
+                            else:
+                                return v
                     else:
                         for i in v:
                             property = _readProperty(i)
                             if property != None:
-                                return property
+                                if type(property) != str and type(property) != int:
+                                    return property.copy()
+                                else:
+                                    return property
                 elif type(v) is dict:
                     property = _readProperty(v)
                     if property != None:
-                        return property
+                        if type(property) != str and type(property) != int:
+                            return property.copy()
+                        else:
+                            return property
         property = _readProperty(jsonData)
-        return property
+
+        if type(property) != str and type(property) != int:
+            return property.copy()
+        else:
+            return property
 
     @lockutils.synchronized('not_thread_safe')
     def updateProperty(jsonFilepath, propertyName, newValue):
