@@ -587,7 +587,7 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
             theLinksAreNotPresentMsg.append(m)
             log.autolog(m)
         
-        if theLinksAreNotPresentMsg != [] and shouldConfirm:
+        if (theLinksAreNotPresentMsg != []) and shouldConfirm:
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification("".join(theLinksAreNotPresentMsg), True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
