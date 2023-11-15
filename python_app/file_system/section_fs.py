@@ -279,18 +279,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                         targetSubsection, targetImIdx,
                         cutEntryStr)
 
-        cls.rebuildSubsectionLatex(sourceSubsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
-        cls.rebuildSubsectionLatex(targetSubsection, 
-                                   _upan.Names.Entry.getEntryNameID, 
-                                   _upan.Names.Group.formatGroupText,
-                                   _upan.Names.Subsection.formatSectionText,
-                                   _upan.Names.Subsection.getSubsectionPretty,
-                                   _upan.Names.Subsection.getTopSectionPretty)
+        if targetSubsection == sourceSubsection:
+            rebuildStartIdx = str(min(int(sourceImIdx), int(targetImIdx)))
+        else:
+            rebuildStartIdx = sourceImIdx
+
+        cls.rebuildEntriesBatch(sourceSubsection, rebuildStartIdx)
+
+        if targetSubsection != sourceSubsection:
+            cls.rebuildEntriesBatch(targetSubsection, targetImIdx)
 
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
@@ -493,12 +490,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             # track all the changes berore and after removal
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            cls.rebuildSubsectionLatex(subsection, 
-                                    _upan.Names.Entry.getEntryNameID, 
-                                    _upan.Names.Group.formatGroupText,
-                                    _upan.Names.Subsection.formatSectionText,
-                                    _upan.Names.Subsection.getSubsectionPretty,
-                                    _upan.Names.Subsection.getTopSectionPretty)
+            cls.rebuildEntriesBatch(subsection, imIdx)
 
     @classmethod
     def shiftEntryUp(cls, subsection, imIdx, shouldConfirm = True):
@@ -671,12 +663,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             # track all the changes after removal
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            cls.rebuildSubsectionLatex(subsection, 
-                                    _upan.Names.Entry.getEntryNameID, 
-                                    _upan.Names.Group.formatGroupText,
-                                    _upan.Names.Subsection.formatSectionText,
-                                    _upan.Names.Subsection.getSubsectionPretty,
-                                    _upan.Names.Subsection.getTopSectionPretty)
+            cls.rebuildEntriesBatch(subsection, imIdx)
 
     @classmethod
     def __copyEntry(cls, subsection, imIdx, targetSubsection, targetImIdx):
@@ -855,6 +842,17 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 entryImText += t
 
         return entryImText
+
+    @classmethod
+    def rebuildEntriesBatch(cls, subsection, startImIdx):
+        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
+
+        for k, v in imLinkDict.items():
+            if int(k) > int(startImIdx):
+                cls.rebuildEntryLatex(subsection, 
+                                    _upan.Names.Entry.getEntryNameID,
+                                    k,
+                                    v)
 
     @classmethod
     def rebuildEntryLatex(cls, 
