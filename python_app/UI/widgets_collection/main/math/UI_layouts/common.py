@@ -265,10 +265,12 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
 
         super().updateOptions(self.sourceSubsectionImageLinks)
 
-        if currSec != self.prevOptionSubsection:
-            self.setData(self.sourceSubsectionImageLinks[-1], notParentUpdCall = True)
-        else:
-            self.setData(self.prevOptionIdx, notParentUpdCall = True)
+        # if currSec != self.prevOptionSubsection:
+        #     self.setData(self.sourceSubsectionImageLinks[-1], notParentUpdCall = True)
+        # else:
+            # self.setData(self.prevOptionIdx, notParentUpdCall = True)
+
+        self.setData(fsm.Data.Book.entryImOpenInTOC_UI, notParentUpdCall = True)
 
     def setData(self, newData, **kwargs):
         # NOTE: this is a hack so that we don't consider the 

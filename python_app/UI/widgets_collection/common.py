@@ -194,7 +194,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     cutEntry = False
 
     subsectionContentLabels = []
-    
+
     class __EntryUIs:
         class __EntryUIData:
             def __init__(self, name, column) -> None:
@@ -304,7 +304,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         groupsList[groupName] = True
         fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
 
-        self.render()
+        self.__renderWithScrollAfter()
 
     def scroll_into_view(self, event):
         if not self.shouldScroll:
@@ -331,7 +331,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if count > 200:
                     break
 
-                count +=1
+                count += 1
                 posy = 0
                 pwidget = event.widget
 
@@ -347,6 +347,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.canvas.update()
         except:
             pass
+    
+    def __renderWithScrollAfter(self):
+        self.shouldScroll = False
+        self.render()
+        self.shouldScroll = True
+        self.currEntryWidget.clicked = False
+        self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
@@ -364,23 +371,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
             fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
-        elif broadcasterType == mui.AddExtraImage_BTN:
-            self.render()
+        elif broadcasterType == mui.AddExtraImage_BTN: 
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ImageGroupAdd_BTN:
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.RebuildCurrentSubsectionLatex_BTN:
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.AddGlobalLink_BTN:
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.AddWebLink_BTN:
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
             self.showLinks = not self.showLinks
             self.showLinksForSubsections = []
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             toSubsection = data
             if toSubsection:
@@ -446,18 +453,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        def openSectionOnIdx(widget:_uuicom.TOCLabelWithClick, imIdx):
-            def __cmd(event = None, *args):
-                # open orig material on page
-                bookName = sf.Wr.Manager.Book.getCurrBookName()
-                currTopSection = fsm.Data.Book.currTopSection
+        # def openSectionOnIdx(widget:_uuicom.TOCLabelWithClick, imIdx):
+        #     def __cmd(event = None, *args):
+        #         # open orig material on page
+        #         bookName = sf.Wr.Manager.Book.getCurrBookName()
+        #         currTopSection = fsm.Data.Book.currTopSection
 
-                url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
+        #         url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
                 
-                os.system("open {0}".format(url))
-                event.widget.configure(foreground="white")
+        #         os.system("open {0}".format(url))
+        #         event.widget.configure(foreground="white")
             
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+        #     widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
         def moveTOCtoSubsection(widget:_uuicom.TOCLabelWithClick):
             def __cmd(event = None, *args):
@@ -476,7 +483,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.notify(mcomui.SourceImageLinks_OM)
                     self.notify(mui.ScreenshotLocation_LBL)
 
-                self.scrollToEntry(currSubsection, currImIdx)
+                self.__renderWithScrollAfter()
+                # self.scrollToEntry(currSubsection, currImIdx)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -601,7 +609,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     widget = event.widget
                     fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
                                                                 widget.imIdx)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def showLinksForEntryCmd(event, *args):
                     widget = event.widget
@@ -626,7 +634,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         self.showLinksForSubsections.append(liskShpowId)
 
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def copyEntryCmd(event, *args):
                     widget = event.widget
@@ -660,7 +668,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if timer > 50:
                             break
 
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def pasteEntryCmd(event, *args):
                     widget = event.widget
@@ -675,12 +683,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                     widget.subsection,
                                                                     widget.imIdx,
                                                                     self.cutEntry)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def removeEntryCmd(event, *args):
                     widget = event.widget
                     fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def delGlLinkCmd(event, *args):
                     widget = event.widget
@@ -688,20 +696,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                   widget.sourceSubssection,
                                                   widget.targetImIdx,
                                                   widget.sourceImIdx)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def delWebLinkCmd(event, *args):
                     widget = event.widget
                     gm.GeneralManger.RemoveWebLink(widget.sourceSubssection,
                                                    widget.sourceImIdx,
                                                    widget.sourceWebLinkName)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def addGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
                     self.notify(mcomui.AddGlobalLink_BTN,
                                 [widget.subsection, widget.imIdx])
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def pasteGlLinkCmd(event, *args):
                     widget = event.widget
@@ -717,7 +725,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                 sourceSubsection,
                                                 sourceImIdx,
                                                 sourceTopSection)
-                        self.render()
+                        self.__renderWithScrollAfter()
 
                 def copyGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
@@ -746,7 +754,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     fsm.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
 
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 def openExcerciseMenu(event, *args):
                     exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -773,12 +781,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       newText
                                                                       )
                         self.entryAsETR.reset()
-                        self.render()
+                        self.__renderWithScrollAfter()
                     else:
                         self.entryAsETR.subsection = event.widget.subsection
                         self.entryAsETR.imIdx = event.widget.imIdx
                         self.entryAsETR.widget =event.widget.etrWidget
-                        self.render()
+                        self.__renderWithScrollAfter()
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -885,7 +893,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         self.groupAsETR.subsection = event.widget.subsection
                                         self.groupAsETR.group = event.widget.group
 
-                                    self.render()
+                                    self.__renderWithScrollAfter()
 
                                 if (subsection != self.groupAsETR.subsection) or\
                                     (currImGroupName != self.groupAsETR.group):
@@ -932,7 +940,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
                                     imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
                                     fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
-                                    self.render()
+                                    self.__renderWithScrollAfter()
 
                                 hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
                                 gridRowStartIdx = 1
@@ -1001,13 +1009,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                  [updateEntry])
                             textLabelPage.image = img
 
-                        textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                       text = self.__EntryUIs.full.name, 
-                                                       prefix = "contentFull_" + nameId,
-                                                       row = gridRowStartIdx, 
-                                                       column = self.__EntryUIs.full.column)
-                        textLabelFull.subsection = subsection
-                        textLabelFull.imIdx = k
+                        # textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
+                        #                                text = self.__EntryUIs.full.name, 
+                        #                                prefix = "contentFull_" + nameId,
+                        #                                row = gridRowStartIdx, 
+                        #                                column = self.__EntryUIs.full.column)
+                        # textLabelFull.subsection = subsection
+                        # textLabelFull.imIdx = k
 
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
                                                                              subsection, k, 
@@ -1353,7 +1361,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             showImages.render()
 
                             if not self.showAll:
-                                textLabelFull.render()
+                                # textLabelFull.render()
                                 chkbtnShowPermamently.grid(row = gridRowStartIdx, 
                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
                                 imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
@@ -1395,8 +1403,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
-                        moveTOCtoSubsection(textLabelFull)
-                        _uuicom.bindChangeColorOnInAndOut(textLabelFull)
+                        # moveTOCtoSubsection(textLabelFull)
+                        # _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
 
