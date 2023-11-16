@@ -486,8 +486,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.subsectionClicked = currSubsection
                     self.entryClicked = currImIdx
 
-                self.__renderWithScrollAfter()
-                # self.scrollToEntry(currSubsection, currImIdx)
+                    self.__renderWithScrollAfter()
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
