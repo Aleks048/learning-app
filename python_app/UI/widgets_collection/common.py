@@ -483,6 +483,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.notify(mcomui.SourceImageLinks_OM)
                     self.notify(mui.ScreenshotLocation_LBL)
 
+                    self.subsectionClicked = currSubsection
+                    self.entryClicked = currImIdx
+
                 self.__renderWithScrollAfter()
                 # self.scrollToEntry(currSubsection, currImIdx)
             
@@ -525,15 +528,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
-                    fsm.Data.Book.entryImOpenInTOC_UI = str(imIdx)
-
-                    if not self.showAll:
-                        fsm.Data.Book.currTopSection = subsection.split(".")[0]
-                        fsm.Data.Book.currSection = subsection
-                        fsm.Data.Book.subsectionOpenInTOC_UI = subsection
-                        self.notify(mui.ChooseTopSection_OM)
-                        self.notify(mui.ChooseSubsection_OM)
-                        self.notify(mcomui.SourceImageLinks_OM)
 
                     # mainImage
                     bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
@@ -1009,13 +1003,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                  [updateEntry])
                             textLabelPage.image = img
 
-                        # textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
-                        #                                text = self.__EntryUIs.full.name, 
-                        #                                prefix = "contentFull_" + nameId,
-                        #                                row = gridRowStartIdx, 
-                        #                                column = self.__EntryUIs.full.column)
-                        # textLabelFull.subsection = subsection
-                        # textLabelFull.imIdx = k
+                        textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
+                                                       text = self.__EntryUIs.full.name, 
+                                                       prefix = "contentFull_" + nameId,
+                                                       row = gridRowStartIdx, 
+                                                       column = self.__EntryUIs.full.column)
+                        textLabelFull.subsection = subsection
+                        textLabelFull.imIdx = k
 
                         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
                                                                              subsection, k, 
@@ -1358,10 +1352,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
                             textLabelPage.render()
-                            showImages.render()
+                            if not showImages.alwaysShow:
+                                showImages.render()
 
                             if not self.showAll:
-                                # textLabelFull.render()
+                                textLabelFull.render()
                                 chkbtnShowPermamently.grid(row = gridRowStartIdx, 
                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
                                 imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
@@ -1403,8 +1398,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
-                        # moveTOCtoSubsection(textLabelFull)
-                        # _uuicom.bindChangeColorOnInAndOut(textLabelFull)
+                        moveTOCtoSubsection(textLabelFull)
+                        _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
 
