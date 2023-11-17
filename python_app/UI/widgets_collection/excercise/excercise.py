@@ -295,7 +295,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     currLineCopyIdx = _u.Token.NotDef.int_t
 
-    lineIdxShownInText = _u.Token.NotDef.list_t.copy()
+    lineIdxShownInText = []
     currEtr = _u.Token.NotDef.dict_t.copy()
 
     displayedImages = []
@@ -324,6 +324,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         '''
         for each line add widgets:
         '''
+        if self.currEtr == _u.Token.NotDef.dict_t:
+            self.currEtr = {}           
+
         for i in range(len(lines)):
             # image / text
             if str(i) not in self.lineIdxShownInText:
@@ -374,7 +377,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                     i + 1, 0, text = "To text")
             showTextLabel.lineImIdx = str(i)
 
-            def showTextOrImage(event, *args):
+            def __showTextOrImage(event, *args):
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 widgetlineImIdx = str(event.widget.lineImIdx)
 
                 if widgetlineImIdx in self.lineIdxShownInText:
@@ -382,7 +386,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     text = self.currEtr[widgetlineImIdx].getData()
 
                     if text != self.currEtr[widgetlineImIdx].defaultText:
-                        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
                                                               self.imIdx,
                                                               event.widget.lineImIdx,
@@ -393,9 +396,18 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 else:
                     self.lineIdxShownInText.append(str(event.widget.lineImIdx))
 
+                for lineImIdx in self.lineIdxShownInText:
+                    if lineImIdx in list(self.currEtr.keys()):
+                        text = self.currEtr[lineImIdx].getData()
+                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
+                                                                self.imIdx,
+                                                                lineImIdx,
+                                                                text,
+                                                                bookPath)
+
                 self.render()
 
-            showTextLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [showTextOrImage])
+            showTextLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__showTextOrImage])
             _ucomw.bindChangeColorOnInAndOut(showTextLabel)
             showTextLabel.render()
 
