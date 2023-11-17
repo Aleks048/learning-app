@@ -304,7 +304,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         groupsList[groupName] = True
         fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
 
-        self.__renderWithScrollAfter()
+        self.render()
 
     def scroll_into_view(self, event):
         if not self.shouldScroll:
@@ -354,7 +354,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.shouldScroll = True
         self.currEntryWidget.clicked = False
         self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
-    
+
     def __renderWithoutScroll(self):
         self.shouldScroll = False
         self.render()
@@ -376,8 +376,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
             fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
-        elif broadcasterType == mui.AddExtraImage_BTN: 
-            self.__renderWithScrollAfter()
+        elif broadcasterType == mui.AddExtraImage_BTN:
+            self.entryClicked = entryClicked
+            self.render()
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
             self.__renderWithScrollAfter()

@@ -776,7 +776,7 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
         # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
         # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
-        self.notify(comw.TOC_BOX)
+        self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
 
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
