@@ -259,7 +259,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                                    i)
 
             eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
-                                            eImWidgetName, 120,
+                                            eImWidgetName, imPadLeft,
                                             row = i + 4, column = 0, columnspan = 1000,
                                             resizeFactor = resizeFactor)
             removeEntry = TOCLabelWithClick(rootLabel,

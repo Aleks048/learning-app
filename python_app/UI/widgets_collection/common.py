@@ -327,7 +327,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget_top = posy
 
             count = 1
-            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 350):
+            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 500):
                 if count > 200:
                     break
 
@@ -354,6 +354,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.shouldScroll = True
         self.currEntryWidget.clicked = False
         self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+    
+    def __renderWithoutScroll(self):
+        self.shouldScroll = False
+        self.render()
+        self.shouldScroll = True
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
@@ -472,26 +477,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if not self.showAll:
                     currSubsection = widget.subsection
                     currImIdx = widget.imIdx
-                    currTopSection = currSubsection.split(".")[0]
-                    fsm.Data.Book.currTopSection = currTopSection
-                    fsm.Data.Book.currSection = currSubsection
-                    fsm.Data.Book.subsectionOpenInTOC_UI = currSubsection
-                    fsm.Data.Book.entryImOpenInTOC_UI = currImIdx
-
-                    self.notify(mui.ChooseTopSection_OM)
-                    self.notify(mui.ChooseSubsection_OM)
-                    self.notify(mcomui.SourceImageLinks_OM)
-                    self.notify(mui.ScreenshotLocation_LBL)
 
                     self.subsectionClicked = currSubsection
                     self.entryClicked = currImIdx
 
-                    self.__renderWithScrollAfter()
+                    self.__renderWithoutScroll()
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, shouldScroll = False, 
-                                imPad = 120, link = False, *args):
+        def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
+                                shouldScroll = False, 
+                                imPad = 120, link = False,
+                                *args):
             label:_uuicom.TOCLabelWithClick = event.widget
             imIdx = label.imIdx
             subsection = label.subsection
@@ -507,7 +504,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event, *args):
                 if ((not label.clicked) and ((int(event.type) == 4) or self.showAll)) or\
                     ((not label.clicked) and ((int(event.type) == 35) or self.showAll)):
-                    if (int(event.type) == 4) or (shouldScroll):
+                    if ((int(event.type) == 4) or (shouldScroll)) and (not link):
                         self.currEntryWidget = event.widget
 
                     if shouldScroll:
@@ -527,6 +524,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
+                    if (not link) and shouldScroll and self.shouldScroll:
+                        currTopSection = subsection.split(".")[0]
+                        fsm.Data.Book.currTopSection = currTopSection
+                        fsm.Data.Book.currSection = subsection
+                        fsm.Data.Book.subsectionOpenInTOC_UI = subsection
+                        fsm.Data.Book.entryImOpenInTOC_UI = imIdx
+
+                        self.notify(mui.ChooseTopSection_OM)
+                        self.notify(mui.ChooseSubsection_OM)
+                        self.notify(mcomui.SourceImageLinks_OM)
+                        self.notify(mui.ScreenshotLocation_LBL)
+
+                        self.subsectionClicked = subsection
+                        self.entryClicked = imIdx
 
                     # mainImage
                     bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
@@ -1003,10 +1014,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             textLabelPage.image = img
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                       text = self.__EntryUIs.full.name, 
+                                                       text = self.__EntryUIs.im.name, 
                                                        prefix = "contentFull_" + nameId,
                                                        row = gridRowStartIdx, 
-                                                       column = self.__EntryUIs.full.column)
+                                                       column = self.__EntryUIs.im.column)
                         textLabelFull.subsection = subsection
                         textLabelFull.imIdx = k
 
@@ -1015,10 +1026,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                              "contentShowAlways_" + nameId,
                                                                              self)
                         showImages = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                    text = self.__EntryUIs.im.name,
+                                                    text = self.__EntryUIs.full.name,
                                                     prefix = "contentOfImages_" + nameId,
                                                     row = gridRowStartIdx,
-                                                    column = self.__EntryUIs.im.column)
+                                                    column = self.__EntryUIs.full.column)
                         showImages.imIdx = k
                         showImages.subsection = subsection
                         showImages.clicked = False
@@ -1243,7 +1254,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         linkLabelFull.imIdx = ln.split("_")[-1]
 
                                         _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
-                                        moveTOCtoSubsection(linkLabelFull)
+
+                                        def __moveLinkFull(e, *args):
+                                            widget = e.widget
+                                            self.scrollToEntry(widget.subsection,
+                                                               widget.imIdx)
+
+                                        linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
 
                                         glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                         text = "[im]", 
@@ -1260,7 +1277,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                 [lambda e, *args: __showIMagesONClick(e, 
                                                                                                       glLinksShowImages,
                                                                                                       glLinkSubSecID, 
-                                                                                                      True, 
+                                                                                                      False, 
                                                                                                       150, 
                                                                                                       True, 
                                                                                                       *args)])
