@@ -684,7 +684,7 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
 
         if not re.match("[[\d]+.]*\d+", secPath):
             msg = "\
-The section with path :'{0}' has wrong format.\
+The section with path :'{0}' has wrong format.\n\
 Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
@@ -695,7 +695,8 @@ Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, 
 
         if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
             msg = "\
-The section with path :'{0}' already exists. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+The section with path :'{0}' already exists. \n\
+Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
@@ -704,7 +705,9 @@ The section with path :'{0}' already exists. Can't create section.".format(secPa
             return
         
         msg = "\
-Do you want to create subsection with path :'{0}', text '{1}', \
+Do you want to create subsection \n\
+with path :'{0}', \n\
+text '{1}', \n\
 start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
         response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
         

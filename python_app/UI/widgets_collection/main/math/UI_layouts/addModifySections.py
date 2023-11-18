@@ -88,7 +88,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
 
         DEFAULT_CHANGE_STR = "Do you want to change "
         changeStr = DEFAULT_CHANGE_STR
-        notChangedStr = "for subsection: '{0}' ".format(subsecPath)
+        notChangedStr = "\nfor subsection: '{0}' ".format(subsecPath)
         
         # get start page
         startPage, endPage = self.notify(SetSectionStartPage_ETR)
@@ -99,7 +99,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
             endPage = fsf.Data.Sec.finish(subsecPath)
             pageDataChanged = False
         
-        pageStr = "start page: '{0}', end page: '{1}', ".format(startPage, endPage)
+        pageStr = "\nstart page: '{0}', end page: '{1}', ".format(startPage, endPage)
         
         if pageDataChanged:
             changeStr += pageStr
@@ -114,7 +114,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
             text = fsf.Data.Sec.text(subsecPath)
             nameDataChanged = False
 
-        nameStr = "name: '{0}', ".format(text)
+        nameStr = "\nname: '{0}', ".format(text)
         
         if nameDataChanged:
             changeStr += nameStr

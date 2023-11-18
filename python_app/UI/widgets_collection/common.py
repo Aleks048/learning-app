@@ -1578,6 +1578,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 subsectionLabel.subsection = subsection
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                         [updateSubsection])
+                openPdfOnStartOfTheSection(subsectionLabel)
             else:
                 subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
                                                             nameId, 
@@ -1613,6 +1614,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 subsectionLabel.subsection = subsection
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                         [updateSubsection])
+                openPdfOnStartOfTheSection(subsectionLabel)
             else:
                 subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
                                                             "contentP_" + nameId, 
@@ -1625,8 +1627,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         [updateSubsection])
                 self.subsectionAsETR.widget = subsectionLabel
                 subsectionLabel.focus_force()
-
-        openPdfOnStartOfTheSection(subsectionLabel)
 
         subsectionLabel.render()
 
