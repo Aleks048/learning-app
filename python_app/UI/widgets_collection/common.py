@@ -207,17 +207,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         alwaysShow = __EntryUIData("", 3)
         group = __EntryUIData("", 4)
         link = __EntryUIData("[link]", 6)
-        copyLink = __EntryUIData("[cl]", 7)
-        pasteLink = __EntryUIData("[pl]", 8)
+        copyLink = __EntryUIData("[cl]", 14)
+        pasteLink = __EntryUIData("[pl]", 15)
         changeImSize = __EntryUIData("", 9)
         excercises = __EntryUIData("[ex]", 10)
-        update = __EntryUIData("[update]", 11)
-        delete = __EntryUIData("[delete]", 12)
-        shift = __EntryUIData("[shift]", 13)
-        copy = __EntryUIData("[c]", 14)
-        pasteAfter = __EntryUIData("[pa]", 15)
+        update = __EntryUIData("[update]", 21)
+        delete = __EntryUIData("[delete]", 22)
+        shift = __EntryUIData("[shift]", 23)
+        copy = __EntryUIData("[c]", 7)
+        pasteAfter = __EntryUIData("[pa]", 8)
         showLinks = __EntryUIData("[ShowLinks]", 16)
-        retake = __EntryUIData("[Retake]", 17)
+        retake = __EntryUIData("[Retake]", 20)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -607,7 +607,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.entryClicked = _u.Token.NotDef.str_t
                         self.scroll_into_view(event)
 
-                    _uuicom.closeAllImages(gpframe, self.showAll, link)
+                    _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
 
             __cmd(event, *args)
 
