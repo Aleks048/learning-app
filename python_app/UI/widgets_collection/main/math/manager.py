@@ -445,11 +445,11 @@ class MathMenuManager(wm.MenuManager_Interface):
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
 
-    def renderTocWidget(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.render()
-                return
+    # def renderTocWidget(self):
+    #     for layout in self.layouts:
+    #         if type(layout) == LayoutManagers._Main:
+    #             layout.tocBox.render()
+    #             return
 
     def moveTocToEntry(self, subsection, imIdx):
         for layout in self.layouts:

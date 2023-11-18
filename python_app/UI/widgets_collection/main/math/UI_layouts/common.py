@@ -466,8 +466,6 @@ Please check the data. N o link added")
                                      sourceSubsection,
                                      sourceIDX,
                                      sourceTopSection)
-            
-            mmManager.renderTocWidget()
 
     def cmd(self):
         import generalManger.generalManger as gm
