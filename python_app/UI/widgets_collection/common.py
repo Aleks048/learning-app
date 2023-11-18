@@ -505,6 +505,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             isWdgetLink = "gllink" in str(label).lower().split(".")[-1]
 
             def __cmd(event, *args):
+                if label.alwaysShow and (int(event.type) == 4):
+                    currTopSection = subsection.split(".")[0]
+                    fsm.Data.Book.currTopSection = currTopSection
+                    fsm.Data.Book.currSection = subsection
+                    fsm.Data.Book.subsectionOpenInTOC_UI = subsection
+                    fsm.Data.Book.entryImOpenInTOC_UI = imIdx
+
+                    self.notify(mui.ChooseTopSection_OM)
+                    self.notify(mui.ChooseSubsection_OM)
+                    self.notify(mcomui.SourceImageLinks_OM)
+                    self.notify(mui.ScreenshotLocation_LBL)
+
+                    self.subsectionClicked = subsection
+                    self.entryClicked = imIdx
+
                 if ((not label.clicked) and ((int(event.type) == 4) or self.showAll)) or\
                     ((not label.clicked) and ((int(event.type) == 35) or self.showAll)):
                     if ((int(event.type) == 4) or (shouldScroll)) and (not link):
@@ -1374,10 +1389,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
                             textLabelPage.render()
                             if not showImages.alwaysShow:
-                                showImages.render()
+                                textLabelFull.render()
 
                             if not self.showAll:
-                                textLabelFull.render()
+                                showImages.render()
                                 chkbtnShowPermamently.grid(row = gridRowStartIdx, 
                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
                                 imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
