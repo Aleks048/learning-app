@@ -28,6 +28,7 @@ class OriginalMaterialStructure:
         noteSize = "NoteSize"
         pageSize = "PageSize"
         zoomLevel = "ZoomLevel"
+        pagesToBeAdded = "PagesToBeAdded"
 
         # toc page
         tocPage = "TocPage"
@@ -38,7 +39,8 @@ class OriginalMaterialStructure:
         PubProp.tocPage : _u.Token.NotDef.str_t,
         PubProp.noteSize : _u.Token.NotDef.list_t.copy(),
         PubProp.pageSize : _u.Token.NotDef.list_t.copy(),
-        PubProp.zoomLevel : _u.Token.NotDef.str_t
+        PubProp.zoomLevel : _u.Token.NotDef.str_t,
+        PubProp.pagesToBeAdded : _u.Token.NotDef.str_t
     }
 
     template = {
@@ -182,6 +184,15 @@ class OriginalMaterialStructure:
         books = cls.__getMaterailsDict()
         try:
             return books[omName][OriginalMaterialStructure.PubProp.noteSize]
+        except:
+            log.autolog("No OM with name '{0}'".format(omName))
+            return None
+
+    @classmethod
+    def getMaterialPagesToBeAdded(cls, omName):
+        books = cls.__getMaterailsDict()
+        try:
+            return books[omName][OriginalMaterialStructure.PubProp.pagesToBeAdded]
         except:
             log.autolog("No OM with name '{0}'".format(omName))
             return None
