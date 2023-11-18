@@ -604,7 +604,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if int(event.type) == 4:
                             self.currEntryWidget = event.widget
 
-                        self.entryClicked = _u.Token.NotDef.str_t
+                        # self.entryClicked = _u.Token.NotDef.str_t
                         self.scroll_into_view(event)
 
                     _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
