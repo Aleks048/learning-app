@@ -296,7 +296,7 @@ def addExtraEntryImagesWidgets(rootLabel,
     return outLabels
 
 
-def closeAllImages(gpframe, showAll, isWidgetLink):
+def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None]):
     '''
     close all images of children of the widget
     '''
@@ -320,7 +320,8 @@ def closeAllImages(gpframe, showAll, isWidgetLink):
                 idx = str(child).split("_")[-1]
                 alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                if (not alwaysShow) or showAll or isWidgetLink: 
+                if ((not alwaysShow) or showAll or isWidgetLink) and\
+                    ([subsection,idx] != secondIm): 
                     try:
                         child.destroy()
                     except:

@@ -174,6 +174,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsectionClicked = _u.Token.NotDef.str_t
     entryClicked = _u.Token.NotDef.str_t
+    secondEntryClicked = _u.Token.NotDef.str_t
 
     widgetToScrollTo = None
 
@@ -476,11 +477,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event = None, *args):
                 widget = event.widget
                 if not self.showAll:
-                    currSubsection = widget.subsection
                     currImIdx = widget.imIdx
 
-                    self.subsectionClicked = currSubsection
-                    self.entryClicked = currImIdx
+                    if currImIdx == self.secondEntryClicked:
+                        self.secondEntryClicked = None
+                    else:
+                        self.secondEntryClicked = currImIdx
 
                     self.__renderWithoutScroll()
             
@@ -509,7 +511,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.currEntryWidget = event.widget
 
                     if shouldScroll:
-                        _uuicom.closeAllImages(gpframe, self.showAll, link)
+                        _uuicom.closeAllImages(gpframe, self.showAll, link,
+                                               [subsection, self.secondEntryClicked])
 
                     if (not label.alwaysShow) and (not isWdgetLink):
                         self.entryClicked = imIdx
@@ -525,7 +528,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
-                    if (not link) and shouldScroll and self.shouldScroll:
+                    if (not link) and shouldScroll and self.shouldScroll and (imIdx != self.secondEntryClicked):
                         currTopSection = subsection.split(".")[0]
                         fsm.Data.Book.currTopSection = currTopSection
                         fsm.Data.Book.currSection = subsection
@@ -1358,11 +1361,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         showImages.alwaysShow = alwaysShow
 
-                        if ((subsection == self.subsectionClicked and str(k) == self.entryClicked) or alwaysShow) and\
+                        if ((((subsection == self.subsectionClicked) and (str(k) == self.entryClicked)) or alwaysShow) or\
+                            ((subsection == self.subsectionClicked) and (str(k) == self.secondEntryClicked))) and\
                             (not self.showAll):
                             showImages.clicked = False
 
-                            if not (subsection == self.subsectionClicked and str(k) == self.entryClicked):
+                            if (not (subsection == self.subsectionClicked and str(k) == self.entryClicked)):
                                 showImages.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                             else:
                                 self.widgetToScrollTo = showImages
