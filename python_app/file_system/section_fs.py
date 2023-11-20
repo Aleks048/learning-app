@@ -210,10 +210,8 @@ class SectionInfoStructure:
                             targetSubsection, targetImIdx,
                             cutEntry):
         # CORE OPERATIONS
-        # if (sourceSubsection == targetSubsection) \
-        #         and (int(sourceImIdx) <= int(targetImIdx)) \
-        #         and cutEntry:
-        #     targetImIdx = str(int(targetImIdx) + 1)
+        if (sourceSubsection == targetSubsection) and (sourceImIdx == targetImIdx):
+            targetImIdx = str(int(targetImIdx) + 1)
 
          # ask the user if we wnat to proceed.
         cutEntryStr = "cut" if cutEntry else "copy"
@@ -799,8 +797,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
 
-        eImList:list = extraImagesDict.pop(mainImIdx)
-        eImTextsList:list = extraImTextDict.pop(mainImIdx)
+        eImList:list = extraImagesDict.pop(mainImIdx).copy()
+        eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
 
         if eImIdx != None:
             eImList.pop(eImIdx)
