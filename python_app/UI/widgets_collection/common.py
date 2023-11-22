@@ -202,8 +202,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.name = name
                 self.column = column
 
-        im = __EntryUIData("[im]", 1)
-        full = __EntryUIData("[full]", 2)
+        im = __EntryUIData("[im]", 2)
+        full = __EntryUIData("[full]", 1)
         alwaysShow = __EntryUIData("", 3)
         group = __EntryUIData("", 4)
         link = __EntryUIData("[link]", 6)

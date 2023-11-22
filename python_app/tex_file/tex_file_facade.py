@@ -89,7 +89,7 @@ class Wr:
             params['font.size'] = fontSize
             params['font.family'] = "serif"
             params['text.usetex'] = True
-            params['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb}'
+            params['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb, dsfont}'
             params['figure.facecolor'] = imageColor
 
             if "excercise" in tex.lower():
