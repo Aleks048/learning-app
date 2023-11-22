@@ -215,7 +215,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         delete = __EntryUIData("[delete]", 22)
         shift = __EntryUIData("[shift]", 23)
         copy = __EntryUIData("[c]", 7)
-        pasteAfter = __EntryUIData("[pa]", 8)
+        pasteAfter = __EntryUIData("[p]", 8)
         showLinks = __EntryUIData("[ShowLinks]", 16)
         retake = __EntryUIData("[Retake]", 20)
 
