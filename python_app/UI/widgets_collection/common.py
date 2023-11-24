@@ -1667,8 +1667,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                 [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
 
+            def __updateStartPage(e, subsection, *args):
+                newStartPage = e.widget.get()
+                fsm.Data.Sec.start(subsection, newStartPage)
+                omName = fsm.Data.Book.currOrigMatName
+                omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+
+                ocf.Wr.PdfApp.openPDF(omFilepath, newStartPage)
+
+            startPage = fsm.Data.Sec.start(subsection)
+            changeStartPage = _uuicom.ImageSize_ETR(locFrame,
+                                                      prefix = "contentUpdateEntryText" + nameId,
+                                                      row = 0, 
+                                                      column = 3,
+                                                      imIdx = -1,
+                                                      text = startPage)
+            changeStartPage.subsection = subsection
+            changeStartPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                    [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
+
             openContentLabel.render()
             rebuildLatex.render()
+            changeStartPage.render()
         else:
             openContentLabel = _uuicom.TOCLabelWithClick(locFrame, 
                                                  prefix = "openContentLabel" + subsection.replace(".", ""),

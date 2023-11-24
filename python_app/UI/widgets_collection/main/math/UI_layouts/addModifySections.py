@@ -634,5 +634,8 @@ class CreateNewSubsection_BTN(ww.currUIImpl.Button,
         newSecStartPage, newSecEndPage = self.notify(SetSectionStartPage_ETR)
         secPath = self.notify(NewSectionPath_ETR)
 
+        fsf.Data.Book.entryImOpenInTOC_UI = "-1"
+        # fsf.Data.Book.subsectionOpenInTOC_UI = secPath 
+
         gm.GeneralManger.AddSubsection(secPath, newSecName, newSecStartPage, newSecEndPage)
 
