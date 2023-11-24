@@ -1677,7 +1677,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             startPage = fsm.Data.Sec.start(subsection)
             changeStartPage = _uuicom.ImageSize_ETR(locFrame,
-                                                      prefix = "contentUpdateEntryText" + nameId,
+                                                      prefix = "contentUpdateStartPageEntryText" + subsection.replace(".", ""),
                                                       row = 0, 
                                                       column = 3,
                                                       imIdx = -1,

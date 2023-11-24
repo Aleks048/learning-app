@@ -301,34 +301,36 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
     close all images of children of the widget
     '''
     for parent in gpframe.getChildren():
-        for child in parent.getChildren():
-            if "contentOfImages_" in str(child):
-                subsection = str(child).split("_")[-2].replace("$", ".")
-                idx = str(child).split("_")[-1]
-                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+        # NOTE this is not an ideal hack to get the 
+        if "getChildren" in dir(parent):
+            for child in parent.getChildren():
+                if "contentOfImages_" in str(child):
+                    subsection = str(child).split("_")[-2].replace("$", ".")
+                    idx = str(child).split("_")[-1]
+                    alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                if (not alwaysShow) or showAll: 
+                    if (not alwaysShow) or showAll: 
+                        child.clicked = False
+                    else: 
+                        child.clicked = True
+
+                if "contentGlLinksOfImages_" in str(child):
                     child.clicked = False
-                else: 
-                    child.clicked = True
 
-            if "contentGlLinksOfImages_" in str(child):
-                child.clicked = False
+                if dc.UIConsts.imageWidgetID in str(child):
+                    subsection = str(child).split("_")[-2].replace("$", ".")
+                    idx = str(child).split("_")[-1]
+                    alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-            if dc.UIConsts.imageWidgetID in str(child):
-                subsection = str(child).split("_")[-2].replace("$", ".")
-                idx = str(child).split("_")[-1]
-                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
-
-                if ((not alwaysShow) or showAll or isWidgetLink) and\
-                    ([subsection,idx] != secondIm):
-                    if isWidgetLink:
-                        if idx == linkIdx:
+                    if ((not alwaysShow) or showAll or isWidgetLink) and\
+                        ([subsection,idx] != secondIm):
+                        if isWidgetLink:
+                            if idx == linkIdx:
+                                child.destroy()
+                                return
+                            else:
+                                continue
+                        try:
                             child.destroy()
-                            return
-                        else:
-                            continue
-                    try:
-                        child.destroy()
-                    except:
-                        pass
+                        except:
+                            pass
