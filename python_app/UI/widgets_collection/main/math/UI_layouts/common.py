@@ -326,7 +326,7 @@ class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
 
     def updateOptions(self, secPath):
         num = list(fsm.Wr.Links.LinkDict.get(secPath).keys())
-        names = list(fsm.Wr.Links.LinkDict.get(secPath).values())
+        names = [i.replace("\n", " ")[:20] for i in list(fsm.Wr.Links.LinkDict.get(secPath).values())]
         formatted = []
 
         for i in range(len(num)):

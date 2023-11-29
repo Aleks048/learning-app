@@ -1457,6 +1457,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if not label.alwaysShow:
                             self.subsectionClicked = subsection
+                    
+                    fsm.Data.Book.subsectionOpenInTOC_UI = subsection
+                    fsm.Data.Book.currSection = subsection
+                    fsm.Data.Book.currTopSection = subsection.split(".")[0]
+                    fsm.Data.Book.entryImOpenInTOC_UI = "-1"
+      
+                    self.notify(mui.ChooseTopSection_OM)
+                    self.notify(mui.ChooseSubsection_OM)
+                    self.notify(mcomui.SourceImageLinks_OM)
+                    self.notify(mui.ScreenshotLocation_LBL)
 
                     self.scroll_into_view(event)
                 else:
