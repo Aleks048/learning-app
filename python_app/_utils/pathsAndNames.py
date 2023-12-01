@@ -246,7 +246,7 @@ class Names:
     class Entry:
         class Line:
             def name(imIdx, lineIdx):
-                return f"{imIdx}_{lineIdx}.png"
+                return f"_{lineIdx}.png"
 
         def getEntryNameID(subsection, idx):
             subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
