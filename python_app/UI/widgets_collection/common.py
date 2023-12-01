@@ -536,7 +536,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     imageGroups = list(fsm.Data.Sec.imagesGroupsList(subsection).keys())
                     imageGroupidx = fsm.Data.Sec.imagesGroupDict(subsection)[imIdx]
-                    imageGroup = imageGroups[imageGroupidx]
+                    imageGroup = imageGroups[int(imageGroupidx)]
 
                     shouldShowGroup = fsm.Data.Sec.imagesGroupsList(subsection)[imageGroup]
 
@@ -799,7 +799,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imLinkDict[self.entryAsETR.imIdx] = newText
                         fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection, imLinkDict)
                         fsm.Wr.SectionInfoStructure.rebuildEntryLatex(self.entryAsETR.subsection,
-                                                                      _upan.Names.Entry.getEntryNameID,
                                                                       self.entryAsETR.imIdx,
                                                                       newText
                                                                       )
@@ -986,9 +985,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, 
                                                    tk.StringVar(), currImGroupName, *imagesGroups)
 
-                        def getEntryImg(tex, subsection, nameId):
-                            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
-                            entryImgPath = os.path.join(secreenshotPath, f"_{nameId}.png")
+                        def getEntryImg(tex, subsection, imIdx):
+                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                            entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
+                                                                                              subsection, 
+                                                                                              imIdx)
 
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
                                 result = Image.open(entryImgPath)
@@ -998,7 +999,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             return result
 
                         latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
-                        pilIm = getEntryImg(latexTxt, subsection, nameId)
+                        pilIm = getEntryImg(latexTxt, subsection, k)
 
                         shrink = 0.7
                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
@@ -1333,7 +1334,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         glLinkSubsectioLbl.render()
 
                                         latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                                        pilIm = getEntryImg(latexTxt, subsection, k + "_" + ln)
+                                        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                                        linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
+                                                                                        subsection,
+                                                                                        k,
+                                                                                        ln)
+
+                                        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
+                                            pilIm = Image.open(linkFilepath)
+                                        else:
+                                            pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
 
                                         shrink = 0.7
                                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
@@ -1550,12 +1560,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     sections[subsection]["name"] = newText
                     fsm.Data.Book.sections = sections
                     fsm.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsectionAsETR.subsection,
-                                                                    _upan.Names.Subsection.formatSectionText,
                                                                     _upan.Names.Subsection.getTopSectionPretty)
                 else:
                     fsm.Data.Sec.text(self.subsectionAsETR.subsection, newText)
                     fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsectionAsETR.subsection,
-                                                                    _upan.Names.Subsection.formatSectionText,
                                                                     _upan.Names.Subsection.getSubsectionPretty)
                 self.subsectionAsETR.reset()
                 self.render()
@@ -1606,8 +1614,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
                 fileId = _upan.Names.Subsection.formatSectionText(subsection)
 
-                secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
-                subsectionImgPath = os.path.join(secreenshotPath, f"_sub_{fileId}.png")
+                subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                        sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        subsection)
 
                 if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
                     result = Image.open(subsectionImgPath)

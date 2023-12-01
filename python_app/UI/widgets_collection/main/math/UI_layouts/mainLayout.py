@@ -355,7 +355,11 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.notify(commw.SourceImageLinks_OM)
 
         lf.Wr.MainLayout.set()
-    
+
+    def updateOptions(self, newMenuOptions):
+        self.notify(ImageGenerationRestart_BTN)
+        return super().updateOptions(newMenuOptions)
+
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
         if broadcasterType == ChooseTopSection_OM:
             self.updateOptions(newOptionList)
@@ -565,7 +569,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
         def _createTexForTheProcessedImage():
             import generalManger.generalManger as gm
 
-            if not re.match("^[0-9]+$", self.dataFromUser[0]):
+            if not re.match("^[0-9]+$", str(self.dataFromUser[0])):
                 msg = "Incorrect image index \nId: '{0}'.".format(self.dataFromUser[0])
                 wm.UI_generalManager.showNotification(msg, True)
 
@@ -614,7 +618,7 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
         for i in range(len(self.labelOptions)):
             if self.labelOptions[i] == self.text:
                 nextButtonName = self.labelOptions[(i+1)%len(self.labelOptions)]
-                self.dataFromUser[i] = self.notify(ImageGeneration_ETR, sectionImIndex) 
+                self.dataFromUser[i] = str(self.notify(ImageGeneration_ETR, sectionImIndex))
                 buttonNamesToFunc[self.labelOptions[i]]()
                 self.updateLabel(nextButtonName)
                 break
@@ -657,8 +661,13 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
-            currImIdx = str(int(fsf.Wr.SectionCurrent.getImIDX()) + 1)
-            self.setData(currImIdx)
+            currImIdx = int(fsf.Wr.SectionCurrent.getImIDX())
+            if currImIdx != 0:
+                nextImIdx = str(currImIdx + 1)
+            else:
+                nextImIdx = currImIdx
+            self.setData(nextImIdx)
+            return
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
             self.setData(dataToSet)

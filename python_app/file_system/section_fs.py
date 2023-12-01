@@ -343,15 +343,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
        
         if imIdx == list(imLinkDict.keys())[-1]:
-            imName = _upan.Names.getImageName(imIdx, subsection)
+            imName = _upan.Names.getImageName(imIdx)
             ocf.Wr.FsAppCalls.deleteFile(os.path.join(imagesPath, imName + ".png"))
         else:
             # take care of the rest of the images in the subsesction
             for imLinkId in list(imLinkDict.keys()):
                 if int(imLinkId) > int(imIdx):
                     # move the main image files
-                    imNameOld = _upan.Names.getImageName(imLinkId, subsection)
-                    imNameNew = _upan.Names.getImageName(str(int(imLinkId) - 1), subsection)
+                    imNameOld = _upan.Names.getImageName(imLinkId)
+                    imNameNew = _upan.Names.getImageName(str(int(imLinkId) - 1))
                     ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
                                             os.path.join(imagesPath, imNameNew + ".png"))
                     
@@ -602,8 +602,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
             if int(imLinkId) >= int(imIdx):
                 # move the main image files
-                imNameOld = _upan.Names.getImageName(imLinkId, subsection)
-                imNameNew = _upan.Names.getImageName(str(int(imLinkId) + 1), subsection)
+                imNameOld = _upan.Names.getImageName(imLinkId)
+                imNameNew = _upan.Names.getImageName(str(int(imLinkId) + 1))
                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
                                         os.path.join(imagesPath, imNameNew + ".png"))
 
@@ -731,7 +731,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             ocf.Wr.FsAppCalls.copyFile(extraImFilenames[i][0], extraImFilenames[i][1])
 
         tex = imLinkDict[imIdx]
-        imNameNew = _upan.Names.getImageName(targetImIdx, targetSubsection)
+        imNameNew = _upan.Names.getImageName(targetImIdx)
         tff.Wr.TexFileUtils.fromTexToImage(tex,
                                            os.path.join(imagesPath, imNameNew + ".png"))
 
@@ -847,48 +847,40 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         for k, v in imLinkDict.items():
             if int(k) > int(startImIdx):
-                cls.rebuildEntryLatex(subsection, 
-                                    _upan.Names.Entry.getEntryNameID,
+                cls.rebuildEntryLatex(subsection,
                                     k,
                                     v)
 
     @classmethod
     def rebuildEntryLatex(cls, 
-                          subsection, 
-                          fromSubAndEntryIdxToNameId,
+                          subsection,
                           imIdx,
                           linkText):
-        secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        subsection)        
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
+                                                                        subsection, 
+                                                                        imIdx)
 
-        filename = "_" + fromSubAndEntryIdxToNameId(subsection, imIdx) + ".png"
-        entryImgPath = os.path.join(secreenshotPath, filename)
         tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(imIdx, linkText)
 
         tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
 
     @classmethod
     def rebuildTopSectionLatex(cls, topSection,
-                               fromSubSectionToFileID,
                                createPrettyTopSection):
-        topSectionPath = _upan.Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                topSection)
-        # top section image
-        filename = "_top_" + fromSubSectionToFileID(topSection) + ".png"
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        topsSctionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(currBookPath, 
+                                                                                    topSection)
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
-        topsSctionImgPath = os.path.join(topSectionPath, filename)
         tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
 
     @classmethod
     def rebuildSubsectionImOnlyLatex(cls, subsection,
-                                        fromSubSectionToFileID,
                                         createPrettySubSection):
-        secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        subsection)
-        # subsection image
-        filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))
-        subsectionImgPath = os.path.join(secreenshotPath, filename)
+        subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                        sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        subsection)
         tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
 
     @classmethod
@@ -902,13 +894,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
         secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                         subsection)
-        topSectionPath = _upan.Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                topSection)
 
         groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 
         for k, v in imLinkDict.items():
-            cls.rebuildEntryLatex(subsection, fromSubAndEntryIdxToNameId, k, v)
+            cls.rebuildEntryLatex(subsection, k, v)
         
         for g in groups:
             filename = "_g_" + fromGroupNameToFilename(g) + ".png"
@@ -917,27 +907,33 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
 
         # subsection image
-        filename = "_sub_" + fromSubSectionToFileID(subsection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))
-        subsectionImgPath = os.path.join(secreenshotPath, filename)
+        subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                        sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        subsection)
         tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
 
         # top section image
-        filename = "_top_" + fromSubSectionToFileID(topSection) + ".png"
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
-        topsSctionImgPath = os.path.join(topSectionPath, filename)
+        topsSctionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
+                                                        sf.Wr.Manager.Book.getCurrBookName(), 
+                                                        topSection)
         tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
 
         # rebuild web links
         imGlLinkDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
         for k, ld in imGlLinkDict.items():
             if ld != _u.Token.NotDef.str_t:
                 for ln, lk in ld.items():
                     if "http" in lk:
                         latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                        filename = "_" + fromSubAndEntryIdxToNameId(subsection, k + "_" + ln) + ".png"
-                        linkImgPath = os.path.join(secreenshotPath, filename)
-                        tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkImgPath)
+                        linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
+                                                                                        subsection,
+                                                                                        k,
+                                                                                        ln)
+                        tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath)
 
     @classmethod
     def removeSection(cls, sectionPath):
@@ -997,10 +993,6 @@ class SectionCurrent:
         currSectionPath = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currTopSection)
         childrensList = bfs.BookInfoStructure.getSubsectionsList(currSectionPath)
         return childrensList
-
-    @classmethod
-    def getSectionPdfName(cls):
-        return cls.getSectionNameWprefix() + "_" + "main.pdf"
 
     @classmethod
     def getSectionNameWprefix(cls):

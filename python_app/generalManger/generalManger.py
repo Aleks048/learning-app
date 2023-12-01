@@ -286,7 +286,7 @@ The correct extra image was not created for \n\
                     if id == imIdx:
                         #remove the image
                         prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                        _upan.Names.getImageName(str(imIdx), subsection) + ".png")
+                                        _upan.Names.getImageName(str(imIdx)) + ".png")
                         ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
 
                         names.append(name)

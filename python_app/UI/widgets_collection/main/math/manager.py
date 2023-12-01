@@ -79,6 +79,7 @@ class LayoutManagers:
             
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
+            chooseSubsection_OM.addListenerWidget(imageGenerationRestart_BTN)
             chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
             chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 

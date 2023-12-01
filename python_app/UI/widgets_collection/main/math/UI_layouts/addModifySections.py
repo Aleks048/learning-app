@@ -347,8 +347,12 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
 
         currSubsection = fsf.Data.Book.subsectionOpenInTOC_UI
         currImIdx = fsf.Data.Book.entryImOpenInTOC_UI
-        currOMName = fsf.Data.Sec.origMatNameDict(currSubsection)[currImIdx]
-        pagesToBeAdded = fsf.Wr.OriginalMaterialStructure.getMaterialPagesToBeAdded(currOMName)
+
+        if currImIdx != _u.Token.NotDef.str_t:
+            currOMName = fsf.Data.Sec.origMatNameDict(currSubsection)[currImIdx]
+            pagesToBeAdded = fsf.Wr.OriginalMaterialStructure.getMaterialPagesToBeAdded(currOMName)
+        else:
+            pagesToBeAdded = _u.Token.NotDef.str_t
 
         return "\
 Working section path: {0}. Name: '{1}'.\

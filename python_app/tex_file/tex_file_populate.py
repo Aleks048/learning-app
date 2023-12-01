@@ -135,7 +135,7 @@ class TexFilePopulate (dc.AppCurrDataAccessToken):
 	" + tfm.TexFileModify.getTOClineWoImage(linkTextFormatted) + "\n\
 }\n")
             else:
-                imName = _upan.Names.getImageName(id, subsection)
+                imName = _upan.Names.getImageName(id)
                 imagePath = os.path.join(_upan.Paths.Screenshot.getAbs(bookPath, subsection),
                                         imName)
                 log.autolog(imagePath)

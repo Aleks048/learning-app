@@ -67,7 +67,7 @@ class TexFileModify:
     
     def __getMainImageLine(subsectionNum, imIdx):
         return
-        extraImagePath = _upan.Names.getImageName(imIdx, subsectionNum)
+        extraImagePath = _upan.Names.getImageName(imIdx)
         return "\myTarget{" + extraImagePath + "}{" + imIdx + "}"
 
     @classmethod

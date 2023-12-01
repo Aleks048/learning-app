@@ -57,7 +57,7 @@ class Paths:
         def getAbs(bookPath, section = _u.Token.NotDef.str_t, *args):
             relFilepath = Paths.Section.getRel(bookPath, section)
             return os.path.join(bookPath, relFilepath)
-        
+
         @bookNameArg_dec
         def getRel(_, subsection, *args):
             if subsection == _u.Token.NotDef.str_t:           
@@ -106,18 +106,11 @@ class Paths:
     class Screenshot:
         @bookNameArg_dec
         def getRel(bookPath, subsection):
-            secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
-            if secNameWPrefix == _u.Token.NotDef.str_t:
-                return "Screenshot location not defined yet."
-            else:
-                return  os.path.join(Paths.Section.getRel(bookPath, subsection),
-                                    secNameWPrefix + "_images")
+            return  os.path.join(Paths.Section.getRel(bookPath, subsection), "_images")
 
         @bookNameArg_dec
         def getAbs(bookPath,  subsection, *args):
-            secNameWPrefix = _upan.Names.addSectionPrefixToName(subsection)
-            return  os.path.join(Paths.Section.getAbs(bookPath, subsection), 
-                                secNameWPrefix + "_images")
+            return  os.path.join(Paths.Section.getAbs(bookPath, subsection), "_images")
         
         @bookNameArg_dec
         def getRel_formatted(*args):
@@ -141,15 +134,40 @@ class Paths:
             @bookNameArg_dec
             def getMainEntryImageAbs(bookPath, subsection, imIdx, *args):
                 screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
-                mainImageName = _upan.Names.getImageName(str(imIdx), subsection)
+                mainImageName = Names.getImageName(str(imIdx))
+                return os.path.join(screenshotFolder,  mainImageName + ".png")
+
+            @bookNameArg_dec
+            def getMainEntryTexImageAbs(bookPath, subsection, imIdx, *args):
+                screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
+                mainImageName = Names.getImageName("_" + str(imIdx))
                 return os.path.join(screenshotFolder,  mainImageName + ".png")
 
             @bookNameArg_dec
             def getExtraEntryImageAbs(bookPath, subsection, imIdx, *args):
                 extraImName = args[0]
-                screenshotFolder = _upan.Paths.Screenshot.getAbs(bookPath, subsection)
-                extraImFilename = _upan.Names.getExtraImageFilename(str(imIdx), subsection, extraImName)
+                screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
+                extraImFilename = Names.getExtraImageFilename(str(imIdx), subsection, extraImName)
                 return os.path.join(screenshotFolder, extraImFilename + ".png")
+
+            @bookNameArg_dec
+            def getSubsectionEntryImageAbs(bookPath, subsection, *args):
+                screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
+                return os.path.join(screenshotFolder, "_sub.png")
+
+            @bookNameArg_dec
+            def getTopSectionEntryImageAbs(bookPath, topSection, *args):
+                topSectionPath = Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                topSection)
+                return os.path.join(topSectionPath, "_top.png")
+
+            @bookNameArg_dec
+            def getWebLinkImageAbs(bookPath, subsection, imIdx, ln, *args):
+                linkName =  str(imIdx + "_" + ln).replace(".", "")
+                linkName = linkName.replace(" ", "$")
+                filename = "_" + linkName
+                screenshotFolder = Paths.Screenshot.getAbs(bookPath, subsection)
+                return os.path.join(screenshotFolder, f"{filename}.png")
                 
   
     class TexFiles:
@@ -208,16 +226,13 @@ class Paths:
 class Names:
     def addSectionPrefixToName(subsection):
         return fsf.Data.Book.sections_prefix + "_" + subsection
-    
-    def removeSectionPrefixFromName(subsection:str):
-        return subsection.replace(fsf.Data.Book.sections_prefix + "_", "")
-    
-    def getImageName(imIdx, subsection):
-        return imIdx + "__" + subsection
+
+    def getImageName(imIdx):
+        return imIdx
     
     @classmethod
     def getExtraImageFilename(cls, mainImIdx, subsection, extraImName):
-        return cls.getImageName(mainImIdx, subsection) + "__e__{0}".format(extraImName)
+        return cls.getImageName(mainImIdx) + "__e__{0}".format(extraImName)
     
     def getSubsectionFilesEnding(idx):
         return str(math.floor(int(idx) / 5))
