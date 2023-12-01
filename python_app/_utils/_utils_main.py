@@ -172,10 +172,13 @@ class JSON:
 
     @classmethod
     def saveFilesToDisk(cls):
+        import outside_calls.outside_calls_facade as ocf
+
         for fp, data in cls.__tempFiles.items():
-            with open(fp, 'w') as f:
-                jsonObj = json.dumps(data, indent=4)
-                f.write(jsonObj)
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fp):
+                with open(fp, 'w') as f:
+                    jsonObj = json.dumps(data, indent=4)
+                    f.write(jsonObj)
 
     def createFromTemplate(path, template):
         with open(path, "w+") as f:

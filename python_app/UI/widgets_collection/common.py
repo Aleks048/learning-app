@@ -353,8 +353,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.shouldScroll = False
         self.render()
         self.shouldScroll = True
-        self.currEntryWidget.clicked = False
-        self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+
+        if self.currEntryWidget != None:
+            self.currEntryWidget.clicked = False
+            try:
+                self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+            except:
+                pass
 
     def __renderWithoutScroll(self):
         self.shouldScroll = False
@@ -1772,7 +1777,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         super().render(widjetObj, renderData, **kwargs)
 
         if self.widgetToScrollTo != None:
-            self.widgetToScrollTo.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+            try:
+                self.widgetToScrollTo.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+            except:
+                pass
 
         if self.openedMainImg != None and shouldScroll:
             try:

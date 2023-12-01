@@ -341,10 +341,16 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         
 
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
-       
+
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
         if imIdx == list(imLinkDict.keys())[-1]:
             imName = _upan.Names.getImageName(imIdx)
             ocf.Wr.FsAppCalls.deleteFile(os.path.join(imagesPath, imName + ".png"))
+            imTexPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookpath,
+                                                                              subsection,
+                                                                              imIdx)
+            ocf.Wr.FsAppCalls.deleteFile(imTexPath)
         else:
             # take care of the rest of the images in the subsesction
             for imLinkId in list(imLinkDict.keys()):
@@ -354,7 +360,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                     imNameNew = _upan.Names.getImageName(str(int(imLinkId) - 1))
                     ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
                                             os.path.join(imagesPath, imNameNew + ".png"))
-                    
+                    imTexNameOld = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookpath,
+                                                                                         subsection,
+                                                                                         imLinkId)
+                    imTexNameNew = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookpath,
+                                                                                         subsection,
+                                                                                         str(int(imLinkId) - 1))
+                    ocf.Wr.FsAppCalls.moveFile(imTexNameOld, imTexNameNew)
+
                     # move the extra images
                     if imLinkId in list(extraImagesDict.keys()):
                         extraImNames = extraImagesDict[imLinkId]
@@ -486,9 +499,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             efs.EntryInfoStructure.removeEntry(subsection, imIdx, currBookName)
 
             # track all the changes berore and after removal
-            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
             cls.rebuildEntriesBatch(subsection, imIdx)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
     def shiftEntryUp(cls, subsection, imIdx, shouldConfirm = True):
@@ -607,11 +620,13 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 ocf.Wr.FsAppCalls.moveFile(os.path.join(imagesPath, imNameOld + ".png"),
                                         os.path.join(imagesPath, imNameNew + ".png"))
 
-                oldLinkImgName = _upan.Names.Entry.getEntryNameID(subsection, imLinkId)
-                newLinkImgName = _upan.Names.Entry.getEntryNameID(subsection, str(int(imLinkId) + 1))
-                secreenshotPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
-                oldEntryImgPath = os.path.join(secreenshotPath, f"_{oldLinkImgName}.png")
-                newEntryImgPath = os.path.join(secreenshotPath, f"_{newLinkImgName}.png")
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                oldEntryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath,
+                                                                                     subsection, 
+                                                                                     imLinkId)
+                newEntryImgPath =_upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath,
+                                                                                    subsection,
+                                                                                    str(int(imLinkId) + 1))
                 ocf.Wr.FsAppCalls.moveFile(oldEntryImgPath, newEntryImgPath)
 
                 # move the extra images
@@ -652,6 +667,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         log.autolog(msg)
 
         if shouldConfirm:
+            oldEntryImOpenInTOC_UI = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI)
+            bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI,
+                                                 str(int(oldEntryImOpenInTOC_UI) + 1))
+
             # update the links on the OM file
             imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
 
@@ -846,7 +865,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
 
         for k, v in imLinkDict.items():
-            if int(k) > int(startImIdx):
+            if int(k) >= int(startImIdx):
                 cls.rebuildEntryLatex(subsection,
                                     k,
                                     v)

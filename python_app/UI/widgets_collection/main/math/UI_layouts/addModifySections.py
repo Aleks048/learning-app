@@ -348,7 +348,7 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         currSubsection = fsf.Data.Book.subsectionOpenInTOC_UI
         currImIdx = fsf.Data.Book.entryImOpenInTOC_UI
 
-        if currImIdx != _u.Token.NotDef.str_t:
+        if currImIdx in list(fsf.Data.Sec.origMatNameDict(currSubsection).keys()):
             currOMName = fsf.Data.Sec.origMatNameDict(currSubsection)[currImIdx]
             pagesToBeAdded = fsf.Wr.OriginalMaterialStructure.getMaterialPagesToBeAdded(currOMName)
         else:
