@@ -153,12 +153,6 @@ class SectionInfoStructure:
             imagesFolderFSPath = \
                 ocf.Wr.FsAppCalls.createDir(_upan.Paths.TexFiles.Output.getAbs(bookpath, sectionPath))
             
-            # create _con and _toc .tex files
-            _waitDummy = \
-                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.Content.getAbs(bookpath, sectionPath))
-            _waitDummy = \
-                ocf.Wr.FsAppCalls.createFile(_upan.Paths.TexFiles.Main.getAbs(bookpath, sectionPath))
-            
 
         # copy the settings 
         vscodeSettings = os.path.join(os.getenv("BOOKS_TEMPLATES_PATH"), "settings.json")
