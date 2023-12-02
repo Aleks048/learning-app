@@ -11,6 +11,7 @@ import data.constants as dc
 import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
+import outside_calls.outside_calls_facade as ocf
 
 
 
@@ -179,15 +180,21 @@ def getImageWidget(root, imagePath, widgetName,
                    imPad = 0, imageSize = [450, 200], 
                    row = 0, column = 0, columnspan = 1,
                    resizeFactor = 1.0):
-    pilIm = Image.open(imagePath)
-    pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
-    img = ImageTk.PhotoImage(pilIm)
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+        pilIm = Image.open(imagePath)
+        pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
+        img = ImageTk.PhotoImage(pilIm)
 
-    imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
-                                row = row, column = column, columnspan = columnspan)
+        imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
+                                    row = row, column = column, columnspan = columnspan)
+    else:
+        img = None
+        imLabel = TOCLabelWithClick(root, prefix = widgetName, text = "-1", padding = [imPad, 0, 0, 0],
+                                    row = row, column = column, columnspan = columnspan)
+
     imLabel.imagePath = imagePath
     imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                   [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
+                [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
     return img, imLabel
 
 
