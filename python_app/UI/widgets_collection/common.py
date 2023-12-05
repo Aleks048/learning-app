@@ -1208,7 +1208,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             # adding a frame to show global links
                             linksFrame = _uuicom.TOCFrame(tempFrame,
                                                 prefix = "contentLinksFr_" + nameId,
-                                                row = gridRowStartIdx + 1, column = 0, columnspan = 6)
+                                                row = gridRowStartIdx + 1, column = 0, columnspan = 100)
                             
                             imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
 

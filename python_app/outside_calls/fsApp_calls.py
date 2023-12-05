@@ -17,8 +17,9 @@ class FinderCalls:
 
     @classmethod
     def moveFile(cls, sourceFilepath, destFilepath):
-        cls.copyFile(sourceFilepath, destFilepath)
-        cls.deleteFile(sourceFilepath)
+        if sourceFilepath != destFilepath:
+            cls.copyFile(sourceFilepath, destFilepath)
+            cls.deleteFile(sourceFilepath)
 
     @classmethod
     def copyFile(cls, sourceFilepath, destFilepath):
