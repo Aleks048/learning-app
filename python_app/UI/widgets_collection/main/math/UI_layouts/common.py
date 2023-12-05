@@ -81,13 +81,13 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
 
             self.updateLabel(self.labelOptions[0])
 
-            lm.Wr.MainLayout.set()
+            lm.Wr.MainLayout.set(withPdfChange = False)
         else:
             mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
             self.updateLabel(self.labelOptions[1])
 
-            lm.Wr.MainLayout.set()
+            lm.Wr.MainLayout.set(withPdfChange = False)
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):

@@ -21,7 +21,7 @@ class MainLayout(lc.Layout):
     pyAppDimensions = [None, None]
     
     @classmethod
-    def set(cls):
+    def set(cls, withPdfChange = True):
         '''
         # main:
         #       full book to the left
@@ -49,46 +49,47 @@ class MainLayout(lc.Layout):
         mon_halfWidth = mon_width / 2
        
         
-        #
-        # SKIM
-        #
-        log.autolog("--- Starting pdf app manipulation")
-        dimensions = [mon_halfWidth, mon_height, 0, 0]
-    
-        OMName = fsf.Data.Book.currOrigMatName
-        origMaterialBookFSPath_curr = fsf.Wr.OriginalMaterialStructure.getMaterialPath(OMName)
-
-        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(OMName)
-        oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
-
-        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(OMName)
-        pdfToken:str = origMaterialBookFSPath_curr.split("/")[-1].replace(".pdf", "")
-        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
-        _u.runCmdAndWait(cmd)
-
-        pdfAppFile_ID = \
-            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(OMName)
+        if withPdfChange:
+            #
+            # SKIM
+            #
+            log.autolog("--- Starting pdf app manipulation")
+            dimensions = [mon_halfWidth, mon_height, 0, 0]
         
-        _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        pdfAppFile_ID)
+            OMName = fsf.Data.Book.currOrigMatName
+            origMaterialBookFSPath_curr = fsf.Wr.OriginalMaterialStructure.getMaterialPath(OMName)
 
-        while ownerPID == None:
-            sleep(0.1)
+            currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(OMName)
+            oc.Wr.PdfApp.openPDF(origMaterialBookFSPath_curr, currPage)
+
+            zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(OMName)
+            pdfToken:str = origMaterialBookFSPath_curr.split("/")[-1].replace(".pdf", "")
+            cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
+            _u.runCmdAndWait(cmd)
+
+            pdfAppFile_ID = \
+                fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(OMName)
+            
             _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                        pdfAppFile_ID)
+                                                            pdfAppFile_ID)
 
-        cmd = oscr.getMoveWindowCMD(ownerPID, 
-                                    dimensions,
-                                    pdfAppFile_ID)
-        _u.runCmdAndWait(cmd)
+            while ownerPID == None:
+                sleep(0.1)
+                _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+                                                            pdfAppFile_ID)
 
-        dt.OtherAppsInfo.Skim.main_pid = ownerPID
+            cmd = oscr.getMoveWindowCMD(ownerPID, 
+                                        dimensions,
+                                        pdfAppFile_ID)
+            _u.runCmdAndWait(cmd)
 
-        # update the bounds
-        if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(OMName) == [-1, -1]:
-            fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(OMName)
+            dt.OtherAppsInfo.Skim.main_pid = ownerPID
 
-        log.autolog("--- Ended Pdf app manipulation. Opened skim!")
+            # update the bounds
+            if fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(OMName) == [-1, -1]:
+                fsf.Wr.OriginalMaterialStructure.setMaterialPageSize(OMName)
+
+            log.autolog("--- Ended Pdf app manipulation. Opened skim!")
 
         #
         # FINDER
