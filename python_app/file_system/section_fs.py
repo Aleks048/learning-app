@@ -710,7 +710,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 newPath = os.path.join(savePath, newFilename)
                 # NOTE: we move since we moved the folder before and now only need to change the
                 # images names
-                ocf.Wr.FsAppCalls.moveFile(oldPath, newPath)
+                if oldPath != newPath:
+                    ocf.Wr.FsAppCalls.moveFile(oldPath, newPath)
             
 
             efs.EntryInfoStructure.updateProperty(targetSubsection,
