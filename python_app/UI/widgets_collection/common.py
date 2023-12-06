@@ -1238,7 +1238,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         targetSubsection = ln.split("_")[0]
                                         targetImIdx = ln.split("_")[1]
 
-                                        targetNameId = _upan.Names.Entry.getEntryNameID(targetSubsection, targetImIdx)
                                         glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
                                                                 glLinkImLablel, 
                                                                 prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
@@ -1250,7 +1249,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
                                         latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
-                                        pilIm = getEntryImg(latexTxt, targetSubsection, targetNameId)
+                                        pilIm = getEntryImg(latexTxt, targetSubsection, targetImIdx)
 
                                         shrink = 0.7
                                         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
