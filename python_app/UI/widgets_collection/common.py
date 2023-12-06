@@ -893,7 +893,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if currImGroupName != "No group":
                                 imageGroupFrame = _uuicom.TOCFrame(tempFrame,
                                                             prefix = "contentImageGroupFr_" + nameId,
-                                                            padding=[0, topPad, 0, 0], row = 0, column = 0)
+                                                            padding=[0, topPad, 0, 0], 
+                                                            row = 0, column = 0, columnspan = 100)
                                 imageGroupFrame.render()
 
                                 def __updateGroup(event, *args):
