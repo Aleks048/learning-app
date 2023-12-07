@@ -369,8 +369,11 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
         if currSubsection == subsections[0]:
             self.setData(currSubsection)
         else:
-            currSubsIdx = subsections.index(currSubsection)
-            self.setData(subsections[currSubsIdx - 1])
+            if currSubsection in subsections:
+                currSubsIdx = subsections.index(currSubsection)
+                self.setData(subsections[currSubsIdx - 1])
+            else:
+                self.setData("-1")
     
     def cmd(self):
         secPath =  self.getData()

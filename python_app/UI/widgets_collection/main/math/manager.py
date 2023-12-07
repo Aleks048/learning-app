@@ -105,6 +105,9 @@ class LayoutManagers:
             reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
             self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
+            showAllSubsections_BTN = ml.ShowAllSubsections_BTN(winRoot, self.prefix)
+            self.addWidget(showAllSubsections_BTN)
+
             rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrentSubsectionLatex_BTN)
 
@@ -164,6 +167,7 @@ class LayoutManagers:
             addGlobalLink_BTN.addListenerWidget(tocBox_BOX)
 
             showHideLinks_BTN.addListenerWidget(tocBox_BOX)
+            showAllSubsections_BTN.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)

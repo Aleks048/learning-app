@@ -108,6 +108,35 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
 
         gm.GeneralManger.readdNotesToPage(currPage)
 
+class ShowAllSubsections_BTN(ww.currUIImpl.Button):
+    prevHiddenSubsections = _u.Token.NotDef.list_t.copy()
+    showAll = True
+
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 17},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_ShowAllSubsections"
+        text= "Show subsections"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        if self.showAll:
+            self.prevHiddenSubsections = fsf.Data.Book.subsectionsHiddenInTOC_UI
+            fsf.Data.Book.subsectionsHiddenInTOC_UI = _u.Token.NotDef.list_t.copy()
+        else:
+            fsf.Data.Book.subsectionsHiddenInTOC_UI = self.prevHiddenSubsections
+        
+        self.showAll = not self.showAll
+        self.notify(comw.TOC_BOX)
+
+
 class ShowHideLinks_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 

@@ -44,6 +44,7 @@ class BookInfoStructure:
 
         # UI
         subsectionOpenInTOC_UI = "subsectionOpenInTOC_UI"
+        subsectionsHiddenInTOC_UI = "subsectionsHiddenInTOC_UI"
         entryImOpenInTOC_UI = "entryImOpenInTOC_UI"
 
 
@@ -53,6 +54,7 @@ class BookInfoStructure:
         PubProp.sections_path_separator: ".",
         PubProp.subsectionOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.entryImOpenInTOC_UI: _u.Token.NotDef.str_t,
+        PubProp.subsectionsHiddenInTOC_UI: _u.Token.NotDef.list_t.copy(),
         PubProp.sections: {
         },
         PubProp.currentState: {

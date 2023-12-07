@@ -394,6 +394,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.AddGlobalLink_BTN:
             self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowAllSubsections_BTN:
+            self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.AddWebLink_BTN:
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
@@ -1226,161 +1228,162 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                 # NOTE: should put all the links into 
                                 # one frame. This way they will be aligned correctly
-                                for ln, lk in glLinks.items():
-                                    if "KIK" in lk:
-                                        # NOTE: probably should be a frame here
-                                        glLinkImLablel = _uuicom.TOCLabelWithClick(
-                                                                linksFrame, 
-                                                                prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                padding = [120, 0, 0, 0],
-                                                                row = glLinkId + 1, column = 0)
-                                        glLinkImLablel.render()
-        
-                                        targetSubsection = ln.split("_")[0]
-                                        targetImIdx = ln.split("_")[1]
+                                if type(glLinks) == dict:
+                                    for ln, lk in glLinks.items():
+                                        if "KIK" in lk:
+                                            # NOTE: probably should be a frame here
+                                            glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                                    linksFrame, 
+                                                                    prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                    padding = [120, 0, 0, 0],
+                                                                    row = glLinkId + 1, column = 0)
+                                            glLinkImLablel.render()
+            
+                                            targetSubsection = ln.split("_")[0]
+                                            targetImIdx = ln.split("_")[1]
 
-                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
-                                                                glLinkImLablel, 
-                                                                prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
-                                                                text = targetSubsection + ": ", 
-                                                                padding = [150, 0, 0, 0],
-                                                                row = 0, column = 0)
-                                        glLinkSubsectioLbl.render()
+                                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
+                                                                    glLinkImLablel, 
+                                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
+                                                                    text = targetSubsection + ": ", 
+                                                                    padding = [150, 0, 0, 0],
+                                                                    row = 0, column = 0)
+                                            glLinkSubsectioLbl.render()
 
-                                        imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
+                                            imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
 
-                                        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
-                                        pilIm = getEntryImg(latexTxt, targetSubsection, targetImIdx)
+                                            latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
+                                            pilIm = getEntryImg(latexTxt, targetSubsection, targetImIdx)
 
-                                        shrink = 0.7
-                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                                        img = ImageTk.PhotoImage(pilIm)
+                                            shrink = 0.7
+                                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+                                            img = ImageTk.PhotoImage(pilIm)
 
-                                        glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
-                                                                    image = img,
-                                                                    text = ln + ": " + imLinkDict[targetImIdx], 
-                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
-                                                                    row = 0, column = 1
-                                                                    )
-                                        glLinkLablel.subsection = targetSubsection
-                                        glLinkLablel.imIdx = targetImIdx
-                                        glLinkLablel.image = img
+                                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
+                                                                        image = img,
+                                                                        text = ln + ": " + imLinkDict[targetImIdx], 
+                                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                                        row = 0, column = 1
+                                                                        )
+                                            glLinkLablel.subsection = targetSubsection
+                                            glLinkLablel.imIdx = targetImIdx
+                                            glLinkLablel.image = img
 
-                                        glLinkLablel.render()
-                                        openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+                                            glLinkLablel.render()
+                                            openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
-                                        linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                    text = "[full]", 
-                                                                    prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
-                                                                    row = 0, column= 2)
-                                        linkLabelFull.render()
+                                            linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                        text = "[full]", 
+                                                                        prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
+                                                                        row = 0, column= 2)
+                                            linkLabelFull.render()
 
-                                        linkLabelFull.subsection = ln.split("_")[0]
-                                        linkLabelFull.imIdx = ln.split("_")[-1]
+                                            linkLabelFull.subsection = ln.split("_")[0]
+                                            linkLabelFull.imIdx = ln.split("_")[-1]
 
-                                        _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
+                                            _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
 
-                                        def __moveLinkFull(e, *args):
-                                            widget = e.widget
-                                            self.scrollToEntry(widget.subsection,
-                                                               widget.imIdx)
+                                            def __moveLinkFull(e, *args):
+                                                widget = e.widget
+                                                self.scrollToEntry(widget.subsection,
+                                                                widget.imIdx)
 
-                                        linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
+                                            linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
 
-                                        glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[im]", 
-                                                                        prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
-                                                                        row = 0, column = 3)
-                                        glLinksShowImages.imIdx = ln.split("_")[-1]
-                                        glLinksShowImages.subsection = ln.split("_")[0]
-                                        glLinksShowImages.clicked = False
-                                        glLinksShowImages.render()
-                                        glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
+                                            glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                            text = "[im]", 
+                                                                            prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
+                                                                            row = 0, column = 3)
+                                            glLinksShowImages.imIdx = ln.split("_")[-1]
+                                            glLinksShowImages.subsection = ln.split("_")[0]
+                                            glLinksShowImages.clicked = False
+                                            glLinksShowImages.render()
+                                            glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
 
-                                        _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
-                                        glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                                                                [lambda e, *args: __showIMagesONClick(e, 
-                                                                                                      glLinksShowImages,
-                                                                                                      glLinkSubSecID, 
-                                                                                                      False, 
-                                                                                                      150, 
-                                                                                                      True, 
-                                                                                                      *args)])
+                                            _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
+                                            glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                                                                    [lambda e, *args: __showIMagesONClick(e, 
+                                                                                                        glLinksShowImages,
+                                                                                                        glLinkSubSecID, 
+                                                                                                        False, 
+                                                                                                        150, 
+                                                                                                        True, 
+                                                                                                        *args)])
 
-                                        linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                    text = "[del]", 
-                                                                    prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                    row = 0, column= 4)
-                                        linkLabelDelete.render()
-                                        
-                                        linkLabelDelete.targetSubssection = ln.split("_")[0]
-                                        linkLabelDelete.sourceSubssection = subsection
-                                        linkLabelDelete.targetImIdx = ln.split("_")[-1]
-                                        linkLabelDelete.sourceImIdx = k
+                                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                        text = "[del]", 
+                                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                                        row = 0, column= 4)
+                                            linkLabelDelete.render()
+                                            
+                                            linkLabelDelete.targetSubssection = ln.split("_")[0]
+                                            linkLabelDelete.sourceSubssection = subsection
+                                            linkLabelDelete.targetImIdx = ln.split("_")[-1]
+                                            linkLabelDelete.sourceImIdx = k
 
-                                        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
+                                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
 
-                                        _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+                                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
 
-                                    elif "http" in lk:
-                                        # NOTE: should be a frame here!
-                                        glLinkImLablel = _uuicom.TOCLabelWithClick(
-                                                                linksFrame, 
-                                                                prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                padding = [120, 0, 0, 0],
-                                                                row = glLinkId + 1, column = 0)
-                                        glLinkImLablel.render()
+                                        elif "http" in lk:
+                                            # NOTE: should be a frame here!
+                                            glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                                    linksFrame, 
+                                                                    prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                                    padding = [120, 0, 0, 0],
+                                                                    row = glLinkId + 1, column = 0)
+                                            glLinkImLablel.render()
 
-                                        glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                text = "web: ", 
-                                                                padding = [150, 0, 0, 0],
-                                                                prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
-                                                                row = glLinkId + 1, column = 0)
-                                        glLinkSubsectioLbl.render()
+                                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                    text = "web: ", 
+                                                                    padding = [150, 0, 0, 0],
+                                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
+                                                                    row = glLinkId + 1, column = 0)
+                                            glLinkSubsectioLbl.render()
 
-                                        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                                        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                                        linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
-                                                                                        subsection,
-                                                                                        k,
-                                                                                        ln)
+                                            latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
+                                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                                            linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
+                                                                                            subsection,
+                                                                                            k,
+                                                                                            ln)
 
-                                        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
-                                            pilIm = Image.open(linkFilepath)
-                                        else:
-                                            pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
+                                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
+                                                pilIm = Image.open(linkFilepath)
+                                            else:
+                                                pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
 
-                                        shrink = 0.7
-                                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                                        img = ImageTk.PhotoImage(pilIm)
+                                            shrink = 0.7
+                                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+                                            img = ImageTk.PhotoImage(pilIm)
 
-                                        glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
-                                                                    image = img,
-                                                                    text = ln, 
-                                                                    prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
-                                                                    row = glLinkId + 1, column = 1)
-                                        glLinkLablel.subsection = subsection
-                                        glLinkLablel.imIdx = k
-                                        glLinkLablel.image = img
+                                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
+                                                                        image = img,
+                                                                        text = ln, 
+                                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                                        row = glLinkId + 1, column = 1)
+                                            glLinkLablel.subsection = subsection
+                                            glLinkLablel.imIdx = k
+                                            glLinkLablel.image = img
 
-                                        glLinkLablel.render()
-                                        openWebOfTheImage(glLinkLablel, lk)
+                                            glLinkLablel.render()
+                                            openWebOfTheImage(glLinkLablel, lk)
 
-                                        linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                    text = "[del]", 
-                                                                    prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                    row = glLinkId + 1, column = 2)
-                                        linkLabelDelete.render()
+                                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                                        text = "[del]", 
+                                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                                        row = glLinkId + 1, column = 2)
+                                            linkLabelDelete.render()
 
-                                        linkLabelDelete.sourceSubssection = subsection
-                                        linkLabelDelete.sourceImIdx = k
-                                        linkLabelDelete.sourceWebLinkName = ln
+                                            linkLabelDelete.sourceSubssection = subsection
+                                            linkLabelDelete.sourceImIdx = k
+                                            linkLabelDelete.sourceWebLinkName = ln
 
-                                        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
+                                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
 
-                                        _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+                                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
 
-                                    glLinkId += 1
+                                        glLinkId += 1
 
                         tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
 
@@ -1577,6 +1580,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.subsectionAsETR.widget =event.widget.etrWidget
                 self.render()
 
+        currSubsectionHidden = False
+        hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI
+        if not self.showAll:
+            for hiddensSubsection in hiddenSubsections:
+                if (hiddensSubsection in subsection) and (subsection != hiddensSubsection):
+                    currSubsectionHidden = True
+
         if level == 0:
             if subsection != self.subsectionAsETR.subsection:
                 tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
@@ -1602,6 +1612,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                         [updateSubsection])
                 openPdfOnStartOfTheSection(subsectionLabel)
+                subsectionLabel.render()
             else:
                 subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
                                                             nameId, 
@@ -1615,104 +1626,131 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.subsectionAsETR.widget = subsectionLabel
                 subsectionLabel.focus_force()
         else:
-            if subsection != self.subsectionAsETR.subsection:
-                tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-                fileId = _upan.Names.Subsection.formatSectionText(subsection)
+            if not currSubsectionHidden:
+                if subsection != self.subsectionAsETR.subsection:
+                    tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
+                    fileId = _upan.Names.Subsection.formatSectionText(subsection)
 
-                subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
-                                                        sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        subsection)
+                    subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(), 
+                                                            subsection)
 
-                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
-                    result = Image.open(subsectionImgPath)
+                    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+                        result = Image.open(subsectionImgPath)
+                    else:
+                        result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
+
+                    shrink = 0.8
+                    result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+                    result = ImageTk.PhotoImage(result)
+
+                    subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
+                                                        row = 0, column= 0)
+                    subsectionLabel.image = result
+                    subsectionLabel.subsection = subsection
+                    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                            [updateSubsection])
+                    openPdfOnStartOfTheSection(subsectionLabel)
                 else:
-                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
+                    subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
+                                                                "contentP_" + nameId, 
+                                                                0, 0, 
+                                                                "", # NOTE: not used anywhere  
+                                                                fsm.Data.Sec.text(subsection))
+                    subsectionLabel.subsection = subsection
+                    subsectionLabel.etrWidget = subsectionLabel
+                    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                            [updateSubsection])
+                    self.subsectionAsETR.widget = subsectionLabel
+                    subsectionLabel.focus_force()
 
-                shrink = 0.8
-                result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-                result = ImageTk.PhotoImage(result)
-
-                subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
-                                                    row = 0, column= 0)
-                subsectionLabel.image = result
-                subsectionLabel.subsection = subsection
-                subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                        [updateSubsection])
-                openPdfOnStartOfTheSection(subsectionLabel)
-            else:
-                subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
-                                                            "contentP_" + nameId, 
-                                                            0, 0, 
-                                                            "", # NOTE: not used anywhere  
-                                                            fsm.Data.Sec.text(subsection))
-                subsectionLabel.subsection = subsection
-                subsectionLabel.etrWidget = subsectionLabel
-                subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                        [updateSubsection])
-                self.subsectionAsETR.widget = subsectionLabel
-                subsectionLabel.focus_force()
-
-        subsectionLabel.render()
+                subsectionLabel.render()
 
         if level != 0:
-            openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[content]", 
-                                                 prefix = "subsecContent" + subsection.replace(".", ""),
-                                                 row = 0, column= 1)
+            if (not currSubsectionHidden):
+                openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[content]", 
+                                                    prefix = "subsecContent" + subsection.replace(".", ""),
+                                                    row = 0, column= 1)
 
-            openContentLabel.subsection = subsection
+                openContentLabel.subsection = subsection
 
-            if subsection == fsm.Data.Book.currSection:
-                self.currSubsectionWidget = openContentLabel
+                if subsection == fsm.Data.Book.currSection:
+                    self.currSubsectionWidget = openContentLabel
 
-            openContentOfTheSection(locFrame, openContentLabel)
-            _uuicom.bindChangeColorOnInAndOut(openContentLabel)
+                openContentOfTheSection(locFrame, openContentLabel)
+                _uuicom.bindChangeColorOnInAndOut(openContentLabel)
 
-            self.subsectionContentLabels.append(openContentLabel)
+                self.subsectionContentLabels.append(openContentLabel)
 
-            if self.showAll or (subsection == fsm.Data.Book.currSection):
-                openContentLabel.clicked = False
+                if self.showAll or (subsection == fsm.Data.Book.currSection):
+                    openContentLabel.clicked = False
 
-            rebuildLatex = _uuicom.TOCLabelWithClick(locFrame, text = "[rebuild latex]",
-                                             prefix = "subsecRebuild" + subsection.replace(".", ""),
-                                             row = 0, column= 2)
-            rebuildLatex.subsection = subsection
+                rebuildLatex = _uuicom.TOCLabelWithClick(locFrame, text = "[rebuild latex]",
+                                                prefix = "subsecRebuild" + subsection.replace(".", ""),
+                                                row = 0, column= 2)
+                rebuildLatex.subsection = subsection
 
-            _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
+                _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
 
-            def rebuildSubsectionLatexWrapper(subsection):
-                fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                                   _upan.Names.Entry.getEntryNameID, 
-                                                                   _upan.Names.Group.formatGroupText,
-                                                                   _upan.Names.Subsection.formatSectionText,
-                                                                   _upan.Names.Subsection.getSubsectionPretty,
-                                                                   _upan.Names.Subsection.getTopSectionPretty)
-                self.render()
+                def rebuildSubsectionLatexWrapper(subsection):
+                    fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
+                                                                    _upan.Names.Entry.getEntryNameID, 
+                                                                    _upan.Names.Group.formatGroupText,
+                                                                    _upan.Names.Subsection.formatSectionText,
+                                                                    _upan.Names.Subsection.getSubsectionPretty,
+                                                                    _upan.Names.Subsection.getTopSectionPretty)
+                    self.render()
 
-            rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
+                rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                    [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
 
-            def __updateStartPage(e, subsection, *args):
-                newStartPage = e.widget.get()
-                fsm.Data.Sec.start(subsection, newStartPage)
-                omName = fsm.Data.Book.currOrigMatName
-                omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+                def __updateStartPage(e, subsection, *args):
+                    newStartPage = e.widget.get()
+                    fsm.Data.Sec.start(subsection, newStartPage)
+                    omName = fsm.Data.Book.currOrigMatName
+                    omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(omName)
 
-                ocf.Wr.PdfApp.openPDF(omFilepath, newStartPage)
+                    ocf.Wr.PdfApp.openPDF(omFilepath, newStartPage)
 
-            startPage = fsm.Data.Sec.start(subsection)
-            changeStartPage = _uuicom.ImageSize_ETR(locFrame,
-                                                      prefix = "contentUpdateStartPageEntryText" + subsection.replace(".", ""),
-                                                      row = 0, 
-                                                      column = 3,
-                                                      imIdx = -1,
-                                                      text = startPage)
-            changeStartPage.subsection = subsection
-            changeStartPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
-                                    [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
+                startPage = fsm.Data.Sec.start(subsection)
+                changeStartPage = _uuicom.ImageSize_ETR(locFrame,
+                                                        prefix = "contentUpdateStartPageEntryText" + subsection.replace(".", ""),
+                                                        row = 0, 
+                                                        column = 3,
+                                                        imIdx = -1,
+                                                        text = startPage)
+                changeStartPage.subsection = subsection
+                changeStartPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                        [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
 
-            openContentLabel.render()
-            rebuildLatex.render()
-            changeStartPage.render()
+
+                hideSubsections = _uuicom.TOCLabelWithClick(locFrame, text = "[show/hide]",
+                                                prefix = "subsecShowHide" + subsection.replace(".", ""),
+                                                row = 0, column= 4)
+                hideSubsections.subsection = subsection
+
+                _uuicom.bindChangeColorOnInAndOut(hideSubsections)
+
+                def showHideSubsectionsWrapper(subsection):
+                    subsectionsHidden:list = fsm.Data.Book.subsectionsHiddenInTOC_UI
+
+                    if subsection in subsectionsHidden:
+                        subsectionsHidden.remove(subsection)
+                    else:
+                        subsectionsHidden.append(subsection)
+                    
+                    fsm.Data.Book.subsectionsHiddenInTOC_UI =  subsectionsHidden
+                    self.render()
+
+                hideSubsections.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                       [lambda e, *args: showHideSubsectionsWrapper(e.widget.subsection)])
+
+                openContentLabel.render()
+                rebuildLatex.render()
+                changeStartPage.render()
+
+                if not self.showAll:
+                    hideSubsections.render()
         else:
             openContentLabel = _uuicom.TOCLabelWithClick(locFrame, 
                                                  prefix = "openContentLabel" + subsection.replace(".", ""),
