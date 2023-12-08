@@ -874,17 +874,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                               row = i + 2, column = 0, columnspan = 100)
 
                         def getGroupImg(subsection, currImGroupName):
-
-                            tex = tff.Wr.TexFileUtils.formatEntrytext(currImGroupName)
-                            fileId = _upan.Names.Group.formatGroupText(currImGroupName)
-
-                            secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
-                            groupImgPath = os.path.join(secreenshotPath, f"_g_{fileId}.png")
+                            groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                                    subsection,
+                                                                    _upan.Names.Group.formatGroupText(currImGroupName))
 
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
                                 result = Image.open(groupImgPath)
                             else:
-                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding= 10, imageColor="#109464") 
+                                result = \
+                                    fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
+                                                                                            currImGroupName,
+                                                                                            _upan.Names.Group.formatGroupText)
 
                             shrink = 0.8
                             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
@@ -1589,16 +1589,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if level == 0:
             if subsection != self.subsectionAsETR.subsection:
-                tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-                fileId = _upan.Names.Subsection.formatSectionText(subsection)
-
-                sectionPath = _upan.Paths.Section.getAbs(sf.Wr.Manager.Book.getCurrBookName(), subsection)
-                topSectionImgPath = os.path.join(sectionPath, f"_top_{fileId}.png")
+                topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(),
+                                                            subsection)
 
                 if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
                     result = Image.open(topSectionImgPath)
                 else:
-                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, topSectionImgPath, imageColor = "#ed8a82") 
+                    result = fsm.Wr.SectionInfoStructure.rebuildTopSectionLatex(subsection,
+                                                                                _upan.Names.Subsection.getTopSectionPretty)
 
                 shrink = 0.8
                 result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
@@ -1628,9 +1627,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         else:
             if not currSubsectionHidden:
                 if subsection != self.subsectionAsETR.subsection:
-                    tex = tff.Wr.TexFileUtils.formatEntrytext(prettySubsections)
-                    fileId = _upan.Names.Subsection.formatSectionText(subsection)
-
                     subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
                                                             sf.Wr.Manager.Book.getCurrBookName(), 
                                                             subsection)
@@ -1638,7 +1634,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
                         result = Image.open(subsectionImgPath)
                     else:
-                        result = tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, imageColor = "#4287f5") 
+                        result = \
+                            fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(subsection, 
+                                                                                 _upan.Names.Subsection.getSubsectionPretty)
 
                     shrink = 0.8
                     result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)

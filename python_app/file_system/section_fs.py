@@ -886,7 +886,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         topsSctionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(currBookPath, 
                                                                                     topSection)
         tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
-        tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
+
+        return tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
 
     @classmethod
     def rebuildSubsectionImOnlyLatex(cls, subsection,
@@ -895,7 +896,28 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
                                                         sf.Wr.Manager.Book.getCurrBookName(), 
                                                         subsection)
-        tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
+
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        subsectionLevel = int(cls.readProperty(subsection, cls.PubProp.level, currBookPath), 16)
+        color = hex(int("4287f5", 16) >> subsectionLevel)[2:]
+
+        if len(color) < 6:
+            color = "8" + color
+
+        return tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = f"#{color}")
+
+
+    @classmethod
+    def rebuildGroupOnlyImOnlyLatex(cls, subsection,
+                                        groupName,
+                                        fromGroupNameToFilename):
+
+        groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                                    subsection,
+                                                                    fromGroupNameToFilename(groupName))
+        tex = tff.Wr.TexFileUtils.formatEntrytext(groupName)
+
+        return tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
 
     @classmethod
     def rebuildSubsectionLatex(cls, subsection, 
@@ -904,35 +926,28 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                                fromSubSectionToFileID,
                                createPrettySubSection,
                                createPrettyTopSection):
-        topSection = subsection.split(".")[0]
+        # rebuild entries
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
-        secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        subsection)
-
-        groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 
         for k, v in imLinkDict.items():
             cls.rebuildEntryLatex(subsection, k, v)
-        
+
+        groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
+
+        # rebuild groups
         for g in groups:
-            filename = "_g_" + fromGroupNameToFilename(g) + ".png"
-            tex = tff.Wr.TexFileUtils.formatEntrytext(g)
-            groupImgPath = os.path.join(secreenshotPath, filename)
-            tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
+            cls.rebuildGroupOnlyImOnlyLatex(subsection,
+                                            g,
+                                            fromGroupNameToFilename)
 
         # subsection image
-        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettySubSection(subsection))
-        subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
-                                                        sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        subsection)
-        tff.Wr.TexFileUtils.fromTexToImage(tex, subsectionImgPath, padding = 10, imageColor = "#4287f5")
+        cls.rebuildSubsectionImOnlyLatex(subsection,
+                                         createPrettySubSection)
 
         # top section image
-        tex = tff.Wr.TexFileUtils.formatEntrytext(createPrettyTopSection(topSection))
-        topsSctionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
-                                                        sf.Wr.Manager.Book.getCurrBookName(), 
-                                                        topSection)
-        tff.Wr.TexFileUtils.fromTexToImage(tex, topsSctionImgPath, padding = 20, imageColor = "#ed8a82")
+        topSection = subsection.split(".")[0]
+        cls.rebuildTopSectionLatex(topSection,
+                                   createPrettyTopSection)
 
         # rebuild web links
         imGlLinkDict = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)

@@ -162,6 +162,13 @@ class Paths:
                 return os.path.join(topSectionPath, "_top.png")
 
             @bookNameArg_dec
+            def getGroupImageAbs(bookPath, subsection, filenameBase, *args):
+                secreenshotPath = _upan.Paths.Screenshot.getAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                subsection)
+                filename = "_g_" + filenameBase + ".png"
+                return os.path.join(secreenshotPath, filename)
+
+            @bookNameArg_dec
             def getWebLinkImageAbs(bookPath, subsection, imIdx, ln, *args):
                 linkName =  str(imIdx + "_" + ln).replace(".", "")
                 linkName = linkName.replace(" ", "$")
