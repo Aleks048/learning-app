@@ -181,10 +181,8 @@ class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         subsection = _upan.Current.Names.Section.name()
-        fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                           _upan.Names.Entry.getEntryNameID, 
+        fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
                                                            _upan.Names.Group.formatGroupText,
-                                                           _upan.Names.Subsection.formatSectionText,
                                                            _upan.Names.Subsection.getSubsectionPretty,
                                                            _upan.Names.Subsection.getTopSectionPretty)
         self.notify(comw.TOC_BOX)

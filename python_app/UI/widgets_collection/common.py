@@ -911,10 +911,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         fsm.Data.Sec.imagesGroupsList(self.subsectionAsETR.subsection,
                                                                       imagesGroupsList)
 
-                                        fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                                   _upan.Names.Entry.getEntryNameID, 
+                                        fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
                                                                    _upan.Names.Group.formatGroupText,
-                                                                   _upan.Names.Subsection.formatSectionText,
                                                                    _upan.Names.Subsection.getSubsectionPretty,
                                                                    _upan.Names.Subsection.getTopSectionPretty)
 
@@ -1691,10 +1689,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
 
                 def rebuildSubsectionLatexWrapper(subsection):
-                    fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection, 
-                                                                    _upan.Names.Entry.getEntryNameID, 
+                    fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
                                                                     _upan.Names.Group.formatGroupText,
-                                                                    _upan.Names.Subsection.formatSectionText,
                                                                     _upan.Names.Subsection.getSubsectionPretty,
                                                                     _upan.Names.Subsection.getTopSectionPretty)
                     self.render()

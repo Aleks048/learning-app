@@ -920,10 +920,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         return tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
 
     @classmethod
-    def rebuildSubsectionLatex(cls, subsection, 
-                               fromSubAndEntryIdxToNameId, 
-                               fromGroupNameToFilename, 
-                               fromSubSectionToFileID,
+    def rebuildSubsectionLatex(cls, subsection,
+                               fromGroupNameToFilename,
                                createPrettySubSection,
                                createPrettyTopSection):
         # rebuild entries
