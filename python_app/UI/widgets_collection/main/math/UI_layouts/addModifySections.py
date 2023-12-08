@@ -342,24 +342,28 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         return self.__getSectionPath_Formatted(currSecName)
         
     def __getSectionPath_Formatted(self, secName):
-        name = fsf.Data.Sec.text(secName)
-        startPage = fsf.Data.Sec.start(secName)
-
-        currSubsection = fsf.Data.Book.subsectionOpenInTOC_UI
-        currImIdx = fsf.Data.Book.entryImOpenInTOC_UI
+        currSubsection = fsf.Data.Book.currSection
+        currImIdx = list(fsf.Data.Sec.imLinkDict(currSubsection).keys())[-1]
 
         if currSubsection != _u.Token.NotDef.str_t:
             if currImIdx in list(fsf.Data.Sec.origMatNameDict(currSubsection).keys()):
                 currOMName = fsf.Data.Sec.origMatNameDict(currSubsection)[currImIdx]
                 pagesToBeAdded = fsf.Wr.OriginalMaterialStructure.getMaterialPagesToBeAdded(currOMName)
+
+                if pagesToBeAdded == None:
+                    pagesToBeAdded = _u.Token.NotDef.str_t
             else:
                 pagesToBeAdded = _u.Token.NotDef.str_t
         else:
             pagesToBeAdded = _u.Token.NotDef.str_t
 
+        name = fsf.Data.Sec.text(secName)
+        name = name[:min(len(name),30)]
+        startPage = fsf.Data.Sec.start(secName)
+
         return "\
-Working section path: {0}. Name: '{1}'.\
- Start page: '{2}', with OM pages to be added {3}".format(secName, name, startPage, pagesToBeAdded)
+{0} : '{1}'.\
+ Starr: '{2}', pages to be added '{3}'".format(secName, name, startPage, pagesToBeAdded)
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
         text = self.__getCurrSectionPath_Formatted()
