@@ -1558,6 +1558,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
 
         def updateSubsection(event, *args):
+            widget = event.widget
+            subsection = widget.subsection
+
             if (self.subsectionAsETR.subsection != _u.Token.NotDef.str_t):
                 newText = self.subsectionAsETR.widget.getData()
 
@@ -1611,17 +1614,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 openPdfOnStartOfTheSection(subsectionLabel)
                 subsectionLabel.render()
             else:
+                topSectionName = fsm.Data.Book.sections[subsection]["name"]
                 subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
                                                             nameId, 
                                                             0, 0, 
                                                             "", # NOTE: not used anywhere  
-                                                            fsm.Data.Book.sections[subsection]["name"])
+                                                            topSectionName)
                 subsectionLabel.subsection = subsection
                 subsectionLabel.etrWidget = subsectionLabel
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                         [updateSubsection])
                 self.subsectionAsETR.widget = subsectionLabel
                 subsectionLabel.focus_force()
+                subsectionLabel.render()
         else:
             if not currSubsectionHidden:
                 if subsection != self.subsectionAsETR.subsection:
