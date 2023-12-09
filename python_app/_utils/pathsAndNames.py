@@ -66,11 +66,10 @@ class Paths:
             sectionsPathSeparator = fsf.Data.Book.sections_path_separator
 
             pathList = subsection.split(sectionsPathSeparator)
-            pathList[0] = _upan.Names.addSectionPrefixToName(pathList[0])
 
-            for i in range(len(pathList) - 1, 0, -1):
-                pathList[i] = ".".join(pathList[:i + 1])
-            
+            for i in range(len(pathList)):
+                pathList[i] = _upan.Names.addSectionPrefixToName(pathList[i])
+
             sectionFullPath = pathList
             sectionFullPath = os.path.join(Paths.Section.sectionFolderName, *sectionFullPath)
             
@@ -232,7 +231,7 @@ class Paths:
 
 class Names:
     def addSectionPrefixToName(subsection):
-        return fsf.Data.Book.sections_prefix + "_" + subsection
+        return fsf.Data.Book.sections_prefix + "_" + subsection.split(".")[-1]
 
     def getImageName(imIdx):
         return imIdx
