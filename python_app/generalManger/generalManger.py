@@ -439,6 +439,10 @@ The correct extra image was not created for \n\
     def RetargetGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
          # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
+
+        if sourseSectionGlobalLinksDict[sourceIDX] == _u.Token.NotDef.str_t:
+            return
+
         sourceLinks = sourseSectionGlobalLinksDict[sourceIDX].copy()
 
         for sl, slfull in sourceLinks.items():
