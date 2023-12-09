@@ -1769,6 +1769,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if self.filterToken != "":
             for i in range(len(text_curr)):
                 subsection = text_curr[i][0]
+
                 if "." not in subsection:
                     continue
 
