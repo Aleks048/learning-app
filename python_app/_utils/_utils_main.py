@@ -297,14 +297,18 @@ class DICT:
                 if property != None:
                     return property
 
-    def updateProperty(dictToUpdate, propertyName, newValue):
+    def updateProperty(dictToUpdate:dict, propertyName, newValue):
         if propertyName in dictToUpdate:
-            if type(newValue) != type(dictToUpdate[propertyName]):
-                    log.autolog("\
-    ERROR: JSON.updateProperty - did not update the json file. \
-    Type of new value does not match the type of the property")
+            if newValue == None:
+                dictToUpdate.pop(propertyName)
             else:
-                dictToUpdate[propertyName] = newValue
+                if type(newValue) != type(dictToUpdate[propertyName]):
+                        log.autolog("\
+        ERROR: JSON.updateProperty - did not update the json file. \
+        Type of new value does not match the type of the property")
+                else:
+                    dictToUpdate[propertyName] = newValue
+            return
         else:
             for k, v in dictToUpdate.items():
                 if type(v) is list:
