@@ -120,6 +120,18 @@ class BookInfoStructure:
                     and "sections" in parentProperty.keys()):
                     addBookInfoSection(parentProperty["sections"])
 
+                sectionsCopy = parentProperty["sections"].copy()
+                keys = list(sectionsCopy.keys())
+
+                def __sortSections(name):
+                    return int(name.split(".")[-1])
+
+                keys.sort(key = __sortSections)
+                parentProperty["sections"] = {}
+
+                for k in keys:
+                    parentProperty["sections"][k] = sectionsCopy[k]
+
                 _u.DICT.updateProperty(bookInfoSections, prevRelSectionPath, parentProperty)
             
             BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
