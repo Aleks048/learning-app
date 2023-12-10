@@ -119,7 +119,7 @@ class BookInfoStructure:
                     and (type(parentProperty) == dict \
                     and "sections" in parentProperty.keys()):
                     addBookInfoSection(parentProperty["sections"])
-                
+
                 _u.DICT.updateProperty(bookInfoSections, prevRelSectionPath, parentProperty)
             
             BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
