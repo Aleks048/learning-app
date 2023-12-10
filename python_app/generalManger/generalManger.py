@@ -751,7 +751,14 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
         # Updating the remote
         msg = "Adding the OM with name: '{0}'".format(origMatName)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-    
+
+    def moveSubsection(sourceSubsection, targetSubsection):
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
+                                                sourceSubsection, 
+                                                targetSubsection)
+
+        fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, targetSubsection)
 
     def readdNotesToPage(currPage):
         omName = fsf.Data.Book.currOrigMatName

@@ -125,6 +125,42 @@ class BookInfoStructure:
             BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
 
     @classmethod
+    def removeSection(cls, sectionPath):
+        bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections)
+        outData = _u.DICT.readProperty(bookInfoSections, sectionPath).copy()
+        _u.DICT.updateProperty(bookInfoSections, sectionPath, None)
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
+
+        return outData
+
+    @classmethod
+    def moveSection(cls, sourceSectionPath, targetSectionPath):
+        sourceTopSection = sourceSectionPath.split(".")[0]
+        targetTopSection = targetSectionPath.split(".")[0]
+        bookInfoSections = BookInfoStructure.readProperty(BookInfoStructure.PubProp.sections)
+        bookInfoSections[sourceTopSection]["prevSubsectionPath"] = _u.Token.NotDef.str_t
+        bookInfoSections[targetTopSection]["prevSubsectionPath"] = targetTopSection
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.sections, bookInfoSections)
+
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currSection, targetSectionPath)
+        BookInfoStructure.updateProperty(BookInfoStructure.PubProp.currTopSection, targetTopSection)
+
+
+        cls.updateProperty(cls.PubProp.entryImOpenInTOC_UI, "-1")
+        hiddenSubsections = cls.readProperty(cls.PubProp.subsectionsHiddenInTOC_UI)
+        cls.updateProperty(cls.PubProp.subsectionsHiddenInTOC_UI, 
+                          [i.replace(sourceSectionPath, targetSectionPath) for i in hiddenSubsections])
+
+
+        subsections = cls.getSubsectionsList(sourceSectionPath)
+        subsections = [i.replace(sourceSectionPath, targetSectionPath) for i in subsections]
+        cls.removeSection(sourceSectionPath)
+        cls.addSection(targetSectionPath)
+
+        for subsection in subsections:
+            cls.addSection(subsection)
+
+    @classmethod
     def _getRelFilepath(cls):
         return os.path.join(cls.bookInfoFoldefRelPath,cls.bookInfoFilename)
     
@@ -159,22 +195,20 @@ class BookInfoStructure:
 
         subsectionsNamesList = list(subsections.keys())
         subsectionsList = list(subsections.values())
+
         while subsectionsList != []:
             section = subsectionsList[0]
             sectionName = subsectionsNamesList[0]
 
-            bottomSubsection = True
             for subSecName, subSec in section[sections].items():
-                bottomSubsection = False
                 subsectionsList.append(subSec)
                 subsectionsNamesList.append(subSecName)
             
-            if bottomSubsection:
-                outSubsectionsList.append(sectionName)
+            outSubsectionsList.append(sectionName)
             
             subsectionsList.pop(0)
             subsectionsNamesList.pop(0)
-        
+
         return outSubsectionsList
 
     @classmethod 

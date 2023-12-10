@@ -57,7 +57,7 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
     imIdx = None
     textETR = None
 
-    def __init__(self, patentWidget, prefix, row, column, imIdx, text):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width = 3):
         name = "_imageSizeTOC_ETR" + str(imIdx)
         self.defaultText = text
 
@@ -70,7 +70,7 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
                                             "font": ('Georgia 14')},
-            ww.TkWidgets.__name__ : {"width": 3}
+            ww.TkWidgets.__name__ : {"width": width}
         }
 
         super().__init__(prefix, 

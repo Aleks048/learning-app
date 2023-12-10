@@ -1722,6 +1722,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 changeStartPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                         [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
 
+                def __updateSubsectionPath(e, subsection, *args):
+                    targetSubsection = e.widget.get()
+                    sourceSubsection = subsection
+                    gm.GeneralManger.moveSubsection(sourceSubsection,
+                                                    targetSubsection)
+                    self.render()
+
+                updateSubsectionPath = _uuicom.ImageSize_ETR(locFrame,
+                                                        prefix = "contentUpdateSubsectionPosEntryText" + subsection.replace(".", ""),
+                                                        row = 0, 
+                                                        column = 5,
+                                                        imIdx = -1,
+                                                        text = subsection,
+                                                        width = 20)
+                updateSubsectionPath.subsection = subsection
+                updateSubsectionPath.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                        [lambda e, *args:__updateSubsectionPath(e, updateSubsectionPath.subsection, *args)])
 
                 hideSubsections = _uuicom.TOCLabelWithClick(locFrame, text = "[show/hide]",
                                                 prefix = "subsecShowHide" + subsection.replace(".", ""),
@@ -1750,6 +1767,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 if not self.showAll:
                     hideSubsections.render()
+                    updateSubsectionPath.render()
         else:
             openContentLabel = _uuicom.TOCLabelWithClick(locFrame, 
                                                  prefix = "openContentLabel" + subsection.replace(".", ""),

@@ -161,6 +161,75 @@ class SectionInfoStructure:
         ocf.Wr.FsAppCalls.copyFile(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
 
     @classmethod
+    def __moveSubsectionData(cls, bookpath, sourceSubsection, targetSubsection):
+        cls.updateProperty(sourceSubsection,
+                            cls.PubProp.name,
+                            targetSubsection,
+                            bookpath)
+        newLevel = str(len(targetSubsection.split(".")))
+        cls.updateProperty(sourceSubsection,
+                            cls.PubProp.level,
+                            newLevel,
+                            bookpath)
+
+    @classmethod
+    def __moveSectionFiles(cls, bookpath, sourceSection, targetSection):
+        sourceSectionPath = _upan.Paths.Section.getAbs(bookpath, sourceSection)
+        targetSectionPath = _upan.Paths.Section.getAbs(bookpath, targetSection)
+        ocf.Wr.FsAppCalls.moveFolder(sourceSectionPath, targetSectionPath)
+
+    @classmethod
+    def __copySectionFiles(cls, bookpath, sourceSection, targetSection):
+        sourceSectionPath = _upan.Paths.Section.getAbs(bookpath, sourceSection)
+        targetSectionPath = _upan.Paths.Section.getAbs(bookpath, targetSection)
+        ocf.Wr.FsAppCalls.copyFile(sourceSectionPath, targetSectionPath)
+
+    @classmethod
+    def __deleteSectionFiles(cls, bookpath, sourceSection, targetSection):
+        sourceSectionPath = _upan.Paths.Section.getAbs(bookpath, sourceSection)
+        ocf.Wr.FsAppCalls.removeDir(sourceSectionPath)
+
+    @classmethod
+    def __moveSectionLinks(cls, bookpath, sourceSectionPath, targetSectionPath):
+        cls.updateProperty(targetSectionPath, 
+                           cls.PubProp.imGlobalLinksDict,
+                           _u.Token.NotDef.dict_t.copy(),
+                           bookpath)
+        linkEntriesList = list(cls.readProperty(sourceSectionPath,
+                                                cls.PubProp.imGlobalLinksDict,
+                                                bookpath).keys())
+
+        for entryIdx in linkEntriesList:
+            gm.GeneralManger.RetargetGlLink(targetSectionPath, entryIdx,
+                                            sourceSectionPath, entryIdx)
+
+    @classmethod
+    def moveSection(cls, bookpath, sourceSectionPath, targetSectionPath):
+        subsections = bfs.BookInfoStructure.getSubsectionsList(sourceSectionPath)
+
+        for subsection in subsections:
+            newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
+            cls.__moveSubsectionData(bookpath, subsection, newSubsection)
+
+        cls.__moveSubsectionData(bookpath, sourceSectionPath, targetSectionPath)
+        cls.__copySectionFiles(bookpath, sourceSectionPath, targetSectionPath)
+        cls.__moveSectionLinks(bookpath, sourceSectionPath, targetSectionPath)
+
+        for subsection in subsections:
+            newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
+            cls.rebuildSubsectionImOnlyLatex(newSubsection,
+                                             _upan.Names.Subsection.getSubsectionPretty)
+        
+        cls.rebuildSubsectionImOnlyLatex(targetSectionPath,
+                                            _upan.Names.Subsection.getSubsectionPretty)
+
+        for subsection in subsections:
+            newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
+            cls.__moveSectionLinks(bookpath, subsection, newSubsection)
+
+        cls.__deleteSectionFiles(bookpath, sourceSectionPath, targetSectionPath)
+
+    @classmethod
     def addSection(cls, bookpath, sectionPath):
 
         # set the curr section to new section
