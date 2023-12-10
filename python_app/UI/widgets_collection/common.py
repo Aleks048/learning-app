@@ -1725,6 +1725,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def __updateSubsectionPath(e, subsection, *args):
                     targetSubsection = e.widget.get()
                     sourceSubsection = subsection
+
+                    # ask the user if we wnat to proceed.
+                    msg = "Do you want to move \n'{0}' \nto '{1}'?".format(sourceSubsection, targetSubsection)
+                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.show()
+
+                    if not response:
+                        return
+
                     gm.GeneralManger.moveSubsection(sourceSubsection,
                                                     targetSubsection)
                     self.render()
