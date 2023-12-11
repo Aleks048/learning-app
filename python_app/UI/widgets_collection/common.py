@@ -1808,6 +1808,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if not self.showAll:
                     hideSubsections.render()
                     updateSubsectionPath.render()
+                    removeSubsection.render()
         else:
             openContentLabel = _uuicom.TOCLabelWithClick(locFrame, 
                                                  prefix = "openContentLabel" + subsection.replace(".", ""),
