@@ -771,7 +771,8 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
 
         currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         
-        if targetSubsection in sourceSubsection:
+        if (targetSubsection in sourceSubsection) or \
+            (sourceSubsection in targetSubsection):
             tempSubsection = sourceSubsection.split(".")[0] + ".10000"
 
             fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
@@ -781,7 +782,8 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
 
             fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, tempSubsection)
 
-            cls.deleteSubsection(targetSubsection)
+            if targetSubsection in sourceSubsection:
+                cls.deleteSubsection(targetSubsection)
 
             fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
                                                     tempSubsection, 
