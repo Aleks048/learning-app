@@ -171,6 +171,16 @@ class JSON:
     __tempFiles = {}
 
     @classmethod
+    def reloadFilesFromDisk(cls):
+        import outside_calls.outside_calls_facade as ocf
+        paths = list(cls.__tempFiles.keys()).copy()
+        cls.__tempFiles = {}
+
+        for fp in paths:
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fp):
+                cls.readFile(fp)
+
+    @classmethod
     def saveFilesToDisk(cls):
         import outside_calls.outside_calls_facade as ocf
 

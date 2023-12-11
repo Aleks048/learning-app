@@ -1752,11 +1752,39 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 updateSubsectionPath.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                         [lambda e, *args:__updateSubsectionPath(e, updateSubsectionPath.subsection, *args)])
 
+                def __removeSubsection(e, subsection, *args):
+                    sourceSubsection = subsection
+
+                    # ask the user if we wnat to proceed.
+                    msg = "Do you want to remove \n'{0}'?".format(sourceSubsection)
+                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.show()
+
+                    if not response:
+                        return
+
+                    gm.GeneralManger.deleteSubsection(sourceSubsection)
+                    self.render()
+
+                removeSubsection = _uuicom.TOCLabelWithClick(locFrame,
+                                                        prefix = "contentRemoveSubsectionPosEntryText" + subsection.replace(".", ""),
+                                                        row = 0, 
+                                                        column = 6,
+                                                        text = "[delete]",
+                                                        width = 20)
+                removeSubsection.subsection = subsection
+                removeSubsection.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                        [lambda e, *args:__removeSubsection(e, removeSubsection.subsection, *args)])
+
                 hideSubsections = _uuicom.TOCLabelWithClick(locFrame, text = "[show/hide]",
                                                 prefix = "subsecShowHide" + subsection.replace(".", ""),
                                                 row = 0, column= 4)
                 hideSubsections.subsection = subsection
 
+                _uuicom.bindChangeColorOnInAndOut(removeSubsection)
                 _uuicom.bindChangeColorOnInAndOut(hideSubsections)
 
                 def showHideSubsectionsWrapper(subsection):

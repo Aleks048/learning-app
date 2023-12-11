@@ -185,7 +185,7 @@ class SectionInfoStructure:
         ocf.Wr.FsAppCalls.copyFile(sourceSectionPath, targetSectionPath)
 
     @classmethod
-    def __deleteSectionFiles(cls, bookpath, sourceSection, targetSection):
+    def __deleteSectionFiles(cls, bookpath, sourceSection):
         sourceSectionPath = _upan.Paths.Section.getAbs(bookpath, sourceSection)
         ocf.Wr.FsAppCalls.removeDir(sourceSectionPath)
 
@@ -204,12 +204,21 @@ class SectionInfoStructure:
                                             sourceSectionPath, entryIdx)
 
     @classmethod
-    def moveSection(cls, bookpath, sourceSectionPath, targetSectionPath):
-        subsections = bfs.BookInfoStructure.getSubsectionsList(sourceSectionPath)
+    def moveSection(cls, bookpath, sourceSectionPath, targetSectionPath, shouldRebuild = True):   
+        allSubsectionsList = bfs.BookInfoStructure.getSubsectionsList()
 
-        for subsection in subsections:
-            newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
-            cls.__moveSubsectionData(bookpath, subsection, newSubsection)
+        targetSectionPathList:list = targetSectionPath.split(".")
+        tempPath = targetSectionPathList.pop(0)
+
+        for tp in targetSectionPathList:
+            if tempPath not in allSubsectionsList:
+                cls.addSection(bookpath, tempPath)
+                cls.rebuildSubsectionImOnlyLatex(tempPath,
+                                _upan.Names.Subsection.getSubsectionPretty)
+            
+            tempPath += "." + tp
+
+        subsections = bfs.BookInfoStructure.getSubsectionsList(sourceSectionPath)
 
         cls.__moveSubsectionData(bookpath, sourceSectionPath, targetSectionPath)
         cls.__copySectionFiles(bookpath, sourceSectionPath, targetSectionPath)
@@ -217,17 +226,21 @@ class SectionInfoStructure:
 
         for subsection in subsections:
             newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
-            cls.rebuildSubsectionImOnlyLatex(newSubsection,
-                                             _upan.Names.Subsection.getSubsectionPretty)
+            cls.__moveSubsectionData(bookpath, subsection, newSubsection)
+            if shouldRebuild:
+                cls.rebuildSubsectionImOnlyLatex(newSubsection,
+                                                 _upan.Names.Subsection.getSubsectionPretty)
         
-        cls.rebuildSubsectionImOnlyLatex(targetSectionPath,
-                                            _upan.Names.Subsection.getSubsectionPretty)
+        if shouldRebuild:
+            cls.rebuildSubsectionImOnlyLatex(targetSectionPath,
+                                                _upan.Names.Subsection.getSubsectionPretty)
 
         for subsection in subsections:
             newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
             cls.__moveSectionLinks(bookpath, subsection, newSubsection)
 
-        cls.__deleteSectionFiles(bookpath, sourceSectionPath, targetSectionPath)
+        cls.__deleteSectionFiles(bookpath, sourceSectionPath)
+
 
     @classmethod
     def addSection(cls, bookpath, sectionPath):
@@ -1032,18 +1045,32 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                         tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath)
 
     @classmethod
+    def __removeLinksForSubsection(cls, subsection):
+        glLinks = cls.readProperty(subsection, cls.PubProp.imGlobalLinksDict)
+        for entryIdx in list(glLinks.keys()):
+            if type(glLinks[entryIdx]) == dict:
+                sourceLinks = glLinks[entryIdx].copy()
+
+                for sl, slfull in sourceLinks.items():
+                    if "KIK:" in slfull:
+                        slsubsection = sl.split("_")[0]
+                        slImIdx = sl.split("_")[1]
+                        gm.GeneralManger.RemoveGlLink(slsubsection, subsection, entryIdx, slImIdx)
+
+    @classmethod
     def removeSection(cls, sectionPath):
-        # take care if the section is current section
+        # removing the links
+        cls.__removeLinksForSubsection(sectionPath)
 
-        currSection = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
-        # set the curr section to not defined
-        # bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+        subsections = bfs.BookInfoStructure.getSubsectionsList(sectionPath)
 
-        # sectionPathSeparator = \
-        #     bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.sections_path_separator) 
+        for subsection in subsections:
+            cls.__removeLinksForSubsection(subsection)
+            
 
-        
-        pass
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        cls.__deleteSectionFiles(currBookpath,
+                                 sectionPath)
 
     @classmethod
     def readProperty(cls, sectionPath, propertyName, bookPath = None):

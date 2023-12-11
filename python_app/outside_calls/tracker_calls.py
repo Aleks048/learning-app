@@ -37,6 +37,7 @@ class GitTracker:
 
     def stampChanges(bookPath, id, force = False):
         _u.JSON.saveFilesToDisk()
+        _u.JSON.reloadFilesFromDisk()
 
         if dc.StartupConsts.WITH_TRACKING:
             if not force:

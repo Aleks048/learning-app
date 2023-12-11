@@ -752,13 +752,52 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
         msg = "Adding the OM with name: '{0}'".format(origMatName)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-    def moveSubsection(sourceSubsection, targetSubsection):
-        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
-                                                sourceSubsection, 
-                                                targetSubsection)
+    def deleteSubsection(sourceSubsection):            
+        # Updating the remote
+        msg = f"Before the subsection '{sourceSubsection}'."
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, targetSubsection)
+        fsf.Wr.SectionInfoStructure.removeSection(sourceSubsection)
+        fsf.Wr.BookInfoStructure.removeSection(sourceSubsection)
+
+        msg = f"After the subsection '{sourceSubsection}'."
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+    @classmethod
+    def moveSubsection(cls, sourceSubsection, targetSubsection):
+        # Updating the remote
+        msg = f"Before Moving the subsection '{sourceSubsection}' to '{targetSubsection}'."
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        
+        if targetSubsection in sourceSubsection:
+            tempSubsection = sourceSubsection.split(".")[0] + ".10000"
+
+            fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
+                                                    sourceSubsection, 
+                                                    tempSubsection,
+                                                    shouldRebuild = False)
+
+            fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, tempSubsection)
+
+            cls.deleteSubsection(targetSubsection)
+
+            fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
+                                                    tempSubsection, 
+                                                    targetSubsection)
+
+            fsf.Wr.BookInfoStructure.moveSection(tempSubsection, targetSubsection)
+        else:
+            fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
+                                                    sourceSubsection, 
+                                                    targetSubsection)
+
+            fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, targetSubsection)
+        
+        # Updating the remote
+        msg = f"After Moving the subsection '{sourceSubsection}' to '{targetSubsection}'."
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     def readdNotesToPage(currPage):
         omName = fsf.Data.Book.currOrigMatName
