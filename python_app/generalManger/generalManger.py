@@ -127,19 +127,24 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # init the tracking system
         ocf.Wr.TrackerAppCalls.initBook(bookPath, bookRemoteAddress)
     
-    def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None):
-        ocf.Wr.ScreenshotCalls.takeScreenshot(imPath)
-        timer = 0
+    def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
+        if not textOnly:
+            ocf.Wr.ScreenshotCalls.takeScreenshot(imPath)
+            timer = 0
 
-        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
-            time.sleep(0.3)
-            timer += 1
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
+                time.sleep(0.3)
+                timer += 1
 
-            if timer > 50:
-                break
+                if timer > 50:
+                    break
 
         if eImIdx == None:
-            imText = _u.getTextFromImage(imPath)
+            if not textOnly:
+                imText = _u.getTextFromImage(imPath)
+            else:
+                imText = _u.Token.NotDef.str_t
+
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
             imageTextsDict[mainImIdx] = imText
@@ -231,7 +236,8 @@ The correct extra image was not created for \n\
         fsf.Data.Sec.extraImagesDict(subsection, extraImagesDict)
 
     @classmethod
-    def AddEntry(cls, subsection, imIdx:str, imText:str, addToTOC:bool, addToTOCwIm:bool):
+    def AddEntry(cls, subsection, imIdx:str, imText:str, 
+                 addToTOCwIm:bool, textOnly:bool = False):
         import UI.widgets_facade as wf
 
         currBorrPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -241,34 +247,38 @@ The correct extra image was not created for \n\
                                                                        str(imIdx))
 
         # take a screenshot
-        if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
-            mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                        wf.Wr.MenuManagers.MessageMenuManager)
-            
-            response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
-            
-            if response:
-                ocf.Wr.FsAppCalls.deleteFile(imagePath)
-                ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+        if not textOnly:
+            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
+                mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
+                                                            wf.Wr.MenuManagers.MessageMenuManager)
+                
+                response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
+                
+                if response:
+                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
+                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
 
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                   wf.Wr.MenuManagers.MathMenuManager)
+                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                    wf.Wr.MenuManagers.MathMenuManager)
 
-            mainManager.show()
+                mainManager.show()
 
-            if not response:
-                return
+                if not response:
+                    return
+            else:
+                cls.AddNewImageData(subsection, imIdx, imagePath)
+
+            timer = 1
+
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                time.sleep(0.3)
+                timer += 1
+
+                if timer > 50:
+                    return False
         else:
-            cls.AddNewImageData(subsection, imIdx, imagePath)
+            cls.AddNewImageData(subsection, imIdx, imagePath, textOnly=textOnly)
 
-        timer = 1
-
-        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-            time.sleep(0.3)
-            timer += 1
-
-            if timer > 50:
-                return False
 
         linkDict = fsf.Data.Sec.imLinkDict(subsection)
         imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
@@ -307,12 +317,13 @@ The correct extra image was not created for \n\
             if not response:
                 return False
 
-        # ADD CONTENT ENTRY TO THE PROCESSED CHAPTER
-        tff.Wr.TexFileModify.addProcessedImage(subsection, imIdx, imText)
+        textOnlyDict = fsf.Data.Sec.textOnly(subsection)
+        textOnlyDict[imIdx] = textOnly
+        fsf.Data.Sec.textOnly(subsection, textOnlyDict)
 
         # STOTE IMNUM, IMNAME AND LINK
         fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
-        
+
         # ORIGINAL MATERIAL DATA
         origMatName = fsf.Data.Book.currOrigMatName
 

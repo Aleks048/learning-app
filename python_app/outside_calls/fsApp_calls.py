@@ -17,22 +17,28 @@ class FinderCalls:
 
     @classmethod
     def moveFile(cls, sourceFilepath, destFilepath):
-        if sourceFilepath != destFilepath:
-            cls.copyFile(sourceFilepath, destFilepath)
-            cls.deleteFile(sourceFilepath)
+        if cls.checkIfFileOrDirExists(sourceFilepath):
+            if sourceFilepath != destFilepath:
+                cls.copyFile(sourceFilepath, destFilepath)
+                cls.deleteFile(sourceFilepath)
+        else:
+            log.autolog("Could not remove filepath: '{0}'. It does not seem to exist.".format(sourceFilepath))
 
     @classmethod
     def copyFile(cls, sourceFilepath, destFilepath):
-        sourceFilepath_pl = pathlib.Path(sourceFilepath)
-        destFolder = pathlib.Path(destFilepath).parent
+        if cls.checkIfFileOrDirExists(sourceFilepath):
+            sourceFilepath_pl = pathlib.Path(sourceFilepath)
+            destFolder = pathlib.Path(destFilepath).parent
 
-        if not cls.checkIfFileOrDirExists(destFolder):
-            os.makedirs(destFolder, exist_ok=True)
+            if not cls.checkIfFileOrDirExists(destFolder):
+                os.makedirs(destFolder, exist_ok=True)
 
-        if not sourceFilepath_pl.is_file():
-            return copy_tree(sourceFilepath, destFilepath)
+            if not sourceFilepath_pl.is_file():
+                return copy_tree(sourceFilepath, destFilepath)
 
-        return shutil.copy2(sourceFilepath, destFilepath)
+            return shutil.copy2(sourceFilepath, destFilepath)
+        else:
+            log.autolog("Could not remove filepath: '{0}'. It does not seem to exist.".format(sourceFilepath))
 
     def moveFolder(sourceFilepath, destFilepath):
         return shutil.move(sourceFilepath, destFilepath)

@@ -45,6 +45,7 @@ class SectionInfoStructure:
         imageUIResize = "imageUIResize"
         imageText = "imageText"
         extraImText = "extraImText"
+        textOnly = "textOnly"
 
         # link to note taking app
         notesAppLink = "_notesAppLink"
@@ -93,7 +94,8 @@ class SectionInfoStructure:
                 cls.PubProp.imagesGroupDict : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.imageUIResize : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.imageText : _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.extraImText : _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.extraImText : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.textOnly : _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
@@ -545,6 +547,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imagesGroupDict = cls.__shiftTheItemsInTheDict(imagesGroupDict, imIdx)
         cls.updateProperty(subsection, cls.PubProp.imagesGroupDict, imagesGroupDict)
 
+        textOnlyDict = cls.readProperty(subsection, cls.PubProp.textOnly)
+        textOnlyDict.pop(imIdx, None)
+
+        if textOnlyDict == {}:
+            textOnlyDict = _u.Token.NotDef.dict_t.copy()
+
+        textOnlyDict = cls.__shiftTheItemsInTheDict(textOnlyDict, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.textOnly, textOnlyDict)
+
         imagesText = cls.readProperty(subsection, cls.PubProp.imageText)
         imagesText.pop(imIdx, None)
 
@@ -732,8 +743,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.PubProp.tocWImageDict,
             cls.PubProp.imagesGroupDict,
             cls.PubProp.imageText,
-            cls.PubProp.extraImText
-
+            cls.PubProp.extraImText,
+            cls.PubProp.textOnly
         ]
 
         for p in properties:
@@ -877,7 +888,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                          cls.PubProp.tocWImageDict,
                          cls.PubProp.imagesGroupDict,
                          cls.PubProp.imageText,
-                         cls.PubProp.extraImText
+                         cls.PubProp.extraImText,
+                         cls.PubProp.textOnly
                          ]
 
         for p in propertiesList:

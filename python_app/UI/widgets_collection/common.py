@@ -1403,21 +1403,28 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 self.widgetToScrollTo = showImages
 
                         if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
+                            textOnly = fsm.Data.Sec.textOnly(subsection)[k]
                             textLabelPage.render()
+
                             if not showImages.alwaysShow:
-                                textLabelFull.render()
+                                if not textOnly:
+                                    textLabelFull.render()
 
                             if not self.showAll:
-                                showImages.render()
-                                chkbtnShowPermamently.grid(row = gridRowStartIdx, 
-                                                           column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+                                if not textOnly:
+                                    showImages.render()
+                                    chkbtnShowPermamently.grid(row = gridRowStartIdx, 
+                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+
                                 imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
                                 removeEntry.render()
 
                             addLinkEntry.render()
                             copyLinkEntry.render()
                             pasteLinkEntry.render()
-                            retakeImageForEntry.render()
+
+                            if not textOnly:
+                                retakeImageForEntry.render()
 
                             showLinks = False
 
@@ -1435,7 +1442,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             copyEntry.render()
                             pasteAfterEntry.render()
                             changeImText.render()
-                            changeImSize.render()
+
+                            if not textOnly:
+                                changeImSize.render()
 
                         if self.entryAsETR.widget == None:
                             openOMOnThePageOfTheImage(textLabelPage, subsection, k)

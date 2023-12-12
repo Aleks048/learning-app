@@ -531,23 +531,29 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
         return super().render()
 
 
-class addToTOC_CHB(ww.currUIImpl.Checkbox):
+class TextOnly_CHB(ww.currUIImpl.Checkbox):
+    etenriesTextOnlyDefault = 0
+
     def __init__(self, parentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
         }
-        name = "_create_toc"
-        text = "add TOC entry"
+        name = "_NoImgToTOC_CHB"
+        text = "Text Only"
         super().__init__(prefix, 
                         name,
                         parentWidget, 
                         renderData = renderData, 
                         text = text)
-        self.setData(True)
-        
+        self.etenriesTextOnlyDefault = bool(fsf.Data.Book.etenriesTextOnlyDefault)
+        self.setData(self.etenriesTextOnlyDefault)
+
     def receiveNotification(self, broadcasterName):
-        return self.getData()
+        outData =  True if self.getData() == 1 else False
+        self.setData(self.etenriesTextOnlyDefault)
+
+        return outData
 
 
 class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
@@ -606,8 +612,8 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
 
                 return
 
-            addToTOC = self.notify(addToTOC_CHB)
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
+            textOnly = self.notify(TextOnly_CHB)
 
             msg = "\
 Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromUser[0], self.dataFromUser[1])
@@ -623,9 +629,9 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             currSubsection = fsf.Data.Book.currSection
             entryAdded:bool = gm.GeneralManger.AddEntry(currSubsection, 
                                                         self.dataFromUser[0], 
-                                                        self.dataFromUser[1], 
-                                                        addToTOC, 
-                                                        addToTOCwIm)
+                                                        self.dataFromUser[1],
+                                                        addToTOCwIm,
+                                                        textOnly)
 
             if not entryAdded:
                 return

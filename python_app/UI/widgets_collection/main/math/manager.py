@@ -36,10 +36,10 @@ class LayoutManagers:
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
             
-            addToTOC_CHB = ml.addToTOC_CHB(winRoot, self.prefix)
-            self.addWidget(addToTOC_CHB)
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
             self.addWidget(addToTOCwImage_CHB)
+            textOnly_CHB = ml.TextOnly_CHB(winRoot, self.prefix)
+            self.addWidget(textOnly_CHB)
 
             layouts_OM = commw.Layouts_OM(winRoot, self.prefix)
             self.addWidget(layouts_OM)
@@ -49,8 +49,8 @@ class LayoutManagers:
             
             imageGeneration_BTN = ml.ImageGeneration_BTN(winRoot, self.prefix)
             imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
-            imageGeneration_BTN.addListenerWidget(addToTOC_CHB)
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
+            imageGeneration_BTN.addListenerWidget(textOnly_CHB)
             imageGeneration_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(imageGeneration_BTN)
 

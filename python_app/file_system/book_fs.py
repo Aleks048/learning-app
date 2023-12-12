@@ -41,6 +41,7 @@ class BookInfoStructure:
         imageTOCFileMoveLinesNumber = "imageTOCFileMoveLinesNumber"
 
         currOrigMatName = "currOrigMatName"
+        etenriesTextOnlyDefault = "etenriesTextOnlyDefault"
 
         # UI
         subsectionOpenInTOC_UI = "subsectionOpenInTOC_UI"
@@ -55,6 +56,7 @@ class BookInfoStructure:
         PubProp.subsectionOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.entryImOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.subsectionsHiddenInTOC_UI: _u.Token.NotDef.list_t.copy(),
+        PubProp.etenriesTextOnlyDefault: _u.Token.NotDef.int_t,
         PubProp.sections: {
         },
         PubProp.currentState: {
