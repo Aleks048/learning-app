@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import time
+from AppKit import NSPasteboard, NSStringPboardType
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -143,7 +144,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             if not textOnly:
                 imText = _u.getTextFromImage(imPath)
             else:
-                imText = _u.Token.NotDef.str_t
+                pb = NSPasteboard.generalPasteboard()
+                imText = pb.stringForType_(NSStringPboardType)
 
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict

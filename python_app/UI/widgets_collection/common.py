@@ -231,6 +231,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.imIdx = _u.Token.NotDef.str_t
             self.widget = None
 
+    class entryTextOnlyAsETR:
+        subsection = _u.Token.NotDef.str_t
+        imIdx = _u.Token.NotDef.str_t
+        widget = None
+
+        def reset(self):
+            self.subsection = _u.Token.NotDef.str_t
+            self.imIdx = _u.Token.NotDef.str_t
+            self.widget = None
+
     class subsectionAsETR:
         subsection = _u.Token.NotDef.str_t
         widget = None
@@ -268,6 +278,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.showLinks = showLinks
 
         self.entryAsETR = TOC_BOX.entryAsETR()
+        self.entryTextOnlyAsETR = TOC_BOX.entryTextOnlyAsETR()
         self.subsectionAsETR = TOC_BOX.entryAsETR()
         self.groupAsETR = TOC_BOX.groupAsETR()
 
@@ -497,7 +508,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
                                 shouldScroll = False, 
-                                imPad = 120, link = False,
+                                imPad = 120, link = False, textOnly = False,
                                 *args):
             label:_uuicom.TOCLabelWithClick = event.widget
             imIdx = label.imIdx
@@ -576,35 +587,86 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         resizeFactor = 1.0
 
-                    imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
-                                                              imPad, self.displayedImages, 
-                                                              balloon, bindData, resizeFactor = resizeFactor)
+                    if not textOnly:
+                        imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
+                                                                imPad, self.displayedImages, 
+                                                                balloon, bindData, resizeFactor = resizeFactor)
 
-                    imLabel.render()
+                        imLabel.render()
+                    else:
+                        def __updateEntryTextOnly(event, *args):
+                            if (self.entryTextOnlyAsETR.subsection != _u.Token.NotDef.str_t) and \
+                                (self.entryTextOnlyAsETR.imIdx != _u.Token.NotDef.str_t):
+                                newText = self.entryTextOnlyAsETR.widget.getData()
+                                imTextDict = fsm.Data.Sec.imageText(self.entryTextOnlyAsETR.subsection)
+                                imTextDict[self.entryTextOnlyAsETR.imIdx] = newText
+                                fsm.Data.Sec.imageText(self.entryTextOnlyAsETR.subsection, imTextDict)
+                                self.entryTextOnlyAsETR.reset()
+                                self.__renderWithScrollAfter()
+                            else:
+                                self.entryTextOnlyAsETR.subsection = event.widget.subsection
+                                self.entryTextOnlyAsETR.imIdx = event.widget.imIdx
+                                self.entryTextOnlyAsETR.widget = event.widget.etrWidget
+                                self.__renderWithScrollAfter()
+
+                        mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
+                        txt = fsm.Data.Sec.imageText(subsection)[imIdx]
+
+                        if (subsection == self.entryTextOnlyAsETR.subsection)\
+                            and (imIdx == self.entryTextOnlyAsETR.imIdx) :
+                            imLabel = _uuicom.MultilineText_ETR(tframe, 
+                                                                      mainWidgetName, 
+                                                                      3,
+                                                                      0, 
+                                                                      0, 
+                                                                      txt)
+                            imLabel.imIdx = imIdx
+                            imLabel.subsection = subsection
+                            imLabel.etrWidget = imLabel
+                            imLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                                 [__updateEntryTextOnly])
+                            self.entryTextOnlyAsETR.widget = imLabel
+                            imLabel.render()
+                            imLabel.focus_force()
+                        else:
+                            imLabel = _uuicom.TOCLabelWithClick(tframe, 
+                                                                mainWidgetName,
+                                                                3,
+                                                                0,
+                                                                1000,
+                                                                text=txt,
+                                                                pad = [imPad, 0, 0, 0]
+                                                                )
+                            imLabel.subsection = subsection
+                            imLabel.imIdx = imIdx
+                            imLabel.render()
+                            if not link:
+                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
 
                     if not isWdgetLink:
                         self.openedMainImg = imLabel
 
-                    # extraImages
-                    def skippProof(subsection, imIdx, exImIdx):
-                        extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
-                        eImText = extraImages[exImIdx]
-                        return "proof" in eImText.lower()\
-                                and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
+                    if not textOnly:
+                        # extraImages
+                        def skippProof(subsection, imIdx, exImIdx):
+                            extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
+                            eImText = extraImages[exImIdx]
+                            return "proof" in eImText.lower()\
+                                    and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
 
-                    exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
-                                                                    imPad, self.displayedImages, balloon,
-                                                                    skippProof, resizeFactor, tocFrame = self)
-                    for l in exImLabels:
-                        l.render()
-                    
+                        exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
+                                                                        imPad, self.displayedImages, balloon,
+                                                                        skippProof, resizeFactor, tocFrame = self)
+                        for l in exImLabels:
+                            l.render()
+
                     if int(event.type) == 4 or \
                        int(event.type) == 35:
                         for child in tframe.winfo_children():
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
-                    if shouldScroll:
+                    if shouldScroll and (not textOnly):
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     if not isWdgetLink:
@@ -836,6 +898,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
 
                     for k,v in links.items():
+                        textOnly = fsm.Data.Sec.textOnly(subsection)[k]
+
                         entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
                         
                         if k in list(extraImagesDict.keys()):
@@ -1060,9 +1124,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.subsection = subsection
                         showImages.clicked = False
 
-                        showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
-                                          [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True, *args),
-                                           lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
+                        if not textOnly:
+                            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
+                                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True, *args),
+                                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
+                        else:
+                            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
+                                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
+                                                                                  True, textOnly = True, *args),
+                                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
+                                                                                 False, textOnly = True,*args)])
 
                         removeEntry = _uuicom.TOCLabelWithClick(tempFrame,
                                                      text = self.__EntryUIs.delete.name,
@@ -1239,6 +1310,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
                                             targetSubsection = ln.split("_")[0]
                                             targetImIdx = ln.split("_")[1]
+                                            textOnlyLink = fsm.Data.Sec.textOnly(targetSubsection)[targetImIdx]
 
                                             glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
                                                                     glLinkImLablel, 
@@ -1299,14 +1371,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                             glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
 
                                             _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
-                                            glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                                                                    [lambda e, *args: __showIMagesONClick(e, 
-                                                                                                        glLinksShowImages,
-                                                                                                        glLinkSubSecID, 
-                                                                                                        False, 
-                                                                                                        150, 
-                                                                                                        True, 
-                                                                                                        *args)])
+
+                                            if not textOnlyLink:
+                                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                                                                        [lambda e, *args: __showIMagesONClick(e, 
+                                                                                                            glLinksShowImages,
+                                                                                                            glLinkSubSecID, 
+                                                                                                            False, 
+                                                                                                            150,
+                                                                                                            True, 
+                                                                                                            *args)])
+                                            else:
+                                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                                                                        [lambda e, *args: __showIMagesONClick(e, 
+                                                                                                            glLinksShowImages,
+                                                                                                            glLinkSubSecID, 
+                                                                                                            False, 
+                                                                                                            150, 
+                                                                                                            True, 
+                                                                                                            textOnly = True,
+                                                                                                            *args)])
 
                                             linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                         text = "[del]", 
@@ -1403,16 +1487,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 self.widgetToScrollTo = showImages
 
                         if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
-                            textOnly = fsm.Data.Sec.textOnly(subsection)[k]
                             textLabelPage.render()
 
                             if not showImages.alwaysShow:
-                                if not textOnly:
-                                    textLabelFull.render()
+                                textLabelFull.render()
 
                             if not self.showAll:
+                                showImages.render()
+
                                 if not textOnly:
-                                    showImages.render()
                                     chkbtnShowPermamently.grid(row = gridRowStartIdx, 
                                                             column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
 
