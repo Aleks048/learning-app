@@ -1003,12 +1003,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
     @classmethod
     def rebuildGroupOnlyImOnlyLatex(cls, subsection,
-                                        groupName,
-                                        fromGroupNameToFilename):
-
+                                        groupName):
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        gi = str(list(cls.readProperty(subsection,
+                                       cls.PubProp.imagesGroupsList,
+                                       currBookpath).keys()).index(groupName))
         groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                                     subsection,
-                                                                    fromGroupNameToFilename(groupName))
+                                                                    gi)
         tex = tff.Wr.TexFileUtils.formatEntrytext(groupName)
 
         return tff.Wr.TexFileUtils.fromTexToImage(tex, groupImgPath, padding = 10, imageColor="#109464")
@@ -1029,8 +1031,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         # rebuild groups
         for g in groups:
             cls.rebuildGroupOnlyImOnlyLatex(subsection,
-                                            g,
-                                            fromGroupNameToFilename)
+                                            g)
 
         # subsection image
         cls.rebuildSubsectionImOnlyLatex(subsection,

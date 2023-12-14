@@ -938,17 +938,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                               row = i + 2, column = 0, columnspan = 100)
 
                         def getGroupImg(subsection, currImGroupName):
+                            gi = str(list(fsm.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
                             groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                                     subsection,
-                                                                    _upan.Names.Group.formatGroupText(currImGroupName))
+                                                                    gi)
 
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
                                 result = Image.open(groupImgPath)
                             else:
                                 result = \
                                     fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
-                                                                                            currImGroupName,
-                                                                                            _upan.Names.Group.formatGroupText)
+                                                                                            currImGroupName)
 
                             shrink = 0.8
                             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
@@ -974,11 +974,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                             {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
                                         fsm.Data.Sec.imagesGroupsList(self.subsectionAsETR.subsection,
                                                                       imagesGroupsList)
-
-                                        fsm.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
-                                                                   _upan.Names.Group.formatGroupText,
-                                                                   _upan.Names.Subsection.getSubsectionPretty,
-                                                                   _upan.Names.Subsection.getTopSectionPretty)
+                                        fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
+                                                                                                newText)
 
                                         self.groupAsETR.reset()
                                     else:
