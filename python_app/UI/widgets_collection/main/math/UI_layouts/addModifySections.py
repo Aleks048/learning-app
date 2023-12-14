@@ -343,7 +343,12 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         
     def __getSectionPath_Formatted(self, secName):
         currSubsection = fsf.Data.Book.currSection
-        currImIdx = list(fsf.Data.Sec.imLinkDict(currSubsection).keys())[-1]
+        entries = fsf.Data.Sec.imLinkDict(currSubsection)
+
+        if type(entries) == dict:
+            currImIdx = list(entries.keys())[-1]
+        else:
+            currImIdx = _u.Token.NotDef.str_t
 
         if currSubsection != _u.Token.NotDef.str_t:
             if currImIdx in list(fsf.Data.Sec.origMatNameDict(currSubsection).keys()):

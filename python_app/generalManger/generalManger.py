@@ -127,6 +127,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         
         # init the tracking system
         ocf.Wr.TrackerAppCalls.initBook(bookPath, bookRemoteAddress)
+
+        # Updating the remote
+        msg = "Adding new book: " + bookName
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
     
     def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
         if not textOnly:
