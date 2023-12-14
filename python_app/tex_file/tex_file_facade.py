@@ -36,7 +36,7 @@ class Wr:
                            fixedHeight = None,
                            fontSize = 12,
                            textSize = 14,
-                           numSymPerLine = 55):
+                           numSymPerLine = 50):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""

@@ -332,6 +332,9 @@ The correct extra image was not created for \n\
         fsf.Data.Sec.textOnly(subsection, textOnlyDict)
 
         # STOTE IMNUM, IMNAME AND LINK
+        if imText == _u.Token.NotDef.str_t:
+            imText = fsf.Data.Sec.imageText(subsection)[imIdx]
+
         fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
 
         # ORIGINAL MATERIAL DATA

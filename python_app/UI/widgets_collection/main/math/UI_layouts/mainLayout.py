@@ -703,6 +703,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             return
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
+
+            if prevData == "":
+                prevData = _u.Token.NotDef.str_t
+
             self.setData(dataToSet)
             return prevData
         elif broadcasterType == ChooseSubsection_OM or broadcasterType == ChooseTopSection_OM:
