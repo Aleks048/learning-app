@@ -147,6 +147,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 pb = NSPasteboard.generalPasteboard()
                 imText = pb.stringForType_(NSStringPboardType)
 
+                if imText == None:
+                    imText = _u.Token.NotDef.str_t
+
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
             imageTextsDict[mainImIdx] = imText
