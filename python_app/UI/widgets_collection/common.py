@@ -1917,7 +1917,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                  prefix = "openContentLabel" + subsection.replace(".", ""),
                                                  text = "[content]", padding = [0, 20, 0, 0],
                                                  row = 0, column= 1)
-            openContentLabel.clicked = self.showSubsectionsForTopSection[subsection]
+
+            if subsection in list(self.showSubsectionsForTopSection.keys()):
+                openContentLabel.clicked = self.showSubsectionsForTopSection[subsection]
+            else:
+                self.showSubsectionsForTopSection[subsection] = True
+                openContentLabel.clicked = True
+
             openContentOfTheTopSection(locFrame, openContentLabel)
             _uuicom.bindChangeColorOnInAndOut(openContentLabel)
 

@@ -519,14 +519,14 @@ the format is [0-9]+-*[0-0]*. Will return default notDef tokens.".format(text)
         
             if len(text) > 1:
                 # we have the first and last page
-                if int(text[1]) < int(text[0]):
-                    msg = "\
-NOTE: The section starting page '{0}' is larger than the end page '{1}'.".format(text[0], text[1])
-                    wm.UI_generalManager.showNotification(msg, True)
+#                 if int(text[1]) < int(text[0]):
+#                     msg = "\
+# NOTE: The section starting page '{0}' is larger than the end page '{1}'.".format(text[0], text[1])
+#                     wm.UI_generalManager.showNotification(msg, True)
 
-                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                                mmm.MathMenuManager)
-                    mainManager.show()
+#                     mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+#                                                                 mmm.MathMenuManager)
+#                     mainManager.show()
 
                 return text[0], text[1]
             else:

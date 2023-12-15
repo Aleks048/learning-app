@@ -713,7 +713,7 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
         if not re.match("[[\d]+.]*\d+", secPath):
             msg = "\
 The section with path :'{0}' has wrong format.\n\
-Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath)
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
