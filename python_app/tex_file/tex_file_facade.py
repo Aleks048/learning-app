@@ -24,8 +24,15 @@ class Wr:
    
     class TexFileUtils:
         def formatEntrytext(text:str):
+            prefix = text.split("}")[0] + "}"
+            restOfText = text.replace(prefix, "")
+            restOfText = re.sub(r"([^\\]){", r"\1\\{", restOfText)
+            restOfText = re.sub(r"([^\\])}", r"\1\\}", restOfText)
+            text = prefix + restOfText
+
             text = text.replace(" ", "\ ")
             text = text.replace("\n", "\\\\")
+
             return text
 
         def fromTexToImage(tex, 
