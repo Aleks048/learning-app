@@ -626,6 +626,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                                  [__updateEntryTextOnly])
                             self.entryTextOnlyAsETR.widget = imLabel
+                            imLabel.rebind(*bindData)
                             imLabel.render()
                             imLabel.focus_force()
                         else:

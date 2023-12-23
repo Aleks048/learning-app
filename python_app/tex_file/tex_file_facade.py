@@ -24,25 +24,7 @@ class Wr:
    
     class TexFileUtils:
         def formatEntrytext(text:str):
-            textList = text.split("}")
-            prefix = textList[0]
-            restOfText = ""
-
-            if len(textList) > 1:
-                prefix += "}"
-                restOfText = text.replace(prefix, "")
-                restOfText = re.sub(r"([^\\]){", r"\1\\{", restOfText)
-                restOfText = re.sub(r"([^\\])}", r"\1\\}", restOfText)
-            else:
-                if "}" in text:
-                    prefix += "}"
-
-            text = prefix + restOfText
-
-            text = text.replace("_", "\_")
             text = text.replace(" ", "\ ")
-            text = text.replace("[", "(")
-            text = text.replace("]", ")")
             text = text.replace("\n", "\\\\")
 
             return text

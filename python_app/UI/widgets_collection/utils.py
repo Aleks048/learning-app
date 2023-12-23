@@ -23,11 +23,13 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
         self.defaultText = text
+        textlen = len(text)
+        height = textlen // 50
         self.row = row
         self.column = column
 
-        super().__init__(patentWidget, wrap=tk.WORD, 
-                         width = 70, height = 5)
+        super().__init__(patentWidget, wrap=None, 
+                         width = 70, height = height)
         self.insert(tk.END, text)
     
     def getData(self):
@@ -50,6 +52,9 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
     def render(self):
         self.grid(row = self.row, column = self.column)
+    
+    def generateEvent(self, event):
+        self.event_generate(event)
 
 
 class ImageSize_ETR(ww.currUIImpl.TextEntry):

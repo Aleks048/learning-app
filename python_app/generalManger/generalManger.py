@@ -156,6 +156,14 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 if imText == None:
                     imText = _u.Token.NotDef.str_t
 
+                imText = imText.replace("_", "\_")
+
+                imText = re.sub(r"([^\\]){", r"\1\\{", imText)
+                imText = re.sub(r"([^\\])}", r"\1\\}", imText)
+
+                imText = imText.replace("[", "(")
+                imText = imText.replace("]", ")")
+
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
             imageTextsDict[mainImIdx] = imText
