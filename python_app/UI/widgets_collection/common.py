@@ -654,8 +654,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imLabel.subsection = subsection
                             imLabel.imIdx = imIdx
                             imLabel.render()
+
                             if not link:
                                 imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                                imLabel.rebind(*bindData)
 
                     if not isWdgetLink:
                         self.openedMainImg = imLabel
@@ -680,7 +682,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
-                    if shouldScroll and (not textOnly):
+                    if shouldScroll:
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     if not isWdgetLink:
