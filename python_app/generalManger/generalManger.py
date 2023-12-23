@@ -49,6 +49,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("-- Srartup  of other menus ended.")
 
         mainMenuManager.showOnly()
+        mainMenuManager.moveTocToCurrEntry()
 
 
     @classmethod

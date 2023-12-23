@@ -167,7 +167,7 @@ class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
         tocWImageDict[self.imidx] = str(self.var.get())
         fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
 
-        self.tocBox.render()
+        self.tocBox.renderWithoutScroll()
 
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
@@ -1623,7 +1623,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.showAll:
                     label.clicked = True
                     self.showSubsectionsForTopSection[subsection] = True
-                    self.render()
+                    self.__renderWithScrollAfter()
                 else:
                     if int(event.type) == 4:
                         self.subsectionClicked = _u.Token.NotDef.str_t
@@ -1633,7 +1633,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.openedMainImg = None
 
                         self.showSubsectionsForTopSection[subsection] = False
-                        self.render()
+                        self.__renderWithScrollAfter()
 
                 event.widget.configure(foreground="white")
             
@@ -1680,11 +1680,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsectionAsETR.subsection,
                                                                     _upan.Names.Subsection.getSubsectionPretty)
                 self.subsectionAsETR.reset()
-                self.render()
+                self.__renderWithScrollAfter()
             else:
                 self.subsectionAsETR.subsection = event.widget.subsection
                 self.subsectionAsETR.widget =event.widget.etrWidget
-                self.render()
+                self.__renderWithScrollAfter()
 
         currSubsectionHidden = False
         hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI
@@ -1803,7 +1803,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                     _upan.Names.Group.formatGroupText,
                                                                     _upan.Names.Subsection.getSubsectionPretty,
                                                                     _upan.Names.Subsection.getTopSectionPretty)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                     [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
@@ -1844,7 +1844,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     gm.GeneralManger.moveSubsection(sourceSubsection,
                                                     targetSubsection)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 updateSubsectionPath = _uuicom.ImageSize_ETR(locFrame,
                                                         prefix = "contentUpdateSubsectionPosEntryText" + subsection.replace(".", ""),
@@ -1872,7 +1872,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         return
 
                     gm.GeneralManger.deleteSubsection(sourceSubsection)
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 removeSubsection = _uuicom.TOCLabelWithClick(locFrame,
                                                         prefix = "contentRemoveSubsectionPosEntryText" + subsection.replace(".", ""),
@@ -1901,7 +1901,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         subsectionsHidden.append(subsection)
                     
                     fsm.Data.Book.subsectionsHiddenInTOC_UI =  subsectionsHidden
-                    self.render()
+                    self.__renderWithScrollAfter()
 
                 hideSubsections.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                        [lambda e, *args: showHideSubsectionsWrapper(e.widget.subsection)])
@@ -1966,7 +1966,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             self.addTOCEntry(subsection, level, i)
 
-    def render(self, widjetObj=None, shouldScroll = True, renderData=..., **kwargs):
+    def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
+        self.shouldScroll = shouldScroll
         self.displayedImages = []
         self.subsectionContentLabels = []
 

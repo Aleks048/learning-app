@@ -8,14 +8,14 @@ menuManagers = []
 class MenuLayout_Interface(dc.AppCurrDataAccessToken):
     name = None
     def __init__(self, winRoot, appDimensions):
-        self.widgets = []
+        self.widgets = set()
         self.appDimensions = []
         self.winRoot = winRoot
         self.appDimensions = appDimensions
         self.setAppDimensions()        
 
     def addWidget(self, widget):
-        self.widgets.append(widget)
+        self.widgets.add(widget)
     
     def setAppDimensions(self):
         self.winRoot.setGeometry(*self.appDimensions)
