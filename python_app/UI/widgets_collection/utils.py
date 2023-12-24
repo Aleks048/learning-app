@@ -24,7 +24,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
         self.defaultText = text
         textlen = len(text)
-        height = textlen // 50
+        height = min((textlen // 50) + 3, 25)
         self.row = row
         self.column = column
 
