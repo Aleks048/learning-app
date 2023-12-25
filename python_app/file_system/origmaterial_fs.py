@@ -96,6 +96,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def addNoteToOriginalMaterial(cls, omName, page, noteText, idx):
+        return
         idx = int(idx) - 1
 
         leftPad = 20

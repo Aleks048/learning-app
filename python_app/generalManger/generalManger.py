@@ -835,6 +835,7 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     def readdNotesToPage(currPage):
+        return
         omName = fsf.Data.Book.currOrigMatName
         fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
         
