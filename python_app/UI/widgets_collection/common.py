@@ -174,7 +174,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
     subsectionClicked = _u.Token.NotDef.str_t
     entryClicked = _u.Token.NotDef.str_t
-    secondEntryClicked = _u.Token.NotDef.str_t
+    secondEntryClicked = None
+
+    secondEntryClickedImIdx = _u.Token.NotDef.str_t
 
     widgetToScrollTo = None
 
@@ -491,18 +493,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
         #     widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        def moveTOCtoSubsection(widget:_uuicom.TOCLabelWithClick):
+        def openSecondaryImage(widget:_uuicom.TOCLabelWithClick):
             def __cmd(event = None, *args):
                 widget = event.widget
-                if not self.showAll:
-                    currImIdx = widget.imIdx
+                currImIdx = widget.imIdx
 
-                    if currImIdx == self.secondEntryClicked:
-                        self.secondEntryClicked = None
-                    else:
-                        self.secondEntryClicked = currImIdx
+                if currImIdx == self.secondEntryClickedImIdx:
+                    self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
+                    self.secondEntryClicked.clicked = False
+                    self.secondEntryClicked = None
+                else:
+                    widget.clicked = True
+                    self.subsectionClicked = widget.subsection
+                    self.secondEntryClickedImIdx = currImIdx
+                    self.secondEntryClicked = widget
 
-                    self.__renderWithoutScroll()
+                self.__renderWithoutScroll()
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -545,7 +551,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     if shouldScroll:
                         _uuicom.closeAllImages(gpframe, self.showAll, link,
-                                               [subsection, self.secondEntryClicked])
+                                               [subsection, self.secondEntryClickedImIdx])
 
                     if (not label.alwaysShow) and (not isWdgetLink):
                         self.entryClicked = imIdx
@@ -561,7 +567,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
-                    if (not link) and shouldScroll and self.shouldScroll and (imIdx != self.secondEntryClicked):
+                    if (not link) and shouldScroll and self.shouldScroll and (imIdx != self.secondEntryClickedImIdx):
                         currTopSection = subsection.split(".")[0]
                         fsm.Data.Book.currTopSection = currTopSection
                         fsm.Data.Book.currSection = subsection
@@ -1491,8 +1497,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.alwaysShow = alwaysShow
 
                         if ((((subsection == self.subsectionClicked) and (str(k) == self.entryClicked)) or alwaysShow) or\
-                            ((subsection == self.subsectionClicked) and (str(k) == self.secondEntryClicked))) and\
-                            (not self.showAll):
+                            ((subsection == self.subsectionClicked) and (str(k) == self.secondEntryClickedImIdx))):
                             showImages.clicked = False
 
                             if (not (subsection == self.subsectionClicked and str(k) == self.entryClicked)):
@@ -1556,7 +1561,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
-                        moveTOCtoSubsection(textLabelFull)
+                        openSecondaryImage(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
