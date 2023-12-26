@@ -318,7 +318,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         groupsList[groupName] = True
         fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
 
-        self.render()
+        self.__renderWithScrollAfter()
 
     def scroll_into_view(self, event):
         if not self.shouldScroll:
