@@ -336,10 +336,10 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
 
                     if ((not alwaysShow) or showAll or isWidgetLink) and\
                         ([subsection,idx] != secondIm):
+
                         if isWidgetLink:
                             if idx == linkIdx:
                                 child.destroy()
-                                return
                             else:
                                 continue
                         try:
