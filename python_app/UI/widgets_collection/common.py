@@ -409,7 +409,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
             self.__renderWithScrollAfter()
-        elif broadcasterType == mcomui.AddWebLink_BTN:
+        elif broadcasterType == mcomui.ImageSave_BTN:
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
             self.showLinks = not self.showLinks
@@ -426,9 +426,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data
-            self.render()
+            self.__renderWithoutScroll()
         else:
-            self.render()
+            self.__renderWithScrollAfter()
 
     def addTOCEntry(self, subsection, level, row):
         def openPdfOnStartOfTheSection(widget:_uuicom.TOCLabelWithClick):
