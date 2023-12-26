@@ -397,7 +397,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
         elif broadcasterType == mui.AddExtraImage_BTN:
             self.entryClicked = entryClicked
-            self.render()
+            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
             self.__renderWithScrollAfter()
