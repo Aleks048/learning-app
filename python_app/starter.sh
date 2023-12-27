@@ -1,0 +1,1 @@
+/Users/ashum048/books/_python_local/3.9.18/bin/python3.9 main.py

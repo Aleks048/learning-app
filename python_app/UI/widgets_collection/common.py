@@ -809,8 +809,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     widget = event.widget
                     gm.GeneralManger.RemoveGlLink(widget.targetSubssection,
                                                   widget.sourceSubssection,
-                                                  widget.targetImIdx,
-                                                  widget.sourceImIdx)
+                                                  widget.sourceImIdx,
+                                                  widget.targetImIdx)
                     self.__renderWithScrollAfter()
 
                 def delWebLinkCmd(event, *args):
