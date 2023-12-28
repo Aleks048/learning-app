@@ -842,6 +842,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                 sourceTopSection)
                         self.__renderWithScrollAfter()
 
+                    if self.showAll:
+                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                        mainManager.moveTocToCurrEntry()
+                        tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.TOCManager)
+                        tocManager.show()
+
                 def copyGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
                     dt.UITemp.Link.subsection = widget.subsection
