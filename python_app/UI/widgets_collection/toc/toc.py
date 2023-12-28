@@ -51,7 +51,8 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
                         defaultText = defaultText)        
 
     def bindCmd(self):
-        return [ww.currUIImpl.Data.BindID.allKeys], [lambda *args: self.notify(comw.TOC_BOX, self.getData())]
+        return [ww.currUIImpl.Data.BindID.Keys.shenter], \
+               [lambda *args: self.notify(comw.TOC_BOX, self.getData())]
 
 
 class TOCRoot(ww.currUIImpl.RootWidget):
