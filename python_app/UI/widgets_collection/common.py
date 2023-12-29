@@ -177,6 +177,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     secondEntryClicked = None
 
     secondEntryClickedImIdx = _u.Token.NotDef.str_t
+    secondEntrySubsectionClicked = _u.Token.NotDef.str_t
 
     widgetToScrollTo = None
 
@@ -497,14 +498,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event = None, *args):
                 widget = event.widget
                 currImIdx = widget.imIdx
+                secondSubsection = widget.subsection
 
-                if currImIdx == self.secondEntryClickedImIdx:
+                if (currImIdx == self.secondEntryClickedImIdx) and \
+                    (secondSubsection == self.secondEntrySubsectionClicked):
                     self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
+                    self.secondEntrySubsectionClicked = _u.Token.NotDef.str_t
                     self.secondEntryClicked.clicked = False
                     self.secondEntryClicked = None
                 else:
                     widget.clicked = True
-                    self.subsectionClicked = widget.subsection
+                    self.secondEntrySubsectionClicked = secondSubsection
                     self.secondEntryClickedImIdx = currImIdx
                     self.secondEntryClicked = widget
 
@@ -1505,7 +1509,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         showImages.alwaysShow = alwaysShow
 
                         if ((((subsection == self.subsectionClicked) and (str(k) == self.entryClicked)) or alwaysShow) or\
-                            ((subsection == self.subsectionClicked) and (str(k) == self.secondEntryClickedImIdx))):
+                            ((subsection == self.secondEntrySubsectionClicked) and (str(k) == self.secondEntryClickedImIdx))):
                             showImages.clicked = False
 
                             if (not (subsection == self.subsectionClicked and str(k) == self.entryClicked)):
