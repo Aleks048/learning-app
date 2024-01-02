@@ -176,6 +176,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     entryClicked = _u.Token.NotDef.str_t
     secondEntryClicked = None
 
+    renderFromTOCWindow = False
+
     secondEntryClickedImIdx = _u.Token.NotDef.str_t
     secondEntrySubsectionClicked = _u.Token.NotDef.str_t
 
@@ -417,14 +419,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.showLinksForSubsections = []
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
-            toSubsection = data
-            if toSubsection:
-                if self.currSubsectionWidget != None:
-                    self.currSubsectionWidget.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
-            else:
-                if self.currSubsectionWidget != None:
-                    self.currEntryWidget.clicked = False
-                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+            self.scrollToEntry(data[1], data[2])
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data
             self.__renderWithoutScroll()
@@ -548,8 +543,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.subsectionClicked = subsection
                     self.entryClicked = imIdx
 
-                if ((not label.clicked) and ((int(event.type) == 4) or self.showAll)) or\
-                    ((not label.clicked) and ((int(event.type) == 35) or self.showAll)):
+                if ((not label.clicked) and ((int(event.type) == 4))) or\
+                    ((not label.clicked) and ((int(event.type) == 35))):
+                    if self.showAll and shouldScroll:
+                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                        mainManager.moveTocToEntry(subsection, imIdx, True)
+                        return
+
                     if ((int(event.type) == 4) or (shouldScroll)) and (not link):
                         self.currEntryWidget = event.widget
 
@@ -582,6 +583,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.notify(mui.ChooseSubsection_OM)
                         self.notify(mcomui.SourceImageLinks_OM)
                         self.notify(mui.ScreenshotLocation_LBL)
+
+                        if not self.renderFromTOCWindow:
+                            self.notify(mui.ScrollToCurrSubsectionAndBack_BTN)
 
                         self.subsectionClicked = subsection
                         self.entryClicked = imIdx
@@ -932,6 +936,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
 
+                    subsectionText:str = fsm.Data.Sec.text(subsection)
+
                     for k,v in links.items():
                         textOnly = fsm.Data.Sec.textOnly(subsection)[k]
 
@@ -943,7 +949,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         if (self.filterToken != ""):
                             if (self.filterToken.lower() not in v.lower())\
-                                and (self.filterToken.lower() not in entryImText.lower()):
+                                and (self.filterToken.lower() not in entryImText.lower())\
+                                and (self.filterToken.lower() not in subsectionText.lower()):
                                 continue
 
                         currImGroupidx = imagesGroupDict[k]
@@ -1523,8 +1530,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if not showImages.alwaysShow:
                                 textLabelFull.render()
 
+                            showImages.render()
+
                             if not self.showAll:
-                                showImages.render()
 
                                 if not textOnly:
                                     chkbtnShowPermamently.grid(row = gridRowStartIdx, 

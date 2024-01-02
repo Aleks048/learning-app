@@ -154,6 +154,7 @@ class LayoutManagers:
             tocBox_BOX.addListenerWidget(chooseTopSection_OM)
             tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
+            tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
@@ -456,10 +457,12 @@ class MathMenuManager(wm.MenuManager_Interface):
     #             layout.tocBox.render()
     #             return
 
-    def moveTocToEntry(self, subsection, imIdx):
+    def moveTocToEntry(self, subsection, imIdx, fromTOCWindow = False):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
+                layout.tocBox.renderFromTOCWindow = fromTOCWindow
                 layout.tocBox.scrollToEntry(subsection, imIdx)
+                layout.tocBox.renderFromTOCWindow = False
                 return
 
     def moveTocToCurrEntry(self):
