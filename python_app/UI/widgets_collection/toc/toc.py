@@ -1,3 +1,4 @@
+import tkinter as tk
 
 import UI.widgets_wrappers as ww
 
@@ -12,7 +13,7 @@ class Hide_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 5, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0,  "sticky": tk.W}
         }
         text = "Hide"
         name = "_decline_BTN"
@@ -27,6 +28,27 @@ class Hide_BTN(ww.currUIImpl.Button,
         tocManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                             tocm.TOCManager)
         tocManager.hide()
+
+class SearchInSubsectionsText_CHB(ww.currUIImpl.Checkbox):
+    etenriesTextOnlyDefault = 0
+
+    def __init__(self, parentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+        }
+        name = "_SearchInSubsectionsText_CHB"
+        text = "Search Subsections Text"
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = renderData, 
+                        text = text)
+        self.setData(self.etenriesTextOnlyDefault)
+
+    def receiveNotification(self, broadcasterName):
+        outData =  True if self.getData() == 1 else False
+        return outData
 
 
 class Filter_ETR(ww.currUIImpl.TextEntry):
@@ -52,7 +74,9 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
 
     def bindCmd(self):
         return [ww.currUIImpl.Data.BindID.Keys.shenter], \
-               [lambda *args: self.notify(comw.TOC_BOX, self.getData())]
+               [lambda *args: self.notify(comw.TOC_BOX, 
+                                          [self.getData(), 
+                                           self.notify(SearchInSubsectionsText_CHB)])]
 
 
 class TOCRoot(ww.currUIImpl.RootWidget):

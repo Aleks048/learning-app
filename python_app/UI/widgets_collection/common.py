@@ -266,6 +266,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     # used to filter toc data when the search is performed
     filterToken = ""
+    searchSubsectionsText = False
     showAll = None
     shouldScroll = None
 
@@ -421,7 +422,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             self.scrollToEntry(data[1], data[2])
         elif broadcasterType == tocw.Filter_ETR:
-            self.filterToken = data
+            self.filterToken = data[0]
+            self.searchSubsectionsText = data[1]
             self.__renderWithoutScroll()
         else:
             self.__renderWithScrollAfter()
@@ -578,6 +580,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         fsm.Data.Book.currSection = subsection
                         fsm.Data.Book.subsectionOpenInTOC_UI = subsection
                         fsm.Data.Book.entryImOpenInTOC_UI = imIdx
+
+                        dt.UITemp.Link.subsection = subsection
+                        dt.UITemp.Link.imIdx = imIdx
 
                         self.notify(mui.ChooseTopSection_OM)
                         self.notify(mui.ChooseSubsection_OM)
@@ -947,10 +952,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             for t in extraImagesDict[k]:
                                 entryImText += t
 
+                        if self.searchSubsectionsText:
+                            tokenInSubsectionText = self.filterToken.lower() not in subsectionText.lower()
+                        else:
+                            tokenInSubsectionText = True                   
+
                         if (self.filterToken != ""):
                             if (self.filterToken.lower() not in v.lower())\
                                 and (self.filterToken.lower() not in entryImText.lower())\
-                                and (self.filterToken.lower() not in subsectionText.lower()):
+                                and tokenInSubsectionText:
                                 continue
 
                         currImGroupidx = imagesGroupDict[k]

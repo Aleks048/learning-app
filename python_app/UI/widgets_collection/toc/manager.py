@@ -23,14 +23,14 @@ class LayoutManagers:
             hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)
             self.addWidget(hide_BTN)
 
-            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix, column = 6, row = 0)
-            self.addWidget(addGlobalLink_BTN)
+            searchInSubsectionsText_CHB = tocw.SearchInSubsectionsText_CHB(winRoot, self.prefix)
+            self.addWidget(searchInSubsectionsText_CHB)
 
             filter_ETR = tocw.Filter_ETR(winRoot, self.prefix)
             self.addWidget(filter_ETR)
 
             filter_ETR.addListenerWidget(tocBox)
-            tocBox.addListenerWidget(addGlobalLink_BTN)
+            filter_ETR.addListenerWidget(searchInSubsectionsText_CHB)
 
             winRoot.setGeometry(*self.appDimensions)
 
