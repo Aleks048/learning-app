@@ -83,11 +83,16 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
 
             lm.Wr.MainLayout.set(withPdfChange = False)
         else:
+            secPath = fsm.Data.Book.subsectionOpenInTOC_UI
+            currIdx = fsm.Data.Book.entryImOpenInTOC_UI
+            mathMenuManager.moveTocToEntry(secPath, currIdx)
+
             mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
             self.updateLabel(self.labelOptions[1])
 
             lm.Wr.MainLayout.set(withPdfChange = False)
+            mathMenuManager.moveTocToCurrEntry()
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):

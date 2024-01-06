@@ -318,11 +318,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         # update to show the group when we show the entry
         groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
         imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
-        groupName = list(groupsList.keys())[imGroupDict[self.entryClicked]]
-        groupsList[groupName] = True
-        fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
+        groupsListKeys = groupsList.keys()
+        idx = imGroupDict[self.entryClicked]
 
-        self.__renderWithScrollAfter()
+        if idx != _u.Token.NotDef.str_t:
+            groupName = list(groupsListKeys)[idx]
+            groupsList[groupName] = True
+            fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
+
+            self.__renderWithScrollAfter()
 
     def scroll_into_view(self, event):
         if not self.shouldScroll:
