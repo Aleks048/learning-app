@@ -12,7 +12,7 @@ class ImIDX:
         d = LinkDict.get(secPath)
 
         if d == _u.Token.NotDef.dict_t or d == None:
-            return 0
+            return _u.Token.NotDef.int_t
 
         if linkValue == None:
             keysList = list(d.keys())

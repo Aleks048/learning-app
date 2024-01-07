@@ -713,11 +713,9 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
             currImIdx = int(fsf.Wr.SectionCurrent.getImIDX())
-            if currImIdx != 0:
-                nextImIdx = str(currImIdx + 1)
-            else:
-                nextImIdx = currImIdx
+            nextImIdx = str(currImIdx + 1)
             self.setData(nextImIdx)
+
             return
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
