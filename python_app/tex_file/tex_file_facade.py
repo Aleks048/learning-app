@@ -37,7 +37,7 @@ class Wr:
                            fixedHeight = None,
                            fontSize = 12,
                            textSize = 14,
-                           numSymPerLine = 50):
+                           numSymPerLine = 47):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -70,7 +70,7 @@ class Wr:
 
                 wordLen = len(filteredWord)
 
-                if (chCounter > numSymPerLine):
+                if ((chCounter + wordLen + 1) > numSymPerLine):
                     tex += "\\\\"
                     chCounter = 0
 
