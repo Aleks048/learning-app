@@ -69,12 +69,13 @@ class Wr:
                               .replace("{", "")
 
                 wordLen = len(filteredWord)
-                chCounter += wordLen + 1
-                tex += w + "\\ "
 
                 if (chCounter > numSymPerLine):
                     tex += "\\\\"
                     chCounter = 0
+
+                chCounter += wordLen + 1
+                tex += w + "\\ "
 
             texList = tex.split("\\\\")
             fullTex = f"\\noindent${tex}$"
