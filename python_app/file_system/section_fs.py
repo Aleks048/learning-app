@@ -955,15 +955,18 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         for k, v in imLinkDict.items():
             if int(k) >= int(startImIdx):
+                imTexOnly = cls.readProperty(subsection, cls.PubProp.textOnly)[k]
                 cls.rebuildEntryLatex(subsection,
                                     k,
-                                    v)
+                                    v,
+                                    imTexOnly)
 
     @classmethod
     def rebuildEntryLatex(cls, 
                           subsection,
                           imIdx,
-                          linkText):
+                          linkText,
+                          textonly):
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
                                                                         subsection, 
@@ -971,7 +974,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(imIdx, linkText)
 
-        tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
+        if textonly:
+            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath, fixedWidth = 700)
+        else:
+            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
 
     @classmethod
     def rebuildTopSectionLatex(cls, topSection,
@@ -1021,10 +1027,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                                createPrettySubSection,
                                createPrettyTopSection):
         # rebuild entries
-        imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
-
-        for k, v in imLinkDict.items():
-            cls.rebuildEntryLatex(subsection, k, v)
+        cls.rebuildEntriesBatch(subsection, "0")
 
         groups = cls.readProperty(subsection, cls.PubProp.imagesGroupsList)
 

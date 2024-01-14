@@ -37,7 +37,7 @@ class Wr:
                            fixedHeight = None,
                            fontSize = 12,
                            textSize = 14,
-                           numSymPerLine = 47):
+                           numSymPerLine = 70):
             texList = tex.split("\\ ")
             chCounter = 0
             tex = ""
@@ -71,7 +71,7 @@ class Wr:
                 wordLen = len(filteredWord)
 
                 if ((chCounter + wordLen + 1) > numSymPerLine):
-                    tex += "\\\\"
+                    tex += "\\\\[10pt]"
                     chCounter = 0
 
                 chCounter += wordLen + 1
@@ -109,8 +109,10 @@ class Wr:
                 ax.set_facecolor(mpl.rcParams['axes.facecolor'])
                 plt.rcParams.update(params)
                 plt.ioff()
+                # NOTE: this is a hacky workaround to avoid cropping the lines
+                plt.figure(figsize=(20,6))
                 plt.axis('off')
-                plt.tight_layout()
+                # plt.tight_layout()
                 plt.text(0.15, 0.35, fullTex,
                          size = textSize)
                 plt.savefig(buf, format='png')

@@ -913,11 +913,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         (self.entryAsETR.imIdx != _u.Token.NotDef.str_t):
                         newText = self.entryAsETR.widget.getData()
                         imLinkDict = fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection)
+                        textOnly = fsm.Data.Sec.textOnly(self.entryAsETR.subsection)[self.entryAsETR.imIdx]
                         imLinkDict[self.entryAsETR.imIdx] = newText
                         fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection, imLinkDict)
                         fsm.Wr.SectionInfoStructure.rebuildEntryLatex(self.entryAsETR.subsection,
                                                                       self.entryAsETR.imIdx,
-                                                                      newText
+                                                                      newText,
+                                                                      textOnly
                                                                       )
                         self.entryAsETR.reset()
                         self.__renderWithScrollAfter()
