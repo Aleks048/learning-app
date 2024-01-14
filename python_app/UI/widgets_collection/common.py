@@ -1111,6 +1111,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                    tk.StringVar(), currImGroupName, *imagesGroups)
 
                         def getEntryImg(tex, subsection, imIdx):
+                            textOnly = fsm.Data.Sec.textOnly(subsection)[imIdx]
                             currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                             entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
                                                                                               subsection, 
@@ -1119,7 +1120,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
                                 result = Image.open(entryImgPath)
                             else:
-                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath) 
+                                if textOnly:
+                                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
+                                                                                entryImgPath,
+                                                                                fixedWidth = 700) 
+                                else:
+                                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath) 
 
                             return result
 
