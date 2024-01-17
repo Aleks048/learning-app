@@ -1896,7 +1896,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 startPage = fsm.Data.Sec.start(subsection)
                 changeStartPage = _uuicom.ImageSize_ETR(locFrame,
-                                                        prefix = "contentUpdateStartPageEntryText" + subsection.replace(".", ""),
+                                                        prefix = "updateStartPageEntryText" + subsection.replace(".", ""),
                                                         row = 0, 
                                                         column = 3,
                                                         imIdx = -1,
@@ -1925,7 +1925,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.__renderWithScrollAfter()
 
                 updateSubsectionPath = _uuicom.ImageSize_ETR(locFrame,
-                                                        prefix = "contentUpdateSubsectionPosEntryText" + subsection.replace(".", ""),
+                                                        prefix = "updateSubsectionPosEntryText" + subsection.replace(".", ""),
                                                         row = 0, 
                                                         column = 5,
                                                         imIdx = -1,
@@ -1953,7 +1953,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.__renderWithScrollAfter()
 
                 removeSubsection = _uuicom.TOCLabelWithClick(locFrame,
-                                                        prefix = "contentRemoveSubsectionPosEntryText" + subsection.replace(".", ""),
+                                                        prefix = "removeSubsectionPosEntryText" + subsection.replace(".", ""),
                                                         row = 0, 
                                                         column = 6,
                                                         text = "[delete]",
