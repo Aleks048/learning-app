@@ -1117,7 +1117,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
                                     imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
                                     fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
-                                    self.__renderWithScrollAfter()
+                                    self.__renderWithoutScroll()
 
                                 hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
                                 gridRowStartIdx = 1
