@@ -724,7 +724,7 @@ Do you want to add link \nFrom: '{2}_{3}', with text: '{4}'\nTo: '{0}_{1}', with
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
-    def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage):
+    def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage, shouldAsk = True):
         import UI.widgets_facade as wf
 
         if not re.match("[[\d]+.]*\d+", secPath):
@@ -749,16 +749,19 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             mainManager.show()
             return
         
-        msg = "\
-Do you want to create subsection \n\
-with path :'{0}', \n\
-text '{1}', \n\
-start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-        
-        mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+        if shouldAsk:
+            msg = "\
+    Do you want to create subsection \n\
+    with path :'{0}', \n\
+    text '{1}', \n\
+    start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            
+            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+        else:
+            response = True
 
         if response:
             # close current subsection FS window
@@ -841,6 +844,67 @@ start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, 
         # Updating the remote
         msg = f"After Moving the subsection '{sourceSubsection}' to '{targetSubsection}'."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+    @classmethod
+    def moveGroupToSubsection(cls, 
+                              sourceSubsection, sourceGroupName, 
+                              targetSubsection, targetGroupName, targetEntryDestIdx):
+        sourceGroupIdx = list(fsf.Data.Sec.imagesGroupsList(sourceSubsection).keys()).index(sourceGroupName)
+
+        # check if targetSubsection exists
+        if targetSubsection not in fsf.Wr.BookInfoStructure.getSubsectionsList():
+            cls.AddSubsection(targetSubsection, 
+                              sourceGroupName, 
+                              _u.Token.NotDef.str_t,
+                              _u.Token.NotDef.str_t,
+                              shouldAsk = False)
+        
+        targetImagesGroupsList = fsf.Data.Sec.imagesGroupsList(targetSubsection)
+    
+        #  check if we need to add the group
+        if targetGroupName not in targetImagesGroupsList:
+            targetImagesGroupsList[targetGroupName] = True
+            fsf.Data.Sec.imagesGroupsList(targetSubsection, targetImagesGroupsList)
+
+        # move all the entries of the group to target subsection group
+        sourceImagesGroupDict:dict = fsf.Data.Sec.imagesGroupDict(sourceSubsection)
+        sourceImagesGroupDict = {k:v for k,v in sourceImagesGroupDict.items() if v == sourceGroupIdx}
+        targetImagesGroupidx = len(list(fsf.Data.Sec.imagesGroupsList(targetSubsection).keys())) - 1
+
+        while sourceImagesGroupDict != {}:
+            currEntryIdx = list(sourceImagesGroupDict.keys())[0]
+            fsf.Wr.SectionInfoStructure.insertEntryAfterIdx(sourceSubsection, currEntryIdx,
+                                                            targetSubsection, targetEntryDestIdx,
+                                                            cutEntry = True, shouldAsk = False)
+
+            targetImagesGroupDict = fsf.Data.Sec.imagesGroupDict(targetSubsection)
+            targetImagesGroupDict[targetEntryDestIdx] = targetImagesGroupidx
+            fsf.Data.Sec.imagesGroupDict(targetSubsection, targetImagesGroupDict)
+
+            targetEntryDestIdx = str(int(targetEntryDestIdx) + 1)
+            sourceImagesGroupDict = fsf.Data.Sec.imagesGroupDict(sourceSubsection)
+            sourceImagesGroupDict = {k:v for k,v in sourceImagesGroupDict.items() if v == sourceGroupIdx}
+        
+        # when there are no entries in the group delete the group and adjust the other images groups accordingly
+        sourceImagesGroupDict = fsf.Data.Sec.imagesGroupDict(sourceSubsection)
+
+        sourceImagesGroupsList:dict = fsf.Data.Sec.imagesGroupsList(sourceSubsection)
+        sourceImagesGroupsList.pop(sourceGroupName)
+        fsf.Data.Sec.imagesGroupsList(sourceSubsection, sourceImagesGroupsList)
+        gi = str(sourceGroupIdx)
+        groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                                                              sourceSubsection,
+                                                                              gi)
+        oscf.Wr.FsAppCalls.deleteFile(groupImgPath)
+        
+        for k,v in sourceImagesGroupDict.items():
+            if int(v) > int(sourceGroupIdx):
+                sourceImagesGroupDict[k] = v - 1
+
+        for k in sourceImagesGroupsList.keys():
+            fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(sourceSubsection, k)
+        
+        fsf.Data.Sec.imagesGroupDict(sourceSubsection, sourceImagesGroupDict)
 
     def readdNotesToPage(currPage):
         return

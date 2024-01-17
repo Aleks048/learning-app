@@ -179,7 +179,6 @@ class TOCTextWithClick(tk.Text):
         self.sticky = sticky
 
         super().__init__(root, name = prefix, *args, **kwargs)
-        print(text)
         self.config(spacing1 = 10)
         self.insert(tk.END, text)   
         numLines = int(self.index("end").split(".")[0])

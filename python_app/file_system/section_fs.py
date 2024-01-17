@@ -286,37 +286,39 @@ class SectionInfoStructure:
     def insertEntryAfterIdx(cls,
                             sourceSubsection, sourceImIdx, 
                             targetSubsection, targetImIdx,
-                            cutEntry):
+                            cutEntry,
+                            shouldAsk = True):
         # CORE OPERATIONS
         if (sourceSubsection == targetSubsection) and (sourceImIdx == targetImIdx):
             targetImIdx = str(int(targetImIdx) + 1)
 
          # ask the user if we wnat to proceed.
         cutEntryStr = "cut" if cutEntry else "copy"
-        msg = "\
-Do you want to {4} entry from \n\
-'{0}':'{1}'\n\
-to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
-                        targetSubsection, targetImIdx,
-                        cutEntryStr)
+        if shouldAsk:
+            msg = "\
+    Do you want to {4} entry from \n\
+    '{0}':'{1}'\n\
+    to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
+                            targetSubsection, targetImIdx,
+                            cutEntryStr)
 
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
 
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
 
-        if not response:
-            return
+            if not response:
+                return
 
         msg = "\
 Before {4} entry from \n\
@@ -1103,8 +1105,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t
         else:
-            return _u.JSON.readProperty(fullPathToSection, 
+            out = _u.JSON.readProperty(fullPathToSection, 
                                         propertyName)
+                    
+            if type(out) == dict:
+                if out != _u.Token.NotDef.dict_t:
+                    if _u.Token.NotDef.str_t in out.keys():
+                        out.pop(_u.Token.NotDef.str_t, None)
+
+            return out
 
     @classmethod
     def updateProperty(cls, sectionPath, propertyName, newValue, bookPath = None):
@@ -1119,6 +1128,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             keysSorted = list(newValue.keys())
             keysSorted.sort(key = int)
             newValue = {i: newValue[i] for i in keysSorted} 
+        
+        if newValue != _u.Token.NotDef.dict_t:
+            if type(newValue) == dict:
+                if _u.Token.NotDef.str_t in newValue.keys():
+                    newValue.pop(_u.Token.NotDef.str_t, None)
         
         fullPathToSection = _upan.Paths.Section.JSON.getAbs(bookPath, sectionPath)
 

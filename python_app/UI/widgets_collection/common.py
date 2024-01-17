@@ -1120,6 +1120,73 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     self.__renderWithoutScroll()
 
                                 hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+        
+                                newGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                                        prefix = "contentNewGroupImageGroupLabel_" + nameId,
+                                        row = 0, 
+                                        column = 3,
+                                        imIdx = k,
+                                        text = currImGroupName,
+                                        width = 10)
+                                newGroup.subsection = subsection
+                                newGroup.render()
+                                newGroup.setData(currImGroupName)
+
+                                moveGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                                        prefix = "contentMoveImageGroupLabel_" + nameId,
+                                        row = 0, 
+                                        column = 2,
+                                        imIdx = k,
+                                        text = subsection + ":" + str(k),
+                                        width = 10)
+                                moveGroup.subsection = subsection
+                                moveGroup.imIdx = k
+
+                                def __moveGroup(e, *args): 
+                                    # NOTE: this is a hack but I can't find a better way atm   
+                                    wName = str(e.widget)
+                                    wName = wName.split("contentmoveimagegrouplabel_")[-1]
+                                    wName = wName.split("_imageSizeTOC_ETR")[0]
+                                    subsection = wName.split("_")[0].replace("$", ".")
+                                    imIdx = wName.split("_")[1]
+                                    newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
+                                    newGroupNameW = [i for i in e.widget.master.winfo_children() \
+                                                     if newGroupNameWName.lower() in str(i)][0]
+
+                                    targetWholePath:str = e.widget.get()
+
+                                    if ":" not in targetWholePath:
+                                        _u.log.autolog("Incorrect destination path")
+
+                                    targetSubsection = targetWholePath.split(":")[0]
+                                    targetEntryIdx = targetWholePath.split(":")[1]
+                                    targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
+                                    sourceSubsection = subsection
+                                    sourceEntryIdx = imIdx
+                                    sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
+                                    sourceGroupName = list(fsm.Data.Sec.imagesGroupsList(sourceSubsection).keys())[sourceGroupNameIdx]
+
+                                    # ask the user if we wnat to proceed.
+                                    msg = "\
+Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group name '{2}'?".format(targetSubsection, 
+                                                                                                 targetEntryIdx, 
+                                                                                                 targetGroupName)
+                                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                                wf.Wr.MenuManagers.MathMenuManager)
+                                    mainManager.show()
+
+                                    if not response:
+                                        return
+
+                                    gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
+                                                                           targetSubsection, targetGroupName, targetEntryIdx)
+                                    self.__renderWithoutScroll()
+                                moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                                        [__moveGroup])
+                                moveGroup.render()
+
                                 gridRowStartIdx = 1
                             else:
                                 img = getGroupImg(subsection, currImGroupName)
