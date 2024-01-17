@@ -49,6 +49,33 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
     def rebind(self, keys, funcs):
         for i in range(len(keys)):
             self.bind(keys[i], funcs[i])
+        
+        def __boldenText(*args):
+            startSelIDX = self.index("sel.first")
+            endSelIDX = self.index("sel.last")
+            selText = self.get(startSelIDX, endSelIDX)
+            boldSelText = f"\\textbf{{{selText}}}"
+            self.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdb,
+                  lambda *args: __boldenText(*args))
+
+        def __underlineText(*args):
+            startSelIDX = self.index("sel.first")
+            endSelIDX = self.index("sel.last")
+            selText = self.get(startSelIDX, endSelIDX)
+            boldSelText = f"\\underline{{{selText}}}"
+            self.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdu,
+                  lambda *args: __underlineText(*args))
+
+        def __addNote(*args):
+            boldSelText = "\\textbf{NOTE:} "
+            self.insert("0.0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
+                  lambda *args: __addNote(*args))
 
     def render(self):
         self.grid(row = self.row, column = self.column)

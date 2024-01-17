@@ -105,6 +105,9 @@ class TkWidgets (DataTranslatable_Interface):
             class Keys:
                 enter = "<Return>"
                 shenter = "<Shift-Return>"
+                cmdb = "<Mod1-b>"
+                cmdn = "<Mod1-n>"
+                cmdu = "<Mod1-u>"
                 escape = "<Escape>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
