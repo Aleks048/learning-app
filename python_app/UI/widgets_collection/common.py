@@ -664,6 +664,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       0, 
                                                                       txt)
                             imLabel.config(width=90)
+                            imLabel.config(spacing1=10)
                             imLabel.config(spacing2=10)
                             imLabel.config(padx=10)
                             imLabel.config(pady=10)
