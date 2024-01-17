@@ -349,11 +349,29 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget_top = posy
 
             count = 1
+
+            posy = 0
+            pwidget = event.widget
+
+            while pwidget != self.parent:
+                posy += pwidget.winfo_y()
+                pwidget = pwidget.master
+
+            pos = posy - self.scrollable_frame.winfo_rooty()
+            height = self.scrollable_frame.winfo_height()
+            self.canvas.yview_moveto((pos / height))
+            '''
+            # Note: this is an old way of scrolling. We dont use it anymore but 
+            # will keep it here for historical reasons
+
+            percentCount = 0.0
+
             while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 500):
                 if count > 200:
                     break
 
                 count += 1
+                percentCount += 0.05
                 posy = 0
                 pwidget = event.widget
 
@@ -366,7 +384,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 
                 if self.canvas != None:
                     self.canvas.yview_scroll(2, "units")
+                    # self.canvas.yview_moveto(percentCount)
                     self.canvas.update()
+            '''
         except:
             pass
     
@@ -643,6 +663,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       0, 
                                                                       0, 
                                                                       txt)
+                            imLabel.config(width=90)
+                            imLabel.config(spacing2=10)
+                            imLabel.config(padx=10)
+                            imLabel.config(pady=10)
                             imLabel.imIdx = imIdx
                             imLabel.subsection = subsection
                             imLabel.etrWidget = imLabel
@@ -667,13 +691,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                     lineLength = 0
 
-                            imLabel = _uuicom.TOCLabelWithClick(tframe, 
+                            while txt[-2:] == "\n":
+                                txt = txt[-2:]
+
+                            imLabel = _uuicom.TOCTextWithClick(tframe, 
                                                                 mainWidgetName,
                                                                 3,
                                                                 0,
                                                                 1000,
                                                                 text=txt,
-                                                                pad = [imPad, 0, 0, 0]
+                                                                padx = 10,
+                                                                pady = 10,
+                                                                width = 95
                                                                 )
                             imLabel.subsection = subsection
                             imLabel.imIdx = imIdx

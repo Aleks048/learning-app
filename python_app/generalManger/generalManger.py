@@ -161,11 +161,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 imText = re.sub(r"([^\\]){", r"\1\\{", imText)
                 imText = re.sub(r"([^\\])}", r"\1\\}", imText)
                 imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
+                imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
 
                 imText = imText.replace("[", "(")
                 imText = imText.replace("]", ")")
                 imText = imText.replace("\u201c", "\"")
                 imText = imText.replace("\u201d", "\"")
+                imText = imText.replace("\u2014", "-")
                 imText = imText.replace("\ufffd", "")
                 imText = imText.replace("\n", "")
                 imText = imText.replace("\u0000", "fi")

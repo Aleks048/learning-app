@@ -21,7 +21,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
     etrWidget = None
     lineImIdx = None
 
-    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
+    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
         self.defaultText = text
         textlen = len(text)
         height = min((textlen // 50) + 3, 25)
@@ -29,7 +29,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.column = column
 
         super().__init__(patentWidget, wrap=None, 
-                         width = 70, height = height)
+                         width = 70, height = height, *args, **kwargs)
         self.insert(tk.END, text)
     
     def getData(self):
@@ -104,6 +104,69 @@ class TOCFrame(ttk.Frame):
     def render(self):
         self.grid(row = self.row, column = self.column, 
                   columnspan = self.columnspan, sticky=tk.NW)
+
+    def getChildren(self):
+        return self.winfo_children()
+
+class TOCTextWithClick(tk.Text):
+    '''
+    this is used to run different commands on whether the label was clicked even or odd times
+    '''
+    clicked = False
+    imIdx = ""
+    subsection = ""
+    imagePath = ""
+    group = ""
+    image = None
+    alwaysShow = None
+    shouldShowExMenu = False
+    lineImIdx = _u.Token.NotDef.str_t
+    etrWidget = _u.Token.NotDef.str_t
+
+    sticky = None
+
+    tocFrame = None
+
+    eImIdx = None
+
+    targetSubssection = None
+    targetImIdx = None
+    sourceSubssection = None
+    sourceImIdx= None
+    sourceWebLinkName = None
+
+    def rebind(self, keys, cmds):
+        for i in range(len(keys)):
+            key = keys[i]
+            cmd = cmds[i]
+
+            if key == ww.TkWidgets.Data.BindID.allKeys:
+                self.bind_all(key, lambda event: cmd(event))
+            else:
+                self.bind(key, cmd)
+    
+    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, text = "", *args, **kwargs) -> None:
+        self.row = row
+        self.column = column
+        self.columnspan = columnspan
+        self.sticky = sticky
+
+        super().__init__(root, name = prefix, *args, **kwargs)
+        print(text)
+        self.config(spacing1 = 10)
+        self.insert(tk.END, text)   
+        numLines = int(self.index("end").split(".")[0])
+        self.config(height = numLines)
+        self.config(background = "#394d43")
+        self.config(state=tk.DISABLED)
+        self.place(x = 0, y = 0)
+    
+    def render(self):
+        self.grid(row = self.row, column = self.column,
+                  columnspan = self.columnspan, sticky = self.sticky)
+
+    def generateEvent(self, event, *args, **kwargs):
+        self.event_generate(event, *args, **kwargs)
 
     def getChildren(self):
         return self.winfo_children()
