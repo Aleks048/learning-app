@@ -2032,10 +2032,18 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                 hideSubsections = _uuicom.TOCLabelWithClick(locFrame, text = "[show/hide]",
                                                 prefix = "subsecShowHide" + subsection.replace(".", ""),
                                                 row = 0, column= 4)
+                subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(subsection)
+                if subsectionsList != []:
+                    hideSubsections.configure(foreground="brown")
+
                 hideSubsections.subsection = subsection
 
                 _uuicom.bindChangeColorOnInAndOut(removeSubsection)
-                _uuicom.bindChangeColorOnInAndOut(hideSubsections)
+
+                if subsectionsList != []:
+                    _uuicom.bindChangeColorOnInAndOut(hideSubsections, shouldBeBrown = True)
+                else:
+                    _uuicom.bindChangeColorOnInAndOut(hideSubsections)
 
                 def showHideSubsectionsWrapper(subsection):
                     subsectionsHidden:list = fsm.Data.Book.subsectionsHiddenInTOC_UI

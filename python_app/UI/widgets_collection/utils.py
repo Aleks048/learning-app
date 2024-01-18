@@ -253,9 +253,12 @@ class TOCLabelWithClick(ttk.Label):
         return self.winfo_children()
 
 
-def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False):
+def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
     def __changeTextColorBlue(event = None, *args):
         event.widget.configure(foreground="blue")
+
+    def __changeTextColorBrown(event = None, *args):
+        event.widget.configure(foreground="brown")
 
     def __changeTextColorRed(event = None, *args):
         event.widget.configure(foreground="red")
@@ -268,6 +271,9 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False):
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
     else:
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
+    
+    if shouldBeBrown:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
 
 def getImageWidget(root, imagePath, widgetName, 

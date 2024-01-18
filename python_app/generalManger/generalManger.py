@@ -850,12 +850,15 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
                               sourceSubsection, sourceGroupName, 
                               targetSubsection, targetGroupName, targetEntryDestIdx):
         sourceGroupIdx = list(fsf.Data.Sec.imagesGroupsList(sourceSubsection).keys()).index(sourceGroupName)
+        firstGroupEntry = list({k:v for k,v in fsf.Data.Sec.imagesGroupDict(sourceSubsection).items() \
+                            if v == sourceGroupIdx}.keys())[0]
+        startPage = fsf.Data.Sec.imLinkOMPageDict(sourceSubsection)[firstGroupEntry]
 
         # check if targetSubsection exists
         if targetSubsection not in fsf.Wr.BookInfoStructure.getSubsectionsList():
             cls.AddSubsection(targetSubsection, 
                               sourceGroupName, 
-                              _u.Token.NotDef.str_t,
+                              startPage,
                               _u.Token.NotDef.str_t,
                               shouldAsk = False)
         
@@ -905,6 +908,9 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(sourceSubsection, k)
         
         fsf.Data.Sec.imagesGroupDict(sourceSubsection, sourceImagesGroupDict)
+
+        fsf.Wr.SectionInfoStructure.rebuildEntriesBatch(sourceSubsection, "0")
+        fsf.Wr.SectionInfoStructure.rebuildEntriesBatch(targetSubsection, "0")
 
     def readdNotesToPage(currPage):
         return

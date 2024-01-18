@@ -362,10 +362,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         else:
             rebuildStartIdx = sourceImIdx
 
-        cls.rebuildEntriesBatch(sourceSubsection, rebuildStartIdx)
+        if shouldAsk:
+            cls.rebuildEntriesBatch(sourceSubsection, rebuildStartIdx)
 
-        if targetSubsection != sourceSubsection:
-            cls.rebuildEntriesBatch(targetSubsection, targetImIdx)
+            if targetSubsection != sourceSubsection:
+                cls.rebuildEntriesBatch(targetSubsection, targetImIdx)
 
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
