@@ -202,9 +202,52 @@ class TOCTextWithClick(tk.Text):
 
         super().__init__(root, name = prefix, *args, **kwargs)
         self.config(spacing1 = 10)
+        self.config(spacing2 = 10)
+        self.config(spacing3 = 12)
+        
         self.insert(tk.END, text)   
-        numLines = int(self.index("end").split(".")[0])
-        self.config(height = numLines)
+
+        numTextLines = len(text.split("\n"))
+
+        if numTextLines == 1:
+            numLinesToAdd = 0 
+        else:
+            numLinesToAdd = int(numTextLines) - 1
+
+        numLinesToAdd = int((3/4) * numLinesToAdd)
+
+        txtList = text.split(" ")
+        txt = ""
+        lineLength = 0
+
+        for w in txtList:
+            lineLength += len(w) + 1
+            txt += w + " "
+
+            if ("\n" in w) or (lineLength > 85):
+                if lineLength > 85:
+                    txt += "\n"
+
+                lineLength = 0
+
+        while txt[-2:] == "\n":
+            txt = txt[-2:]
+
+        # NOTE: the weights are obtained by experementation and
+        # a better system should be implemented
+        if len(txt.split("\n")) < 3:
+            newHeight = int( 0.1 * self.cget("height"))
+        elif len(txt.split("\n")) in range(3, 5):
+            newHeight = int( 0.13 * self.cget("height"))
+        elif len(txt.split("\n")) in range(5, 6):
+            newHeight = int( 0.167 * self.cget("height"))
+        elif len(txt.split("\n")) in range(6, 7):
+            newHeight = int( 0.21 * self.cget("height"))
+        else:
+            newHeight = int( 0.22 * self.cget("height"))
+
+        # numLines = int(self.index("end").split(".")[0])
+        self.config(height = newHeight + numLinesToAdd)
         self.config(background = "#394d43")
         self.config(state=tk.DISABLED)
         self.place(x = 0, y = 0)

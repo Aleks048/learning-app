@@ -680,23 +680,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imLabel.render()
                             imLabel.focus_force()
                         else:
-                            txtList = txt.split(" ")
-                            txt = ""
-                            lineLength = 0
-
-                            for w in txtList:
-                                lineLength += len(w) + 1
-                                txt += w + " "
-
-                                if ("\n" in w) or (lineLength > 80):
-                                    if lineLength > 80:
-                                        txt += "\n"
-
-                                    lineLength = 0
-
-                            while txt[-2:] == "\n":
-                                txt = txt[-2:]
-
                             imLabel = _uuicom.TOCTextWithClick(tframe, 
                                                                 mainWidgetName,
                                                                 3,
