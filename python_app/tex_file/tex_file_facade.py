@@ -110,7 +110,7 @@ class Wr:
                 plt.rcParams.update(params)
                 plt.ioff()
                 # NOTE: this is a hacky workaround to avoid cropping the lines
-                plt.figure(figsize=(20,6))
+                plt.figure(figsize=(20,20))
                 plt.axis('off')
                 # plt.tight_layout()
                 plt.text(0.15, 0.35, fullTex,

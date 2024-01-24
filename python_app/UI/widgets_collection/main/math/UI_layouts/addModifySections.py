@@ -451,14 +451,10 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
                               dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionStartPage_ETR"
-        startPage = fsf.Data.Sec.start(fsf.Data.Book.currSection)
-        endPage = fsf.Data.Sec.finish(fsf.Data.Book.currSection)
-        page = startPage
-        
-        if endPage != _u.Token.NotDef.str_t:
-            page += "-" + endPage
 
-        defaultText = page
+        currOMName = fsf.Data.Book.currOrigMatName
+        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currOMName)
+        defaultText = currPage
 
         if defaultText == _u.Token.NotDef.str_t or defaultText == "":
             defaultText = "Section start page"
@@ -474,11 +470,19 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
                         renderData,
                         defaultText = defaultText)
         super().setData(defaultText)
-    
+
+    def render(self, **kwargs):
+        currOMName = fsf.Data.Book.currOrigMatName
+        currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(currOMName)
+        defaultText = currPage
+        super().setData(defaultText)
+
+        return super().render(**kwargs)
+
     def receiveNotification(self, broadcasterType, data = None, newStartPage = ""):
         if broadcasterType == CreateNewSubsection_BTN:
             text = self.getData()
-            return self.__getStartAndFinishPages(text)
+            return text, ""
 
         if broadcasterType == ChooseTopSection_OM:
             self.setData(newStartPage)

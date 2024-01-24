@@ -48,7 +48,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         if (self.cget("height") - 3) <= 2 :
             newHeight = self.cget("height") - 2
         else:
-            newHeight = self.cget("height") - 3
+            newHeight = int( 0.6 * self.cget("height"))
 
         self.config(height = newHeight + numLinesToAdd)
         self.place(x = 0, y = 0)

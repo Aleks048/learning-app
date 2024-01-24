@@ -319,7 +319,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
         imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
         groupsListKeys = groupsList.keys()
-        idx = imGroupDict[self.entryClicked]
+
+        if self.entryClicked in list(imGroupDict.keys()):
+            idx = imGroupDict[self.entryClicked]
+        else:
+            return
 
         if idx != _u.Token.NotDef.str_t:
             groupName = list(groupsListKeys)[idx]
@@ -1936,7 +1940,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
 
                 rebuildLatex = _uuicom.TOCLabelWithClick(locFrame, text = "[rebuild latex]",
                                                 prefix = "subsecRebuild" + subsection.replace(".", ""),
-                                                row = 0, column= 2)
+                                                row = 0, column = 4)
                 rebuildLatex.subsection = subsection
 
                 _uuicom.bindChangeColorOnInAndOut(rebuildLatex)
@@ -2029,7 +2033,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
 
                 hideSubsections = _uuicom.TOCLabelWithClick(locFrame, text = "[show/hide]",
                                                 prefix = "subsecShowHide" + subsection.replace(".", ""),
-                                                row = 0, column= 4)
+                                                row = 0, column = 2)
                 subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(subsection)
                 if subsectionsList != []:
                     hideSubsections.configure(foreground="brown")
