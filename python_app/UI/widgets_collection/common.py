@@ -664,8 +664,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       0, 
                                                                       txt)
                             imLabel.config(width=90)
-                            imLabel.config(spacing1=10)
-                            imLabel.config(spacing2=10)
                             imLabel.config(padx=10)
                             imLabel.config(pady=10)
                             imLabel.imIdx = imIdx
@@ -1825,11 +1823,11 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                     fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsectionAsETR.subsection,
                                                                     _upan.Names.Subsection.getSubsectionPretty)
                 self.subsectionAsETR.reset()
-                self.__renderWithScrollAfter()
+                self.__renderWithoutScroll()
             else:
                 self.subsectionAsETR.subsection = event.widget.subsection
                 self.subsectionAsETR.widget =event.widget.etrWidget
-                self.__renderWithScrollAfter()
+                self.__renderWithoutScroll()
 
         currSubsectionHidden = False
         hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI

@@ -30,7 +30,29 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         super().__init__(patentWidget, wrap=None, 
                          width = 70, height = height, *args, **kwargs)
+        self.config(spacing1 = 10)
+        self.config(spacing2 = 10)
+        self.config(spacing3 = 12)
         self.insert(tk.END, text)
+        numTextLines = len(text.split("\n"))
+
+        if numTextLines == 1:
+            numLinesToAdd = 0 
+        else:
+            numLinesToAdd = int(numTextLines) - 1
+
+        # numLines = int(self.index("end").split(".")[1]) + numLinesToAdd
+        
+        print(self.cget("height"))
+
+        if (self.cget("height") - 3) <= 2 :
+            newHeight = self.cget("height") - 2
+        else:
+            newHeight = self.cget("height") - 3
+
+        self.config(height = newHeight + numLinesToAdd)
+        self.place(x = 0, y = 0)
+
     
     def getData(self):
         binString = self.get('1.0', tk.END)

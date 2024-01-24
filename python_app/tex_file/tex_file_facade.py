@@ -48,7 +48,7 @@ class Wr:
                 # we replece it withthe token and then bring back
                 w = w.replace("\\\\", "__NEWLINE__")
                 splittedWord = re.split(r"\\[[a-z]+|[A-Z]+]+", w)
-                w = w.replace("__NEWLINE__", "\\\\")
+                w = w.replace("__NEWLINE__", "\\\\[15pt]\\textrm{\\quad}")
 
                 for i in range(len(splittedWord)):
                     splittedWord[i] = splittedWord[i].replace("__NEWLINE__", "\\\\")
