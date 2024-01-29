@@ -2,6 +2,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 import tkinter as tk
+from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
 
 import UI.widgets_wrappers as ww
@@ -52,8 +53,16 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         self.config(height = newHeight + numLinesToAdd)
         self.place(x = 0, y = 0)
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
+                  lambda *args: self.__pasteText(*args))
 
-    
+    def __pasteText(self, *args):
+        pb = NSPasteboard.generalPasteboard()
+        text = pb.stringForType_(NSStringPboardType)
+
+        startSelIDX = self.index("sel.first")
+        self.replace(startSelIDX, startSelIDX, text)
+
     def getData(self):
         binString = self.get('1.0', tk.END)
         bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
@@ -98,6 +107,13 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
                   lambda *args: __addNote(*args))
+
+        def __addExample(*args):
+            boldSelText = "\\textbf{EX:} "
+            self.insert("0.0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
+                  lambda *args: __addExample(*args))
 
     def render(self):
         self.grid(row = self.row, column = self.column)
@@ -204,50 +220,37 @@ class TOCTextWithClick(tk.Text):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
+        self.config(wrap = tk.WORD)
         
         self.insert(tk.END, text)   
 
-        numTextLines = len(text.split("\n"))
+        # numTextLines = len(text.split("\n"))
 
-        if numTextLines == 1:
-            numLinesToAdd = 0 
-        else:
-            numLinesToAdd = int(numTextLines) - 1
+        # if numTextLines == 1:
+        #     numLinesToAdd = 0 
+        # else:
+        #     numLinesToAdd = int(numTextLines) - 1
 
-        numLinesToAdd = int((3/4) * numLinesToAdd)
+        # numLinesToAdd = int((7/8) * numLinesToAdd)
 
         txtList = text.split(" ")
         txt = ""
         lineLength = 0
 
         for w in txtList:
-            lineLength += len(w) + 1
+            lineLength += len(w.replace("\n", "")) + 1
             txt += w + " "
 
-            if ("\n" in w) or (lineLength > 85):
-                if lineLength > 85:
+            if ("\n" in w) or (lineLength > 93):
+                if (lineLength > 93) and (not("\n" in w)):
                     txt += "\n"
 
                 lineLength = 0
 
-        while txt[-2:] == "\n":
-            txt = txt[-2:]
-
-        # NOTE: the weights are obtained by experementation and
-        # a better system should be implemented
-        if len(txt.split("\n")) < 3:
-            newHeight = int( 0.1 * self.cget("height"))
-        elif len(txt.split("\n")) in range(3, 5):
-            newHeight = int( 0.13 * self.cget("height"))
-        elif len(txt.split("\n")) in range(5, 6):
-            newHeight = int( 0.167 * self.cget("height"))
-        elif len(txt.split("\n")) in range(6, 7):
-            newHeight = int( 0.21 * self.cget("height"))
-        else:
-            newHeight = int( 0.22 * self.cget("height"))
-
-        # numLines = int(self.index("end").split(".")[0])
-        self.config(height = newHeight + numLinesToAdd)
+        Font_tuple = ("TkFixedFont", 12)
+        self.config(font = Font_tuple)
+        self.config(width = 85)
+        self.config(height = int(0.7 * len(txt.split("\n"))))
         self.config(background = "#394d43")
         self.config(state=tk.DISABLED)
         self.place(x = 0, y = 0)
