@@ -61,9 +61,9 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         oldText = self.get("0.0", tk.END)
 
         pb = NSPasteboard.generalPasteboard()
-        text = pb.stringForType_(NSStringPboardType)
+        text:str = pb.stringForType_(NSStringPboardType)
 
-        text = text.replace("\u0000", "ff")
+        text = text.replace("\u0000", "fi")
 
         parIdx = int(pos.split(".")[0]) - 1
         letterIdx = int(pos.split(".")[1])
