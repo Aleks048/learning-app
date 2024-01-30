@@ -53,15 +53,33 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         self.config(height = newHeight + numLinesToAdd)
         self.place(x = 0, y = 0)
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
+        self.bind(ww.currUIImpl.Data.BindID.Keys.ctrlv,
                   lambda *args: self.__pasteText(*args))
 
     def __pasteText(self, *args):
+        pos = self.index(tk.INSERT)
+        oldText = self.get("0.0", tk.END)
+
         pb = NSPasteboard.generalPasteboard()
         text = pb.stringForType_(NSStringPboardType)
 
-        startSelIDX = self.index("sel.first")
-        self.replace(startSelIDX, startSelIDX, text)
+        text = text.replace("\u0000", "ff")
+
+        parIdx = int(pos.split(".")[0]) - 1
+        letterIdx = int(pos.split(".")[1])
+        oldTextPar = oldText.split("\n")
+
+        if parIdx < len(oldTextPar):
+            updatedPar = oldTextPar[parIdx][:letterIdx] + text + oldTextPar[parIdx][letterIdx:]
+        else:
+            updatedPar = text
+
+        oldTextPar[parIdx] = updatedPar
+
+        newText = "\n".join(oldTextPar)[:-2]
+
+        self.delete("1.0", tk.END)
+        self.insert(tk.END, newText)
 
     def getData(self):
         binString = self.get('1.0', tk.END)
@@ -241,8 +259,8 @@ class TOCTextWithClick(tk.Text):
             lineLength += len(w.replace("\n", "")) + 1
             txt += w + " "
 
-            if ("\n" in w) or (lineLength > 93):
-                if (lineLength > 93) and (not("\n" in w)):
+            if ("\n" in w) or (lineLength > 113):
+                if not("\n" in w):
                     txt += "\n"
 
                 lineLength = 0
@@ -250,7 +268,7 @@ class TOCTextWithClick(tk.Text):
         Font_tuple = ("TkFixedFont", 12)
         self.config(font = Font_tuple)
         self.config(width = 85)
-        self.config(height = int(0.7 * len(txt.split("\n"))))
+        self.config(height = int(len(txt.split("\n"))))
         self.config(background = "#394d43")
         self.config(state=tk.DISABLED)
         self.place(x = 0, y = 0)

@@ -170,7 +170,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 imText = imText.replace("\u2014", "-")
                 imText = imText.replace("\ufffd", "")
                 imText = imText.replace("\n", "")
-                imText = imText.replace("\u0000", "fi")
+                imText = imText.replace("\u0000", "ff")
 
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict

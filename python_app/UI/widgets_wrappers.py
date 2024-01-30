@@ -109,7 +109,7 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdn = "<Mod1-n>"
                 cmde = "<Mod1-e>"
                 cmdu = "<Mod1-u>"
-                cmdv = "<Mod1-v>"
+                ctrlv = "<Control-v>"
                 escape = "<Escape>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
