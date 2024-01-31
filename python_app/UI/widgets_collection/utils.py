@@ -65,21 +65,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         text = text.replace("\u0000", "fi")
 
-        parIdx = int(pos.split(".")[0]) - 1
-        letterIdx = int(pos.split(".")[1])
-        oldTextPar = oldText.split("\n")
-
-        if parIdx < len(oldTextPar):
-            updatedPar = oldTextPar[parIdx][:letterIdx] + text + oldTextPar[parIdx][letterIdx:]
-        else:
-            updatedPar = text
-
-        oldTextPar[parIdx] = updatedPar
-
-        newText = "\n".join(oldTextPar)[:-2]
-
-        self.delete("1.0", tk.END)
-        self.insert(tk.END, newText)
+        self.insert(tk.INSERT, text)
 
     def getData(self):
         binString = self.get('1.0', tk.END)
