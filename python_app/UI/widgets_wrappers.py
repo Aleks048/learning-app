@@ -6,6 +6,7 @@ import _utils._utils_main as _u
 import UI.widgets_data as wd
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
+import file_system.file_system_facade as fsf
 
 class DataContainer_Interface: 
     def __init__(self):
@@ -107,6 +108,7 @@ class TkWidgets (DataTranslatable_Interface):
                 shenter = "<Shift-Return>"
                 cmdb = "<Mod1-b>"
                 cmdn = "<Mod1-n>"
+                cmdd = "<Mod1-d>"
                 cmde = "<Mod1-e>"
                 cmdu = "<Mod1-u>"
                 ctrlv = "<Control-v>"
@@ -688,6 +690,8 @@ class TkWidgets (DataTranslatable_Interface):
             # this function stamps the changes every 180 seconds
             msg = "After time has passed'."
             log.autolog(msg)
+            origMatName = fsf.Data.Book.currOrigMatName
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
             root.after(180000, tick)
             return None

@@ -223,6 +223,11 @@ class OriginalMaterialStructure:
         # update the currPage for original material
         cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
         frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
+
+        # NOTE: this is needed to not update the page when 
+        # the pdf doc is still not opened.
+        if len(frontSkimDocumentPage.split("page ")) < 2:
+            return
         
         if frontSkimDocumentPage != None:
             page = frontSkimDocumentPage.split("page ")[1]

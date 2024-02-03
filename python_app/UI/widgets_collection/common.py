@@ -936,12 +936,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       newText,
                                                                       textOnly
                                                                       )
+                        self.scroll_into_view(event)
                         self.entryAsETR.reset()
                         self.__renderWithoutScroll()
                     else:
                         self.entryAsETR.subsection = event.widget.subsection
                         self.entryAsETR.imIdx = event.widget.imIdx
                         self.entryAsETR.widget =event.widget.etrWidget
+                        self.scroll_into_view(event)
                         self.__renderWithoutScroll()
 
                 # 4 : event of mouse click
