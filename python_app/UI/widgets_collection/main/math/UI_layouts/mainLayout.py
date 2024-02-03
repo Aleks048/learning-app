@@ -709,6 +709,47 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.updateDafaultText(defaultText)
         else:
             self.updateDafaultText(str(int(secImIndex) + 1))
+        
+        def __boldenText(*args):
+            startSelIDX = self.widgetObj.index("sel.first")
+            endSelIDX = self.widgetObj.index("sel.last")
+            selText = self.widgetObj.get(startSelIDX, endSelIDX)
+            boldSelText = f"\\textbf{{{selText}}}"
+            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdb,
+                            lambda *args: __boldenText(*args))
+
+        def __underlineText(*args):
+            startSelIDX = self.widgetObj.index("sel.first")
+            endSelIDX = self.widgetObj.index("sel.last")
+            selText = self.widgetObj.get(startSelIDX, endSelIDX)
+            boldSelText = f"\\underline{{{selText}}}"
+            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdu,
+                  lambda *args: __underlineText(*args))
+
+        def __addNote(*args):
+            boldSelText = "\\textbf{NOTE:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
+                  lambda *args: __addNote(*args))
+
+        def __addDef(*args):
+            boldSelText = "\\textbf{DEF:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
+                  lambda *args: __addDef(*args))
+
+        def __addExample(*args):
+            boldSelText = "\\textbf{EX:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
+                  lambda *args: __addExample(*args))
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
