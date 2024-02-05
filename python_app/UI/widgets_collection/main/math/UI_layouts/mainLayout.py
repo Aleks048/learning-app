@@ -108,6 +108,51 @@ class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
 
         gm.GeneralManger.readdNotesToPage(currPage)
 
+class ShowFirstEntryOfTheCurrPage(ww.currUIImpl.Button):
+    def __init__(self, patentWidget, prefix):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 17},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        name = "_ShowFirstEntryOfTheCurrPage"
+        text= "Show CP Entry"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        data, 
+                        self.cmd)
+
+    def cmd(self):
+        origMatName = fsf.Data.Book.currOrigMatName
+        materialFilename = \
+            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
+
+        cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
+        frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
+
+        if len(frontSkimDocumentPage.split("page ")) < 2:
+            return
+        
+        if frontSkimDocumentPage != None:
+            page = frontSkimDocumentPage.split("page ")[1]
+            page = page.split(" ")[0]
+        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+
+        for tSection in topSectionsList:
+            subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(tSection)
+
+            for subsection in subsectionsList:
+                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+
+                if origMatNameDict != _u.Token.NotDef.dict_t:
+                    for eIdx in range(len(origMatNameDict)):
+                        if origMatNameDict[str(eIdx)] == origMatName:
+                            if str(imLinkOMPageDict[str(eIdx)]) == str(page):
+                                self.notify(comw.TOC_BOX, [subsection, str(eIdx)])
+                                break
+
 class ShowAllSubsections_BTN(ww.currUIImpl.Button):
     prevHiddenSubsections = _u.Token.NotDef.list_t.copy()
     showAll = True

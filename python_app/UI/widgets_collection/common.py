@@ -441,6 +441,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
             self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
+            self.scrollToEntry(data[0], data[1])
+            self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.ImageSave_BTN:
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:

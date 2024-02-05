@@ -108,6 +108,9 @@ class LayoutManagers:
             showAllSubsections_BTN = ml.ShowAllSubsections_BTN(winRoot, self.prefix)
             self.addWidget(showAllSubsections_BTN)
 
+            showFirstEntryOfTheCurrPage = ml.ShowFirstEntryOfTheCurrPage(winRoot, self.prefix)
+            self.addWidget(showFirstEntryOfTheCurrPage)
+
             rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrentSubsectionLatex_BTN)
 
@@ -169,6 +172,7 @@ class LayoutManagers:
 
             showHideLinks_BTN.addListenerWidget(tocBox_BOX)
             showAllSubsections_BTN.addListenerWidget(tocBox_BOX)
+            showFirstEntryOfTheCurrPage.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
