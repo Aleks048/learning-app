@@ -201,28 +201,33 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     subsectionContentLabels = []
 
+    currSecondRowLabels = []
+
     class __EntryUIs:
         class __EntryUIData:
             def __init__(self, name, column) -> None:
                 self.name = name
                 self.column = column
 
-        im = __EntryUIData("[im]", 2)
-        full = __EntryUIData("[full]", 1)
-        alwaysShow = __EntryUIData("", 3)
-        group = __EntryUIData("", 15)
-        link = __EntryUIData("[link]", 4)
-        copyLink = __EntryUIData("[cl]", 13)
-        pasteLink = __EntryUIData("[pl]", 14)
-        changeImSize = __EntryUIData("", 8)
-        excercises = __EntryUIData("[ex]", 10)
-        update = __EntryUIData("[update]", 21)
-        delete = __EntryUIData("[delete]", 22)
-        shift = __EntryUIData("[shift]", 23)
-        copy = __EntryUIData("[c]", 6)
-        pasteAfter = __EntryUIData("[p]", 7)
-        showLinks = __EntryUIData("[ShowLinks]", 16)
-        retake = __EntryUIData("[Retake]", 20)
+        # row 1
+        full = __EntryUIData("[f]", 1)
+        im = __EntryUIData("[i]", 2)
+        copyLink = __EntryUIData("[cl]", 3)
+        pasteLink = __EntryUIData("[pl]", 4)
+        copy = __EntryUIData("[c]", 5)
+        pasteAfter = __EntryUIData("[p]", 6)
+        excercises = __EntryUIData("[ex]", 7)
+
+        # row 2
+        showLinks = __EntryUIData("[ShowLinks]", 1)
+        alwaysShow = __EntryUIData("", 2)
+        changeImSize = __EntryUIData("", 3)
+        delete = __EntryUIData("[Delete]", 4)
+        shift = __EntryUIData("[Shift]", 5)
+        retake = __EntryUIData("[Retake]", 6)
+        update = __EntryUIData("[Update]", 7)
+        link = __EntryUIData("[Link]", 8)
+        group = __EntryUIData("", 9)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -554,7 +559,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             '''
             TODO: need to change to the wrapper
             '''
-            tframe = label.master
+            if link:
+                tframe = label.master
+            else:
+                tframe = label.master.master
+
             gpframe = tframe.master
             balloon = Pmw.Balloon(tframe)
 
@@ -575,6 +584,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     self.subsectionClicked = subsection
                     self.entryClicked = imIdx
+
+                for w in  self.currSecondRowLabels:
+                    try:
+                        if (w.subsection == subsection) and (w.imIdx == imIdx):
+                            w.render()
+                        else:
+                            w.grid_forget()
+                    except:
+                        pass
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))):
@@ -666,7 +684,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             and (imIdx == self.entryTextOnlyAsETR.imIdx) :
                             imLabel = _uuicom.MultilineText_ETR(tframe, 
                                                                       mainWidgetName, 
-                                                                      3,
+                                                                      4,
                                                                       0, 
                                                                       0, 
                                                                       txt)
@@ -685,7 +703,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         else:
                             imLabel = _uuicom.TOCTextWithClick(tframe, 
                                                                 mainWidgetName,
-                                                                3,
+                                                                4,
                                                                 0,
                                                                 1000,
                                                                 text=txt,
@@ -718,6 +736,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         for l in exImLabels:
                             l.render()
 
+                    # NOTE: for links
                     if int(event.type) == 4 or \
                        int(event.type) == 35:
                         for child in tframe.winfo_children():
@@ -730,9 +749,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if not isWdgetLink:
                         if int(event.type) == 4:
                             self.currEntryWidget = event.widget
+                            self.currEntryWidget.clicked = False
 
                         # self.entryClicked = _u.Token.NotDef.str_t
                         self.scroll_into_view(event)
+
+                        for w in  self.currSecondRowLabels:
+                            if (w.subsection == subsection) and (w.imIdx == imIdx):
+                                w.grid_forget()
 
                     _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
 
@@ -997,7 +1021,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         currImGroupName = imagesGroups[currImGroupidx]
 
                         topPad = 0
-                        gridRowStartIdx = 0
+                        gridRowStartIdx = 1
 
                         if currImGroupName != prevImGroupName:
                             if not imagesGroupsWShouldShow[currImGroupName]:
@@ -1177,7 +1201,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                                         [__moveGroup])
                                 moveGroup.render()
 
-                                gridRowStartIdx = 1
+                                gridRowStartIdx = 2
                             else:
                                 img = getGroupImg(subsection, currImGroupName)
                                 imageNoGroupLabel = _uuicom.TOCLabelWithClick(tempFrame, 
@@ -1187,14 +1211,29 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                                             row = 0, column = 0)
                                 imageNoGroupLabel.image = img
                                 imageNoGroupLabel.render()
-                                gridRowStartIdx = 1
+                                gridRowStartIdx = 2
+
+                        tempFrameRow1 = _uuicom.TOCFrame(tempFrame,
+                                            prefix = "contentRow1Fr_" + nameId,
+                                            padding=[0, topPad, 0, 0],
+                                            row = gridRowStartIdx - 1, 
+                                            column = 0, columnspan = 100)
+
+                        tempFrameRow2 = _uuicom.TOCFrame(tempFrame,
+                                            prefix = "contentRow2Fr_" + nameId,
+                                            padding=[60, topPad, 0, 0],
+                                            row = gridRowStartIdx, 
+                                            column = 0, columnspan = 100)
+                        tempFrameRow2.subsection = subsection
+                        tempFrameRow2.imIdx = k
+                        self.currSecondRowLabels.append(tempFrameRow2)
 
                         if currImGroupName not in imagesGroups:
                             currImGroupName = imagesGroups[0]
                             imagesGroupDict[k] = 0
                             fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
-                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrame, 
+                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrameRow2, 
                                                    tk.StringVar(), currImGroupName, *imagesGroups)
 
                         def getEntryImg(tex, subsection, imIdx):
@@ -1225,9 +1264,9 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
 
                         if (subsection == self.entryAsETR.subsection)\
                             and (k == self.entryAsETR.imIdx) :
-                            textLabelPage = _uuicom.MultilineText_ETR(tempFrame, 
+                            textLabelPage = _uuicom.MultilineText_ETR(tempFrameRow1, 
                                                                       "contentP_" + nameId, 
-                                                                      gridRowStartIdx,
+                                                                      0,
                                                                       0, 
                                                                       i, 
                                                                       v)
@@ -1239,11 +1278,12 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             self.entryAsETR.widget = textLabelPage
                             textLabelPage.focus_force()
                         else:
-                            textLabelPage = _uuicom.TOCLabelWithClick(tempFrame,
+                            textLabelPage = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                                             image = img, 
                                                             prefix = "contentP_" + nameId, 
                                                             padding= [60, 0, 0, 0],
-                                                            row = gridRowStartIdx, column = 0)
+                                                            row = 0, 
+                                                            column = 0)
                             textLabelPage.imIdx = k
                             textLabelPage.subsection = subsection
                             textLabelPage.etrWidget = textLabelPage
@@ -1251,22 +1291,22 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                                  [updateEntry])
                             textLabelPage.image = img
 
-                        textLabelFull = _uuicom.TOCLabelWithClick(tempFrame, 
+                        textLabelFull = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                        text = self.__EntryUIs.im.name, 
                                                        prefix = "contentFull_" + nameId,
-                                                       row = gridRowStartIdx, 
+                                                       row = 0, 
                                                        column = self.__EntryUIs.im.column)
                         textLabelFull.subsection = subsection
                         textLabelFull.imIdx = k
 
-                        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrame, 
+                        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrameRow2, 
                                                                              subsection, k, 
                                                                              "contentShowAlways_" + nameId,
                                                                              self)
-                        showImages = _uuicom.TOCLabelWithClick(tempFrame, 
+                        showImages = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                     text = self.__EntryUIs.full.name,
                                                     prefix = "contentOfImages_" + nameId,
-                                                    row = gridRowStartIdx,
+                                                    row = 0,
                                                     column = self.__EntryUIs.full.column)
                         showImages.imIdx = k
                         showImages.subsection = subsection
@@ -1283,30 +1323,30 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
                                                                                  False, textOnly = True,*args)])
 
-                        removeEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        removeEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                      text = self.__EntryUIs.delete.name,
                                                      prefix = "contentRemoveEntry" + nameId,
-                                                     row = gridRowStartIdx, 
+                                                     row = 0, 
                                                      column = self.__EntryUIs.delete.column)
                         removeEntry.imIdx = k
                         removeEntry.subsection = subsection
                         removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                            [removeEntryCmd])
 
-                        shiftEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        shiftEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                                text = self.__EntryUIs.shift.name,
                                                                prefix = "contentShiftEntry" + nameId,
-                                                               row = gridRowStartIdx, 
+                                                               row = 0, 
                                                                column = self.__EntryUIs.shift.column)
                         shiftEntry.imIdx = k
                         shiftEntry.subsection = subsection
                         shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                           [shiftEntryCmd])
 
-                        copyEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        copyEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                                                text = self.__EntryUIs.copy.name,
                                                                prefix = "contentCopyEntry" + nameId,
-                                                               row = gridRowStartIdx, 
+                                                               row = 0, 
                                                                column = self.__EntryUIs.copy.column)
                         copyEntry.imIdx = k
                         copyEntry.subsection = subsection
@@ -1315,87 +1355,87 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         copyEntry.rebind([ww.currUIImpl.Data.BindID.shmouse1],
                                          [cutEntryCmd])
 
-                        pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                                                text = self.__EntryUIs.pasteAfter.name,
                                                                prefix = "contentPasteAfterEntry" + nameId,
-                                                               row = gridRowStartIdx, 
+                                                               row = 0, 
                                                                column = self.__EntryUIs.pasteAfter.column)
                         pasteAfterEntry.imIdx = k
                         pasteAfterEntry.subsection = subsection
                         pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                [pasteEntryCmd])
 
-                        showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                                text = self.__EntryUIs.showLinks.name,
                                                                prefix = "contentShowLinksForEntry" + nameId,
-                                                               row = gridRowStartIdx, 
+                                                               row = 0, 
                                                                column = self.__EntryUIs.showLinks.column)
                         showLinksForEntry.imIdx = k
                         showLinksForEntry.subsection = subsection
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [showLinksForEntryCmd])
 
-                        retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                                text =  self.__EntryUIs.retake.name,
                                                                prefix = "contentRetakeImageForEntry" + nameId,
-                                                               row = gridRowStartIdx, 
+                                                               row = 0, 
                                                                column =  self.__EntryUIs.retake.column)
                         retakeImageForEntry.imIdx = k
                         retakeImageForEntry.subsection = subsection
                         retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [retakeImageCmd])
 
-                        addLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
+                        addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                          text = self.__EntryUIs.link.name,
                                                          prefix = "contentAddGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, 
+                                                         row = 0, 
                                                          column = self.__EntryUIs.link.column)
                         addLinkEntry.imIdx = k
                         addLinkEntry.subsection = subsection
                         addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addGlLinkCmd])
 
-                        copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrame, 
+                        copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                          text = self.__EntryUIs.copyLink.name,
                                                          prefix = "contentCopyGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, 
+                                                         row = 0, 
                                                          column = self.__EntryUIs.copyLink.column)
                         copyLinkEntry.imIdx = k
                         copyLinkEntry.subsection = subsection
                         copyLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [copyGlLinkCmd])
 
-                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrame,
+                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                                          text = self.__EntryUIs.pasteLink.name,
                                                          prefix = "contentPasteGlLinkEntry" + nameId,
-                                                         row = gridRowStartIdx, 
+                                                         row = 0, 
                                                          column = self.__EntryUIs.pasteLink.column)
                         pasteLinkEntry.imIdx = k
                         pasteLinkEntry.subsection = subsection
                         pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [pasteGlLinkCmd])
 
-                        openExUIEntry = _uuicom.TOCLabelWithClick(tempFrame, 
+                        openExUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                       text = self.__EntryUIs.excercises.name, 
                                                       prefix = "contentOpenExcerciseUIEntry" + nameId,
-                                                      row = gridRowStartIdx, 
-                                                      column = self.__EntryUIs.excercises.column)
+                                                      row = 0, 
+                                                      column = self.__EntryUIs.excercises.column,
+                                                      columnspan = 1000)
                         openExUIEntry.imIdx = k
                         openExUIEntry.subsection = subsection
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
 
-                        changeImText = _uuicom.TOCLabelWithClick(tempFrame, 
+                        changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.update.name, 
                                                       prefix = "contentUpdateEntryText" + nameId,
-                                                      row = gridRowStartIdx, 
+                                                      row = 0, 
                                                       column = self.__EntryUIs.update.column)
                         changeImText.imIdx = k
                         changeImText.subsection = subsection
                         changeImText.etrWidget = textLabelPage
                         changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [updateEntry])
-
 
                         uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
 
@@ -1404,9 +1444,9 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         else:
                             resizeFactor = 1.0
 
-                        changeImSize = _uuicom.ImageSize_ETR(tempFrame,
+                        changeImSize = _uuicom.ImageSize_ETR(tempFrameRow2,
                                                       prefix = "contentUpdateEntryText" + nameId,
-                                                      row = gridRowStartIdx, 
+                                                      row = 0, 
                                                       column = self.__EntryUIs.changeImSize.column,
                                                       imIdx = k,
                                                       text = resizeFactor)
@@ -1438,7 +1478,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                 glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame, 
                                                         text = "Links: ", 
                                                         prefix = "contentLinksIntroFr_" + nameId,
-                                                        padding = [120, 0, 0, 0],
+                                                        padding = [60, 0, 0, 0],
                                                         row = 0, column = 0)
                                 glLinkLablel.render()
                                 glLinkId = 0
@@ -1452,7 +1492,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             glLinkImLablel = _uuicom.TOCLabelWithClick(
                                                                     linksFrame, 
                                                                     prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                    padding = [120, 0, 0, 0],
+                                                                    padding = [60, 0, 0, 0],
                                                                     row = glLinkId + 1, column = 0)
                                             glLinkImLablel.render()
             
@@ -1464,7 +1504,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                                                     glLinkImLablel, 
                                                                     prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
                                                                     text = targetSubsection + ": ", 
-                                                                    padding = [150, 0, 0, 0],
+                                                                    padding = [90, 0, 0, 0],
                                                                     row = 0, column = 0)
                                             glLinkSubsectioLbl.render()
 
@@ -1560,13 +1600,13 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             glLinkImLablel = _uuicom.TOCLabelWithClick(
                                                                     linksFrame, 
                                                                     prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                    padding = [120, 0, 0, 0],
+                                                                    padding = [60, 0, 0, 0],
                                                                     row = glLinkId + 1, column = 0)
                                             glLinkImLablel.render()
 
                                             glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                     text = "web: ", 
-                                                                    padding = [150, 0, 0, 0],
+                                                                    padding = [90, 0, 0, 0],
                                                                     prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
                                                                     row = glLinkId + 1, column = 0)
                                             glLinkSubsectioLbl.render()
@@ -1634,6 +1674,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                 self.widgetToScrollTo = showImages
 
                         if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
+                            tempFrameRow1.render()
                             textLabelPage.render()
 
                             if not showImages.alwaysShow:
@@ -1644,10 +1685,11 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             if not self.showAll:
 
                                 if not textOnly:
-                                    chkbtnShowPermamently.grid(row = gridRowStartIdx, 
+                                    chkbtnShowPermamently.grid(row = 0, 
                                                             column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
 
-                                imagesGroup.grid(row = gridRowStartIdx, column = self.__EntryUIs.group.column, sticky=tk.NW)
+                                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
+                                                 sticky=tk.NW)
                                 removeEntry.render()
 
                             addLinkEntry.render()
@@ -2113,6 +2155,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
         self.shouldScroll = shouldScroll
         self.displayedImages = []
         self.subsectionContentLabels = []
+        self.currSecondRowLabels = []
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()

@@ -43,8 +43,6 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
             numLinesToAdd = int(numTextLines) - 1
 
         # numLines = int(self.index("end").split(".")[1]) + numLinesToAdd
-        
-        print(self.cget("height"))
 
         if (self.cget("height") - 3) <= 2 :
             newHeight = self.cget("height") - 2
@@ -170,6 +168,9 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
 
 
 class TOCFrame(ttk.Frame):
+    subsection = None
+    imIdx = None
+
     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
         self.row = row
         self.column = column
@@ -393,7 +394,7 @@ def addMainEntryImageWidget(rootLabel,
     mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
     img, imLabel = getImageWidget(rootLabel, imagePath, 
                                   mainWidgetName, imPadLeft,
-                                  row = 3, column = 0, columnspan = 100,
+                                  row = 4, column = 0, columnspan = 100,
                                   resizeFactor = resizeFactor)
 
     displayedImagesContainer.append(img)
@@ -490,15 +491,20 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
         # NOTE this is not an ideal hack to get the 
         if "getChildren" in dir(parent):
             for child in parent.getChildren():
-                if "contentOfImages_" in str(child):
-                    subsection = str(child).split("_")[-2].replace("$", ".")
-                    idx = str(child).split("_")[-1]
-                    alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+                if "getChildren" in dir(child):
+                    for gChild in child.getChildren():
+                        if "contentOfImages_" in str(gChild):
+                            subsection = str(gChild).split("_")[-2].replace("$", ".")
+                            idx = str(gChild).split("_")[-1]
+                            alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                    if (not alwaysShow) or showAll: 
-                        child.clicked = False
-                    else: 
-                        child.clicked = True
+                            if (not alwaysShow) or showAll: 
+                                gChild.clicked = False
+                            else: 
+                                gChild.clicked = True
+
+                            if "Row2" in str(child):
+                                child.destroy()
 
                 if "contentGlLinksOfImages_" in str(child):
                     child.clicked = False
