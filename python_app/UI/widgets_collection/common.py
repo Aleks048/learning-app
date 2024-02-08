@@ -203,6 +203,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     currSecondRowLabels = []
 
+    updatedWidget = None
+
     class __EntryUIs:
         class __EntryUIData:
             def __init__(self, name, column) -> None:
@@ -216,7 +218,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         pasteLink = __EntryUIData("[pl]", 4)
         copy = __EntryUIData("[c]", 5)
         pasteAfter = __EntryUIData("[p]", 6)
-        excercises = __EntryUIData("[ex]", 7)
+        excercises = __EntryUIData("[e]", 7)
 
         # row 2
         showLinks = __EntryUIData("[ShowLinks]", 1)
@@ -337,17 +339,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             self.__renderWithScrollAfter()
 
-    def scroll_into_view(self, event):
+    def scroll_into_view(self, event, widget = None):
         if not self.shouldScroll:
             return
 
         try:
             posy = 0
-            pwidget = event.widget
+
+            if widget == None:
+                pwidget = event.widget
+            else:
+                pwidget = widget
+
 
             self.canvas.yview_scroll(-100, "units")
             self.canvas.update()
-            event.widget.update()
+            pwidget.update()
 
             while pwidget != self.parent:
                 posy += pwidget.winfo_y()
@@ -360,7 +367,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             count = 1
 
             posy = 0
-            pwidget = event.widget
+
+            if widget == None:
+                pwidget = event.widget
+            else:
+                pwidget = widget
 
             while pwidget != self.parent:
                 posy += pwidget.winfo_y()
@@ -963,15 +974,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       newText,
                                                                       textOnly
                                                                       )
-                        self.scroll_into_view(event)
                         self.entryAsETR.reset()
                         self.__renderWithoutScroll()
+                        self.scroll_into_view(None, self.updatedWidget)
                     else:
                         self.entryAsETR.subsection = event.widget.subsection
                         self.entryAsETR.imIdx = event.widget.imIdx
                         self.entryAsETR.widget =event.widget.etrWidget
-                        self.scroll_into_view(event)
                         self.__renderWithoutScroll()
+                        self.scroll_into_view(None, self.entryAsETR.widget)
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -1290,6 +1301,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                                  [updateEntry])
                             textLabelPage.image = img
+                            self.updatedWidget = textLabelPage
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                        text = self.__EntryUIs.im.name, 
