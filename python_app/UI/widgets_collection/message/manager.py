@@ -2,6 +2,7 @@ import time
 from threading import Thread
 
 import UI.widgets_collection.startup.startup as sw
+import UI.widgets_wrappers as ww
 
 import UI.widgets_manager as wm
 
@@ -82,6 +83,15 @@ class MessageMenuManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+        def confirm(*args):
+            self.stopWait(True)
+            self.hide()
+        def decline(*args):
+            self.stopWait(False)
+            self.hide()
+        self.winRoot.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.enter,  confirm)
+        self.winRoot.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.escape,  decline)
     
     def show(self, text, shouldWait = False):
         if shouldWait:

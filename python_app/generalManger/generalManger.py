@@ -171,6 +171,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 imText = imText.replace("\ufffd", "")
                 imText = imText.replace("\n", "")
                 imText = imText.replace("\u0000", "fi")
+                imText = imText.replace("\u0394", "\\Delta ")
 
             imageTextsDict = fsf.Data.Sec.imageText(subsection)
             imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
