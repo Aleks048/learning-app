@@ -238,6 +238,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         imIdx = _u.Token.NotDef.str_t
         widget = None
 
+        upddatedTextSubsection = _u.Token.NotDef.str_t
+        upddatedTextImIdx = _u.Token.NotDef.str_t
+
         def reset(self):
             self.subsection = _u.Token.NotDef.str_t
             self.imIdx = _u.Token.NotDef.str_t
@@ -981,6 +984,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.entryAsETR.subsection = event.widget.subsection
                         self.entryAsETR.imIdx = event.widget.imIdx
                         self.entryAsETR.widget =event.widget.etrWidget
+                        self.entryAsETR.upddatedTextSubsection = event.widget.subsection
+                        self.entryAsETR.upddatedTextImIdx = event.widget.imIdx
                         self.__renderWithoutScroll()
                         self.scroll_into_view(None, self.entryAsETR.widget)
 
@@ -1301,7 +1306,12 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                                  [updateEntry])
                             textLabelPage.image = img
-                            self.updatedWidget = textLabelPage
+
+                            if (self.entryAsETR.upddatedTextSubsection == subsection) and\
+                               (self.entryAsETR.upddatedTextImIdx == k):
+                                self.entryAsETR.upddatedTextSubsection = None
+                                self.entryAsETR.upddatedTextImIdx = None
+                                self.updatedWidget = textLabelPage
 
                         textLabelFull = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                        text = self.__EntryUIs.im.name, 
