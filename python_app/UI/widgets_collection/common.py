@@ -599,22 +599,27 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.subsectionClicked = subsection
                     self.entryClicked = imIdx
 
+                shoulShowSecondRow = False
+
                 for w in  self.currSecondRowLabels:
                     try:
                         if (w.subsection == subsection) and (w.imIdx == imIdx):
                             w.render()
+                            shoulShowSecondRow = True
                         else:
                             w.grid_forget()
                     except:
                         pass
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
-                    ((not label.clicked) and ((int(event.type) == 35))):
+                    ((not label.clicked) and ((int(event.type) == 35))) or\
+                    ((label.clicked) and ((int(event.type) == 4)) and shoulShowSecondRow):
                     if self.showAll and shouldScroll:
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.MathMenuManager)
                         mainManager.moveTocToEntry(subsection, imIdx, True)
-                        return
+                    # NOTE: not sure is we need to
+                    #     return
 
                     if ((int(event.type) == 4) or (shouldScroll)) and (not link):
                         self.currEntryWidget = event.widget
@@ -623,7 +628,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.closeAllImages(gpframe, self.showAll, link,
                                                [subsection, self.secondEntryClickedImIdx])
 
-                    if (not label.alwaysShow) and (not isWdgetLink):
+                    if ((not label.alwaysShow) and (not isWdgetLink)) or shoulShowSecondRow:
                         self.entryClicked = imIdx
 
                     label.clicked = True
@@ -814,13 +819,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             break
 
                     if linkShouldBePresent:
-                        glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
+                        if imIdx in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
+                            glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
 
-                        for ln in glLinks:
-                            if not self.showLinks:
-                                self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
+                            for ln in glLinks:
+                                if not self.showLinks:
+                                    self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
 
-                        self.showLinksForSubsections.append(liskShpowId)
+                            self.showLinksForSubsections.append(liskShpowId)
 
                     self.__renderWithScrollAfter()
 
@@ -1262,12 +1268,9 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
                                 result = Image.open(entryImgPath)
                             else:
-                                if textOnly:
-                                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
-                                                                                entryImgPath,
-                                                                                fixedWidth = 700) 
-                                else:
-                                    result = tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath) 
+                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
+                                                                            entryImgPath,
+                                                                            fixedWidth = 700)
 
                             return result
 

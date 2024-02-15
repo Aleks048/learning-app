@@ -784,7 +784,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
         def __addDef(*args):
             boldSelText = "\\textbf{DEF:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.widgetObj.insert(tk.INSERT, boldSelText)
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
                   lambda *args: __addDef(*args))

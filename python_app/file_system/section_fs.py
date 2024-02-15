@@ -843,7 +843,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         tex = imLinkDict[imIdx]
         imNameNew = _upan.Names.getImageName(targetImIdx)
         tff.Wr.TexFileUtils.fromTexToImage(tex,
-                                           os.path.join(imagesPath, imNameNew + ".png"))
+                                           os.path.join(imagesPath, imNameNew + ".png"),
+                                           fixedWidth = 700)
 
         oldsSecreenshotPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName, 
                                                                                  subsection,
@@ -977,10 +978,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(imIdx, linkText)
 
-        if textonly:
-            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath, fixedWidth = 700)
-        else:
-            tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath)
+        tff.Wr.TexFileUtils.fromTexToImage(tex, entryImgPath, fixedWidth = 700)
 
     @classmethod
     def rebuildTopSectionLatex(cls, topSection,
