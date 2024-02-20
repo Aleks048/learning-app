@@ -229,7 +229,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         retake = __EntryUIData("[Retake]", 6)
         update = __EntryUIData("[Update]", 7)
         link = __EntryUIData("[Link]", 8)
-        group = __EntryUIData("", 9)
+        addExtra = __EntryUIData("[Add extra]", 9)
+        group = __EntryUIData("", 10)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -905,6 +906,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 [widget.subsection, widget.imIdx])
                     self.__renderWithScrollAfter()
 
+                def addExtraImCmd(event, *args):
+                    widget:_uuicom.TOCLabelWithClick = event.widget
+                    self.notify(mui.AddExtraImage_BTN,
+                                data = [widget.subsection, widget.imIdx])
+                    self.__renderWithScrollAfter()
+
                 def pasteGlLinkCmd(event, *args):
                     widget = event.widget
                     sourceSubsection = widget.subsection
@@ -1420,6 +1427,16 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addGlLinkCmd])
 
+                        addExtraImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                         text = self.__EntryUIs.addExtra.name,
+                                                         prefix = "contentAddExtraImageEntry" + nameId,
+                                                         row = 0, 
+                                                         column = self.__EntryUIs.addExtra.column)
+                        addExtraImage.imIdx = k
+                        addExtraImage.subsection = subsection
+                        addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                            [addExtraImCmd])
+
                         copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                          text = self.__EntryUIs.copyLink.name,
                                                          prefix = "contentCopyGlLinkEntry" + nameId,
@@ -1718,6 +1735,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                 removeEntry.render()
 
                             addLinkEntry.render()
+                            addExtraImage.render()
                             copyLinkEntry.render()
                             pasteLinkEntry.render()
 
@@ -1755,6 +1773,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
                         _uuicom.bindChangeColorOnInAndOut(showLinksForEntry)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
+                        _uuicom.bindChangeColorOnInAndOut(addExtraImage)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
                         openSecondaryImage(textLabelFull)

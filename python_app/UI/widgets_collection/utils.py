@@ -447,12 +447,12 @@ def addExtraEntryImagesWidgets(rootLabel,
 
             eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
                                             eImWidgetName, imPadLeft,
-                                            row = i + 4, column = 0, columnspan = 1000,
+                                            row = i + 5, column = 0, columnspan = 1000,
                                             resizeFactor = resizeFactor)
             removeEntry = TOCLabelWithClick(rootLabel,
                                             text = "[delete]",
                                             prefix = "delete_" + eImWidgetName,
-                                            row =  i + 4, 
+                                            row =  i + 5, 
                                             column = 0,
                                             sticky = tk.NW)
             removeEntry.imIdx = imIdx

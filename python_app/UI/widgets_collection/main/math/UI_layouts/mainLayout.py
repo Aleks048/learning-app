@@ -906,7 +906,9 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
         
         currentSubsection = _upan.Current.Names.Section.name()
 
+        self.addExtraIm(currentSubsection, mainImIdx, extraImageIdx, extraImText)
 
+    def addExtraIm(self, subsection, mainImIdx, extraImageIdx, extraImText, notifyMainTextLabel = True):
         msg = "\
 Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImText)
         response = wm.UI_generalManager.showNotification(msg, True)
@@ -918,14 +920,28 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
         if not response:
             return
 
-        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, currentSubsection, extraImageIdx, extraImText)
+        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
 
-        self.notify(LatestExtraImForEntry_LBL)
+        if notifyMainTextLabel:
+            self.notify(LatestExtraImForEntry_LBL)
         # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
         # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
 
         self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
+    
+    def receiveNotification(self, broadcasterType, data, *args, **kwargs):
+        subsection = data[0]  
+        mainImIdx = data[1]
+        extraImIdx = _u.Token.NotDef.str_t
+        extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
 
+        if mainImIdx in list(extraImagesDict.keys()):
+            extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+        else:
+            extraImText = "con0"
+
+        self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False)
+    
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
