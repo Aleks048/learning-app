@@ -117,6 +117,13 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
                   lambda *args: __addDef(*args))
 
+        def __addProposion(*args):
+            boldSelText = "\\textbf{Proposition:} "
+            self.insert(tk.INSERT, boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
+                  lambda *args: __addProposion(*args))
+
         def __addExample(*args):
             boldSelText = "\\textbf{EX:} "
             self.insert("0.0", boldSelText)

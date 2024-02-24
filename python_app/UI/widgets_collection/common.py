@@ -629,7 +629,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         _uuicom.closeAllImages(gpframe, self.showAll, link,
                                                [subsection, self.secondEntryClickedImIdx])
 
-                    if ((not label.alwaysShow) and (not isWdgetLink)) or shoulShowSecondRow:
+                    if (not label.alwaysShow) and ((not isWdgetLink) or shoulShowSecondRow):
                         self.entryClicked = imIdx
 
                     label.clicked = True

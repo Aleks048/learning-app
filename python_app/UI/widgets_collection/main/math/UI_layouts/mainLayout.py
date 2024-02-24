@@ -789,6 +789,13 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
                   lambda *args: __addDef(*args))
 
+        def __addProposion(*args):
+            boldSelText = "\\textbf{Proposition:} "
+            self.widgetObj.insert(tk.INSERT, boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
+                  lambda *args: __addProposion(*args))
+
         def __addExample(*args):
             boldSelText = "\\textbf{EX:} "
             self.widgetObj.insert("0", boldSelText)
