@@ -364,7 +364,7 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
 
 
 def getImageWidget(root, imagePath, widgetName, 
-                   imPad = 0, imageSize = [450, 200], 
+                   imPad = 0, imageSize = [450, 1000], 
                    row = 0, column = 0, columnspan = 1,
                    resizeFactor = 1.0):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
