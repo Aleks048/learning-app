@@ -585,7 +585,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             isWdgetLink = "gllink" in str(label).lower().split(".")[-1]
 
             def __cmd(event, *args):
-                if label.alwaysShow and (int(event.type) == 4):
+                if label.alwaysShow \
+                    and (int(event.type) == 4) \
+                    and (not self.showAll):
                     currTopSection = subsection.split(".")[0]
                     fsm.Data.Book.currTopSection = currTopSection
                     fsm.Data.Book.currSection = subsection
@@ -643,7 +645,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
-                    if (not link) and shouldScroll and self.shouldScroll and (imIdx != self.secondEntryClickedImIdx):
+                    if (not link) and shouldScroll \
+                        and self.shouldScroll \
+                        and (imIdx != self.secondEntryClickedImIdx)\
+                        and (not self.showAll):
                         currTopSection = subsection.split(".")[0]
                         fsm.Data.Book.currTopSection = currTopSection
                         fsm.Data.Book.currSection = subsection
@@ -763,7 +768,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
-                    if shouldScroll:
+                    if shouldScroll and (not self.showAll):
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     if not isWdgetLink:
@@ -1800,15 +1805,16 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         if not label.alwaysShow:
                             self.subsectionClicked = subsection
                     
-                    fsm.Data.Book.subsectionOpenInTOC_UI = subsection
-                    fsm.Data.Book.currSection = subsection
-                    fsm.Data.Book.currTopSection = subsection.split(".")[0]
-                    fsm.Data.Book.entryImOpenInTOC_UI = "-1"
+                    if not(self.showAll):
+                        fsm.Data.Book.subsectionOpenInTOC_UI = subsection
+                        fsm.Data.Book.currSection = subsection
+                        fsm.Data.Book.currTopSection = subsection.split(".")[0]
+                        fsm.Data.Book.entryImOpenInTOC_UI = "-1"
       
-                    self.notify(mui.ChooseTopSection_OM)
-                    self.notify(mui.ChooseSubsection_OM)
-                    self.notify(mcomui.SourceImageLinks_OM)
-                    self.notify(mui.ScreenshotLocation_LBL)
+                        self.notify(mui.ChooseTopSection_OM)
+                        self.notify(mui.ChooseSubsection_OM)
+                        self.notify(mcomui.SourceImageLinks_OM)
+                        self.notify(mui.ScreenshotLocation_LBL)
 
                     self.scroll_into_view(event)
                 else:
