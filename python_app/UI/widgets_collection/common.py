@@ -1842,6 +1842,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                 if ((not label.clicked) and (int(event.type) == 4)) or\
                     ((self.showSubsectionsForTopSection[subsection] == True) and (int(event.type) == 19)) or\
                     self.showAll:
+                    fsm.Data.Book.currTopSection = subsection
                     label.clicked = True
                     self.showSubsectionsForTopSection[subsection] = True
                     self.__renderWithScrollAfter()
@@ -2191,7 +2192,14 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
 
         for i in range(len(text_curr_filtered)):
             subsection = text_curr_filtered[i][0]
+            topSection = subsection.split(".")[0]
             level = text_curr_filtered[i][1]
+
+            if (topSection == fsm.Data.Book.currTopSection) \
+                or self.showAll:
+                self.showSubsectionsForTopSection[subsection] = True
+            else:
+                self.showSubsectionsForTopSection[subsection] = False
 
             self.addTOCEntry(subsection, level, i)
 
