@@ -77,8 +77,29 @@ class Wr:
                 chCounter += wordLen + 1
                 tex += w + "\\ "
 
-            texList = tex.split("\\\\")
-            fullTex = f"\\noindent${tex}$"
+            texList = tex.split("\\\\[10pt]")
+            newTexList = []
+
+            for i in range(len(texList)):
+                l = texList[i]
+
+                if  "\\\\[15pt]\\textrm{\\quad}" in l:
+                    subList = l.split( "\\\\[15pt]\\textrm{\\quad}")
+                else:
+                    subList = [l]
+                
+                for i in range(len(subList)):
+                    subList[i] = re.sub(r"([\\][a-z]*{.*})", r"}\1\\text{", subList[i])
+                
+                if len(subList) == 1:
+                    newTexList.append("\\text{" + subList[0] + "}\\\\[10pt]")
+                else:
+                    for ll in subList:
+                        newTexList.append("\\text{" + ll + "}\\\\[15pt]\\textrm{\\quad}")
+
+            texList = newTexList
+            fullTex = "".join(texList)
+            fullTex = f"\\noindent${fullTex}$"
             # NOTE: this is left here in case
             # I will want to split the lines into separate formulas
             # fullTex = f"\\noindent"
