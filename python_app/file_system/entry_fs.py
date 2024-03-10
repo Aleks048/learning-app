@@ -13,6 +13,8 @@ import data.constants as dc
 import data.temp as dt
 import tex_file.tex_file_facade as tff
 
+SOLUTION_PATH_TOKEN = "solution:"
+
 class EntryInfoStructure:
     '''
     Structure to store sections and .tex files and images
@@ -68,6 +70,26 @@ class EntryInfoStructure:
 
         entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
 
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+        filename = _upan.Names.Entry.Line.name(imIdx, str(len(entryLinesList) - 1))
+
+        if SOLUTION_PATH_TOKEN in text:
+            clearSourcePath = text.replace(SOLUTION_PATH_TOKEN, "")
+            filename = _upan.Names.Entry.Solution.name(imIdx, str(0))
+            solutionPath = os.path.join(savePath, filename)
+
+            for i in range(0, 5):
+                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(solutionPath):
+                    filename = _upan.Names.Entry.Solution.name(imIdx, str(i))
+                    solutionPath = os.path.join(savePath, filename)
+                else:
+                    break
+
+            ocf.Wr.FsAppCalls.copyFile(clearSourcePath, solutionPath)
+            return
+        else:
+            savePath = os.path.join(savePath, filename)
+
         if entryLinesList == _u.Token.NotDef.list_t:
             entryLinesList = [text]
             cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
@@ -82,9 +104,6 @@ class EntryInfoStructure:
                 entryLinesList.append(text)
 
         text = tff.Wr.TexFileUtils.formatEntrytext(text)
-        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
-        filename = _upan.Names.Entry.Line.name(imIdx, str(len(entryLinesList) - 1))
-        savePath = os.path.join(savePath, filename)
         tff.Wr.TexFileUtils.fromTexToImage(text, 
                                            savePath, 
                                            fixedWidth = cls.fixedWidth,

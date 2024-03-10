@@ -3,6 +3,7 @@ from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
 import time
+import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -13,6 +14,7 @@ import data.constants as dc
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
+import scripts.osascripts as osascr
 import UI.widgets_data as wd
 import data.temp as dt
 import generalManger.generalManger as gm
@@ -25,7 +27,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 5},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
@@ -69,12 +71,12 @@ class ExcerciseImageLabel(ttk.Label):
 
 class ExcerciseImage(ww.currUIImpl.Frame):
     displayedImages = []
-    ssubsection = None
+    subsection = None
     entryIdx = None
 
     def __init__(self, parentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 5},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
         }
         name = "_excerciseImage_LBL"
@@ -137,6 +139,48 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button):
     def receiveNotification(self, broadcasterType):
         if broadcasterType == AddExcerciseLine_ETR:
             self.cmd()
+
+class ShowSolutions_BTN(ww.currUIImpl.Button):
+    showSolutions = True
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 5, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Solutions"
+        name = "_ShowSolutions_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        subsection = self.subsection
+        imIdx = self.imIdx
+
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+
+        filename = _upan.Names.Entry.Solution.name(imIdx, str(0))
+        solutionPath = os.path.join(savePath, filename)
+
+        for i in range(0, 5):
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(solutionPath):
+                if self.showSolutions:
+                    ocf.Wr.FsAppCalls.openFile(solutionPath)
+                else:
+                    cmd = osascr.get_ClosePreviewByFilepath_CMD(solutionPath)
+                    _u.runCmdAndWait(cmd)
+
+                filename = _upan.Names.Entry.Solution.name(imIdx, str(i))
+                solutionPath = os.path.join(savePath, filename)
+        
+        self.showSolutions = not self.showSolutions
 
 
 class PasteGlLink_BTN(ww.currUIImpl.Button):
@@ -250,9 +294,9 @@ After updating the excercises for \n\
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_getExcerciseNewLineText_ETR"
-        defaultText = "New excercise line text"
+        defaultText = "New excercise line text"  + " / \"solution:\" prefix to add solution"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 5},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -302,7 +346,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 5, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"

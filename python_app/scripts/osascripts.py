@@ -36,6 +36,19 @@ def get_NameOfFrontPreviewDoc_CMD():
         '"
     return cmd
 
+def get_ClosePreviewByFilepath_CMD(path):
+    cmd = "osascript -e '\
+        tell application \"Preview\"\n\
+			repeat with doc in documents\n\
+				set p to path of doc\n\
+				if p is \"{0}\" then\n\
+					close doc\n\
+				end if\n\
+			end repeat\n\
+		end tell\
+        '".format(path)
+    return cmd
+
 
 def closeSkimDocument(skimPID, docNameId):
     skimCloseWindowCmd = "osascript -e '\

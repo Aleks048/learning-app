@@ -33,6 +33,8 @@ class LayoutManagers:
             self.addWidget(self.moveTOCtoExcerciseEntry_BTN)
             hideAllETRsWindow_BTN = exw.HideAllETRsWindow_BTN(winRoot, self.prefix)
             self.addWidget(hideAllETRsWindow_BTN)
+            self.showSolutions_BTN = exw.ShowSolutions_BTN(winRoot, self.prefix)
+            self.addWidget(self.showSolutions_BTN)
 
             self.addExcerciseLine_BTN.addListenerWidget(addExcerciseLine_ETR)
             addExcerciseLine_ETR.addListenerWidget(self.addExcerciseLine_BTN)
@@ -58,6 +60,9 @@ class LayoutManagers:
 
             self.excercise_BOX.subsection = self.subsection
             self.excercise_BOX.imIdx = self.imIdx
+
+            self.showSolutions_BTN.subsection = self.subsection
+            self.showSolutions_BTN.imIdx = self.imIdx
 
             super().show()
 
