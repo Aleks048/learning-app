@@ -107,7 +107,7 @@ class Wr:
                         newTexList.append("\\text{" + ll + "}" + PARAGRAPH_TOKEN)
 
                     if lastEl != "TEMPEND":
-                        newTexList.append("\\text{" + ll + "}" + EOL_TOKEN)
+                        newTexList.append("\\text{" + lastEl + "}" + EOL_TOKEN)
 
             texList = newTexList
             fullTex = "".join(texList)
