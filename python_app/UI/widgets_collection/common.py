@@ -384,33 +384,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
             self.canvas.yview_moveto((pos / height))
-            '''
-            # Note: this is an old way of scrolling. We dont use it anymore but 
-            # will keep it here for historical reasons
-
-            percentCount = 0.0
-
-            while widget_top not in range(int(canvas_top) + 200, int(canvas_top) + 500):
-                if count > 200:
-                    break
-
-                count += 1
-                percentCount += 0.05
-                posy = 0
-                pwidget = event.widget
-
-                while pwidget != self.parent:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
-
-                event.widget.update()
-                widget_top = posy
-                
-                if self.canvas != None:
-                    self.canvas.yview_scroll(2, "units")
-                    # self.canvas.yview_moveto(percentCount)
-                    self.canvas.update()
-            '''
         except:
             pass
     
