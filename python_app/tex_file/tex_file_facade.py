@@ -42,13 +42,16 @@ class Wr:
             chCounter = 0
             tex = ""
 
+            PARAGRAPH_TOKEN = "\\\\[15pt]\\textrm{\\quad}"
+            EOL_TOKEN = "\\\\[10pt]"
+
             for w in texList:
                 # NOTE: we remove the newLine + latex tokens + "}"
                 # to avoid incorrect calculations and newline being ignored
                 # we replece it withthe token and then bring back
                 w = w.replace("\\\\", "__NEWLINE__")
                 splittedWord = re.split(r"\\[[a-z]+|[A-Z]+]+", w)
-                w = w.replace("__NEWLINE__", "\\\\[15pt]\\textrm{\\quad}")
+                w = w.replace("__NEWLINE__", PARAGRAPH_TOKEN)
 
                 for i in range(len(splittedWord)):
                     splittedWord[i] = splittedWord[i].replace("__NEWLINE__", "\\\\")
@@ -71,20 +74,24 @@ class Wr:
                 wordLen = len(filteredWord)
 
                 if ((chCounter + wordLen + 1) > numSymPerLine):
-                    tex += "\\\\[10pt]"
+                    tex += EOL_TOKEN
                     chCounter = 0
 
                 chCounter += wordLen + 1
                 tex += w + "\\ "
 
-            texList = tex.split("\\\\[10pt]")
+            texList = tex.split(EOL_TOKEN)
+
             newTexList = []
 
             for i in range(len(texList)):
                 l = texList[i]
 
-                if  "\\\\[15pt]\\textrm{\\quad}" in l:
-                    subList = l.split( "\\\\[15pt]\\textrm{\\quad}")
+                if PARAGRAPH_TOKEN in l:
+                    if l.endswith(PARAGRAPH_TOKEN):
+                        l += "TEMPEND"
+
+                    subList = l.split(PARAGRAPH_TOKEN)
                 else:
                     subList = [l]
                 
@@ -92,10 +99,15 @@ class Wr:
                     subList[i] = re.sub(r"([\\][a-z]*{.*})", r"}\1\\text{", subList[i])
                 
                 if len(subList) == 1:
-                    newTexList.append("\\text{" + subList[0] + "}\\\\[10pt]")
+                    newTexList.append("\\text{" + subList[0] + "}" + EOL_TOKEN)
                 else:
+                    lastEl = subList.pop(-1)
+
                     for ll in subList:
-                        newTexList.append("\\text{" + ll + "}\\\\[15pt]\\textrm{\\quad}")
+                        newTexList.append("\\text{" + ll + "}" + PARAGRAPH_TOKEN)
+
+                    if lastEl != "TEMPEND":
+                        newTexList.append("\\text{" + ll + "}" + EOL_TOKEN)
 
             texList = newTexList
             fullTex = "".join(texList)
