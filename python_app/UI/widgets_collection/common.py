@@ -364,12 +364,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            canvas_top = self.canvas.winfo_y()
-
-            widget_top = posy
-
-            count = 1
-
             posy = 0
 
             if widget == None:
