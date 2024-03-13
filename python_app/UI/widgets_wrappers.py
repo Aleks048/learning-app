@@ -58,6 +58,21 @@ class Notifyable_Interface:
     def receiveNotification(self, broadcasterType) -> None:
         raise NotImplementedError
 
+class Datable_Interface:
+    data = {}
+
+    def __init__(self, data) -> None:
+        self.data = data
+
+    def setData(self, key, newData) -> None:
+        self.data[key] = newData
+
+    def getData(self, key) -> None:
+        if key in list(self.data.keys()):
+            return self.data[key]
+        else:
+            return _u.Token.NotDef.no_t
+
 class EventGeneratable_Interface:
     def generateEvent(self, event, *args, **kwars) -> None:
         raise NotImplementedError
@@ -455,12 +470,13 @@ class TkWidgets (DataTranslatable_Interface):
             super().bind()
     
     class Label (Notifyable_Interface,
-                DataContainer_Interface_Impl,
-                HasChildren_Interface_Impl, 
-                RenderableWidget_Interface_Impl,
-                HasListenersWidget_Interface_Impl,
-                BindableWidget_Interface_Impl,
-                EventGeneratable_Interface_Impl):
+                 Datable_Interface,
+                 DataContainer_Interface_Impl,
+                 HasChildren_Interface_Impl, 
+                 RenderableWidget_Interface_Impl,
+                 HasListenersWidget_Interface_Impl,
+                 BindableWidget_Interface_Impl,
+                 EventGeneratable_Interface_Impl):
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -470,7 +486,8 @@ class TkWidgets (DataTranslatable_Interface):
                     bindCmd = lambda *args: (None, None),
                     padding = [0, 0, 0, 0],
                     image = None,
-                    text = _u.Token.NotDef.str_t):
+                    text = _u.Token.NotDef.str_t,
+                    data = {}):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
@@ -492,6 +509,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
             TkWidgets.EventGeneratable_Interface_Impl.__init__(self, widgetObj = widjetObj)
             Notifyable_Interface.__init__(self)
+            Datable_Interface.__init__(self, data)
 
             self.bind()
         

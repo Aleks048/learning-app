@@ -10,6 +10,7 @@ import _utils.logging as log
 
 class Token:
     class NotDef:
+        no_t = None
         int_t = -1
         str_t = "-1"
         list_t = [str_t]
