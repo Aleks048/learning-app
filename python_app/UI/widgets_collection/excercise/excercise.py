@@ -60,6 +60,15 @@ class ExcerciseImageLabel(ttk.Label):
             bookName = sf.Wr.Manager.Book.getCurrBookName()
 
             imagePath = _upan.Paths.Entry.LineImage.getAbs(bookName, subsection, imIdx, lineIdx)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                fsf.Wr.EntryInfoStructure.rebuildLine(subsection, 
+                                                      imIdx, 
+                                                      lineIdx, 
+                                                      text,
+                                                      currBookPath)
+
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
             img = ImageTk.PhotoImage(pilIm)

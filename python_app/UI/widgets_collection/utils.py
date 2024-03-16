@@ -24,32 +24,38 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
         self.defaultText = text
-        textlen = len(text)
-        height = min((textlen // 50) + 3, 25)
+
+        txt = ""
+        lineLength = 0
+
+        txtList = text.split(" ")
+
+        for w in txtList:
+            lineLength += len(w.replace("\n", "")) + 1
+            txt += w + " "
+
+            if ("\n" in w) or (lineLength > 70):
+                if not("\n" in w):
+                    txt += "\n"
+
+                lineLength = 0
+
+        newHeight = int(len(txt.split("\n"))) + 1
         self.row = row
         self.column = column
 
-        super().__init__(patentWidget, wrap=None, 
-                         width = 70, height = height, *args, **kwargs)
+        super().__init__(patentWidget, 
+                         wrap = None, 
+                         width = 70, 
+                         height = newHeight, 
+                         *args, 
+                         **kwargs)
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
         self.insert(tk.END, text)
-        numTextLines = len(text.split("\n"))
 
-        if numTextLines == 1:
-            numLinesToAdd = 0 
-        else:
-            numLinesToAdd = int(numTextLines) - 1
-
-        # numLines = int(self.index("end").split(".")[1]) + numLinesToAdd
-
-        if (self.cget("height") - 3) <= 2 :
-            newHeight = self.cget("height") - 2
-        else:
-            newHeight = int( 0.6 * self.cget("height"))
-
-        self.config(height = newHeight + numLinesToAdd)
+        self.config(height = newHeight)
         self.place(x = 0, y = 0)
         self.bind(ww.currUIImpl.Data.BindID.Keys.ctrlv,
                   lambda *args: self.__pasteText(*args))
