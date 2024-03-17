@@ -21,7 +21,6 @@ import generalManger.generalManger as gm
 
 images = []
 
-
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
         name = "_textImage_ETR" + str(imLineIdx)
@@ -55,7 +54,11 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
 
 
 class ExcerciseImageLabel(ttk.Label):
+    lineImIdx = None
+
     def __init__(self, root, name, subsection, imIdx, lineIdx, text = _u.Token.NotDef.str_t):
+        self.lineImIdx = str(lineIdx)
+
         if text ==  _u.Token.NotDef.str_t:
             bookName = sf.Wr.Manager.Book.getCurrBookName()
 
@@ -381,55 +384,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.currEtr = {}           
 
         for i in range(len(lines)):
-            # image / text
-            if str(i) not in self.lineIdxShownInText:
-                label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                label.grid(row = i + 1, column = 5)
-            else:
-                label = _ucomw.TOCFrame(self.scrollable_frame, 
-                                "linesImageFRM_" + str(i),
-                                i + 1, 5, 1
-                                )
-                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                labIm.grid(row = 0, column = 0)
-
-                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
-                self.currEtr[str(i)] = labETR
-
-                labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
-                                                2, 0, text = "Rebuild")
-                labRebuild.lineImIdx = str(i)
-
-                def rebuildETRImage(event, *args):
-                    widgetlineImIdx = event.widget.lineImIdx
-                    text = self.currEtr[widgetlineImIdx].getData()
-
-                    if text != self.currEtr[widgetlineImIdx].defaultText:
-                        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
-                                                            self.imIdx,
-                                                            event.widget.lineImIdx,
-                                                            text,
-                                                            bookPath)
-                    self.render()
-                    self.currEtr[widgetlineImIdx].focus_force()
-
-                labETR.lineImIdx = str(i)
-                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
-                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
-                _ucomw.bindChangeColorOnInAndOut(labRebuild)
-
-                labETR.render()
-                labRebuild.render()
-                label.render()
-
-            # showtext
-            showTextLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_showText_" + str(i), 
-                                                    i + 1, 0, text = "To text")
-            showTextLabel.lineImIdx = str(i)
-
             def __showTextOrImage(event, *args):
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 widgetlineImIdx = str(event.widget.lineImIdx)
@@ -459,6 +413,60 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                                 bookPath)
 
                 self.render()
+
+            # image / text
+            if str(i) not in self.lineIdxShownInText:
+                label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
+                                            self.subsection, self.imIdx, i)
+                label.grid(row = i + 1, column = 5)
+                label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+            else:
+                label = _ucomw.TOCFrame(self.scrollable_frame, 
+                                "linesImageFRM_" + str(i),
+                                i + 1, 5, 1
+                                )
+                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
+                                            self.subsection, self.imIdx, i)
+                labIm.grid(row = 0, column = 0)
+
+                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
+                self.currEtr[str(i)] = labETR
+
+                labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
+                                                2, 0, text = "Rebuild")
+                labRebuild.lineImIdx = str(i)
+
+                def rebuildETRImage(event, *args):
+                    widgetlineImIdx = event.widget.lineImIdx
+                    print(self.currEtr)
+                    text = self.currEtr[widgetlineImIdx].getData()
+
+                    if text != self.currEtr[widgetlineImIdx].defaultText:
+                        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
+                                                            self.imIdx,
+                                                            event.widget.lineImIdx,
+                                                            text,
+                                                            bookPath)
+                    self.render()
+                    self.currEtr[widgetlineImIdx].focus_force()
+
+                labETR.lineImIdx = str(i)
+                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
+                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
+                labIm.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+                _ucomw.bindChangeColorOnInAndOut(labRebuild)
+
+                labETR.render()
+                labRebuild.render()
+                label.render()
+
+            '''
+            showtext
+            '''
+            showTextLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_showText_" + str(i), 
+                                                    i + 1, 0, text = "To text")
+            showTextLabel.lineImIdx = str(i)
 
             showTextLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__showTextOrImage])
             _ucomw.bindChangeColorOnInAndOut(showTextLabel)
