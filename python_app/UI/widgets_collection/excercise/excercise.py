@@ -438,7 +438,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
                 def rebuildETRImage(event, *args):
                     widgetlineImIdx = event.widget.lineImIdx
-                    print(self.currEtr)
                     text = self.currEtr[widgetlineImIdx].getData()
 
                     if text != self.currEtr[widgetlineImIdx].defaultText:
@@ -460,17 +459,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.render()
                 labRebuild.render()
                 label.render()
-
-            '''
-            showtext
-            '''
-            showTextLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_showText_" + str(i), 
-                                                    i + 1, 0, text = "To text")
-            showTextLabel.lineImIdx = str(i)
-
-            showTextLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__showTextOrImage])
-            _ucomw.bindChangeColorOnInAndOut(showTextLabel)
-            showTextLabel.render()
 
             '''
             copy
