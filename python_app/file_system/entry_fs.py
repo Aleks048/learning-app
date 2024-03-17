@@ -71,7 +71,7 @@ class EntryInfoStructure:
         entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
 
         savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
-        filename = _upan.Names.Entry.Line.name(imIdx, str(len(entryLinesList) - 1))
+        filename = _upan.Names.Entry.Line.name(imIdx, str(len(entryLinesList)))
 
         if SOLUTION_PATH_TOKEN in text:
             clearSourcePath = text.replace(SOLUTION_PATH_TOKEN, "")
