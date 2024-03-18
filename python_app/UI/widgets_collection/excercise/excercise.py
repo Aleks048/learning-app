@@ -530,6 +530,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                      self.subsection,
                                                      self.imIdx,
                                                      event.widget.lineImIdx)
+                self.currEtr.pop(str(event.widget.lineImIdx))
                 self.render()
 
             deleteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [deleteLineIdx])
