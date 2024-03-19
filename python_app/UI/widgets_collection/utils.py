@@ -119,7 +119,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         def __addNoteInPlace(*args):
             boldSelText = "\\textbf{NOTE:} "
             self.insert(tk.INSERT, boldSelText)
-        
+
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
                   lambda *args: __addNoteInPlace(*args))
 
