@@ -782,6 +782,13 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
                   lambda *args: __addNote(*args))
 
+        def __addNoteInPlace(*args):
+            boldSelText = "\\textbf{NOTE:} "
+            self.widgetObj.insert(tk.INSERT, boldSelText)
+
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
+                            lambda *args: __addNoteInPlace(*args))
+
         def __addDef(*args):
             boldSelText = "\\textbf{DEF:} "
             self.widgetObj.insert(tk.INSERT, boldSelText)
