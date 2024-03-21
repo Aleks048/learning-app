@@ -185,7 +185,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         update = __EntryUIData("[Update]", 7)
         link = __EntryUIData("[Link]", 8)
         addExtra = __EntryUIData("[Add extra]", 9)
-        group = __EntryUIData("", 10)
+        proof = __EntryUIData("[p]", 10)
+        group = __EntryUIData("", 11)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -904,6 +905,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         exMenuManger.hide()
 
+                def openProofsMenu(event, *args):
+                    prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.ProofsManager)
+                    prMenuManger.subsection = event.widget.subsection
+                    prMenuManger.imIdx = event.widget.imIdx
+
+                    event.widget.shouldShowExMenu = not event.widget.shouldShowExMenu
+                    if (event.widget.shouldShowExMenu):
+                        prMenuManger.show()
+                    else:
+                        prMenuManger.hide()
+
                 def updateEntry(event, *args):
                     if (self.entryAsETR.subsection != _u.Token.NotDef.str_t) and \
                         (self.entryAsETR.imIdx != _u.Token.NotDef.str_t):
@@ -1395,6 +1408,27 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
 
+
+                        proofExists = False
+                        exImDict = fsm.Data.Sec.extraImagesDict(subsection)
+
+                        if k in list(exImDict.keys()):
+                            exImNames = exImDict[k]
+                            proofExists = len([i for i in exImNames if "proof" in i.lower()]) != 0
+
+                        openProofsUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.proof.name, 
+                                                      prefix = "contentOpenExcerciseUIEntry" + nameId,
+                                                      row = 0, 
+                                                      column = self.__EntryUIs.proof.column)
+                        if proofExists:
+                            openProofsUIEntry.configure(foreground="brown")
+
+                        openProofsUIEntry.imIdx = k
+                        openProofsUIEntry.subsection = subsection
+                        openProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openProofsMenu])
+
                         changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.update.name, 
                                                       prefix = "contentUpdateEntryText" + nameId,
@@ -1680,6 +1714,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                 linksFrame.render()
 
                             openExUIEntry.render()
+                            openProofsUIEntry.render()
                             showLinksForEntry.render()
                             shiftEntry.render()
                             copyEntry.render()
@@ -1706,6 +1741,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         openSecondaryImage(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
+                        _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
 
                         tempFrame.render()

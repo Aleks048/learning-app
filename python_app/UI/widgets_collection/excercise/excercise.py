@@ -113,9 +113,13 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         self.imLabel.render()
         self.imLabel.focus_force()
 
+        def skipProofs(subsection, imIdx, i):
+           return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
+
         exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
                                                        self.subsection, self.entryIdx,
-                                                       120, self.displayedImages, balloon)
+                                                       120, self.displayedImages, balloon,
+                                                       skippConditionFn = skipProofs)
         for l in exImLabels:
             l.render()
 

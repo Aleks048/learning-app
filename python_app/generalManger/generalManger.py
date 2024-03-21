@@ -45,6 +45,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("toc menu"))
         exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
         log.autolog("Started '{0}' UI manager".format("excercise menu"))
+        proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
+        log.autolog("Started '{0}' UI manager".format("proofs menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 

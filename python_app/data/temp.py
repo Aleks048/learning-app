@@ -51,7 +51,7 @@ class AppState:
         data = False
 
     class ShowProofs(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
-        data = True
+        data = False
 
     class UseLatestGroup(NonInstantiable_Interface, metaclass = ClassAttNotAccessibleType):
         data = False
