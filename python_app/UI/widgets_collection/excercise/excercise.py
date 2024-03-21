@@ -19,7 +19,7 @@ import UI.widgets_data as wd
 import data.temp as dt
 import generalManger.generalManger as gm
 
-images = []
+exImages = []
 
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
@@ -75,7 +75,7 @@ class ExcerciseImageLabel(ttk.Label):
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
             img = ImageTk.PhotoImage(pilIm)
-            images.append(img)
+            exImages.append(img)
             return super().__init__(root, name = name, image = img, padding = [0, 0, 0, 0])
         else:
             return super().__init__(root, name = name, text = text, padding = [0, 0, 0, 0])
@@ -550,6 +550,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
+        global exImages
+        exImages = []
+
         for w in self.scrollable_frame.winfo_children():
             w.destroy()
 
