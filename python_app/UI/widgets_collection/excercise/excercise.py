@@ -443,6 +443,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 def rebuildETRImage(event, *args):
                     widgetlineImIdx = event.widget.lineImIdx
                     text = self.currEtr[widgetlineImIdx].getData()
+                    position = self.currEtr[widgetlineImIdx].index(tk.INSERT)
 
                     if text != self.currEtr[widgetlineImIdx].defaultText:
                         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -453,6 +454,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                             bookPath)
                     self.render()
                     self.currEtr[widgetlineImIdx].focus_force()
+                    self.currEtr[widgetlineImIdx].mark_set("insert", position)
+
+                    return "break"
 
                 labETR.lineImIdx = str(i)
                 labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
