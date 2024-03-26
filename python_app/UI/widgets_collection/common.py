@@ -510,7 +510,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             def __cmd(event, *args):
                 if label.alwaysShow \
                     and (int(event.type) == 4) \
-                    and (not self.showAll):
+                    and (not self.showAll) \
+                    and (not link):
                     currTopSection = subsection.split(".")[0]
                     fsm.Data.Book.currTopSection = currTopSection
                     fsm.Data.Book.currSection = subsection
@@ -539,8 +540,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
-                    ((label.clicked) and ((int(event.type) == 4)) and shoulShowSecondRow):
-                    if self.showAll and shouldScroll:
+                    ((label.clicked) and ((int(event.type) == 4)) and shoulShowSecondRow and (not link)):
+                    if self.showAll and shouldScroll and (not link):
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.MathMenuManager)
                         mainManager.moveTocToEntry(subsection, imIdx, True)
@@ -550,11 +551,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if ((int(event.type) == 4) or (shouldScroll)) and (not link):
                         self.currEntryWidget = event.widget
 
-                    if shouldScroll:
+                    if shouldScroll and (not link):
                         _uuicom.closeAllImages(gpframe, self.showAll, link,
                                                [subsection, self.secondEntryClickedImIdx])
 
-                    if (not label.alwaysShow) and ((not isWdgetLink) or shoulShowSecondRow):
+                    if (not label.alwaysShow) \
+                        and ((not isWdgetLink) or shoulShowSecondRow) \
+                        and (not link):
                         self.entryClicked = imIdx
 
                     label.clicked = True
@@ -568,7 +571,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if (not shouldShowGroup) and (not isWdgetLink) and (not self.showAll):
                         return
 
-                    if (not link) and shouldScroll \
+                    if (not link) \
+                        and shouldScroll \
                         and self.shouldScroll \
                         and (imIdx != self.secondEntryClickedImIdx)\
                         and (not self.showAll):
@@ -691,7 +695,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
-                    if shouldScroll and (not self.showAll):
+                    if shouldScroll and (not self.showAll) and (not link):
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
                     if not isWdgetLink:
