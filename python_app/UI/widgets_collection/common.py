@@ -528,15 +528,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 shoulShowSecondRow = False
 
-                for w in  self.currSecondRowLabels:
-                    try:
-                        if (w.subsection == subsection) and (w.imIdx == imIdx):
-                            w.render()
-                            shoulShowSecondRow = True
-                        else:
-                            w.grid_forget()
-                    except:
-                        pass
+                if not link:
+                    for w in  self.currSecondRowLabels:
+                        try:
+                            if (w.subsection == subsection) and (w.imIdx == imIdx):
+                                w.render()
+                                shoulShowSecondRow = True
+                            else:
+                                w.grid_forget()
+                        except:
+                            pass
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
