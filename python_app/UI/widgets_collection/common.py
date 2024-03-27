@@ -1539,7 +1539,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
                                             linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[full]", 
+                                                                        text = "[f]", 
                                                                         prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
                                                                         row = 0, column= 2)
                                             linkLabelFull.render()
@@ -1557,7 +1557,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
 
                                             glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                            text = "[im]", 
+                                                                            text = "[i]", 
                                                                             prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
                                                                             row = 0, column = 3)
                                             glLinksShowImages.imIdx = ln.split("_")[-1]
@@ -1589,9 +1589,9 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                                                                                             *args)])
 
                                             linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[del]", 
+                                                                        text = "[d]", 
                                                                         prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                        row = 0, column= 4)
+                                                                        row = 0, column = 4)
                                             linkLabelDelete.render()
                                             
                                             linkLabelDelete.targetSubssection = ln.split("_")[0]
@@ -1602,6 +1602,29 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
 
                                             _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+
+                                            tarProofExists = False
+                                            tarExImDict = fsm.Data.Sec.extraImagesDict(ln.split("_")[0])
+
+                                            if ln.split("_")[-1] in list(tarExImDict.keys()):
+                                                tarExImNames = tarExImDict[ln.split("_")[-1]]
+                                                tarProofExists = len([i for i in tarExImNames if "proof" in i.lower()]) != 0
+                                            
+                                            if tarProofExists:
+                                                tarOpenProofsUIEntry = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                        text = self.__EntryUIs.proof.name, 
+                                                        prefix = "contentGlLinksTSubsectionProof_" + nameId + "_" + str(glLinkId),
+                                                        row = 0, 
+                                                        column = 5)
+                                                tarOpenProofsUIEntry.configure(foreground="brown")
+
+                                                tarOpenProofsUIEntry.imIdx = ln.split("_")[1]
+                                                tarOpenProofsUIEntry.subsection = ln.split("_")[0]
+                                                tarOpenProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                                                    [openProofsMenu])
+                                                _uuicom.bindChangeColorOnInAndOut(tarOpenProofsUIEntry, shouldBeBrown = True)
+
+                                                tarOpenProofsUIEntry.render()
 
                                         elif "http" in lk:
                                             # NOTE: should be a frame here!
@@ -1648,7 +1671,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                                             openWebOfTheImage(glLinkLablel, lk)
 
                                             linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[del]", 
+                                                                        text = "[d]", 
                                                                         prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
                                                                         row = glLinkId + 1, column = 2)
                                             linkLabelDelete.render()
