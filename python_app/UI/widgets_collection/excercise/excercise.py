@@ -360,6 +360,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     displayedImages = []
 
+    latestWidgetToscrollTo = None
+    latestLineIdxToscrollTo = None
+
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
@@ -377,6 +380,41 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         width = windth,
                         makeScrollable = False)
 
+    def __scrollIntoView(self, event, widget = None):
+        try:
+            posy = 0
+
+            if widget == None:
+                pwidget = event.widget
+            else:
+                pwidget = widget
+
+
+            self.canvas.yview_scroll(-100, "units")
+            self.canvas.update()
+            pwidget.update()
+
+            while pwidget != self.parent:
+                posy += pwidget.winfo_y()
+                pwidget = pwidget.master
+
+            posy = 0
+
+            if widget == None:
+                pwidget = event.widget
+            else:
+                pwidget = widget
+
+            while pwidget != self.parent:
+                posy += pwidget.winfo_y()
+                pwidget = pwidget.master
+
+            pos = posy - self.scrollable_frame.winfo_rooty()
+            height = self.scrollable_frame.winfo_height()
+            self.canvas.yview_moveto((pos / height))
+        except:
+            pass
+
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
                                                        self.imIdx, 
@@ -389,6 +427,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         for i in range(len(lines)):
             def __showTextOrImage(event, *args):
+                self.latestLineIdxToscrollTo = event.widget.lineImIdx
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 widgetlineImIdx = str(event.widget.lineImIdx)
 
@@ -455,6 +494,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     self.render()
                     self.currEtr[widgetlineImIdx].focus_force()
                     self.currEtr[widgetlineImIdx].mark_set("insert", position)
+                    self.__scrollIntoView(event)
 
                     return "break"
 
@@ -467,6 +507,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.render()
                 labRebuild.render()
                 label.render()
+
+
+            if (str(i) == self.latestLineIdxToscrollTo) and label != None:
+                self.latestWidgetToscrollTo = label
 
             '''
             copy
@@ -573,7 +617,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.addExcerciseLines()
 
 
-        return super().render(widjetObj, renderData, **kwargs)
+        super().render(widjetObj, renderData, **kwargs)
+
+        if self.latestWidgetToscrollTo != None:
+            self.__scrollIntoView(None, self.latestWidgetToscrollTo)
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
     pass
