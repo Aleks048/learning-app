@@ -130,6 +130,8 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdu = "<Mod1-u>"
                 ctrlv = "<Control-v>"
                 escape = "<Escape>"
+                shup = "<Shift-Up>"
+                shdown = "<Shift-Down>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):

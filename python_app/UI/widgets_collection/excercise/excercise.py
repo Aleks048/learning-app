@@ -425,6 +425,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         if self.currEtr == _u.Token.NotDef.dict_t:
             self.currEtr = {}           
 
+        numRowsPre = 1
+
         for i in range(len(lines)):
             def __showTextOrImage(event, *args):
                 self.latestLineIdxToscrollTo = event.widget.lineImIdx
@@ -461,12 +463,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             if str(i) not in self.lineIdxShownInText:
                 label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
-                label.grid(row = i + 1, column = 5)
+                label.grid(row = i + numRowsPre + 1, column = 5)
                 label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+                label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
             else:
                 label = _ucomw.TOCFrame(self.scrollable_frame, 
                                 "linesImageFRM_" + str(i),
-                                i + 1, 5, 1
+                                i + numRowsPre + 1, 5, 1
                                 )
                 labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
@@ -502,6 +505,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
                 labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
                 labIm.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+                labIm.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)
 
                 labETR.render()
@@ -516,7 +520,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             copy
             '''
             copyLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_copyLine_" + str(i), 
-                                                    i + 1, 1, text = "Copy")
+                                                    i + numRowsPre + 1, 1, text = "Copy")
             copyLabel.lineImIdx = i
 
             def setCopyLineIdx(event, *args):
@@ -530,7 +534,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             paste
             '''
             pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
-                                                    i + 1, 2, text = "PB")
+                                                    i + numRowsPre + 1, 2, text = "PB")
             pasteLabel.lineImIdx = i
 
             def pasteLineIdx(event, *args):
@@ -550,7 +554,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             pasteLabel.render()
 
             pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
-                                                    i + 1, 3, text = "PA")
+                                                    i + numRowsPre + 1, 3, text = "PA")
             pasteLabel.lineImIdx = i
 
             def pasteLineIdx(event, *args):
@@ -573,7 +577,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             delete
             '''
             deleteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
-                                                    i + 1, 4, text = "Del")
+                                                    i + numRowsPre + 1, 4, text = "Del")
             deleteLabel.lineImIdx = i
 
             def deleteLineIdx(event, *args):
@@ -605,6 +609,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         global exImages
         exImages = []
 
+        dummyPreLabel = tk.Label(self.scrollable_frame, height = 1000)
+        dummyPreLabel.grid(row = 1, column=0)
+
         for w in self.scrollable_frame.winfo_children():
             w.destroy()
 
@@ -613,8 +620,16 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         entryLinesPath = _upan.Paths.Entry.getAbs(bookPath, self.subsection, self.imIdx)
 
+        numLines = len(fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                       self.imIdx, 
+                                                       fsf.Wr.EntryInfoStructure.PubProp.entryLinesList))
+
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryLinesPath):
             self.addExcerciseLines()
+
+
+        dummyPostLabel = tk.Label(self.scrollable_frame, height = 1000)
+        dummyPostLabel.grid(row = 1 + numLines + 1, column=0)
 
 
         super().render(widjetObj, renderData, **kwargs)
@@ -623,4 +638,17 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
+    ExcerciseBox = None
+    def __init__(self, width, height, bindCmd=...):
+        super().__init__(width, height, self.bindCmd)    
+
+    def bindCmd(self):
+        def __scrollUp(*args):
+            if self.ExcerciseBox != None:
+                self.ExcerciseBox.canvas.yview_scroll(1, "units")
+        def __scrollDown(*args):
+            if self.ExcerciseBox != None:
+                self.ExcerciseBox.canvas.yview_scroll(-1, "units")
+        return [ww.currUIImpl.Data.BindID.Keys.shdown, ww.currUIImpl.Data.BindID.Keys.shup], \
+               [__scrollUp, __scrollDown]
     pass

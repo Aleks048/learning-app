@@ -20,6 +20,7 @@ class LayoutManagers:
             self.excerciseImage = exw.ExcerciseImage(winRoot, self.prefix)
             self.addWidget(self.excerciseImage)
             self.excercise_BOX = exw.Excercise_BOX(winRoot, self.prefix)
+            winRoot.ExcerciseBox = self.excercise_BOX
             self.addWidget(self.excercise_BOX)
             self.addExcerciseLine_BTN = exw.AddExcerciseLine_BTN(winRoot, self.prefix)
             self.addWidget(self.addExcerciseLine_BTN)
