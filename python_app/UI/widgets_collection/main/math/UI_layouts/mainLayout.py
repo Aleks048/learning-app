@@ -815,7 +815,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             currImIdx = int(fsf.Wr.SectionCurrent.getImIDX())
             nextImIdx = str(currImIdx + 1)
             self.setData(nextImIdx)
-
+            self.widgetObj.focus_force()
             return
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
@@ -824,6 +824,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                 prevData = _u.Token.NotDef.str_t
 
             self.setData(dataToSet)
+            self.widgetObj.focus_force()
             return prevData
         elif broadcasterType == ChooseSubsection_OM or broadcasterType == ChooseTopSection_OM:
             # TODO: find a nicer wahy without checking the dict
