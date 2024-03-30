@@ -99,15 +99,15 @@ class Wr:
                     subList[i] = re.sub(r"([\\][a-z]*{.*})", r"}\1\\text{", subList[i])
                 
                 if len(subList) == 1:
-                    newTexList.append("\\text{" + subList[0] + "}" + EOL_TOKEN)
+                    newTexList.append("\\mathrm{\\text{" + subList[0] + "}}" + EOL_TOKEN)
                 else:
                     lastEl = subList.pop(-1)
 
                     for ll in subList:
-                        newTexList.append("\\text{" + ll + "}" + PARAGRAPH_TOKEN)
+                        newTexList.append("\\mathrm{\\text{" + ll + "}}" + PARAGRAPH_TOKEN)
 
                     if lastEl != "TEMPEND":
-                        newTexList.append("\\text{" + lastEl + "}" + EOL_TOKEN)
+                        newTexList.append("\\mathrm{\\text{" + lastEl + "}}" + EOL_TOKEN)
 
             texList = newTexList
             fullTex = "".join(texList)
