@@ -812,6 +812,13 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
                   lambda *args: __addExample(*args))
 
+        def __addExample(*args):
+            boldSelText = "excercise "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
+                  lambda *args: __addExample(*args))
+
         def __notifyImGenerationBtn(*args):
             self.notify(ImageGeneration_BTN)
         
