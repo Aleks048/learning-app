@@ -721,6 +721,8 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
 
 
     def receiveNotification(self, broadcasterType):
+        if broadcasterType == ImageGeneration_ETR:
+            self.cmd()
         if broadcasterType == ImageGenerationRestart_BTN:
             self.updateLabel(self.labelOptions[0])
         if broadcasterType == AddExtraImage_BTN:
@@ -809,6 +811,18 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
                   lambda *args: __addExample(*args))
+
+        def __notifyImGenerationBtn(*args):
+            self.notify(ImageGeneration_BTN)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.shenter,
+                  lambda *args: __notifyImGenerationBtn(*args))
+
+        def __notifyImGenerationRestartBtn(*args):
+            self.notify(ImageGenerationRestart_BTN)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.escape,
+                  lambda *args: __notifyImGenerationRestartBtn(*args))
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:

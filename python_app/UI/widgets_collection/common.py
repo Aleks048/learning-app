@@ -2226,3 +2226,6 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                 self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
             except:
                 pass
+        
+        if self.entryAsETR.widget != None:
+            self.entryAsETR.widget.focus_force()
