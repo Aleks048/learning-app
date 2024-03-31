@@ -81,6 +81,7 @@ class LayoutManagers:
             imageGenration_ERT.addListenerWidget(imageGenerationRestart_BTN)
             imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
             imageGenration_ERT.addListenerWidget(textOnly_CHB)
+            imageGenration_ERT.addListenerWidget(addExtraImage_BTN)
 
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)

@@ -820,12 +820,19 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
                   lambda *args: __addExample(*args))
 
-        def __addExample(*args):
+        def __addLemma(*args):
+            boldSelText = "\\textbf{Lemma:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdl,
+                  lambda *args: __addLemma(*args))
+
+        def __addExcecise(*args):
             boldSelText = "excercise "
             self.widgetObj.insert("0", boldSelText)
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
-                  lambda *args: __addExample(*args))
+                  lambda *args: __addExcecise(*args))
 
         def __notifyImGenerationBtn(*args):
             self.notify(ImageGeneration_BTN)
@@ -850,6 +857,12 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsht,
                   lambda *args: __notifyTextOnlyChBx(*args))
+
+        def __notifyEIM_BTN(*args):
+            self.notify(AddExtraImage_BTN)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.shup,
+                  lambda *args: __notifyEIM_BTN(*args))
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
@@ -985,18 +998,21 @@ Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, ex
 
         self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
     
-    def receiveNotification(self, broadcasterType, data, *args, **kwargs):
-        subsection = data[0]  
-        mainImIdx = data[1]
-        extraImIdx = _u.Token.NotDef.str_t
-        extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
-
-        if mainImIdx in list(extraImagesDict.keys()):
-            extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+    def receiveNotification(self, broadcasterType, data = None, *args, **kwargs):
+        if broadcasterType == ImageGeneration_ETR:
+            self.cmd()
         else:
-            extraImText = "con0"
+            subsection = data[0]  
+            mainImIdx = data[1]
+            extraImIdx = _u.Token.NotDef.str_t
+            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
 
-        self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False)
+            if mainImIdx in list(extraImagesDict.keys()):
+                extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+            else:
+                extraImText = "con0"
+
+            self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False)
     
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):

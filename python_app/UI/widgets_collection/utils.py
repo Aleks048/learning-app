@@ -144,12 +144,19 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
                   lambda *args: __addExample(*args))
 
-        def __addExample(*args):
+        def __addLemma(*args):
+            boldSelText = "\\textbf{Lemma:} "
+            self.insert("0.0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdl,
+                  lambda *args: __addLemma(*args))
+
+        def __addExcercise(*args):
             boldSelText = "excercise "
             self.insert("0.0", boldSelText)
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
-                  lambda *args: __addExample(*args))
+                  lambda *args: __addExcercise(*args))
 
     def render(self):
         self.grid(row = self.row, column = self.column)
