@@ -122,6 +122,8 @@ class TkWidgets (DataTranslatable_Interface):
                 enter = "<Return>"
                 shenter = "<Shift-Return>"
                 cmdb = "<Mod1-b>"
+                cmdshi = "<Mod1-I>"
+                cmdsht = "<Mod1-T>"
                 cmdn = "<Mod1-n>"
                 cmdshn = "<Mod1-N>"
                 cmdd = "<Mod1-d>"

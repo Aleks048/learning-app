@@ -48,7 +48,6 @@ class LayoutManagers:
             self.addWidget(imageGenration_ERT)
             
             imageGeneration_BTN = ml.ImageGeneration_BTN(winRoot, self.prefix)
-            imageGenration_ERT.addListenerWidget(imageGeneration_BTN)
             imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
             imageGeneration_BTN.addListenerWidget(textOnly_CHB)
@@ -78,7 +77,10 @@ class LayoutManagers:
             
             chooseSubsection_OM.addListenerWidget(imageGenration_ERT)
             
+            imageGenration_ERT.addListenerWidget(imageGeneration_BTN)
             imageGenration_ERT.addListenerWidget(imageGenerationRestart_BTN)
+            imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
+            imageGenration_ERT.addListenerWidget(textOnly_CHB)
 
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)

@@ -613,10 +613,14 @@ class TextOnly_CHB(ww.currUIImpl.Checkbox):
         self.setData(self.etenriesTextOnlyDefault)
 
     def receiveNotification(self, broadcasterName):
-        outData =  True if self.getData() == 1 else False
-        self.setData(self.etenriesTextOnlyDefault)
+        if broadcasterName == ImageGeneration_ETR:
+            prevChoice = self.getData()
+            self.setData(not prevChoice)
+        else:
+            outData =  True if self.getData() == 1 else False
+            self.setData(self.etenriesTextOnlyDefault)
 
-        return outData
+            return outData
 
 
 class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):   
@@ -635,10 +639,14 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
         self.setData(False)
     
     def receiveNotification(self, broadcasterName):
-        prevChoice = self.getData()
-        self.setData(False)
+        if broadcasterName == ImageGeneration_ETR:
+            prevChoice = self.getData()
+            self.setData(not prevChoice)
+        else:
+            prevChoice = self.getData()
+            self.setData(False)
 
-        return prevChoice
+            return prevChoice
 
 
 class ImageGeneration_BTN(ww.currUIImpl.Button,
@@ -830,6 +838,18 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.escape,
                   lambda *args: __notifyImGenerationRestartBtn(*args))
+
+        def __notifyAlwaysShowChBx(*args):
+            self.notify(addToTOCwImage_CHB)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshi,
+                  lambda *args: __notifyAlwaysShowChBx(*args))
+
+        def __notifyTextOnlyChBx(*args):
+            self.notify(TextOnly_CHB)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsht,
+                  lambda *args: __notifyTextOnlyChBx(*args))
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
