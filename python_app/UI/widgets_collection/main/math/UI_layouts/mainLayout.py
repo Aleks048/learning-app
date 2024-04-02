@@ -810,8 +810,15 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             boldSelText = "\\textbf{Proposition:} "
             self.widgetObj.insert(tk.INSERT, boldSelText)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
                   lambda *args: __addProposion(*args))
+
+        def __addProof(*args):
+            boldSelText = "proof"
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsh,
+                  lambda *args: __addProof(*args))
 
         def __addExample(*args):
             boldSelText = "\\textbf{EX:} "
@@ -828,11 +835,18 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                   lambda *args: __addLemma(*args))
 
         def __addExcecise(*args):
-            boldSelText = "excercise "
+            boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
             self.widgetObj.insert("0", boldSelText)
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
                   lambda *args: __addExcecise(*args))
+
+        def __addTheorem(*args):
+            boldSelText = "\\textbf{Theorem:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdt,
+                  lambda *args: __addTheorem(*args))
 
         def __notifyImGenerationBtn(*args):
             self.notify(ImageGeneration_BTN)

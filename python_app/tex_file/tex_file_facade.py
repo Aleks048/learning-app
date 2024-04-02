@@ -128,13 +128,15 @@ class Wr:
             params['figure.facecolor'] = imageColor
 
             if "excercise" in tex.lower():
-                params['text.color'] = "red"
-            elif "important!" in tex.lower():
-                params['text.color'] = "blue"
-            elif "\\square" in tex.lower():
-                params['text.color'] = "#700470"
-            else:
-                params['text.color'] = "black"
+                fullTex = fullTex.replace("EXCERCISE", "{\\textbf{\\underline{\\textdagger\\ EXCERCISE\\ \\textdagger}}}")
+
+                # params['text.color'] = "red"
+            # elif "important!" in tex.lower():
+            #     params['text.color'] = "blue"
+            # elif "\\square" in tex.lower():
+            #     params['text.color'] = "#700470"
+            # else:
+            params['text.color'] = "black"
 
             with mpl.rc_context(params):
                 fig, ax = plt.subplots()

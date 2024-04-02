@@ -134,7 +134,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
             boldSelText = "\\textbf{Proposition:} "
             self.insert(tk.INSERT, boldSelText)
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
                   lambda *args: __addProposion(*args))
 
         def __addExample(*args):
@@ -152,11 +152,25 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
                   lambda *args: __addLemma(*args))
 
         def __addExcercise(*args):
-            boldSelText = "excercise "
+            boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
             self.insert("0.0", boldSelText)
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
                   lambda *args: __addExcercise(*args))
+
+        def __addTheorem(*args):
+            boldSelText = "\\textbf{Theorem:} "
+            self.insert("0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdt,
+                  lambda *args: __addTheorem(*args))
+
+        def __addProof(*args):
+            boldSelText = "proof"
+            self.insert("0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
+                  lambda *args: __addTheorem(*args))
 
     def render(self):
         self.grid(row = self.row, column = self.column)
