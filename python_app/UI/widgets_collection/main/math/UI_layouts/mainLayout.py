@@ -817,7 +817,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             boldSelText = "proof"
             self.widgetObj.insert("0", boldSelText)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsh,
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
                   lambda *args: __addProof(*args))
 
         def __addExample(*args):
