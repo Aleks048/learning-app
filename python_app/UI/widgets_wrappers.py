@@ -720,12 +720,10 @@ class TkWidgets (DataTranslatable_Interface):
             origMatName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-            root.after(180000, tick)
+            TkWidgets.Data.tk.after(180000, tick)
             return None
 
-        root= TkWidgets.Data.tk
-
         tick()
-        root.mainloop()
+        TkWidgets.Data.tk.mainloop()
 
 currUIImpl = TkWidgets
