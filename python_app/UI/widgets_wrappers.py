@@ -660,7 +660,6 @@ class TkWidgets (DataTranslatable_Interface):
                      width, 
                      height,
                      bindCmd = lambda *args: (None, None)):
-            
             self.tk = TkWidgets.Data.tk
             self.tk.geometry(str(width) + "x" + str(height))
             self.widgetObj = tk.Toplevel(self.tk)
