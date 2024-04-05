@@ -641,9 +641,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         # shift all the global links that lead to this entry
         for linkIdx in linksKeysSorted:
-            linksDict = imGlobalLinksDict[linkIdx].copy()
+            linksDictType = type(imGlobalLinksDict[linkIdx])
 
-            if type(linksDict) == dict:
+            if linksDictType == dict:
                 gm.GeneralManger.RetargetGlLink(subsection, str(int(linkIdx) + 1),
                                                 subsection, linkIdx)
 
