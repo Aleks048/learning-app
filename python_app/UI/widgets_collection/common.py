@@ -334,7 +334,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height))
+            self.canvas.yview_moveto((pos / height) - 0.04)
         except:
             pass
     
