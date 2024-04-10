@@ -300,7 +300,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             self.__renderWithScrollAfter()
 
-    def __scrollIntoView(self, event, widget = None):
+    def scrollIntoView(self, event, widget = None):
         if not self.shouldScroll:
             return
 
@@ -610,7 +610,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     # mainImage
                     bindData  = [[ww.currUIImpl.Data.BindID.customTOCMove], 
-                                 [lambda event: self.__scrollIntoView(event)]]
+                                 [lambda event: self.scrollIntoView(event)]]
 
                     uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
 
@@ -716,7 +716,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             self.currEntryWidget.clicked = False
 
                         # self.entryClicked = _u.Token.NotDef.str_t
-                        self.__scrollIntoView(event)
+                        self.scrollIntoView(event)
 
                         for w in  self.currSecondRowLabels:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
@@ -948,7 +948,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                       )
                         self.entryAsETR.reset()
                         self.__renderWithoutScroll()
-                        self.__scrollIntoView(None, self.updatedWidget)
+                        self.scrollIntoView(None, self.updatedWidget)
                     else:
                         self.entryAsETR.subsection = event.widget.subsection
                         self.entryAsETR.imIdx = event.widget.imIdx
@@ -956,7 +956,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.entryAsETR.upddatedTextSubsection = event.widget.subsection
                         self.entryAsETR.upddatedTextImIdx = event.widget.imIdx
                         self.__renderWithoutScroll()
-                        self.__scrollIntoView(None, self.entryAsETR.widget)
+                        self.scrollIntoView(None, self.entryAsETR.widget)
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -1821,7 +1821,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         self.notify(mcomui.SourceImageLinks_OM)
                         self.notify(mui.ScreenshotLocation_LBL)
 
-                    self.__scrollIntoView(event)
+                    self.scrollIntoView(event)
                 else:
                     for child in frame.getChildren():
                         if "content" in str(child):
@@ -1836,7 +1836,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         if not label.alwaysShow:
                             self.subsectionClicked = _u.Token.NotDef.str_t
 
-                    self.__scrollIntoView(event)
+                    self.scrollIntoView(event)
 
                 event.widget.configure(foreground="white")
             
