@@ -948,11 +948,47 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
 
+    @classmethod
+    def moveExtraIm(cls, subsection, mainImIdx, eImIdx = None, down = True):
+        destEimIdx = int(eImIdx) + 1 if down else int(eImIdx) - 1 
+
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
+        extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
+
+        eImList:list = extraImagesDict.pop(mainImIdx).copy()
+        if ((int(eImIdx) == len(eImList) - 1) and down) or\
+           ((int(eImIdx) == 0) and (not down)):
+            return
+
+        eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
+
+        if eImIdx != None:
+            eImList[eImIdx], eImList[destEimIdx] = \
+                eImList[destEimIdx], eImList[int(eImIdx)]
+            eImTextsList[eImIdx], eImTextsList[destEimIdx] = \
+                eImTextsList[destEimIdx], eImTextsList[int(eImIdx)]
+
+        if eImList != []:
+            extraImagesDict[mainImIdx] = eImList
+        if eImTextsList != []:
+            extraImTextDict[mainImIdx] = eImTextsList
+        
+        tempExtraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                                  subsection,
+                                                                                  mainImIdx,
+                                                                                  int(eImIdx) + 100)
         extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                                   subsection,
                                                                                   mainImIdx,
                                                                                   eImIdx)
-        ocf.Wr.FsAppCalls.deleteFile(extraImFilepath)
+        nextExtraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                                  subsection,
+                                                                                  mainImIdx,
+                                                                                  destEimIdx)
+        ocf.Wr.FsAppCalls.moveFile(extraImFilepath, tempExtraImFilepath)
+        ocf.Wr.FsAppCalls.moveFile(nextExtraImFilepath, extraImFilepath)
+        ocf.Wr.FsAppCalls.moveFile(tempExtraImFilepath, nextExtraImFilepath)
 
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)

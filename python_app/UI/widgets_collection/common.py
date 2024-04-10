@@ -204,6 +204,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.imIdx = _u.Token.NotDef.str_t
             self.widget = None
 
+    class extraImAsETR:
+        subsection = _u.Token.NotDef.str_t
+        imIdx = _u.Token.NotDef.str_t
+        eImIdx = _u.Token.NotDef.str_t
+        widget = None
+
+        upddatedText = _u.Token.NotDef.str_t
+        upddatedTextExtraImIdx = _u.Token.NotDef.str_t
+
+        def reset(self):
+            self.subsection = _u.Token.NotDef.str_t
+            self.imIdx = _u.Token.NotDef.str_t
+            self.eImIdx = _u.Token.NotDef.str_t
+            self.widget = None
+
     class entryTextOnlyAsETR:
         subsection = _u.Token.NotDef.str_t
         imIdx = _u.Token.NotDef.str_t
@@ -252,6 +267,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.showLinks = showLinks
 
         self.entryAsETR = TOC_BOX.entryAsETR()
+        self.extraImAsETR = TOC_BOX.extraImAsETR()
         self.entryTextOnlyAsETR = TOC_BOX.entryTextOnlyAsETR()
         self.subsectionAsETR = TOC_BOX.entryAsETR()
         self.groupAsETR = TOC_BOX.groupAsETR()

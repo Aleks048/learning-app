@@ -331,6 +331,7 @@ class TOCLabelWithClick(ttk.Label):
     '''
     clicked = False
     imIdx = ""
+    eImIdx = ""
     subsection = ""
     imagePath = ""
     group = ""
@@ -421,6 +422,7 @@ def getImageWidget(root, imagePath, widgetName,
                                     row = row, column = column, columnspan = columnspan)
 
     imLabel.imagePath = imagePath
+    imLabel.etrWidget = imLabel
     imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
                 [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
     return img, imLabel
@@ -478,6 +480,8 @@ def addExtraEntryImagesWidgets(rootLabel,
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
 
+        eImWidgetsList = []
+
         for i in range(0, len(extraImages)):
             if skippConditionFn(subsection, imIdx, i):
                 continue
@@ -493,36 +497,142 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                                    imIdx,
                                                                    i)
 
-            eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
+            def extraImtextUpdate(event, *args):
+                if (tocFrame.extraImAsETR.subsection != _u.Token.NotDef.str_t) and \
+                    (tocFrame.extraImAsETR.imIdx != _u.Token.NotDef.str_t):
+                    newText = tocFrame.extraImAsETR.widget.getData()
+                    eImTextDict = fsf.Data.Sec.extraImagesDict(tocFrame.extraImAsETR.subsection)
+                    eImTextList = eImTextDict[tocFrame.extraImAsETR.imIdx]
+                    eImTextList[tocFrame.extraImAsETR.eImIdx] = newText
+                    fsf.Data.Sec.extraImagesDict(tocFrame.extraImAsETR.subsection, eImTextDict)
+                    tocFrame.extraImAsETR.reset()
+                    tocFrame.render()
+                else:
+                    tocFrame.extraImAsETR.subsection = event.widget.subsection
+                    tocFrame.extraImAsETR.imIdx = event.widget.imIdx
+                    tocFrame.extraImAsETR.eImIdx = event.widget.eImIdx
+                    tocFrame.extraImAsETR.widget = event.widget.etrWidget
+                    tocFrame.render()
+
+            if (subsection == tocFrame.extraImAsETR.subsection)\
+                and (imIdx == tocFrame.extraImAsETR.imIdx) \
+                and (i == tocFrame.extraImAsETR.eImIdx):
+                eimLabel = MultilineText_ETR(rootLabel, 
+                                            eImWidgetName, 
+                                            row = i + 5,
+                                            column = 0, 
+                                            imLineIdx = None, 
+                                            text = eImText)
+                eimLabel.config(width=90)
+                eimLabel.config(padx=10)
+                eimLabel.config(pady=10)
+                eimLabel.imIdx = imIdx
+                eimLabel.subsection = subsection
+                eimLabel.etrWidget = eimLabel
+                eimLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                        [extraImtextUpdate])
+                tocFrame.extraImAsETR.widget = eimLabel
+                eimLabel.render()
+                eimLabel.focus_force()
+
+                eImWidgetsList.append(eimLabel)
+            else:
+                eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
                                             eImWidgetName, imPadLeft,
                                             row = i + 5, column = 0, columnspan = 1000,
                                             resizeFactor = resizeFactor)
-            removeEntry = TOCLabelWithClick(rootLabel,
-                                            text = "[delete]",
-                                            prefix = "delete_" + eImWidgetName,
-                                            row =  i + 5, 
-                                            column = 0,
-                                            sticky = tk.NW)
-            removeEntry.imIdx = imIdx
-            removeEntry.subsection = subsection
-            removeEntry.eImIdx = i
-            removeEntry.tocFrame = tocFrame
+                eimLabel.subsection = subsection
+                eimLabel.imIdx = imIdx
+                eimLabel.eImIdx = i
+                eimLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                [extraImtextUpdate])
 
-            def delEIm(event, *args):
-                widget:TOCLabelWithClick = event.widget
-                fsf.Wr.SectionInfoStructure.removeExtraIm(widget.subsection,
-                                                          widget.imIdx,
-                                                          eImIdx = widget.eImIdx)
-                
-                if widget.tocFrame != None:
-                    tocFrame.render()
+                eImWidgetsList.append(eimLabel)
 
-            removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
+                removeEntry = TOCLabelWithClick(rootLabel,
+                                                text = "[delete]",
+                                                prefix = "delete_" + eImWidgetName,
+                                                row =  i + 5, 
+                                                column = 0,
+                                                sticky = tk.NW)
+                removeEntry.imIdx = imIdx
+                removeEntry.subsection = subsection
+                removeEntry.eImIdx = i
+                removeEntry.tocFrame = tocFrame
 
-            bindChangeColorOnInAndOut(removeEntry)
-            removeEntry.render()
+                def delEIm(event, *args):
+                    widget:TOCLabelWithClick = event.widget
+                    fsf.Wr.SectionInfoStructure.removeExtraIm(widget.subsection,
+                                                            widget.imIdx,
+                                                            eImIdx = widget.eImIdx)
+                    
+                    if widget.tocFrame != None:
+                        tocFrame.render()
 
-            displayedImagesContainer.append(eImg)
+                removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
+
+                bindChangeColorOnInAndOut(removeEntry)
+                removeEntry.render()
+
+                moveEntryDown = TOCLabelWithClick(rootLabel,
+                                                text = "[d]",
+                                                prefix = "up_" + eImWidgetName,
+                                                row =  i + 5, 
+                                                column = 1,
+                                                sticky = tk.NW)
+                moveEntryDown.imIdx = imIdx
+                moveEntryDown.subsection = subsection
+                moveEntryDown.eImIdx = i
+                moveEntryDown.tocFrame = tocFrame
+
+                def moveDown(event, *args):
+                    widget:TOCLabelWithClick = event.widget
+                    fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
+                                                            widget.imIdx,
+                                                            eImIdx = widget.eImIdx,
+                                                            down = True)
+                    
+                    if widget.tocFrame != None:
+                        widget.tocFrame.render()
+                        widget.tocFrame.shouldScroll = True
+                        widget.tocFrame.scrollIntoView(None, 
+                                                eImWidgetsList[widget.eImIdx + 1])
+
+                moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
+
+                bindChangeColorOnInAndOut(moveEntryDown)
+                moveEntryDown.render()
+
+                moveEntryUp = TOCLabelWithClick(rootLabel,
+                                                text = "[u]",
+                                                prefix = "down_" + eImWidgetName,
+                                                row =  i + 5, 
+                                                column = 2,
+                                                sticky = tk.NW)
+                moveEntryUp.imIdx = imIdx
+                moveEntryUp.subsection = subsection
+                moveEntryUp.eImIdx = i
+                moveEntryUp.tocFrame = tocFrame
+
+                def moveUp(event, *args):
+                    widget:TOCLabelWithClick = event.widget
+                    fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
+                                                            widget.imIdx,
+                                                            eImIdx = widget.eImIdx,
+                                                            down = False)
+                    
+                    if widget.tocFrame != None:
+                        widget.tocFrame.render()
+                        widget.tocFrame.shouldScroll = True
+                        widget.tocFrame.scrollIntoView(None, 
+                                                eImWidgetsList[widget.eImIdx - 1])
+
+                moveEntryUp.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveUp])
+
+                bindChangeColorOnInAndOut(moveEntryUp)
+                moveEntryUp.render()
+
+                displayedImagesContainer.append(eImg)
 
             outLabels.append(eimLabel)
 
