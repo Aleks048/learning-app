@@ -1352,6 +1352,9 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [showLinksForEntryCmd])
 
+                        if k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
+                            showLinksForEntry.configure(foreground="brown")                 
+
                         retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                                text =  self.__EntryUIs.retake.name,
                                                                prefix = "contentRetakeImageForEntry" + nameId,
