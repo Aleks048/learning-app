@@ -944,7 +944,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             extraImagesDict[mainImIdx] = eImList
         if eImTextsList != []:
             extraImTextDict[mainImIdx] = eImTextsList
-        
+
+        cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
+
         extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                                   subsection,
                                                                                   mainImIdx,
