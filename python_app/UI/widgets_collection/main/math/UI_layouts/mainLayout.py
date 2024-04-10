@@ -998,7 +998,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
 
     def addExtraIm(self, subsection, mainImIdx, extraImageIdx, extraImText, notifyMainTextLabel = True):
         msg = "\
-Do you want to add extra image to: '{0}' with name: '{1}'?".format(mainImIdx, extraImText)
+Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n with name: '{1}'?".format(mainImIdx, extraImText)
         response = wm.UI_generalManager.showNotification(msg, True)
 
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
