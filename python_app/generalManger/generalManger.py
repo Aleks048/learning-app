@@ -73,6 +73,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         import UI.widgets_facade as wf
         log.autolog("- Starting exiting the app")
 
+        origMatName = fsf.Data.Book.currOrigMatName
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
         # Updating the remote
         msg = "Closing the book."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
