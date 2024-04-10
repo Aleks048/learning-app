@@ -915,6 +915,26 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         if eImIdx != None:
             eImList.pop(eImIdx)
             eImTextsList.pop(eImIdx)
+
+            extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                                    subsection,
+                                                                                    mainImIdx,
+                                                                                    eImIdx)
+            ocf.Wr.FsAppCalls.deleteFile(extraImFilepath)
+
+            for i in range(eImIdx, len(eImList)):
+                sourceExtraImFilepath = \
+                    _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                        subsection,
+                                                                        mainImIdx,
+                                                                        i + 1)
+                targetextraImFilepath = \
+                    _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                        subsection,
+                                                                        mainImIdx,
+                                                                        i)
+                ocf.Wr.FsAppCalls.moveFile(sourceExtraImFilepath, targetextraImFilepath)
+
         # NOTE: this is left here for 
         # elif eImName != None:
         #     eImList.remove(eImName)
