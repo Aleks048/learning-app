@@ -239,6 +239,10 @@ The correct extra image was not created for \n\
         extraImagesDict[mainImIdx] = extraImagesList
         fsf.Data.Sec.extraImagesDict(subsection, extraImagesDict)
 
+        if "proof" in extraImText.lower():
+            dt.AppState.ShowProofs.setData(cls.appCurrDataAccessToken,
+                                           True) 
+
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, 
                  addToTOCwIm:bool, textOnly:bool = False):
