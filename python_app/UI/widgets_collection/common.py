@@ -157,6 +157,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     subsectionContentLabels = []
 
     currSecondRowLabels = []
+    linkFrames = []
 
     updatedWidget = None
 
@@ -529,6 +530,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 shoulShowSecondRow = False
 
                 if not link:
+                    for w in self.linkFrames:
+                        try:
+                            if (w.subsection == subsection) and (w.imIdx == imIdx):
+                                w.render()
+                            else:
+                                if not self.showLinks:
+                                    w.grid_forget()
+                        except:
+                            pass
+
                     for w in  self.currSecondRowLabels:
                         try:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
@@ -1480,7 +1491,12 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                             linksFrame = _uuicom.TOCFrame(tempFrame,
                                                 prefix = "contentLinksFr_" + nameId,
                                                 row = gridRowStartIdx + 1, column = 0, columnspan = 100)
-                            
+                            linksFrame.subsection = subsection
+                            linksFrame.imIdx = k
+
+                            if showLinks:
+                                self.linkFrames.append(linksFrame)
+
                             imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
 
                             if k in imGlobalLinksDict.keys():
@@ -2203,6 +2219,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
         self.displayedImages = []
         self.subsectionContentLabels = []
         self.currSecondRowLabels = []
+        self.linkFrames = []
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
