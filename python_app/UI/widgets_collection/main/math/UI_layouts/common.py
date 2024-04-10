@@ -11,9 +11,17 @@ import tkinter as tk
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
+import layouts.layouts_facade as lf
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
+    def render(self, widjetObj=None, renderData=..., **kwargs):
+        origMatName = fsm.Data.Book.currOrigMatName
+        fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
+        lf.Wr.MainLayout.set()
+
+        return super().render(widjetObj, renderData, **kwargs)
     pass
 
 

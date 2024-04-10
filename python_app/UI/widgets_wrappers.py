@@ -702,6 +702,8 @@ class TkWidgets (DataTranslatable_Interface):
         
         def render(self, widjetObj=None, renderData={}, **kwargs):
             self.widgetObj.deiconify()
+            self.widgetObj.focus_force()
+            self.widgetObj.lift()
         
         def wait(self):
             self.widgetObj.wait_variable(self.getDataObject())

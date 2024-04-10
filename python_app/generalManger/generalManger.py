@@ -211,34 +211,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         if mainImIdx in list(extraImagesDict.keys()):
             extraImagesList = extraImagesDict[mainImIdx]
 
-        if extraImText in extraImagesList:
-            msg = "Extra image with text \n: '{0}' already exists. Proceed?".format(extraImText)
-            response = wf.Wr.UI_generalManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
-        
-        if extraImageIdx != _u.Token.NotDef.str_t:
-            extraImageIdx = int(extraImageIdx)
-
-            if extraImageIdx < len(extraImagesList):
-                extraImagesList[extraImageIdx] = extraImText
-            else:
-                msg = "\
-Incorrect extra image index \nId: '{0}'.\n Outside the range of the indicies.".format(extraImageIdx)
-                wf.Wr.UI_generalManager.showNotification(msg, True)
-
-                mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-                log.autolog(msg)
-                mainManager.show()
-                return
-        else:
-            extraImagesList.append(extraImText)
+        extraImagesList.append(extraImText)
 
         if extraImageIdx == _u.Token.NotDef.str_t:
             extraImageIdx = len(extraImagesList) - 1
