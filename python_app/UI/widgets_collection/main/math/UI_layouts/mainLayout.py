@@ -695,6 +695,8 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
             mainManager.show()
             
             if not response:
+                self.rootWidget.render()
+                self.notify(ImageGeneration_ETR, None)
                 return
 
             currSubsection = fsf.Data.Book.currSection
@@ -705,10 +707,13 @@ Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromU
                                                         textOnly)
 
             if not entryAdded:
+                self.rootWidget.render()
+                self.notify(ImageGeneration_ETR, None)
                 return
             
             currImNum = self.dataFromUser[0]
             nextImNum = str(int(currImNum) + 1)
+            self.rootWidget.render()
             self.notify(ImageGeneration_ETR, nextImNum)
             self.notify(comw.TOC_BOX, entryClicked = self.dataFromUser[0])
             self.notify(commw.SourceImageLinks_OM)
