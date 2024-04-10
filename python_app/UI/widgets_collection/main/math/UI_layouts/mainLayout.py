@@ -896,8 +896,11 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             if prevData == "":
                 prevData = _u.Token.NotDef.str_t
 
-            self.setData(dataToSet)
+            if dataToSet != None:
+                self.setData(dataToSet)
+
             self.widgetObj.focus_force()
+
             return prevData
         elif broadcasterType == ChooseSubsection_OM or broadcasterType == ChooseTopSection_OM:
             # TODO: find a nicer wahy without checking the dict
