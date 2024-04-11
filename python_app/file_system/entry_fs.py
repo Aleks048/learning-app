@@ -170,10 +170,6 @@ at position '{2}'.".format(subsection, imIdx, position)
         
         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(bookPath, sectionPath, imIdx)
 
-        if (not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)):
-            bookName = sf.Wr.Manager.Book.getCurrBookName()
-            cls.createStructure(bookName, sectionPath, imIdx)
-
         prop =  _u.JSON.readProperty(fullPathToEntryJSON, 
                                     propertyName)
         return prop

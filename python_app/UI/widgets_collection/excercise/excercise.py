@@ -620,9 +620,14 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         entryLinesPath = _upan.Paths.Entry.getAbs(bookPath, self.subsection, self.imIdx)
 
-        numLines = len(fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
-                                                       self.imIdx, 
-                                                       fsf.Wr.EntryInfoStructure.PubProp.entryLinesList))
+        fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(bookPath, self.subsection, self.imIdx)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON):
+            numLines = len(fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                        self.imIdx, 
+                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList))
+        else:
+            numLines = 0
 
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryLinesPath):
             self.addExcerciseLines()
