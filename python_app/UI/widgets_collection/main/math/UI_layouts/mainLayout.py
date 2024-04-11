@@ -674,7 +674,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             import generalManger.generalManger as gm
 
             if not re.match("^[0-9]+$", str(self.dataFromUser[0])):
-                msg = "Incorrect image index \nId: '{0}'.".format(self.dataFromUser[0])
+                msg = "Incorrect image index \n\nId: '{0}'.".format(self.dataFromUser[0])
                 wm.UI_generalManager.showNotification(msg, True)
 
                 mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -687,7 +687,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             textOnly = self.notify(TextOnly_CHB)
 
             msg = "\
-Do you want to create entry with \nId: '{0}', Name: '{1}'".format(self.dataFromUser[0], self.dataFromUser[1])
+Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dataFromUser[0], self.dataFromUser[1])
             response = wm.UI_generalManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -967,7 +967,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
 
             for idx in mainAndExtraIndex:
                 if not re.match("^[0-9]+$", idx):
-                    msg = "Incorrect image index \nId: '{0}'.".format(idx)
+                    msg = "Incorrect image index \n\nId: '{0}'.".format(idx)
                     wm.UI_generalManager.showNotification(msg, True)
 
                     mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -980,7 +980,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
             extraImageIdx = mainAndExtraIndex[1]
         else:
             if not re.match("^[0-9]+$", mainImIdx):
-                msg = "Incorrect main image index \nId: '{0}'.".format(mainImIdx)
+                msg = "Incorrect main image index \n\nId: '{0}'.".format(mainImIdx)
                 wm.UI_generalManager.showNotification(msg, True)
 
                 mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -1001,7 +1001,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
 
     def addExtraIm(self, subsection, mainImIdx, extraImageIdx, extraImText, notifyMainTextLabel = True):
         msg = "\
-Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n with name: '{1}'?".format(mainImIdx, extraImText)
+Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(mainImIdx, extraImText)
         response = wm.UI_generalManager.showNotification(msg, True)
 
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
@@ -1086,9 +1086,9 @@ class ImageGroupAdd_BTN(ww.currUIImpl.Button,
 
         # ask the user if we want to proceed
         msg = "\
-Do you want to add \n\
-group: '{0}' to\n\
-subsection: '{1}'?".format(groupName, currSubsection)
+Do you want to add \n\n\
+group: '{0}' \n\n\
+to subsection: '{1}'?".format(groupName, currSubsection)
         response = wm.UI_generalManager.showNotification(msg, True)
 
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,

@@ -514,7 +514,7 @@ The correct extra image was not created for \n\
         wholeLinkPath = wholeLinkPathStr.split(".")
         
         if _u.Token.NotDef.str_t in wholeLinkPathStr:
-            msg = "The path '{0}' is not correct. Please correct it.".format(wholeLinkPathStr)
+            msg = "The path \n\n'{0}'\n\n is not correct.\n Please correct it.".format(wholeLinkPathStr)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
@@ -612,7 +612,7 @@ Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_
             log.autolog(m)
 
         elif sourceUrlLinkName in list(targetImGlobalLinksDict.keys()): 
-            m = "The target link: '{0}' is already present.".format(targetUrl)
+            m = "The target link: \n\n'{0}'\n\n is already present.".format(targetUrl)
             theLinksAreNotPresentMsg.append(m)
             log.autolog(m)
         
@@ -662,7 +662,7 @@ Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_
 
         if linkeName not in list(sourceImGlobalLinksDict.keys()):
             if shouldConfirm:
-                msg = "Do you want to add web link From: '{1}_{2}'.\nWith name: '{3}'\nWith address: '{0}'?"\
+                msg = "Do you want to add WEB link From: \n\n'{1}_{2}'.\n\nWith name: \n'{3}'\n\nWith address: \n'{0}'?"\
                         .format(wholeLinkPathStr, 
                                 sourceSubsection, 
                                 sourceIDX,
@@ -685,7 +685,7 @@ Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_
             sourseSectionGlobalLinksDict[sourceIDX] = sourceImGlobalLinksDict
             fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
         else:
-            m = "The source link: '{0}' is already present.\n".format(sourceUrl)
+            m = "The SOURCE link: \n\n'{0}'\n\n is already present.\n".format(sourceUrl)
             theLinksAreNotPresentMsg.append(m)
             log.autolog(m)
 
@@ -713,7 +713,7 @@ Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_
 
         if not re.match("[[\d]+.]*\d+", secPath):
             msg = "\
-The section with path :'{0}' has wrong format.\n\
+The section with path :\n'{0}'\n has wrong format.\n\n\
 Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath)
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
@@ -724,7 +724,7 @@ Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath)
 
         if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
             msg = "\
-The section with path :'{0}' already exists. \n\
+The section with path :\n'{0}'\n already exists. \n\n\
 Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPage)
             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
@@ -735,9 +735,9 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
         
         if shouldAsk:
             msg = "\
-    Do you want to create subsection \n\
-    with path :'{0}', \n\
-    text '{1}', \n\
+    Do you want to create subsection \n\n\
+    with path :\n'{0}', \n\n\
+    text \n'{1}', \n\n\
     start page '{2}', end page '{3}'?".format(secPath, newSecName, newSecStartPage, newSecEndPage)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
             

@@ -293,12 +293,12 @@ class SectionInfoStructure:
             targetImIdx = str(int(targetImIdx) + 1)
 
          # ask the user if we wnat to proceed.
-        cutEntryStr = "cut" if cutEntry else "copy"
+        cutEntryStr = "CUT" if cutEntry else "COPY"
         if shouldAsk:
             msg = "\
-    Do you want to {4} entry from \n\
-    '{0}':'{1}'\n\
-    to '{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
+    Do you want to {4} entry from \n\n\
+    '{0}':'{1}'\n\n\
+    to \n\n'{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
                             targetSubsection, targetImIdx,
                             cutEntryStr)
 
@@ -377,7 +377,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         if shouldConfirm:
             # ask the user if we wnat to proceed.
-            msg = "Do you want to remove '{0}_{1}'?".format(subsection, imIdx)
+            msg = "Do you want to remove \n\n'{0}_{1}'?".format(subsection, imIdx)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -599,7 +599,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         if shouldConfirm:
             # ask the user if we wnat to proceed.
-            msg = "Do you want to shift entry for '{0}' starting from '{1}'?".format(subsection, imIdx)
+            msg = "Do you want to shift entry for \n\n'{0}'\n\n starting from \n'{1}'?".format(subsection, imIdx)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -610,7 +610,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 return
 
             # NOTE: ask twice if the user is sure.
-            msg = "Do you want to shift entries for '{0}' starting from '{1}'?".format(subsection, imIdx)
+            msg = "Do you want to shift entries for \n\n'{0}'\n\n starting from \n\n'{1}'?".format(subsection, imIdx)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",

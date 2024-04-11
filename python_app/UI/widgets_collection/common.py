@@ -1183,7 +1183,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                                     # ask the user if we wnat to proceed.
                                     msg = "\
-Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group name '{2}'?".format(targetSubsection, 
+Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n with group name \n'{2}'?".format(targetSubsection, 
                                                                                                  targetEntryIdx, 
                                                                                                  targetGroupName)
                                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
@@ -2081,7 +2081,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                     sourceSubsection = subsection
 
                     # ask the user if we wnat to proceed.
-                    msg = "Do you want to move \n'{0}' \nto '{1}'?".format(sourceSubsection, targetSubsection)
+                    msg = "Do you want to move \n\n subsection\n'{0}' \n\nto \n'{1}'?".format(sourceSubsection, targetSubsection)
                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
                     mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -2110,7 +2110,7 @@ Do you want to move group to subsection\n'{0}' and entry: '{1}'\n with group nam
                     sourceSubsection = subsection
 
                     # ask the user if we wnat to proceed.
-                    msg = "Do you want to remove \n'{0}'?".format(sourceSubsection)
+                    msg = "Do you want to \n\nREMOVE \n\n subsection:\n'{0}'?".format(sourceSubsection)
                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
                     mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",

@@ -123,7 +123,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
 
         # show notification with wait
         if changeStr == DEFAULT_CHANGE_STR:
-            msg = "Nothing to change for subssection '{0}'.".format(subsecPath)
+            msg = "Nothing to change \n\nfor subssection '{0}'.".format(subsecPath)
         else:
             msg = changeStr + notChangedStr
 
@@ -401,7 +401,7 @@ class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
         link = self.notify(SetSectionNoteAppLink_ETR)
 
         # show notification with wait
-        msg = "Do you want to change notes app link: '{0}' for subsection: '{1}'".format(link, subsecPath)
+        msg = "Do you want to change notes app \n\nlink: '{0}' \n\nfor subsection: '{1}'".format(link, subsecPath)
         response = wm.UI_generalManager.showNotification(msg, True)
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                     mmm.MathMenuManager)
