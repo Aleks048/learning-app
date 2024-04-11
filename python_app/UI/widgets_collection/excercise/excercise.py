@@ -494,10 +494,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                             event.widget.lineImIdx,
                                                             text,
                                                             bookPath)
-                    self.render()
+                    self.render(shouldScroll = False)
                     self.currEtr[widgetlineImIdx].focus_force()
                     self.currEtr[widgetlineImIdx].mark_set("insert", position)
-                    self.__scrollIntoView(event)
+                    # self.__scrollIntoView(event)
 
                     return "break"
 
@@ -605,7 +605,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.currEtr = _u.Token.NotDef.dict_t.copy()
             self.render()
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
         global exImages
         exImages = []
 
@@ -639,7 +639,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(widjetObj, renderData, **kwargs)
 
-        if self.latestWidgetToscrollTo != None:
+        if (self.latestWidgetToscrollTo != None) and (shouldScroll):
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
