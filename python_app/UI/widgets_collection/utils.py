@@ -548,8 +548,13 @@ def addExtraEntryImagesWidgets(rootLabel,
                                 [extraImtextUpdate])
 
                 eImWidgetsList.append(eimLabel)
+                tempEImLabel = TOCLabelWithClick(rootLabel, 
+                                              text = "",
+                                              prefix = "tempLabel_" + eImWidgetName,
+                                              row =  i + 5,
+                                              column = 0)
 
-                removeEntry = TOCLabelWithClick(rootLabel,
+                removeEntry = TOCLabelWithClick(tempEImLabel,
                                                 text = "[delete]",
                                                 prefix = "delete_" + eImWidgetName,
                                                 row =  i + 5, 
@@ -574,7 +579,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 bindChangeColorOnInAndOut(removeEntry)
                 removeEntry.render()
 
-                moveEntryDown = TOCLabelWithClick(rootLabel,
+                moveEntryDown = TOCLabelWithClick(tempEImLabel,
                                                 text = "[d]",
                                                 prefix = "up_" + eImWidgetName,
                                                 row =  i + 5, 
@@ -595,15 +600,16 @@ def addExtraEntryImagesWidgets(rootLabel,
                     if widget.tocFrame != None:
                         widget.tocFrame.render()
                         widget.tocFrame.shouldScroll = True
-                        widget.tocFrame.scrollIntoView(None, 
-                                                eImWidgetsList[widget.eImIdx + 1])
+                        if (widget.eImIdx + 1) in range(len(eImWidgetsList)):
+                            widget.tocFrame.scrollIntoView(None, 
+                                                    eImWidgetsList[widget.eImIdx + 1])
 
                 moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
 
                 bindChangeColorOnInAndOut(moveEntryDown)
                 moveEntryDown.render()
 
-                moveEntryUp = TOCLabelWithClick(rootLabel,
+                moveEntryUp = TOCLabelWithClick(tempEImLabel,
                                                 text = "[u]",
                                                 prefix = "down_" + eImWidgetName,
                                                 row =  i + 5, 
@@ -624,13 +630,15 @@ def addExtraEntryImagesWidgets(rootLabel,
                     if widget.tocFrame != None:
                         widget.tocFrame.render()
                         widget.tocFrame.shouldScroll = True
-                        widget.tocFrame.scrollIntoView(None, 
-                                                eImWidgetsList[widget.eImIdx - 1])
+                        if (widget.eImIdx - 1) in range(len(eImWidgetsList)):
+                            widget.tocFrame.scrollIntoView(None, 
+                                                    eImWidgetsList[widget.eImIdx - 1])
 
                 moveEntryUp.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveUp])
 
                 bindChangeColorOnInAndOut(moveEntryUp)
                 moveEntryUp.render()
+                tempEImLabel.render()
 
                 displayedImagesContainer.append(eImg)
 
