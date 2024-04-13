@@ -661,6 +661,6 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
                 self.AddExcerciseBTN.cmd()
         return [ww.currUIImpl.Data.BindID.Keys.shdown, 
                 ww.currUIImpl.Data.BindID.Keys.shup,
-                ww.currUIImpl.Data.BindID.Keys.cmdshl], \
+                ww.currUIImpl.Data.BindID.Keys.cmdshs], \
                [__scrollUp, __scrollDown, __addLine]
     pass
