@@ -23,6 +23,7 @@ class LayoutManagers:
             winRoot.ExcerciseBox = self.excercise_BOX
             self.addWidget(self.excercise_BOX)
             self.addExcerciseLine_BTN = exw.AddExcerciseLine_BTN(winRoot, self.prefix)
+            winRoot.AddExcerciseBTN = self.addExcerciseLine_BTN
             self.addWidget(self.addExcerciseLine_BTN)
             self.hideExcerciseWindow_BTN = exw.HideExcerciseWindow_BTN(winRoot, self.prefix)
             self.addWidget(self.hideExcerciseWindow_BTN)

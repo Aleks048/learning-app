@@ -1443,6 +1443,13 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
 
+                        fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
+                                                                            subsection,
+                                                                            k)
+                        excerciseExists = ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)
+
+                        if excerciseExists:
+                            openExUIEntry.configure(foreground="brown")
 
                         proofExists = False
                         exImDict = fsm.Data.Sec.extraImagesDict(subsection)
@@ -1803,7 +1810,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
                         openSecondaryImage(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
-                        _uuicom.bindChangeColorOnInAndOut(openExUIEntry)
+                        _uuicom.bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
                         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
 

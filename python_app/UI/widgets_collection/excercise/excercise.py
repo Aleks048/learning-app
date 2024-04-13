@@ -411,7 +411,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) * 0.7)
+            self.canvas.yview_moveto((pos / height) * 0.5)
         except:
             pass
 
@@ -644,6 +644,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
     ExcerciseBox = None
+    AddExcerciseBTN = None
+
     def __init__(self, width, height, bindCmd=...):
         super().__init__(width, height, self.bindCmd)    
 
@@ -654,6 +656,11 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
         def __scrollDown(*args):
             if self.ExcerciseBox != None:
                 self.ExcerciseBox.canvas.yview_scroll(-1, "units")
-        return [ww.currUIImpl.Data.BindID.Keys.shdown, ww.currUIImpl.Data.BindID.Keys.shup], \
-               [__scrollUp, __scrollDown]
+        def __addLine(*args):
+            if self.ExcerciseBox != None:
+                self.AddExcerciseBTN.cmd()
+        return [ww.currUIImpl.Data.BindID.Keys.shdown, 
+                ww.currUIImpl.Data.BindID.Keys.shup,
+                ww.currUIImpl.Data.BindID.Keys.cmdshl], \
+               [__scrollUp, __scrollDown, __addLine]
     pass
