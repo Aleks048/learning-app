@@ -23,7 +23,7 @@ class EntryInfoStructure:
     currStucturePath = ""
     fixedWidth = 530
     lineImageFontSize = 10
-    lineImagePadding = 5
+    lineImagePadding = 10
     lineImageTextSize = 10
     numSymbolsPerLine = 75
 
@@ -110,7 +110,8 @@ class EntryInfoStructure:
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = cls.numSymbolsPerLine)
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
@@ -138,7 +139,8 @@ at position '{2}'.".format(subsection, imIdx, position)
                                            fontSize = cls.lineImageFontSize,
                                            textSize = cls.lineImageTextSize,
                                            padding = cls.lineImagePadding,
-                                           numSymPerLine = cls.numSymbolsPerLine)
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 

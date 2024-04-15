@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import io
 import re
+import fitz
+from tex import latex2pdf
 
 import tex_file.tex_file_populate as tfpo
 import tex_file.tex_file_modify as tfm
@@ -29,7 +31,36 @@ class Wr:
 
             return text
 
-        def fromTexToImage(tex, 
+        def __fromTexToImage(tex,
+                           imageColor,
+                           fontSize = 12):
+            # \\usepackage[pass, total={{10in, 2in}}]{{geometry}}\
+            document = f"\
+            \\documentclass[parskip = full]{{article}}\
+            \\usepackage[legalpaper, portrait, margin=2in]{{geometry}}\
+            \\usepackage{{amsfonts, amsmath, amssymb, dsfont, xcolor}}\
+            \\usepackage[T1]{{fontenc}}\
+            \\usepackage{{mathptmx}}\
+            \\pagenumbering{{gobble}}\
+            \\usepackage{{setspace}}\
+            \\onehalfspacing\
+            \\setlength{{\\parindent}}{{0pt}}\
+            \\definecolor{{orange}}{{HTML}}{{{imageColor}}}\
+            \\pagecolor{{orange}}\
+            \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
+            \\begin{{document}}\
+            {tex}\
+            \\end{{document}}\
+            "
+            pdf = latex2pdf(document)
+            doc = fitz.open("x.pdf", pdf)
+            page = doc.load_page(0)
+            pixmap = page.get_pixmap(dpi=300)
+            return pixmap.tobytes()
+
+        @classmethod
+        def fromTexToImage(cls,
+                           tex, 
                            savePath, 
                            padding = 10, 
                            imageColor = "#3295a8", 
@@ -37,132 +68,48 @@ class Wr:
                            fixedHeight = None,
                            fontSize = 12,
                            textSize = 14,
-                           numSymPerLine = 70):
-            texList = tex.split("\\ ")
-            chCounter = 0
-            tex = ""
-
-            PARAGRAPH_TOKEN = "\\\\[15pt]\\textrm{\\quad}"
-            EOL_TOKEN = "\\\\[10pt]"
-
-            for w in texList:
-                # NOTE: we remove the newLine + latex tokens + "}"
-                # to avoid incorrect calculations and newline being ignored
-                # we replece it withthe token and then bring back
-                w = w.replace("\\\\", "__NEWLINE__")
-                splittedWord = re.split(r"\\[[a-z]+|[A-Z]+]+", w)
-                w = w.replace("__NEWLINE__", PARAGRAPH_TOKEN)
-
-                for i in range(len(splittedWord)):
-                    splittedWord[i] = splittedWord[i].replace("__NEWLINE__", "\\\\")
-                    splittedWord[i] = re.sub(r"{[a-z]+}", "", splittedWord[i])
-
-                # NOTE: we do use this to add one to count for the
-                # symbols of the kind ex: '\subset'
-                if len([i for i in splittedWord if i != ""]) == 0:
-                    splittedWord = ["1"]
-
-                for sw in splittedWord:
-                    if "\\\\" in sw:
-                        chCounter = 0
-
-                filteredWord = "".join(splittedWord)\
-                              .replace("\\", "")\
-                              .replace("}", "")\
-                              .replace("{", "")
-
-                wordLen = len(filteredWord)
-
-                if ((chCounter + wordLen + 1) > numSymPerLine):
-                    tex += EOL_TOKEN
-                    chCounter = 0
-
-                chCounter += wordLen + 1
-                tex += w + "\\ "
-
-            texList = tex.split(EOL_TOKEN)
-
-            newTexList = []
-
-            for i in range(len(texList)):
-                l = texList[i]
-
-                if PARAGRAPH_TOKEN in l:
-                    if l.endswith(PARAGRAPH_TOKEN):
-                        l += "TEMPEND"
-
-                    subList = l.split(PARAGRAPH_TOKEN)
-                else:
-                    subList = [l]
-                
-                for i in range(len(subList)):
-                    subList[i] = re.sub(r"([\\][a-z]*{.*})", r"}\1\\text{", subList[i])
-                
-                if len(subList) == 1:
-                    newTexList.append("\\mathrm{\\text{" + subList[0] + "}}" + EOL_TOKEN)
-                else:
-                    lastEl = subList.pop(-1)
-
-                    for ll in subList:
-                        newTexList.append("\\mathrm{\\text{" + ll + "}}" + PARAGRAPH_TOKEN)
-
-                    if lastEl != "TEMPEND":
-                        newTexList.append("\\mathrm{\\text{" + lastEl + "}}" + EOL_TOKEN)
-
-            texList = newTexList
-            fullTex = "".join(texList)
-            fullTex = f"\\noindent${fullTex}$"
-            # NOTE: this is left here in case
-            # I will want to split the lines into separate formulas
-            # fullTex = f"\\noindent"
-            # for line in texList:
-            #     fullTex += f'${line}$' + "\\\\"
-            # fullTex = fullTex[:-2]
-
-            buf = io.BytesIO()
-            params = plt.rcParams.copy()
-            params['font.size'] = fontSize
-            params['font.family'] = "serif"
-            params['text.usetex'] = True
-            params['text.latex.preamble'] =  r'\usepackage{amsfonts, amsmath, amssymb, dsfont}'
-            params['figure.facecolor'] = imageColor
-
+                           numSymPerLine = 70,
+                           imSize = 700):
             if "excercise" in tex.lower():
-                fullTex = fullTex.replace("EXCERCISE", "{\\textbf{\\underline{\\textdagger\\ EXCERCISE\\ \\textdagger}}}")
+                tex = tex.replace("EXCERCISE", "{\\textbf{\\underline{\\textdagger\\ EXCERCISE\\ \\textdagger}}}")
 
-                # params['text.color'] = "red"
-            # elif "important!" in tex.lower():
-            #     params['text.color'] = "blue"
-            # elif "\\square" in tex.lower():
-            #     params['text.color'] = "#700470"
-            # else:
-            params['text.color'] = "black"
-
-            with mpl.rc_context(params):
-                fig, ax = plt.subplots()
-                fig.set_facecolor(mpl.rcParams['figure.facecolor'])
-                ax.set_facecolor(mpl.rcParams['axes.facecolor'])
-                plt.rcParams.update(params)
-                plt.ioff()
-                # NOTE: this is a hacky workaround to avoid cropping the lines
-                plt.figure(figsize=(20,20))
-                plt.axis('off')
-                # plt.tight_layout()
-                plt.text(0.15, 0.35, fullTex,
-                         size = textSize)
-                plt.savefig(buf, format='png')
-                plt.clf()
-                plt.close()
+            buf = io.BytesIO(cls.__fromTexToImage(tex, 
+                                                  imageColor.replace("#", ""), 
+                                                  fontSize))
 
             im = Image.open(buf)
+            im = im.convert('RGB')
             bg = Image.new(im.mode, im.size, imageColor)
             bg = bg.convert('RGB')
-            im = im.convert('RGB')
             diff = ImageChops.difference(im, bg)
-            # diff = ImageChops.add(diff, diff, 2.0, -100)
+            diff = ImageChops.add(diff, diff, 2.0, -100)
             bbox = diff.getbbox()
+
+            if bbox != None:
+                bbox = [bbox[0] - 10,
+                        bbox[1] - 10,
+                        bbox[2] + 10,
+                        bbox[3] + 10]
+
             im = im.crop(bbox)
-            
+
+            extra = Image.new(im.mode, (1400, im.height), imageColor)
+            extra.paste(im, (0, 0))
+            extra.thumbnail((imSize, 3500), Image.Resampling.LANCZOS)
+            im = extra
+
+            diff = ImageChops.difference(im, bg)
+            diff = ImageChops.add(diff, diff, 2.0, -100)
+            bbox = diff.getbbox()
+
+            if bbox != None:
+                bbox = [bbox[0] - 2,
+                        bbox[1] - 2,
+                        bbox[2] + 2,
+                        bbox[3] + 2]
+
+            im = im.crop(bbox)
+
             right = padding
             left = padding
             top = padding
