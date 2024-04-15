@@ -575,6 +575,7 @@ class TkWidgets (DataTranslatable_Interface):
                 HasListenersWidget_Interface_Impl,
                 BindableWidget_Interface_Impl):
         canvas = None
+        container = None
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -637,6 +638,7 @@ class TkWidgets (DataTranslatable_Interface):
                 container.bind_all('<MouseWheel>', on_vertical)
                 container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
 
+            self.container = container
             widjetObj = container
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)

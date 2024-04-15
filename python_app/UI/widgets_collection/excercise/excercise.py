@@ -380,6 +380,11 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         width = windth,
                         makeScrollable = False)
 
+        def on_vertical(event):
+            self.canvas.yview_scroll(-1 * event.delta, 'units')
+
+        self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+
     def __scrollIntoView(self, event, widget = None):
         try:
             posy = 0
