@@ -159,6 +159,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     currSecondRowLabels = []
     linkFrames = []
 
+    showImagesLabels = {}
+
     updatedWidget = None
 
     class __EntryUIs:
@@ -569,6 +571,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
                     ((label.clicked) and ((int(event.type) == 4)) and shoulShowSecondRow and (not link)):
+                    if shoulShowSecondRow:
+                        for k,w in self.showImagesLabels.items():
+                            if k == subsection + imIdx:
+                                try:
+                                    showImages = self.showImagesLabels[subsection + imIdx]
+                                    showImages.configure(foreground = "brown")  
+                                    _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = True)
+                                except:
+                                    pass
+                            else:
+                                try:
+                                    showImages = self.showImagesLabels[k]
+                                    showImages.configure(foreground = "white")  
+                                    _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = False)
+                                except:
+                                    pass
+
                     if self.showAll and shouldScroll and (not link):
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.MathMenuManager)
@@ -1315,6 +1334,12 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         showImages.imIdx = k
                         showImages.subsection = subsection
                         showImages.clicked = False
+                        self.showImagesLabels[subsection + k] = showImages
+
+                        imShouldBeBrown = False
+
+                        if (subsection == self.subsectionClicked) and (str(k) == self.entryClicked):
+                            imShouldBeBrown = True 
 
                         if not textOnly:
                             showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
@@ -1379,7 +1404,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [showLinksForEntryCmd])
 
-                        if k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
+                        linkExist = k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys())
+
+                        if linkExist:
                             showLinksForEntry.configure(foreground="brown")                 
 
                         retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
@@ -1797,13 +1824,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         if self.entryAsETR.widget == None:
                             openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
-                        _uuicom.bindChangeColorOnInAndOut(showImages)
+                        if imShouldBeBrown:
+                            showImages.configure(foreground="brown")  
+                        _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = imShouldBeBrown)
                         _uuicom.bindChangeColorOnInAndOut(removeEntry)
                         _uuicom.bindChangeColorOnInAndOut(shiftEntry)
                         _uuicom.bindChangeColorOnInAndOut(copyEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
                         _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
-                        _uuicom.bindChangeColorOnInAndOut(showLinksForEntry)
+                        _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(addExtraImage)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
@@ -2243,6 +2272,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         self.subsectionContentLabels = []
         self.currSecondRowLabels = []
         self.linkFrames = []
+        self.showImagesLabels = {}
 
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
