@@ -73,6 +73,12 @@ class LayoutManagers:
             self.excercise_BOX.canvas.configure(height = 730 - 20 - self.excerciseImage.widgetObj.winfo_height())
             self.excercise_BOX.canvas.update()
 
+            lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                        self.imIdx, 
+                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
+            self.excercise_BOX.latestLineIdxToscrollTo = str(len(lines) - 1)
+            self.excercise_BOX.render()
+
     @classmethod
     def listOfLayouts(cls):
         results = []

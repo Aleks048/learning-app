@@ -626,7 +626,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                      self.subsection,
                                                      self.imIdx,
                                                      event.widget.lineImIdx)
-                self.currEtr.pop(str(event.widget.lineImIdx))
+                try:
+                    self.currEtr.pop(str(event.widget.lineImIdx))
+                except:
+                    pass
                 self.render()
 
             deleteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [deleteLineIdx])
@@ -638,7 +641,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
                                                        self.imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
-            self.lineIdxShownInText.append(str(len(lines) - 1))
+            self.lineIdxShownInText = [(str(len(lines) - 1))]
+            self.currEtr = _u.Token.NotDef.dict_t.copy()
             self.render()
         if broadcasterType == HideAllETRsWindow_BTN:
             self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
