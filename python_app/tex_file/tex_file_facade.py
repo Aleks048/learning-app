@@ -47,7 +47,10 @@ class Wr:
             \\setlength{{\\parindent}}{{0pt}}\
             \\definecolor{{orange}}{{HTML}}{{{imageColor}}}\
             \\pagecolor{{orange}}\
+            \
             \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
+            \\newcommand{{\\Done}}{{$\\blacksquare$}}\
+            \
             \\begin{{document}}\
             {tex}\
             \\end{{document}}\
