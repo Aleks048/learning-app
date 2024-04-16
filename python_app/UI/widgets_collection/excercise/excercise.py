@@ -401,9 +401,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             t = _rebuildLine(*args, **kwargs)
             t.join()
             self.render()
-            position = self.currEtr[lineIdx].index(tk.INSERT)
+            position = self.etrTexts[lineIdx][1]
             self.currEtr[lineIdx].focus_force()
-            self.currEtr[lineIdx].mark_set("insert", position)
+
+            try:
+                self.currEtr[lineIdx].mark_set("insert", position)
+            except:
+                pass
         Thread(target = __internal,
                args = args, 
                kwargs = kwargs).start()
@@ -439,7 +443,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) * 0.5)
+            self.canvas.yview_moveto((pos / height) - 0.008)
         except:
             pass
 
@@ -494,6 +498,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 label.grid(row = i + numRowsPre + 1, column = 5)
                 label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
                 label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
+                labelToScrollTo = label
             else:
                 label = _ucomw.TOCFrame(self.scrollable_frame, 
                                 "linesImageFRM_" + str(i),
@@ -505,7 +510,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
                 text = ""
                 if str(i) in list(self.etrTexts.keys()):
-                    text = self.etrTexts.pop(str(i))
+                    text = self.etrTexts[str(i)][0]
                 else:
                     text = lines[i]
 
@@ -545,10 +550,11 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.render()
                 labRebuild.render()
                 label.render()
+                labelToScrollTo = label
 
 
             if (str(i) == self.latestLineIdxToscrollTo) and label != None:
-                self.latestWidgetToscrollTo = label
+                self.latestWidgetToscrollTo = labelToScrollTo
 
             '''
             copy
@@ -651,7 +657,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
             for k,v in self.currEtr.items():
-                self.etrTexts[k] = self.currEtr[k].getData()
+                self.etrTexts[k] = [self.currEtr[k].getData(),
+                                    self.currEtr[k].index(tk.INSERT)]
 
         for w in self.scrollable_frame.winfo_children():
             w.destroy()
