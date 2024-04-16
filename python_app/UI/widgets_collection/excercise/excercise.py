@@ -4,6 +4,7 @@ import Pmw
 from PIL import Image, ImageTk
 import time
 import os
+from threading import Thread
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -347,6 +348,14 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         return [ww.currUIImpl.Data.BindID.Keys.shenter], \
                 [lambda *args: self.notify(AddExcerciseLine_BTN)]
 
+def _rebuildLine(*args, **kwargs):
+    '''
+        used for multithreaded line rebuild
+    '''
+    t = Thread(target= fsf.Wr.EntryInfoStructure.rebuildLine, 
+            args = (args))
+    t.start()
+    return t
 
 class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
@@ -357,6 +366,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     lineIdxShownInText = []
     currEtr = _u.Token.NotDef.dict_t.copy()
+    etrTexts = _u.Token.NotDef.dict_t.copy()
 
     displayedImages = []
 
@@ -384,6 +394,19 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.canvas.yview_scroll(-1 * event.delta, 'units')
 
         self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+
+    def __renderAfterRebuild(self, *args, **kwargs):
+        def __internal(*args, **kwargs):
+            lineIdx = kwargs["lineIdx"]
+            t = _rebuildLine(*args, **kwargs)
+            t.join()
+            self.render()
+            position = self.currEtr[lineIdx].index(tk.INSERT)
+            self.currEtr[lineIdx].focus_force()
+            self.currEtr[lineIdx].mark_set("insert", position)
+        Thread(target = __internal,
+               args = args, 
+               kwargs = kwargs).start()
 
     def __scrollIntoView(self, event, widget = None):
         try:
@@ -452,16 +475,15 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     text = self.currEtr[widgetlineImIdx].getData()
 
                     if text != self.currEtr[widgetlineImIdx].defaultText:
-                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
-                                                              self.imIdx,
-                                                              event.widget.lineImIdx,
-                                                              text,
-                                                              bookPath)
+                        _rebuildLine(self.subsection,
+                                            self.imIdx,
+                                            event.widget.lineImIdx,
+                                            text,
+                                            bookPath)
 
                     self.currEtr.pop(widgetlineImIdx)
                 else:
                     self.lineIdxShownInText.append(str(event.widget.lineImIdx))
-
 
                 self.render()
 
@@ -481,7 +503,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                             self.subsection, self.imIdx, i)
                 labIm.grid(row = 0, column = 0)
 
-                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, lines[i])
+                text = ""
+                if str(i) in list(self.etrTexts.keys()):
+                    text = self.etrTexts.pop(str(i))
+                else:
+                    text = lines[i]
+
+                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, text)
                 self.currEtr[str(i)] = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
@@ -493,16 +521,16 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     text = self.currEtr[widgetlineImIdx].getData()
                     position = self.currEtr[widgetlineImIdx].index(tk.INSERT)
 
-                    if text != self.currEtr[widgetlineImIdx].defaultText:
-                        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
-                                                            self.imIdx,
-                                                            event.widget.lineImIdx,
-                                                            text,
-                                                            bookPath)
-                    self.render(shouldScroll = False)
-                    self.currEtr[widgetlineImIdx].focus_force()
-                    self.currEtr[widgetlineImIdx].mark_set("insert", position)
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    self.__renderAfterRebuild(self.subsection,
+                                self.imIdx,
+                                event.widget.lineImIdx,
+                                text,
+                                bookPath,
+                                lineIdx = widgetlineImIdx)
+                    # self.render(shouldScroll = False)
+                    # self.currEtr[widgetlineImIdx].focus_force()
+                    # self.currEtr[widgetlineImIdx].mark_set("insert", position)
                     # self.__scrollIntoView(event)
 
                     return "break"
@@ -614,9 +642,16 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
     def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
         global exImages
         exImages = []
+        self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
         dummyPreLabel = tk.Label(self.scrollable_frame, height = 1000)
         dummyPreLabel.grid(row = 1, column=0)
+
+        self.etrTexts = _u.Token.NotDef.dict_t.copy()
+
+        if self.currEtr != _u.Token.NotDef.dict_t.copy():
+            for k,v in self.currEtr.items():
+                self.etrTexts[k] = self.currEtr[k].getData()
 
         for w in self.scrollable_frame.winfo_children():
             w.destroy()
