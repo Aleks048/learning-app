@@ -438,6 +438,15 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 widgetlineImIdx = str(event.widget.lineImIdx)
 
+                # for lineImIdx in self.lineIdxShownInText:
+                #     if lineImIdx in list(self.currEtr.keys()):
+                #         text = self.currEtr[lineImIdx].getData()
+                #         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
+                #                                                 self.imIdx,
+                #                                                 lineImIdx,
+                #                                                 text,
+                #                                                 bookPath)
+
                 if widgetlineImIdx in self.lineIdxShownInText:
                     self.lineIdxShownInText.remove(widgetlineImIdx)
                     text = self.currEtr[widgetlineImIdx].getData()
@@ -453,14 +462,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 else:
                     self.lineIdxShownInText.append(str(event.widget.lineImIdx))
 
-                for lineImIdx in self.lineIdxShownInText:
-                    if lineImIdx in list(self.currEtr.keys()):
-                        text = self.currEtr[lineImIdx].getData()
-                        fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
-                                                                self.imIdx,
-                                                                lineImIdx,
-                                                                text,
-                                                                bookPath)
 
                 self.render()
 
