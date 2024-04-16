@@ -442,15 +442,30 @@ def addMainEntryImageWidget(rootLabel,
                                                                    imIdx)
 
     mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
-    img, imLabel = getImageWidget(rootLabel, imagePath, 
-                                  mainWidgetName, imPadLeft,
-                                  row = 4, column = 0, columnspan = 100,
+
+    tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + mainWidgetName,
+                                  padding = [0, 0, 0, 0],
+                                  row = 4, column = 0, columnspan = 100)
+    emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + mainWidgetName,
+                                  padding = [imPadLeft, 0, 0, 0],
+                                  row = 0, column = 0, columnspan = 1)
+    emptyLabel.render()
+    tempLabel.imagePath = imagePath
+    tempLabel.imIdx = imIdx
+    tempLabel.subsection = subsection
+    tempLabel.etrWidget = tempLabel
+
+    if mainImgBindData != None:
+        tempLabel.rebind(*mainImgBindData)
+
+    img, imLabel = getImageWidget(tempLabel, imagePath, 
+                                  mainWidgetName, 0,
+                                  row = 0, column = 1, columnspan = 1,
                                   resizeFactor = resizeFactor)
+    imLabel.render()
 
     displayedImagesContainer.append(img)
 
-    if mainImgBindData != None:
-        imLabel.rebind(*mainImgBindData)
 
     imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
 
@@ -463,7 +478,7 @@ def addMainEntryImageWidget(rootLabel,
         imText = _u.Token.NotDef.str_t
 
     imageBaloon.bind(imLabel, "{0}".format(imText))
-    return imLabel
+    return tempLabel
 
 
 def addExtraEntryImagesWidgets(rootLabel, 
@@ -536,10 +551,23 @@ def addExtraEntryImagesWidgets(rootLabel,
                 eimLabel.focus_force()
 
                 eImWidgetsList.append(eimLabel)
+                tempLabel = eimLabel
             else:
-                eImg, eimLabel = getImageWidget(rootLabel, extraImFilepath, 
-                                            eImWidgetName, imPadLeft,
-                                            row = i + 5, column = 0, columnspan = 1000,
+                tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + eImWidgetName,
+                                padding = [0, 0, 0, 0],
+                                row = i + 5, column = 0, columnspan = 1000)
+                emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + eImWidgetName,
+                                            padding = [imPadLeft, 0, 0, 0],
+                                            row = 0, column = 0, columnspan = 1)
+                emptyLabel.render()
+                tempLabel.imagePath = extraImFilepath
+                tempLabel.subsection = subsection
+                tempLabel.imIdx = imIdx
+                tempLabel.eImIdx = i
+
+                eImg, eimLabel = getImageWidget(tempLabel, extraImFilepath, 
+                                            eImWidgetName, 0,
+                                            row = 0, column = 1, columnspan = 1,
                                             resizeFactor = resizeFactor)
                 eimLabel.subsection = subsection
                 eimLabel.imIdx = imIdx
@@ -547,11 +575,11 @@ def addExtraEntryImagesWidgets(rootLabel,
                 eimLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                 [extraImtextUpdate])
 
-                eImWidgetsList.append(eimLabel)
-                tempEImLabel = TOCLabelWithClick(rootLabel, 
+                eImWidgetsList.append(tempLabel)
+                tempEImLabel = TOCLabelWithClick(tempLabel, 
                                               text = "",
                                               prefix = "tempLabel_" + eImWidgetName,
-                                              row =  i + 5,
+                                              row = 0,
                                               column = 0)
 
                 removeEntry = TOCLabelWithClick(tempEImLabel,
@@ -639,10 +667,11 @@ def addExtraEntryImagesWidgets(rootLabel,
                 bindChangeColorOnInAndOut(moveEntryUp)
                 moveEntryUp.render()
                 tempEImLabel.render()
+                eimLabel.render()
 
                 displayedImagesContainer.append(eImg)
 
-            outLabels.append(eimLabel)
+            outLabels.append(tempLabel)
 
             imageBaloon.bind(eimLabel, "{0}".format(eImText))
 
