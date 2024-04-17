@@ -127,7 +127,8 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         return super().render(**kwargs)
 
 
-class AddExcerciseLine_BTN(ww.currUIImpl.Button):
+class AddExcerciseLine_BTN(ww.currUIImpl.Button,
+                           dc.AppCurrDataAccessToken):
     subsection = None
     imIdx = None
 
@@ -148,10 +149,16 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button):
     def cmd(self):
         text = self.notify(AddExcerciseLine_ETR)
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        fsf.Wr.EntryInfoStructure.addLine(self.subsection, self.imIdx, text, bookPath)
+        structureCreated = fsf.Wr.EntryInfoStructure.addLine(self.subsection, self.imIdx, text, bookPath)
 
         # update the box UI
         self.notify(Excercise_BOX)
+
+        if structureCreated:
+            excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.MathMenuManager)
+            excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
+
 
     def receiveNotification(self, broadcasterType):
         if broadcasterType == AddExcerciseLine_ETR:

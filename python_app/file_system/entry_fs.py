@@ -63,10 +63,12 @@ class EntryInfoStructure:
     @classmethod
     def addLine(cls, subsection, imIdx, text, bookPath, position = -1):
         log.autolog(f"Add line '{text}' at position '{position}' for '{subsection}' '{imIdx}'")
+        structureCreated = False
         entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
 
         if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
             cls.createStructure(bookPath, subsection, imIdx)
+            structureCreated = True
 
         entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
 
@@ -121,6 +123,8 @@ After adding the line for  \n\
 at position '{2}'.".format(subsection, imIdx, position)
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        return structureCreated
 
     @classmethod
     def rebuildLine(cls, subsection, imIdx, lineIdx, text, bookPath):
