@@ -72,7 +72,13 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.insert(tk.INSERT, text)
 
     def getData(self):
-        binString = self.get('1.0', tk.END)
+        try:
+            binString = self.get('1.0', tk.END)
+            if binString[-1] == "\n":
+                return binString[:-1]
+            return binString
+        except:
+            return _u.Token.NotDef.str_t
         bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
 
         # removing the unnecessary newlines from the end
