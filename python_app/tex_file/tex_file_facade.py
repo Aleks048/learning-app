@@ -49,6 +49,11 @@ class Wr:
             \\pagecolor{{orange}}\
             \
             \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
+            \\newcommand{{\\Natural}}{{\\mathbb{{N}}}}\
+            \\newcommand{{\\Sphere}}{{\\mathbb{{S}}}}\
+            \\newcommand{{\\Int}}{{\\mathbb{{Z}}}}\
+            \\newcommand{{\\Complex}}{{\\mathbb{{C}}}}\
+            \\newcommand{{\\Ball}}{{\\mathbb{{B}}}}\
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
             \
             \\begin{{document}}\
