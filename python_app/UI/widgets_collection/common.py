@@ -296,6 +296,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         makeScrollable = makeScrollable)
 
     def scrollToEntry(self, subsection, imIdx):
+        if "." not in subsection:
+            return
+
         # move toc to
         self.subsectionClicked = subsection
         self.showSubsectionsForTopSection[subsection.split(".")[0]] = True

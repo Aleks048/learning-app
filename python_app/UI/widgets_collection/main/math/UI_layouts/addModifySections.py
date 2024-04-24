@@ -343,7 +343,10 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
         
     def __getSectionPath_Formatted(self, secName):
         currSubsection = fsf.Data.Book.currSection
-        entries = fsf.Data.Sec.imLinkDict(currSubsection)
+        if "." in fsf.Data.Book.currSection:
+            entries = fsf.Data.Sec.imLinkDict(currSubsection)
+        else:
+            return "Top section: " + currSubsection
 
         if type(entries) == dict:
             currImIdx = list(entries.keys())[-1]
@@ -422,7 +425,11 @@ class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
 class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_setSectionNoteAppLink_ETR"
-        defaultText = fsf.Data.Sec.notesAppLink(fsf.Data.Book.currSection)
+
+        if "." in fsf.Data.Book.currSection:
+            defaultText = fsf.Data.Sec.notesAppLink(fsf.Data.Book.currSection)
+        else:
+            defaultText = _u.Token.NotDef.str_t
         
         if defaultText == _u.Token.NotDef.str_t or defaultText == "":
             defaultText = "Section notes app link"
@@ -545,7 +552,11 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
 
     def __init__(self, patentWidget, prefix):
         name = "_setSectionName_ETR"
-        defaultText = fsf.Data.Sec.text(fsf.Data.Book.currSection)
+
+        if "." in fsf.Data.Book.currSection:
+            defaultText = fsf.Data.Sec.text(fsf.Data.Book.currSection)
+        else:
+            defaultText = _u.Token.NotDef.str_t
         
         if defaultText == _u.Token.NotDef.str_t or defaultText == "":
             defaultText = "Section Name"

@@ -247,8 +247,12 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
         name = "_source_SecImIDX_OM"
 
         currSecPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        self.sourceSubsectionImageLinks = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
-        self.sourceSubsectionImageLinks.sort(key = int)
+
+        if "." in fsm.Data.Book.currSection:
+            self.sourceSubsectionImageLinks = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
+            self.sourceSubsectionImageLinks.sort(key = int)
+        else:
+            self.sourceSubsectionImageLinks = _u.Token.NotDef.dict_t.copy()
 
         super().__init__(prefix, 
                         name, 
@@ -269,7 +273,12 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
                       _ = "" # this is just a hack to override the parent method
                       ):
         currSec = fsm.Data.Book.currSection
-        imLinkDict = fsm.Data.Sec.imLinkDict(currSec)
+
+        if "." in fsm.Data.Book.currSection:
+            imLinkDict = fsm.Data.Sec.imLinkDict(currSec)
+        else:
+            imLinkDict = _u.Token.NotDef.dict_t.copy()
+
         if type(imLinkDict) == dict:
             self.sourceSubsectionImageLinks = list(imLinkDict.keys())
             self.sourceSubsectionImageLinks.sort(key = int)
@@ -366,8 +375,10 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
         #     topSectionsList.sort(key = int)
         
         currTopSection = fsm.Data.Book.currTopSection
-
         self.subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
+
+        if self.subsectionsList == []:
+            self.subsectionsList = _u.Token.NotDef.list_t.copy()
 
         super().__init__(prefix, 
                         name, 
@@ -377,6 +388,10 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
                         cmd=self.cmd)
 
         subsections = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
+
+        if subsections == []:
+            subsections = _u.Token.NotDef.list_t.copy()
+
         currSubsection = fsm.Data.Book.currSection
 
         if currSubsection == subsections[0]:

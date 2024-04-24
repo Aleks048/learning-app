@@ -711,16 +711,16 @@ Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_
     def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage, shouldAsk = True):
         import UI.widgets_facade as wf
 
-        if not re.match("[[\d]+.]*\d+", secPath):
-            msg = "\
-The section with path :\n'{0}'\n has wrong format.\n\n\
-Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath)
-            wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+#         if not re.match("[[\d]+.]*\d+", secPath):
+#             msg = "\
+# The section with path :\n'{0}'\n has wrong format.\n\n\
+# Only '.' and '[0-9]' tokens are allowed. Can't create section.".format(secPath)
+#             wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-            return
+#             mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+#                                                         wf.Wr.MenuManagers.MathMenuManager)
+#             mainManager.show()
+#             return
 
         if secPath in fsf.Wr.BookInfoStructure.getSubsectionsList():
             msg = "\
@@ -748,24 +748,32 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             response = True
 
         if response:
-            # close current subsection FS window
-            currSection = fsf.Data.Book.currSection
-            lf.Wr.LayoutsManager.closeFSWindow(currSection)
-            
-            fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
+            if "." in secPath:
+                # close current subsection FS window
+                currSection = fsf.Data.Book.currSection
+                # lf.Wr.LayoutsManager.closeFSWindow(currSection)
+                
+                fsf.Wr.FileSystemManager.addSectionForCurrBook(secPath)
 
-            separator = fsf.Data.Book.sections_path_separator
+                separator = fsf.Data.Book.sections_path_separator
 
-            topSectionName = secPath.split(separator)[0]
-            fsf.Data.Book.currTopSection = topSectionName
-            fsf.Data.Book.currSection = secPath
-            sections = fsf.Data.Book.sections
-            sections[topSectionName]["prevSubsectionPath"] = secPath
-            fsf.Data.Book.sections = sections
+                topSectionName = secPath.split(separator)[0]
+                fsf.Data.Book.currTopSection = topSectionName
+                fsf.Data.Book.currSection = secPath
+                sections = fsf.Data.Book.sections
+                sections[topSectionName]["prevSubsectionPath"] = secPath
+                fsf.Data.Book.sections = sections
 
-            fsf.Data.Sec.text(secPath, newSecName)
-            fsf.Data.Sec.start(secPath, newSecStartPage)
-            fsf.Data.Sec.finish(secPath, newSecEndPage)
+                fsf.Data.Sec.text(secPath, newSecName)
+                fsf.Data.Sec.start(secPath, newSecStartPage)
+                fsf.Data.Sec.finish(secPath, newSecEndPage)
+            else:
+                fsf.Wr.FileSystemManager.addTopSectionForCurrBook(secPath)
+                sections  = fsf.Data.Book.sections
+                section = sections[secPath]
+                section["name"] = newSecName
+                fsf.Data.Book.sections = sections
+
 
             # Updating the remote
             msg = "Adding the subsection: '{0}'".format(secPath)

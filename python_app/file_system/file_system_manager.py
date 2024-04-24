@@ -53,6 +53,15 @@ class FileSystemManager:
         # add to BookInfo structure
         bfs.BookInfoStructure.addSection(sectionPath)
 
+    def addTopSectionForCurrBook(sectionPath):
+        bookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+        # add to Sections structure
+        sfs.SectionInfoStructure.addTopSection(bookpath, sectionPath)
+        
+        # add to BookInfo structure
+        bfs.BookInfoStructure.addSection(sectionPath)
+
 
     def removeSection(secPath):
         # remove to Sections structure

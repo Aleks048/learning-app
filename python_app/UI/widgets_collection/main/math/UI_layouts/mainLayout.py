@@ -47,8 +47,13 @@ class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
     
     def getText(self, init = False):
         currSection = fsf.Data.Book.currSection
-        entriesDict = fsf.Data.Sec.imLinkDict(currSection)
-        extraImagesDict = fsf.Data.Sec.extraImagesDict(currSection)
+
+        if "." in fsf.Data.Book.currSection:
+            entriesDict = fsf.Data.Sec.imLinkDict(currSection)
+            extraImagesDict = fsf.Data.Sec.extraImagesDict(currSection)
+        else:
+            entriesDict = _u.Token.NotDef.dict_t.copy()
+            extraImagesDict = _u.Token.NotDef.dict_t.copy()
         
         if init:
             if type(entriesDict) == dict:
@@ -570,7 +575,12 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showCurrScreenshotLocation_text"
-        text_curr = _upan.Paths.Screenshot.getRel_formatted()
+
+        if "." in fsf.Data.Book.currSection:
+            text_curr = _upan.Paths.Screenshot.getRel_formatted()
+        else:
+            text_curr = _u.Token.NotDef.str_t
+
         super().__init__(prefix, 
                         name,
                         parentWidget, 
@@ -589,7 +599,11 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
             self.changeText(text)
     
     def render(self):
-        text_curr = _upan.Paths.Screenshot.getRel_formatted()
+        if "." in fsf.Data.Book.currSection:
+            text_curr = _upan.Paths.Screenshot.getRel_formatted()
+        else:
+            text_curr = _u.Token.NotDef.str_t
+
         self.changeText(text_curr)
         return super().render()
 
@@ -763,7 +777,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                         extraBuildOptions,
                         defaultText = defaultText)
 
-        secImIndex = fsf.Wr.Links.ImIDX.get_curr()
+        if "." in fsf.Data.Book.currSection:
+            secImIndex = fsf.Wr.Links.ImIDX.get_curr()
+        else:
+            secImIndex = _u.Token.NotDef.str_t
 
         if secImIndex == _u.Token.NotDef.str_t:
             self.updateDafaultText(defaultText)
@@ -885,7 +902,11 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
-            currImIdx = int(fsf.Wr.SectionCurrent.getImIDX())
+            if "." in fsf.Data.Book.currSection:
+                currImIdx = int(fsf.Wr.SectionCurrent.getImIDX())
+            else:
+                currImIdx = _u.Token.NotDef.int_t
+
             nextImIdx = str(currImIdx + 1)
             self.setData(nextImIdx)
             self.widgetObj.focus_force()
@@ -921,7 +942,10 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             return self.getData()
     
     def render(self, **kwargs):
-        secImIndex = fsf.Wr.Links.ImIDX.get_curr()
+        if "." in fsf.Data.Book.currSection:
+            secImIndex = fsf.Wr.Links.ImIDX.get_curr()
+        else:
+            secImIndex = _u.Token.NotDef.str_t
 
         if secImIndex == _u.Token.NotDef.str_t:
             newIDX = "0"

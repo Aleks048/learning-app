@@ -163,6 +163,18 @@ class SectionInfoStructure:
         ocf.Wr.FsAppCalls.copyFile(vscodeSettings, os.path.join(vscodeSettingsDirPath, "settings.json"))
 
     @classmethod
+    def __createTopSectionFiles(cls, bookpath, sectionPath):
+        dirPathToSection_curr = _upan.Paths.Section.getAbs(bookpath, sectionPath)
+
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(dirPathToSection_curr):
+            msg = "The top sections structure was not present will create it.\n" + \
+                    "Creating path: '{0}'".format(dirPathToSection_curr)
+            log.autolog(msg)
+            
+            # create folders
+            _waitDummy = ocf.Wr.FsAppCalls.createDir(dirPathToSection_curr)
+
+    @classmethod
     def __moveSubsectionData(cls, bookpath, sourceSubsection, targetSubsection):
         cls.updateProperty(sourceSubsection,
                             cls.PubProp.name,
@@ -255,6 +267,16 @@ class SectionInfoStructure:
         cls.__createSubsectionFiles(bookpath, sectionPath)
 
         cls.updateProperty(sectionPath, cls.PubProp.name, sectionPath)
+
+    @classmethod
+    def addTopSection(cls, bookpath, sectionPath):
+
+        # set the curr section to new section
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.currSection, sectionPath)
+        # update things here for the book open subsection
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.subsectionOpenInTOC_UI, sectionPath)
+
+        cls.__createTopSectionFiles(bookpath, sectionPath)
     
     def __shiftTheItemsInTheDict(dict, startShiftIdx, left = True):
         # shift each item of the dict starting from the idx to the left
