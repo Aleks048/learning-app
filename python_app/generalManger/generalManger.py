@@ -562,7 +562,7 @@ The correct extra image was not created for \n\
 
             if shouldConfirm:
                 msg = "\
-Do you want to add link \n\nFrom: '{2}_{3}', \nwith text:\n '{4}'\n\n\nTo: '{0}_{1}', \nwith text:\n '{5}'?"\
+Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_{3}', \nwith text:\n '{5}'?"\
                     .format(targetSubsection, 
                             targetIDX, 
                             sourceSubsection, 
