@@ -161,6 +161,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     showImagesLabels = {}
 
+    currentEntrySubsection = None
+    currentEntryImIdx = None
+
     updatedWidget = None
 
     class __EntryUIs:
@@ -376,6 +379,37 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.render()
         self.shouldScroll = True
 
+    def showLinksForEntryCmd(self, event, subsection = None, imIdx = None, *args):
+        if event != None:
+            widget = event.widget
+            subsection = widget.subsection
+            imIdx =  widget.imIdx
+        else:
+            subsection = subsection
+            imIdx = imIdx
+
+        liskShpowId = subsection + "_" + imIdx
+
+        linkShouldBePresent = True
+
+        for l in self.showLinksForSubsections:
+            if liskShpowId in l:
+                self.showLinksForSubsections = []
+                linkShouldBePresent = False
+                break
+
+        if linkShouldBePresent:
+            if imIdx in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
+                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
+
+                for ln in glLinks:
+                    if not self.showLinks:
+                        self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
+
+                self.showLinksForSubsections.append(liskShpowId)
+
+        self.__renderWithoutScroll()
+
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
             tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
@@ -565,6 +599,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         try:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
                                 w.render()
+
+                                if not self.showAll:
+                                    self.currentEntrySubsection = subsection
+                                    self.currentEntryImIdx = imIdx
+
                                 shoulShowSecondRow = True
                             else:
                                 w.grid_forget()
@@ -787,32 +826,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                 widget.imIdx)
                     self.__renderWithScrollAfter()
 
-                def showLinksForEntryCmd(event, *args):
-                    widget = event.widget
-                    subsection = widget.subsection
-                    imIdx =  widget.imIdx
-                    liskShpowId = subsection + "_" + imIdx
-
-                    linkShouldBePresent = True
-
-                    for l in self.showLinksForSubsections:
-                        if liskShpowId in l:
-                            self.showLinksForSubsections = []
-                            linkShouldBePresent = False
-                            break
-
-                    if linkShouldBePresent:
-                        if imIdx in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
-                            glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
-
-                            for ln in glLinks:
-                                if not self.showLinks:
-                                    self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
-
-                            self.showLinksForSubsections.append(liskShpowId)
-
-                    self.__renderWithScrollAfter()
-
                 def copyEntryCmd(event, *args):
                     widget = event.widget
                     self.entryCopySubsection = widget.subsection
@@ -873,14 +886,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                   widget.sourceSubssection,
                                                   widget.sourceImIdx,
                                                   widget.targetImIdx)
-                    self.__renderWithScrollAfter()
+                    self.__renderWithoutScroll()
 
                 def delWebLinkCmd(event, *args):
                     widget = event.widget
                     gm.GeneralManger.RemoveWebLink(widget.sourceSubssection,
                                                    widget.sourceImIdx,
                                                    widget.sourceWebLinkName)
-                    self.__renderWithScrollAfter()
+                    self.__renderWithoutScroll()
 
                 def addGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
@@ -908,15 +921,24 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                 sourceSubsection,
                                                 sourceImIdx,
                                                 sourceTopSection)
-                        self.__renderWithScrollAfter()
+
+                        if (not self.showAll)\
+                            and (((self.currentEntrySubsection == sourceSubsection) and ( self.currentEntryImIdx == sourceImIdx))\
+                                or ((self.currentEntrySubsection == targetSubsection) and ( self.currentEntryImIdx == targetImIdx))):
+                            self.showLinksForEntryCmd(None,
+                                                      self.currentEntrySubsection, 
+                                                      self.currentEntryImIdx)
+                        elif not self.showAll():
+                            self.__renderWithoutScroll()
 
                     if self.showAll:
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.MathMenuManager)
                         mainManager.moveTocToCurrEntry()
-                        tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.TOCManager)
-                        tocManager.show()
+                        # tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                        #                                         wf.Wr.MenuManagers.TOCManager)
+                        # tocManager.show()
+                        mainManager.showLinksForEntry(targetSubsection, str(targetImIdx))
 
                 def copyGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
@@ -1405,7 +1427,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         showLinksForEntry.imIdx = k
                         showLinksForEntry.subsection = subsection
                         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                 [showLinksForEntryCmd])
+                                                 [self.showLinksForEntryCmd])
 
                         linkExist = k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys())
 

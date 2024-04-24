@@ -482,6 +482,13 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.render(shouldScroll = True)
                 return
 
+    def showLinksForEntry(self, subsection, imIdx):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.tocBox.showLinksForSubsections = []
+                layout.tocBox.showLinksForEntryCmd(None, subsection, imIdx)
+                return
+
     def getSelectedImIdx(self):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
