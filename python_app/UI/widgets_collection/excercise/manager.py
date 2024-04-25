@@ -4,6 +4,8 @@ import UI.widgets_manager as wm
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import _utils._utils_main as _u
+import _utils.pathsAndNames as _upan
+import outside_calls.outside_calls_facade as ocf
 import UI.widgets_collection.excercise.excercise as exw
 
 
@@ -73,10 +75,19 @@ class LayoutManagers:
             self.excercise_BOX.canvas.configure(height = 730 - 20 - self.excerciseImage.widgetObj.winfo_height())
             self.excercise_BOX.canvas.update()
 
-            lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
-                                                        self.imIdx, 
-                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
-            self.excercise_BOX.latestLineIdxToscrollTo = str(len(lines) - 1)
+            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(currBookpath, 
+                                                                self.subsection, 
+                                                                self.imIdx)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON):
+                lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                            self.imIdx, 
+                                                            fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
+                self.excercise_BOX.latestLineIdxToscrollTo = str(len(lines) - 1)
+            else:
+                self.excercise_BOX.latestLineIdxToscrollTo = str(0)
+
             self.excercise_BOX.render()
 
     @classmethod
@@ -90,6 +101,7 @@ class LayoutManagers:
 
 class ExcerciseManager(wm.MenuManager_Interface):
     imIdx = 0
+    shown = False
     def __init__(self):
 
         winRoot = exw.ExcerciseRoot(50, 50)
@@ -107,5 +119,12 @@ class ExcerciseManager(wm.MenuManager_Interface):
     def show(self):
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
+        self.shown = True
+
         return super().show()
+    
+    def hide(self):
+        self.shown = False
+
+        return super().hide()
         
