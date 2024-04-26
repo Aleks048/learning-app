@@ -1023,17 +1023,21 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
 
         self.addExtraIm(currentSubsection, mainImIdx, extraImageIdx, extraImText)
 
-    def addExtraIm(self, subsection, mainImIdx, extraImageIdx, extraImText, notifyMainTextLabel = True):
-        msg = "\
-Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(mainImIdx, extraImText)
-        response = wm.UI_generalManager.showNotification(msg, True)
+    def addExtraIm(self, subsection, mainImIdx, 
+                   extraImageIdx, extraImText, 
+                   notifyMainTextLabel = True,
+                   showNotification = True):
+        if showNotification:
+            msg = "\
+    Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(mainImIdx, extraImText)
+            response = wm.UI_generalManager.showNotification(msg, True, False)
 
-        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                    mmm.MathMenuManager)
-        mainManager.show()
-        
-        if not response:
-            return
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            mainManager.show()
+            
+            if not response:
+                return
 
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
 
@@ -1057,8 +1061,11 @@ Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(m
                 extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
             else:
                 extraImText = "con0"
-
-            self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False)
+            
+            if broadcasterType == comw.TOC_BOX:
+                self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False, False)
+            else:
+                self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False, True)
     
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
