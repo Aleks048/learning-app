@@ -167,6 +167,8 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
             return
         
         extraImagesForEntry = extraImagesForSubsection[self.imIdx]
+        extraImagesForEntry = \
+            [i if "proof" in i.lower() else None for i in extraImagesForEntry]
 
         '''
         for each extra Image add widgets:
@@ -174,9 +176,10 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
 
         for i in range(len(extraImagesForEntry)):
             # image
-            label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
-                                        self.subsection, self.imIdx, i)
-            label.grid(row = i + 1, column = 0)
+            if extraImagesForEntry[i] != None:
+                label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
+                                            self.subsection, self.imIdx, i)
+                label.grid(row = i + 1, column = 0)
             
 
     def render(self, widjetObj=None, renderData=..., **kwargs):

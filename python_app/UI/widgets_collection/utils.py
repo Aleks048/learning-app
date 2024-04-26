@@ -535,7 +535,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                     tocFrame.extraImAsETR.widget = event.widget.etrWidget
                     tocFrame.render()
 
-            if (subsection == tocFrame.extraImAsETR.subsection)\
+            if (tocFrame != None)\
+                and (subsection == tocFrame.extraImAsETR.subsection)\
                 and (imIdx == tocFrame.extraImAsETR.imIdx) \
                 and (i == tocFrame.extraImAsETR.eImIdx):
                 eimLabel = MultilineText_ETR(rootLabel, 
