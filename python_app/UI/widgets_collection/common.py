@@ -847,6 +847,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
                                                                                 subsection,
                                                                                 str(imIdx))
+                    
+                    msg = "Do you want to retake entry image?"
+                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.show()
+
+                    if not response:
+                        return
+
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
                     ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
 

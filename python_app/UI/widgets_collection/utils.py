@@ -4,11 +4,14 @@ import os
 import tkinter as tk
 from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
+import time
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
+import UI.widgets_facade as wf
 import file_system.file_system_facade as fsf
 import data.constants as dc
+import data.temp as dt
 import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
@@ -673,6 +676,58 @@ def addExtraEntryImagesWidgets(rootLabel,
 
                 bindChangeColorOnInAndOut(moveEntryUp)
                 moveEntryUp.render()
+
+                retake = TOCLabelWithClick(tempEImLabel,
+                                                text = "[r]",
+                                                prefix = "retake_" + eImWidgetName,
+                                                row =  i + 5, 
+                                                column = 3,
+                                                sticky = tk.NW)
+                retake.imIdx = imIdx
+                retake.subsection = subsection
+                retake.eImIdx = i
+                retake.tocFrame = tocFrame
+
+                def retakeCmd(event, *args):
+                    widget = event.widget
+                    subsection = widget.subsection
+                    imIdx = widget.imIdx
+                    eImIdx = widget.eImIdx
+
+                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    imagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                                subsection,
+                                                                                str(imIdx),
+                                                                                str(eImIdx))
+
+                    msg = "Do you want to retake extra image?"
+                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.show()
+
+                    if not response:
+                        return
+
+                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
+                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+
+                    timer = 0
+                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                        time.sleep(0.3)
+                        timer += 1
+
+                        if timer > 50:
+                            break
+
+                    widget.tocFrame.render()
+
+                retake.rebind([ww.currUIImpl.Data.BindID.mouse1],[retakeCmd])
+
+                bindChangeColorOnInAndOut(retake)
+                retake.render()
+
                 tempEImLabel.render()
                 eimLabel.render()
 
