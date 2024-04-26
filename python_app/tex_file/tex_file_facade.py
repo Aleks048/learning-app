@@ -113,10 +113,11 @@ class Wr:
             if bbox != None:
                 bbox = [bbox[0] - 2,
                         bbox[1] - 2,
-                        bbox[2] + 10,
+                        bbox[2] + 20,
                         bbox[3] + 2]
 
-            im = im.crop(bbox)
+            if bbox[2] - bbox[0] < im.size[0]:
+                im = im.crop(bbox)
 
             right = padding
             left = padding
