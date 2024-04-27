@@ -537,8 +537,18 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.origMatNameDict, origMatNameDict)
 
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
-        imageUIResize.pop(imIdx, None)
-        imageUIResize = cls.__shiftTheItemsInTheDict(imageUIResize, imIdx)
+
+        imageUIResize = {k:v for k,v in imageUIResize.items() if int(k.split("_")[0]) > int(imIdx)}
+        newImageUIResize = {}
+        imageUIResizeKeysSorted = list(imageUIResize.keys())
+        imageUIResizeKeysSorted.sort(key = lambda k: int(k.split("_")[0]))
+
+        for k in imageUIResizeKeysSorted:
+            newImageUIResize[k] = imageUIResize[k]
+        
+        imageUIResize = newImageUIResize
+        imageUIResize = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
+                          for k,v in imageUIResize.items() if int(k.split("_")[0]) > int(imIdx)}
 
         if imageUIResize == {}:
             imageUIResize = _u.Token.NotDef.dict_t.copy()
@@ -549,7 +559,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
 
-        if imageUIResize == {}:
+        if extraImagesDict == {}:
             extraImagesDict = _u.Token.NotDef.dict_t.copy()
 
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict)
@@ -763,7 +773,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.PubProp.imLinkDict,
             cls.PubProp.imLinkOMPageDict,
             cls.PubProp.origMatNameDict,
-            cls.PubProp.imageUIResize,
             cls.PubProp.extraImagesDict,
             cls.PubProp.tocWImageDict,
             cls.PubProp.imagesGroupDict,
@@ -774,6 +783,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         for p in properties:
             updateProperty(p)
+
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+        imageUIResize = {k:v for k,v in imageUIResize.items() if int(k.split("_")[0]) >= int(imIdx)}
+        newImageUIResize = {}
+        imageUIResizeKeysSorted = list(imageUIResize.keys())
+        imageUIResizeKeysSorted.sort(key = lambda k: int(k.split("_")[0]), reverse = True)
+
+        for k in imageUIResizeKeysSorted:
+            newImageUIResize[k] = imageUIResize[k]
+        
+        imageUIResize = newImageUIResize
+        imageUIResize = \
+            {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
+              for k,v in imageUIResize.items() if int(k.split("_")[0]) >= int(imIdx)}
+
+        if imageUIResize == {}:
+            imageUIResize = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
 
         msg = "After shifting the subsection: '{0}_{1}'.".format(subsection, imIdx)
         log.autolog(msg)
@@ -910,13 +938,22 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                          cls.PubProp.imLinkOMPageDict,
                          cls.PubProp.extraImagesDict,
                          cls.PubProp.origMatNameDict,
-                         cls.PubProp.imageUIResize,
                          cls.PubProp.tocWImageDict,
                          cls.PubProp.imagesGroupDict,
                          cls.PubProp.imageText,
                          cls.PubProp.extraImText,
                          cls.PubProp.textOnly
                          ]
+
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+        imageUIResize = {k:v for k,v in imageUIResize.items() if int(k.split("_")[0]) == int(imIdx)}
+
+        targetImageUIResize = cls.readProperty(targetSubsection, cls.PubProp.imageUIResize)
+
+        for k,v in imageUIResize.items():
+            targetImageUIResize[targetImIdx + "_" + k.split("_")[1]] = v
+
+        cls.updateProperty(targetSubsection, cls.PubProp.imageUIResize, targetImageUIResize)
 
         for p in propertiesList:
             updateProperty(p)
@@ -930,6 +967,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
         eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
@@ -938,6 +976,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             eImList.pop(eImIdx)
             eImTextsList.pop(eImIdx)
 
+            if imageUIResize.get(mainImIdx + "_" + str(eImIdx)) != None:
+                imageUIResize.pop(mainImIdx + "_" + str(eImIdx))
+
             extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                                     subsection,
                                                                                     mainImIdx,
@@ -945,6 +986,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             ocf.Wr.FsAppCalls.deleteFile(extraImFilepath)
 
             for i in range(eImIdx, len(eImList)):
+                if imageUIResize.get(mainImIdx + "_" + str(i + 1)) != None:
+                    imageUIResize[mainImIdx + "_" + str(i)] =\
+                                                            imageUIResize[mainImIdx + "_" + str(i + 1)]
+                    imageUIResize.pop(mainImIdx + "_" + str(i + 1))
                 sourceExtraImFilepath = \
                     _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                         subsection,
@@ -969,6 +1014,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
 
     @classmethod
     def moveExtraIm(cls, subsection, mainImIdx, eImIdx = None, down = True):
@@ -977,6 +1023,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
+        imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
         if ((int(eImIdx) == len(eImList) - 1) and down) or\
@@ -990,6 +1037,20 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 eImList[destEimIdx], eImList[int(eImIdx)]
             eImTextsList[eImIdx], eImTextsList[destEimIdx] = \
                 eImTextsList[destEimIdx], eImTextsList[int(eImIdx)]
+
+            sourceSizeEImIdx =  mainImIdx + "_" + str(eImIdx)
+            destSizeEImIdx =  mainImIdx + "_" + str(destEimIdx)
+
+            if (imageUIResize.get(sourceSizeEImIdx) != None)\
+                and (imageUIResize.get(destSizeEImIdx) != None):
+                imageUIResize[sourceSizeEImIdx], imageUIResize[destSizeEImIdx] = \
+                    imageUIResize[destSizeEImIdx], imageUIResize[sourceSizeEImIdx]
+            elif imageUIResize.get(sourceSizeEImIdx) != None:
+                imageUIResize[destSizeEImIdx] = imageUIResize[sourceSizeEImIdx]
+                imageUIResize.pop(sourceSizeEImIdx)
+            elif imageUIResize.get(destSizeEImIdx) != None:
+                imageUIResize[sourceSizeEImIdx] = imageUIResize[destSizeEImIdx]
+                imageUIResize.pop(destSizeEImIdx)
 
         if eImList != []:
             extraImagesDict[mainImIdx] = eImList
@@ -1014,6 +1075,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
 
     @classmethod
     def getEntryImText(cls, subsection, imIdx):

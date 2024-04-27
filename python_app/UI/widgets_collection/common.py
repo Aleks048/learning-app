@@ -298,6 +298,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         width = windth,
                         makeScrollable = makeScrollable)
 
+    def renderWithoutScroll(self):
+        self.__renderWithoutScroll()
+
     def scrollToEntry(self, subsection, imIdx):
         if "." not in subsection:
             return
@@ -773,7 +776,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                         imPad, self.displayedImages, balloon,
-                                                                        skippProof, resizeFactor, tocFrame = self)
+                                                                        skippProof, tocFrame = self)
                         for l in exImLabels:
                             l.render()
 

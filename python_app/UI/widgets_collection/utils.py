@@ -5,6 +5,7 @@ import tkinter as tk
 from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
 import time
+import re
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -496,9 +497,11 @@ def addExtraEntryImagesWidgets(rootLabel,
                                displayedImagesContainer,
                                imageBaloon, 
                                skippConditionFn = lambda *args: False,
-                               resizeFactor = 1.0,
                                tocFrame = None):
     outLabels = []
+
+    uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
+
     # extraImages
     if imIdx in list(fsf.Data.Sec.extraImagesDict(subsection).keys()):
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
@@ -509,6 +512,11 @@ def addExtraEntryImagesWidgets(rootLabel,
         for i in range(0, len(extraImages)):
             if skippConditionFn(subsection, imIdx, i):
                 continue
+
+            if imIdx + "_" + str(i) in list(uiResizeEntryIdx.keys()):
+                resizeFactor = float(uiResizeEntryIdx[imIdx + "_" + str(i)])
+            else:
+                resizeFactor = 1.0
 
             eImText = extraImages[i]
 
@@ -727,6 +735,44 @@ def addExtraEntryImagesWidgets(rootLabel,
 
                 bindChangeColorOnInAndOut(retake)
                 retake.render()
+
+                def resizeEntryImgCMD(event, tocFrame, *args):
+                    resizeFactor = event.widget.get()
+
+                    # check if the format is right
+                    if not re.match("^[0-9]\.[0-9]$", resizeFactor):
+                        _u.log.autolog(\
+                            f"The format of the resize factor '{resizeFactor}'is not correct")
+                        return
+                    
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+                    
+                    uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
+
+                    if (uiResizeEntryIdx == None) \
+                        or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
+                        uiResizeEntryIdx = {}
+
+                    uiResizeEntryIdx[imIdx] = resizeFactor
+
+                    fsf.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
+
+                    tocFrame.renderWithoutScroll()
+
+                changeImSize = ImageSize_ETR(tempEImLabel,
+                                            prefix =  "imSize_" + eImWidgetName,
+                                            row = i + 5, 
+                                            column = 4,
+                                            imIdx = imIdx + "_" + str(i),
+                                            text = resizeFactor)
+                changeImSize.imIdx = imIdx + "_" + str(i)
+                changeImSize.widgetObj.imIdx = imIdx + "_" + str(i)
+                changeImSize.subsection = subsection
+                changeImSize.widgetObj.subsection = subsection
+                changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                        [lambda e, *args: resizeEntryImgCMD(e, tocFrame)])
+                changeImSize.render()
 
                 tempEImLabel.render()
                 eimLabel.render()
