@@ -593,7 +593,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                               column = 0)
 
                 removeEntry = TOCLabelWithClick(tempEImLabel,
-                                                text = "[delete]",
+                                                text = "[d]",
                                                 prefix = "delete_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 0,
@@ -618,7 +618,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 removeEntry.render()
 
                 moveEntryDown = TOCLabelWithClick(tempEImLabel,
-                                                text = "[d]",
+                                                text = "[\u2193",
                                                 prefix = "up_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 1,
@@ -648,7 +648,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 moveEntryDown.render()
 
                 moveEntryUp = TOCLabelWithClick(tempEImLabel,
-                                                text = "[u]",
+                                                text = "\u2191]",
                                                 prefix = "down_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 2,
