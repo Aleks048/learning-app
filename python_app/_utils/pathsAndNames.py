@@ -95,6 +95,15 @@ class Paths:
                 entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
 
                 return os.path.join(entryPath, filename)
+
+        class NoteImage:
+            @bookNameArg_dec
+            def getAbs(bookPath, section, imIdx, *args):
+                lineIdx = args[0]
+                filename = Names.Entry.Note.name(imIdx, lineIdx)
+                entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
+
+                return os.path.join(entryPath, filename)
         
         class JSON:
             @bookNameArg_dec
@@ -253,6 +262,11 @@ class Names:
         class Line:
             def name(imIdx, lineIdx):
                 return f"_{lineIdx}.png"
+
+        class Note:
+            def name(imIdx, lineIdx):
+                return f"_n_{lineIdx}.png"
+
         class Solution:
             def name(imIdx, lineIdx):
                 return f"_solution_{lineIdx}.png"

@@ -182,7 +182,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         excercises = __EntryUIData("[e]", 7)
 
         # row 2
-        showLinks = __EntryUIData("[ShowLinks]", 1)
+        showLinks = __EntryUIData("[links]", 1)
         alwaysShow = __EntryUIData("", 2)
         changeImSize = __EntryUIData("", 3)
         delete = __EntryUIData("[Delete]", 4)
@@ -191,8 +191,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         update = __EntryUIData("[Update]", 7)
         link = __EntryUIData("[Link]", 8)
         addExtra = __EntryUIData("[Add extra]", 9)
-        proof = __EntryUIData("[p]", 10)
-        group = __EntryUIData("", 11)
+        proof = __EntryUIData("[pr]", 10)
+        note = __EntryUIData("[n]", 11)
+        group = __EntryUIData("", 12)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -766,19 +767,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if not isWdgetLink:
                         self.openedMainImg = imLabel
 
-                    if not textOnly:
-                        # extraImages
-                        def skippProof(subsection, imIdx, exImIdx):
-                            extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
-                            eImText = extraImages[exImIdx]
-                            return "proof" in eImText.lower()\
-                                    and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
+                    def skippProof(subsection, imIdx, exImIdx):
+                        extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
+                        eImText = extraImages[exImIdx]
+                        return "proof" in eImText.lower()\
+                                and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
 
-                        exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
-                                                                        imPad, self.displayedImages, balloon,
-                                                                        skippProof, tocFrame = self)
-                        for l in exImLabels:
-                            l.render()
+                    exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
+                                                                    imPad, self.displayedImages, balloon,
+                                                                    skippProof, tocFrame = self)
+                    for l in exImLabels:
+                        l.render()
 
                     # NOTE: for links
                     if int(event.type) == 4 or \
@@ -1007,14 +1006,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         exMenuManger.hide()
 
+                def openNoteMenu(event, *args):
+                    notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.NotesManager)
+                    notesMenuManger.subsection = event.widget.subsection
+                    notesMenuManger.imIdx = event.widget.imIdx
+
+                    event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
+                    if (event.widget.shouldShowNotesMenu):
+                        notesMenuManger.show()
+                    else:
+                        notesMenuManger.hide()
+
                 def openProofsMenu(event, *args):
                     prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.ProofsManager)
                     prMenuManger.subsection = event.widget.subsection
                     prMenuManger.imIdx = event.widget.imIdx
 
-                    event.widget.shouldShowExMenu = not event.widget.shouldShowExMenu
-                    if (event.widget.shouldShowExMenu):
+                    event.widget.shouldShowProofMenu = not event.widget.shouldShowProofMenu
+                    if (event.widget.shouldShowProofMenu):
                         prMenuManger.show()
                     else:
                         prMenuManger.hide()
@@ -1521,13 +1532,45 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openExcerciseMenu])
 
+                        openNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.note.name, 
+                                                      prefix = "contentOpenNoteUIEntry" + nameId,
+                                                      row = 0, 
+                                                      column = self.__EntryUIs.note.column,
+                                                      columnspan = 1)
+                        openNoteUIEntry.imIdx = k
+                        openNoteUIEntry.subsection = subsection
+                        openNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openNoteMenu])
+
                         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
                                                                             subsection,
                                                                             k)
-                        excerciseExists = ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)
+                        entryStructureExists = ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)
+                        excerciseExists = False
+                        notesExist = False
 
-                        if excerciseExists:
-                            openExUIEntry.configure(foreground="brown")
+                        if entryStructureExists:
+                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+                            entryLinesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+                                                                   k,
+                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryLinesList,
+                                                                   currBookPath)
+
+                            if (entryLinesList != _u.Token.NotDef.list_t) \
+                                and (entryLinesList != []):
+                                excerciseExists = True
+                                openExUIEntry.configure(foreground="brown")
+
+                            entryNotesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+                                                                   k,
+                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryNotesList,
+                                                                   currBookPath)
+
+                            if entryNotesList != _u.Token.NotDef.dict_t:
+                                notesExist = True
+                                openNoteUIEntry.configure(foreground="brown")
 
                         proofExists = False
                         exImDict = fsm.Data.Sec.extraImagesDict(subsection)
@@ -1833,16 +1876,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                             showImages.render()
 
-                            if not self.showAll:
-
-                                if not textOnly:
-                                    chkbtnShowPermamently.grid(row = 0, 
-                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
-
-                                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
-                                                 sticky=tk.NW)
-                                removeEntry.render()
-
                             addLinkEntry.render()
                             addExtraImage.render()
                             copyLinkEntry.render()
@@ -1863,11 +1896,22 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                             openExUIEntry.render()
                             openProofsUIEntry.render()
+                            openNoteUIEntry.render()
                             showLinksForEntry.render()
                             shiftEntry.render()
                             copyEntry.render()
                             pasteAfterEntry.render()
                             changeImText.render()
+
+                            if not self.showAll:
+
+                                if not textOnly:
+                                    chkbtnShowPermamently.grid(row = 0, 
+                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+
+                                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
+                                                 sticky=tk.NW)
+                                removeEntry.render()
 
                             if not textOnly:
                                 changeImSize.render()
@@ -1891,6 +1935,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openSecondaryImage(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
+                        _uuicom.bindChangeColorOnInAndOut(openNoteUIEntry, shouldBeBrown = notesExist)
                         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
 

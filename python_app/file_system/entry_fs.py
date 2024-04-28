@@ -31,6 +31,7 @@ class EntryInfoStructure:
         name = "_name"
 
         entryLinesList = "_entryLinesArr"
+        entryNotesList = "_entryNotesArr"
 
     class PrivProp:
         pass
@@ -39,7 +40,8 @@ class EntryInfoStructure:
     def _getTemplate(cls):   
         sectionInfo_template = {
             cls.PubProp.name: _u.Token.NotDef.str_t,
-            cls.PubProp.entryLinesList: _u.Token.NotDef.list_t.copy()
+            cls.PubProp.entryLinesList: _u.Token.NotDef.list_t.copy(),
+            cls.PubProp.entryNotesList: _u.Token.NotDef.dict_t.copy()
         }
         return sectionInfo_template
 
@@ -59,6 +61,49 @@ class EntryInfoStructure:
 
         # set the name
         cls.updateProperty(subsection, imIdx, cls.PubProp.name, str(imIdx), bookName)
+
+    @classmethod
+    def addNote(cls, subsection, imIdx, text, 
+                bookPath, position):
+        log.autolog(f"Add note '{text}' at position '{position}' for '{subsection}' '{imIdx}'")
+        structureCreated = False
+        entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+
+        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
+            cls.createStructure(bookPath, subsection, imIdx)
+            structureCreated = True
+
+        entryNotesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryNotesList, bookPath)
+
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+        filename = _upan.Names.Entry.Note.name(imIdx, position)
+
+        savePath = os.path.join(savePath, filename)
+
+        if (entryNotesList == _u.Token.NotDef.dict_t) :
+            cls.updateProperty(subsection, imIdx, cls.PubProp.entryNotesList, {position: text}, bookPath)
+        else:
+            entryNotesList[position] = text
+            cls.updateProperty(subsection, imIdx, cls.PubProp.entryNotesList, entryNotesList, bookPath)
+
+        text = tff.Wr.TexFileUtils.formatEntrytext(text)
+        tff.Wr.TexFileUtils.fromTexToImage(text,
+                                           savePath,
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
+
+        msg = "\
+After adding the note for  \n\
+'{0}':'{1}'\n\
+at position '{2}'.".format(subsection, imIdx, position)
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+        return structureCreated
 
     @classmethod
     def addLine(cls, subsection, imIdx, text, bookPath, position = -1):
@@ -127,6 +172,28 @@ at position '{2}'.".format(subsection, imIdx, position)
         return structureCreated
 
     @classmethod
+    def rebuildNote(cls, subsection, imIdx, noteIdx, text, bookPath):
+        log.autolog(f"Rebuild note '{noteIdx}' for '{subsection}' '{imIdx}'")
+
+        entryNotesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryNotesList, bookPath)
+        entryNotesList[str(noteIdx)] = text
+
+        text = tff.Wr.TexFileUtils.formatEntrytext(text)
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+        filename = _upan.Names.Entry.Note.name(imIdx, noteIdx)
+        savePath = os.path.join(savePath, filename)
+        tff.Wr.TexFileUtils.fromTexToImage(text,
+                                           savePath,
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
+
+        cls.updateProperty(subsection, imIdx, cls.PubProp.entryNotesList, entryNotesList, bookPath)
+
+    @classmethod
     def rebuildLine(cls, subsection, imIdx, lineIdx, text, bookPath):
         log.autolog(f"Rebuild line '{lineIdx}' for '{subsection}' '{imIdx}'")
 
@@ -147,6 +214,28 @@ at position '{2}'.".format(subsection, imIdx, position)
                                            imSize = 500)
 
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
+
+    @classmethod
+    def deleteNote(cls, bookPath, subsection, imIdx, noteIdx):
+        log.autolog(f"Remove note '{noteIdx}' for '{subsection}' '{imIdx}'")
+
+        entryNotesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryNotesList, bookPath)
+        entryNotesList.pop(noteIdx)
+
+        if entryNotesList == {}:
+            entryNotesList = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, imIdx, cls.PubProp.entryNotesList, entryNotesList, bookPath)
+
+        for k in entryNotesList.keys():
+            cls.rebuildNote(subsection, imIdx, k, entryNotesList[k], bookPath)
+
+        imageToRemovePath = \
+            _upan.Paths.Entry.NoteImage.getAbs(bookPath,
+                                               subsection,
+                                               imIdx, 
+                                               noteIdx)
+        ocf.Wr.FsAppCalls.deleteFile(imageToRemovePath)
 
     @classmethod
     def deleteLine(cls, bookPath, subsection, imIdx, lineIdx):
@@ -173,11 +262,15 @@ at position '{2}'.".format(subsection, imIdx, position)
     def readProperty(cls, sectionPath, imIdx, propertyName, bookPath = None):
         if bookPath == None:
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        
+
         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(bookPath, sectionPath, imIdx)
 
-        prop =  _u.JSON.readProperty(fullPathToEntryJSON, 
-                                    propertyName)
+        try:
+            prop =  _u.JSON.readProperty(fullPathToEntryJSON, 
+                                        propertyName)
+        except:
+            prop = cls._getTemplate()[propertyName]
+
         return prop
 
     @classmethod

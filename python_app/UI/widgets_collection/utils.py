@@ -348,6 +348,8 @@ class TOCLabelWithClick(ttk.Label):
     image = None
     alwaysShow = None
     shouldShowExMenu = False
+    shouldShowProofMenu = False
+    shouldShowNotesMenu = False
     lineImIdx = _u.Token.NotDef.str_t
     etrWidget = _u.Token.NotDef.str_t
 
@@ -444,7 +446,10 @@ def addMainEntryImageWidget(rootLabel,
                             displayedImagesContainer,
                             imageBaloon,
                             mainImgBindData = None,
-                            resizeFactor = 1.0):
+                            resizeFactor = 1.0,
+                            row = 4,
+                            columnspan = 100,
+                            column = 0):
     # mainImage
     currBookName = sf.Wr.Manager.Book.getCurrBookName()
     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
@@ -455,7 +460,7 @@ def addMainEntryImageWidget(rootLabel,
 
     tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + mainWidgetName,
                                   padding = [0, 0, 0, 0],
-                                  row = 4, column = 0, columnspan = 100)
+                                  row = row, column = column, columnspan = columnspan)
     emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + mainWidgetName,
                                   padding = [imPadLeft, 0, 0, 0],
                                   row = 0, column = 0, columnspan = 1)
@@ -467,27 +472,41 @@ def addMainEntryImageWidget(rootLabel,
 
     if mainImgBindData != None:
         tempLabel.rebind(*mainImgBindData)
+    
+    textOnly = fsf.Data.Sec.textOnly(subsection)[imIdx]
 
-    img, imLabel = getImageWidget(tempLabel, imagePath, 
-                                  mainWidgetName, 0,
-                                  row = 0, column = 1, columnspan = 1,
-                                  resizeFactor = resizeFactor)
-    imLabel.render()
+    if not textOnly:
+        img, imLabel = getImageWidget(tempLabel, imagePath, 
+                                    mainWidgetName, imPad = 0,
+                                    row = 0, column = 1, columnspan = 1,
+                                    resizeFactor = resizeFactor)
+        imLabel.render()
 
-    displayedImagesContainer.append(img)
+        displayedImagesContainer.append(img)
 
+        imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
 
-    imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
-
-    if type(imLinkDict) == dict:
-        if str(imIdx) in list(imLinkDict.keys()):
-            imText = imLinkDict[str(imIdx)]
+        if type(imLinkDict) == dict:
+            if str(imIdx) in list(imLinkDict.keys()):
+                imText = imLinkDict[str(imIdx)]
+            else:
+                imText = _u.Token.NotDef.str_t
         else:
             imText = _u.Token.NotDef.str_t
+        imageBaloon.bind(imLabel, "{0}".format(imText))
     else:
-        imText = _u.Token.NotDef.str_t
+        text = fsf.Data.Sec.imageText(subsection)[imIdx]
+        imLabel = TOCTextWithClick(tempLabel, 
+                                    mainWidgetName,
+                                    row = 0, column = 1, columnspan = 1,
+                                    text = text,
+                                    padx = 10,
+                                    pady = 10
+                                    )
+        imLabel.subsection = subsection
+        imLabel.imIdx = imIdx
+        imLabel.render()
 
-    imageBaloon.bind(imLabel, "{0}".format(imText))
     return tempLabel
 
 
@@ -497,7 +516,11 @@ def addExtraEntryImagesWidgets(rootLabel,
                                displayedImagesContainer,
                                imageBaloon, 
                                skippConditionFn = lambda *args: False,
-                               tocFrame = None):
+                               tocFrame = None,
+                               row = None,
+                               column = 0,
+                               columnspan = 1000,
+                               createExtraWidgets = True):
     outLabels = []
 
     uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
@@ -546,16 +569,31 @@ def addExtraEntryImagesWidgets(rootLabel,
                     tocFrame.extraImAsETR.widget = event.widget.etrWidget
                     tocFrame.render()
 
+            mainRow = i + 5 if row == None else row
+
             if (tocFrame != None)\
                 and (subsection == tocFrame.extraImAsETR.subsection)\
                 and (imIdx == tocFrame.extraImAsETR.imIdx) \
                 and (i == tocFrame.extraImAsETR.eImIdx):
-                eimLabel = MultilineText_ETR(rootLabel, 
-                                            eImWidgetName, 
-                                            row = i + 5,
-                                            column = 0, 
-                                            imLineIdx = None, 
-                                            text = eImText)
+
+
+
+                if type(rootLabel) == list:
+                    eimLabel = MultilineText_ETR(rootLabel[i], 
+                                                eImWidgetName, 
+                                                row = mainRow,
+                                                column = column,
+                                                columnspan = columnspan,
+                                                imLineIdx = None, 
+                                                text = eImText)
+                else:
+                    eimLabel = MultilineText_ETR(rootLabel, 
+                                                eImWidgetName, 
+                                                row = mainRow,
+                                                column = column,
+                                                columnspan = columnspan,
+                                                imLineIdx = None, 
+                                                text = eImText)
                 eimLabel.config(width=90)
                 eimLabel.config(padx=10)
                 eimLabel.config(pady=10)
@@ -571,9 +609,15 @@ def addExtraEntryImagesWidgets(rootLabel,
                 eImWidgetsList.append(eimLabel)
                 tempLabel = eimLabel
             else:
-                tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + eImWidgetName,
-                                padding = [0, 0, 0, 0],
-                                row = i + 5, column = 0, columnspan = 1000)
+                if type(rootLabel) == list:
+                    tempLabel = TOCLabelWithClick(rootLabel[i], prefix = "temp_" + eImWidgetName,
+                                    padding = [0, 0, 0, 0],
+                                    row = mainRow, column = column, columnspan = columnspan)
+                else:
+                    tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + eImWidgetName,
+                                    padding = [0, 0, 0, 0],
+                                    row = mainRow, column = column, columnspan = columnspan)
+
                 emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + eImWidgetName,
                                             padding = [imPadLeft, 0, 0, 0],
                                             row = 0, column = 0, columnspan = 1)
@@ -774,7 +818,9 @@ def addExtraEntryImagesWidgets(rootLabel,
                                         [lambda e, *args: resizeEntryImgCMD(e, tocFrame)])
                 changeImSize.render()
 
-                tempEImLabel.render()
+                if createExtraWidgets:
+                    tempEImLabel.render()
+
                 eimLabel.render()
 
                 displayedImagesContainer.append(eImg)

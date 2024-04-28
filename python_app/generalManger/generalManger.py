@@ -44,6 +44,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
         exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
+        log.autolog("Started '{0}' UI manager".format("toc menu"))
+        notesMenuManager = wf.Wr.MenuManagers.NotesManager()
         log.autolog("Started '{0}' UI manager".format("excercise menu"))
         proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
@@ -104,6 +106,16 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         exManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.ExcerciseManager)
         exManager.winRoot.exitApp()
+
+        # notes
+        proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.ProofsManager)
+        proofsManager.winRoot.exitApp()
+
+        # notes
+        notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.NotesManager)
+        notesManager.winRoot.exitApp()
 
         lf.Wr.MainLayout.close()
 

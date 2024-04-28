@@ -3,6 +3,7 @@ import UI.widgets_collection.main.math.manager as mm
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.excercise.manager as exm
+import UI.widgets_collection.notes.manager as nom
 import UI.widgets_collection.proofs.manager as prm
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
@@ -25,6 +26,9 @@ class Wr:
             pass
 
         class ExcerciseManager(exm.ExcerciseManager):
+            pass
+
+        class NotesManager(nom.NotesManager):
             pass
 
         class ProofsManager(prm.ProofsManager):

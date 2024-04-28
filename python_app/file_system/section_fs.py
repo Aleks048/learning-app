@@ -1001,6 +1001,36 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                                                                         mainImIdx,
                                                                         i)
                 ocf.Wr.FsAppCalls.moveFile(sourceExtraImFilepath, targetextraImFilepath)
+            
+            entryFsPath = _upan.Paths.Entry.getAbs(currBookPath, subsection, mainImIdx)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryFsPath):
+                entryNotesList:dict = efs.EntryInfoStructure.readProperty(subsection,
+                                                                    mainImIdx,
+                                                                    efs.EntryInfoStructure.PubProp.entryNotesList,
+                                                                    currBookPath)
+                eImIdxStr = str(eImIdx + 1)
+
+                if entryNotesList.get(eImIdxStr) != None:
+                    entryNotesList.pop(eImIdxStr)
+
+                sourceFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, eImIdxStr)
+                ocf.Wr.FsAppCalls.deleteFile(sourceFile)
+
+                sortedKeys = list(entryNotesList.keys())
+                sortedKeys.sort(key = lambda k: int(k))
+                for k in sortedKeys:
+                    if int(k) > int(eImIdxStr):
+                        val = entryNotesList.pop(k)
+                        entryNotesList[str(int(k) - 1)] = val
+                        destFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, str(int(k) - 1))
+                        sourceFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, k)
+                        ocf.Wr.FsAppCalls.moveFile(sourceFile, destFile)
+
+                efs.EntryInfoStructure.updateProperty(subsection, mainImIdx,
+                                                        efs.EntryInfoStructure.PubProp.entryNotesList,
+                                                        entryNotesList,
+                                                        currBookPath)
 
         # NOTE: this is left here for 
         # elif eImName != None:
@@ -1024,6 +1054,41 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
+
+        entryFsPath = _upan.Paths.Entry.getAbs(currBookPath, subsection, mainImIdx)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryFsPath):
+            entryNotesList:dict = efs.EntryInfoStructure.readProperty(subsection,
+                                                                mainImIdx,
+                                                                efs.EntryInfoStructure.PubProp.entryNotesList,
+                                                                currBookPath)
+            destEimIdxStr = str(destEimIdx + 1)
+            eImIdxStr = str(eImIdx + 1)
+
+            if (entryNotesList.get(eImIdxStr) != None)\
+                and (entryNotesList.get(destEimIdxStr) != None):
+                entryNotesList[eImIdxStr], entryNotesList[destEimIdxStr] = \
+                    entryNotesList[destEimIdxStr], entryNotesList[eImIdxStr]
+            elif entryNotesList.get(eImIdxStr) != None:
+                entryNotesList[destEimIdxStr] = entryNotesList[eImIdxStr]
+                entryNotesList.pop(eImIdxStr)
+            elif entryNotesList.get(destEimIdxStr) != None:
+                entryNotesList[eImIdxStr] = entryNotesList[destEimIdxStr]
+                entryNotesList.pop(destEimIdxStr)
+
+            destFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, destEimIdxStr)
+            sourceFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, eImIdxStr)
+            tempFile = _upan.Paths.Entry.NoteImage.getAbs(currBookPath, subsection, mainImIdx, "100")
+
+            ocf.Wr.FsAppCalls.moveFile(sourceFile, tempFile)
+            ocf.Wr.FsAppCalls.moveFile(destFile, sourceFile)
+            ocf.Wr.FsAppCalls.moveFile(tempFile, destFile)
+            ocf.Wr.FsAppCalls.deleteFile(tempFile)
+
+            efs.EntryInfoStructure.updateProperty(subsection, mainImIdx,
+                                                    efs.EntryInfoStructure.PubProp.entryNotesList,
+                                                    entryNotesList,
+                                                    currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
         if ((int(eImIdx) == len(eImList) - 1) and down) or\
