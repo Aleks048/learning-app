@@ -487,6 +487,9 @@ class TkWidgets (DataTranslatable_Interface):
                  HasListenersWidget_Interface_Impl,
                  BindableWidget_Interface_Impl,
                  EventGeneratable_Interface_Impl):
+
+        widgetObj = None
+
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -512,6 +515,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             widjetObj = tk.Label(self.rootWidget.widjetObj, text = self.text)
+            self.widgetObj = widjetObj
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)

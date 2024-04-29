@@ -32,6 +32,7 @@ class EntryInfoStructure:
 
         entryLinesList = "_entryLinesArr"
         entryNotesList = "_entryNotesArr"
+        entryWordDictDict = "_entryWordDictArr"
 
     class PrivProp:
         pass
@@ -41,7 +42,8 @@ class EntryInfoStructure:
         sectionInfo_template = {
             cls.PubProp.name: _u.Token.NotDef.str_t,
             cls.PubProp.entryLinesList: _u.Token.NotDef.list_t.copy(),
-            cls.PubProp.entryNotesList: _u.Token.NotDef.dict_t.copy()
+            cls.PubProp.entryNotesList: _u.Token.NotDef.dict_t.copy(),
+            cls.PubProp.entryWordDictDict: _u.Token.NotDef.dict_t.copy()
         }
         return sectionInfo_template
 
@@ -280,6 +282,12 @@ at position '{2}'.".format(subsection, imIdx, position)
         
         fullPathToEntry = _upan.Paths.Entry.JSON.getAbs(bookPath, subsection, imIdx)
 
-        _u.JSON.updateProperty(fullPathToEntry, 
-                               propertyName,
-                               newValue)
+        entryFSFile:dict = _u.JSON.readFile(fullPathToEntry)
+
+        if propertyName not in list(entryFSFile.keys()):
+            entryFSFile[propertyName] = newValue
+            _u.JSON.writeFile(fullPathToEntry, entryFSFile)
+        else:
+            _u.JSON.updateProperty(fullPathToEntry, 
+                                propertyName,
+                                newValue)

@@ -180,7 +180,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
             self.insert("0", boldSelText)
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
-                  lambda *args: __addTheorem(*args))
+                  lambda *args: __addProof(*args))
 
     def render(self):
         self.grid(row = self.row, column = self.column)
@@ -279,7 +279,7 @@ class TOCTextWithClick(tk.Text):
                 self.bind_all(key, lambda event: cmd(event))
             else:
                 self.bind(key, cmd)
-    
+
     def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, text = "", *args, **kwargs) -> None:
         self.row = row
         self.column = column
@@ -364,6 +364,9 @@ class TOCLabelWithClick(ttk.Label):
     sourceSubssection = None
     sourceImIdx= None
     sourceWebLinkName = None
+
+    dictWord = None
+    dictText = None
 
     def rebind(self, keys, cmds):
         for i in range(len(keys)):

@@ -21,10 +21,22 @@ class LayoutManagers:
             self.notes_BOX = now.Notes_BOX(winRoot, self.prefix)
             winRoot.NotesBox = self.notes_BOX
             self.addWidget(self.notes_BOX)
+            self.dict_BOX = now.Dict_BOX(winRoot, self.prefix)
+            self.addWidget(self.dict_BOX)
             self.hideNotesWindow_BTN = now.HideNotesWindow_BTN(winRoot, self.prefix)
             self.addWidget(self.hideNotesWindow_BTN)
-            addNotesNote_ETR = now.AddNotesNote_ETR(winRoot, self.prefix)
-            self.addWidget(addNotesNote_ETR)
+            self.addDictHitToEntry_BTN = now.AddDictHitToEntry_BTN(winRoot, self.prefix)
+            self.addWidget(self.addDictHitToEntry_BTN)
+            searchDict_ETR = now.SearchDict_ETR(winRoot, self.prefix)
+            self.addWidget(searchDict_ETR)
+            self.dictText_LBL = now.DictText_LBL(winRoot, self.prefix)
+            self.addWidget(self.dictText_LBL)
+
+            searchDict_ETR.addListenerWidget(self.dict_BOX)
+            self.addDictHitToEntry_BTN.addListenerWidget(searchDict_ETR)
+            self.addDictHitToEntry_BTN.addListenerWidget(self.dictText_LBL)
+            self.dictText_LBL.addListenerWidget(self.dict_BOX)
+
             self.moveTOCtoNotesEntry_BTN = now.MoveTOCtoNotesEntry_BTN(winRoot, self.prefix)
             self.addWidget(self.moveTOCtoNotesEntry_BTN)
 
@@ -33,11 +45,20 @@ class LayoutManagers:
             self.hideNotesWindow_BTN.subsection = self.subsection
             self.hideNotesWindow_BTN.imIdx = self.imIdx
 
+            self.addDictHitToEntry_BTN.subsection = self.subsection
+            self.addDictHitToEntry_BTN.imIdx = self.imIdx
+
+            self.dictText_LBL.subsection = self.subsection
+            self.dictText_LBL.imIdx = self.imIdx
+
             self.moveTOCtoNotesEntry_BTN.subsection = self.subsection
             self.moveTOCtoNotesEntry_BTN.imIdx = self.imIdx
 
             self.notes_BOX.subsection = self.subsection
             self.notes_BOX.imIdx = self.imIdx
+
+            self.dict_BOX.subsection = self.subsection
+            self.dict_BOX.imIdx = self.imIdx
 
             super().show()
 
