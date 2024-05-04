@@ -5,6 +5,7 @@ import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.excercise.manager as exm
 import UI.widgets_collection.notes.manager as nom
 import UI.widgets_collection.proofs.manager as prm
+import UI.widgets_collection.image.manager as imm
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
@@ -32,6 +33,9 @@ class Wr:
             pass
 
         class ProofsManager(prm.ProofsManager):
+            pass
+
+        class ImagesManager(imm.ImagesManager):
             pass
     
     class UI_generalManager(wm.UI_generalManager):

@@ -61,6 +61,9 @@ class SectionInfoStructure:
         level = "_level"
         levelData = "_levelData"
 
+        # image figures data
+        figuresData = "_figuresData"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -95,7 +98,8 @@ class SectionInfoStructure:
                 cls.PubProp.imageUIResize : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.imageText : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.extraImText : _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.textOnly : _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.textOnly : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.figuresData : _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
@@ -1314,8 +1318,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         if sectionPathForTemplate == _u.Token.NotDef.str_t:
             return _u.Token.NotDef.str_t
         else:
-            out = _u.JSON.readProperty(fullPathToSection, 
-                                        propertyName)
+            try:
+                out = _u.JSON.readProperty(fullPathToSection, 
+                                            propertyName)
+            except:
+                defaultData = cls.getDefaultTemplateValue(propertyName)
+                out = defaultData[0]
+                parentpropertyName = None if defaultData[1] == "" else defaultData[1]
+                _u.JSON.createProperty(fullPathToSection, propertyName, parentpropertyName, out)
                     
             if type(out) == dict:
                 if out != _u.Token.NotDef.dict_t:

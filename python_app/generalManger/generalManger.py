@@ -49,6 +49,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("excercise menu"))
         proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
+        imagagesMenuManager = wf.Wr.MenuManagers.ImagesManager()
+        log.autolog("Started '{0}' UI manager".format("proofs menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 
@@ -107,10 +109,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                 wf.Wr.MenuManagers.ExcerciseManager)
         exManager.winRoot.exitApp()
 
-        # notes
+        # proof
         proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.ProofsManager)
         proofsManager.winRoot.exitApp()
+
+        # images
+        imagesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.ImagesManager)
+        imagesManager.winRoot.exitApp()
 
         # notes
         notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",

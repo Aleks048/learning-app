@@ -335,6 +335,342 @@ class TOCTextWithClick(tk.Text):
     def getChildren(self):
         return self.winfo_children()
 
+class TOCCanvasWithclick(tk.Canvas):
+    imagePath  = _u.Token.NotDef.str_t
+    etrWidget = _u.Token.NotDef.no_t
+
+    image = None
+    imIdx = None
+    subsection = None
+    eImIdx = _u.Token.NotDef.int_t
+
+    width = None
+    height = None
+
+    imageResize = None
+    startCoord = []
+
+    rectangles = []
+    drawing = False
+    lastRecrangle = None
+    
+    selectedRectangle = None
+
+    class Rectangle:
+        canvas:tk.Canvas = None
+        id = None
+        tag = None
+        startX = 0
+        startY = 0
+        endX = 0
+        endY = 0
+        alpha = 0.5
+        color = "yellow"
+
+        cornerWidgetsColor = "black"
+        cornerWidgetsOutline = "blue"
+        cornerWidgetsIds = [None, None, None, None]
+
+        imageContainer = None
+
+        def __init__(self, startX, startY, endX, endY, canvas, color = None) -> None:
+            self.startX = startX
+            self.startY = startY
+            self.endX = endX
+            self.endY = endY
+
+            if color != None:
+                self.color = color
+
+            self.canvas = canvas
+            
+            self.draw()
+            
+            self.tag = f"rectangle_{self.id}"
+
+        @classmethod
+        def rectangleFromDict(cls, attrDict:dict, canvas):
+            rect = cls(attrDict["startX"],
+                       attrDict["startY"],
+                       attrDict["endX"],
+                       attrDict["endY"],
+                       canvas,
+                       attrDict["color"]
+                       )
+
+            for k,v in attrDict.items():
+                setattr(rect, k, v)
+
+            return rect
+
+        def toDict(self):
+            propList = [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
+            propToFilterOut = ["id", "canvas", "imageContainer", "cornerWidgetsColor", "cornerWidgetsIds", "cornerWidgetsOutline"]
+            propList = [i for i in propList if i not in propToFilterOut]
+            propDict = {"type": "rectangle"}
+
+            for k in propList:
+                propDict[k] = getattr(self, k)
+
+            return propDict
+
+        def showCornerWidgets(self):
+            self.deleteCornerWidgets()
+            radius = 10
+
+            self.cornerWidgetsIds[0] = self.canvas.create_oval(self.startX - radius, 
+                                                            self.startY - radius,
+                                                            self.startX + radius, 
+                                                            self.startY + radius, 
+                                                            fill = self.cornerWidgetsColor, 
+                                                            outline = self.cornerWidgetsOutline)
+            self.cornerWidgetsIds[1] = self.canvas.create_oval(self.endX - radius, 
+                                                            self.startY - radius,
+                                                            self.endX + radius, 
+                                                            self.startY + radius, 
+                                                            fill = self.cornerWidgetsColor, 
+                                                            outline = self.cornerWidgetsOutline)
+            self.cornerWidgetsIds[2] = self.canvas.create_oval(self.startX - radius, 
+                                                            self.endY - radius,
+                                                            self.startX + radius, 
+                                                            self.endY + radius, 
+                                                            fill = self.cornerWidgetsColor, 
+                                                            outline = self.cornerWidgetsOutline)
+            self.cornerWidgetsIds[3] = self.canvas.create_oval(self.endX - radius, 
+                                                            self.endY - radius,
+                                                            self.endX + radius, 
+                                                            self.endY + radius, 
+                                                            fill = self.cornerWidgetsColor, 
+                                                            outline = self.cornerWidgetsOutline)
+
+        def deleteCornerWidgets(self):      
+            for w in self.cornerWidgetsIds:
+                if w != None:
+                    self.canvas.delete(w)
+            
+            self.cornerWidgetsIds = [None, None, None, None]
+
+        def moveCorner(self, x, y, cornerIdx):
+            if cornerIdx == 0:
+                self.startX = x
+                self.startY = y
+            elif cornerIdx == 1:
+                self.endX = x
+                self.startY = y
+            elif cornerIdx == 2:
+                self.startX = x
+                self.endY = y
+            elif cornerIdx == 3:
+                self.endX = x
+                self.endY = y
+
+            self.redraw()
+            self.showCornerWidgets()
+
+        def moveCenter(self, x, y):
+            width = abs(self.startX - self.endX)
+            height = abs(self.startY - self.endY)
+
+            leftHalfWidth = int(width / 2)
+            rightHalfWidth = width - leftHalfWidth
+            topHalfHight = int(height / 2)
+            bottomHalfHight = height - topHalfHight
+
+            self.startX = x - leftHalfWidth
+            self.endX = x + rightHalfWidth
+            self.startY = y - topHalfHight
+            self.endY = y + bottomHalfHight
+
+            self.redraw()
+            self.showCornerWidgets()
+
+        def redraw(self):
+            self.deleteRectangle()
+            self.draw()
+            self.deleteCornerWidgets()
+        
+        def draw(self):
+            alpha = int(self.alpha * 255)
+
+            if self.color == "white":
+                fill = (255,255,255)
+            else:
+                fill = (232,255,25) + (alpha,)
+
+            x1, y1, x2, y2 = self.startX, self.startY, self.endX, self.endY
+            image = Image.new('RGBA', (x2-x1, y2-y1), fill)
+            self.imageContainer = ImageTk.PhotoImage(image)
+            self.id =  self.canvas.create_image(x1, y1, image = self.imageContainer, anchor='nw', 
+                                                                            tag = self.tag)
+
+        def deleteRectangle(self):
+            if self.id != None:
+                self.canvas.delete(self.id)
+            
+            self.deleteCornerWidgets()
+
+    def release(self, event):
+        if self.lastRecrangle != None:
+            self.rectangles.append(self.lastRecrangle)
+
+        self.lastRecrangle = None
+
+        self.startCoord = []
+
+        self.drawing = False
+
+    def clickOnRectangle(self, event):
+        x1 = event.x
+        y1 = event.y
+
+        for r in self.rectangles:
+            overlapId = self.find_overlapping(x1, y1, x1, y1)[-1]
+
+            for i in range(len(r.cornerWidgetsIds)):
+                if r.cornerWidgetsIds[i] == overlapId:
+                    self.draw(event)
+                    return
+
+            if (overlapId == r.id):
+                if (r.cornerWidgetsIds == [None, None, None, None]):
+                    self.selectedRectangle = r
+                    r.showCornerWidgets()
+            else:
+                r.deleteCornerWidgets()
+
+
+    def draw(self, event):
+        x1 = event.x
+        y1 = event.y
+
+        if self.startCoord == []:
+            self.startCoord = [x1, y1]
+
+        for r in self.rectangles:
+            overlapId = self.find_overlapping(x1, y1, x1, y1)[-1]
+
+            for i in range(len(r.cornerWidgetsIds)):
+                if r.cornerWidgetsIds[i] == overlapId:
+                    r.moveCorner(x1, y1, i)
+                    return
+
+            if overlapId == r.id:
+                r.moveCenter(x1, y1)
+                return
+
+        startx = min(self.startCoord[0], x1)
+        starty = min(self.startCoord[1], y1)
+        endx = max(self.startCoord[0], x1)
+        endy = max(self.startCoord[1], y1)
+
+        if int(event.state) == 257:
+            self.lastRecrangle = TOCCanvasWithclick.Rectangle(startx, starty, endx, endy, 
+                                                            self, "white")
+        else:
+            self.lastRecrangle = TOCCanvasWithclick.Rectangle(startx, starty, endx, endy, 
+                                                            self)
+
+    def readFigures(self, *args):
+        figuresData = fsf.Data.Sec.figuresData(self.subsection)
+
+        if figuresData.get(self.imIdx) != None:
+            if self.eImIdx == _u.Token.NotDef.int_t:
+                figuresList = figuresData[self.imIdx]
+            else:
+                if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
+                    figuresList = figuresData[f"{self.imIdx}_{self.eImIdx}"]
+                else:
+                    return
+
+            for f in figuresList:
+                if f.get("type") != None:
+                    f.pop("type")
+
+                self.rectangles.append(TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self))
+
+    def saveFigures(self, *args):
+        figuresList = []
+
+        for i in range(len(self.rectangles)):
+            figuresList.append(self.rectangles[i].toDict())
+        
+        figuresData = fsf.Data.Sec.figuresData(self.subsection)
+
+        if self.eImIdx == _u.Token.NotDef.int_t:
+            figuresData[self.imIdx] = figuresList
+        else:
+            figuresData[f"{self.imIdx}_{self.eImIdx}"] = figuresList
+
+        fsf.Data.Sec.figuresData(self.subsection, figuresData)
+
+        
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.moveTocToCurrEntry()
+
+    def deleteSelectedRectangle(self, *args):
+        if self.selectedRectangle != None:
+            for i in range(len(self.rectangles)):
+                if self.rectangles[i].id == self.selectedRectangle.id:
+                    r = self.rectangles.pop(i)
+                    r.deleteRectangle()
+                    self.selectedRectangle = None
+                    break
+
+    def __init__(self, root, prefix, row, column, imIdx, subsection, 
+                 columnspan = 1, sticky = tk.NW, 
+                 image = None, extraImIdx = _u.Token.NotDef.int_t,
+                 makeDrawable = True,
+                 *args, **kwargs) -> None:
+        self.rectangles = [] # Not sure but it is populated somewhere???
+
+        self.row = row
+        self.column = column
+        self.columnspan = columnspan
+        self.sticky = sticky
+        self.image = image
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.eImIdx = extraImIdx
+
+        self.width = self.image.width()
+        self.height = self.image.height()
+
+        super().__init__(root, name = prefix, 
+                         width = self.width, height = self.height)
+        self.create_image(0, 0,
+                          image = self.image, anchor='nw', tag = prefix)
+
+        self.readFigures()
+
+        if makeDrawable:
+            self.bind("<Shift-B1-Motion>", self.draw)
+            self.bind("<B1-Motion>", self.draw)
+            self.bind_all("<Delete>", self.deleteSelectedRectangle)
+            self.bind_all("<Mod1-s>", self.saveFigures)
+            self.bind("<Button-1>", self.clickOnRectangle)
+            self.bind("<ButtonRelease-1>", self.release)
+ 
+    def render(self):
+        self.grid(row = self.row, column = self.column,
+                  columnspan = self.columnspan, sticky = self.sticky)
+
+    def generateEvent(self, event, *args, **kwargs):
+        self.event_generate(event, *args, **kwargs)
+
+    def getChildren(self):
+        return self.winfo_children()
+
+    def rebind(self, keys, cmds):
+        for i in range(len(keys)):
+            key = keys[i]
+            cmd = cmds[i]
+
+            if key == ww.TkWidgets.Data.BindID.allKeys:
+                self.bind_all(key, lambda event: cmd(event))
+            else:
+                self.bind(key, cmd)
+
 class TOCLabelWithClick(ttk.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
@@ -385,7 +721,7 @@ class TOCLabelWithClick(ttk.Label):
         self.sticky = sticky
 
         super().__init__(root, name = prefix, *args, **kwargs)
-    
+
     def render(self):
         self.grid(row = self.row, column = self.column,
                   columnspan = self.columnspan, sticky = self.sticky)
@@ -420,17 +756,27 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
 
-def getImageWidget(root, imagePath, widgetName, 
+def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    imPad = 0, imageSize = [450, 1000], 
                    row = 0, column = 0, columnspan = 1,
-                   resizeFactor = 1.0):
+                   resizeFactor = 1.0,
+                   bindOpenWindow = True,
+                   extraImIdx = _u.Token.NotDef.int_t):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
         img = ImageTk.PhotoImage(pilIm)
 
-        imLabel = TOCLabelWithClick(root, prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
-                                    row = row, column = column, columnspan = columnspan)
+        if bindOpenWindow:
+            imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
+                                        prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
+                                        row = row, column = column, columnspan = columnspan,
+                                        extraImIdx = extraImIdx, makeDrawable = False)
+        else:
+            imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
+                                        prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
+                                        row = row, column = column, columnspan = columnspan,
+                                        extraImIdx = extraImIdx)
     else:
         img = None
         imLabel = TOCLabelWithClick(root, prefix = widgetName, text = "-1", padding = [imPad, 0, 0, 0],
@@ -438,8 +784,35 @@ def getImageWidget(root, imagePath, widgetName,
 
     imLabel.imagePath = imagePath
     imLabel.etrWidget = imLabel
-    imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                [lambda event, *args: os.system("open " + "\"" + event.widget.imagePath + "\"")])
+    imLabel.eImIdx = extraImIdx
+
+    def __openImageManager(event, *args):
+        imMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.ImagesManager)
+        imMenuManger.subsection = event.widget.subsection
+        imMenuManger.imIdx = event.widget.imIdx
+
+        width = max(event.widget.width, 600)
+        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        eImIdx = event.widget.eImIdx
+        notePosidx = str(int(eImIdx) + 1) if eImIdx != _u.Token.NotDef.str_t else 0
+        notesIm = _upan.Paths.Entry.NoteImage.getAbs(currBookpath,
+                                           event.widget.subsection,
+                                           event.widget.imIdx,
+                                           notePosidx)
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesIm):
+            im = Image.open(notesIm)
+            _, imHeight = im.size
+        else:
+            imHeight = 30
+
+        height = event.widget.height + imHeight + 100
+
+        imMenuManger.show([width, height, 0, 0], event.widget.eImIdx)
+
+    if bindOpenWindow:
+        imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openImageManager])
+
     return img, imLabel
 
 
@@ -452,7 +825,8 @@ def addMainEntryImageWidget(rootLabel,
                             resizeFactor = 1.0,
                             row = 4,
                             columnspan = 100,
-                            column = 0):
+                            column = 0,
+                            bindOpenWindow = True):
     # mainImage
     currBookName = sf.Wr.Manager.Book.getCurrBookName()
     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
@@ -479,10 +853,10 @@ def addMainEntryImageWidget(rootLabel,
     textOnly = fsf.Data.Sec.textOnly(subsection)[imIdx]
 
     if not textOnly:
-        img, imLabel = getImageWidget(tempLabel, imagePath, 
-                                    mainWidgetName, imPad = 0,
+        img, imLabel = getImageWidget(tempLabel, imagePath, mainWidgetName, 
+                                    imIdx, subsection, imPad = 0,
                                     row = 0, column = 1, columnspan = 1,
-                                    resizeFactor = resizeFactor)
+                                    resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow)
         imLabel.render()
 
         displayedImagesContainer.append(img)
@@ -523,7 +897,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                row = None,
                                column = 0,
                                columnspan = 1000,
-                               createExtraWidgets = True):
+                               createExtraWidgets = True,
+                               bindOpenWindow = True):
     outLabels = []
 
     uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
@@ -630,13 +1005,16 @@ def addExtraEntryImagesWidgets(rootLabel,
                 tempLabel.imIdx = imIdx
                 tempLabel.eImIdx = i
 
-                eImg, eimLabel = getImageWidget(tempLabel, extraImFilepath, 
-                                            eImWidgetName, 0,
+                eImg, eimLabel = getImageWidget(tempLabel, extraImFilepath, eImWidgetName, 
+                                            imIdx, subsection, imPad = 0,
                                             row = 0, column = 1, columnspan = 1,
-                                            resizeFactor = resizeFactor)
+                                            resizeFactor = resizeFactor,
+                                            extraImIdx = i,
+                                            bindOpenWindow = bindOpenWindow)
                 eimLabel.subsection = subsection
                 eimLabel.imIdx = imIdx
                 eimLabel.eImIdx = i
+
                 eimLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                 [extraImtextUpdate])
 

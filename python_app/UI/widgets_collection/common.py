@@ -192,7 +192,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         link = __EntryUIData("[Link]", 8)
         addExtra = __EntryUIData("[Add extra]", 9)
         proof = __EntryUIData("[pr]", 10)
-        note = __EntryUIData("[n]", 11)
+        note = __EntryUIData("[d]", 11)
         group = __EntryUIData("", 12)
 
     # this data structure is used to store the
@@ -1563,12 +1563,13 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                 excerciseExists = True
                                 openExUIEntry.configure(foreground="brown")
 
-                            entryNotesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+                            entryWordDictArr = fsm.Wr.EntryInfoStructure.readProperty(subsection,
                                                                    k,
-                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryNotesList,
+                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryWordDictDict,
                                                                    currBookPath)
 
-                            if entryNotesList != _u.Token.NotDef.dict_t:
+                            if (entryWordDictArr != _u.Token.NotDef.dict_t)\
+                                and (entryWordDictArr != {}):
                                 notesExist = True
                                 openNoteUIEntry.configure(foreground="brown")
 

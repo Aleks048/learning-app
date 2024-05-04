@@ -920,7 +920,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
     latestWidgetToscrollTo = None
     latestNoteIdxToscrollTo = None
 
-    def __init__(self, parentWidget, prefix, windth = 730, height = 220):
+    def __init__(self, parentWidget, prefix, windth = 730, height = 700):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6, "columnspan" : 6, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}

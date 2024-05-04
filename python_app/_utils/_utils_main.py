@@ -289,11 +289,16 @@ class JSON:
         JSON.writeFile(jsonFilepath, jsonData)
 
     @lockutils.synchronized('not_thread_safe')
-    def createProperty(jsonFilepath, propertyName, parentName):
-        # TODO: a feature to create json property when its not there
-        # NOTE: this might lead to inconsistency in data but we will be able to add 
-        #       new properties to existing sections without much problems
-        pass
+    def createProperty(jsonFilepath, propertyName, parentName, defaultValue):
+        jsonData = JSON.readFile(jsonFilepath)
+
+        if parentName != None:
+            jsonData[parentName][propertyName] = defaultValue
+        else:
+            jsonData[propertyName] = defaultValue
+
+        JSON.writeFile(jsonFilepath, jsonData)
+        
 '''
 DICT
 '''

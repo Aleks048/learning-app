@@ -18,9 +18,6 @@ class LayoutManagers:
         def __init__(self, winRoot):
             appDimensions = [750, 800, 300, 0]
             super().__init__(winRoot, appDimensions)
-            self.notes_BOX = now.Notes_BOX(winRoot, self.prefix)
-            winRoot.NotesBox = self.notes_BOX
-            self.addWidget(self.notes_BOX)
             self.dict_BOX = now.Dict_BOX(winRoot, self.prefix)
             self.addWidget(self.dict_BOX)
             self.hideNotesWindow_BTN = now.HideNotesWindow_BTN(winRoot, self.prefix)
@@ -54,33 +51,13 @@ class LayoutManagers:
             self.moveTOCtoNotesEntry_BTN.subsection = self.subsection
             self.moveTOCtoNotesEntry_BTN.imIdx = self.imIdx
 
-            self.notes_BOX.subsection = self.subsection
-            self.notes_BOX.imIdx = self.imIdx
 
             self.dict_BOX.subsection = self.subsection
             self.dict_BOX.imIdx = self.imIdx
 
             super().show()
 
-            # resize the solution box in respect to the size of the notes image
-            # self.notesImage.widgetObj.update()
-            # self.notes_BOX.canvas.configure(height = 730 - 20 - self.notesImage.widgetObj.winfo_height())
-            # self.notes_BOX.canvas.update()
-
-            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-            fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(currBookpath, 
-                                                                self.subsection, 
-                                                                self.imIdx)
-
-            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON):
-                notes = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
-                                                            self.imIdx, 
-                                                            fsf.Wr.EntryInfoStructure.PubProp.entryNotesList)
-                self.notes_BOX.latestNoteIdxToscrollTo = str(len(notes.keys()) - 1)
-            else:
-                self.notes_BOX.latestNoteIdxToscrollTo = str(0)
-
-            self.notes_BOX.render()
+            self.dict_BOX.scrollable_frame.focus_force()
 
     @classmethod
     def listOfLayouts(cls):
