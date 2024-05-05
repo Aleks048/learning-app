@@ -559,6 +559,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
 
+        figuresData = cls.readProperty(subsection, cls.PubProp.figuresData)
+
+        figuresData = {k:v for k,v in figuresData.items() if int(k.split("_")[0]) > int(imIdx)}
+        newFiguresData = {}
+        figuresDataKeysSorted = list(figuresData.keys())
+        figuresDataKeysSorted.sort(key = lambda k: int(k.split("_")[0]))
+
+        for k in figuresDataKeysSorted:
+            newFiguresData[k] = figuresData[k]
+        
+        figuresData = newFiguresData
+        figuresData = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
+                          for k,v in figuresData.items() if int(k.split("_")[0]) > int(imIdx)}
+
+        if figuresData == {}:
+            figuresData = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData)
+
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
@@ -807,6 +826,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
 
+        figuresData = cls.readProperty(subsection, cls.PubProp.figuresData)
+        figuresData = {k:v for k,v in figuresData.items() if int(k.split("_")[0]) >= int(imIdx)}
+        newFiguresData = {}
+        figuresDataKeysSorted = list(figuresData.keys())
+        figuresDataKeysSorted.sort(key = lambda k: int(k.split("_")[0]), reverse = True)
+
+        for k in figuresDataKeysSorted:
+            newFiguresData[k] = figuresData[k]
+        
+        figuresData = newFiguresData
+        figuresData = \
+            {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
+              for k,v in figuresData.items() if int(k.split("_")[0]) >= int(imIdx)}
+
+        if figuresData == {}:
+            figuresData = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData)
+
         msg = "After shifting the subsection: '{0}_{1}'.".format(subsection, imIdx)
         log.autolog(msg)
 
@@ -958,6 +996,16 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             targetImageUIResize[targetImIdx + "_" + k.split("_")[1]] = v
 
         cls.updateProperty(targetSubsection, cls.PubProp.imageUIResize, targetImageUIResize)
+
+        figuresData = cls.readProperty(subsection, cls.PubProp.figuresData)
+        figuresData = {k:v for k,v in figuresData.items() if int(k.split("_")[0]) == int(imIdx)}
+
+        targetFiguresData = cls.readProperty(targetSubsection, cls.PubProp.figuresData)
+
+        for k,v in figuresData.items():
+            targetFiguresData[targetImIdx + "_" + k.split("_")[1]] = v
+
+        cls.updateProperty(targetSubsection, cls.PubProp.figuresData, targetFiguresData)
 
         for p in propertiesList:
             updateProperty(p)

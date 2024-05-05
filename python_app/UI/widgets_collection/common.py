@@ -2398,4 +2398,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 pass
         
         if self.entryAsETR.widget != None:
-            self.entryAsETR.widget.focus_force()
+            try:
+                self.entryAsETR.widget.focus_force()
+            except:
+                pass
