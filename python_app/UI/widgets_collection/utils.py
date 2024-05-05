@@ -644,13 +644,20 @@ class TOCCanvasWithclick(tk.Canvas):
         self.readFigures()
 
         if makeDrawable:
-            self.bind("<Shift-B1-Motion>", self.draw)
-            self.bind("<B1-Motion>", self.draw)
-            self.bind_all("<Delete>", self.deleteSelectedRectangle)
-            self.bind_all("<Mod1-s>", self.saveFigures)
-            self.bind("<Button-1>", self.clickOnRectangle)
-            self.bind("<ButtonRelease-1>", self.release)
- 
+            self.bind("<Enter>", self.bindCmd)
+            self.bind("<Leave>", self.unbindCmd)
+
+    def bindCmd(self, *args):
+        self.bind("<Shift-B1-Motion>", self.draw)
+        self.bind("<B1-Motion>", self.draw)
+        self.bind_all("<Delete>", self.deleteSelectedRectangle)
+        self.bind_all("<Mod1-s>", self.saveFigures)
+        self.bind("<Button-1>", self.clickOnRectangle)
+        self.bind("<ButtonRelease-1>", self.release)
+
+    def unbindCmd(self, *args):
+        self.unbind_all()
+
     def render(self):
         self.grid(row = self.row, column = self.column,
                   columnspan = self.columnspan, sticky = self.sticky)
