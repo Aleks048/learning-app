@@ -9,3 +9,4 @@
 *.myPDF
 *.jpg
 *.png
+/python_app/test.py

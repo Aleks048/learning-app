@@ -3,6 +3,7 @@ from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
 from threading import Thread
+import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -44,7 +45,13 @@ class NotesImageLabel(ttk.Label):
             imagePath = _upan.Paths.Entry.NoteImage.getAbs(bookName, subsection, imIdx, -1)
 
             if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                fsf.Wr.EntryInfoStructure.rebuildNote(subsection, imIdx, -1, "-1", bookName)
+                notesPath = _upan.Paths.Entry.getAbs(bookName, subsection, imIdx)
+                filename = _upan.Names.Entry.Note.name(imIdx, noteIdx)
+                notesPath = os.path.join(notesPath, filename)
+                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesPath):
+                    fsf.Wr.EntryInfoStructure.rebuildNote(subsection, imIdx, -1, "-1", bookName)
+                else:
+                    text = "\"No notes yet\""
 
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
