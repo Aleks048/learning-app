@@ -644,8 +644,11 @@ class TOCCanvasWithclick(tk.Canvas):
         self.readFigures()
 
         if makeDrawable:
-            self.bind("<Enter>", self.bindCmd)
-            self.bind("<Leave>", self.unbindCmd)
+            if not self.isPdfPage:
+                self.bindCmd()
+            else:
+                self.bind("<Enter>", self.bindCmd)
+                self.bind("<Leave>", self.unbindCmd)
 
     def bindCmd(self, *args):
         self.bind("<Shift-B1-Motion>", self.draw)
