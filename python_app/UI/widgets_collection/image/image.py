@@ -30,11 +30,11 @@ def _rebuildNote(*args, **kwargs):
 
 
 class NotesImageLabel(ttk.Label):
-    noteImIdx = None
-    image = None
-
     def __init__(self, root, name, subsection, imIdx, 
                  noteIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+        self.noteImIdx = None
+        self.image = None
+
         self.noteImIdx = str(noteIdx)
 
         bookName = sf.Wr.Manager.Book.getCurrBookName()
@@ -64,16 +64,14 @@ class NotesImageLabel(ttk.Label):
 
 class NotesLabel(ww.currUIImpl.Label,
                  dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-    noteShownIntext = False
-    currEtr = None
-
-    imLabel = None
-
-    eImIdx = _u.Token.NotDef.int_t
-
     def __init__(self, parentWidget, prefix):
+        self.subsection = None
+        self.imIdx = None
+        self.noteShownIntext = False
+        self.currEtr = None
+        self.imLabel = None
+        self.eImIdx = _u.Token.NotDef.int_t
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -227,13 +225,13 @@ class NotesLabel(ww.currUIImpl.Label,
         deleteLabel.render()
 
 class ImageMainImage(ww.currUIImpl.Frame):
-    displayedImages = []
-    subsection = None
-    entryIdx = None
-    extraWidgetIdx = _u.Token.NotDef.int_t
-    imLabel = None
-
     def __init__(self, parentWidget, prefix):
+        self.displayedImages = []
+        self.subsection = None
+        self.entryIdx = None
+        self.extraWidgetIdx = _u.Token.NotDef.int_t
+        self.imLabel = None
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -264,7 +262,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
                                                         self.subsection, self.entryIdx,
                                                         0, self.displayedImages, balloon,
                                                         createExtraWidgets = False,
-                                                          bindOpenWindow = False)[self.extraWidgetIdx]
+                                                        bindOpenWindow = False)[self.extraWidgetIdx]
 
         self.imLabel.render()
         self.imLabel.focus_force()
@@ -273,10 +271,10 @@ class ImageMainImage(ww.currUIImpl.Frame):
 
 class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
                                   dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-
     def __init__(self, patentWidget, prefix):
+        self.subsection = None
+        self.imIdx = None
+
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
@@ -297,10 +295,10 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
 
 class HideImagesWindow_BTN(ww.currUIImpl.Button,
                               dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-
     def __init__(self, patentWidget, prefix):
+        self.subsection = None
+        self.imIdx = None
+
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}

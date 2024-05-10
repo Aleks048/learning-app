@@ -8,12 +8,12 @@ import _utils._utils_main as _u
 
 class LayoutManagers:
     class ImagesLayout(wm.MenuLayout_Interface):
-        prefix = "_ImagesLayout_"
-        subsection = _u.Token.NotDef.str_t
-        imIdx = _u.Token.NotDef.str_t
-        extraImIdx = _u.Token.NotDef.int_t
-
         def __init__(self, winRoot):
+            self.prefix = "_ImagesLayout_"
+            self.subsection = _u.Token.NotDef.str_t
+            self.imIdx = _u.Token.NotDef.str_t
+            self.extraImIdx = _u.Token.NotDef.int_t
+
             appDimensions = [720, 800, 0, 0]
             super().__init__(winRoot, appDimensions)
             self.imageMainImage = imw.ImageMainImage(winRoot, self.prefix)
