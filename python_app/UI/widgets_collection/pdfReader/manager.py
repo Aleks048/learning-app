@@ -119,4 +119,4 @@ class PdfReadersManager(wm.MenuManager_Interface):
         return super().hide()
 
     def moveToEntry(self, subsection, imIdx, eImIdx):
-         self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)
+        self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)

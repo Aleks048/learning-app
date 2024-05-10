@@ -242,7 +242,14 @@ class ImageMainImage(ww.currUIImpl.Frame):
                         name,
                         parentWidget, 
                         renderData = data)
-    
+
+    def hide(self, **kwargs):
+        if self.imLabel != None:
+            for l in self.imLabel.winfo_children():
+                if type(l) == _ucomw.TOCCanvasWithclick:
+                    l.saveFigures()
+        return super().hide(**kwargs)    
+
     def render(self, **kwargs):     
         # get an image from the
         widget = self.widgetObj
