@@ -114,7 +114,7 @@ class MessageMenuManager(wm.MenuManager_Interface):
         self.winRoot.stopWait(response)
     
     def showOnly(self, text, cmd = lambda *args: None):
-        self.hideAllWidgets()
+        # self.hideAllWidgets()
 
         return self.show(text, cmd)
     

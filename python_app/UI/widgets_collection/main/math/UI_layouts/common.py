@@ -1,8 +1,11 @@
+from threading import Thread
+
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
 import UI.widgets_collection.common as comw
+import UI.widgets_facade as wf
 import layouts.layouts_facade as lm
 import _utils._utils_main as _u
 import data.constants as dc
@@ -19,7 +22,14 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
         origMatName = fsm.Data.Book.currOrigMatName
         fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
-        lf.Wr.MainLayout.set()
+        def __showPdf(*args):
+            pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+            if not pdfMenuManager.shown:
+                pdfMenuManager.show(changePrevPos = False)
+                pdfMenuManager.show(changePrevPos = False)
+        t = Thread(target= __showPdf)
+        t.start()
 
         return super().render(widjetObj, renderData, **kwargs)
     pass
@@ -99,7 +109,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
 
             self.updateLabel(self.labelOptions[1])
 
-            lm.Wr.MainLayout.set(withPdfChange = False)
+            # lm.Wr.MainLayout.set(withPdfChange = False)
             mathMenuManager.moveTocToCurrEntry()
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
@@ -134,13 +144,13 @@ class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
 
             self.updateLabel(self.labelOptions[0])
 
-            lm.Wr.MainLayout.set()
+            # lm.Wr.MainLayout.set()
         else:
             mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
             self.updateLabel(self.labelOptions[1])
 
-            lm.Wr.MainLayout.set()
+            # lm.Wr.MainLayout.set()
 
 class ShowTocWindow_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):

@@ -442,6 +442,8 @@ class LayoutManagers:
 
 class MathMenuManager(wm.MenuManager_Interface):
     layouts = []
+    isShown = False
+
     def __init__(self):
         winRoot = commw.MainMenuRoot(0, 0)
         layouts = self.layouts
@@ -458,7 +460,18 @@ class MathMenuManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+    def show(self):
+        self.isShown = True
+        return super().show()
     
+    def hide(self):
+        self.isShown = False
+        return super().hide()
+
+    def getShownStatus(self):
+        return self.isShown    
+
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
 
@@ -480,6 +493,12 @@ class MathMenuManager(wm.MenuManager_Interface):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
                 layout.tocBox.render(shouldScroll = True)
+                return
+
+    def scrollTocToEntry(self, subsection, imIdx):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.tocBox.scrollToEntry(subsection, imIdx)
                 return
 
     def renderWithoutScroll(self):

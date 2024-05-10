@@ -108,8 +108,10 @@ class TkWidgets (DataTranslatable_Interface):
             focusOut = "<FocusOut>"
             allKeys = "<Key>"
             mouse1 = "<Button-1>"
+            cmdMouse1 = "<Mod1-Button-1>"
             shmouse1 = "<Shift-Button-1>"
             mouse2 = "<Button-2>"
+            mouse3 = "<Button-3>"
 
             enterWidget = "<Enter>"
             leaveWidget = "<Leave>"
@@ -423,7 +425,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.defaultText = newText
 
         def defaultTextCMD(self):
-            current = self.getData()
+            current = str(self.getData())
             # [KIK-63] since " " in text data cause errors so we store "_" instead
             current = current.replace("_", " ")
             if current == self.defaultText:
@@ -580,6 +582,9 @@ class TkWidgets (DataTranslatable_Interface):
                 BindableWidget_Interface_Impl):
         canvas = None
         container = None
+        scrollbar_top = None
+        scrollbar_right = None
+
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -604,6 +609,8 @@ class TkWidgets (DataTranslatable_Interface):
 
             scrollbar = ttk.Scrollbar(container, orient="vertical", command = canvas.yview)
             scrollbar2 = ttk.Scrollbar(container, orient="horizontal", command = canvas.xview)
+            self.scrollbar_top = scrollbar
+            self.scrollbar_right = scrollbar2
             scrollable_frame = ttk.Frame(canvas)
             scrollable_frame2 = ttk.Frame(canvas)
             self.scrollable_frame = scrollable_frame
@@ -611,13 +618,13 @@ class TkWidgets (DataTranslatable_Interface):
             scrollable_frame.bind(
                 "<Configure>",
                 lambda e: canvas.configure(
-                    scrollregion=canvas.bbox("all")
+                    scrollregion = canvas.bbox("all")
                 )
             )
             scrollable_frame2.bind(
                 "<Configure>",
                 lambda e: canvas.configure(
-                    scrollregion=canvas.bbox("all")
+                    scrollregion = canvas.bbox("all")
                 )
             )
 
@@ -633,14 +640,21 @@ class TkWidgets (DataTranslatable_Interface):
             self.canvas.pack(side="top", fill="both", expand = True)
 
             def on_vertical(event):
-                canvas.yview_scroll(-1 * event.delta, 'units')
+                self.canvas.yview_scroll(-1 * event.delta, 'units')
 
             def on_horizontal(event):
-                canvas.xview_scroll(-1 * event.delta, 'units')
+                self.canvas.xview_scroll(-1 * event.delta, 'units')
 
             if makeScrollable:
-                container.bind_all('<MouseWheel>', on_vertical)
-                container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+                def __bindScroll(*args):
+                    self.container.bind_all('<MouseWheel>', on_vertical)
+                    self.container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+                def __unbindScroll(*args):
+                    self.container.unbind_all('<MouseWheel>')
+                    self.container.unbind_all('<Shift-MouseWheel>') # scroll left-right
+
+                self.canvas.bind("<Enter>", __bindScroll)
+                self.canvas.bind("<Leave>", __unbindScroll)
 
             self.container = container
             widjetObj = container

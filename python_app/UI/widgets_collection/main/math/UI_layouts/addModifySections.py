@@ -6,6 +6,7 @@ import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
 import UI.widgets_wrappers as ww
+import UI.widgets_facade as wf
 import UI.widgets_manager as wm
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as cl
@@ -52,17 +53,14 @@ NOTE: The TOC page is not set for '{0}' . Will not do anything.".format(omName)
             mainManager.show()
 
             return
-
-        filepath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
-
-        ocf.Wr.PdfApp.openPDF(filepath, tocPage)
-
         omName = fsf.Data.Book.currOrigMatName
-        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
-        pdfToken:str = filepath.split("/")[-1].replace(".pdf", "")
-        cmd = oscf.setDocumentScale(pdfToken, zoomLevel)
-        _u.runCmdAndWait(cmd)
+                    
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
+                                                                tocPage)
 
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.show(page = int(tocPage))
 
 class ModifySubsection_BTN(ww.currUIImpl.Button,
                            dc.AppCurrDataAccessToken):

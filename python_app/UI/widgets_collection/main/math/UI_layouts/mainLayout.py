@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 import time
 import re
+from threading import Thread
 
 import file_system.file_system_facade as fsf
 import tex_file.tex_file_facade as tff
@@ -12,6 +13,7 @@ import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_wrappers as ww
+import UI.widgets_facade as wf
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
@@ -21,6 +23,8 @@ import layouts.layouts_facade as lf
 
 import data.constants as dc
 import data.temp as dt
+
+import _utils.logging as log
 
 import settings.facade as sf
 
@@ -348,23 +352,29 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
         ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
 
-        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName)
-        pdfToken:str = origMatPath.split("/")[-1].replace(".pdf", "")
-        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
-        _u.runCmdAndWait(cmd)
+                    
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, 
+                                                                    origMatCurrPage)
 
-        width, height = _u.getMonitorSize()
-        halfWidth = int(width / 2)
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.show(page = int(origMatCurrPage))
 
-        newChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
-        _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    newChoiceID)
-        while newPID == None:
-            time.sleep(0.1)
-            _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    newChoiceID)
-        cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], newChoiceID)
-        _u.runCmdAndWait(cmd)
+        '''
+        This was used when the pdf app was separate. need to see what is needed before deletion!
+        '''
+        # width, height = _u.getMonitorSize()
+        # halfWidth = int(width / 2)
+
+        # newChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
+        # _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+        #                                             newChoiceID)
+        # while newPID == None:
+        #     time.sleep(0.1)
+        #     _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+        #                                             newChoiceID)
+        # cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], newChoiceID)
+        # _u.runCmdAndWait(cmd)
 
         # update book settings
         fsf.Data.Book.currOrigMatName = origMatName
@@ -448,8 +458,6 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.notify(ScreenshotLocation_LBL)
 
         self.notify(commw.SourceImageLinks_OM)
-
-        lf.Wr.MainLayout.set()
 
     def updateOptions(self, newMenuOptions):
         self.notify(ImageGenerationRestart_BTN)
@@ -543,8 +551,6 @@ class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
         # update image index widget
         self.notify(ImageGeneration_ETR, 
                     fsf.Wr.Links.ImIDX.get(prevSubsectionPath))
-        
-        lf.Wr.MainLayout.set()
     
     def receiveNotification(self, broadcasterType):
         if broadcasterType == ChooseSubsection_OM:
@@ -685,7 +691,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
     
     def cmd(self):
         def _createTexForTheProcessedImage():
-            import generalManger.generalManger as gm
+            import generalManger.generalManger as gm 
 
             if not re.match("^[0-9]+$", str(self.dataFromUser[0])):
                 msg = "Incorrect image index \n\nId: '{0}'.".format(self.dataFromUser[0])
@@ -703,13 +709,12 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             msg = "\
 Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dataFromUser[0], self.dataFromUser[1])
             response = wm.UI_generalManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
             
             if not response:
-                self.rootWidget.render()
+                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+                mainManager.show()
+                # self.rootWidget.render()
                 self.notify(ImageGeneration_ETR, None)
                 return
 
@@ -725,14 +730,36 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
                 self.notify(ImageGeneration_ETR, None)
                 return
             
-            currImNum = self.dataFromUser[0]
-            nextImNum = str(int(currImNum) + 1)
-            self.rootWidget.render()
-            self.notify(ImageGeneration_ETR, nextImNum)
-            self.notify(comw.TOC_BOX, entryClicked = self.dataFromUser[0])
-            self.notify(commw.SourceImageLinks_OM)
-            self.notify(LatestExtraImForEntry_LBL)
-            self.updateLabel(self.labelOptions[0])
+            def __afterImageCreated(self):
+                currBorrPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+                currImNum = self.dataFromUser[0]
+                imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBorrPath,
+                                                                            currSubsection,
+                                                                            str(currImNum))
+                timer = 1
+
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50:
+                        return False
+
+                nextImNum = str(int(currImNum) + 1)
+
+                self.rootWidget.render()
+                self.notify(ImageGeneration_ETR, nextImNum)
+                self.notify(commw.SourceImageLinks_OM)
+                self.notify(LatestExtraImForEntry_LBL)
+                self.updateLabel(self.labelOptions[0])
+                self.notify(comw.TOC_BOX, entryClicked = self.dataFromUser[0])
+
+            t = Thread(target = __afterImageCreated, args = [self])
+            t.start()
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mmm.MathMenuManager)
+            mainManager.show()
         
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
@@ -982,7 +1009,7 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        mainImIdx = self.notify(ImageGeneration_BTN)
+        mainImIdx = str(self.notify(ImageGeneration_BTN))
         extraImageIdx = _u.Token.NotDef.str_t
 
         if "_" in mainImIdx:
@@ -1030,23 +1057,64 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
         if showNotification:
             msg = "\
     Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(mainImIdx, extraImText)
-            response = wm.UI_generalManager.showNotification(msg, True, False)
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            mainManager.show()
+            response = wm.UI_generalManager.showNotification(msg, True)
             
             if not response:
+                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+                mainManager.show()
                 return
 
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
 
-        if notifyMainTextLabel:
-            self.notify(LatestExtraImForEntry_LBL)
-        # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
-        # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
+        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
+            
+            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+            extraImagesList = []
 
-        self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
+            if extraImagesDict == _u.Token.NotDef.dict_t:
+                extraImagesDict = {}
+
+            if mainImIdx in list(extraImagesDict.keys()):
+                extraImagesList = extraImagesDict[mainImIdx]
+
+            if extraImageIdx == _u.Token.NotDef.str_t:
+                extraImageIdx = len(extraImagesList) - 1
+
+            currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
+
+            extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
+            extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
+            timer = 0
+
+            while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
+                time.sleep(0.3)
+                timer += 1
+
+                if timer > 50:
+                    log.autolog(f"\
+    The correct extra image was not created for \n\
+    '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
+                    return False
+
+
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        mmm.MathMenuManager)
+            if not mainManager.getShownStatus():
+                mainManager.show()
+
+            if notifyMainTextLabel:
+                self.notify(LatestExtraImForEntry_LBL)
+
+            # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
+            # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
+
+            self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
+
+        t = Thread(target = __afterEImagecreated, 
+                   args = [mainImIdx, subsection, extraImageIdx, extraImText])
+        t.start()
     
     def receiveNotification(self, broadcasterType, data = None, *args, **kwargs):
         if broadcasterType == ImageGeneration_ETR:

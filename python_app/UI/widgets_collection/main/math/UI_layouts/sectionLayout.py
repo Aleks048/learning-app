@@ -47,8 +47,6 @@ class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button,
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
         mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
-        # switch other apps
-        lf.Wr.MainLayout.set()
 
 
 class RebuildCurrSection_BTN(ww.currUIImpl.Button):

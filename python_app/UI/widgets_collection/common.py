@@ -5,6 +5,7 @@ import os
 import tkinter as tk
 import re
 import time
+from threading import Thread
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -473,35 +474,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     # when there is no entries yet we use the current origMaterial name
                     omName = fsm.Data.Book.currOrigMatName
 
-                omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(omName)
                 subsectionStartPage = fsm.Data.Sec.start(subsection)
+                fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
+                                                                            subsectionStartPage)
 
-                ocf.Wr.PdfApp.openPDF(omFilepath, subsectionStartPage)
-
-                zoomLevel = fsm.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
-                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
-                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
-                _u.runCmdAndWait(cmd)
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.show(page = int(subsectionStartPage))
 
                 event.widget.configure(foreground="white")
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
-        def openOMOnThePageOfTheImage(widget:_uuicom.TOCLabelWithClick, targetSubsection, targetImIdx):
-            def __cmd(event = None, *args):
-                # open orig material on page
-                imOMName = fsm.Data.Sec.origMatNameDict(targetSubsection)[targetImIdx]
-
-                omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(imOMName)                
-                imLinkOMPageDict = fsm.Data.Sec.imLinkOMPageDict(targetSubsection)
-                page = imLinkOMPageDict[targetImIdx]
-
-                ocf.Wr.PdfApp.openPDF(omFilepath, page)
-
-                zoomLevel = fsm.Wr.OriginalMaterialStructure.getMaterialZoomLevel(imOMName)
-                pdfToken:str = omFilepath.split("/")[-1].replace(".pdf", "")
-                cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
-                _u.runCmdAndWait(cmd)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -776,7 +757,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                     imPad, self.displayedImages, balloon,
                                                                     skippProof, tocFrame = self)
+                    eImIdxCounter = 0
                     for l in exImLabels:
+                        eImIdxCounter += 1
                         l.render()
 
                     # NOTE: for links
@@ -853,25 +836,31 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     msg = "Do you want to retake entry image?"
                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.MathMenuManager)
-                    mainManager.show()
-
                     if not response:
                         return
 
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
-                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
 
-                    timer = 0
-                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                        time.sleep(0.3)
-                        timer += 1
+                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                                    imIdx = imIdx,
+                                                                                    selector = True)
+                    def __cmdAfterImageCreated(self):
+                        timer = 0
 
-                        if timer > 50:
-                            break
+                        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                            time.sleep(0.3)
+                            timer += 1
 
-                    self.__renderWithScrollAfter()
+                            if timer > 50:
+                                break
+                        
+                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                        mainManager.show()
+                    
+                    t = Thread(target = __cmdAfterImageCreated, args = [self])
+                    t.start()
 
                 def pasteEntryCmd(event, *args):
                     widget = event.widget
@@ -1700,7 +1689,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                             glLinkLablel.image = img
 
                                             glLinkLablel.render()
-                                            openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+                                            _uuicom.openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
                                             linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                         text = "[f]", 
@@ -1918,7 +1907,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                 changeImSize.render()
 
                         if self.entryAsETR.widget == None:
-                            openOMOnThePageOfTheImage(textLabelPage, subsection, k)
+                            _uuicom.openOMOnThePageOfTheImage(textLabelPage, subsection, k)
 
                         if imShouldBeBrown:
                             showImages.configure(foreground="brown")  
@@ -2194,9 +2183,13 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                     newStartPage = e.widget.get()
                     fsm.Data.Sec.start(subsection, newStartPage)
                     omName = fsm.Data.Book.currOrigMatName
-                    omFilepath = fsm.Wr.OriginalMaterialStructure.getMaterialPath(omName)
+                    
+                    fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
+                                                                            newStartPage)
 
-                    ocf.Wr.PdfApp.openPDF(omFilepath, newStartPage)
+                    pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            wf.Wr.MenuManagers.PdfReadersManager)
+                    pdfReadersManager.show(page = int(newStartPage))
 
                 startPage = fsm.Data.Sec.start(subsection)
                 changeStartPage = _uuicom.ImageSize_ETR(locFrame,
@@ -2364,6 +2357,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             self.addTOCEntry(subsection, level, i)
 
     def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
+        # import traceback
+        # for line in traceback.format_stack():
+        #     print(line.strip())
         self.shouldScroll = shouldScroll
         self.displayedImages = []
         self.subsectionContentLabels = []

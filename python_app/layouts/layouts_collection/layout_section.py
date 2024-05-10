@@ -62,7 +62,7 @@ class SectionLayout(lc.Layout,
             
             mainMenuManager.switchToMainLayout()
 
-            lma.MainLayout.set()
+            # lma.MainLayout.set()
             log.autolog(msg)
             return
         else:

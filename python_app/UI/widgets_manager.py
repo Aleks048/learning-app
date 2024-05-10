@@ -98,8 +98,8 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 class UI_generalManager(dc.AppCurrDataAccessToken):
     @classmethod
     def showNotification(cls, msg, shouldWait):
-        allManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
-        managersShown = [i for i in allManagers if i.isShown()]
+        # allManagers = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken)
+        # managersShown = [i for i in allManagers if i.isShown()]
 
         messsageMenuManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
                                                     wf.Wr.MenuManagers.MessageMenuManager)
@@ -111,7 +111,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         else:
             messsageMenuManager.show(msg, shouldWait)
 
-        for m in managersShown:
-            m.show()
+        # for m in managersShown:
+        #     m.show()
 
         return response

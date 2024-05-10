@@ -3,6 +3,7 @@ import sys
 import re
 import time
 from AppKit import NSPasteboard, NSStringPboardType
+from threading import Thread
 
 import file_system.file_system_facade as fsf
 import settings.facade as sf
@@ -50,7 +51,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
         imagagesMenuManager = wf.Wr.MenuManagers.ImagesManager()
-        log.autolog("Started '{0}' UI manager".format("proofs menu"))
+        log.autolog("Started '{0}' UI manager".format("image menu"))
+        pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager()
+        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 
@@ -119,6 +122,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                 wf.Wr.MenuManagers.ImagesManager)
         imagesManager.winRoot.exitApp()
 
+        # pdfReader
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.winRoot.exitApp()
+
         # notes
         notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.NotesManager)
@@ -160,65 +168,124 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     
     def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
         if not textOnly:
-            ocf.Wr.ScreenshotCalls.takeScreenshot(imPath)
-            timer = 0
+            dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                    wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                               imIdx = mainImIdx,
+                                                                               selector = True,
+                                                                               extraImIdx = eImIdx)            
 
-            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
-                time.sleep(0.3)
-                timer += 1
+            def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
+                timer = 0
 
-                if timer > 50:
-                    break
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
+                    time.sleep(0.3)
+                    timer += 1
 
-        if eImIdx == None:
-            if not textOnly:
-                imText = _u.getTextFromImage(imPath)
-            else:
-                pb = NSPasteboard.generalPasteboard()
-                imText = pb.stringForType_(NSStringPboardType)
+                    if timer > 50:
+                        break
 
-                if imText == None:
-                    imText = _u.Token.NotDef.str_t
+                if eImIdx == None:
+                    if not textOnly:
+                        imText = _u.getTextFromImage(imPath)
+                    else:
+                        pb = NSPasteboard.generalPasteboard()
+                        imText = pb.stringForType_(NSStringPboardType)
 
-                imText = imText.replace("_", "\_")
+                        if imText == None:
+                            imText = _u.Token.NotDef.str_t
 
-                imText = re.sub(r"([^\\]){", r"\1\\{", imText)
-                imText = re.sub(r"([^\\])}", r"\1\\}", imText)
-                imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
-                imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
-                imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
+                        imText = imText.replace("_", "\_")
 
-                imText = imText.replace("[", "(")
-                imText = imText.replace("]", ")")
-                imText = imText.replace("\u201c", "\"")
-                imText = imText.replace("\u201d", "\"")
-                imText = imText.replace("\u2014", "-")
-                imText = imText.replace("\ufffd", "")
-                imText = imText.replace("\n", "")
-                imText = imText.replace("\u0000", "fi")
-                imText = imText.replace("\u0394", "\\Delta ")
+                        imText = re.sub(r"([^\\]){", r"\1\\{", imText)
+                        imText = re.sub(r"([^\\])}", r"\1\\}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
 
-            imageTextsDict = fsf.Data.Sec.imageText(subsection)
-            imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
-            imageTextsDict[mainImIdx] = imText
-            fsf.Data.Sec.imageText(subsection, imageTextsDict)
+                        imText = imText.replace("[", "(")
+                        imText = imText.replace("]", ")")
+                        imText = imText.replace("\u201c", "\"")
+                        imText = imText.replace("\u201d", "\"")
+                        imText = imText.replace("\u2014", "-")
+                        imText = imText.replace("\ufffd", "")
+                        imText = imText.replace("\n", "")
+                        imText = imText.replace("\u0000", "fi")
+                        imText = imText.replace("\u0394", "\\Delta ")
+
+                    imageTextsDict = fsf.Data.Sec.imageText(subsection)
+                    imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
+                    imageTextsDict[mainImIdx] = imText
+                    fsf.Data.Sec.imageText(subsection, imageTextsDict)
+                else:
+                    eImText = _u.getTextFromImage(imPath)
+                    eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
+                    eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
+
+                    if mainImIdx not in list(eImageTextsDict.keys()):
+                        eImageTextsList = []
+                    else:
+                        eImageTextsList = eImageTextsDict[mainImIdx]
+
+                    if int(eImIdx) == len(eImageTextsList):
+                        eImageTextsList.append(eImText)
+                    else:
+                        eImageTextsList[int(eImIdx)] = eImText
+
+                    eImageTextsDict[mainImIdx] = eImageTextsList
+                    fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
+
+            t = Thread(target = __executeAfterImageCreated, args = [subsection, mainImIdx, imPath, eImIdx, textOnly])
+            t.start()
         else:
-            eImText = _u.getTextFromImage(imPath)
-            eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
-            eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
+            if eImIdx == None:
+                if not textOnly:
+                    imText = _u.getTextFromImage(imPath)
+                else:
+                    pb = NSPasteboard.generalPasteboard()
+                    imText = pb.stringForType_(NSStringPboardType)
 
-            if mainImIdx not in list(eImageTextsDict.keys()):
-                eImageTextsList = []
+                    if imText == None:
+                        imText = _u.Token.NotDef.str_t
+
+                    imText = imText.replace("_", "\_")
+
+                    imText = re.sub(r"([^\\]){", r"\1\\{", imText)
+                    imText = re.sub(r"([^\\])}", r"\1\\}", imText)
+                    imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
+                    imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
+                    imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
+
+                    imText = imText.replace("[", "(")
+                    imText = imText.replace("]", ")")
+                    imText = imText.replace("\u201c", "\"")
+                    imText = imText.replace("\u201d", "\"")
+                    imText = imText.replace("\u2014", "-")
+                    imText = imText.replace("\ufffd", "")
+                    imText = imText.replace("\n", "")
+                    imText = imText.replace("\u0000", "fi")
+                    imText = imText.replace("\u0394", "\\Delta ")
+
+                imageTextsDict = fsf.Data.Sec.imageText(subsection)
+                imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
+                imageTextsDict[mainImIdx] = imText
+                fsf.Data.Sec.imageText(subsection, imageTextsDict)
             else:
-                eImageTextsList = eImageTextsDict[mainImIdx]
+                eImText = _u.getTextFromImage(imPath)
+                eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
+                eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
 
-            if int(eImIdx) == len(eImageTextsList):
-                eImageTextsList.append(eImText)
-            else:
-                eImageTextsList[int(eImIdx)] = eImText
+                if mainImIdx not in list(eImageTextsDict.keys()):
+                    eImageTextsList = []
+                else:
+                    eImageTextsList = eImageTextsDict[mainImIdx]
 
-            eImageTextsDict[mainImIdx] = eImageTextsList
-            fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
+                if int(eImIdx) == len(eImageTextsList):
+                    eImageTextsList.append(eImText)
+                else:
+                    eImageTextsList[int(eImIdx)] = eImText
+
+                eImageTextsDict[mainImIdx] = eImageTextsList
+                fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
 
     @classmethod
     def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):
@@ -246,17 +313,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         cls.AddNewImageData(subsection, mainImIdx, extraImagePathFull, extraImageIdx)
 
-        timer = 0
-
-        while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
-            time.sleep(0.3)
-            timer += 1
-
-            if timer > 50:
-                log.autolog(f"\
-The correct extra image was not created for \n\
-'{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
-                return False
 
         extraImagesDict[mainImIdx] = extraImagesList
         fsf.Data.Sec.extraImagesDict(subsection, extraImagesDict)
@@ -286,7 +342,11 @@ The correct extra image was not created for \n\
                 
                 if response:
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
-                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
+
+                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                                    imIdx = imIdx,
+                                                                                    selector = True)
 
                 mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
                                                     wf.Wr.MenuManagers.MathMenuManager)
@@ -298,6 +358,17 @@ The correct extra image was not created for \n\
             else:
                 cls.AddNewImageData(subsection, imIdx, imagePath)
 
+        else:
+            cls.AddNewImageData(subsection, imIdx, imagePath, textOnly=textOnly)
+
+        def __afterImageCreated(cls, subsection, imIdx:str, imText:str, 
+                                 addToTOCwIm:bool, textOnly:bool = False):
+            currBorrPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+            imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBorrPath,
+                                                                        subsection,
+                                                                        str(imIdx))
+
             timer = 1
 
             while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
@@ -306,138 +377,139 @@ The correct extra image was not created for \n\
 
                 if timer > 50:
                     return False
-        else:
-            cls.AddNewImageData(subsection, imIdx, imagePath, textOnly=textOnly)
 
-
-        linkDict = fsf.Data.Sec.imLinkDict(subsection)
-        imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
-        
-        if (imIdx in list(linkDict.values())):
-            messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MessageMenuManager)
-            mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imIdx), True)
+            linkDict = fsf.Data.Sec.imLinkDict(subsection)
+            imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
             
-            if response:
-                names = []
-                for name, id in linkDict.items():
-                    if id == imIdx:
-                        #remove the image
-                        prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                        _upan.Names.getImageName(str(imIdx)) + ".png")
-                        ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
-
-                        names.append(name)
+            if (imIdx in list(linkDict.values())):
+                messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.MessageMenuManager)
+                mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+                response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imIdx), True)
                 
-                for name in names:
-                    linkDict.pop(name, None)
+                if response:
+                    names = []
+                    for name, id in linkDict.items():
+                        if id == imIdx:
+                            #remove the image
+                            prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
+                                            _upan.Names.getImageName(str(imIdx)) + ".png")
+                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
+
+                            names.append(name)
+                    
+                    for name in names:
+                        linkDict.pop(name, None)
+                    
+                    fsf.Data.Sec.imLinkDict(subsection, linkDict)
+
+                    if imGlobalLinksDict == _u.Token.NotDef.dict_t:
+                        imGlobalLinksDict = {}
+
+                    imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t.copy()
+                    fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
                 
-                fsf.Data.Sec.imLinkDict(subsection, linkDict)
+                mathManager.show()
+                
+                if not response:
+                    return False
 
-                if imGlobalLinksDict == _u.Token.NotDef.dict_t:
-                    imGlobalLinksDict = {}
+            textOnlyDict = fsf.Data.Sec.textOnly(subsection)
+            textOnlyDict[imIdx] = textOnly
+            fsf.Data.Sec.textOnly(subsection, textOnlyDict)
 
-                imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t.copy()
-                fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
+            # STOTE IMNUM, IMNAME AND LINK
+            if imText == _u.Token.NotDef.str_t:
+                imText = fsf.Data.Sec.imageText(subsection)[imIdx]
+
+            fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
+
+            # ORIGINAL MATERIAL DATA
+            origMatName = fsf.Data.Book.currOrigMatName
+
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
+            page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+
+            origMatNameDict = {}
+
+            if fsf.Data.Sec.origMatNameDict(subsection) != _u.Token.NotDef.dict_t:
+                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+
+            origMatNameDict[imIdx] = origMatName
+            fsf.Data.Sec.origMatNameDict(subsection, origMatNameDict)
+
+            pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+
+            if pagesDict == _u.Token.NotDef.dict_t:
+                pagesDict = {}
+
+            pagesDict[imIdx] = page
+            fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
+
+            # toc w image
+            tocWImageDict = fsf.Data.Sec.tocWImageDict(subsection)
+
+            if tocWImageDict == _u.Token.NotDef.dict_t:
+                tocWImageDict = {}
             
-            mathManager.show()
-            
-            if not response:
-                return False
+            tocWImageDict[imIdx] = "1" if addToTOCwIm else "0"
+            fsf.Data.Sec.tocWImageDict(subsection, tocWImageDict)
 
-        textOnlyDict = fsf.Data.Sec.textOnly(subsection)
-        textOnlyDict[imIdx] = textOnly
-        fsf.Data.Sec.textOnly(subsection, textOnlyDict)
+            # images group
+            imagesGroupList = list(fsf.Data.Sec.imagesGroupsList(subsection).keys())
+            imagesGroupDict = fsf.Data.Sec.imagesGroupDict(subsection)
 
-        # STOTE IMNUM, IMNAME AND LINK
-        if imText == _u.Token.NotDef.str_t:
-            imText = fsf.Data.Sec.imageText(subsection)[imIdx]
+            if imagesGroupDict == _u.Token.NotDef.dict_t:
+                imagesGroupDict = {}
 
-        fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
+            if imagesGroupDict != {}:
+                if not dt.AppState.UseLatestGroup.getData(cls.appCurrDataAccessToken):
+                    lastGroup = int(list(imagesGroupDict.values())[-1])
+                else:
+                    lastGroup = len(imagesGroupList) - 1
 
-        # ORIGINAL MATERIAL DATA
-        origMatName = fsf.Data.Book.currOrigMatName
-
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
-
-        page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
-
-        origMatNameDict = {}
-
-        if fsf.Data.Sec.origMatNameDict(subsection) != _u.Token.NotDef.dict_t:
-            origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
-
-        origMatNameDict[imIdx] = origMatName
-        fsf.Data.Sec.origMatNameDict(subsection, origMatNameDict)
-
-        pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
-
-        if pagesDict == _u.Token.NotDef.dict_t:
-            pagesDict = {}
-
-        pagesDict[imIdx] = page
-        fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
-
-        # toc w image
-        tocWImageDict = fsf.Data.Sec.tocWImageDict(subsection)
-
-        if tocWImageDict == _u.Token.NotDef.dict_t:
-            tocWImageDict = {}
-        
-        tocWImageDict[imIdx] = "1" if addToTOCwIm else "0"
-        fsf.Data.Sec.tocWImageDict(subsection, tocWImageDict)
-
-        # images group
-        imagesGroupList = list(fsf.Data.Sec.imagesGroupsList(subsection).keys())
-        imagesGroupDict = fsf.Data.Sec.imagesGroupDict(subsection)
-
-        if imagesGroupDict == _u.Token.NotDef.dict_t:
-            imagesGroupDict = {}
-
-        if imagesGroupDict != {}:
-            if not dt.AppState.UseLatestGroup.getData(cls.appCurrDataAccessToken):
-                lastGroup = int(list(imagesGroupDict.values())[-1])
+                imagesGroupDict[imIdx] = lastGroup
             else:
-                lastGroup = len(imagesGroupList) - 1
+                imagesGroupDict[imIdx] = 0
 
-            imagesGroupDict[imIdx] = lastGroup
-        else:
-            imagesGroupDict[imIdx] = 0
+            fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
-        fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
-
-        # ADD LINK TO THE ORIGINAL MATERIAL
-        subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
-        numNotesOnThePage = 0
-        
-        for subsec in subsectionsList:
-            origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
+            # ADD LINK TO THE ORIGINAL MATERIAL
+            subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
+            numNotesOnThePage = 0
             
-            for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
-                subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
+            for subsec in subsectionsList:
+                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
+                
+                for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
+                    subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
 
-                if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
-                    numNotesOnThePage += 1
+                    if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
+                        numNotesOnThePage += 1
 
-        numNotesOnThePage = str(numNotesOnThePage)
-        
-        currOMName = fsf.Data.Book.currOrigMatName
-        bookName = sf.Wr.Manager.Book.getCurrBookName()
-        currTopSection = fsf.Data.Book.currTopSection
-        noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
-        noteText = noteUrl + " " + imText
-        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
+            numNotesOnThePage = str(numNotesOnThePage)
+            
+            currOMName = fsf.Data.Book.currOrigMatName
+            bookName = sf.Wr.Manager.Book.getCurrBookName()
+            currTopSection = fsf.Data.Book.currTopSection
+            noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
+            noteText = noteUrl + " " + imText
+            fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
 
-        # Updating the remote
-        msg = "Adding entry: " + subsection + "_" + imIdx
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+            # Updating the remote
+            msg = "Adding entry: " + subsection + "_" + imIdx
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        # POPULATE THE MAIN FILE
-        # tff.Wr.TexFilePopulate.populateCurrMainFile()
+            # POPULATE THE MAIN FILE
+            # tff.Wr.TexFilePopulate.populateCurrMainFile()
 
-        dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
+            dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
+
+        t = Thread(target = __afterImageCreated, args = [cls, subsection, imIdx, imText,\
+                                                          addToTOCwIm, textOnly])
+        t.start()
 
         return True
 
