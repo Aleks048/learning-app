@@ -580,6 +580,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData)
 
+        figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
+
+        figuresLabelsData = {k:v for k,v in figuresLabelsData.items() if int(k.split("_")[0]) > int(imIdx)}
+        newFiguresLabelsData = {}
+        figuresLabelsDataKeysSorted = list(figuresLabelsData.keys())
+        figuresLabelsDataKeysSorted.sort(key = lambda k: int(k.split("_")[0]))
+
+        for k in figuresLabelsDataKeysSorted:
+            newFiguresLabelsData[k] = figuresLabelsData[k]
+        
+        figuresLabelsData = newFiguresLabelsData
+        figuresLabelsData = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
+                          for k,v in figuresLabelsData.items() if int(k.split("_")[0]) > int(imIdx)}
+
+        if figuresLabelsData == {}:
+            figuresLabelsData = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.figuresLabelsData, figuresLabelsData)
+
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict)
         extraImNames = extraImagesDict.pop(imIdx, None)
         extraImagesDict = cls.__shiftTheItemsInTheDict(extraImagesDict, imIdx)
@@ -828,6 +847,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize)
 
+        figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
+        figuresLabelsData = {k:v for k,v in figuresLabelsData.items() if int(k.split("_")[0]) >= int(imIdx)}
+        newFiguresLabelsData = {}
+        figuresLabelsDataKeysSorted = list(figuresLabelsData.keys())
+        figuresLabelsDataKeysSorted.sort(key = lambda k: int(k.split("_")[0]), reverse = True)
+
+        for k in figuresLabelsDataKeysSorted:
+            newFiguresLabelsData[k] = figuresLabelsData[k]
+        
+        figuresLabelsData = newFiguresLabelsData
+        figuresLabelsData = \
+            {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
+              for k,v in figuresLabelsData.items() if int(k.split("_")[0]) >= int(imIdx)}
+
+        if figuresLabelsData == {}:
+            figuresLabelsData = _u.Token.NotDef.dict_t.copy()
+
+        cls.updateProperty(subsection, cls.PubProp.figuresLabelsData, figuresLabelsData)
+
         figuresData = cls.readProperty(subsection, cls.PubProp.figuresData)
         figuresData = {k:v for k,v in figuresData.items() if int(k.split("_")[0]) >= int(imIdx)}
         newFiguresData = {}
@@ -1009,6 +1047,16 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         cls.updateProperty(targetSubsection, cls.PubProp.figuresData, targetFiguresData)
 
+        figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
+        figuresLabelsData = {k:v for k,v in figuresLabelsData.items() if int(k.split("_")[0]) == int(imIdx)}
+
+        targetFiguresLabelsData = cls.readProperty(targetSubsection, cls.PubProp.figuresLabelsData)
+
+        for k,v in figuresData.items():
+            targetFiguresLabelsData[targetImIdx + "_" + k.split("_")[1]] = v
+
+        cls.updateProperty(targetSubsection, cls.PubProp.figuresLabelsData, targetFiguresLabelsData)
+
         for p in propertiesList:
             updateProperty(p)
 
@@ -1022,6 +1070,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
+        figuresData = cls.readProperty(subsection, cls.PubProp.figuresData, currBookPath)
+        figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData, currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
         eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
@@ -1032,6 +1082,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
             if imageUIResize.get(mainImIdx + "_" + str(eImIdx)) != None:
                 imageUIResize.pop(mainImIdx + "_" + str(eImIdx))
+            if figuresData.get(mainImIdx + "_" + str(eImIdx)) != None:
+                figuresData.pop(mainImIdx + "_" + str(eImIdx))
+            if figuresLabelsData.get(mainImIdx + "_" + str(eImIdx)) != None:
+                figuresLabelsData.pop(mainImIdx + "_" + str(eImIdx))
 
             extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                                     subsection,
@@ -1044,6 +1098,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                     imageUIResize[mainImIdx + "_" + str(i)] =\
                                                             imageUIResize[mainImIdx + "_" + str(i + 1)]
                     imageUIResize.pop(mainImIdx + "_" + str(i + 1))
+                if figuresData.get(mainImIdx + "_" + str(i + 1)) != None:
+                    figuresData[mainImIdx + "_" + str(i)] =\
+                                                            figuresData[mainImIdx + "_" + str(i + 1)]
+                    figuresData.pop(mainImIdx + "_" + str(i + 1))
+                if figuresLabelsData.get(mainImIdx + "_" + str(i + 1)) != None:
+                    figuresLabelsData[mainImIdx + "_" + str(i)] =\
+                                                            figuresLabelsData[mainImIdx + "_" + str(i + 1)]
+                    figuresLabelsData.pop(mainImIdx + "_" + str(i + 1))
+
                 sourceExtraImFilepath = \
                     _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                         subsection,
@@ -1108,6 +1171,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
+        figuresData = cls.readProperty(subsection, cls.PubProp.figuresData, currBookPath)
+        figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData, currBookPath)
 
         entryFsPath = _upan.Paths.Entry.getAbs(currBookPath, subsection, mainImIdx)
 
@@ -1171,6 +1236,28 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 imageUIResize[sourceSizeEImIdx] = imageUIResize[destSizeEImIdx]
                 imageUIResize.pop(destSizeEImIdx)
 
+            if (figuresLabelsData.get(sourceSizeEImIdx) != None)\
+                and (figuresLabelsData.get(destSizeEImIdx) != None):
+                figuresLabelsData[sourceSizeEImIdx], figuresLabelsData[destSizeEImIdx] = \
+                    figuresLabelsData[destSizeEImIdx], figuresLabelsData[sourceSizeEImIdx]
+            elif figuresLabelsData.get(sourceSizeEImIdx) != None:
+                figuresLabelsData[destSizeEImIdx] = figuresLabelsData[sourceSizeEImIdx]
+                figuresLabelsData.pop(sourceSizeEImIdx)
+            elif figuresLabelsData.get(destSizeEImIdx) != None:
+                figuresLabelsData[sourceSizeEImIdx] = figuresLabelsData[destSizeEImIdx]
+                figuresLabelsData.pop(destSizeEImIdx)
+
+            if (figuresData.get(sourceSizeEImIdx) != None)\
+                and (figuresData.get(destSizeEImIdx) != None):
+                figuresData[sourceSizeEImIdx], figuresData[destSizeEImIdx] = \
+                    figuresData[destSizeEImIdx], figuresData[sourceSizeEImIdx]
+            elif figuresData.get(sourceSizeEImIdx) != None:
+                figuresData[destSizeEImIdx] = figuresData[sourceSizeEImIdx]
+                figuresData.pop(sourceSizeEImIdx)
+            elif figuresData.get(destSizeEImIdx) != None:
+                figuresData[sourceSizeEImIdx] = figuresData[destSizeEImIdx]
+                figuresData.pop(destSizeEImIdx)
+
         if eImList != []:
             extraImagesDict[mainImIdx] = eImList
         if eImTextsList != []:
@@ -1195,6 +1282,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.figuresLabelsData, figuresLabelsData, currBookPath)
 
     @classmethod
     def getEntryImText(cls, subsection, imIdx):
