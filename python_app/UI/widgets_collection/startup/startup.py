@@ -32,8 +32,6 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
         
         gm.GeneralManger.startNonStartMenus()
 
-        # show 3rd party main layout
-        lm.Wr.MainLayout.set()
 
 class AddBook_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
