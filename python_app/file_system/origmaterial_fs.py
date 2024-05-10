@@ -29,6 +29,7 @@ class OriginalMaterialStructure:
         pageSize = "PageSize"
         zoomLevel = "ZoomLevel"
         pagesToBeAdded = "PagesToBeAdded"
+        figures = "_figures"
 
         # toc page
         tocPage = "TocPage"
@@ -40,7 +41,8 @@ class OriginalMaterialStructure:
         PubProp.noteSize : _u.Token.NotDef.list_t.copy(),
         PubProp.pageSize : _u.Token.NotDef.list_t.copy(),
         PubProp.zoomLevel : _u.Token.NotDef.str_t,
-        PubProp.pagesToBeAdded : _u.Token.NotDef.str_t
+        PubProp.pagesToBeAdded : _u.Token.NotDef.str_t,
+        PubProp.figures : _u.Token.NotDef.dict_t,
     }
 
     template = {
@@ -181,6 +183,24 @@ class OriginalMaterialStructure:
             return None
     
     @classmethod
+    def getMaterialPageFigures(cls, omName, page):
+        books = cls.__getMaterailsDict()
+
+        materialData = books[omName]
+
+        if materialData.get(OriginalMaterialStructure.PubProp.figures) == \
+            _u.Token.NotDef.dict_t:
+            return {}
+
+        if materialData.get(OriginalMaterialStructure.PubProp.figures) != None:
+            figures = books[omName][OriginalMaterialStructure.PubProp.figures]
+
+            if figures.get(str(page)) != None:
+                return figures[str(page)]
+
+        return {}
+
+    @classmethod
     def getMaterialNoteSize(cls, omName):
         books = cls.__getMaterailsDict()
         try:
@@ -218,7 +238,11 @@ class OriginalMaterialStructure:
             return None
     
     @classmethod
-    def updateOriginalMaterialPage(cls, matName):
+    def updateOriginalMaterialPage(cls, matName, newPage = None):
+        if newPage != None:
+            cls.setMaterialCurrPage(matName, newPage)
+            return
+
         materialFilename = cls.getOriginalMaterialsFilename(matName)
         # update the currPage for original material
         cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
@@ -253,6 +277,23 @@ class OriginalMaterialStructure:
             materials[materialName] = {}
 
         materials[materialName][OriginalMaterialStructure.PubProp.pageSize] = pageSize
+        cls.__updateMaterialDict(materials)
+
+    @classmethod
+    def setMaterialPageFigures(cls, materialName, page, pageFigures):
+        materials = cls.__getMaterailsDict()
+
+        materialData = materials[materialName]
+
+        if materialData.get(OriginalMaterialStructure.PubProp.figures) != None:
+            figures = materialData[OriginalMaterialStructure.PubProp.figures]
+        else:
+            materialData[OriginalMaterialStructure.PubProp.figures] = _u.Token.NotDef.dict_t.copy()
+            figures = _u.Token.NotDef.dict_t.copy()
+
+        figures[str(page)] = pageFigures
+        materialData[OriginalMaterialStructure.PubProp.figures] = figures
+
         cls.__updateMaterialDict(materials)
 
     @classmethod

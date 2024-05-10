@@ -63,6 +63,7 @@ class SectionInfoStructure:
 
         # image figures data
         figuresData = "_figuresData"
+        figuresLabelsData = "_figuresLabelsData"
 
     class PrivProp:
         tocData = "_tocData"
@@ -99,7 +100,8 @@ class SectionInfoStructure:
                 cls.PubProp.imageText : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.extraImText : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.textOnly : _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.figuresData : _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.figuresData : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.figuresLabelsData : _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
