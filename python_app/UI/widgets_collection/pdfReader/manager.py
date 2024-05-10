@@ -98,14 +98,17 @@ class PdfReadersManager(wm.MenuManager_Interface):
                         currLayout)
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
-             changePrevPos = True):
+             changePrevPos = True, removePrevLabel = False):
+        if removePrevLabel:
+            self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx)
+
         self.hide(changePrevPos = changePrevPos)
         self.shown = True
         self.layouts[0].subsection = self.subsection if subsection == None else subsection
         self.layouts[0].imIdx = self.imIdx if imIdx == None else imIdx
         self.layouts[0].selector = selector
         self.layouts[0].extraImIdx = extraImIdx
-        
+
         if page != None:
             origMatName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, int(page))

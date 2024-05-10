@@ -840,11 +840,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         return
 
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
+                    figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
+                    figuresLabelsData.pop(str(imIdx))
+                    fsm.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
 
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                         wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
                                                                                     imIdx = imIdx,
-                                                                                    selector = True)
+                                                                                    selector = True,
+                                                                                    removePrevLabel = True)
                     def __cmdAfterImageCreated(self):
                         timer = 0
 
