@@ -167,83 +167,25 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     
     def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
-        if not textOnly:
-            dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                    wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                               imIdx = mainImIdx,
-                                                                               selector = True,
-                                                                               extraImIdx = eImIdx)            
+        dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                            imIdx = mainImIdx,
+                                                                            selector = True,
+                                                                            extraImIdx = eImIdx)            
 
-            def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
-                timer = 0
+        def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
+            timer = 0
 
-                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
-                    time.sleep(0.3)
-                    timer += 1
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
+                time.sleep(0.3)
+                timer += 1
 
-                    if timer > 50:
-                        break
-
-                if eImIdx == None:
-                    if not textOnly:
-                        imText = _u.getTextFromImage(imPath)
-                    else:
-                        pb = NSPasteboard.generalPasteboard()
-                        imText = pb.stringForType_(NSStringPboardType)
-
-                        if imText == None:
-                            imText = _u.Token.NotDef.str_t
-
-                        imText = imText.replace("_", "\_")
-
-                        imText = re.sub(r"([^\\]){", r"\1\\{", imText)
-                        imText = re.sub(r"([^\\])}", r"\1\\}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
-
-                        imText = imText.replace("[", "(")
-                        imText = imText.replace("]", ")")
-                        imText = imText.replace("\u201c", "\"")
-                        imText = imText.replace("\u201d", "\"")
-                        imText = imText.replace("\u2014", "-")
-                        imText = imText.replace("\ufffd", "")
-                        imText = imText.replace("\n", "")
-                        imText = imText.replace("\u0000", "fi")
-                        imText = imText.replace("\u0394", "\\Delta ")
-
-                    imageTextsDict = fsf.Data.Sec.imageText(subsection)
-                    imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
-                    imageTextsDict[mainImIdx] = imText
-                    fsf.Data.Sec.imageText(subsection, imageTextsDict)
-                else:
-                    eImText = _u.getTextFromImage(imPath)
-                    eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
-                    eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
-
-                    if mainImIdx not in list(eImageTextsDict.keys()):
-                        eImageTextsList = []
-                    else:
-                        eImageTextsList = eImageTextsDict[mainImIdx]
-
-                    if int(eImIdx) == len(eImageTextsList):
-                        eImageTextsList.append(eImText)
-                    else:
-                        eImageTextsList[int(eImIdx)] = eImText
-
-                    eImageTextsDict[mainImIdx] = eImageTextsList
-                    fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
-
-            t = Thread(target = __executeAfterImageCreated, args = [subsection, mainImIdx, imPath, eImIdx, textOnly])
-            t.start()
-        else:
+                if timer > 50:
+                    break
             if eImIdx == None:
-                if not textOnly:
-                    imText = _u.getTextFromImage(imPath)
-                else:
-                    pb = NSPasteboard.generalPasteboard()
-                    imText = pb.stringForType_(NSStringPboardType)
+                imText = _u.getTextFromImage(imPath)
 
+                if textOnly:
                     if imText == None:
                         imText = _u.Token.NotDef.str_t
 
@@ -287,6 +229,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 eImageTextsDict[mainImIdx] = eImageTextsList
                 fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
 
+        t = Thread(target = __executeAfterImageCreated, args = [subsection, mainImIdx, imPath, eImIdx, textOnly])
+        t.start()
     @classmethod
     def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):
         # update the content file
@@ -333,33 +277,28 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                                        str(imIdx))
 
         # take a screenshot
-        if not textOnly:
-            if ocf.Wr.FsAppCalls.checkIfImageExists(imagePath):
-                mesManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken, 
-                                                            wf.Wr.MenuManagers.MessageMenuManager)
-                
-                response = mesManager.show("The image with idx '{0}' already exists.\n Overrite?".format(imIdx), True)
-                
-                if response:
-                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+            msg = "The image with idx '{0}' already exists.\n Overrite?".format(imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+            
+            if response:
+                ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
-                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                                    imIdx = imIdx,
-                                                                                    selector = True)
-
-                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-
-                mainManager.show()
-
-                if not response:
-                    return
-            else:
+                dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                    wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                                imIdx = imIdx,
+                                                                                selector = True)
                 cls.AddNewImageData(subsection, imIdx, imagePath)
 
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                wf.Wr.MenuManagers.MathMenuManager)
+
+            mainManager.show()
+
+            if not response:
+                return
         else:
-            cls.AddNewImageData(subsection, imIdx, imagePath, textOnly=textOnly)
+            cls.AddNewImageData(subsection, imIdx, imagePath)
 
         def __afterImageCreated(cls, subsection, imIdx:str, imText:str, 
                                  addToTOCwIm:bool, textOnly:bool = False):
