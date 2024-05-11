@@ -555,6 +555,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imageUIResize = newImageUIResize
         imageUIResize = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
                           for k,v in imageUIResize.items() if int(k.split("_")[0]) > int(imIdx)}
+        imageUIResizeOrig = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+
+        for k,v in imageUIResizeOrig.items():
+            if int(k.split("_")[0]) <= int(imIdx):
+                imageUIResize[k] = v
 
         if imageUIResize == {}:
             imageUIResize = _u.Token.NotDef.dict_t.copy()
@@ -574,6 +579,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         figuresData = newFiguresData
         figuresData = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
                           for k,v in figuresData.items() if int(k.split("_")[0]) > int(imIdx)}
+        figuresDataOrig = cls.readProperty(subsection, cls.PubProp.figuresData)
+
+        for k,v in figuresDataOrig.items():
+            if int(k.split("_")[0]) <= int(imIdx):
+                figuresData[k] = v
 
         if figuresData == {}:
             figuresData = _u.Token.NotDef.dict_t.copy()
@@ -593,6 +603,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         figuresLabelsData = newFiguresLabelsData
         figuresLabelsData = {str(int(k) - 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) - 1) + "_" + k.split("_")[1]:v\
                           for k,v in figuresLabelsData.items() if int(k.split("_")[0]) > int(imIdx)}
+        figuresLabelsDataOrig = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
+
+        for k,v in figuresLabelsDataOrig.items():
+            if int(k.split("_")[0]) <= int(imIdx):
+                figuresLabelsData[k] = v
 
         if figuresLabelsData == {}:
             figuresLabelsData = _u.Token.NotDef.dict_t.copy()
@@ -842,6 +857,12 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
               for k,v in imageUIResize.items() if int(k.split("_")[0]) >= int(imIdx)}
 
+        imageUIResizeOrig = cls.readProperty(subsection, cls.PubProp.imageUIResize)
+
+        for k,v in imageUIResizeOrig.items():
+            if int(k.split("_")[0]) < int(imIdx):
+                imageUIResize[k] = v
+
         if imageUIResize == {}:
             imageUIResize = _u.Token.NotDef.dict_t.copy()
 
@@ -861,6 +882,12 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
               for k,v in figuresLabelsData.items() if int(k.split("_")[0]) >= int(imIdx)}
 
+        figuresLabelsDataOrig = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
+
+        for k,v in figuresLabelsDataOrig.items():
+            if int(k.split("_")[0]) <= int(imIdx):
+                figuresLabelsData[k] = v
+
         if figuresLabelsData == {}:
             figuresLabelsData = _u.Token.NotDef.dict_t.copy()
 
@@ -879,6 +906,12 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         figuresData = \
             {str(int(k) + 1) if len(k.split("_")) == 1 else str(int(k.split("_")[0]) + 1) + "_" + k.split("_")[1]:v\
               for k,v in figuresData.items() if int(k.split("_")[0]) >= int(imIdx)}
+
+        figuresDataOrig = cls.readProperty(subsection, cls.PubProp.figuresData)
+
+        for k,v in figuresDataOrig.items():
+            if int(k.split("_")[0]) < int(imIdx):
+                figuresData[k] = v
 
         if figuresData == {}:
             figuresData = _u.Token.NotDef.dict_t.copy()
@@ -1033,7 +1066,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         targetImageUIResize = cls.readProperty(targetSubsection, cls.PubProp.imageUIResize)
 
         for k,v in imageUIResize.items():
-            targetImageUIResize[targetImIdx + "_" + k.split("_")[1]] = v
+            if len(k.split("_")) == 2:
+                targetImageUIResize[targetImIdx + "_" + k.split("_")[1]] = v
+            else:
+                targetImageUIResize[targetImIdx] = v
 
         cls.updateProperty(targetSubsection, cls.PubProp.imageUIResize, targetImageUIResize)
 
@@ -1043,7 +1079,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         targetFiguresData = cls.readProperty(targetSubsection, cls.PubProp.figuresData)
 
         for k,v in figuresData.items():
-            targetFiguresData[targetImIdx + "_" + k.split("_")[1]] = v
+            if len(k.split("_")) == 2:
+                targetFiguresData[targetImIdx + "_" + k.split("_")[1]] = v
+            else:
+                targetFiguresData[targetImIdx] = v
 
         cls.updateProperty(targetSubsection, cls.PubProp.figuresData, targetFiguresData)
 
@@ -1053,7 +1092,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         targetFiguresLabelsData = cls.readProperty(targetSubsection, cls.PubProp.figuresLabelsData)
 
         for k,v in figuresData.items():
-            targetFiguresLabelsData[targetImIdx + "_" + k.split("_")[1]] = v
+            if len(k.split("_")) == 2:
+                targetFiguresLabelsData[targetImIdx + "_" + k.split("_")[1]] = v
+            else:
+                targetFiguresLabelsData[targetImIdx] = v
 
         cls.updateProperty(targetSubsection, cls.PubProp.figuresLabelsData, targetFiguresLabelsData)
 
