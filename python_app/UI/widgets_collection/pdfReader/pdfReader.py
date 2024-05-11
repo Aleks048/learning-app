@@ -357,10 +357,24 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
         _ucomw.bindChangeColorOnInAndOut(self.increaseLabel)
         _ucomw.bindChangeColorOnInAndOut(self.decreaseLabel)
 
+
+        def __resizeCmd(increase:bool):
+            origMatName = fsf.Data.Book.currOrigMatName
+            zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
+    
+            if increase:
+                zoomLevel += 50
+            else:
+                zoomLevel = max(zoomLevel - 50, 0)
+            
+            fsf.Wr.OriginalMaterialStructure.setZoomLevel(origMatName, zoomLevel)
+
+            self.notify(PfdReader_BOX)
+
         self.increaseLabel.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: self.notify(PfdReader_BOX, [True]))        
+                                lambda *args: __resizeCmd(True))        
         self.decreaseLabel.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: self.notify(PfdReader_BOX, [False]))        
+                                lambda *args: __resizeCmd(False))        
 
         self.increaseLabel.render()
         self.decreaseLabel.render()
@@ -465,7 +479,11 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.currNoteCopyIdx = _u.Token.NotDef.int_t
         self.displayedPdfPages = []
         self.currPage = None
-        self.pageWidth = 700
+
+        origMatName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
+        self.pageWidth = zoomLevel
+
         self.latestWidgetToscrollTo = None
         self.latestNoteIdxToscrollTo = None
         self.pdfImages = []
@@ -626,14 +644,9 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
         if broadcasterType == ResizePdfReaderWindow_BTN:
-            increase = data[0]
-
-            if increase:
-                self.pageWidth += 50
-            else:
-                newWidth = self.pageWidth - 50
-                self.pageWidth = max(newWidth, 0)
-
+            origMatName = fsf.Data.Book.currOrigMatName
+            zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
+            self.pageWidth = zoomLevel
             self.canvas.update()
             self.render()
 

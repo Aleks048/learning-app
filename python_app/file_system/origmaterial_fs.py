@@ -40,7 +40,7 @@ class OriginalMaterialStructure:
         PubProp.tocPage : _u.Token.NotDef.str_t,
         PubProp.noteSize : _u.Token.NotDef.list_t.copy(),
         PubProp.pageSize : _u.Token.NotDef.list_t.copy(),
-        PubProp.zoomLevel : _u.Token.NotDef.str_t,
+        PubProp.zoomLevel : 700,
         PubProp.pagesToBeAdded : _u.Token.NotDef.str_t,
         PubProp.figures : _u.Token.NotDef.dict_t,
     }
