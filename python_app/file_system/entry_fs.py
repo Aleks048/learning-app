@@ -358,7 +358,7 @@ at position '{2}'.".format(subsection, imIdx, position)
                            cls.PubProp.entryLinesNotesList, entryLinesNotesList, bookPath)
 
         imageToRemovePath = \
-            _upan.Paths.Entry.LineNoteImage.getAbs(bookPath, subsection, imIdx, len(entryLinesNotesList))
+            _upan.Paths.Entry.LineNoteImage.getAbs(bookPath, subsection, imIdx, lineIdx)
         ocf.Wr.FsAppCalls.deleteFile(imageToRemovePath)
 
     @classmethod
