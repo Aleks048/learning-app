@@ -31,6 +31,7 @@ class EntryInfoStructure:
         name = "_name"
 
         entryLinesList = "_entryLinesArr"
+        entryLinesNotesList = "_entryLinesNotesArr"
         entryNotesList = "_entryNotesArr"
         entryWordDictDict = "_entryWordDictArr"
 
@@ -42,6 +43,7 @@ class EntryInfoStructure:
         sectionInfo_template = {
             cls.PubProp.name: _u.Token.NotDef.str_t,
             cls.PubProp.entryLinesList: _u.Token.NotDef.list_t.copy(),
+            cls.PubProp.entryLinesNotesList: _u.Token.NotDef.dict_t.copy(),
             cls.PubProp.entryNotesList: _u.Token.NotDef.dict_t.copy(),
             cls.PubProp.entryWordDictDict: _u.Token.NotDef.dict_t.copy()
         }
@@ -148,6 +150,17 @@ at position '{2}'.".format(subsection, imIdx, position)
                 cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
                 for j in range(position, len(entryLinesList)):
                     cls.rebuildLine(subsection, imIdx, j, entryLinesList[j], bookPath)
+
+                entryLinesNotesList = cls.readProperty(subsection, imIdx, 
+                                                  cls.PubProp.entryLinesNotesList, bookPath)
+
+                for j in range(len(entryLinesList) - 1, position, -1):
+                    if entryLinesNotesList.get(str(j - 1)) != None:
+                        cls.addLineNote(subsection, imIdx, 
+                                        entryLinesNotesList[str(j - 1)], bookPath, j,
+                                        stampChanges = False)
+                        cls.rebuildLineNote(subsection, imIdx, j, 
+                                            entryLinesNotesList[str(j - 1)], bookPath)
                 return
             else:
                 entryLinesList.append(text)
@@ -172,6 +185,43 @@ at position '{2}'.".format(subsection, imIdx, position)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         return structureCreated
+
+    @classmethod
+    def addLineNote(cls, subsection, imIdx, text, bookPath, position = -1, stampChanges = True):
+        log.autolog(f"Add lineNote '{text}' at position '{position}' for '{subsection}' '{imIdx}'")
+
+        entryLinesNotesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesNotesList, bookPath)
+
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+        filename = _upan.Names.Entry.LineNote.name(imIdx, str(len(entryLinesNotesList)))
+
+        savePath = os.path.join(savePath, filename)
+
+        if entryLinesNotesList == _u.Token.NotDef.dict_t:
+            entryLinesNotesList = {position: text}
+            cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesNotesList, entryLinesNotesList, bookPath)
+        else:
+            entryLinesNotesList[position] = text
+
+        text = tff.Wr.TexFileUtils.formatEntrytext(text)
+        tff.Wr.TexFileUtils.fromTexToImage(text, 
+                                           savePath, 
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
+
+        cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesNotesList, entryLinesNotesList, bookPath)
+
+        if stampChanges:
+            msg = "\
+    After adding note to the line for  \n\
+    '{0}':'{1}'\n\
+    at position '{2}'.".format(subsection, imIdx, position)
+            log.autolog(msg)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
     def rebuildNote(cls, subsection, imIdx, noteIdx, text, bookPath):
@@ -218,6 +268,28 @@ at position '{2}'.".format(subsection, imIdx, position)
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
     @classmethod
+    def rebuildLineNote(cls, subsection, imIdx, lineIdx, text, bookPath):
+        log.autolog(f"Rebuild note for line '{lineIdx}' for '{subsection}' '{imIdx}'")
+
+        entryLinesNotesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesNotesList, bookPath)
+        entryLinesNotesList[str(lineIdx)] = text
+
+        text = tff.Wr.TexFileUtils.formatEntrytext(text)
+        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+        filename = _upan.Names.Entry.LineNote.name(imIdx, lineIdx)
+        savePath = os.path.join(savePath, filename)
+        tff.Wr.TexFileUtils.fromTexToImage(text,
+                                           savePath,
+                                           fixedWidth = cls.fixedWidth,
+                                           fontSize = cls.lineImageFontSize,
+                                           textSize = cls.lineImageTextSize,
+                                           padding = cls.lineImagePadding,
+                                           numSymPerLine = cls.numSymbolsPerLine,
+                                           imSize = 500)
+
+        cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesNotesList, entryLinesNotesList, bookPath)
+
+    @classmethod
     def deleteNote(cls, bookPath, subsection, imIdx, noteIdx):
         log.autolog(f"Remove note '{noteIdx}' for '{subsection}' '{imIdx}'")
 
@@ -244,14 +316,49 @@ at position '{2}'.".format(subsection, imIdx, position)
         log.autolog(f"Remove line '{lineIdx}' for '{subsection}' '{imIdx}'")
 
         entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
+
+        # update 
+        entryLinesNotesList = cls.readProperty(subsection, imIdx, 
+                                               cls.PubProp.entryLinesNotesList, bookPath)
+
+        for j in range(lineIdx + 1, len(entryLinesList)):
+            if entryLinesNotesList.get(j) != None:
+                cls.addLineNote(subsection, imIdx,
+                                entryLinesNotesList[str(j)], bookPath, j - 1,
+                                stampChanges = False)
+
         entryLinesList.pop(lineIdx)
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
 
+        cls.deleteLineNote(bookPath, subsection, imIdx, lineIdx)
+
+
         for j in range(lineIdx, len(entryLinesList)):
             cls.rebuildLine(subsection, imIdx, j, entryLinesList[j], bookPath)
+            if entryLinesNotesList.get(str(j)) != None:
+                cls.rebuildLineNote(subsection, imIdx, j, entryLinesNotesList[str(j)], bookPath)
 
         imageToRemovePath = \
             _upan.Paths.Entry.LineImage.getAbs(bookPath, subsection, imIdx, len(entryLinesList))
+        ocf.Wr.FsAppCalls.deleteFile(imageToRemovePath)
+
+
+    @classmethod
+    def deleteLineNote(cls, bookPath, subsection, imIdx, lineIdx):
+        log.autolog(f"Remove note for line '{lineIdx}' for '{subsection}' '{imIdx}'")
+
+        entryLinesNotesList = cls.readProperty(subsection, imIdx, 
+                                               cls.PubProp.entryLinesNotesList, bookPath)
+
+        if entryLinesNotesList.get(str(lineIdx)) == None:
+            return
+
+        entryLinesNotesList.pop(str(lineIdx))
+        cls.updateProperty(subsection, imIdx, 
+                           cls.PubProp.entryLinesNotesList, entryLinesNotesList, bookPath)
+
+        imageToRemovePath = \
+            _upan.Paths.Entry.LineNoteImage.getAbs(bookPath, subsection, imIdx, len(entryLinesNotesList))
         ocf.Wr.FsAppCalls.deleteFile(imageToRemovePath)
 
     @classmethod

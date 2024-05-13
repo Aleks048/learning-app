@@ -502,14 +502,14 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             if str(i) not in self.lineIdxShownInText:
                 label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
-                label.grid(row = i + numRowsPre + 1, column = 5)
+                label.grid(row = i + numRowsPre + 1, column = 6)
                 label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
                 label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
                 labelToScrollTo = label
             else:
                 label = _ucomw.TOCFrame(self.scrollable_frame, 
                                 "linesImageFRM_" + str(i),
-                                i + numRowsPre + 1, 5, 1
+                                i + numRowsPre + 1, 6, 1
                                 )
                 labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
@@ -594,6 +594,19 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                   linesList[self.currLineCopyIdx],
                                                   bookPath, 
                                                   event.widget.lineImIdx)
+                entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
+                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
+                                    bookPath)
+
+                if int(self.currLineCopyIdx) <= int(event.widget.lineImIdx):
+                    self.currLineCopyIdx = str(int(self.currLineCopyIdx) + 1)
+
+                if entryLinesNotesList.get(str(self.currLineCopyIdx)) != None:
+                     fsf.Wr.EntryInfoStructure.addLineNote(self.subsection, 
+                                                  self.imIdx,
+                                                  entryLinesNotesList[str(self.currLineCopyIdx)],
+                                                  bookPath, 
+                                                  str(int(event.widget.lineImIdx) - 1))
                 self.render()
 
             pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [pasteLineIdx])
@@ -614,6 +627,19 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                   linesList[self.currLineCopyIdx],
                                                   bookPath, 
                                                   event.widget.lineImIdx + 1)
+                entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
+                                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
+                                                    bookPath)
+
+                if int(self.currLineCopyIdx) <= int(event.widget.lineImIdx):
+                    self.currLineCopyIdx = str(int(self.currLineCopyIdx) + 1)
+
+                if entryLinesNotesList.get(str(self.currLineCopyIdx)) != None:
+                     fsf.Wr.EntryInfoStructure.addLineNote(self.subsection, 
+                                                  self.imIdx,
+                                                  entryLinesNotesList[str(self.currLineCopyIdx)],
+                                                  bookPath, 
+                                                  str(event.widget.lineImIdx + 1))
                 self.render()
 
             pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [pasteLineIdx])
@@ -642,6 +668,25 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             deleteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [deleteLineIdx])
             _ucomw.bindChangeColorOnInAndOut(deleteLabel)
             deleteLabel.render()
+
+            '''
+            note
+            '''
+            noteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_notesForLine_" + str(i), 
+                                                    i + numRowsPre + 1, 5, text = "N")
+            noteLabel.lineImIdx = i
+            noteLabel.subsection = self.subsection
+            noteLabel.imIdx = self.imIdx
+
+            def noteForLineIdx(event, *args):
+                widget = event.widget
+                excerciseLineNoteManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            wf.Wr.MenuManagers.ExcerciseLineNoteManager)
+                excerciseLineNoteManager.show(widget.subsection, widget.imIdx, widget.lineImIdx)
+
+            noteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [noteForLineIdx])
+            _ucomw.bindChangeColorOnInAndOut(noteLabel)
+            noteLabel.render()
 
     def receiveNotification(self, broadcasterType) -> None:
         if broadcasterType == AddExcerciseLine_BTN:

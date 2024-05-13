@@ -54,6 +54,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("image menu"))
         pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager()
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
+        excerciseLineNoteManager = wf.Wr.MenuManagers.ExcerciseLineNoteManager()
+        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 
@@ -126,6 +128,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.PdfReadersManager)
         pdfReadersManager.winRoot.exitApp()
+
+        # excerciseLineNoteManager
+        excerciseLineNoteManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.ExcerciseLineNoteManager)
+        excerciseLineNoteManager.winRoot.exitApp()
 
         # notes
         notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
