@@ -101,6 +101,8 @@ class PdfReadersManager(wm.MenuManager_Interface):
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
              changePrevPos = True, removePrevLabel = False, getTextOfSelector = False):
+        self.winRoot.pageLbl = self.layouts[0].changePagePdfReaderWindow_ETR
+
         if removePrevLabel:
             self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx)
 

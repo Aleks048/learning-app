@@ -426,6 +426,16 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
 
         super().setData(self.defaultText)
 
+
+    def changePage(self, increase):
+        if increase:
+            self.setData(int(self.getData()) + 1)
+        else:
+            self.setData(int(self.getData()) - 1)
+        
+        _, cmd = self.__bindCMD()
+        cmd[0](increase)
+
     def render(self, **kwargs):
         self.setData(self.currPage)
 
@@ -438,19 +448,11 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         _ucomw.bindChangeColorOnInAndOut(self.increasePage)
         _ucomw.bindChangeColorOnInAndOut(self.decreasePage)
 
-        def changePage(increase):
-            if increase:
-                self.setData(int(self.getData()) + 1)
-            else:
-                self.setData(int(self.getData()) - 1)
-            
-            _, cmd = self.__bindCMD()
-            cmd[0](increase)
 
         self.increasePage.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: changePage(True))        
+                                lambda *args: self.changePage(True))        
         self.decreasePage.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: changePage(False))        
+                                lambda *args: self.changePage(False))        
 
         self.increasePage.render()
         self.decreasePage.render()
@@ -493,6 +495,9 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.selectingZone = False
         self.prevPosition = 0.4
         self.changePrevPos = True
+
+        self.prevPage = None
+        self.prevPos = None
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
@@ -623,14 +628,22 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         for im in self.displayedPdfPages:
             im.imLabel.saveFigures()
 
+        self.prevPage = self.currPage
+
         if self.changePrevPos:
             self.prevPosition, _ = self.canvas.yview()
+            self.prevPos = self.prevPosition
 
         return super().hide(**kwargs)
 
     def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
+        if self.currPage == self.prevPage:
+            if (self.prevPos != 0.0) and (self.prevPos != None):
+                self.prevPosition = self.prevPos
+
         for im in self.displayedPdfPages:
             im.widgetObj.grid_forget()
+
         self.displayedPdfPages = []
 
         for w in self.scrollable_frame.winfo_children():
@@ -678,4 +691,19 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             self.canvas.yview_moveto(prevYview)
 
 class PdfReadersRoot(ww.currUIImpl.RootWidget):
-    pass
+    pageLbl = None
+
+    def __init__(self, width, height):
+
+        super().__init__(width, height)
+        def __bind(*args):
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, 
+                                    lambda *args: self.pageLbl.changePage(False))
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, 
+                                    lambda *args: self.pageLbl.changePage(True))
+        def __nunbind(*args):
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shleft)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shright)
+
+        self.widgetObj.bind("<Enter>", __bind)
+        self.widgetObj.bind("<Leave>", __nunbind)

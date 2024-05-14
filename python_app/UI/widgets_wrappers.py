@@ -140,6 +140,8 @@ class TkWidgets (DataTranslatable_Interface):
                 ctrlv = "<Control-v>"
                 escape = "<Escape>"
                 shup = "<Shift-Up>"
+                shright = "<Shift-Right>"
+                shleft = "<Shift-Left>"
                 shdown = "<Shift-Down>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
