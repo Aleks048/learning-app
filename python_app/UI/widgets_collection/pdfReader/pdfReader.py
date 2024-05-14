@@ -227,6 +227,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         self.imIdx = None
         self.extraImIdx = None
         self.row = 0
+        self.getTextOfSelector = False
 
         self.row = row
 
@@ -268,6 +269,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
                                         makeDrawable = True, isPdfPage = True, page = self.pageNum, 
                                         pilIm = pilIm)
         self.imLabel.selectingZone = self.selectingZone
+        self.imLabel.getTextOfSelector = self.getTextOfSelector
 
         if self.selectingZone:
             self.imLabel.subsection = self.subsection
@@ -479,6 +481,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.currNoteCopyIdx = _u.Token.NotDef.int_t
         self.displayedPdfPages = []
         self.currPage = None
+        self.getTextOfSelector = False
 
         origMatName = fsf.Data.Book.currOrigMatName
         zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
@@ -604,6 +607,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         for i in range(self.currPage - 2, self.currPage + 3):
             pageImage = PdfReaderImage(self.scrollable_frame, f"_pdfPageIm{i}", i, self.doc, i, self.pageWidth)    
             pageImage.selectingZone = self.selectingZone
+            pageImage.getTextOfSelector = self.getTextOfSelector
             pageImage.pageNum = i
 
             if self.selectingZone:

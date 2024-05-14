@@ -336,7 +336,6 @@ class TOCTextWithClick(tk.Text):
 
 class TOCCanvasWithclick(tk.Canvas):
     class Label:
-
         def __init__(self, subsection, imIdx, canvas, 
                      startX, startY, endX, endY,
                      omPage, 
@@ -667,6 +666,20 @@ class TOCCanvasWithclick(tk.Canvas):
 
             im = self.pilImage
             im = im.crop([x, y, x1, y1])
+
+            if self.getTextOfSelector:
+                text = _u.getTextFromImage(None, im)
+
+                r = tk.Tk()
+                r.withdraw()
+                r.clipboard_clear()
+                r.clipboard_append(text)
+                r.update()
+                r.destroy()
+                self.selectingZone = False
+                self.getTextOfSelector = False
+                return
+
             currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
 
             imPath = ""
@@ -924,6 +937,7 @@ class TOCCanvasWithclick(tk.Canvas):
         self.selectedRectangle = None
 
         self.selectingZone = False
+        self.getTextOfSelector = False
 
         self.movingFigure = None
         self.resizingFigure = None

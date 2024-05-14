@@ -194,7 +194,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         addExtra = __EntryUIData("[Add extra]", 9)
         proof = __EntryUIData("[pr]", 10)
         note = __EntryUIData("[d]", 11)
-        group = __EntryUIData("", 12)
+        copyText = __EntryUIData("[ct]", 12)
+        group = __EntryUIData("", 13)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -1011,6 +1012,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         notesMenuManger.hide()
 
+                def copyTextToMemCmd(event, *args):
+                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                wf.Wr.MenuManagers.PdfReadersManager).show(subsection = event.widget.subsection,
+                                                                            imIdx = event.widget.imIdx,
+                                                                            selector = True,
+                                                                            getTextOfSelector = True)
+
                 def openProofsMenu(event, *args):
                     prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.ProofsManager)
@@ -1068,8 +1076,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     subsectionText:str = fsm.Data.Sec.text(subsection)
 
+                    if subsection != fsm.Data.Book.currSection:
+                        return
+
                     for k,v in links.items():
-                        textOnly = fsm.Data.Sec.textOnly(subsection)[k]
+                        textOnly = fsm.Data.Sec.textOnly(subsection)[str(k)]
 
                         entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
                         
@@ -1536,6 +1547,17 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openNoteMenu])
 
+                        copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.copyText.name, 
+                                                      prefix = "contentCopyTextToMem" + nameId,
+                                                      row = 0, 
+                                                      column = self.__EntryUIs.copyText.column,
+                                                      columnspan = 1)
+                        copyTextToMem.imIdx = k
+                        copyTextToMem.subsection = subsection
+                        copyTextToMem.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [copyTextToMemCmd])
+
                         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
                                                                             subsection,
                                                                             k)
@@ -1896,6 +1918,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             copyEntry.render()
                             pasteAfterEntry.render()
                             changeImText.render()
+                            copyTextToMem.render()
 
                             if not self.showAll:
 
@@ -1932,6 +1955,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(openNoteUIEntry, shouldBeBrown = notesExist)
                         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
+                        _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
 
                         tempFrame.render()
                         prevImGroupName = currImGroupName

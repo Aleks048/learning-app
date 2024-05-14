@@ -16,10 +16,21 @@ class Token:
         list_t = [str_t]
         dict_t = {str_t: str_t}
 
-def getTextFromImage(imPath):
-    pilImg = Image.open(imPath)
-    text = pytesseract.image_to_string(pilImg)
+def getTextFromImage(imPath, pilImg = None):
+    if pilImg == None:
+        pilImg = Image.open(imPath)
+
+    text:str = pytesseract.image_to_string(pilImg)
     pilImg.close()
+
+    textList = text.split("\n")
+    text = ""
+    for l in textList:
+        if l != "":
+            text += l
+        else:
+            text += "\n"
+
     return text
 
 def runCmdAndWait(cmd):

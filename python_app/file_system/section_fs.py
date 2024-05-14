@@ -1508,10 +1508,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 parentpropertyName = None if defaultData[1] == "" else defaultData[1]
                 _u.JSON.createProperty(fullPathToSection, propertyName, parentpropertyName, out)
                     
-            if type(out) == dict:
-                if out != _u.Token.NotDef.dict_t:
-                    if _u.Token.NotDef.str_t in out.keys():
-                        out.pop(_u.Token.NotDef.str_t, None)
+            # if type(out) == dict:
+            #     if out != _u.Token.NotDef.dict_t:
+            #         if _u.Token.NotDef.str_t in out.keys():
+            #             out.pop(_u.Token.NotDef.str_t, None)
 
             return out
 
@@ -1529,10 +1529,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             keysSorted.sort(key = int)
             newValue = {i: newValue[i] for i in keysSorted} 
         
-        if newValue != _u.Token.NotDef.dict_t:
-            if type(newValue) == dict:
-                if _u.Token.NotDef.str_t in newValue.keys():
-                    newValue.pop(_u.Token.NotDef.str_t, None)
+        # if newValue != _u.Token.NotDef.dict_t:
+        #     if type(newValue) == dict:
+        #         if _u.Token.NotDef.str_t in newValue.keys():
+        #             newValue.pop(_u.Token.NotDef.str_t, None)
         
         fullPathToSection = _upan.Paths.Section.JSON.getAbs(bookPath, sectionPath)
 

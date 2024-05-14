@@ -15,6 +15,7 @@ class LayoutManagers:
         currPage = None
         selector = False
         changePrevPos = True
+        getTextOfSelector = False
 
         def __init__(self, winRoot):
             appDimensions = [720, 800, 0, 0]
@@ -43,6 +44,7 @@ class LayoutManagers:
             self.pfdReader_BOX.imIdx = self.imIdx
             self.pfdReader_BOX.eImIdx = self.extraImIdx
             self.pfdReader_BOX.selectingZone = self.selector
+            self.pfdReader_BOX.getTextOfSelector = self.getTextOfSelector
 
             if self.currPage != None:
                 self.pfdReader_BOX.currPage = self.currPage
@@ -98,7 +100,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
                         currLayout)
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
-             changePrevPos = True, removePrevLabel = False):
+             changePrevPos = True, removePrevLabel = False, getTextOfSelector = False):
         if removePrevLabel:
             self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx)
 
@@ -108,6 +110,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
         self.layouts[0].imIdx = self.imIdx if imIdx == None else imIdx
         self.layouts[0].selector = selector
         self.layouts[0].extraImIdx = extraImIdx
+        self.layouts[0].getTextOfSelector = getTextOfSelector
 
         if page != None:
             origMatName = fsf.Data.Book.currOrigMatName
