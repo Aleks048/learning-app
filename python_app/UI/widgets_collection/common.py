@@ -1060,6 +1060,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 # 19 : event of being rendered
                 if ((not label.clicked) and (int(event.type) == 4)) or\
                     ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
+                    if ((not label.clicked) and (int(event.type) == 4)):
+                        fsm.Data.Book.currSection = subsection
+
                     if not self.showAll:
                         closeAllSubsections()
 

@@ -2,7 +2,9 @@ import sys, os, json, time, subprocess
 from threading import Thread
 from AppKit import NSScreen, NSWorkspace
 import Quartz
-from PIL import Image
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 import pytesseract
 from oslo_concurrency import lockutils
 

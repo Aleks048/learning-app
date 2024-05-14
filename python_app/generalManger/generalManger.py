@@ -294,7 +294,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                     wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
                                                                                 imIdx = imIdx,
-                                                                                selector = True)
+                                                                                selector = True,
+                                                                                removePrevLabel = True)
+
                 cls.AddNewImageData(subsection, imIdx, imagePath)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
@@ -324,49 +326,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 if timer > 50:
                     return False
 
-            linkDict = fsf.Data.Sec.imLinkDict(subsection)
-            imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(subsection)
-            
-            if (imIdx in list(linkDict.values())):
-                messManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                            wf.Wr.MenuManagers.MessageMenuManager)
-                mathManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-                response = messManager.show("The index '{0}' already exists.\n Do you want to update?".format(imIdx), True)
-                
-                if response:
-                    names = []
-                    for name, id in linkDict.items():
-                        if id == imIdx:
-                            #remove the image
-                            prevImagePath_curr = os.path.join(_upan.Paths.Screenshot.getAbs(),
-                                            _upan.Names.getImageName(str(imIdx)) + ".png")
-                            ocf.Wr.FsAppCalls.deleteFile(prevImagePath_curr)
-
-                            names.append(name)
-                    
-                    for name in names:
-                        linkDict.pop(name, None)
-                    
-                    fsf.Data.Sec.imLinkDict(subsection, linkDict)
-
-                    if imGlobalLinksDict == _u.Token.NotDef.dict_t:
-                        imGlobalLinksDict = {}
-
-                    imGlobalLinksDict[imIdx] = _u.Token.NotDef.dict_t.copy()
-                    fsf.Data.Sec.imGlobalLinksDict(subsection, imGlobalLinksDict)
-                
-                mathManager.show()
-                
-                if not response:
-                    return False
-
             textOnlyDict = fsf.Data.Sec.textOnly(subsection)
             textOnlyDict[imIdx] = textOnly
             fsf.Data.Sec.textOnly(subsection, textOnlyDict)
 
             # STOTE IMNUM, IMNAME AND LINK
             if imText == _u.Token.NotDef.str_t:
+                while fsf.Data.Sec.imageText(subsection).get(imIdx) == None:
+                    while str(fsf.Data.Sec.imageText(subsection).get(imIdx)) == _u.Token.NotDef.str_t:
+                        time.sleep(0.1)
                 imText = fsf.Data.Sec.imageText(subsection)[imIdx]
 
             fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)

@@ -678,6 +678,8 @@ class TOCCanvasWithclick(tk.Canvas):
                 r.destroy()
                 self.selectingZone = False
                 self.getTextOfSelector = False
+                self.lastRecrangle = None
+                self.startCoord = []
                 return
 
             currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -717,6 +719,11 @@ class TOCCanvasWithclick(tk.Canvas):
                                                             self.omPage,
                                                             x - 85, y))
             self.saveFigures()
+
+            self.selectingZone = False
+            self.getTextOfSelector = False
+            self.lastRecrangle = None
+            self.startCoord = []
             return
 
         else:
@@ -866,7 +873,10 @@ class TOCCanvasWithclick(tk.Canvas):
         figuresList = []
 
         for i in range(len(self.rectangles)):
-            figuresList.append(self.rectangles[i].toDict())
+            if self.rectangles[i] != None:
+                figuresList.append(self.rectangles[i].toDict())
+            else:
+                self.rectangles.pop(i)
 
         if not self.isPdfPage:
             figuresData = fsf.Data.Sec.figuresData(self.subsection)
