@@ -365,7 +365,9 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
         def __resizeCmd(increase:bool):
             origMatName = fsf.Data.Book.currOrigMatName
             zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
-    
+
+            self.notify(PfdReader_BOX, [True])
+
             if increase:
                 zoomLevel += 50
             else:
@@ -671,11 +673,16 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
         if broadcasterType == ResizePdfReaderWindow_BTN:
-            origMatName = fsf.Data.Book.currOrigMatName
-            zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
-            self.pageWidth = zoomLevel
-            self.canvas.update()
-            self.render()
+            if data != None:
+                for p in self.displayedPdfPages:
+                    p.imLabel.saveFigures()
+            else:
+                origMatName = fsf.Data.Book.currOrigMatName
+                zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
+                self.pageWidth = zoomLevel
+
+                self.canvas.update()
+                self.render()
 
             # self.container.update()
             # self.canvas.update_idletasks()

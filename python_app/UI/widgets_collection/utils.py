@@ -623,7 +623,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 fill = (232,255,25) + (alpha,)
 
             x1, y1, x2, y2 = self.startX, self.startY, self.endX, self.endY
-            image = Image.new('RGBA', (x2-x1, y2-y1), fill)
+            image = Image.new('RGBA', (abs(x2-x1), abs(y2-y1)), fill)
             self.imageContainer = ImageTk.PhotoImage(image)
 
             if not self.canvas.selectingZone:
@@ -863,18 +863,48 @@ class TOCCanvasWithclick(tk.Canvas):
                                                                     l["labelCoords"][1])
                         self.labels.append(labelToAdd)
 
+        omBookName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
+        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
+        pageSize = [int(i) for i in pageSize]
+        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
+        widthScale = pageSizeZoomAffected[0] / pageSize[0]
+        heightScale = pageSizeZoomAffected[1] / pageSize[1]
+
         for f in figuresList:
             if f.get("type") != None:
                 f.pop("type")
 
+            if self.isPdfPage:
+                f["endX"] = int(f["endX"] * widthScale) + 1
+                f["endY"] = int(f["endY"] * heightScale) + 1
+                f["startX"] = int(f["startX"] * widthScale) + 1
+                f["startY"] = int(f["startY"] * heightScale) + 1
+
+            rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self))
 
     def saveFigures(self, *args):
         figuresList = []
 
+        omBookName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
+        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
+        pageSize = [int(i) for i in pageSize]
+        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
+        widthScale = pageSize[0] / pageSizeZoomAffected[0]
+        heightScale = pageSize[1] / pageSizeZoomAffected[1]
+
         for i in range(len(self.rectangles)):
             if self.rectangles[i] != None:
-                figuresList.append(self.rectangles[i].toDict())
+                f= self.rectangles[i].toDict()
+
+                if self.isPdfPage:
+                    f["endX"] = int(f["endX"] * widthScale)
+                    f["endY"] = int(f["endY"] * heightScale)
+                    f["startX"] = int(f["startX"] * widthScale)
+                    f["startY"] = int(f["startY"] * heightScale)
+                figuresList.append(f)
             else:
                 self.rectangles.pop(i)
 
