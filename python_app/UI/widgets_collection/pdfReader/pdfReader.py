@@ -255,11 +255,13 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             child.destroy()
 
         page = self.pdfDoc.load_page(self.pageNum)
-        pixmap = page.get_pixmap(dpi = 100)
+        pixmap = page.get_pixmap(dpi = 300)
         buf = io.BytesIO(pixmap.tobytes())
         pilIm = Image.open(buf)
         pilIm = pilIm.convert('RGB')
-        pilIm.thumbnail((self.pageWidth, 35000), Image.LANCZOS)
+        width, height = pilIm.size
+        pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
+                      Image.LANCZOS)
         img = ImageTk.PhotoImage(pilIm)
         self.imLabel = _ucomw.TOCCanvasWithclick(widget, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
@@ -475,7 +477,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
 
 class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
-    def __init__(self, parentWidget, prefix, windth = 700, height = 700):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 750):
         self.doc = None
         self.subsection = None
         self.imIdx = None
