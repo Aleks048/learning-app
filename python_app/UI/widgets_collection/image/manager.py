@@ -72,6 +72,8 @@ class ImagesManager(wm.MenuManager_Interface):
                         layouts,
                         currLayout)
     def show(self, appDimensions, extraImIdx):
+        self.winRoot.hideWidget = self.layouts[0].hideImagesWindow_BTN
+
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
         self.layouts[0].appDimensions = appDimensions

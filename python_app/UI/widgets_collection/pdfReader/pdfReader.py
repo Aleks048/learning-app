@@ -692,18 +692,33 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
 class PdfReadersRoot(ww.currUIImpl.RootWidget):
     pageLbl = None
+    pdfBox = None
 
     def __init__(self, width, height):
-
         super().__init__(width, height)
-        def __bind(*args):
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, 
-                                    lambda *args: self.pageLbl.changePage(False))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, 
-                                    lambda *args: self.pageLbl.changePage(True))
-        def __nunbind(*args):
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shleft)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shright)
 
-        self.widgetObj.bind("<Enter>", __bind)
-        self.widgetObj.bind("<Leave>", __nunbind)
+        def __atsrAddingCmd():
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.startAddingTheEntry()
+
+        def __bind(*args):
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.left, 
+                                    lambda *args: self.pageLbl.changePage(False))
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.right, 
+                                    lambda *args: self.pageLbl.changePage(True))
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.up,
+                                    lambda *args: self.pdfBox.canvas.yview_scroll(-1, 'units'))
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.down,
+                                    lambda *args: self.pdfBox.canvas.yview_scroll(1, 'units'))
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shenter,
+                                    lambda *args: __atsrAddingCmd())
+        def __nunbind(*args):
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.left)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.up)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.down)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.right)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shenter)
+
+        self.widgetObj.bind("<Enter>", __bind, add = True)
+        self.widgetObj.bind("<Leave>", __nunbind, add = True)

@@ -140,9 +140,13 @@ class TkWidgets (DataTranslatable_Interface):
                 ctrlv = "<Control-v>"
                 escape = "<Escape>"
                 shup = "<Shift-Up>"
+                up = "<Up>"
                 shright = "<Shift-Right>"
+                right = "<Right>"
                 shleft = "<Shift-Left>"
+                left = "<Left>"
                 shdown = "<Shift-Down>"
+                down = "<Down>"
 
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
@@ -582,10 +586,6 @@ class TkWidgets (DataTranslatable_Interface):
                 RenderableWidget_Interface_Impl,
                 HasListenersWidget_Interface_Impl,
                 BindableWidget_Interface_Impl):
-        canvas = None
-        container = None
-        scrollbar_top = None
-        scrollbar_right = None
 
         def __init__(self, 
                     prefix: str, 
@@ -597,6 +597,11 @@ class TkWidgets (DataTranslatable_Interface):
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
                     makeScrollable = True):
+            self.canvas = None
+            self.container = None
+            self.scrollbar_top = None
+            self.scrollbar_right = None
+
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
@@ -655,8 +660,8 @@ class TkWidgets (DataTranslatable_Interface):
                     self.container.unbind_all('<MouseWheel>')
                     self.container.unbind_all('<Shift-MouseWheel>') # scroll left-right
 
-                self.canvas.bind("<Enter>", __bindScroll)
-                self.canvas.bind("<Leave>", __unbindScroll)
+                self.canvas.bind("<Enter>", __bindScroll, add = True)
+                self.canvas.bind("<Leave>", __unbindScroll, add = True)
 
             self.container = container
             widjetObj = container

@@ -16,6 +16,8 @@ class LayoutManagers:
         tocBox = None
         linkSourceImIdx = None
 
+        addEntryETR = None
+
         def __init__(self, winRoot : ww.currUIImpl.RootWidget):
             #
             # pre init
@@ -45,6 +47,7 @@ class LayoutManagers:
             self.addWidget(layouts_OM)
             
             imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
+            self.addEntryETR = imageGenration_ERT
             self.addWidget(imageGenration_ERT)
             
             imageGeneration_BTN = ml.ImageGeneration_BTN(winRoot, self.prefix)
@@ -480,6 +483,12 @@ class MathMenuManager(wm.MenuManager_Interface):
     #         if type(layout) == LayoutManagers._Main:
     #             layout.tocBox.render()
     #             return
+
+    def startAddingTheEntry(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.addEntryETR.notify(ml.ImageGeneration_BTN)
+                break
 
     def moveTocToEntry(self, subsection, imIdx, fromTOCWindow = False):
         for layout in self.layouts:

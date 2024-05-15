@@ -325,4 +325,17 @@ class HideImagesWindow_BTN(ww.currUIImpl.Button,
         imagesManager.hide()
 
 class ImagesRoot(ww.currUIImpl.RootWidget):
-    pass
+    hideWidget = None
+    
+    def __init__(self, width, height):
+
+        super().__init__(width, height)
+    
+        def __bind(*args):
+            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.escape, 
+                                    lambda *args: self.hideWidget.cmd())
+        def __nunbind(*args):
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.escape)
+
+        self.widgetObj.bind("<Enter>", __bind, add = True)
+        self.widgetObj.bind("<Leave>", __nunbind, add = True)

@@ -718,7 +718,7 @@ class TOCCanvasWithclick(tk.Canvas):
                                                             x, y, x1, y1,
                                                             self.omPage,
                                                             x - 85, y))
-            self.saveFigures()
+            # self.saveFigures()
 
             self.selectingZone = False
             self.getTextOfSelector = False
@@ -727,7 +727,7 @@ class TOCCanvasWithclick(tk.Canvas):
             return
 
         else:
-            self.saveFigures()
+            # self.saveFigures()
             if self.drawing:
                 self.rectangles.append(self.lastRecrangle)
                 self.drawing = False

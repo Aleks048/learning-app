@@ -606,7 +606,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         figuresLabelsDataOrig = cls.readProperty(subsection, cls.PubProp.figuresLabelsData)
 
         for k,v in figuresLabelsDataOrig.items():
-            if int(k.split("_")[0]) <= int(imIdx):
+            if int(k.split("_")[0]) < int(imIdx):
                 figuresLabelsData[k] = v
 
         if figuresLabelsData == {}:

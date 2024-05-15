@@ -102,6 +102,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
              subsection = None, imIdx = None, page = None, selector = False,
              changePrevPos = True, removePrevLabel = False, getTextOfSelector = False):
         self.winRoot.pageLbl = self.layouts[0].changePagePdfReaderWindow_ETR
+        self.winRoot.pdfBox = self.layouts[0].pfdReader_BOX
 
         if removePrevLabel:
             self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx)

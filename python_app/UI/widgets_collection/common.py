@@ -885,6 +885,24 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def removeEntryCmd(event, *args):
                     widget = event.widget
                     fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
+
+                    def __afterDeletion(*args):
+                        timer = 0
+                        while fsm.Data.Sec.figuresLabelsData(subsection).get(widget.imIdx) != None:
+                            time.sleep(0.3)
+                            timer += 1
+                            if timer > 50:
+                                break
+
+                        pdfReaderManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                                          wf.Wr.MenuManagers.PdfReadersManager)
+                        pdfReaderManager.show(subsection = widget.subsection, 
+                                              imIdx = str(widget.imIdx), 
+                                              removePrevLabel = True)
+
+                    t = Thread(target = __afterDeletion)
+                    t.start()
+
                     self.__renderWithScrollAfter()
 
                 def delGlLinkCmd(event, *args):
