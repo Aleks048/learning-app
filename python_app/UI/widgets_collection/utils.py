@@ -360,9 +360,19 @@ class TOCCanvasWithclick(tk.Canvas):
                 self.eImIdx = imIdx.split("_")[1]
 
             self.startX = startX
-            self.labelStartX = self.startX - 85 if labelStartX == None else labelStartX
+
+            if labelStartX == None:
+                self.labelStartX = self.startX - 85 if labelStartX == None else labelStartX
+            else:
+                self.labelStartX = labelStartX
+
             self.startY = startY
-            self.labelStartY = self.startY if labelStartY == None else labelStartY
+
+            if labelStartY == None:
+                self.labelStartY = self.startY if labelStartY == None else labelStartY
+            else:
+                self.labelStartY = labelStartY
+
             self.endX = endX
             self.endY = endY
 
@@ -471,7 +481,6 @@ class TOCCanvasWithclick(tk.Canvas):
         def deleteLabel(self):
             if self.id != None:
                 self.canvas.delete(self.id)
-                self.canvas.labels = [i for i in self.canvas.labels if i.id != self.id]
                 self.label.grid_forget()
                 self.id = None
             if self.handleId != None:
@@ -651,6 +660,9 @@ class TOCCanvasWithclick(tk.Canvas):
                     self.canvas.rectangles = [i for i in self.canvas.rectangles if i.id != self.id]
 
     def release(self, event):
+        if self.movingFigure != None:
+            self.saveFigures()
+
         self.movingFigure = None
         self.resizingFigure = None
 
@@ -747,7 +759,7 @@ class TOCCanvasWithclick(tk.Canvas):
             overlapId = overlapIds[-1]
 
             for l in self.labels:
-                if overlapId == l.handleId:
+                if (overlapId == l.handleId) or (overlapId == l.handleId2):
                     l.select()
                 else:
                     l.unselect()
@@ -914,6 +926,7 @@ class TOCCanvasWithclick(tk.Canvas):
                     f["endY"] = int(f["endY"] *  self.resizeFactor)
                     f["startX"] = int(f["startX"] *  self.resizeFactor)
                     f["startY"] = int(f["startY"] *  self.resizeFactor)
+
                 figuresList.append(f)
             else:
                 self.rectangles.pop(i)
@@ -936,7 +949,6 @@ class TOCCanvasWithclick(tk.Canvas):
             fsf.Wr.OriginalMaterialStructure.setMaterialPageFigures(omBookName, self.omPage, figuresList)
 
             for l in self.labels:
-                figuresLabelsData = fsf.Data.Sec.figuresLabelsData(l.subsection)
                 f = l.toDict()
 
                 coords = []
@@ -950,6 +962,8 @@ class TOCCanvasWithclick(tk.Canvas):
                 labelCoords.append(int(f["labelCoords"][0] * widthScale))
                 labelCoords.append(int(f["labelCoords"][1] * heightScale))
                 f["labelCoords"] = labelCoords
+
+                figuresLabelsData = fsf.Data.Sec.figuresLabelsData(l.subsection)
 
                 if l.eImIdx == None:
                     figuresLabelsData[l.imIdx] = f

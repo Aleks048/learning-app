@@ -48,7 +48,7 @@ class LayoutManagers:
 
             if self.currPage != None:
                 self.pfdReader_BOX.currPage = self.currPage
-                self.changePagePdfReaderWindow_ETR.currPage = self.currPage
+                self.changePagePdfReaderWindow_ETR.changePage(None, self.currPage)
 
             self.hidePdfReadersWindow_BTN.subsection = self.subsection
             self.hidePdfReadersWindow_BTN.imIdx = self.imIdx
@@ -128,4 +128,8 @@ class PdfReadersManager(wm.MenuManager_Interface):
         return super().hide()
 
     def moveToEntry(self, subsection, imIdx, eImIdx):
+        currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
+        self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
+        self.layouts[0].currPage = currPage
+        # self.layouts[0].pfdReader_BOX.changePage(currPage)
         self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)

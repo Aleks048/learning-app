@@ -255,7 +255,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             child.destroy()
 
         page = self.pdfDoc.load_page(self.pageNum)
-        pixmap = page.get_pixmap(dpi = 300)
+        pixmap = page.get_pixmap(dpi = 150)
         buf = io.BytesIO(pixmap.tobytes())
         pilIm = Image.open(buf)
         pilIm = pilIm.convert('RGB')
@@ -431,12 +431,16 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         super().setData(self.defaultText)
 
 
-    def changePage(self, increase):
-        if increase:
-            self.setData(int(self.getData()) + 1)
-        else:
-            self.setData(int(self.getData()) - 1)
-        
+    def changePage(self, increase, newPage = None):
+        if newPage == None:
+            if increase:
+                newPage = int(self.getData()) + 1
+            else:
+                newPage = int(self.getData()) - 1
+
+        self.setData(newPage)
+        self.currPage = newPage
+
         _, cmd = self.__bindCMD()
         cmd[0](increase)
 
@@ -663,7 +667,14 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         #     self.__scrollIntoView(None, self.latestWidgetToscrollTo)
         self.canvas.yview_moveto(self.prevPosition)
 
-    def changePage(self):
+    def changePage(self, currPage):
+        self.currPage = currPage
+
+        self.render()
+
+        self.canvas.yview_moveto(0.4)
+
+    def moveToCurrPage(self):
         origMatName = fsf.Data.Book.currOrigMatName
         self.currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
@@ -694,6 +705,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             origMatName = fsf.Data.Book.currOrigMatName
             self.currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
+            self.updateScrollerPosition()
             prevYview, _ = self.canvas.yview()
 
             if data != None:
@@ -707,6 +719,11 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
             self.canvas.yview_moveto(prevYview)
 
+    def updateScrollerPosition(self):
+        prevYview, _ = self.canvas.yview()
+        self.prevPos = prevYview
+        self.prevPosition = prevYview
+
 class PdfReadersRoot(ww.currUIImpl.RootWidget):
     pageLbl = None
     pdfBox = None
@@ -715,6 +732,7 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
         super().__init__(width, height)
 
         def __atsrAddingCmd():
+            self.pdfBox.updateScrollerPosition()
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.MathMenuManager)
             mainManager.startAddingTheEntry()
@@ -724,20 +742,22 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
                 newPage = int(self.pdfBox.currPage) + 1
             else:
                 newPage = int(self.pdfBox.currPage) - 1
+            self.pageLbl.changePage(increase)
             
             origMatName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, newPage)
-            self.pdfBox.changePage()
+            self.pdfBox.moveToCurrPage()
+            self.pdfBox.updateScrollerPosition()
 
         def __bind(*args):
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.left, 
-                                    lambda *args: self.pageLbl.changePage(True))
+                                    lambda *args: self.pageLbl.changePage(False))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, 
                                     lambda *args: __changePage(False))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, 
                                     lambda *args: __changePage(True))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.right, 
-                                    lambda *args: self.pageLbl.changePage(False))
+                                    lambda *args: self.pageLbl.changePage(True))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.up,
                                     lambda *args: self.pdfBox.canvas.yview_scroll(-1, 'units'))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.down,

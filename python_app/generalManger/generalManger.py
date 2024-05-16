@@ -178,7 +178,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                 wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
                                                                             imIdx = mainImIdx,
                                                                             selector = True,
-                                                                            extraImIdx = eImIdx)            
+                                                                            extraImIdx = eImIdx,
+                                                                            changePrevPos = False)            
 
         def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
             timer = 0
