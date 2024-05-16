@@ -880,6 +880,11 @@ class TOCCanvasWithclick(tk.Canvas):
                 f["endY"] = int(f["endY"] * heightScale) + 1
                 f["startX"] = int(f["startX"] * widthScale) + 1
                 f["startY"] = int(f["startY"] * heightScale) + 1
+            elif (self.resizeFactor != 1.0):
+                f["endX"] = int(f["endX"] *  self.resizeFactor) + 1
+                f["endY"] = int(f["endY"] *  self.resizeFactor) + 1
+                f["startX"] = int(f["startX"] *  self.resizeFactor) + 1
+                f["startY"] = int(f["startY"] *  self.resizeFactor) + 1
 
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self))
@@ -904,6 +909,11 @@ class TOCCanvasWithclick(tk.Canvas):
                     f["endY"] = int(f["endY"] * heightScale)
                     f["startX"] = int(f["startX"] * widthScale)
                     f["startY"] = int(f["startY"] * heightScale)
+                elif self.resizeFactor != 1.0:
+                    f["endX"] = int(f["endX"] *  self.resizeFactor)
+                    f["endY"] = int(f["endY"] *  self.resizeFactor)
+                    f["startX"] = int(f["startX"] *  self.resizeFactor)
+                    f["startY"] = int(f["startY"] *  self.resizeFactor)
                 figuresList.append(f)
             else:
                 self.rectangles.pop(i)
@@ -962,6 +972,7 @@ class TOCCanvasWithclick(tk.Canvas):
                  image = None, extraImIdx = None,
                  makeDrawable = True, 
                  isPdfPage = False, page = None, pilIm = None,
+                 resizeFactor = 1.0,
                  *args, **kwargs) -> None:
         self.rectangles = [] # Not sure but it is populated somewhere???
 
@@ -996,6 +1007,8 @@ class TOCCanvasWithclick(tk.Canvas):
         self.resizingFigure = None
 
         self.__btnClickFuncId = None
+
+        self.resizeFactor = resizeFactor
 
         self.width = self.image.width()
         self.height = self.image.height()
@@ -1148,19 +1161,31 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    extraImIdx = _u.Token.NotDef.int_t):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
         pilIm = Image.open(imagePath)
-        pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
+
+        if resizeFactor <= 1.0:
+            pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
+        else:
+            origWidth, origHeight = pilIm.size
+            newWidth = min(imageSize[0] * resizeFactor, origWidth * resizeFactor)
+            changeFactor = (imageSize[0] / origWidth) * resizeFactor
+            newHeight = min(changeFactor * origHeight, origHeight * resizeFactor)
+            
+            pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
+
         img = ImageTk.PhotoImage(pilIm)
 
         if bindOpenWindow:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                         row = row, column = column, columnspan = columnspan,
-                                        extraImIdx = extraImIdx, makeDrawable = False)
+                                        extraImIdx = extraImIdx, makeDrawable = False, 
+                                        resizeFactor = 1 / resizeFactor)
         else:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                         row = row, column = column, columnspan = columnspan,
-                                        extraImIdx = extraImIdx)
+                                        extraImIdx = extraImIdx,
+                                        resizeFactor = 1 / resizeFactor)
     else:
         img = None
         imLabel = TOCLabelWithClick(root, prefix = widgetName, text = "-1", padding = [imPad, 0, 0, 0],
@@ -1176,7 +1201,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         imMenuManger.subsection = event.widget.subsection
         imMenuManger.imIdx = event.widget.imIdx
 
-        width = max(event.widget.width, 600)
+        width = int(event.widget.width * 1.5)
         currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         eImIdx = event.widget.eImIdx
         notePosidx = str(int(eImIdx) + 1) if eImIdx != _u.Token.NotDef.str_t else 0
@@ -1292,7 +1317,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                column = 0,
                                columnspan = 1000,
                                createExtraWidgets = True,
-                               bindOpenWindow = True):
+                               bindOpenWindow = True,
+                               resizeFactor = None):
     import UI.widgets_collection.common as comw
     outLabels = []
 
@@ -1309,10 +1335,11 @@ def addExtraEntryImagesWidgets(rootLabel,
             if skippConditionFn(subsection, imIdx, i):
                 continue
 
-            if imIdx + "_" + str(i) in list(uiResizeEntryIdx.keys()):
-                resizeFactor = float(uiResizeEntryIdx[imIdx + "_" + str(i)])
-            else:
-                resizeFactor = 1.0
+            if resizeFactor == None:
+                if imIdx + "_" + str(i) in list(uiResizeEntryIdx.keys()):
+                    resizeFactor = float(uiResizeEntryIdx[imIdx + "_" + str(i)])
+                else:
+                    resizeFactor = 1.0
 
             eImText = extraImages[i]
 

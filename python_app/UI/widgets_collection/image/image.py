@@ -263,14 +263,15 @@ class ImageMainImage(ww.currUIImpl.Frame):
             self.imLabel = _ucomw.addMainEntryImageWidget(widget, 
                                                         self.subsection, self.entryIdx,
                                                         0, self.displayedImages, balloon,
-                                                          bindOpenWindow = False)
+                                                        bindOpenWindow = False,
+                                                        resizeFactor = 1.5)
         else:
             self.imLabel = _ucomw.addExtraEntryImagesWidgets(widget, 
                                                         self.subsection, self.entryIdx,
                                                         0, self.displayedImages, balloon,
                                                         createExtraWidgets = False,
-                                                        bindOpenWindow = False)[self.extraWidgetIdx]
-
+                                                        bindOpenWindow = False,
+                                                        resizeFactor = 1.5)[self.extraWidgetIdx]
         self.imLabel.render()
         self.imLabel.focus_force()
 
