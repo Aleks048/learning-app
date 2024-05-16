@@ -829,6 +829,14 @@ class TOCCanvasWithclick(tk.Canvas):
     def readFigures(self, *args):
         figuresList = []
 
+        omBookName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
+        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
+        pageSize = [int(i) for i in pageSize]
+        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
+        widthScale = pageSizeZoomAffected[0] / pageSize[0]
+        heightScale = pageSizeZoomAffected[1] / pageSize[1]
+
         if not self.isPdfPage:
             figuresData = fsf.Data.Sec.figuresData(self.subsection)
 
@@ -854,22 +862,14 @@ class TOCCanvasWithclick(tk.Canvas):
                         labelToAdd = TOCCanvasWithclick.Label(subsection,
                                                                     k,
                                                                     self,
-                                                                    l["coords"][0],
-                                                                    l["coords"][1],
-                                                                    l["coords"][2],
-                                                                    l["coords"][3],
+                                                                    l["coords"][0] * widthScale + 1,
+                                                                    l["coords"][1] * heightScale + 1,
+                                                                    l["coords"][2] * widthScale + 1,
+                                                                    l["coords"][3] * heightScale + 1,
                                                                     self.omPage,
-                                                                    l["labelCoords"][0],
-                                                                    l["labelCoords"][1])
+                                                                    l["labelCoords"][0] * widthScale + 1,
+                                                                    l["labelCoords"][1] * heightScale + 1)
                         self.labels.append(labelToAdd)
-
-        omBookName = fsf.Data.Book.currOrigMatName
-        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
-        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
-        pageSize = [int(i) for i in pageSize]
-        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
-        widthScale = pageSizeZoomAffected[0] / pageSize[0]
-        heightScale = pageSizeZoomAffected[1] / pageSize[1]
 
         for f in figuresList:
             if f.get("type") != None:
@@ -925,13 +925,26 @@ class TOCCanvasWithclick(tk.Canvas):
             omBookName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.setMaterialPageFigures(omBookName, self.omPage, figuresList)
 
-
             for l in self.labels:
                 figuresLabelsData = fsf.Data.Sec.figuresLabelsData(l.subsection)
+                f = l.toDict()
+
+                coords = []
+                coords.append(int(f["coords"][0] * widthScale))
+                coords.append(int(f["coords"][1] * heightScale))
+                coords.append(int(f["coords"][2] * widthScale))
+                coords.append(int(f["coords"][3] * heightScale))
+                f["coords"] = coords
+
+                labelCoords = []
+                labelCoords.append(int(f["labelCoords"][0] * widthScale))
+                labelCoords.append(int(f["labelCoords"][1] * heightScale))
+                f["labelCoords"] = labelCoords
+
                 if l.eImIdx == None:
-                    figuresLabelsData[l.imIdx] = l.toDict()
+                    figuresLabelsData[l.imIdx] = f
                 else:
-                    figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = l.toDict()
+                    figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = f
         
                 fsf.Data.Sec.figuresLabelsData(l.subsection, figuresLabelsData)
 
