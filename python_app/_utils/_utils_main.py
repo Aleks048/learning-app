@@ -286,6 +286,8 @@ class JSON:
                                         propertyName,
                                         jsonFilepath,
                                         newValue))
+                    if type(jsonData[propertyName]) == str:
+                        jsonData[propertyName] = str(newValue)
                 else:
                     jsonData[propertyName] = newValue
             else:
