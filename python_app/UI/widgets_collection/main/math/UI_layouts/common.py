@@ -18,7 +18,7 @@ import layouts.layouts_facade as lf
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self, widjetObj=None, changePdfReader = True, renderData=..., **kwargs):
         origMatName = fsm.Data.Book.currOrigMatName
         fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
@@ -28,12 +28,12 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
             if not pdfMenuManager.shown:
                 pdfMenuManager.show(changePrevPos = False)
                 pdfMenuManager.show(changePrevPos = False)
-        t = Thread(target= __showPdf)
-        t.start()
+
+        if changePdfReader:
+            t = Thread(target= __showPdf)
+            t.start()
 
         return super().render(widjetObj, renderData, **kwargs)
-    pass
-
 
 class Layouts_OM(ww.currUIImpl.OptionMenu,
                  dc.AppCurrDataAccessToken):
@@ -91,8 +91,13 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                         self.cmd)
     
     def cmd(self):
+        pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+        pdfMenuManager.layouts[0].pfdReader_BOX.updateScrollerPosition()
+
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                          mmm.MathMenuManager)
+
         if type(mathMenuManager.currLayout) == mmm.LayoutManagers._Main:
             # show the sections UI
             mathMenuManager.switchUILayout(mmm.LayoutManagers._AddModifySection)

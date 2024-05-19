@@ -125,6 +125,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
     def hide(self, changePrevPos = False):
         self.layouts[0].changePrevPos = changePrevPos
         self.shown = False
+        self.layouts[0].currPage = None
         return super().hide()
 
     def moveToEntry(self, subsection, imIdx, eImIdx):

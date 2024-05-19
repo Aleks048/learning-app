@@ -803,16 +803,17 @@ class TOCCanvasWithclick(tk.Canvas):
                         return
 
                 for r in self.rectangles:
-                    for i in range(len(r.cornerWidgetsIds)):
-                        if r.cornerWidgetsIds[i] == overlapId:
-                            self.resizingFigure = [r, i]
-                            r.moveCorner(x1, y1, i)
-                            return
+                    if r != None:
+                        for i in range(len(r.cornerWidgetsIds)):
+                            if r.cornerWidgetsIds[i] == overlapId:
+                                self.resizingFigure = [r, i]
+                                r.moveCorner(x1, y1, i)
+                                return
 
-                    if overlapId == r.id:
-                        self.movingFigure = r
-                        r.moveCenter(x1, y1)
-                        return
+                        if overlapId == r.id:
+                            self.movingFigure = r
+                            r.moveCenter(x1, y1)
+                            return
 
         self.drawing = True
 

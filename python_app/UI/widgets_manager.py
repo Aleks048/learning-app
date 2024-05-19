@@ -47,8 +47,9 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         dt.AppState.UIManagers.setData(self.appCurrDataAccessToken, UIManagers)
 
     def switchUILayout(self, toLayoutType):
-        self.hideAllWidgets()
-        self.winRoot.render()
+        self.hideAllWidgets(changePdfWidget = False)
+        self.winRoot.render(changePdfReader = False)
+
         for layout in self.layouts:
             if type(layout) == toLayoutType:
                 self.currLayout = layout
@@ -80,13 +81,15 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
         self.__isShown = False
 
-    def hideAllWidgets(self):
+    def hideAllWidgets(self, changePdfWidget = True):
         '''
         hide all widgets. clear all entries
         '''
+        
         UIManagers = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken)
         for UIManager in UIManagers:
-            UIManager.hide()
+            if not((not changePdfWidget) and ("pdfreadersmanage" in str(type(UIManager)).lower())):
+                UIManager.hide()
 
     def startManager(self):
         self.show()
