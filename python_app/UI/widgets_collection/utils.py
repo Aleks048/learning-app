@@ -854,8 +854,8 @@ class TOCCanvasWithclick(tk.Canvas):
             figuresData = fsf.Data.Sec.figuresData(self.subsection)
 
             if figuresData.get(self.imIdx) != None:
-                if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
-                    figuresList = figuresData[self.imIdx]
+                if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
+                    figuresList = figuresData[str(self.imIdx)]
                 else:
                     if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
                         figuresList = figuresData[f"{self.imIdx}_{self.eImIdx}"]
@@ -894,10 +894,10 @@ class TOCCanvasWithclick(tk.Canvas):
                 f["startX"] = int(f["startX"] * widthScale) + 1
                 f["startY"] = int(f["startY"] * heightScale) + 1
             elif (self.resizeFactor != 1.0):
-                f["endX"] = int(f["endX"] *  self.resizeFactor) + 1
-                f["endY"] = int(f["endY"] *  self.resizeFactor) + 1
-                f["startX"] = int(f["startX"] *  self.resizeFactor) + 1
-                f["startY"] = int(f["startY"] *  self.resizeFactor) + 1
+                f["endX"] = int(f["endX"] *  (1 / self.resizeFactor)) + 1
+                f["endY"] = int(f["endY"] *  (1 / self.resizeFactor)) + 1
+                f["startX"] = int(f["startX"] *  (1 / self.resizeFactor)) + 1
+                f["startY"] = int(f["startY"] *  (1 / self.resizeFactor)) + 1
 
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self))
