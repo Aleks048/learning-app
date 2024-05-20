@@ -47,8 +47,8 @@ class LayoutManagers:
             self.pfdReader_BOX.getTextOfSelector = self.getTextOfSelector
 
             if self.currPage != None:
-                self.pfdReader_BOX.changePage(self.currPage)
                 self.changePagePdfReaderWindow_ETR.changePage(None, self.currPage)
+                self.pfdReader_BOX.changePage(self.currPage)
 
                 self.currPage = None
 

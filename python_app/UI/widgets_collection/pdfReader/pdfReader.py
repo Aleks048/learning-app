@@ -442,7 +442,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         self.currPage = newPage
 
         _, cmd = self.__bindCMD()
-        cmd[0](increase)
+        cmd[0](increase, False)
 
     def render(self, **kwargs):
         self.setData(self.currPage)
@@ -467,17 +467,18 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         return super().render(**kwargs)
 
     def __bindCMD(self):
-        def __cmd(increase = None, *args):
+        def __cmd(increase = None, notify = True, *args):
             pageNumStr = self.getData()
             pageNum = int(pageNumStr)
 
             origMatName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, pageNum)
 
-            if increase != None:
-                self.notify(PfdReader_BOX, [increase])
-            else:
-                self.notify(PfdReader_BOX)
+            if notify:
+                if increase != None:
+                    self.notify(PfdReader_BOX, [increase])
+                else:
+                    self.notify(PfdReader_BOX)
 
         return [ww.currUIImpl.Data.BindID.Keys.cmdenter], [__cmd]
 
@@ -668,10 +669,10 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
     def changePage(self, currPage):
         self.currPage = currPage
+        self.prevPos = 0.4
+        self.prevPosition = 0.4
 
         self.render()
-
-        self.canvas.yview_moveto(0.4)
 
     def moveToCurrPage(self):
         origMatName = fsf.Data.Book.currOrigMatName
