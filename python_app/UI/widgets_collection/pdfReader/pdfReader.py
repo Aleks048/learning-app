@@ -501,7 +501,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.latestNoteIdxToscrollTo = None
         self.pdfImages = []
         self.selectingZone = False
-        self.prevPosition = 0.5
+        self.prevPosition = 0.4
         self.changePrevPos = True
 
         self.prevPage = None
@@ -604,7 +604,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         OMName = fsf.Data.Book.currOrigMatName
         fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, str(self.currPage))
 
-        self.prevPosition = 0.5
+        self.prevPosition = 0.4
         self.render()
 
         entryWidget = self.displayedPdfPages[2].imLabel.getEntryWidget(subsection, 
@@ -671,7 +671,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.render()
 
-        self.canvas.yview_moveto(0.5)
+        self.canvas.yview_moveto(0.4)
 
     def moveToCurrPage(self):
         origMatName = fsf.Data.Book.currOrigMatName
@@ -679,7 +679,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.render()
 
-        self.canvas.yview_moveto(0.5)
+        self.canvas.yview_moveto(0.4)
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
         if broadcasterType == ResizePdfReaderWindow_BTN:
