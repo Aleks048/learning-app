@@ -431,7 +431,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         super().setData(self.defaultText)
 
 
-    def changePage(self, increase, newPage = None):
+    def changePage(self, increase, newPage = None, notify = False):
         if newPage == None:
             if increase:
                 newPage = int(self.getData()) + 1
@@ -442,7 +442,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         self.currPage = newPage
 
         _, cmd = self.__bindCMD()
-        cmd[0](increase, False)
+        cmd[0](increase, notify)
 
     def render(self, **kwargs):
         self.setData(self.currPage)
@@ -751,13 +751,13 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
 
         def __bind(*args):
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.left, 
-                                    lambda *args: self.pageLbl.changePage(False))
+                                    lambda *args: self.pageLbl.changePage(False, None, True))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, 
                                     lambda *args: __changePage(False))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, 
                                     lambda *args: __changePage(True))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.right, 
-                                    lambda *args: self.pageLbl.changePage(True))
+                                    lambda *args: self.pageLbl.changePage(True, None, True))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.up,
                                     lambda *args: self.pdfBox.canvas.yview_scroll(-1, 'units'))
             self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.down,

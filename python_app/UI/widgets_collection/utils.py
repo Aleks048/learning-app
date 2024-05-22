@@ -353,6 +353,8 @@ class TOCCanvasWithclick(tk.Canvas):
             self.label = None
             self.line = None
 
+            self.movingHandle2 = False
+
             if len(imIdx.split("_")) == 1:
                 self.imIdx = imIdx
             else:
@@ -428,15 +430,20 @@ class TOCCanvasWithclick(tk.Canvas):
             self.label.bind("<Enter>", lambda *args: __drawLine(self))
             self.label.bind("<Leave>", lambda *args: __deleteLine(self))
 
-        def moveCenter(self, x, y):
-            width = 10
+        def moveCenter(self, x, y, handle2 = False):
+            width = 80
             height = 40
 
-            halfWidth = int(width / 2)
-            halfHight = int(height / 2)
+            if self.movingHandle2:
+                handle2 = True
 
-            self.labelStartX = x - halfWidth
-            self.labelStartY = y - halfHight
+            if not handle2:
+                self.labelStartX = x 
+                self.labelStartY = y - height
+            else:
+                self.movingHandle2 = True
+                self.labelStartX = x - width
+                self.labelStartY = y 
 
             self.redraw()
 
@@ -481,6 +488,7 @@ class TOCCanvasWithclick(tk.Canvas):
         def deleteLabel(self):
             if self.id != None:
                 self.canvas.delete(self.id)
+                self.canvas.labels = [i for i in self.canvas.labels if i.id != self.id]
                 self.label.grid_forget()
                 self.id = None
             if self.handleId != None:
@@ -661,6 +669,9 @@ class TOCCanvasWithclick(tk.Canvas):
 
     def release(self, event):
         if self.movingFigure != None:
+            if type(self.movingFigure) == TOCCanvasWithclick.Label:
+                self.movingFigure.movingHandle2 = False
+
             self.saveFigures()
 
         self.movingFigure = None
@@ -669,7 +680,8 @@ class TOCCanvasWithclick(tk.Canvas):
         self.bind_all("<Mod1-s>", self.saveFigures)
         self.bind_all("<Delete>", self.deleteSelectedRectangle)
 
-        if self.selectingZone:
+        if self.selectingZone \
+            and self.lastRecrangle != None:
             x = self.lastRecrangle.startX
             y =  self.lastRecrangle.startY
             x1 = self.lastRecrangle.endX
@@ -765,17 +777,18 @@ class TOCCanvasWithclick(tk.Canvas):
                     l.unselect()
 
             for r in self.rectangles:
-                for i in range(len(r.cornerWidgetsIds)):
-                    if r.cornerWidgetsIds[i] == overlapId:
-                        self.draw(event)
-                        return
+                if r != None:
+                    for i in range(len(r.cornerWidgetsIds)):
+                        if r.cornerWidgetsIds[i] == overlapId:
+                            self.draw(event)
+                            return
 
-                if (overlapId == r.id):
-                    if (r.cornerWidgetsIds == [None, None, None, None]):
-                        self.selectedRectangle = r
-                        r.showCornerWidgets()
-                else:
-                    r.deleteCornerWidgets()
+                    if (overlapId == r.id):
+                        if (r.cornerWidgetsIds == [None, None, None, None]):
+                            self.selectedRectangle = r
+                            r.showCornerWidgets()
+                    else:
+                        r.deleteCornerWidgets()
 
     def draw(self, event):
         x1 = event.x
@@ -799,7 +812,11 @@ class TOCCanvasWithclick(tk.Canvas):
                 for l in self.labels:
                     if (overlapId == l.handleId) or (overlapId == l.handleId2):
                         self.movingFigure = l
-                        l.moveCenter(x1, y1)
+
+                        if overlapId == l.handleId:
+                            l.moveCenter(x1, y1)
+                        else:
+                            l.moveCenter(x1, y1, True)
                         return
 
                 for r in self.rectangles:
