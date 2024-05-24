@@ -587,9 +587,10 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         except:
             pass
 
-    def removeMainLabel(self, subsection, imIdx):
+    def removeMainLabel(self, subsection, imIdx, eImIdx):
         for p in self.displayedPdfPages:
-            l = p.imLabel.getEntryWidget(subsection, imIdx)
+            l = p.imLabel.getEntryWidget(subsection, imIdx, eImIdx)
+
             if l != None:
                 l.deleteLabel()
                 break

@@ -107,7 +107,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
         self.winRoot.pdfBox = self.layouts[0].pfdReader_BOX
 
         if removePrevLabel:
-            self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx)
+            self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx, extraImIdx)
 
         self.hide(changePrevPos = changePrevPos)
         self.shown = True

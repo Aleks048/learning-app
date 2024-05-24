@@ -1063,7 +1063,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 if eImIdx == None:
                     return l
                 else:
-                    if l.eImIdx == eImIdx:
+                    if str(l.eImIdx) == str(eImIdx):
                         return l
 
         return None
