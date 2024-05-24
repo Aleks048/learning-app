@@ -325,6 +325,11 @@ class HideImagesWindow_BTN(ww.currUIImpl.Button,
                                                           wf.Wr.MenuManagers.ImagesManager)
         imagesManager.hide()
 
+        excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.ExcerciseManager)
+        if excerciseManager.shown:
+            excerciseManager.show()
+
 class ImagesRoot(ww.currUIImpl.RootWidget):
     hideWidget = None
     
