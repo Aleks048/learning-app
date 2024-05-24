@@ -108,14 +108,13 @@ class Wr:
             im = extra
 
             diff = ImageChops.difference(im, bg)
-            diff = ImageChops.add(diff, diff, 2.0, -100)
+            diff = ImageChops.add(diff, diff, 1.0, 0)
             bbox = diff.getbbox()
 
-            if bbox != None:
-                bbox = [bbox[0] - 2,
-                        bbox[1] - 2,
-                        bbox[2] + 20,
-                        bbox[3] + 2]
+            bbox = [bbox[0],
+                    bbox[1],
+                    bbox[2] + 20,
+                    bbox[3]]
 
             if bbox[2] - bbox[0] < im.size[0]:
                 im = im.crop(bbox)
