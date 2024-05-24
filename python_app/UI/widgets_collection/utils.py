@@ -1081,6 +1081,9 @@ class TOCCanvasWithclick(tk.Canvas):
         self.unbind("<Button-1>", self.__btnClickFuncId)
         self.unbind("<ButtonRelease-1>")
 
+        self.unbind("<Mod1-s>")
+        self.unbind("<Delete>")
+
     def render(self):
         self.grid(row = self.row, column = self.column,
                   columnspan = self.columnspan, sticky = self.sticky)
