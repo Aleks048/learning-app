@@ -670,6 +670,7 @@ class TOCCanvasWithclick(tk.Canvas):
     def release(self, event):
         if self.movingFigure != None:
             if type(self.movingFigure) == TOCCanvasWithclick.Label:
+                self.labels.append(self.movingFigure)
                 self.movingFigure.movingHandle2 = False
 
             self.saveFigures()
