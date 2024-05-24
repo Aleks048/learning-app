@@ -1,13 +1,11 @@
 from tkinter import ttk
 from PIL import Image, ImageTk
-from io import BytesIO
-import os
 import tkinter as tk
 from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
 import time
 import re
-from PIL import ImageGrab
+from threading import Thread
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -871,15 +869,14 @@ class TOCCanvasWithclick(tk.Canvas):
         if not self.isPdfPage:
             figuresData = fsf.Data.Sec.figuresData(self.subsection)
 
-            if figuresData.get(self.imIdx) != None:
-                if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
+            if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
+                if figuresData.get(self.imIdx) != None:
                     figuresList = figuresData[str(self.imIdx)]
+            else:
+                if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
+                    figuresList = figuresData[f"{self.imIdx}_{self.eImIdx}"]
                 else:
-                    if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
-                        figuresList = figuresData[f"{self.imIdx}_{self.eImIdx}"]
-                    else:
-                        return
-
+                    return
         else:
             omBookName = fsf.Data.Book.currOrigMatName
             figuresList = fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
@@ -1223,10 +1220,10 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         img = None
         imLabel = TOCLabelWithClick(root, prefix = widgetName, text = "-1", padding = [imPad, 0, 0, 0],
                                     row = row, column = column, columnspan = columnspan)
+        imLabel.eImIdx = extraImIdx
 
     imLabel.imagePath = imagePath
     imLabel.etrWidget = imLabel
-    imLabel.eImIdx = extraImIdx
 
     def __openImageManager(event, *args):
         imMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -1409,8 +1406,6 @@ def addExtraEntryImagesWidgets(rootLabel,
                 and (imIdx == tocFrame.extraImAsETR.imIdx) \
                 and (i == tocFrame.extraImAsETR.eImIdx):
 
-
-
                 if type(rootLabel) == list:
                     eimLabel = MultilineText_ETR(rootLabel[i], 
                                                 eImWidgetName, 
@@ -1591,25 +1586,37 @@ def addExtraEntryImagesWidgets(rootLabel,
                     msg = "Do you want to retake extra image?"
                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.MathMenuManager)
-                    mainManager.show()
-
                     if not response:
                         return
 
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
-                    ocf.Wr.ScreenshotCalls.takeScreenshot(imagePath)
 
-                    timer = 0
-                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                        time.sleep(0.3)
-                        timer += 1
+                    figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
+                    figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
+                    fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+                    
+                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                                    imIdx = imIdx,
+                                                                                    selector = True,
+                                                                                    removePrevLabel = True,
+                                                                                    extraImIdx = eImIdx)
+                    def __cmdAfterImageCreated():
+                        timer = 0
 
-                        if timer > 50:
-                            break
+                        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                            time.sleep(0.3)
+                            timer += 1
 
-                    widget.tocFrame.render()
+                            if timer > 50:
+                                break
+                        
+                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                        mainManager.show()
+                    
+                    t = Thread(target = __cmdAfterImageCreated)
+                    t.start()
 
                 retake.rebind([ww.currUIImpl.Data.BindID.mouse1],[retakeCmd])
 

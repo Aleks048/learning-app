@@ -830,9 +830,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     imIdx = widget.imIdx
 
                     currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
-                                                                                subsection,
-                                                                                str(imIdx))
                     
                     msg = "Do you want to retake entry image?"
                     response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
@@ -840,6 +837,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if not response:
                         return
 
+                    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
+                                                                                subsection,
+                                                                                str(imIdx))
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
                     figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
                     figuresLabelsData.pop(str(imIdx))
