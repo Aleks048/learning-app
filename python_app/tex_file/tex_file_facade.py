@@ -55,7 +55,8 @@ class Wr:
             \\newcommand{{\\Complex}}{{\\mathbb{{C}}}}\
             \\newcommand{{\\Ball}}{{\\mathbb{{B}}}}\
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
-            \\newcommand{{\\bsl}}{{$\\textbackslash$}}\
+            \\newcommand{{\\bsl}}{{\\textbackslash}}\
+            \\newcommand{{\\boundary}}{{\\partial}}\
             \
             \\begin{{document}}\
             {tex}\
