@@ -446,9 +446,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
             self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
-            self.scrollToEntry(data[0], data[1])
-            self.__renderWithScrollAfter()
+        # elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
+        #     self.scrollToEntry(data[0], data[1])
+        #     self.__renderWithScrollAfter()
         elif broadcasterType == mcomui.ImageSave_BTN:
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
@@ -476,8 +476,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     omName = fsm.Data.Book.currOrigMatName
 
                 subsectionStartPage = fsm.Data.Sec.start(subsection)
-                fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
-                                                                            subsectionStartPage)
+                fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, subsectionStartPage)
 
                 pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.PdfReadersManager)
@@ -2233,8 +2232,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                     fsm.Data.Sec.start(subsection, newStartPage)
                     omName = fsm.Data.Book.currOrigMatName
                     
-                    fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
-                                                                            newStartPage)
+                    fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, newStartPage)
 
                     pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                             wf.Wr.MenuManagers.PdfReadersManager)

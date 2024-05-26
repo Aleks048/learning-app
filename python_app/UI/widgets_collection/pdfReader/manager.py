@@ -124,6 +124,9 @@ class PdfReadersManager(wm.MenuManager_Interface):
         # self.layouts[0].appDimensions = appDimensions
         return super().show()
 
+    def updateOMpage(self):
+        self.layouts[0].pfdReader_BOX.updateOMpage()
+
     def hide(self, changePrevPos = False):
         self.layouts[0].changePrevPos = changePrevPos
         self.shown = False

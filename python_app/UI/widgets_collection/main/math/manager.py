@@ -95,8 +95,8 @@ class LayoutManagers:
             switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
 
-            switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
-            self.addWidget(switchToCurrSectionLayout_BTN)
+            # switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
+            # self.addWidget(switchToCurrSectionLayout_BTN)
 
             chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
             self.addWidget(chooseOriginalMaterial_OM)
@@ -111,14 +111,14 @@ class LayoutManagers:
             showTocWindow_BTN = commw.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)
             
-            reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
-            self.addWidget(reAddAllNotesFromTheOMPage_BTN)
+            # reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
+            # self.addWidget(reAddAllNotesFromTheOMPage_BTN)
 
             showAllSubsections_BTN = ml.ShowAllSubsections_BTN(winRoot, self.prefix)
             self.addWidget(showAllSubsections_BTN)
 
-            showFirstEntryOfTheCurrPage = ml.ShowFirstEntryOfTheCurrPage(winRoot, self.prefix)
-            self.addWidget(showFirstEntryOfTheCurrPage)
+            # showFirstEntryOfTheCurrPage = ml.ShowFirstEntryOfTheCurrPage(winRoot, self.prefix)
+            # self.addWidget(showFirstEntryOfTheCurrPage)
 
             rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrentSubsectionLatex_BTN)
@@ -182,7 +182,7 @@ class LayoutManagers:
 
             showHideLinks_BTN.addListenerWidget(tocBox_BOX)
             showAllSubsections_BTN.addListenerWidget(tocBox_BOX)
-            showFirstEntryOfTheCurrPage.addListenerWidget(tocBox_BOX)
+            # showFirstEntryOfTheCurrPage.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)

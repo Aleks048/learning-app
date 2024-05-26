@@ -86,81 +86,81 @@ class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
         return super().render()
 
 
-class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
-                  dc.AppCurrDataAccessToken):
+# class ReAddAllNotesFromTheOMPage_BTN(ww.currUIImpl.Button,
+#                   dc.AppCurrDataAccessToken):
 
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 15},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_reAddNotes"
-        text= "ReAdd notes"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        data, 
-                        self.cmd)
+#     def __init__(self, patentWidget, prefix):
+#         data = {
+#             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 15},
+#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+#         }
+#         name = "_reAddNotes"
+#         text= "ReAdd notes"
+#         super().__init__(prefix, 
+#                         name, 
+#                         text, 
+#                         patentWidget, 
+#                         data, 
+#                         self.cmd)
 
-    def cmd(self):
-        import generalManger.generalManger as gm
+#     def cmd(self):
+#         import generalManger.generalManger as gm
 
-        omName = fsf.Data.Book.currOrigMatName
-        fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
-        cmd = oscr.get_PageOfSkimDoc_CMD(fileName)
-        currPage, _ = _u.runCmdAndGetResult(cmd)
+#         omName = fsf.Data.Book.currOrigMatName
+#         fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
+#         cmd = oscr.get_PageOfSkimDoc_CMD(fileName)
+#         currPage, _ = _u.runCmdAndGetResult(cmd)
 
-        if currPage != None:
-            currPage = currPage.split("page ")[1]
-            currPage = currPage.split(" ")[0]
+#         if currPage != None:
+#             currPage = currPage.split("page ")[1]
+#             currPage = currPage.split(" ")[0]
 
-        gm.GeneralManger.readdNotesToPage(currPage)
+#         gm.GeneralManger.readdNotesToPage(currPage)
 
-class ShowFirstEntryOfTheCurrPage(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 17},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_ShowFirstEntryOfTheCurrPage"
-        text= "Show CP Entry"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        data, 
-                        self.cmd)
+# class ShowFirstEntryOfTheCurrPage(ww.currUIImpl.Button):
+#     def __init__(self, patentWidget, prefix):
+#         data = {
+#             ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 17},
+#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+#         }
+#         name = "_ShowFirstEntryOfTheCurrPage"
+#         text= "Show CP Entry"
+#         super().__init__(prefix, 
+#                         name, 
+#                         text, 
+#                         patentWidget, 
+#                         data, 
+#                         self.cmd)
 
-    def cmd(self):
-        origMatName = fsf.Data.Book.currOrigMatName
-        materialFilename = \
-            fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
+#     def cmd(self):
+#         origMatName = fsf.Data.Book.currOrigMatName
+#         materialFilename = \
+#             fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
 
-        cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
-        frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
+#         cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
+#         frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
 
-        if len(frontSkimDocumentPage.split("page ")) < 2:
-            return
+#         if len(frontSkimDocumentPage.split("page ")) < 2:
+#             return
         
-        if frontSkimDocumentPage != None:
-            page = frontSkimDocumentPage.split("page ")[1]
-            page = page.split(" ")[0]
-        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+#         if frontSkimDocumentPage != None:
+#             page = frontSkimDocumentPage.split("page ")[1]
+#             page = page.split(" ")[0]
+#         topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
 
-        for tSection in topSectionsList:
-            subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(tSection)
+#         for tSection in topSectionsList:
+#             subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(tSection)
 
-            for subsection in subsectionsList:
-                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
-                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+#             for subsection in subsectionsList:
+#                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+#                 origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
 
-                if origMatNameDict != _u.Token.NotDef.dict_t:
-                    for eIdx in range(len(origMatNameDict)):
-                        if origMatNameDict[str(eIdx)] == origMatName:
-                            if str(imLinkOMPageDict[str(eIdx)]) == str(page):
-                                self.notify(comw.TOC_BOX, [subsection, str(eIdx)])
-                                break
+#                 if origMatNameDict != _u.Token.NotDef.dict_t:
+#                     for eIdx in range(len(origMatNameDict)):
+#                         if origMatNameDict[str(eIdx)] == origMatName:
+#                             if str(imLinkOMPageDict[str(eIdx)]) == str(page):
+#                                 self.notify(comw.TOC_BOX, [subsection, str(eIdx)])
+#                                 break
 
 class ShowAllSubsections_BTN(ww.currUIImpl.Button):
     prevHiddenSubsections = _u.Token.NotDef.list_t.copy()
@@ -333,28 +333,27 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
     
     def cmd(self):
         # close original material document
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
-        prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
-        _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                    prevChoiceID)     
+        # fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
+        # prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
+        # _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
+        #                                             prevChoiceID)     
         
-        if oldPID != None:
-            lf.Wr.LayoutsManager.closePDFwindow(prevChoiceID, oldPID)
+        # if oldPID != None:
+        #     lf.Wr.LayoutsManager.closePDFwindow(prevChoiceID, oldPID)
         
-        time.sleep(0.3)
+        # time.sleep(0.3)
 
         # open another original material
+
+        # origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
+        # ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
+
         origMatName = self.getData()
         self.prevChoice = origMatName
 
-        origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
         origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
-
-        ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
-
                     
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, 
-                                                                    origMatCurrPage)
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, origMatCurrPage)
 
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.PdfReadersManager)
@@ -389,30 +388,30 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         return super().render(widjetObj, renderData, **kwargs)
 
 
-class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
-                                    dc.AppCurrDataAccessToken):
+# class SwitchToCurrSectionLayout_BTN(ww.currUIImpl.Button,
+#                                     dc.AppCurrDataAccessToken):
 
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 16},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_swritchToCurrSectionLayout_BTN"
-        text= "To Section L"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        data, 
-                        self.cmd)
+#     def __init__(self, patentWidget, prefix):
+#         data = {
+#             ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 16},
+#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+#         }
+#         name = "_swritchToCurrSectionLayout_BTN"
+#         text= "To Section L"
+#         super().__init__(prefix, 
+#                         name, 
+#                         text, 
+#                         patentWidget, 
+#                         data, 
+#                         self.cmd)
 
-    def cmd(self):
-        # switch UI
-        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
-        mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
+#     def cmd(self):
+#         # switch UI
+#         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, mmm.MathMenuManager)
+#         mathMenuManager.switchUILayout(mmm.LayoutManagers._Section)
         
-        # switch other apps
-        lf.Wr.SectionLayout.set()
+#         # switch other apps
+#         lf.Wr.SectionLayout.set()
 
 
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):

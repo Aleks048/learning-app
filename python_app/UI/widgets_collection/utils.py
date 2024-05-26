@@ -505,7 +505,7 @@ class TOCCanvasWithclick(tk.Canvas):
                     }
 
     class Rectangle:
-        alpha = 0.5
+        alpha = 0.3
 
         cornerWidgetsColor = "black"
         cornerWidgetsOutline = "blue"
@@ -663,6 +663,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 self.canvas.delete(self.id)
 
                 if self.canvas.drawing:
+                    self.canvas.rectangles = [i for i in self.canvas.rectangles if i != None]
                     self.canvas.rectangles = [i for i in self.canvas.rectangles if i.id != self.id]
 
     def release(self, event):
@@ -741,7 +742,6 @@ class TOCCanvasWithclick(tk.Canvas):
                                                             x, y, x1, y1,
                                                             self.omPage,
                                                             x - 85, y))
-            self.saveFigures()
 
             self.selectingZone = False
             self.getTextOfSelector = False
@@ -750,10 +750,11 @@ class TOCCanvasWithclick(tk.Canvas):
             return
 
         else:
-            # self.saveFigures()
             if self.drawing:
                 self.rectangles.append(self.lastRecrangle)
                 self.drawing = False
+
+            self.saveFigures()
 
             self.lastRecrangle = None
             self.startCoord = []
@@ -878,7 +879,6 @@ class TOCCanvasWithclick(tk.Canvas):
                 else:
                     return
         else:
-            omBookName = fsf.Data.Book.currOrigMatName
             figuresList = fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
 
             subsection = fsf.Data.Book.currSection
@@ -888,15 +888,15 @@ class TOCCanvasWithclick(tk.Canvas):
                 if type(l) == dict:
                     if l["page"] == self.omPage:
                         labelToAdd = TOCCanvasWithclick.Label(subsection,
-                                                                    k,
-                                                                    self,
-                                                                    l["coords"][0] * widthScale + 1,
-                                                                    l["coords"][1] * heightScale + 1,
-                                                                    l["coords"][2] * widthScale + 1,
-                                                                    l["coords"][3] * heightScale + 1,
-                                                                    self.omPage,
-                                                                    l["labelCoords"][0] * widthScale + 1,
-                                                                    l["labelCoords"][1] * heightScale + 1)
+                                                              k,
+                                                              self,
+                                                              l["coords"][0] * widthScale + 1,
+                                                              l["coords"][1] * heightScale + 1,
+                                                              l["coords"][2] * widthScale + 1,
+                                                              l["coords"][3] * heightScale + 1,
+                                                              self.omPage,
+                                                              l["labelCoords"][0] * widthScale + 1,
+                                                              l["labelCoords"][1] * heightScale + 1)
                         self.labels.append(labelToAdd)
 
         for f in figuresList:
@@ -915,7 +915,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 f["startY"] = int(f["startY"] *  (1 / self.resizeFactor)) + 1
 
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
-            self.rectangles.append(TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self))
+            self.rectangles.append(rect)
 
     def saveFigures(self, *args):
         figuresList = []
@@ -1004,8 +1004,6 @@ class TOCCanvasWithclick(tk.Canvas):
                  isPdfPage = False, page = None, pilIm = None,
                  resizeFactor = 1.0,
                  *args, **kwargs) -> None:
-        self.rectangles = [] # Not sure but it is populated somewhere???
-
         self.row = row
         self.column = column
         self.columnspan = columnspan

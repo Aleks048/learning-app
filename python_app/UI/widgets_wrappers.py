@@ -748,8 +748,6 @@ class TkWidgets (DataTranslatable_Interface):
             # this function stamps the changes every 180 seconds
             msg = "After time has passed'."
             log.autolog(msg)
-            origMatName = fsf.Data.Book.currOrigMatName
-            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
             TkWidgets.Data.tk.after(180000, tick)
             return None

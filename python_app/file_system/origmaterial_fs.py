@@ -243,21 +243,6 @@ class OriginalMaterialStructure:
             cls.setMaterialCurrPage(matName, newPage)
             return
 
-        materialFilename = cls.getOriginalMaterialsFilename(matName)
-        # update the currPage for original material
-        cmd = oscr.get_PageOfSkimDoc_CMD(materialFilename)
-        frontSkimDocumentPage, _ = _u.runCmdAndGetResult(cmd)
-
-        # NOTE: this is needed to not update the page when 
-        # the pdf doc is still not opened.
-        if len(frontSkimDocumentPage.split("page ")) < 2:
-            return
-        
-        if frontSkimDocumentPage != None:
-            page = frontSkimDocumentPage.split("page ")[1]
-            page = page.split(" ")[0]
-            cls.setMaterialCurrPage(matName, page)
-
     @classmethod
     def setMaterialPageSize(cls, materialName, pageSize = None):
         if pageSize == None:
@@ -338,6 +323,9 @@ class OriginalMaterialStructure:
     
     @classmethod
     def setMaterialCurrPage(cls, materialName, currPage):
+        if str(currPage) == str(cls.getMaterialCurrPage(materialName)):
+            return
+
         materials = cls.__getMaterailsDict()
 
         if materialName not in materials.keys():
@@ -345,6 +333,10 @@ class OriginalMaterialStructure:
         
         materials[materialName][OriginalMaterialStructure.PubProp.currPage] = currPage
         cls.__updateMaterialDict(materials)
+
+        msg = "After changing OM page"
+        log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
         
     @classmethod
     def __getJSONfilepath(cls) -> str:

@@ -19,8 +19,8 @@ import layouts.layouts_facade as lf
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
     def render(self, widjetObj=None, changePdfReader = True, renderData=..., **kwargs):
-        origMatName = fsm.Data.Book.currOrigMatName
-        fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+        # origMatName = fsm.Data.Book.currOrigMatName
+        # fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
         def __showPdf(*args):
             pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",

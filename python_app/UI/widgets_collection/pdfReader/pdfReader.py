@@ -595,6 +595,10 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                 l.deleteLabel()
                 break
 
+    def saveFigures(self):
+        for im in self.displayedPdfPages:
+            im.imLabel.saveFigures()
+
     def moveToEntryWidget(self, subsection, imIdx, eImIdx = None):
         if eImIdx == None:
             self.currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
@@ -634,9 +638,30 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
             self.displayedPdfPages.append(pageImage)
 
+    def updateOMpage(self):
+        self.saveFigures()
+
+        origMatName = fsf.Data.Book.currOrigMatName
+
+        addPage = 0
+        prevYview, _ = self.canvas.yview()
+
+        if (0.0 <= prevYview) and (prevYview < 0.2):
+            addPage = -2
+        elif (0.2 <= prevYview) and (prevYview < 0.4):
+            addPage = -1
+        elif (0.6 <= prevYview) and (prevYview < 0.8):
+            addPage = +1
+        elif (0.8 <= prevYview) and (prevYview <= 1.0):
+            addPage = +2
+
+        newPage = str(int(self.currPage) + addPage)
+
+        if newPage !=  str(fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)):
+                fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(origMatName, newPage)
+
     def hide(self, **kwargs):
-        for im in self.displayedPdfPages:
-            im.imLabel.saveFigures()
+        self.updateOMpage()
 
         self.prevPage = self.currPage
 
@@ -646,6 +671,9 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         return super().hide(**kwargs)
 
     def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
+        self.updateOMpage()
+        self.currPage = int(self.currPage)
+
         if self.currPage == self.prevPage:
             if (self.prevPos != 0.0) and (self.prevPos != None):
                 self.prevPosition = self.prevPos
@@ -669,13 +697,18 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.canvas.yview_moveto(self.prevPosition)
 
     def changePage(self, currPage):
+        self.saveFigures()
+
         self.currPage = currPage
+
         self.prevPos = 0.4
         self.prevPosition = 0.4
 
         self.render()
 
     def moveToCurrPage(self):
+        self.saveFigures()
+
         origMatName = fsf.Data.Book.currOrigMatName
         self.currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
@@ -684,6 +717,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.canvas.yview_moveto(0.4)
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
+        self.saveFigures()
         if broadcasterType == ResizePdfReaderWindow_BTN:
             if data != None:
                 for p in self.displayedPdfPages:
@@ -721,6 +755,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             self.canvas.yview_moveto(prevYview)
 
     def updateScrollerPosition(self):
+        self.saveFigures()
+
         prevYview, _ = self.canvas.yview()
         self.prevPos = prevYview
         self.prevPosition = prevYview
@@ -737,6 +773,8 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.MathMenuManager)
             mainManager.startAddingTheEntry()
+            self.pdfBox.selectingZone = False
+            self.pdfBox.getTextOfSelector = False
 
         def __changePage(increase):
             if increase:

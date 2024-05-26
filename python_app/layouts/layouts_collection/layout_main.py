@@ -163,15 +163,6 @@ class MainLayout(lc.Layout):
         currOrigMatName = fsf.Data.Book.currOrigMatName
         currOrigMatFilename:str = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(currOrigMatName)
         
-        _, windowName, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-                                                                currOrigMatFilename)
-        if ownerPID != None:
-            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(currOrigMatName)
-
-            lm.LayoutsManager.closePDFwindow(currOrigMatFilename, ownerPID)
-        else:
-            log.autolog("Could not close the 'pdf reader' window of the main layout")
-        
         log.autolog("--- Ended closing of 'PDF editor'")
         
 

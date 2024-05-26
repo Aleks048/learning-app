@@ -55,8 +55,7 @@ NOTE: The TOC page is not set for '{0}' . Will not do anything.".format(omName)
             return
         omName = fsf.Data.Book.currOrigMatName
                     
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, 
-                                                                tocPage)
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, tocPage)
 
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.PdfReadersManager)

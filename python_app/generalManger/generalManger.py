@@ -82,8 +82,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         import UI.widgets_facade as wf
         log.autolog("- Starting exiting the app")
 
-        origMatName = fsf.Data.Book.currOrigMatName
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
         # Updating the remote
         msg = "Closing the book."
@@ -127,6 +125,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # pdfReader
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.updateOMpage()
         pdfReadersManager.winRoot.exitApp()
 
         # excerciseLineNoteManager
@@ -343,7 +342,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             # ORIGINAL MATERIAL DATA
             origMatName = fsf.Data.Book.currOrigMatName
 
-            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.updateOMpage()
 
             page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
