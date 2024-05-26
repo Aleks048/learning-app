@@ -1246,7 +1246,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         else:
             imHeight = 30
 
-        height = event.widget.height + imHeight + 100
+        height = int(event.widget.height * 1.5) + imHeight + 100
 
         imMenuManger.show([width, height, 0, 0], eImIdx)
 
