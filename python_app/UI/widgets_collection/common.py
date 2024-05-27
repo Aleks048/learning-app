@@ -841,7 +841,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                                 str(imIdx))
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
                     figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
-                    figuresLabelsData.pop(str(imIdx))
+
+                    if figuresLabelsData.get(str(imIdx)) != None:
+                        figuresLabelsData.pop(str(imIdx))
+
                     fsm.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
 
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -862,6 +865,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                     wf.Wr.MenuManagers.MathMenuManager)
                         mainManager.show()
+                        mainManager.moveTocToCurrEntry()
                     
                     t = Thread(target = __cmdAfterImageCreated, args = [self])
                     t.start()
