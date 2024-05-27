@@ -1619,6 +1619,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                     wf.Wr.MenuManagers.MathMenuManager)
                         mainManager.show()
+                        # NOTE: should move to extra image but this should work for now
+                        mainManager.moveTocToCurrEntry()
                     
                     t = Thread(target = __cmdAfterImageCreated)
                     t.start()
