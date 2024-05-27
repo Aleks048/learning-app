@@ -672,12 +672,10 @@ class TOCCanvasWithclick(tk.Canvas):
                 self.labels.append(self.movingFigure)
                 self.movingFigure.movingHandle2 = False
 
-            self.saveFigures()
-
         self.movingFigure = None
         self.resizingFigure = None
 
-        self.bind_all("<Mod1-s>", self.saveFigures)
+        self.bind_all("<Mod1-s>", lambda *args: self.saveFigures(True))
         self.bind_all("<Delete>", self.deleteSelectedRectangle)
 
         if self.selectingZone \
@@ -868,7 +866,7 @@ class TOCCanvasWithclick(tk.Canvas):
         heightScale = pageSizeZoomAffected[1] / pageSize[1]
 
         if not self.isPdfPage:
-            figuresData = fsf.Data.Sec.figuresData(self.subsection)
+            figuresData = fsf.Data.Sec.figuresData(self.subsection).copy()
 
             if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
                 if figuresData.get(self.imIdx) != None:
@@ -879,10 +877,11 @@ class TOCCanvasWithclick(tk.Canvas):
                 else:
                     return
         else:
-            figuresList = fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
+            figuresList = \
+                fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage).copy()
 
             subsection = fsf.Data.Book.currSection
-            figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
+            figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
 
             for k, l in figuresLabelsData.items():
                 if type(l) == dict:
@@ -917,7 +916,7 @@ class TOCCanvasWithclick(tk.Canvas):
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(rect)
 
-    def saveFigures(self, *args):
+    def saveFigures(self, stampChanges = False, *args):
         figuresList = []
 
         omBookName = fsf.Data.Book.currOrigMatName
@@ -987,6 +986,11 @@ class TOCCanvasWithclick(tk.Canvas):
                     figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = f
         
                 fsf.Data.Sec.figuresLabelsData(l.subsection, figuresLabelsData)
+
+        if stampChanges:
+            msg = "\
+        After saving the figures'."
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     def deleteSelectedRectangle(self, *args):
         if self.selectedRectangle != None:

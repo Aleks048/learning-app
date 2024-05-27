@@ -140,7 +140,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getOriginalMaterialsNames(cls):
-        origMatDict = cls.__getMaterailsDict()
+        origMatDict = cls.__getMaterailsDict().copy()
         return list(origMatDict.keys())
     
     @classmethod
@@ -155,7 +155,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getMaterialPath(cls, OMName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             basePath_curr =  _upan.Paths.OriginalMaterial.getAbs()
             relPath =  books[OMName][OriginalMaterialStructure.PubProp.path]
@@ -166,7 +166,7 @@ class OriginalMaterialStructure:
     
     @classmethod
     def getMaterialTOCPage(cls, OMName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             return books[OMName][OriginalMaterialStructure.PubProp.tocPage]
         except:
@@ -175,7 +175,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getMaterialZoomLevel(cls, OMName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             return books[OMName][OriginalMaterialStructure.PubProp.zoomLevel]
         except:
@@ -184,7 +184,7 @@ class OriginalMaterialStructure:
     
     @classmethod
     def getMaterialPageFigures(cls, omName, page):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
 
         materialData = books[omName]
 
@@ -202,7 +202,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getMaterialNoteSize(cls, omName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             return books[omName][OriginalMaterialStructure.PubProp.noteSize]
         except:
@@ -211,7 +211,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getMaterialPagesToBeAdded(cls, omName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             return books[omName][OriginalMaterialStructure.PubProp.pagesToBeAdded]
         except:
@@ -220,7 +220,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def getMaterialPageSize(cls, OMName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         try:
             return books[OMName][OriginalMaterialStructure.PubProp.pageSize]
         except:
@@ -229,7 +229,7 @@ class OriginalMaterialStructure:
     
     @classmethod
     def getMaterialCurrPage(cls, bookName):
-        books = cls.__getMaterailsDict()
+        books = cls.__getMaterailsDict().copy()
         
         try:
             return books[bookName][OriginalMaterialStructure.PubProp.currPage]
@@ -266,7 +266,7 @@ class OriginalMaterialStructure:
 
     @classmethod
     def setMaterialPageFigures(cls, materialName, page, pageFigures):
-        materials = cls.__getMaterailsDict()
+        materials = cls.__getMaterailsDict().copy()
 
         materialData = materials[materialName]
 

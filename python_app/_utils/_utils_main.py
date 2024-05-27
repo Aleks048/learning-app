@@ -214,10 +214,13 @@ class JSON:
         # print("JSON.readFile - reading json file: " + filePath)
 
         if filePath not in list(cls.__tempFiles.keys()):
+            outputList = None
+
             with open(filePath, 'r') as f:
                 outputList = json.loads(f.read())
                 cls.__tempFiles[filePath] = outputList
-                return outputList
+
+            return outputList
         else:
             return cls.__tempFiles[filePath].copy()
 
@@ -228,7 +231,7 @@ class JSON:
 
     @lockutils.synchronized('not_thread_safe')
     def readProperty(jsonFilepath, propertyName):
-        jsonData = JSON.readFile(jsonFilepath)
+        jsonData = JSON.readFile(jsonFilepath).copy()
         
         def _readProperty(jsonData):
             if propertyName in jsonData:

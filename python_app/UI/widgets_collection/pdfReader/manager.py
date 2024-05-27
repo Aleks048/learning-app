@@ -137,5 +137,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
         currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
         self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
         self.layouts[0].currPage = currPage
+        self.layouts[0].selector = False
         # self.layouts[0].pfdReader_BOX.changePage(currPage)
+        self.layouts[0].pfdReader_BOX.getIntoDrawingMode()
         self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)

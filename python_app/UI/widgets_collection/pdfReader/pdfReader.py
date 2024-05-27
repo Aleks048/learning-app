@@ -595,6 +595,16 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                 l.deleteLabel()
                 break
 
+    def getIntoDrawingMode(self):
+        self.selectingZone = False
+        self.getTextOfSelector = False
+
+        for im in self.displayedPdfPages:
+            im.selectingZone = self.selectingZone
+            im.getTextOfSelector = self.getTextOfSelector
+            im.imLabel.selectingZone = self.selectingZone
+            im.imLabel.getTextOfSelector = self.getTextOfSelector
+
     def saveFigures(self):
         for im in self.displayedPdfPages:
             im.imLabel.saveFigures()
@@ -773,8 +783,7 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.MathMenuManager)
             mainManager.startAddingTheEntry()
-            self.pdfBox.selectingZone = False
-            self.pdfBox.getTextOfSelector = False
+            self.pdfBox.getIntoDrawingMode()
 
         def __changePage(increase):
             if increase:
