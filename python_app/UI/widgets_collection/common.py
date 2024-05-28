@@ -963,6 +963,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         elif not self.showAll:
                             self.__renderWithoutScroll()
 
+                    if excerciseWidgetShown:
+                        excerciseManager.show()
+
+                        if self.showAll:
+                            tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.TOCManager)
+                            tocManager.show()
+
                     if self.showAll:
                         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                 wf.Wr.MenuManagers.MathMenuManager)
@@ -972,13 +980,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         # tocManager.show()
                         mainManager.showLinksForEntry(targetSubsection, str(targetImIdx))
 
-                    if excerciseWidgetShown:
-                        excerciseManager.show()
-
-                        if self.showAll:
-                            tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.TOCManager)
-                            tocManager.show()
 
                 def copyGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
