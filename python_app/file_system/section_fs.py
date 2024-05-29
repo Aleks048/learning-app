@@ -1119,8 +1119,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
 
         if eImIdx != None:
-            eImList.pop(eImIdx)
-            eImTextsList.pop(eImIdx)
+            try:
+                eImList.pop(eImIdx)
+                eImTextsList.pop(eImIdx)
+            except:
+                pass
 
             if imageUIResize.get(mainImIdx + "_" + str(eImIdx)) != None:
                 imageUIResize.pop(mainImIdx + "_" + str(eImIdx))
