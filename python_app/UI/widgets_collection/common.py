@@ -385,7 +385,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.render()
         self.shouldScroll = True
 
-    def showLinksForEntryCmd(self, event, subsection = None, imIdx = None, *args):
+    def showLinksForEntryCmd(self, event, subsection = None, imIdx = None,
+                             dontHide = False, *args):
         if event != None:
             widget = event.widget
             subsection = widget.subsection
@@ -398,10 +399,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         linkShouldBePresent = True
 
-        for l in self.showLinksForSubsections:
-            if liskShpowId in l:
-                self.showLinksForSubsections = []
-                linkShouldBePresent = False
+        if not dontHide:
+            for l in self.showLinksForSubsections:
+                if liskShpowId in l:
+                    self.showLinksForSubsections = []
+                    linkShouldBePresent = False
                 break
 
         if linkShouldBePresent:
@@ -963,7 +965,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 or ((self.currentEntrySubsection == targetSubsection) and ( self.currentEntryImIdx == targetImIdx))):
                             self.showLinksForEntryCmd(None,
                                                       self.currentEntrySubsection, 
-                                                      self.currentEntryImIdx)
+                                                      self.currentEntryImIdx,
+                                                      True)
+                            self.scrollIntoView(None, widget)
                         elif not self.showAll:
                             self.__renderWithoutScroll()
 
