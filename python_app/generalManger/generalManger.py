@@ -178,7 +178,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                                             imIdx = mainImIdx,
                                                                             selector = True,
                                                                             extraImIdx = eImIdx,
-                                                                            changePrevPos = False)            
+                                                                            changePrevPos = True)            
 
         def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
             timer = 0
