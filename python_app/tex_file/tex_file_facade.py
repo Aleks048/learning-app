@@ -59,6 +59,9 @@ class Wr:
             \\newcommand{{\\boundary}}{{\\partial}}\
             \\newcommand{{\\forward}}{{$\\Rightarrow$}}\
             \\newcommand{{\\back}}{{$\\Leftarrow$}}\
+            \\newcommand{{\\closure}}{{\\overline}}\
+            \\newcommand{{\\union}}{{\\cup}}\
+            \\newcommand{{\\intersection}}{{\\cap}}\
             \
             \\begin{{document}}\
             {tex}\
