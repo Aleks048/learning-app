@@ -525,6 +525,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.secondEntryClicked = widget
 
                 self.__renderWithoutScroll()
+
+                if (currImIdx == self.secondEntryClickedImIdx) and \
+                    (secondSubsection == self.secondEntrySubsectionClicked):
+                    self.scrollIntoView(None, widget)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 

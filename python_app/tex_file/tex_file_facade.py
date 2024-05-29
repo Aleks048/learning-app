@@ -57,6 +57,8 @@ class Wr:
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
             \\newcommand{{\\bsl}}{{\\textbackslash}}\
             \\newcommand{{\\boundary}}{{\\partial}}\
+            \\newcommand{{\\forward}}{{$\\Rightarrow$}}\
+            \\newcommand{{\\back}}{{$\\Leftarrow$}}\
             \
             \\begin{{document}}\
             {tex}\
