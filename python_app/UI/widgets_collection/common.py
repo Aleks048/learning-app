@@ -938,7 +938,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def addExtraImCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
                     self.notify(mui.AddExtraImage_BTN,
-                                data = [widget.subsection, widget.imIdx])
+                                data = [widget.subsection, widget.imIdx, False])
+                    self.__renderWithScrollAfter()
+
+                def addExtraImProofCmd(event, *args):
+                    widget:_uuicom.TOCLabelWithClick = event.widget
+                    self.notify(mui.AddExtraImage_BTN,
+                                data = [widget.subsection, widget.imIdx, True])
                     self.__renderWithScrollAfter()
 
                 def pasteGlLinkCmd(event, *args):
@@ -1537,6 +1543,8 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         addExtraImage.subsection = subsection
                         addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addExtraImCmd])
+                        addExtraImage.rebind([ww.currUIImpl.Data.BindID.shmouse1],
+                                            [addExtraImProofCmd])
 
                         copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                                          text = self.__EntryUIs.copyLink.name,

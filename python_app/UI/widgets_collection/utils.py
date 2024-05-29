@@ -1597,8 +1597,10 @@ def addExtraEntryImagesWidgets(rootLabel,
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
                     figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
-                    figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
-                    fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+
+                    if figuresLabelsData.get(f"{imIdx}_{eImIdx}") != None:
+                        figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
+                        fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
                     
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                         wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,

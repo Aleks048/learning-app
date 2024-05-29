@@ -1121,14 +1121,19 @@ class AddExtraImage_BTN(ww.currUIImpl.Button,
         else:
             subsection = data[0]  
             mainImIdx = data[1]
+            isProof = data[2]
+
             extraImIdx = _u.Token.NotDef.str_t
             extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
 
-            if mainImIdx in list(extraImagesDict.keys()):
-                extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+            if not isProof:
+                if mainImIdx in list(extraImagesDict.keys()):
+                    extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+                else:
+                    extraImText = "con0"
             else:
-                extraImText = "con0"
-            
+                extraImText = "proof"
+
             if broadcasterType == comw.TOC_BOX:
                 self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False, False)
             else:
