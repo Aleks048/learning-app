@@ -886,6 +886,11 @@ class TOCCanvasWithclick(tk.Canvas):
             for k, l in figuresLabelsData.items():
                 if type(l) == dict:
                     if l["page"] == self.omPage:
+                        additionFactor = 1
+
+                        if l["labelCoords"][0] < 0:
+                            additionFactor = 0
+
                         labelToAdd = TOCCanvasWithclick.Label(subsection,
                                                               k,
                                                               self,
@@ -894,7 +899,7 @@ class TOCCanvasWithclick(tk.Canvas):
                                                               l["coords"][2] * widthScale + 1,
                                                               l["coords"][3] * heightScale + 1,
                                                               self.omPage,
-                                                              l["labelCoords"][0] * widthScale + 1,
+                                                              l["labelCoords"][0] * widthScale + additionFactor,
                                                               l["labelCoords"][1] * heightScale + 1)
                         self.labels.append(labelToAdd)
 
