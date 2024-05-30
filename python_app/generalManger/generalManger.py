@@ -346,7 +346,10 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                 wf.Wr.MenuManagers.PdfReadersManager)
             pdfReadersManager.updateOMpage()
 
-            page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+            try:
+                page = str(fsf.Data.Sec.figuresLabelsData(subsection)[imIdx]["page"])
+            except:
+                page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
             origMatNameDict = {}
 

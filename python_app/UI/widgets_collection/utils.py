@@ -718,8 +718,6 @@ class TOCCanvasWithclick(tk.Canvas):
                                                                              self.imIdx,
                                                                              self.eImIdx)
 
-            im.save(imPath)
-
             if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
                 OMName = fsf.Data.Book.currOrigMatName
                 fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, self.omPage)
@@ -740,6 +738,8 @@ class TOCCanvasWithclick(tk.Canvas):
                                                             x, y, x1, y1,
                                                             self.omPage,
                                                             x - 85, y))
+
+            im.save(imPath)
 
             self.selectingZone = False
             self.getTextOfSelector = False
