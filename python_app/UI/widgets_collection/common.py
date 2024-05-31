@@ -191,11 +191,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         retake = __EntryUIData("[Retake]", 6)
         update = __EntryUIData("[Update]", 7)
         link = __EntryUIData("[Link]", 8)
-        addExtra = __EntryUIData("[Add extra]", 9)
-        proof = __EntryUIData("[pr]", 10)
-        note = __EntryUIData("[d]", 11)
-        copyText = __EntryUIData("[ct]", 12)
-        group = __EntryUIData("", 13)
+        addExtra = __EntryUIData("[a exta]", 9)
+        addProof = __EntryUIData("[a proof]", 10)
+        proof = __EntryUIData("[pr]", 11)
+        note = __EntryUIData("[d]", 12)
+        copyText = __EntryUIData("[c text]", 13)
+        group = __EntryUIData("", 14)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -1543,7 +1544,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         addExtraImage.subsection = subsection
                         addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addExtraImCmd])
-                        addExtraImage.rebind([ww.currUIImpl.Data.BindID.shmouse1],
+
+                        addProofImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                         text = self.__EntryUIs.addProof.name,
+                                                         prefix = "contentAddExtraProofEntry" + nameId,
+                                                         row = 0, 
+                                                         column = self.__EntryUIs.addProof.column)
+                        addProofImage.imIdx = k
+                        addProofImage.subsection = subsection
+                        addProofImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                             [addExtraImProofCmd])
 
                         copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
@@ -1935,6 +1944,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                             addLinkEntry.render()
                             addExtraImage.render()
+                            addProofImage.render()
                             copyLinkEntry.render()
                             pasteLinkEntry.render()
 
@@ -1988,6 +1998,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
                         _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(addExtraImage)
+                        _uuicom.bindChangeColorOnInAndOut(addProofImage)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
                         openSecondaryImage(textLabelFull)
