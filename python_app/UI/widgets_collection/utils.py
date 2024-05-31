@@ -880,28 +880,37 @@ class TOCCanvasWithclick(tk.Canvas):
             figuresList = \
                 fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage).copy()
 
-            subsection = fsf.Data.Book.currSection
-            figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
+            # NOTE: inafficient and need to be optimised
+            subsections = [i for i in fsf.Wr.BookInfoStructure.getSubsectionsList() if "." in i]
 
-            for k, l in figuresLabelsData.items():
-                if type(l) == dict:
-                    if l["page"] == self.omPage:
-                        additionFactor = 1
+            for i in range(len(subsections) - 1, -1, -1):
+                subsection = subsections[i]
+                subsectionStartPage = int(fsf.Data.Sec.start(subsection))
 
-                        if l["labelCoords"][0] < 0:
-                            additionFactor = 0
+                if subsectionStartPage > int(self.omPage):
+                    continue
 
-                        labelToAdd = TOCCanvasWithclick.Label(subsection,
-                                                              k,
-                                                              self,
-                                                              l["coords"][0] * widthScale + 1,
-                                                              l["coords"][1] * heightScale + 1,
-                                                              l["coords"][2] * widthScale + 1,
-                                                              l["coords"][3] * heightScale + 1,
-                                                              self.omPage,
-                                                              l["labelCoords"][0] * widthScale + additionFactor,
-                                                              l["labelCoords"][1] * heightScale + 1)
-                        self.labels.append(labelToAdd)
+                figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
+
+                for k, l in figuresLabelsData.items():
+                    if type(l) == dict:
+                        if l["page"] == self.omPage:
+                            additionFactor = 1
+
+                            if l["labelCoords"][0] < 0:
+                                additionFactor = 0
+
+                            labelToAdd = TOCCanvasWithclick.Label(subsection,
+                                                                k,
+                                                                self,
+                                                                l["coords"][0] * widthScale + 1,
+                                                                l["coords"][1] * heightScale + 1,
+                                                                l["coords"][2] * widthScale + 1,
+                                                                l["coords"][3] * heightScale + 1,
+                                                                self.omPage,
+                                                                l["labelCoords"][0] * widthScale + additionFactor,
+                                                                l["labelCoords"][1] * heightScale + 1)
+                            self.labels.append(labelToAdd)
 
         for f in figuresList:
             if f.get("type") != None:
