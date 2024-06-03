@@ -109,7 +109,11 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
             
             fsf.Wr.EntryInfoStructure.addLineNote(self.subsection, self.imIdx, text, bookPath, self.lineIdx)
             fsf.Wr.EntryInfoStructure.rebuildLineNote(self.subsection, self.imIdx, self.lineIdx, text,bookPath)
-            
+
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseManager.show()
+
             self.render()
 
         addLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [addLabelNoteIdx])
