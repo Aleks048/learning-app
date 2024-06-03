@@ -63,6 +63,13 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                         parentWidget, 
                         renderData = data,
                         height = 720)
+
+    def hide(self, **kwargs):
+        for l in self.labels:
+            l.grid_forget()
+
+        return super().hide(**kwargs)
+
     def render(self, widjetObj=None, renderData=..., **kwargs):
         self.addSolutionWidgets()
 
