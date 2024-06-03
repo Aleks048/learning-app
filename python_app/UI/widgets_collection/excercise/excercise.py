@@ -671,8 +671,18 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                             wf.Wr.MenuManagers.ExcerciseLineNoteManager)
                 excerciseLineNoteManager.show(widget.subsection, widget.imIdx, widget.lineImIdx)
 
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
+                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
+                                    bookPath)
+            shouldBeBrown = False
+
+            if entryLinesNotesList.get(str(i)) != None:
+                noteLabel.configure(foreground="brown")
+                shouldBeBrown = True
+
             noteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [noteForLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(noteLabel)
+            _ucomw.bindChangeColorOnInAndOut(noteLabel, shouldBeBrown)
             noteLabel.render()
 
     def receiveNotification(self, broadcasterType) -> None:
