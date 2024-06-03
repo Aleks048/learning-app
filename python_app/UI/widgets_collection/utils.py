@@ -1148,6 +1148,7 @@ class TOCLabelWithClick(ttk.Label):
         self.shouldShowProofMenu = False
         self.shouldShowNotesMenu = False
         self.lineImIdx = _u.Token.NotDef.str_t
+        self.solImIdx = _u.Token.NotDef.str_t
         self.etrWidget = _u.Token.NotDef.str_t
         self.sticky = None
         self.tocFrame = None

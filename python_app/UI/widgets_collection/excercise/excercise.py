@@ -184,27 +184,14 @@ class ShowSolutions_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        subsection = self.subsection
-        imIdx = self.imIdx
-
-        savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
-
-        filename = _upan.Names.Entry.Solution.name(imIdx, str(0))
-        solutionPath = os.path.join(savePath, filename)
-
-        for i in range(0, 5):
-            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(solutionPath):
-                if self.showSolutions:
-                    ocf.Wr.FsAppCalls.openFile(solutionPath)
-                else:
-                    cmd = osascr.get_ClosePreviewByFilepath_CMD(solutionPath)
-                    _u.runCmdAndWait(cmd)
-
-                filename = _upan.Names.Entry.Solution.name(imIdx, str(i))
-                solutionPath = os.path.join(savePath, filename)
-        
-        self.showSolutions = not self.showSolutions
+        excerciseSolutionManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ExcerciseSolutionManager)
+        if self.showSolutions:
+            excerciseSolutionManager.show(self.subsection, self.imIdx)
+            self.showSolutions = False
+        else:
+            excerciseSolutionManager.hide()
+            self.showSolutions = True
 
 
 class PasteGlLink_BTN(ww.currUIImpl.Button):
@@ -318,7 +305,7 @@ After updating the excercises for \n\
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_getExcerciseNewLineText_ETR"
-        defaultText = "New excercise line text"  + " / \"solution:\" prefix to add solution"
+        defaultText = "New excercise line text"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
