@@ -687,7 +687,7 @@ class TOCCanvasWithclick(tk.Canvas):
             self.lastRecrangle.deleteRectangle()
 
             im = self.pilImage
-            im = im.crop([x, y, x1, y1])
+            im = im.crop([x - 1, y - 1, x1 + 1, y1 + 1])
 
             if self.getTextOfSelector:
                 text = _u.getTextFromImage(None, im)
