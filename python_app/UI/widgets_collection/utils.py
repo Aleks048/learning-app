@@ -638,7 +638,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 fill = (232,255,25) + (alpha,)
 
             x1, y1, x2, y2 = self.startX, self.startY, self.endX, self.endY
-            image = Image.new('RGBA', (abs(x2-x1), abs(y2-y1)), fill)
+            image = Image.new('RGBA', (abs(int(x2-x1)), abs(int(y2-y1))), fill)
             self.imageContainer = ImageTk.PhotoImage(image)
 
             if not self.canvas.selectingZone:
@@ -675,7 +675,7 @@ class TOCCanvasWithclick(tk.Canvas):
         self.movingFigure = None
         self.resizingFigure = None
 
-        self.bind_all("<Mod1-s>", lambda *args: self.saveFigures(True))
+        self.bind_all("<Mod1-s>", lambda *args: self.saveFigures(stampChanges = True))
         self.bind_all("<Delete>", self.deleteSelectedRectangle)
 
         if self.selectingZone \
@@ -946,15 +946,15 @@ class TOCCanvasWithclick(tk.Canvas):
                 f= self.rectangles[i].toDict()
 
                 if self.isPdfPage:
-                    f["endX"] = int(f["endX"] * widthScale)
-                    f["endY"] = int(f["endY"] * heightScale)
-                    f["startX"] = int(f["startX"] * widthScale)
-                    f["startY"] = int(f["startY"] * heightScale)
+                    f["endX"] = f["endX"] * widthScale
+                    f["endY"] = f["endY"] * heightScale
+                    f["startX"] = f["startX"] * widthScale
+                    f["startY"] = f["startY"] * heightScale
                 elif self.resizeFactor != 1.0:
-                    f["endX"] = int(f["endX"] *  self.resizeFactor)
-                    f["endY"] = int(f["endY"] *  self.resizeFactor)
-                    f["startX"] = int(f["startX"] *  self.resizeFactor)
-                    f["startY"] = int(f["startY"] *  self.resizeFactor)
+                    f["endX"] = f["endX"] *  self.resizeFactor
+                    f["endY"] = f["endY"] *  self.resizeFactor
+                    f["startX"] = f["startX"] *  self.resizeFactor
+                    f["startY"] = f["startY"] *  self.resizeFactor
 
                 figuresList.append(f)
             else:
@@ -981,15 +981,15 @@ class TOCCanvasWithclick(tk.Canvas):
                 f = l.toDict()
 
                 coords = []
-                coords.append(int(f["coords"][0] * widthScale))
-                coords.append(int(f["coords"][1] * heightScale))
-                coords.append(int(f["coords"][2] * widthScale))
-                coords.append(int(f["coords"][3] * heightScale))
+                coords.append(f["coords"][0] * widthScale)
+                coords.append(f["coords"][1] * heightScale)
+                coords.append(f["coords"][2] * widthScale)
+                coords.append(f["coords"][3] * heightScale)
                 f["coords"] = coords
 
                 labelCoords = []
-                labelCoords.append(int(f["labelCoords"][0] * widthScale))
-                labelCoords.append(int(f["labelCoords"][1] * heightScale))
+                labelCoords.append(f["labelCoords"][0] * widthScale)
+                labelCoords.append(f["labelCoords"][1] * heightScale)
                 f["labelCoords"] = labelCoords
 
                 figuresLabelsData = fsf.Data.Sec.figuresLabelsData(l.subsection)
@@ -998,12 +998,13 @@ class TOCCanvasWithclick(tk.Canvas):
                     figuresLabelsData[l.imIdx] = f
                 else:
                     figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = f
-        
+
                 fsf.Data.Sec.figuresLabelsData(l.subsection, figuresLabelsData)
 
         if stampChanges:
             msg = "\
         After saving the figures'."
+            _u.log.autolog(msg)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     def deleteSelectedRectangle(self, *args):
@@ -1094,7 +1095,10 @@ class TOCCanvasWithclick(tk.Canvas):
     def unbindCmd(self, *args):
         self.unbind("<Shift-B1-Motion>")
         self.unbind("<B1-Motion>")
-        self.unbind("<Button-1>", self.__btnClickFuncId)
+        try:
+            self.unbind("<Button-1>", self.__btnClickFuncId)
+        except:
+            pass
         self.unbind("<ButtonRelease-1>")
 
         self.unbind("<Mod1-s>")
