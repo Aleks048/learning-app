@@ -1385,8 +1385,12 @@ def addExtraEntryImagesWidgets(rootLabel,
             if skippConditionFn(subsection, imIdx, i):
                 continue
 
+            shouldResetResizeFactor = False
+
             if resizeFactor == None:
-                if imIdx + "_" + str(i) in list(uiResizeEntryIdx.keys()):
+                shouldResetResizeFactor = True
+
+                if (imIdx + "_" + str(i)) in list(uiResizeEntryIdx.keys()):
                     resizeFactor = float(uiResizeEntryIdx[imIdx + "_" + str(i)])
                 else:
                     resizeFactor = 1.0
@@ -1514,6 +1518,16 @@ def addExtraEntryImagesWidgets(rootLabel,
                     
                     if widget.tocFrame != None:
                         tocFrame.render()
+                    else:
+                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.MathMenuManager)
+                        mathMenuManager.renderWithoutScroll()
+                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+
+                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.ExcerciseManager)
+                    if excerciseManager.shown:
+                        excerciseManager.show()
 
                 removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
 
@@ -1544,6 +1558,16 @@ def addExtraEntryImagesWidgets(rootLabel,
                         if (widget.eImIdx + 1) in range(len(eImWidgetsList)):
                             widget.tocFrame.scrollIntoView(None, 
                                                     eImWidgetsList[widget.eImIdx + 1])
+                    else:
+                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.MathMenuManager)
+                        mathMenuManager.renderWithoutScroll()
+                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+
+                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.ExcerciseManager)
+                    if excerciseManager.shown:
+                        excerciseManager.show()
 
                 moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
 
@@ -1574,6 +1598,16 @@ def addExtraEntryImagesWidgets(rootLabel,
                         if (widget.eImIdx - 1) in range(len(eImWidgetsList)):
                             widget.tocFrame.scrollIntoView(None, 
                                                     eImWidgetsList[widget.eImIdx - 1])
+                    else:
+                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.MathMenuManager)
+                        mathMenuManager.renderWithoutScroll()
+                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+
+                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.ExcerciseManager)
+                    if excerciseManager.shown:
+                        excerciseManager.show()
 
                 moveEntryUp.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveUp])
 
@@ -1669,7 +1703,19 @@ def addExtraEntryImagesWidgets(rootLabel,
 
                     fsf.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
 
-                    tocFrame.renderWithoutScroll()
+                    if tocFrame != None:
+                        tocFrame.renderWithoutScroll()
+                    else:
+                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.MathMenuManager)
+                        mathMenuManager.renderWithoutScroll()
+                        mathMenuManager.scrollTocToEntry(event.widget.subsection, 
+                                                         event.widget.imIdx)
+
+                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.ExcerciseManager)
+                    if excerciseManager.shown:
+                        excerciseManager.show()
 
                 changeImSize = ImageSize_ETR(tempEImLabel,
                                             prefix =  "imSize_" + eImWidgetName,
@@ -1691,6 +1737,10 @@ def addExtraEntryImagesWidgets(rootLabel,
                 eimLabel.render()
 
                 displayedImagesContainer.append(eImg)
+
+                if shouldResetResizeFactor:
+                    resizeFactor = None
+                    shouldResetResizeFactor = False
 
             outLabels.append(tempLabel)
 
