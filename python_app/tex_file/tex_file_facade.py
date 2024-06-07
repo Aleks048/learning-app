@@ -56,12 +56,15 @@ class Wr:
             \\newcommand{{\\Ball}}{{\\mathbb{{B}}}}\
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
             \\newcommand{{\\bsl}}{{\\textbackslash}}\
+            \\newcommand{{\\excl}}{{\\textbackslash}}\
+            \\newcommand{{\\exclude}}{{\\textbackslash}}\
             \\newcommand{{\\boundary}}{{\\partial}}\
             \\newcommand{{\\forward}}{{$\\Rightarrow$}}\
             \\newcommand{{\\back}}{{$\\Leftarrow$}}\
             \\newcommand{{\\closure}}{{\\overline}}\
             \\newcommand{{\\union}}{{\\cup}}\
             \\newcommand{{\\intersection}}{{\\cap}}\
+            \\newcommand{{\\intersect}}{{\\cap}}\
             \
             \\begin{{document}}\
             {tex}\
