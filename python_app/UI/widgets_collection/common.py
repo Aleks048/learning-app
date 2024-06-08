@@ -463,6 +463,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         elif broadcasterType == tocw.Filter_ETR:
             self.filterToken = data[0]
             self.searchSubsectionsText = data[1]
+            self.hide()
             self.__renderWithoutScroll()
         else:
             self.__renderWithScrollAfter()
