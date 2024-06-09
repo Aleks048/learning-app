@@ -895,21 +895,16 @@ class TOCCanvasWithclick(tk.Canvas):
                 for k, l in figuresLabelsData.items():
                     if type(l) == dict:
                         if l["page"] == self.omPage:
-                            additionFactor = 1
-
-                            if l["labelCoords"][0] < 0:
-                                additionFactor = 0
-
                             labelToAdd = TOCCanvasWithclick.Label(subsection,
                                                                 k,
                                                                 self,
-                                                                l["coords"][0] * widthScale + 1,
-                                                                l["coords"][1] * heightScale + 1,
-                                                                l["coords"][2] * widthScale + 1,
-                                                                l["coords"][3] * heightScale + 1,
+                                                                l["coords"][0] * widthScale,
+                                                                l["coords"][1] * heightScale,
+                                                                l["coords"][2] * widthScale,
+                                                                l["coords"][3] * heightScale,
                                                                 self.omPage,
-                                                                l["labelCoords"][0] * widthScale + additionFactor,
-                                                                l["labelCoords"][1] * heightScale + 1)
+                                                                l["labelCoords"][0] * widthScale,
+                                                                l["labelCoords"][1] * heightScale)
                             self.labels.append(labelToAdd)
 
         for f in figuresList:
@@ -917,10 +912,10 @@ class TOCCanvasWithclick(tk.Canvas):
                 f.pop("type")
 
             if self.isPdfPage:
-                f["endX"] = int(f["endX"] * widthScale) + 1
-                f["endY"] = int(f["endY"] * heightScale) + 1
-                f["startX"] = int(f["startX"] * widthScale) + 1
-                f["startY"] = int(f["startY"] * heightScale) + 1
+                f["endX"] = f["endX"] * widthScale
+                f["endY"] = f["endY"] * heightScale
+                f["startX"] = f["startX"] * widthScale
+                f["startY"] = f["startY"] * heightScale
             elif (self.resizeFactor != 1.0):
                 f["endX"] = int(f["endX"] *  (1 / self.resizeFactor)) + 1
                 f["endY"] = int(f["endY"] *  (1 / self.resizeFactor)) + 1
