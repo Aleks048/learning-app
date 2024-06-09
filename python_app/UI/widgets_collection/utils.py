@@ -887,7 +887,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 subsection = subsections[i]
                 subsectionStartPage = int(fsf.Data.Sec.start(subsection))
 
-                if subsectionStartPage > int(self.omPage):
+                if subsectionStartPage > int(self.omPage) + 10:
                     continue
 
                 figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
