@@ -149,6 +149,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     showLinks = None
     showLinksForSubsections = []
+    linksOpenImage = set()
+    linksOpenImageWidgets = {}
 
     entryCopySubsection = None
     entryCopyImIdx = None
@@ -186,7 +188,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         showLinks = __EntryUIData("[links]", 1)
         alwaysShow = __EntryUIData("", 2)
         changeImSize = __EntryUIData("", 3)
-        delete = __EntryUIData("[Delete]", 4)
+        delete = __EntryUIData("[Del]", 4)
         shift = __EntryUIData("[Shift]", 5)
         retake = __EntryUIData("[Retake]", 6)
         update = __EntryUIData("[Update]", 7)
@@ -196,7 +198,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         proof = __EntryUIData("[pr]", 11)
         note = __EntryUIData("[d]", 12)
         copyText = __EntryUIData("[c text]", 13)
-        group = __EntryUIData("", 14)
+        hideLInkImages = __EntryUIData("[hideLIm]", 14)
+        group = __EntryUIData("", 15)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -404,6 +407,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             for l in self.showLinksForSubsections:
                 if liskShpowId in l:
                     self.showLinksForSubsections = []
+                    self.linksOpenImage.clear()
+
+                    for k in self.linksOpenImageWidgets.keys():
+                        im = self.linksOpenImageWidgets[k]
+                        im.grid_forget()
+
+                    self.linksOpenImageWidgets = {}
+
                     linkShouldBePresent = False
                 break
 
@@ -418,6 +429,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.showLinksForSubsections.append(liskShpowId)
 
         self.__renderWithoutScroll()
+        self.scrollToEntry(subsection, imIdx)
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == mui.ExitApp_BTN:
@@ -588,7 +600,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         except:
                             pass
 
-                    for w in  self.currSecondRowLabels:
+                    for w in self.currSecondRowLabels:
                         try:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
                                 w.render()
@@ -606,6 +618,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
                     ((label.clicked) and ((int(event.type) == 4)) and shoulShowSecondRow and (not link)):
+                    if link:
+                        self.linksOpenImage.add(subsection + "_" + imIdx)
+
                     if shoulShowSecondRow:
                         for k,w in self.showImagesLabels.items():
                             if k == subsection + imIdx:
@@ -753,6 +768,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
                                 imLabel.rebind(*bindData)
 
+                    if link:
+                        self.linksOpenImageWidgets[subsection + "_" + imIdx] = imLabel
+
                     if not isWdgetLink:
                         self.openedMainImg = imLabel
 
@@ -780,6 +798,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if shouldScroll and (not self.showAll) and (not link):
                         imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
                 else:
+                    if link:
+                        if subsection + "_" + imIdx in self.linksOpenImage:
+                            self.linksOpenImage.remove(subsection + "_" + imIdx)
+                        
+                        if subsection + "_" + imIdx in self.linksOpenImageWidgets.keys():
+                            im = self.linksOpenImageWidgets.pop(subsection + "_" + imIdx)
+                            im.grid_forget()
+
                     if not isWdgetLink:
                         if int(event.type) == 4:
                             self.currEntryWidget = event.widget
@@ -791,6 +817,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         for w in  self.currSecondRowLabels:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
                                 w.grid_forget()
+                                self.linksOpenImage.clear()
 
                     _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
 
@@ -1049,6 +1076,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         notesMenuManger.show()
                     else:
                         notesMenuManger.hide()
+
+                def hideLinksImagesFunc(event, *args):
+                    self.linksOpenImage.clear()
+
+                    for k in self.linksOpenImageWidgets.keys():
+                        im = self.linksOpenImageWidgets[k]
+                        im.grid_forget()
+
+                    self.linksOpenImageWidgets = {}
+
+                    self.__renderWithScrollAfter()
 
                 def copyTextToMemCmd(event, *args):
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -1526,15 +1564,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                                  [retakeImageCmd])
 
-                        addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                         text = self.__EntryUIs.link.name,
-                                                         prefix = "contentAddGlLinkEntry" + nameId,
-                                                         row = 0, 
-                                                         column = self.__EntryUIs.link.column)
-                        addLinkEntry.imIdx = k
-                        addLinkEntry.subsection = subsection
-                        addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                            [addGlLinkCmd])
+                        # addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                        #                                  text = self.__EntryUIs.link.name,
+                        #                                  prefix = "contentAddGlLinkEntry" + nameId,
+                        #                                  row = 0, 
+                        #                                  column = self.__EntryUIs.link.column)
+                        # addLinkEntry.imIdx = k
+                        # addLinkEntry.subsection = subsection
+                        # addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                        #                     [addGlLinkCmd])
 
                         addExtraImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                          text = self.__EntryUIs.addExtra.name,
@@ -1608,6 +1646,17 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         copyTextToMem.subsection = subsection
                         copyTextToMem.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [copyTextToMemCmd])
+
+                        hideLinkImages = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.hideLInkImages.name, 
+                                                      prefix = "contenHideLinkImages" + nameId,
+                                                      row = 0, 
+                                                      column = self.__EntryUIs.hideLInkImages.column,
+                                                      columnspan = 1)
+                        hideLinkImages.imIdx = k
+                        hideLinkImages.subsection = subsection
+                        hideLinkImages.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [hideLinksImagesFunc])
 
                         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
                                                                             subsection,
@@ -1818,6 +1867,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                                                                             textOnly = True,
                                                                                                             *args)])
 
+                                            if not self.showAll:
+                                                if (glLinksShowImages.subsection + "_" + glLinksShowImages.imIdx) in \
+                                                    self.linksOpenImage:
+                                                    glLinksShowImages.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+
                                             linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                                         text = "[d]", 
                                                                         prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
@@ -1943,7 +1997,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                             showImages.render()
 
-                            addLinkEntry.render()
+                            # addLinkEntry.render()
                             addExtraImage.render()
                             addProofImage.render()
                             copyLinkEntry.render()
@@ -1971,6 +2025,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             pasteAfterEntry.render()
                             changeImText.render()
                             copyTextToMem.render()
+                            hideLinkImages.render()
 
                             if not self.showAll:
 
@@ -1997,7 +2052,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
                         _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
                         _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
-                        _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
+                        # _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
                         _uuicom.bindChangeColorOnInAndOut(addExtraImage)
                         _uuicom.bindChangeColorOnInAndOut(addProofImage)
                         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
@@ -2009,6 +2064,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
                         _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
+                        _uuicom.bindChangeColorOnInAndOut(hideLinkImages)
 
                         tempFrame.render()
                         prevImGroupName = currImGroupName
