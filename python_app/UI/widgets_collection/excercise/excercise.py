@@ -642,10 +642,16 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
             def deleteLineIdx(event, *args):
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                fsf.Wr.EntryInfoStructure.deleteLine(bookPath,
-                                                     self.subsection,
-                                                     self.imIdx,
-                                                     event.widget.lineImIdx)
+                deletedStructure = fsf.Wr.EntryInfoStructure.deleteLine(bookPath,
+                                                                        self.subsection,
+                                                                        self.imIdx,
+                                                                        event.widget.lineImIdx)
+                if deletedStructure:
+                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.renderWithoutScroll()
+                    mainManager.moveTocToEntry(self.subsection, self.imIdx)
+
                 try:
                     self.currEtr.pop(str(event.widget.lineImIdx))
                 except:

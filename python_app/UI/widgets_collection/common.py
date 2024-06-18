@@ -1668,15 +1668,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         if entryStructureExists:
                             currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
 
-                            entryLinesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
-                                                                   k,
-                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryLinesList,
-                                                                   currBookPath)
+                            # entryLinesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+                            #                                        k,
+                            #                                        fsm.Wr.EntryInfoStructure.PubProp.entryLinesList,
+                            #                                        currBookPath)
 
-                            if (entryLinesList != _u.Token.NotDef.list_t) \
-                                and (entryLinesList != []):
-                                excerciseExists = True
-                                openExUIEntry.configure(foreground="brown")
+                            # if (entryLinesList != _u.Token.NotDef.list_t) \
+                            #     and (entryLinesList != []):
+                            excerciseExists = True
+                            openExUIEntry.configure(foreground="brown")
 
                             entryWordDictArr = fsm.Wr.EntryInfoStructure.readProperty(subsection,
                                                                    k,

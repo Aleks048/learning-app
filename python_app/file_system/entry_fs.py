@@ -325,6 +325,9 @@ at position '{2}'.".format(subsection, imIdx, position)
             _upan.Paths.Entry.LineImage.getAbs(bookPath, subsection, imIdx, len(entryLinesList))
         ocf.Wr.FsAppCalls.deleteFile(imageToRemovePath)
 
+        if entryLinesList == []:
+            cls.removeEntry(subsection, imIdx, bookPath)
+            return True
 
     @classmethod
     def deleteLineNote(cls, bookPath, subsection, imIdx, lineIdx):
