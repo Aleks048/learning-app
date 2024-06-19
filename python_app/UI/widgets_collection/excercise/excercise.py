@@ -27,7 +27,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         name = "_textImage_ETR" + str(imLineIdx)
         self.defaultText = text
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 6},
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 7},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
 
@@ -193,6 +193,35 @@ class ShowSolutions_BTN(ww.currUIImpl.Button):
             excerciseSolutionManager.hide()
             self.showSolutions = True
 
+class ShowExtra_BTN(ww.currUIImpl.Button):
+    showSolutions = True
+    subsection = None
+    imIdx = None
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 6, "row" : 2},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+        }
+        text = "Extra"
+        name = "_ShowExtra_BTN"
+        super().__init__(prefix, 
+                        name, 
+                        text, 
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+
+    def cmd(self):
+        excerciseExtraManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ExcerciseExtraManager)
+        if self.showSolutions:
+            excerciseExtraManager.show(self.subsection, self.imIdx)
+            self.showSolutions = False
+        else:
+            excerciseExtraManager.hide()
+            self.showSolutions = True
+
 
 class PasteGlLink_BTN(ww.currUIImpl.Button):
     subsection = None
@@ -307,7 +336,7 @@ class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
         name = "_getExcerciseNewLineText_ETR"
         defaultText = "New excercise line text"
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 6},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 7},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         extraOptions = {
@@ -369,7 +398,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 7, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
         }
         name = "_showExcerciseCurr_text"

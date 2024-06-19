@@ -37,6 +37,8 @@ class LayoutManagers:
             self.addWidget(hideAllETRsWindow_BTN)
             self.showSolutions_BTN = exw.ShowSolutions_BTN(winRoot, self.prefix)
             self.addWidget(self.showSolutions_BTN)
+            self.showExtra_BTN = exw.ShowExtra_BTN(winRoot, self.prefix)
+            self.addWidget(self.showExtra_BTN)
 
             self.addExcerciseLine_BTN.addListenerWidget(addExcerciseLine_ETR)
             addExcerciseLine_ETR.addListenerWidget(self.addExcerciseLine_BTN)
@@ -65,6 +67,8 @@ class LayoutManagers:
 
             self.showSolutions_BTN.subsection = self.subsection
             self.showSolutions_BTN.imIdx = self.imIdx
+            self.showExtra_BTN.subsection = self.subsection
+            self.showExtra_BTN.imIdx = self.imIdx
 
             super().show()
 

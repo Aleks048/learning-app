@@ -9,6 +9,7 @@ import UI.widgets_collection.image.manager as imm
 import UI.widgets_collection.pdfReader.manager as pdfrm
 import UI.widgets_collection.excerciseLineNote.manager as enm
 import UI.widgets_collection.excerciseSolution.manager as eslnm
+import UI.widgets_collection.excerciseExtra.manager as eextm
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
@@ -48,6 +49,9 @@ class Wr:
             pass
 
         class ExcerciseSolutionManager(eslnm.ExcerciseSolutionManager):
+            pass
+
+        class ExcerciseExtraManager(eextm.ExcerciseExtraManager):
             pass
     
     class UI_generalManager(wm.UI_generalManager):

@@ -122,7 +122,16 @@ class Paths:
                 entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
 
                 return os.path.join(entryPath, filename)
-        
+
+        class ExtraImage:
+            @bookNameArg_dec
+            def getAbs(bookPath, section, imIdx, *args):
+                extraIdx = args[0]
+                filename = Names.Entry.Extra.name(extraIdx)
+                entryPath = Paths.Entry.getAbs(bookPath, section, imIdx)
+
+                return os.path.join(entryPath, filename)
+
         class JSON:
             @bookNameArg_dec
             def getAbs(bookPath, section, imIdx, *args):
@@ -295,6 +304,13 @@ class Names:
             @classmethod
             def name(cls, solutionIdx):
                 return f"{cls.solutionImgToken}{solutionIdx}.png"
+        
+        class Extra:
+            extraImgToken = "_Extra_"
+
+            @classmethod
+            def name(cls, extraIdx):
+                return f"{cls.extraImgToken}{extraIdx}.png"
 
         def getEntryNameID(subsection, idx):
             subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
