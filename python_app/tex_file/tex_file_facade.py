@@ -49,6 +49,7 @@ class Wr:
             \\pagecolor{{orange}}\
             \
             \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
+            \\newcommand{{\\R}}{{\\mathbb{{R}}}}\
             \\newcommand{{\\Natural}}{{\\mathbb{{N}}}}\
             \\newcommand{{\\Sphere}}{{\\mathbb{{S}}}}\
             \\newcommand{{\\Int}}{{\\mathbb{{Z}}}}\
