@@ -1830,6 +1830,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                                             def __moveLinkFull(e, *args):
                                                 widget = e.widget
+                                                fsm.Data.Book.currTopSection = widget.subsection.split(".")[0]
                                                 self.scrollToEntry(widget.subsection,
                                                                 widget.imIdx)
 

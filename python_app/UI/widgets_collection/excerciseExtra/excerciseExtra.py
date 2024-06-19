@@ -37,7 +37,13 @@ class ExcerciseExtraImageLabel(ttk.Label):
 
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
-            pilIm.thumbnail([530, 1000], Image.LANCZOS)
+            w, h = pilIm.size
+
+            if h > 400:
+                pilIm.thumbnail([530, 300], Image.LANCZOS)
+            else:
+                pilIm.thumbnail([530, 1000], Image.LANCZOS)
+
             img = ImageTk.PhotoImage(pilIm)
             self.image = img
             return super().__init__(root, name = name, image = img, padding = padding)

@@ -232,7 +232,7 @@ class PasteGlLink_BTN(ww.currUIImpl.Button):
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
-        text = "Paste Gl Link"
+        text = "P Gl Link"
         name = "_PasteGlLink_BTN"
         super().__init__(prefix, 
                         name, 
