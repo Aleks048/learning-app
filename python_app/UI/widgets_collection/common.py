@@ -476,6 +476,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.filterToken = data[0]
             self.searchSubsectionsText = data[1]
             self.hide()
+            self.showSubsectionsForTopSection = {}
             self.__renderWithoutScroll()
         else:
             self.__renderWithScrollAfter()
@@ -782,7 +783,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                     imPad, self.displayedImages, balloon,
-                                                                    skippProof, tocFrame = self)
+                                                                    skippProof, tocFrame = self, 
+                                                                    createExtraWidgets = False)
                     eImIdxCounter = 0
                     for l in exImLabels:
                         eImIdxCounter += 1

@@ -66,6 +66,7 @@ class Wr:
             \\newcommand{{\\union}}{{\\cup}}\
             \\newcommand{{\\intersection}}{{\\cap}}\
             \\newcommand{{\\intersect}}{{\\cap}}\
+            \\newcommand{{\\cross}}{{\\times}}\
             \
             \\begin{{document}}\
             {tex}\
