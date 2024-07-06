@@ -1025,7 +1025,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         # tocManager.show()
                         mainManager.showLinksForEntry(targetSubsection, str(targetImIdx))
 
-
                 def copyGlLinkCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
                     dt.UITemp.Link.subsection = widget.subsection
@@ -2152,15 +2151,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         if level != 0:
             topSection = subsection.split(".")[0]
+
             if not self.showSubsectionsForTopSection[topSection]:
                 return
 
         topSection = subsection.split(".")[0]
-
-        if level == 0:
-            prettySubsections = _upan.Names.Subsection.getTopSectionPretty(topSection)
-        else:
-            prettySubsections = _upan.Names.Subsection.getSubsectionPretty(subsection)
         
         labelName = "label_" + subsection.replace(".", "")
 
@@ -2201,8 +2196,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI
         if not self.showAll:
             for hiddensSubsection in hiddenSubsections:
-                if (hiddensSubsection in subsection) and (subsection != hiddensSubsection):
+                if (subsection.startswith(hiddensSubsection)) and (subsection != hiddensSubsection):
                     currSubsectionHidden = True
+                    break
 
         if level == 0:
             if subsection != self.subsectionAsETR.subsection:
