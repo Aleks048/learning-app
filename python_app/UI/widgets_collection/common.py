@@ -728,7 +728,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 self.__renderWithScrollAfter()
 
                         mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
-                        txt = fsm.Data.Sec.imageText(subsection)[imIdx]
+
+                        imTextDict:dict = fsm.Data.Sec.imageText(subsection)
+
+                        if(imTextDict.get(imIdx) != None):
+                            txt = fsm.Data.Sec.imageText(subsection)[imIdx]
+                        else:
+                            txt = "No text"
+                            imTextDict[imIdx] = txt
+                            fsm.Data.Sec.imageText(subsection, imTextDict)
 
                         if (subsection == self.entryTextOnlyAsETR.subsection)\
                             and (imIdx == self.entryTextOnlyAsETR.imIdx) :
@@ -781,10 +789,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         return "proof" in eImText.lower()\
                                 and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
 
+                    createExtraWidgets = not link
                     exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
                                                                     imPad, self.displayedImages, balloon,
                                                                     skippProof, tocFrame = self, 
-                                                                    createExtraWidgets = False)
+                                                                    createExtraWidgets = createExtraWidgets)
                     eImIdxCounter = 0
                     for l in exImLabels:
                         eImIdxCounter += 1
