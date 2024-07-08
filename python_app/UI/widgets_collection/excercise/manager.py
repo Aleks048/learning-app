@@ -1,12 +1,14 @@
 import UI.widgets_collection.excercise.excercise as exw
 
 import UI.widgets_manager as wm
+import UI.widgets_facade as wf
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
 import UI.widgets_collection.excercise.excercise as exw
+import data.temp as dt
 
 
 class LayoutManagers:
@@ -46,7 +48,12 @@ class LayoutManagers:
             hideAllETRsWindow_BTN.addListenerWidget(self.excercise_BOX)
 
             winRoot.setGeometry(*self.appDimensions)
+
         def show(self):
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.unbind()
+
             self.excerciseImage.subsection = self.subsection
             self.excerciseImage.entryIdx = self.imIdx
 

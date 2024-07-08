@@ -814,10 +814,15 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
                                     lambda *args: __atsrAddingCmd())
         def __nunbind(*args):
             self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.left)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shleft)
             self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.up)
             self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.down)
             self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.right)
+            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shright)
             self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shenter)
 
-        self.widgetObj.bind("<Enter>", __bind, add = True)
-        self.widgetObj.bind("<Leave>", __nunbind, add = True)
+        self.widgetObj.bind("<FocusIn>", __bind, add = True)
+        self.widgetObj.bind("<FocusOut>", __nunbind, add = True)
+
+    def unbind(self, *args):
+        self.widgetObj.event_generate("<FocusOut>")

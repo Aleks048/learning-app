@@ -100,6 +100,10 @@ class PdfReadersManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+    def unbind(self):
+        self.winRoot.unbind()
+
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
              changePrevPos = True, removePrevLabel = False, getTextOfSelector = False):
