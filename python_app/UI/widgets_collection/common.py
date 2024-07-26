@@ -2299,7 +2299,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 if subsection == fsm.Data.Book.currSection:
                     self.currSubsectionWidget = openContentLabel
 
-                openContentOfTheSection(locFrame, openContentLabel)
+                hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI
+
+                if (topSection == fsm.Data.Book.currTopSection)\
+                    and (not self.showAll)\
+                    and (subsection not in hiddenSubsections):
+                    openContentOfTheSection(locFrame, openContentLabel)
+                elif self.showAll:
+                    openContentOfTheSection(locFrame, openContentLabel)
+
                 _uuicom.bindChangeColorOnInAndOut(openContentLabel)
 
                 self.subsectionContentLabels.append(openContentLabel)
