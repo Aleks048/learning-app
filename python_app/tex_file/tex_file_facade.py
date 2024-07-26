@@ -50,11 +50,15 @@ class Wr:
             \
             \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
             \\newcommand{{\\R}}{{\\mathbb{{R}}}}\
+            \\renewcommand{{\\Re}}{{\\mathbb{{R}}}}\
             \\newcommand{{\\Natural}}{{\\mathbb{{N}}}}\
             \\newcommand{{\\Sphere}}{{\\mathbb{{S}}}}\
             \\newcommand{{\\Int}}{{\\mathbb{{Z}}}}\
             \\newcommand{{\\Complex}}{{\\mathbb{{C}}}}\
             \\newcommand{{\\Ball}}{{\\mathbb{{B}}}}\
+            \\newcommand{{\\Proj}}{{\\mathbb{{P}}}}\
+            \\renewcommand{{\\P}}{{\\mathbb{{P}}}}\
+            \
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
             \\newcommand{{\\bsl}}{{\\textbackslash}}\
             \\newcommand{{\\excl}}{{\\textbackslash}}\
