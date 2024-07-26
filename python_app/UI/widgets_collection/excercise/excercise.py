@@ -436,22 +436,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                kwargs = kwargs).start()
 
     def __scrollIntoView(self, event, widget = None):
-        try:
-            posy = 0
-
-            if widget == None:
-                pwidget = event.widget
-            else:
-                pwidget = widget
-
-
-            self.canvas.yview_scroll(-100, "units")
-            self.canvas.update()
-            pwidget.update()
-
-            while pwidget != self.parent:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+        # try:
+            self.scrollable_frame.update()
+            self.scrollable_frame.update_idletasks()
 
             posy = 0
 
@@ -459,6 +446,15 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = event.widget
             else:
                 pwidget = widget
+
+            shouldScrollToRebuild = False
+
+            if "linesImageFRM_" in str(pwidget):
+                for ch in pwidget.winfo_children():
+                    if "linesImageRebuild_" in str(ch):
+                        pwidget = ch
+                        shouldScrollToRebuild = True
+                        break
 
             while pwidget != self.parent:
                 posy += pwidget.winfo_y()
@@ -466,9 +462,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) - 0.008)
-        except:
-            pass
+
+            if not shouldScrollToRebuild:
+                self.canvas.yview_moveto((pos / height) - 0.008)
+            else:
+                self.canvas.yview_moveto((pos / height) - 0.032)
+        # except:
+        #     pass
 
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
