@@ -22,6 +22,7 @@ import scripts.osascripts as oscr
 
 def processCall(url):
     log.autolog("Processing url request: '{0}'.".format(url))
+
     if "KIK://" in url:
         url = url.replace("KIK://", "")
     else:

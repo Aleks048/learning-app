@@ -46,6 +46,31 @@ class Paths:
         def getAbs(bookPath, *args):
             return os.path.join(bookPath, fsf.Wr.OriginalMaterialStructure.originalMaterialBaseRelPath)
     
+    class Book:
+        class Code:
+            templateFolderName = "code_templates"
+
+            @bookNameArg_dec
+            def getSubsectionTemplatePathAbs(bookPath, *args):
+                return os.path.join(bookPath, 
+                                    fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,
+                                    Paths.Book.Code.templateFolderName,
+                                    "subsection",
+                                    Names.codeProjectBaseName())
+            @bookNameArg_dec
+            def getEntryTemplatePathAbs(bookPath, *args):
+                return os.path.join(bookPath, 
+                                    fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,
+                                    Paths.Book.Code.templateFolderName,
+                                    "entry",
+                                    Names.codeProjectBaseName())
+            
+            @bookNameArg_dec
+            def getAbs(bookPath, *args):
+                return os.path.join(bookPath, 
+                                    fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,
+                                    Names.codeProjectBaseName())
+
     class Section:
         sectionFolderName = "subsections"
 
@@ -57,6 +82,11 @@ class Paths:
         def getAbs(bookPath, section = _u.Token.NotDef.str_t, *args):
             relFilepath = Paths.Section.getRel(bookPath, section)
             return os.path.join(bookPath, relFilepath)
+
+        @bookNameArg_dec
+        def getCodeRootAbs(bookPath, section = _u.Token.NotDef.str_t, *args):
+            relFilepath = Paths.Section.getRel(bookPath, section)
+            return os.path.join(bookPath, relFilepath, Names.codeProjectBaseName())
 
         @bookNameArg_dec
         def getRel(_, subsection, *args):
@@ -86,6 +116,11 @@ class Paths:
         def getAbs(bookPath, section, imIdx, *args):
             sectionFilepath = Paths.Section.getAbs(bookPath, section)
             return os.path.join(sectionFilepath, str(imIdx))
+
+        @bookNameArg_dec
+        def getCodeProjAbs(bookPath, section, imIdx, *args):
+            entrybasePath = Paths.Entry.getAbs(bookPath, section, imIdx)
+            return os.path.join(entrybasePath, Names.codeProjectBaseName())
 
         class LineImage:
             @bookNameArg_dec
@@ -266,6 +301,15 @@ class Paths:
             return os.path.join(sectionDirPath, secNameWPrefix + "_main" + ending + ".pdf")
 
 class Names:
+    def codeProjectBaseName():
+        return "code"
+
+    def codeLineMarkerBook(subsection, imIdx):
+        return f"MARKER_BOOK_{subsection}_{imIdx}"
+    
+    def codeLineMarkerSubsection(subsection, imIdx):
+        return f"MARKER_SUBSECTION_{subsection}_{imIdx}"
+
     def addSectionPrefixToName(subsection):
         return fsf.Data.Book.sections_prefix + "_" + subsection.split(".")[-1]
 

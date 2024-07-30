@@ -8,6 +8,7 @@ so that they can be called by other apps
 '''
 
 import daemon_service.services_collection.url_request as url
+import daemon_service.services_collection.vsCode_request as vscode
 import daemon_service.services_collection.populateMainTeFile_request as ptf
 
 class MyService(rpyc.Service):
@@ -16,6 +17,9 @@ class MyService(rpyc.Service):
     
     def exposed_processSaveTexFile(self, callerTexFile):
         return ptf.processCall(callerTexFile)
+
+    def exposed_processVsCodeCall(self, vsCodeFilePath, shouldDelete):
+        return vscode.processCall(vsCodeFilePath, shouldDelete)
 
 def startMainServerDaemon(port = 12345):
     server = ThreadedServer(MyService, port = port)

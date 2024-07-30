@@ -79,8 +79,16 @@ class BookInfoStructure:
         expectedFileDir = os.path.join("/", *bookInfoFilepath.split("/")[:-1])
         
         log.autolog("The bookInfo structure was not present will create it at: '{0}'".format(expectedFileDir))
+
         if not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(expectedFileDir):
             oscf.Wr.FsAppCalls.createDir(expectedFileDir)
+
+            # Code dir
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getAbs(expectedFileDir))
+
+            # Code templates dirs
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getEntryTemplatePathAbs(expectedFileDir))
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(expectedFileDir))
         
         _u.JSON.createFromTemplate(bookInfoFilepath, cls.bookInfoTemplate)
 

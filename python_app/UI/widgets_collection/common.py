@@ -185,21 +185,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         excercises = __EntryUIData("[e]", 7)
 
         # row 2
-        showLinks = __EntryUIData("[links]", 1)
+        showLinks = __EntryUIData("[Links]", 1)
         alwaysShow = __EntryUIData("", 2)
         changeImSize = __EntryUIData("", 3)
-        delete = __EntryUIData("[Del]", 4)
-        shift = __EntryUIData("[Shift]", 5)
-        retake = __EntryUIData("[Retake]", 6)
-        update = __EntryUIData("[Update]", 7)
-        link = __EntryUIData("[Link]", 8)
-        addExtra = __EntryUIData("[a exta]", 9)
-        addProof = __EntryUIData("[a proof]", 10)
-        proof = __EntryUIData("[pr]", 11)
-        note = __EntryUIData("[d]", 12)
-        copyText = __EntryUIData("[c text]", 13)
-        hideLInkImages = __EntryUIData("[hideLIm]", 14)
-        group = __EntryUIData("", 15)
+        delete = __EntryUIData("[Delete]", 4)
+        retake = __EntryUIData("[Retake]", 5)
+        link = __EntryUIData("[]", 6)
+        addExtra = __EntryUIData("[Add exta]", 7)
+        addProof = __EntryUIData("[Add proof]", 8)
+        group = __EntryUIData("", 9)
+
+        # row 2.5 
+        openBookCodeProject = __EntryUIData("[code:b", 1)
+        openSubsectionCodeProject = __EntryUIData(",s", 2)
+        openEntryCodeProject = __EntryUIData(",e]", 3)
+        shift = __EntryUIData("[Shift Up]", 4)
+        update = __EntryUIData("[Update]", 5)
+        note = __EntryUIData("[Dictionary]", 7)
+        hideLInkImages = __EntryUIData("[Hide Links]", 8)
+        copyText = __EntryUIData("[Copy text]", 9)
+        proof = __EntryUIData("[Show proof]", 10)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -648,6 +653,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     if ((int(event.type) == 4) or (shouldScroll)) and (not link):
                         self.currEntryWidget = event.widget
+                        fsm.Data.Book.entryImOpenInTOC_UI = imIdx
 
                     if shouldScroll and (not link):
                         _uuicom.closeAllImages(gpframe, self.showAll, link,
@@ -1098,6 +1104,100 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     self.__renderWithScrollAfter()
 
+                def openBookCodeProjectCmd(event, *args):
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
+                        _u.log.autolog("Please add a book code project files.")
+                        return
+
+                    ocf.Wr.IdeCalls.openNewWindow(projectPath)
+
+                    bookCodeFiles:dict = fsm.Data.Sec.bookCodeFile(subsection)
+
+                    if bookCodeFiles.get(imIdx) != None:
+                        relFilepath = bookCodeFiles.get(imIdx)
+                        time.sleep(0.5)
+                        filepath = os.path.join(projectPath, relFilepath)
+
+                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                            return
+
+                        lines = []
+                        with open(filepath) as f:
+                            lines = f.read().splitlines()
+                        
+                        marker = _upan.Names.codeLineMarkerBook(subsection, imIdx)
+
+                        for i in range(len(lines)):
+                            if marker in lines[i]:
+                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                                return
+
+                        ocf.Wr.IdeCalls.openNewTab(filepath)
+
+                def openSubsectionCodeProjectCmd(event, *args):
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
+                    codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
+                                                                         subsection)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
+                        ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
+
+                    ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
+
+                    subsectionCodeFiles:dict = fsm.Data.Sec.subsectionCodeFile(subsection)
+
+                    if subsectionCodeFiles.get(imIdx) != None:
+                        relFilepath = subsectionCodeFiles.get(imIdx)
+                        time.sleep(0.5)
+                        filepath = os.path.join(codeSubsectionPath, relFilepath)
+
+                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                            _u.log.autolog(f"Subsection '{filepath}' file not found.")
+                            return
+
+                        lines = []
+                        with open(filepath) as f:
+                            lines = f.read().splitlines()
+                        
+                        marker = _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
+
+                        for i in range(len(lines)):
+                            if marker in lines[i]:
+                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                                return
+
+                        ocf.Wr.IdeCalls.openNewTab(filepath) 
+
+
+                def openEntryCodeProjectCmd(event, *args):
+                    subsection =  event.widget.subsection
+                    imIdx =  event.widget.imIdx
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+                    entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
+                        fsm.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
+
+                    entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
+                        codeProjTemplatePath = \
+                            _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
+                        ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
+
+                    ocf.Wr.IdeCalls.openNewWindow(_upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx))
+
                 def copyTextToMemCmd(event, *args):
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                 wf.Wr.MenuManagers.PdfReadersManager).show(subsection = event.widget.subsection,
@@ -1520,7 +1620,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         shiftEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                                text = self.__EntryUIs.shift.name,
                                                                prefix = "contentShiftEntry" + nameId,
-                                                               row = 0, 
+                                                               row = 1, 
                                                                column = self.__EntryUIs.shift.column)
                         shiftEntry.imIdx = k
                         shiftEntry.subsection = subsection
@@ -1638,7 +1738,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.note.name, 
                                                       prefix = "contentOpenNoteUIEntry" + nameId,
-                                                      row = 0, 
+                                                      row = 1, 
                                                       column = self.__EntryUIs.note.column,
                                                       columnspan = 1)
                         openNoteUIEntry.imIdx = k
@@ -1649,7 +1749,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.copyText.name, 
                                                       prefix = "contentCopyTextToMem" + nameId,
-                                                      row = 0, 
+                                                      row = 1, 
                                                       column = self.__EntryUIs.copyText.column,
                                                       columnspan = 1)
                         copyTextToMem.imIdx = k
@@ -1660,13 +1760,46 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         hideLinkImages = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.hideLInkImages.name, 
                                                       prefix = "contenHideLinkImages" + nameId,
-                                                      row = 0, 
+                                                      row = 1, 
                                                       column = self.__EntryUIs.hideLInkImages.column,
                                                       columnspan = 1)
                         hideLinkImages.imIdx = k
                         hideLinkImages.subsection = subsection
                         hideLinkImages.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [hideLinksImagesFunc])
+                        
+                        openBookCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.openBookCodeProject.name, 
+                                                      prefix = "openBookCodeProject" + nameId,
+                                                      row = 1, 
+                                                      column = self.__EntryUIs.openBookCodeProject.column,
+                                                      columnspan = 1)
+                        openBookCodeProject.imIdx = k
+                        openBookCodeProject.subsection = subsection
+                        openBookCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openBookCodeProjectCmd])
+
+                        openSubsectionCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.openSubsectionCodeProject.name, 
+                                                      prefix = "openSubsectionCodeProject" + nameId,
+                                                      row = 1, 
+                                                      column = self.__EntryUIs.openSubsectionCodeProject.column,
+                                                      columnspan = 1)
+                        openSubsectionCodeProject.imIdx = k
+                        openSubsectionCodeProject.subsection = subsection
+                        openSubsectionCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openSubsectionCodeProjectCmd])
+
+                        openEntryCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.openEntryCodeProject.name, 
+                                                      prefix = "openEntryCodeProject" + nameId,
+                                                      row = 1, 
+                                                      column = self.__EntryUIs.openEntryCodeProject.column,
+                                                      columnspan = 1)
+                        openEntryCodeProject.imIdx = k
+                        openEntryCodeProject.subsection = subsection
+                        openEntryCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openEntryCodeProjectCmd])
 
                         fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
                                                                             subsection,
@@ -1708,7 +1841,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openProofsUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.proof.name, 
                                                       prefix = "contentOpenExcerciseUIEntry" + nameId,
-                                                      row = 0, 
+                                                      row = 1, 
                                                       column = self.__EntryUIs.proof.column)
                         if proofExists:
                             openProofsUIEntry.configure(foreground="brown")
@@ -1721,7 +1854,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.update.name, 
                                                       prefix = "contentUpdateEntryText" + nameId,
-                                                      row = 0, 
+                                                      row = 1, 
                                                       column = self.__EntryUIs.update.column)
                         changeImText.imIdx = k
                         changeImText.subsection = subsection
@@ -2037,6 +2170,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             changeImText.render()
                             copyTextToMem.render()
                             hideLinkImages.render()
+                            openBookCodeProject.render()
+                            openSubsectionCodeProject.render()
+                            openEntryCodeProject.render()
 
                             if not self.showAll:
 
@@ -2045,7 +2181,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                             column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
 
                                 imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
-                                                 sticky=tk.NW)
+                                                 sticky=tk.NW, columnspan = 3)
                                 removeEntry.render()
 
                             if not textOnly:
@@ -2076,6 +2212,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
                         _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
                         _uuicom.bindChangeColorOnInAndOut(hideLinkImages)
+                        _uuicom.bindChangeColorOnInAndOut(openBookCodeProject)
+                        _uuicom.bindChangeColorOnInAndOut(openSubsectionCodeProject)
+                        _uuicom.bindChangeColorOnInAndOut(openEntryCodeProject)
 
                         tempFrame.render()
                         prevImGroupName = currImGroupName
