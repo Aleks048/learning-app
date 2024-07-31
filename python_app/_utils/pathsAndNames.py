@@ -50,22 +50,20 @@ class Paths:
         class Code:
             templateFolderName = "code_templates"
 
-            @bookNameArg_dec
             def getSubsectionTemplatePathAbs(bookPath, *args):
                 return os.path.join(bookPath, 
                                     fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,
                                     Paths.Book.Code.templateFolderName,
                                     "subsection",
                                     Names.codeProjectBaseName())
-            @bookNameArg_dec
+
             def getEntryTemplatePathAbs(bookPath, *args):
                 return os.path.join(bookPath, 
                                     fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,
                                     Paths.Book.Code.templateFolderName,
                                     "entry",
                                     Names.codeProjectBaseName())
-            
-            @bookNameArg_dec
+
             def getAbs(bookPath, *args):
                 return os.path.join(bookPath, 
                                     fsf.Wr.BookInfoStructure.bookInfoFoldefRelPath,

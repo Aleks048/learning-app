@@ -83,12 +83,14 @@ class BookInfoStructure:
         if not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(expectedFileDir):
             oscf.Wr.FsAppCalls.createDir(expectedFileDir)
 
+            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
             # Code dir
-            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getAbs(expectedFileDir))
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getAbs(currBookpath))
 
             # Code templates dirs
-            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getEntryTemplatePathAbs(expectedFileDir))
-            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(expectedFileDir))
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getEntryTemplatePathAbs(currBookpath))
+            oscf.Wr.FsAppCalls.createDir(_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(currBookpath))
         
         _u.JSON.createFromTemplate(bookInfoFilepath, cls.bookInfoTemplate)
 
