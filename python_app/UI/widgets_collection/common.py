@@ -1107,6 +1107,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def openBookCodeProjectCmd(event, *args):
                     subsection = event.widget.subsection
                     imIdx = event.widget.imIdx
+                    dt.CodeTemp.currCodeFullLink = imIdx
 
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
@@ -1143,6 +1144,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def openSubsectionCodeProjectCmd(event, *args):
                     subsection = event.widget.subsection
                     imIdx = event.widget.imIdx
+                    dt.CodeTemp.currCodeFullLink = imIdx
 
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
@@ -1176,8 +1178,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 ocf.Wr.IdeCalls.openNewTab(filepath, i)
                                 return
 
-                        ocf.Wr.IdeCalls.openNewTab(filepath) 
-
+                        ocf.Wr.IdeCalls.openNewTab(filepath)
 
                 def openEntryCodeProjectCmd(event, *args):
                     subsection =  event.widget.subsection

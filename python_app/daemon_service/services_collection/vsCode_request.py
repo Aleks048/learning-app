@@ -27,7 +27,7 @@ def processCall(vsCodeFilePath:str, shouldDelete:str):
     shouldDelete = shouldDelete == 'delete'
 
     subsection = fsf.Data.Book.currSection
-    imIdx = fsf.Data.Book.entryImOpenInTOC_UI
+    imIdx = dt.CodeTemp.currCodeFullLink
     relFilepath = ""
 
     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -48,6 +48,7 @@ def processCall(vsCodeFilePath:str, shouldDelete:str):
         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.MathMenuManager)
         mainManager.show()
+        mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
 
         if not response:
             return
@@ -95,6 +96,7 @@ for '{subsection}':'{imIdx}'")
         mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.MathMenuManager)
         mainManager.show()
+        mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
 
         if not response:
             return

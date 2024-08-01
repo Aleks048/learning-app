@@ -424,7 +424,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         bookCodeFiles:dict = cls.readProperty(subsection, cls.PubProp.bookCodeFile)
         bookCodeFilesSorted = list(bookCodeFiles.keys())
-        bookCodeFilesSorted.sort(key = lambda k: int(k))
+        bookCodeFilesSorted.sort(key = lambda k: int(k.split("_")[0]))
 
         if len(bookCodeFilesSorted) != 0:
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -439,23 +439,33 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
                 filepath = os.path.join(bookCodeFilesRoot, relPath)
 
-                if int(k) == int(imIdx):
+                if int(k.split("_")[0]) == int(imIdx):
                     oldMarker = _upan.Names.codeLineMarkerBook(subsection, imIdx)
                     __updateFile(filepath, oldMarker, "")
-                elif int(k) > int(imIdx):
+                elif int(k.split("_")[0]) > int(imIdx):
                     oldMarker = _upan.Names.codeLineMarkerBook(subsection, k)
-                    newMarker = _upan.Names.codeLineMarkerBook(subsection, str(int(k) - 1))
+                    newKey =  str(int(k.split("_")[0]) - 1) 
+
+                    if len(k.split("_")) > 1:
+                        newKey += "_" + k.split("_")[1]
+
+                    newMarker = _upan.Names.codeLineMarkerBook(subsection, newKey)
                     __updateFile(filepath, oldMarker, newMarker)
 
-                    bookCodeFiles[str(int(k) - 1)] = bookCodeFiles[k]
+                    bookCodeFiles[newKey] = bookCodeFiles[k]
 
-            bookCodeFiles.pop(bookCodeFilesSorted[-1])
+            largestKey = bookCodeFilesSorted[-1].split("_")[0]
+
+            for k in bookCodeFilesSorted:
+                if k.split("_")[0] == largestKey:
+                    bookCodeFiles.pop(k)
+
             cls.updateProperty(subsection, cls.PubProp.bookCodeFile, bookCodeFiles)
 
         subsectionCodeFiles:dict = cls.readProperty(subsection, cls.PubProp.subsectionCodeFile)
 
         subsectionCodeFilesSorted = list(subsectionCodeFiles.keys())
-        subsectionCodeFilesSorted.sort(key = lambda k: int(k))
+        subsectionCodeFilesSorted.sort(key = lambda k: int(k.split("_")[0]))
 
         if len(subsectionCodeFilesSorted) != 0:
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -470,16 +480,24 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
                 filepath = os.path.join(subsectionCodeFilesRoot, relPath)
 
-                if int(k) == int(imIdx):
+                if int(k.split("_")[0]) == int(imIdx):
                     oldMarker = _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
                     __updateFile(filepath, oldMarker, "")
-                elif int(k) > int(imIdx):
+                elif int(k.split("_")[0]) > int(imIdx):
                     oldMarker = _upan.Names.codeLineMarkerSubsection(subsection, k)
-                    newMarker = _upan.Names.codeLineMarkerSubsection(subsection, str(int(k) - 1))
-                    __updateFile(filepath, oldMarker, newMarker)
-                    subsectionCodeFiles[str(int(k) - 1)] = subsectionCodeFiles[k]
+                    newKey =  str(int(k.split("_")[0]) - 1) 
 
-            subsectionCodeFiles.pop(subsectionCodeFilesSorted[-1])
+                    if len(k.split("_")) > 1:
+                        newKey += "_" + k.split("_")[1]
+
+                    newMarker = _upan.Names.codeLineMarkerSubsection(subsection, newKey)
+                    __updateFile(filepath, oldMarker, newMarker)
+                    subsectionCodeFiles[newKey] = subsectionCodeFiles[k]
+
+            for k in subsectionCodeFilesSorted:
+                if k.split("_")[0] == largestKey:
+                    subsectionCodeFiles.pop(k)
+
             cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFiles)
 
     @classmethod
@@ -1268,17 +1286,48 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
     @classmethod
     def removeExtraIm(cls, subsection, mainImIdx, eImIdx = None):
+        def __updateFile(filepath, oldMarker, newMarker):
+            lines = []
+
+            with open(filepath, "r") as f:
+                lines = f.readlines()
+
+            for i in range(len(lines)):
+                if oldMarker in lines[i]:
+                    if newMarker == "":
+                        lines[i] = ""
+                    else:
+                        lines[i] = lines[i].replace(oldMarker, newMarker)
+
+            with open(filepath, "w") as f:
+                f.writelines(lines)
+
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText, currBookPath)
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
         figuresData = cls.readProperty(subsection, cls.PubProp.figuresData, currBookPath)
         figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData, currBookPath)
+        bookCodeFile = cls.readProperty(subsection, cls.PubProp.bookCodeFile, currBookPath)
+        subsectionCodeFile = cls.readProperty(subsection, cls.PubProp.subsectionCodeFile, currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
         eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
 
         if eImIdx != None:
+            if bookCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+                bookCodePath = _upan.Paths.Book.Code.getAbs(currBookPath)
+                relFilepath = bookCodeFile.get(mainImIdx + "_" + str(eImIdx))
+                filepath = os.path.join(bookCodePath, relFilepath)
+                marker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(eImIdx))
+                __updateFile(filepath, marker, "")
+            if subsectionCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+                bookCodePath = _upan.Paths.Section.getCodeRootAbs(currBookPath)
+                relFilepath = subsectionCodeFile.get(mainImIdx + "_" + str(eImIdx))
+                filepath = os.path.join(bookCodePath, relFilepath)
+                marker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(eImIdx))
+                __updateFile(filepath, marker, "")
+
             try:
                 eImList.pop(eImIdx)
                 eImTextsList.pop(eImIdx)
@@ -1291,6 +1340,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 figuresData.pop(mainImIdx + "_" + str(eImIdx))
             if figuresLabelsData.get(mainImIdx + "_" + str(eImIdx)) != None:
                 figuresLabelsData.pop(mainImIdx + "_" + str(eImIdx))
+            if bookCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+                bookCodeFile.pop(mainImIdx + "_" + str(eImIdx))
+            if subsectionCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+                subsectionCodeFile.pop(mainImIdx + "_" + str(eImIdx))
 
             extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
                                                                                     subsection,
@@ -1298,7 +1351,25 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                                                                                     eImIdx)
             ocf.Wr.FsAppCalls.deleteFile(extraImFilepath)
 
+            extraImCodeFilepath:str = _upan.Paths.Entry.getCodeProjAbs(currBookPath, subsection, mainImIdx)
+            codeFolderbaseName = _upan.Names.codeProjectBaseName()
+            currExtraImCodeFilepath = extraImCodeFilepath.replace(codeFolderbaseName,
+                                                                      codeFolderbaseName + "_" + str(eImIdx))
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(currExtraImCodeFilepath):
+                ocf.Wr.FsAppCalls.removeDir(currExtraImCodeFilepath)
+
             for i in range(eImIdx, len(eImList)):
+                # remove entry code project
+
+                currExtraImCodeFilepath = extraImCodeFilepath.replace(codeFolderbaseName,
+                                                                      codeFolderbaseName + "_" + str(i))
+                nextExtraImCodeFilepath = extraImCodeFilepath.replace(codeFolderbaseName,
+                                                                      codeFolderbaseName + "_" + str(i + 1))
+
+                if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(nextExtraImCodeFilepath):
+                    ocf.Wr.FsAppCalls.moveFolder(nextExtraImCodeFilepath, currExtraImCodeFilepath)
+
                 if imageUIResize.get(mainImIdx + "_" + str(i + 1)) != None:
                     imageUIResize[mainImIdx + "_" + str(i)] =\
                                                             imageUIResize[mainImIdx + "_" + str(i + 1)]
@@ -1311,6 +1382,32 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                     figuresLabelsData[mainImIdx + "_" + str(i)] =\
                                                             figuresLabelsData[mainImIdx + "_" + str(i + 1)]
                     figuresLabelsData.pop(mainImIdx + "_" + str(i + 1))
+                if bookCodeFile.get(mainImIdx + "_" + str(i + 1)) != None:
+                    bookCodeFile[mainImIdx + "_" + str(i)] =\
+                                                            bookCodeFile[mainImIdx + "_" + str(i + 1)]
+                    relFilepath = bookCodeFile.get(mainImIdx + "_" + str(i + 1)) 
+                    bookCodeFile.pop(mainImIdx + "_" + str(i + 1))
+                    bookCodePath = _upan.Paths.Book.Code.getAbs(currBookPath)
+                    filepath = os.path.join(bookCodePath, relFilepath)
+                    newMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(i + 1))
+                    oldMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(i))
+                    tempMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(100))
+                    __updateFile(filepath, oldMarker, tempMarker)
+                    __updateFile(filepath, newMarker, oldMarker)
+                    __updateFile(filepath, tempMarker, newMarker)
+                if subsectionCodeFile.get(mainImIdx + "_" + str(i + 1)) != None:
+                    subsectionCodeFile[mainImIdx + "_" + str(i)] =\
+                                                            subsectionCodeFile[mainImIdx + "_" + str(i + 1)]
+                    relFilepath = subsectionCodeFile.get(mainImIdx + "_" + str(i + 1)) 
+                    subsectionCodeFile.pop(mainImIdx + "_" + str(i + 1))
+                    bookCodePath = _upan.Paths.Section.getCodeRootAbs(currBookPath)
+                    filepath = os.path.join(bookCodePath, relFilepath)
+                    newMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(i + 1))
+                    oldMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(i))
+                    tempMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(100))
+                    __updateFile(filepath, oldMarker, tempMarker)
+                    __updateFile(filepath, newMarker, oldMarker)
+                    __updateFile(filepath, tempMarker, newMarker)
 
                 sourceExtraImFilepath = \
                     _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
@@ -1367,9 +1464,27 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.bookCodeFile, bookCodeFile, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFile, currBookPath)
 
     @classmethod
     def moveExtraIm(cls, subsection, mainImIdx, eImIdx = None, down = True):
+        def __updateFile(filepath, oldMarker, newMarker):
+            lines = []
+
+            with open(filepath, "r") as f:
+                lines = f.readlines()
+
+            for i in range(len(lines)):
+                if oldMarker in lines[i]:
+                    if newMarker == "":
+                        lines[i] = ""
+                    else:
+                        lines[i] = lines[i].replace(oldMarker, newMarker)
+
+            with open(filepath, "w") as f:
+                f.writelines(lines)
+
         destEimIdx = int(eImIdx) + 1 if down else int(eImIdx) - 1 
 
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -1378,6 +1493,43 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize, currBookPath)
         figuresData = cls.readProperty(subsection, cls.PubProp.figuresData, currBookPath)
         figuresLabelsData = cls.readProperty(subsection, cls.PubProp.figuresLabelsData, currBookPath)
+        bookCodeFile = cls.readProperty(subsection, cls.PubProp.bookCodeFile, currBookPath)
+        subsectionCodeFile = cls.readProperty(subsection, cls.PubProp.subsectionCodeFile, currBookPath)
+
+        # update markers
+        if bookCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+            oldRelFilepath = bookCodeFile.get(mainImIdx + "_" + str(eImIdx)) 
+            bookCodePath = _upan.Paths.Book.Code.getAbs(currBookPath)
+            filepath = os.path.join(bookCodePath, oldRelFilepath)
+            newMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(destEimIdx))
+            oldMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(eImIdx))
+            tempMarker = _upan.Names.codeLineMarkerBook(subsection, mainImIdx + "_" + str(100))
+
+            if bookCodeFile.get(mainImIdx + "_" + str(destEimIdx)) != None:
+                newRelFilepath = bookCodeFile.get(mainImIdx + "_" + str(destEimIdx)) 
+                destFilepath = os.path.join(bookCodePath, newRelFilepath)
+                __updateFile(filepath, oldMarker, tempMarker)
+                __updateFile(destFilepath, newMarker, oldMarker)
+                __updateFile(filepath, tempMarker, newMarker)
+            else:
+                __updateFile(filepath, oldMarker, newMarker)
+
+        if subsectionCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
+            oldRelFilepath = subsectionCodeFile.get(mainImIdx + "_" + str(eImIdx)) 
+            bookCodePath = _upan.Paths.Section.getCodeRootAbs(currBookPath)
+            filepath = os.path.join(bookCodePath, oldRelFilepath)
+            newMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(destEimIdx))
+            oldMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(eImIdx))
+            tempMarker = _upan.Names.codeLineMarkerSubsection(subsection, mainImIdx + "_" + str(100))
+
+            if subsectionCodeFile.get(mainImIdx + "_" + str(destEimIdx)) != None:
+                newRelFilepath = subsectionCodeFile.get(mainImIdx + "_" + str(destEimIdx)) 
+                destFilepath = os.path.join(bookCodePath, newRelFilepath)
+                __updateFile(filepath, oldMarker, tempMarker)
+                __updateFile(destFilepath, newMarker, oldMarker)
+                __updateFile(filepath, tempMarker, newMarker)
+            else:
+                __updateFile(filepath, oldMarker, newMarker)
 
         entryFsPath = _upan.Paths.Entry.getAbs(currBookPath, subsection, mainImIdx)
 
@@ -1463,6 +1615,28 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                 figuresData[sourceSizeEImIdx] = figuresData[destSizeEImIdx]
                 figuresData.pop(destSizeEImIdx)
 
+            if (bookCodeFile.get(sourceSizeEImIdx) != None)\
+                and (bookCodeFile.get(destSizeEImIdx) != None):
+                bookCodeFile[sourceSizeEImIdx], bookCodeFile[destSizeEImIdx] = \
+                    bookCodeFile[destSizeEImIdx], bookCodeFile[sourceSizeEImIdx]
+            elif bookCodeFile.get(sourceSizeEImIdx) != None:
+                bookCodeFile[destSizeEImIdx] = bookCodeFile[sourceSizeEImIdx]
+                bookCodeFile.pop(sourceSizeEImIdx)
+            elif bookCodeFile.get(destSizeEImIdx) != None:
+                bookCodeFile[sourceSizeEImIdx] = bookCodeFile[destSizeEImIdx]
+                bookCodeFile.pop(destSizeEImIdx)
+
+            if (subsectionCodeFile.get(sourceSizeEImIdx) != None)\
+                and (subsectionCodeFile.get(destSizeEImIdx) != None):
+                subsectionCodeFile[sourceSizeEImIdx], subsectionCodeFile[destSizeEImIdx] = \
+                    subsectionCodeFile[destSizeEImIdx], subsectionCodeFile[sourceSizeEImIdx]
+            elif subsectionCodeFile.get(sourceSizeEImIdx) != None:
+                subsectionCodeFile[destSizeEImIdx] = subsectionCodeFile[sourceSizeEImIdx]
+                subsectionCodeFile.pop(sourceSizeEImIdx)
+            elif subsectionCodeFile.get(destSizeEImIdx) != None:
+                subsectionCodeFile[sourceSizeEImIdx] = subsectionCodeFile[destSizeEImIdx]
+                subsectionCodeFile.pop(destSizeEImIdx)
+
         if eImList != []:
             extraImagesDict[mainImIdx] = eImList
         if eImTextsList != []:
@@ -1484,11 +1658,33 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         ocf.Wr.FsAppCalls.moveFile(nextExtraImFilepath, extraImFilepath)
         ocf.Wr.FsAppCalls.moveFile(tempExtraImFilepath, nextExtraImFilepath)
 
+        codeFolderbaseName = _upan.Names.codeProjectBaseName()
+
+        tempExtraImCodeFilepath:str = _upan.Paths.Entry.getCodeProjAbs(currBookPath, subsection, mainImIdx)
+        tempExtraImCodeFilepath = tempExtraImCodeFilepath.replace(codeFolderbaseName,
+                                                                  codeFolderbaseName + "_" + str(int(eImIdx) + 100))
+        extraImCodeFilepath:str = _upan.Paths.Entry.getCodeProjAbs(currBookPath, subsection, mainImIdx)
+        extraImCodeFilepath = extraImCodeFilepath.replace(codeFolderbaseName,
+                                                          codeFolderbaseName + "_" + str(eImIdx))
+        nextExtraImCodeFilepath:str = _upan.Paths.Entry.getCodeProjAbs(currBookPath, subsection, mainImIdx)
+        nextExtraImCodeFilepath = nextExtraImCodeFilepath.replace(codeFolderbaseName,
+                                                                  codeFolderbaseName + "_" + str(destEimIdx))
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(nextExtraImCodeFilepath)\
+           and ocf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImCodeFilepath):
+            ocf.Wr.FsAppCalls.moveFolder(extraImCodeFilepath, tempExtraImCodeFilepath)
+            ocf.Wr.FsAppCalls.moveFolder(nextExtraImCodeFilepath, extraImCodeFilepath)
+            ocf.Wr.FsAppCalls.moveFolder(tempExtraImCodeFilepath, nextExtraImCodeFilepath)
+        elif ocf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImCodeFilepath):
+            ocf.Wr.FsAppCalls.moveFolder(extraImCodeFilepath, nextExtraImCodeFilepath)
+
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.figuresLabelsData, figuresLabelsData, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.bookCodeFile, bookCodeFile, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFile, currBookPath)
 
     @classmethod
     def getEntryImText(cls, subsection, imIdx):

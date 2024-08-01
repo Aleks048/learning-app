@@ -6,6 +6,7 @@ from tkinter import scrolledtext
 import time
 import re
 from threading import Thread
+import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -885,7 +886,10 @@ class TOCCanvasWithclick(tk.Canvas):
                     return
         else:
             figuresList = \
-                fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage).copy()
+                fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
+
+            if type(figuresList) != str:
+                figuresList.copy()
 
             # NOTE: inafficient and need to be optimised
             subsections = [i for i in fsf.Wr.BookInfoStructure.getSubsectionsList() if "." in i]
@@ -1576,7 +1580,6 @@ def addExtraEntryImagesWidgets(rootLabel,
                         excerciseManager.show()
 
                 moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
-
                 bindChangeColorOnInAndOut(moveEntryDown)
                 moveEntryDown.render()
 
@@ -1747,6 +1750,160 @@ def addExtraEntryImagesWidgets(rootLabel,
                 if shouldResetResizeFactor:
                     resizeFactor = None
                     shouldResetResizeFactor = False
+
+                bookCodeProj = TOCLabelWithClick(tempEImLabel,
+                                                text = "code: [b",
+                                                prefix = "bookCodeProj_" + eImWidgetName,
+                                                row =  i + 6, 
+                                                column = 0,
+                                                sticky = tk.NE,
+                                                columnspan = 3)
+                bookCodeProj.imIdx = imIdx
+                bookCodeProj.subsection = subsection
+                bookCodeProj.eImIdx = i
+                bookCodeProj.tocFrame = tocFrame
+
+                def openBookCodeProjectCmd(event, *args):
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+                    eImIdx = event.widget.eImIdx
+
+                    fullLink = imIdx + "_" + str(eImIdx)
+                    dt.CodeTemp.currCodeFullLink = fullLink
+
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
+                        _u.log.autolog("Please add a book code project files.")
+                        return
+
+                    ocf.Wr.IdeCalls.openNewWindow(projectPath)
+
+                    bookCodeFiles:dict = fsf.Data.Sec.bookCodeFile(subsection)
+
+                    if bookCodeFiles.get(fullLink) != None:
+                        relFilepath = bookCodeFiles.get(fullLink)
+                        time.sleep(0.5)
+                        filepath = os.path.join(projectPath, relFilepath)
+
+                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                            return
+
+                        lines = []
+                        with open(filepath) as f:
+                            lines = f.read().splitlines()
+                        
+                        marker = _upan.Names.codeLineMarkerBook(subsection, fullLink)
+
+                        for i in range(len(lines)):
+                            if marker in lines[i]:
+                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                                return
+
+                        ocf.Wr.IdeCalls.openNewTab(filepath)
+
+                bookCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openBookCodeProjectCmd])
+                bindChangeColorOnInAndOut(bookCodeProj)
+                bookCodeProj.render()
+
+                subsectionCodeProj = TOCLabelWithClick(tempEImLabel,
+                                                text = ", s",
+                                                prefix = "subCodeProj_" + eImWidgetName,
+                                                row =  i + 6, 
+                                                column = 3,
+                                                sticky = tk.NW,
+                                                columnspan = 1)
+                subsectionCodeProj.imIdx = imIdx
+                subsectionCodeProj.subsection = subsection
+                subsectionCodeProj.eImIdx = i
+                subsectionCodeProj.tocFrame = tocFrame
+
+                def openSubsectionCodeProjectCmd(event, *args):
+                    subsection = event.widget.subsection
+                    imIdx = event.widget.imIdx
+                    eImIdx = event.widget.eImIdx
+                    fullLink = imIdx + "_" + str(eImIdx)
+
+                    dt.CodeTemp.currCodeFullLink = fullLink
+
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
+                    codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
+                                                                           subsection)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
+                        ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
+
+                    ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
+
+                    subsectionCodeFiles:dict = fsf.Data.Sec.subsectionCodeFile(subsection)
+
+                    if subsectionCodeFiles.get(fullLink) != None:
+                        relFilepath = subsectionCodeFiles.get(fullLink)
+                        time.sleep(0.5)
+                        filepath = os.path.join(codeSubsectionPath, relFilepath)
+
+                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                            _u.log.autolog(f"Subsection '{filepath}' file not found.")
+                            return
+
+                        lines = []
+                        with open(filepath) as f:
+                            lines = f.read().splitlines()
+                        
+                        marker = _upan.Names.codeLineMarkerSubsection(subsection, fullLink)
+
+                        for i in range(len(lines)):
+                            if marker in lines[i]:
+                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                                return
+
+                        ocf.Wr.IdeCalls.openNewTab(filepath)
+
+                subsectionCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openSubsectionCodeProjectCmd])
+                bindChangeColorOnInAndOut(subsectionCodeProj)
+                subsectionCodeProj.render()
+
+                entryCodeProj = TOCLabelWithClick(tempEImLabel,
+                                                text = ", e]",
+                                                prefix = "entryCodeProj_" + eImWidgetName,
+                                                row =  i + 6, 
+                                                column = 4,
+                                                sticky = tk.NW,
+                                                columnspan = 1)
+                entryCodeProj.imIdx = imIdx
+                entryCodeProj.subsection = subsection
+                entryCodeProj.eImIdx = i
+                entryCodeProj.tocFrame = tocFrame
+
+                def openEntryCodeProjectCmd(event, *args):
+                    subsection =  event.widget.subsection
+                    imIdx =  event.widget.imIdx
+                    eImIdx =  event.widget.eImIdx
+
+                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+                    entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
+                        fsf.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
+
+                    entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
+                    codeFolderbaseName = _upan.Names.codeProjectBaseName()
+                    entryCodeProjFilepath = entryCodeProjFilepath.replace(codeFolderbaseName, 
+                                                                          codeFolderbaseName + "_" + str(eImIdx))
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
+                        codeProjTemplatePath = \
+                            _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
+                        ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
+
+                    ocf.Wr.IdeCalls.openNewWindow(entryCodeProjFilepath)
+
+                entryCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openEntryCodeProjectCmd])
+                bindChangeColorOnInAndOut(entryCodeProj)
+                entryCodeProj.render()
 
             outLabels.append(tempLabel)
 
