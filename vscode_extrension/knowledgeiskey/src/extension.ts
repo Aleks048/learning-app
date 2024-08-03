@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (stdout !== "None\n") {
 				let languageId = activeEditor.document.languageId;
 				let markerText = stdout.replace(/(\r\n|\n|\r)/gm, "");
-				let markerPrefix = (languageId === "python")? "\n#": "\n\\\\";
+				let markerPrefix = (languageId === "python")? "\n#": "\n//";
 
 				markerText = markerPrefix + markerText;
 
@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (stdout !== '') {
 				let languageId = activeEditor.document.languageId;
 				let markerText = stdout.replace(/(\r\n|\n|\r)/gm, "");
-				let markerPrefix = (languageId === "python")? "\n#": "\n\\\\";
+				let markerPrefix = (languageId === "python")? "\n#": "\n//";
 				markerText = markerPrefix + markerText;
 				
 				let fullText = activeEditor.document.getText();

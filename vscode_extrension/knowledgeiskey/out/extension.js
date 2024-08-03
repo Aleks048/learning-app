@@ -51,7 +51,7 @@ function activate(context) {
             if (stdout !== "None\n") {
                 let languageId = activeEditor.document.languageId;
                 let markerText = stdout.replace(/(\r\n|\n|\r)/gm, "");
-                let markerPrefix = (languageId === "python") ? "\n#" : "\n\\\\";
+                let markerPrefix = (languageId === "python") ? "\n#" : "\n//";
                 markerText = markerPrefix + markerText;
                 // insert a marker
                 activeEditor.edit((selectedText) => {
@@ -79,7 +79,7 @@ function activate(context) {
             if (stdout !== '') {
                 let languageId = activeEditor.document.languageId;
                 let markerText = stdout.replace(/(\r\n|\n|\r)/gm, "");
-                let markerPrefix = (languageId === "python") ? "\n#" : "\n\\\\";
+                let markerPrefix = (languageId === "python") ? "\n#" : "\n//";
                 markerText = markerPrefix + markerText;
                 let fullText = activeEditor.document.getText();
                 let textReplace = fullText.replace(markerText, ``);
