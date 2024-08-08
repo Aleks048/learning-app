@@ -169,6 +169,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     updatedWidget = None
 
+    showLinksForCurrWidget = True
+
     class __EntryUIs:
         class __EntryUIData:
             def __init__(self, name, column) -> None:
@@ -400,6 +402,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget = event.widget
             subsection = widget.subsection
             imIdx =  widget.imIdx
+            dontHide = self.showLinksForCurrWidget
+            self.showLinksForCurrWidget = not self.showLinksForCurrWidget
         else:
             subsection = subsection
             imIdx = imIdx
