@@ -272,7 +272,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     showAll = None
     shouldScroll = None
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 570, 
+    def __init__(self, parentWidget, prefix, windth = 700, height = 610, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
         data = {

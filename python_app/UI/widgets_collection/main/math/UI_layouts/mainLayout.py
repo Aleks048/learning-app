@@ -40,7 +40,7 @@ class ShowAllSubsections_BTN(ww.currUIImpl.Button):
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 17},
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 13},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_ShowAllSubsections"
@@ -89,7 +89,7 @@ class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 15},
+            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 13},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_RebuildCurrentSubsectionLatex"
@@ -158,7 +158,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
     def __init__(self, patentWidget, prefix):
         data = {
-            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 15},
+            ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 13},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
         name = "_exitApp"

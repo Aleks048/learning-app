@@ -126,7 +126,7 @@ class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
 class ShowTocWindow_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
 
-    def __init__(self, patentWidget, prefix, row =16, column = 4):
+    def __init__(self, patentWidget, prefix, row =14, column = 4):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}

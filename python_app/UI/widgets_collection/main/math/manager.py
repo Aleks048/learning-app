@@ -103,7 +103,7 @@ class LayoutManagers:
             addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 3, row = 14)
             self.addWidget(addWebLink_BTN)
 
-            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 15)
+            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 14)
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
