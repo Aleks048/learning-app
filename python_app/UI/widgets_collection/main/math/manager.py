@@ -57,12 +57,6 @@ class LayoutManagers:
             imageGeneration_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(imageGeneration_BTN)
 
-            addExtraImage_BTN = ml.AddExtraImage_BTN(winRoot, self.prefix)
-            addExtraImage_BTN.addListenerWidget(imageGenration_ERT)
-            addExtraImage_BTN.addListenerWidget(imageGeneration_BTN)
-            addExtraImage_BTN.addListenerWidget(tocBox_BOX)
-            self.addWidget(addExtraImage_BTN)
-
             imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
             imageGenerationRestart_BTN.addListenerWidget(imageGenration_ERT)
             imageGenerationRestart_BTN.addListenerWidget(imageGeneration_BTN)
@@ -84,7 +78,6 @@ class LayoutManagers:
             imageGenration_ERT.addListenerWidget(imageGenerationRestart_BTN)
             imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
             imageGenration_ERT.addListenerWidget(textOnly_CHB)
-            imageGenration_ERT.addListenerWidget(addExtraImage_BTN)
 
             chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
             chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
@@ -122,10 +115,6 @@ class LayoutManagers:
 
             rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrentSubsectionLatex_BTN)
-
-            saveImage_BTN = commw.ImageSave_BTN(winRoot, self.prefix, column = 5, row = 14)
-            self.addWidget(saveImage_BTN)
-            saveImage_BTN.addListenerWidget(tocBox_BOX)
 
             sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
             self.addWidget(sourceImageLinks_OM)
@@ -167,7 +156,6 @@ class LayoutManagers:
             tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
             tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
-            tocBox_BOX.addListenerWidget(addExtraImage_BTN)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
@@ -201,7 +189,6 @@ class LayoutManagers:
 
             latestExtraImForEntry_LBL.addListenerWidget(sourceImageLinks_OM)
             sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
-            addExtraImage_BTN.addListenerWidget(latestExtraImForEntry_LBL)
             imageGeneration_BTN.addListenerWidget(latestExtraImForEntry_LBL)
 
             rebuildCurrentSubsectionLatex_BTN.addListenerWidget(tocBox_BOX)
@@ -248,8 +235,6 @@ class LayoutManagers:
             showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)
 
-            saveImage_BTN = commw.ImageSave_BTN(winRoot, self.prefix)
-            self.addWidget(saveImage_BTN)
 
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrSection_BTN)

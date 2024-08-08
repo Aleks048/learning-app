@@ -456,9 +456,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
             fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
-        elif broadcasterType == mui.AddExtraImage_BTN:
-            self.entryClicked = entryClicked
-            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ImageGeneration_BTN:
             self.entryClicked = entryClicked
             self.__renderWithScrollAfter()
@@ -473,8 +470,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         # elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
         #     self.scrollToEntry(data[0], data[1])
         #     self.__renderWithScrollAfter()
-        elif broadcasterType == mcomui.ImageSave_BTN:
-            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
             self.showLinks = not self.showLinks
             self.showLinksForSubsections = []
@@ -985,17 +980,68 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 [widget.subsection, widget.imIdx])
                     self.__renderWithScrollAfter()
 
+                def __addExtraIm(subsection, mainImIdx, isProof):     
+                    def ___addExtraIm(subsection, mainImIdx, 
+                                      extraImageIdx, extraImText):
+                        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
+
+                        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
+                            
+                            extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+                            extraImagesList = []
+
+                            if extraImagesDict == _u.Token.NotDef.dict_t:
+                                extraImagesDict = {}
+
+                            if mainImIdx in list(extraImagesDict.keys()):
+                                extraImagesList = extraImagesDict[mainImIdx]
+
+                            if extraImageIdx == _u.Token.NotDef.str_t:
+                                extraImageIdx = len(extraImagesList) - 1
+
+                            currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                            extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
+
+                            extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
+                            extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
+                            timer = 0
+
+                            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
+                                time.sleep(0.3)
+                                timer += 1
+
+                                if timer > 50:
+                                    _u.log.autolog(f"\
+                    The correct extra image was not created for \n\
+                    '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
+                                    return False
+                            
+                            self.__renderWithScrollAfter()
+
+                        t = Thread(target = __afterEImagecreated, 
+                                args = [mainImIdx, subsection, extraImageIdx, extraImText])
+                        t.start()
+
+                    extraImIdx = _u.Token.NotDef.str_t
+                    extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+
+                    if not isProof:
+                        if mainImIdx in list(extraImagesDict.keys()):
+                            extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+                        else:
+                            extraImText = "con0"
+                    else:
+                        extraImText = "proof"
+
+                    ___addExtraIm(subsection, mainImIdx, extraImIdx, extraImText)
+
                 def addExtraImCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
-                    self.notify(mui.AddExtraImage_BTN,
-                                data = [widget.subsection, widget.imIdx, False])
-                    self.__renderWithScrollAfter()
+                    __addExtraIm(widget.subsection, widget.imIdx, False)
 
                 def addExtraImProofCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
-                    self.notify(mui.AddExtraImage_BTN,
-                                data = [widget.subsection, widget.imIdx, True])
-                    self.__renderWithScrollAfter()
+                    __addExtraIm(widget.subsection, widget.imIdx, True)
 
                 def pasteGlLinkCmd(event, *args):
                     widget = event.widget

@@ -778,10 +778,6 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
             self.cmd()
         if broadcasterType == ImageGenerationRestart_BTN:
             self.updateLabel(self.labelOptions[0])
-        if broadcasterType == AddExtraImage_BTN:
-            self.updateLabel(self.labelOptions[0])
-            return self.dataFromUser[0]
-
 
 class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
@@ -927,12 +923,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsht,
                   lambda *args: __notifyTextOnlyChBx(*args))
 
-        def __notifyEIM_BTN(*args):
-            self.notify(AddExtraImage_BTN)
-        
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.shup,
-                  lambda *args: __notifyEIM_BTN(*args))
-
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:
             if "." in fsf.Data.Book.currSection:
@@ -967,8 +957,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
                 self.setData(currIdx)
             else:
                 self.setData(nextIdx)
-        elif broadcasterType == AddExtraImage_BTN:
-            return self.getData()
         elif broadcasterType == ImageGroupAdd_BTN:
             return self.getData()
         elif broadcasterType == commw.AddWebLink_BTN:
@@ -995,157 +983,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
     def defaultTextCMD(self):
         pass
-
-
-class AddExtraImage_BTN(ww.currUIImpl.Button,
-                        dc.AppCurrDataAccessToken):  
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        text= "addExtraIm"
-        name = "_imageGenerationAddIm"
-
-        super().__init__(prefix, 
-                        name,
-                        text, 
-                        patentWidget,
-                        data, 
-                        self.cmd)
-
-    def cmd(self):
-        mainImIdx = str(self.notify(ImageGeneration_BTN))
-        extraImageIdx = _u.Token.NotDef.str_t
-
-        if "_" in mainImIdx:
-            # NOTE: here we obtain the extra image index together with the mainImIdx
-            mainAndExtraIndex = mainImIdx.split("_")
-
-            for idx in mainAndExtraIndex:
-                if not re.match("^[0-9]+$", idx):
-                    msg = "Incorrect image index \n\nId: '{0}'.".format(idx)
-                    wm.UI_generalManager.showNotification(msg, True)
-
-                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                                mmm.MathMenuManager)
-                    mainManager.show()
-
-                    return
-
-            mainImIdx = mainAndExtraIndex[0]
-            extraImageIdx = mainAndExtraIndex[1]
-        else:
-            if not re.match("^[0-9]+$", mainImIdx):
-                msg = "Incorrect main image index \n\nId: '{0}'.".format(mainImIdx)
-                wm.UI_generalManager.showNotification(msg, True)
-
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-                mainManager.show()
-
-                return
-
-        
-        if mainImIdx == _u.Token.NotDef.str_t:
-            mainImIdx = fsf.Wr.Links.ImIDX.get_curr()
-       
-        extraImText = self.notify(ImageGeneration_ETR)
-        
-        currentSubsection = _upan.Current.Names.Section.name()
-
-        self.addExtraIm(currentSubsection, mainImIdx, extraImageIdx, extraImText)
-
-    def addExtraIm(self, subsection, mainImIdx, 
-                   extraImageIdx, extraImText, 
-                   notifyMainTextLabel = True,
-                   showNotification = True):
-        if showNotification:
-            msg = "\
-    Do you want to add \n\nEXTRA IMAGE \n\nto: '{0}'\n\n with name: '{1}'?".format(mainImIdx, extraImText)
-            response = wm.UI_generalManager.showNotification(msg, True)
-            
-            if not response:
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-                mainManager.show()
-                return
-
-        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
-
-        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
-            
-            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
-            extraImagesList = []
-
-            if extraImagesDict == _u.Token.NotDef.dict_t:
-                extraImagesDict = {}
-
-            if mainImIdx in list(extraImagesDict.keys()):
-                extraImagesList = extraImagesDict[mainImIdx]
-
-            if extraImageIdx == _u.Token.NotDef.str_t:
-                extraImageIdx = len(extraImagesList) - 1
-
-            currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-            extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
-
-            extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
-            extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
-            timer = 0
-
-            while not oscf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
-                time.sleep(0.3)
-                timer += 1
-
-                if timer > 50:
-                    log.autolog(f"\
-    The correct extra image was not created for \n\
-    '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
-                    return False
-
-
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-            if not mainManager.getShownStatus():
-                mainManager.show()
-
-            if notifyMainTextLabel:
-                self.notify(LatestExtraImForEntry_LBL)
-
-            # NOTE: I turned it off since it breaks stuff and I don't use this system at the moment
-            # tff.Wr.TexFileModify.addExtraImage(mainImIdx, str(extraImageIdx))
-
-            self.notify(comw.TOC_BOX, entryClicked = mainImIdx)
-
-        t = Thread(target = __afterEImagecreated, 
-                   args = [mainImIdx, subsection, extraImageIdx, extraImText])
-        t.start()
-    
-    def receiveNotification(self, broadcasterType, data = None, *args, **kwargs):
-        if broadcasterType == ImageGeneration_ETR:
-            self.cmd()
-        else:
-            subsection = data[0]  
-            mainImIdx = data[1]
-            isProof = data[2]
-
-            extraImIdx = _u.Token.NotDef.str_t
-            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
-
-            if not isProof:
-                if mainImIdx in list(extraImagesDict.keys()):
-                    extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
-                else:
-                    extraImText = "con0"
-            else:
-                extraImText = "proof"
-
-            if broadcasterType == comw.TOC_BOX:
-                self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False, False)
-            else:
-                self.addExtraIm(subsection, mainImIdx, extraImIdx, extraImText, False, True)
-    
 
 class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
 
