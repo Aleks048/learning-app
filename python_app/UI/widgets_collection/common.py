@@ -2429,7 +2429,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 subsectionLabel.render()
 
         if level != 0:
-            if (not currSubsectionHidden):
+            if (not currSubsectionHidden) or self.showAll:
                 openContentLabel = _uuicom.TOCLabelWithClick(locFrame, text = "[content]", 
                                                     prefix = "subsecContent" + subsection.replace(".", ""),
                                                     row = 0, column= 1)
