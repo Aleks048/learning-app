@@ -297,10 +297,7 @@ class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
         return super().render(widjetObj, renderData, **kwargs)
 
     def receiveNotification(self, broadcasterType):
-        if broadcasterType == AddGlobalLink_BTN:
-            self.prevOptionIdx = self.getData()
-            return self.getData()
-        elif broadcasterType == mui.LatestExtraImForEntry_LBL:
+        if broadcasterType == mui.LatestExtraImForEntry_LBL:
             return self.getData()
         elif broadcasterType == AddWebLink_BTN:
             return self.getData()
@@ -437,70 +434,6 @@ class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
         self.notify(TargetSubection_OM, topSec)
         # self.notify(AddGlobalLink_ETR, topSec)
 
-
-class AddGlobalLink_BTN(ww.currUIImpl.Button,
-                        dc.AppCurrDataAccessToken):
-    def __init__(self, patentWidget, prefix, column = 2, row = 2):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_addGlobalLink_BTN"
-        text = "Create gl link"
-
-        super().__init__(prefix, 
-                        name,
-                        text, 
-                        patentWidget,
-                        data, 
-                        self.cmd)
-    
-    def receiveNotification(self, broadcasterType, data, *args) -> None:
-        if broadcasterType == comw.TOC_BOX:
-            import generalManger.generalManger as gm
-            # we render the toc widget from the main win.
-            # NOTE: done in a weird way since we call it from the toc window
-            mmManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        mmm.MathMenuManager)
-
-            targetSubsection = data[0]
-            targetImIdx = data[1]
-
-            sourceSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-            sourceTopSection = sourceSubsection.split(".")[0]
-            sourceIDX = self.notify(SourceImageLinks_OM)
-
-            if sourceIDX == None:
-                sourceIDX = mmManager.getSelectedImIdx()
-
-            linkData = [targetSubsection, targetImIdx,
-                        sourceSubsection, sourceIDX, sourceTopSection]
-
-            for l in linkData:
-                if l == _u.Token.NotDef.str_t:
-                    _u.log.autolog(f"\
-Some of the data for link creation is not correct.\n\
-Please check the data. N o link added")
-                    return
-
-            gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
-                                     sourceSubsection,
-                                     sourceIDX,
-                                     sourceTopSection)
-
-    def cmd(self):
-        import generalManger.generalManger as gm
-
-        sourceSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-        sourceTopSection = sourceSubsection.split(".")[0]
-        sourceIDX = self.notify(SourceImageLinks_OM)
-
-        wholeLinkPathStr = self.notify(AddGlobalLink_ETR)
-
-        gm.GeneralManger.AddLink(wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection)
-        self.notify(comw.TOC_BOX)
-
-
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, column = 0, row = 2):
         renderData = {
@@ -521,9 +454,7 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
     def receiveNotification(self, broadcasterType, data = None):
-        if broadcasterType == AddGlobalLink_BTN:
-            return self.getData()
-        elif broadcasterType == TargetTopSection_OM:
+        if broadcasterType == TargetTopSection_OM:
             newText = str(data) + "."
             self.updateDafaultText(newText)
             self.setData(newText)
@@ -533,8 +464,6 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
         elif broadcasterType == TargetImageLinks_OM:
             self.updateDafaultText(data)
             self.setData(data)
-        elif broadcasterType == AddGlobalLink_BTN:
-            return self.getData()
         elif broadcasterType == AddWebLink_BTN:
             return self.getData()
 

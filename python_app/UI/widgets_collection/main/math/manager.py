@@ -110,8 +110,6 @@ class LayoutManagers:
             self.addWidget(targetSubsection_OM)
             targetTopSection_OM = commw.TargetTopSection_OM(winRoot, self.prefix, column = 0, row = 13)
             self.addWidget(targetTopSection_OM)
-            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix, column = 2, row = 14)
-            self.addWidget(addGlobalLink_BTN)
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
@@ -135,7 +133,6 @@ class LayoutManagers:
             showHideLinks_BTN = ml.ShowHideLinks_BTN(winRoot, self.prefix)
             self.addWidget(showHideLinks_BTN)
 
-            tocBox_BOX.addListenerWidget(addGlobalLink_BTN)
             tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
             tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
@@ -143,10 +140,6 @@ class LayoutManagers:
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
             imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)
-
-            addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
-            addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
-            addGlobalLink_BTN.addListenerWidget(tocBox_BOX)
 
             showHideLinks_BTN.addListenerWidget(tocBox_BOX)
             showAllSubsections_BTN.addListenerWidget(tocBox_BOX)
@@ -238,12 +231,6 @@ class LayoutManagers:
 
             sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix)
             self.addWidget(sourceImageLinks_OM)
-
-            addGlobalLink_BTN = commw.AddGlobalLink_BTN(winRoot, self.prefix)
-            self.addWidget(addGlobalLink_BTN)
-
-            addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
-            addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
 
             switchToCurrMainLayout_BTN = sl.SwitchToCurrMainLayout_BTN(winRoot, self.prefix)
             self.addWidget(switchToCurrMainLayout_BTN)

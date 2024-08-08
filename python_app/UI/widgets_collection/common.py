@@ -463,8 +463,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.RebuildCurrentSubsectionLatex_BTN:
             self.__renderWithScrollAfter()
-        elif broadcasterType == mcomui.AddGlobalLink_BTN:
-            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
             self.__renderWithScrollAfter()
         # elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
@@ -969,12 +967,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                    widget.sourceImIdx,
                                                    widget.sourceWebLinkName)
                     self.__renderWithoutScroll()
-
-                def addGlLinkCmd(event, *args):
-                    widget:_uuicom.TOCLabelWithClick = event.widget
-                    self.notify(mcomui.AddGlobalLink_BTN,
-                                [widget.subsection, widget.imIdx])
-                    self.__renderWithScrollAfter()
 
                 def __addExtraIm(subsection, mainImIdx, isProof):     
                     def ___addExtraIm(subsection, mainImIdx, 
