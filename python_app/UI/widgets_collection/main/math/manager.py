@@ -42,9 +42,6 @@ class LayoutManagers:
             textOnly_CHB = ml.TextOnly_CHB(winRoot, self.prefix)
             self.addWidget(textOnly_CHB)
 
-            layouts_OM = commw.Layouts_OM(winRoot, self.prefix)
-            self.addWidget(layouts_OM)
-            
             imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
             self.addEntryETR = imageGenration_ERT
             self.addWidget(imageGenration_ERT)
@@ -175,9 +172,6 @@ class LayoutManagers:
 
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix)
             self.addWidget(addGlobalLink_ETR)
-
-            layouts_OM = commw.Layouts_OM(winRoot, self.prefix, 0, 0)
-            self.addWidget(layouts_OM)
 
             showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)

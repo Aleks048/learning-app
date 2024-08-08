@@ -35,38 +35,6 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
 
         return super().render(widjetObj, renderData, **kwargs)
 
-class Layouts_OM(ww.currUIImpl.OptionMenu,
-                 dc.AppCurrDataAccessToken):
-    def __init__(self, patentWidget, prefix, row = 16, column = 1):
-        self.layoutOptions = {
-            "Main" : [mmm.LayoutManagers._Main, lm.Wr.MainLayout], 
-            "Section" : [mmm.LayoutManagers._Section, lm.Wr.SectionLayout], 
-            "WholeVSCode": None}
-        
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
-        }
-        name = "_layouts_optionMenu"
-        listOfLayouts = self.layoutOptions.keys()
-
-        super().__init__(prefix, 
-                        name, 
-                        listOfLayouts,
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-        self.setData(list(listOfLayouts)[0])
-    
-    def cmd(self):
-        layoutToSwitchTo = self.getData()
-        mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken, 
-                                                         mmm.MathMenuManager)
-        mathMenuManager.switchUILayout(self.layoutOptions[layoutToSwitchTo][0])
-        self.layoutOptions[layoutToSwitchTo][1].set()
-
-
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
     labelOptions = ["To Add/Modify L", "To Main L"]
