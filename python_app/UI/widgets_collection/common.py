@@ -584,7 +584,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Data.Book.subsectionOpenInTOC_UI = subsection
                     fsm.Data.Book.entryImOpenInTOC_UI = imIdx
 
-                    self.notify(mui.ChooseTopSection_OM)
                     self.notify(mui.ChooseSubsection_OM)
                     self.notify(mcomui.SourceImageLinks_OM)
                     self.notify(mui.ScreenshotLocation_LBL)
@@ -688,7 +687,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         dt.UITemp.Link.subsection = subsection
                         dt.UITemp.Link.imIdx = imIdx
 
-                        self.notify(mui.ChooseTopSection_OM)
                         self.notify(mui.ChooseSubsection_OM)
                         self.notify(mcomui.SourceImageLinks_OM)
                         self.notify(mui.ScreenshotLocation_LBL)
@@ -2291,8 +2289,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         fsm.Data.Book.currSection = subsection
                         fsm.Data.Book.currTopSection = subsection.split(".")[0]
                         fsm.Data.Book.entryImOpenInTOC_UI = "-1"
-      
-                        self.notify(mui.ChooseTopSection_OM)
+
                         self.notify(mui.ChooseSubsection_OM)
                         self.notify(mcomui.SourceImageLinks_OM)
                         self.notify(mui.ScreenshotLocation_LBL)

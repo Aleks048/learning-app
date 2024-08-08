@@ -65,9 +65,6 @@ class LayoutManagers:
             screenshotLocation_LBL = ml.ScreenshotLocation_LBL(winRoot, self.prefix)
             self.addWidget(screenshotLocation_LBL)
 
-            chooseTopSection_OM = ml.ChooseTopSection_OM(winRoot, self.prefix)
-            self.addWidget(chooseTopSection_OM)
-            chooseTopSection_OM.addListenerWidget(imageGenration_ERT)
             
             chooseSubsection_OM = ml.ChooseSubsection_OM(winRoot, self.prefix)
             self.addWidget(chooseSubsection_OM)
@@ -79,10 +76,7 @@ class LayoutManagers:
             imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
             imageGenration_ERT.addListenerWidget(textOnly_CHB)
 
-            chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
-            chooseSubsection_OM.addListenerWidget(chooseTopSection_OM)
             chooseSubsection_OM.addListenerWidget(imageGenerationRestart_BTN)
-            chooseTopSection_OM.addListenerWidget(screenshotLocation_LBL)
             chooseSubsection_OM.addListenerWidget(screenshotLocation_LBL)
 
             switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
@@ -152,7 +146,6 @@ class LayoutManagers:
 
             tocBox_BOX.addListenerWidget(addGlobalLink_BTN)
             tocBox_BOX.addListenerWidget(chooseSubsection_OM)
-            tocBox_BOX.addListenerWidget(chooseTopSection_OM)
             tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
             tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
@@ -162,7 +155,6 @@ class LayoutManagers:
             imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)  
 
             chooseSubsection_OM.addListenerWidget(sourceImageLinks_OM)
-            chooseTopSection_OM.addListenerWidget(sourceImageLinks_OM)
 
             addGlobalLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addGlobalLink_BTN.addListenerWidget(sourceImageLinks_OM)
@@ -324,17 +316,6 @@ class LayoutManagers:
             createNewSubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             createNewSubsection_BTN.addListenerWidget(setSectionName_ETR)
 
-            # chooseTopSection_OM = amsl.ChooseTopSection_OM(winRoot, self.prefix)
-            # self.addWidget(chooseTopSection_OM)
-
-            # chooseSubsection_OM = amsl.ChooseSubsection_OM(winRoot, self.prefix)
-            # self.addWidget(chooseSubsection_OM)
-            
-            # chooseTopSection_OM.addListenerWidget(chooseSubsection_OM)
-            # chooseTopSection_OM.addListenerWidget(currSectionPath_LBL)
-            # chooseTopSection_OM.addListenerWidget(setSectionName_ETR)
-            # chooseTopSection_OM.addListenerWidget(setSectionStartPage_ETR)
-
             # chooseSubsection_OM.addListenerWidget(currSectionPath_LBL)
             # chooseSubsection_OM.addListenerWidget(setSectionName_ETR)
             # chooseSubsection_OM.addListenerWidget(setSectionStartPage_ETR)
@@ -345,7 +326,6 @@ class LayoutManagers:
 
             modifySubsection_BTN.addListenerWidget(currSectionPath_LBL)
             # modifySubsection_BTN.addListenerWidget(chooseSubsection_OM)
-            # modifySubsection_BTN.addListenerWidget(chooseTopSection_OM)
             modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionName_ETR)
 
@@ -358,7 +338,6 @@ class LayoutManagers:
             self.addWidget(modifyNotesAppLink_BTN)
             modifyNotesAppLink_BTN.addListenerWidget(setSectionNoteAppLink_ETR)
             # modifyNotesAppLink_BTN.addListenerWidget(chooseSubsection_OM)
-            # modifyNotesAppLink_BTN.addListenerWidget(chooseTopSection_OM)
 
             moveToTOC_BTN = amsl.MoveToTOC_BTN(winRoot, self.prefix)
             self.addWidget(moveToTOC_BTN)

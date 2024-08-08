@@ -462,11 +462,8 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.notify(ImageGenerationRestart_BTN)
         return super().updateOptions(newMenuOptions)
 
-    def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None:
-        if broadcasterType == ChooseTopSection_OM:
-            self.updateOptions(newOptionList)
-            self.setData(prevSubsectionPath)   
-        elif broadcasterType == comw.TOC_BOX:
+    def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args) -> None: 
+        if broadcasterType == comw.TOC_BOX:
             self.render()
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
@@ -481,97 +478,6 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currSubsection)
 
         return super().render(widjetObj, renderData, **kwargs)
-
-
-class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 15},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
-        }
-        name = "_chooseSection_optionMenu"
-
-        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        if topSectionsList != _u.Token.NotDef.list_t:
-            topSectionsList.sort(key = int)
-
-        if topSectionsList == []:
-            topSectionsList = ["No top sec yet."]
-
-        super().__init__(prefix, 
-                        name, 
-                        topSectionsList,
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-        
-        currTopSection = fsf.Data.Book.currTopSection
-        self.setData(currTopSection)
-    
-    def cmd(self):
-
-        topSection = self.getData()
-
-        # update top section
-        fsf.Data.Book.currTopSection = topSection
-        
-        # update subsection
-        sections = fsf.Data.Book.sections
-        prevSubsectionPath = sections[topSection]["prevSubsectionPath"]
-        
-        # close current subsection FS window
-        currSection = fsf.Data.Book.currSection
-        
-        if currSection != prevSubsectionPath:
-            lf.Wr.LayoutsManager.closeFSWindow(currSection)
-            fsf.Data.Book.currSection = prevSubsectionPath
-
-        # update image index
-        secionImIndex = fsf.Wr.Links.ImIDX.get(prevSubsectionPath)        
-        
-
-        subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
-        subsectionsList.sort()
-        
-        #
-        # Update other widgets
-        #
-
-        # subsection option menu widget
-        # notify choose subsection OM
-        self.notify(ChooseSubsection_OM, subsectionsList, prevSubsectionPath)
-
-        # update screenshot widget
-        self.notify(commw.SourceImageLinks_OM)
-
-        # update screenshot widget
-        self.notify(ScreenshotLocation_LBL)
-
-        # update image index widget
-        self.notify(ImageGeneration_ETR, 
-                    fsf.Wr.Links.ImIDX.get(prevSubsectionPath))
-    
-    def receiveNotification(self, broadcasterType):
-        if broadcasterType == ChooseSubsection_OM:
-            return self.getData()
-        elif broadcasterType == comw.TOC_BOX:
-            self.render()
-    
-    def render(self, widjetObj=None, renderData=..., **kwargs):
-        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        if topSectionsList != _u.Token.NotDef.list_t:
-            topSectionsList.sort(key = int)
-        
-        if topSectionsList == []:
-            topSectionsList = ["No top sec yet."]
-        
-        self.setData(topSectionsList)
-
-        currTopSection = fsf.Data.Book.currTopSection
-        self.setData(currTopSection)
-
-        return super().render(widjetObj, renderData, **kwargs)
-
 
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
@@ -593,13 +499,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
                         text = text_curr)
     
     def receiveNotification(self, broadcasterName, data = None):
-        if broadcasterName == ChooseTopSection_OM:
-            text = _upan.Paths.Screenshot.getRel_formatted()
-            self.changeText(text)
-        elif broadcasterName == ChooseSubsection_OM:
-            text = _upan.Paths.Screenshot.getRel_formatted()
-            self.changeText(text)
-        elif broadcasterName == comw.TOC_BOX:
+        if broadcasterName == comw.TOC_BOX:
             text = _upan.Paths.Screenshot.getRel_formatted()
             self.changeText(text)
     
@@ -946,17 +846,6 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.widgetObj.focus_force()
 
             return prevData
-        elif broadcasterType == ChooseSubsection_OM or broadcasterType == ChooseTopSection_OM:
-            # TODO: find a nicer wahy without checking the dict
-            imDict = fsf.Wr.SectionCurrent.getCurrLinkIdxDict()
-            currIdx = fsf.Wr.SectionCurrent.getImIDX()
-            currIdx = int(currIdx)
-            nextIdx = str(currIdx + 1)
-
-            if imDict == _u.Token.NotDef.dict_t:
-                self.setData(currIdx)
-            else:
-                self.setData(nextIdx)
         elif broadcasterType == ImageGroupAdd_BTN:
             return self.getData()
         elif broadcasterType == commw.AddWebLink_BTN:

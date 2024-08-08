@@ -81,7 +81,6 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
     def cmd(self):
         # get working subsection
         subsecPath = self.notify(ChooseSubsection_OM)
-        topSection = self.notify(ChooseTopSection_OM)
 
         DEFAULT_CHANGE_STR = "Do you want to change "
         changeStr = DEFAULT_CHANGE_STR
@@ -143,8 +142,6 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
         subsectionsList.sort()
         self.notify(ChooseSubsection_OM, subsectionsList, subsecPath)
-        self.notify(ChooseTopSection_OM, topSection)
-
 
 class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
@@ -191,9 +188,6 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.notify(SetSectionNoteAppLink_ETR, newNoteAppLink = noteAppLink)
     
     def receiveNotification(self, broadcasterType, newOptionList = [], prevSubsectionPath = "", *args):
-        if broadcasterType == ChooseTopSection_OM:
-            self.updateOptions(newOptionList)
-            self.setData(prevSubsectionPath)
         if broadcasterType == ModifySubsection_BTN or broadcasterType == ModifyNotesAppLink_BTN:
             if prevSubsectionPath == "":
                 return self.getData()
@@ -213,85 +207,6 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         self.setData(currSubsection)
 
         return super().render(widjetObj, renderData, **kwargs)
-
-
-class ChooseTopSection_OM(ww.currUIImpl.OptionMenu):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
-        }
-        name = "_chooseSection_optionMenu"
-
-        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        if topSectionsList != _u.Token.NotDef.list_t:
-            topSectionsList.sort(key = int)
-
-        if topSectionsList == []:
-            topSectionsList = ["No top sec yet."]
-
-        super().__init__(prefix, 
-                        name, 
-                        topSectionsList,
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-        
-        currTopSection = fsf.Data.Book.currTopSection
-        self.setData(currTopSection)
-    
-    def cmd(self):
-        topSection = self.getData()
-
-        sections = fsf.Data.Book.sections
-        prevSubsectionPath = sections[topSection]["prevSubsectionPath"]
-
-        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
-        subsectionsList.sort()
-        name = fsf.Data.Sec.text(prevSubsectionPath)
-        startPage = fsf.Data.Sec.start(prevSubsectionPath)
-        endPage = fsf.Data.Sec.finish(prevSubsectionPath)
-        pages = startPage
-
-        if endPage != _u.Token.NotDef.str_t:
-            pages += "-" + endPage
-
-        noteAppLink = fsf.Data.Sec.notesAppLink(prevSubsectionPath)
-        
-        if noteAppLink == _u.Token.NotDef.str_t:
-            noteAppLink = ""
-        
-        #
-        # Update other widgets
-        #
-
-        # subsection option menu widget
-        # notify choose subsection OM
-        self.notify(ChooseSubsection_OM, subsectionsList, prevSubsectionPath)
-        self.notify(CurrSectionPath_LBL, secPath = prevSubsectionPath)
-        self.notify(SetSectionName_ETR, newName = name)
-        self.notify(SetSectionStartPage_ETR, newStartPage = pages)
-        self.notify(SetSectionNoteAppLink_ETR, newNoteAppLink = noteAppLink)
-    
-    def receiveNotification(self, broadcasterType, topSec = ""):
-        if topSec == "":
-            return self.getData()
-        else:
-            self.setData(topSec)
-    
-    def render(self, widjetObj=None, renderData=..., **kwargs):
-        topSectionsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
-        topSectionsList.sort(key = int)
-        if topSectionsList == []:
-            topSectionsList = ["No top sec yet."]
-        
-        self.setData(topSectionsList)
-
-        currTopSection = fsf.Data.Book.currTopSection
-        self.setData(currTopSection)
-
-        return super().render(widjetObj, renderData, **kwargs)
-
 
 class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
     labelOptions = ["Swith layout", "Swith layout"]
@@ -321,10 +236,6 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
                         text = text)
     
     def receiveNotification(self, broadcasterType, data = None, secPath = None):
-        if broadcasterType == ChooseTopSection_OM:
-            newText = self.__getSectionPath_Formatted(secPath)
-            self.changeText(newText)
-        
         if broadcasterType == ChooseSubsection_OM:
             newText = self.__getSectionPath_Formatted(secPath)
             self.changeText(newText)
@@ -397,7 +308,6 @@ class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
     def cmd(self):
         # info from other widgets
         subsecPath = self.notify(ChooseSubsection_OM)
-        topSection = self.notify(ChooseTopSection_OM)
         link = self.notify(SetSectionNoteAppLink_ETR)
 
         # show notification with wait
@@ -416,8 +326,6 @@ class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
         subsectionsList.sort()
         self.notify(ChooseSubsection_OM, subsectionsList, subsecPath)
-        self.notify(ChooseTopSection_OM, topSection)
-
 
 class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
@@ -487,10 +395,6 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
         if broadcasterType == CreateNewSubsection_BTN:
             text = self.getData()
             return text, ""
-
-        if broadcasterType == ChooseTopSection_OM:
-            self.setData(newStartPage)
-            self.updateDafaultText(newStartPage)
         
         if broadcasterType == ChooseSubsection_OM:
             self.setData(newStartPage)
@@ -574,9 +478,6 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
         if broadcasterType == CreateNewSubsection_BTN:
             text = self.getData()
             return text if text != self.defaultText else ""
-        if broadcasterType == ChooseTopSection_OM:
-            self.setData(newName)
-            self.updateDafaultText(newName)
         if broadcasterType == ChooseSubsection_OM:
             self.setData(newName)
             self.updateDafaultText(newName)
