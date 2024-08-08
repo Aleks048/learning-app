@@ -108,8 +108,6 @@ class LayoutManagers:
             self.addWidget(targetImageLinks_OM)
             targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
             self.addWidget(targetSubsection_OM)
-            targetTopSection_OM = commw.TargetTopSection_OM(winRoot, self.prefix, column = 0, row = 13)
-            self.addWidget(targetTopSection_OM)
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
@@ -154,9 +152,6 @@ class LayoutManagers:
             targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
             targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
             targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
-
-            targetTopSection_OM.addListenerWidget(targetSubsection_OM)
-            targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
 
             imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
 
@@ -211,15 +206,9 @@ class LayoutManagers:
 
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrSection_BTN)
-
-            targetTopSection_OM = commw.TargetTopSection_OM(winRoot, self.prefix)
-            self.addWidget(targetTopSection_OM)
             
             targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix)
             self.addWidget(targetSubsection_OM)
-
-            targetTopSection_OM.addListenerWidget(targetSubsection_OM)
-            targetTopSection_OM.addListenerWidget(addGlobalLink_ETR)
 
             targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix)
             self.addWidget(targetImageLinks_OM)

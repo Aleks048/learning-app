@@ -396,43 +396,8 @@ class TargetSubection_OM(ww.currUIImpl.OptionMenu):
         # self.notify(AddGlobalLink_ETR, secPath)
     
     def receiveNotification(self, broadcasterType, data = None):
-        if broadcasterType == TargetTopSection_OM:
-            subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(data)
-            subsectionsList.sort()
-            self.updateOptions(subsectionsList)
-            sectiopPath =  self.getData()
-            self.notify(TargetImageLinks_OM, sectiopPath)
-        elif broadcasterType == TargetImageLinks_OM:
+        if broadcasterType == TargetImageLinks_OM:
             return self.getData()
-
-
-class TargetTopSection_OM(ww.currUIImpl.OptionMenu):
-
-    def __init__(self, patentWidget, prefix, column = 0, row = 1):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_GlLink_TargetTopSection_OM"
-
-        self.topSectionsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
-        self.topSectionsList.sort(key = int)
-
-        super().__init__(prefix, 
-                        name, 
-                        self.topSectionsList,
-                        patentWidget, 
-                        renderData,
-                        cmd=self.cmd)
-        
-        currTopSection = fsm.Data.Book.currTopSection
-
-        self.setData(currTopSection)
-    
-    def cmd(self):
-        topSec = self.getData()
-        self.notify(TargetSubection_OM, topSec)
-        # self.notify(AddGlobalLink_ETR, topSec)
 
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, column = 0, row = 2):
@@ -454,11 +419,7 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
         super().setData(self.defaultText)
     
     def receiveNotification(self, broadcasterType, data = None):
-        if broadcasterType == TargetTopSection_OM:
-            newText = str(data) + "."
-            self.updateDafaultText(newText)
-            self.setData(newText)
-        elif broadcasterType == TargetSubection_OM:
+        if broadcasterType == TargetSubection_OM:
             self.updateDafaultText(data)
             self.setData(data)
         elif broadcasterType == TargetImageLinks_OM:
@@ -472,8 +433,6 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
             if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
                 lambda _: self.notify(TargetImageLinks_OM, self.getData())
         return [ww.currUIImpl.Data.BindID.allKeys] , [__cmd]
-
-
 
 class AddWebLink_BTN(ww.currUIImpl.Button,
                         dc.AppCurrDataAccessToken):
