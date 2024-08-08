@@ -108,6 +108,3 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
         #change the current subsection for the app
         fsm.Data.Book.currTopSection = topSection
         fsm.Data.Book.currSection = subsection
-
-
-        self.notify(comui.SourceImageLinks_OM, subsection)

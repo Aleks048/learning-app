@@ -224,181 +224,6 @@ class ShowProofs_BTN(ww.currUIImpl.Button,
 
         return super().render(**kwargs)
 
-
-class SourceImageLinks_OM(ww.currUIImpl.OptionMenu):
-    prevOptionIdx = _u.Token.NotDef.str_t
-    prevOptionSubsection = _u.Token.NotDef.str_t
-
-    def __init__(self, patentWidget, prefix, column = 3, row = 1):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_source_SecImIDX_OM"
-
-        currSecPath = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
-
-        if "." in fsm.Data.Book.currSection:
-            self.sourceSubsectionImageLinks = list(fsm.Wr.Links.LinkDict.get(currSecPath).keys())
-            self.sourceSubsectionImageLinks.sort(key = int)
-        else:
-            self.sourceSubsectionImageLinks = _u.Token.NotDef.dict_t.copy()
-
-        super().__init__(prefix, 
-                        name, 
-                        self.sourceSubsectionImageLinks,
-                        patentWidget, 
-                        renderData,
-                        self.cmd)
-        
-        self.prevOptionSubsection = fsm.Data.Book.currSection
-        self.prevOptionIdx = fsm.Data.Book.entryImOpenInTOC_UI
-        
-        self.updateOptions()
-    
-    def cmd(self):
-        self.notifyAllListeners()
-
-    def updateOptions(self,
-                      _ = "" # this is just a hack to override the parent method
-                      ):
-        currSec = fsm.Data.Book.currSection
-
-        if "." in fsm.Data.Book.currSection:
-            imLinkDict = fsm.Data.Sec.imLinkDict(currSec)
-        else:
-            imLinkDict = _u.Token.NotDef.dict_t.copy()
-
-        if type(imLinkDict) == dict:
-            self.sourceSubsectionImageLinks = list(imLinkDict.keys())
-            self.sourceSubsectionImageLinks.sort(key = int)
-        else:
-            self.sourceSubsectionImageLinks = _u.Token.NotDef.list_t.copy()
-
-        super().updateOptions(self.sourceSubsectionImageLinks)
-
-        # if currSec != self.prevOptionSubsection:
-        #     self.setData(self.sourceSubsectionImageLinks[-1], notParentUpdCall = True)
-        # else:
-            # self.setData(self.prevOptionIdx, notParentUpdCall = True)
-
-        self.setData(fsm.Data.Book.entryImOpenInTOC_UI, notParentUpdCall = True)
-
-    def setData(self, newData, **kwargs):
-        # NOTE: this is a hack so that we don't consider the 
-        # setting of the data by the parent
-        if "notParentUpdCall" in list(kwargs.keys()):
-            self.prevOptionSubsection = fsm.Data.Book.currSection
-            self.prevOptionIdx = str(newData)
-        return super().setData(newData, **kwargs)
-
-    def render(self, widjetObj=None, renderData=..., **kwargs):
-        self.updateOptions()
-        return super().render(widjetObj, renderData, **kwargs)
-
-    def receiveNotification(self, broadcasterType):
-        if broadcasterType == mui.LatestExtraImForEntry_LBL:
-            return self.getData()
-        elif broadcasterType == AddWebLink_BTN:
-            return self.getData()
-        elif broadcasterType == comw.TOC_BOX:
-            self.updateOptions()
-            self.setData(fsm.Data.Book.entryImOpenInTOC_UI)
-        else:
-            self.updateOptions()
-
-
-class TargetImageLinks_OM(ww.currUIImpl.OptionMenu):
-    def __init__(self, patentWidget, prefix, column = 2, row = 1):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
-        }
-        name = "_target_SecImIDX_OM"
-
-        self.targetSubsectionImageLinks = _u.Token.NotDef.list_t.copy()
-
-        super().__init__(prefix, 
-                        name, 
-                        self.targetSubsectionImageLinks,
-                        patentWidget, 
-                        renderData,
-                        self.cmd)
-    
-    def cmd(self):
-        secPath = self.notify(TargetSubection_OM)
-        self.__setGlobalLinksETR(secPath)
-
-    def __setGlobalLinksETR(self, secPath):
-        imLink:str = self.getData()
-        self.notify(AddGlobalLink_ETR, secPath + "." + imLink.split(":")[0])
-
-    def updateOptions(self, secPath):
-        num = list(fsm.Wr.Links.LinkDict.get(secPath).keys())
-        names = [i.replace("\n", " ")[:20] for i in list(fsm.Wr.Links.LinkDict.get(secPath).values())]
-        formatted = []
-
-        for i in range(len(num)):
-            formatted.append("{0}:{1}".format(num[i], names[i]))
-
-        return super().updateOptions(formatted)
-
-    def receiveNotification(self, broadcasterType, data = None) -> None:
-        if broadcasterType == TargetSubection_OM:
-            secPath = data
-            self.updateOptions(secPath)
-            self.__setGlobalLinksETR(secPath)
-
-
-class TargetSubection_OM(ww.currUIImpl.OptionMenu):
-    def __init__(self, patentWidget, prefix, column = 1, row = 1):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_GlLink_TargetSubsection_OM"
-
-        # if topSectionsList != _u.Token.NotDef.list_t:
-        #     topSectionsList.sort(key = int)
-        
-        currTopSection = fsm.Data.Book.currTopSection
-        self.subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
-
-        if self.subsectionsList == []:
-            self.subsectionsList = _u.Token.NotDef.list_t.copy()
-
-        super().__init__(prefix, 
-                        name, 
-                        self.subsectionsList,
-                        patentWidget, 
-                        renderData,
-                        cmd=self.cmd)
-
-        subsections = fsm.Wr.BookInfoStructure.getSubsectionsList(currTopSection)
-
-        if subsections == []:
-            subsections = _u.Token.NotDef.list_t.copy()
-
-        currSubsection = fsm.Data.Book.currSection
-
-        if currSubsection == subsections[0]:
-            self.setData(currSubsection)
-        else:
-            if currSubsection in subsections:
-                currSubsIdx = subsections.index(currSubsection)
-                self.setData(subsections[currSubsIdx - 1])
-            else:
-                self.setData("-1")
-    
-    def cmd(self):
-        secPath =  self.getData()
-        self.notify(TargetImageLinks_OM, secPath)
-        # self.notify(AddGlobalLink_ETR, secPath)
-    
-    def receiveNotification(self, broadcasterType, data = None):
-        if broadcasterType == TargetImageLinks_OM:
-            return self.getData()
-
 class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, column = 0, row = 2):
         renderData = {
@@ -412,27 +237,14 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
                         name, 
                         patentWidget, 
                         renderData,
-                        bindCmd = self.bindCmd,
                         defaultText = defaultText,
                         )
 
         super().setData(self.defaultText)
     
     def receiveNotification(self, broadcasterType, data = None):
-        if broadcasterType == TargetSubection_OM:
-            self.updateDafaultText(data)
-            self.setData(data)
-        elif broadcasterType == TargetImageLinks_OM:
-            self.updateDafaultText(data)
-            self.setData(data)
-        elif broadcasterType == AddWebLink_BTN:
+        if broadcasterType == AddWebLink_BTN:
             return self.getData()
-
-    def bindCmd(self):
-        def __cmd(event, *args):
-            if event.keysym == ww.currUIImpl.Data.BindID.Keys.enter:
-                lambda _: self.notify(TargetImageLinks_OM, self.getData())
-        return [ww.currUIImpl.Data.BindID.allKeys] , [__cmd]
 
 class AddWebLink_BTN(ww.currUIImpl.Button,
                         dc.AppCurrDataAccessToken):
@@ -456,7 +268,7 @@ class AddWebLink_BTN(ww.currUIImpl.Button,
 
         sourceSubsection = fsm.Wr.SectionCurrent.getSectionNameNoPrefix()
         sourceTopSection = sourceSubsection.split(".")[0]
-        sourceIDX = self.notify(SourceImageLinks_OM)
+        sourceIDX = fsm.Data.Book.entryImOpenInTOC_UI
 
         webAddress = self.notify(AddGlobalLink_ETR)
         linkName = self.notify(mui.ImageGeneration_ETR)

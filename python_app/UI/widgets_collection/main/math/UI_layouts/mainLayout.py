@@ -65,7 +65,7 @@ class LatestExtraImForEntry_LBL(ww.currUIImpl.Label):
             else:
                 latestEntry = _u.Token.NotDef.str_t
         else:
-            latestEntry = self.notify(commw.SourceImageLinks_OM)
+            latestEntry = "-1"
 
         latestExtraImName = "No"
 
@@ -556,7 +556,6 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
 
                 self.rootWidget.render()
                 self.notify(ImageGeneration_ETR, nextImNum)
-                self.notify(commw.SourceImageLinks_OM)
                 self.notify(LatestExtraImForEntry_LBL)
                 self.updateLabel(self.labelOptions[0])
                 self.notify(comw.TOC_BOX, entryClicked = self.dataFromUser[0])

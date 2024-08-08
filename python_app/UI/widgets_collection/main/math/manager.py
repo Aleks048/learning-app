@@ -14,7 +14,6 @@ class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
         prefix = "_mainLayout"
         tocBox = None
-        linkSourceImIdx = None
 
         addEntryETR = None
 
@@ -101,13 +100,6 @@ class LayoutManagers:
             rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrentSubsectionLatex_BTN)
 
-            sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix, column = 4, row = 13)
-            self.addWidget(sourceImageLinks_OM)
-            self.linkSourceImIdx = sourceImageLinks_OM
-            targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix, column = 2, row = 13)
-            self.addWidget(targetImageLinks_OM)
-            targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix, column = 1, row = 13)
-            self.addWidget(targetSubsection_OM)
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
@@ -131,7 +123,6 @@ class LayoutManagers:
             showHideLinks_BTN = ml.ShowHideLinks_BTN(winRoot, self.prefix)
             self.addWidget(showHideLinks_BTN)
 
-            tocBox_BOX.addListenerWidget(sourceImageLinks_OM)
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
             tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
 
@@ -144,19 +135,9 @@ class LayoutManagers:
             # showFirstEntryOfTheCurrPage.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
-            addWebLink_BTN.addListenerWidget(sourceImageLinks_OM)
             addWebLink_BTN.addListenerWidget(imageGenration_ERT)
             addWebLink_BTN.addListenerWidget(tocBox_BOX)
 
-            targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
-            targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
-            targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
-            targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
-
-            imageGeneration_BTN.addListenerWidget(sourceImageLinks_OM)
-
-            latestExtraImForEntry_LBL.addListenerWidget(sourceImageLinks_OM)
-            sourceImageLinks_OM.addListenerWidget(latestExtraImForEntry_LBL)
             imageGeneration_BTN.addListenerWidget(latestExtraImForEntry_LBL)
 
             rebuildCurrentSubsectionLatex_BTN.addListenerWidget(tocBox_BOX)
@@ -164,8 +145,6 @@ class LayoutManagers:
             #
             # post init
             #
-            targetSubsection_OM.cmd()
-            targetImageLinks_OM.cmd()
 
         def show(self):
             self.winRoot.configureColumn(0, weight = 1)
@@ -203,23 +182,8 @@ class LayoutManagers:
             showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix)
             self.addWidget(showProof_BTN)
 
-
             rebuildCurrSection_BTN = sl.RebuildCurrSection_BTN(winRoot, self.prefix)
             self.addWidget(rebuildCurrSection_BTN)
-            
-            targetSubsection_OM = commw.TargetSubection_OM(winRoot, self.prefix)
-            self.addWidget(targetSubsection_OM)
-
-            targetImageLinks_OM = commw.TargetImageLinks_OM(winRoot, self.prefix)
-            self.addWidget(targetImageLinks_OM)
-
-            targetSubsection_OM.addListenerWidget(targetImageLinks_OM)
-            targetImageLinks_OM.addListenerWidget(targetSubsection_OM)
-            targetImageLinks_OM.addListenerWidget(addGlobalLink_ETR)
-            targetSubsection_OM.addListenerWidget(addGlobalLink_ETR)
-
-            sourceImageLinks_OM = commw.SourceImageLinks_OM(winRoot, self.prefix)
-            self.addWidget(sourceImageLinks_OM)
 
             switchToCurrMainLayout_BTN = sl.SwitchToCurrMainLayout_BTN(winRoot, self.prefix)
             self.addWidget(switchToCurrMainLayout_BTN)
@@ -229,8 +193,6 @@ class LayoutManagers:
             #
             # post init
             #
-            targetSubsection_OM.cmd()
-            targetImageLinks_OM.cmd()
         
         def show(self):
             self.winRoot.configureColumn(0, weight = 1)
@@ -443,11 +405,7 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.showLinksForSubsections = []
                 layout.tocBox.showLinksForEntryCmd(None, subsection, imIdx)
                 return
-
-    def getSelectedImIdx(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                return layout.linkSourceImIdx.getData()
+        
 
     def switchToSectionLayout(self):
         self.switchUILayout(LayoutManagers._Section)
