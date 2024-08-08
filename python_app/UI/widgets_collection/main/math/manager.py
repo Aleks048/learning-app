@@ -103,9 +103,6 @@ class LayoutManagers:
             addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 3, row = 14)
             self.addWidget(addWebLink_BTN)
 
-            latestExtraImForEntry_LBL = ml.LatestExtraImForEntry_LBL(winRoot, self.prefix)
-            self.addWidget(latestExtraImForEntry_LBL)
-
             showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 15)
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
@@ -134,8 +131,6 @@ class LayoutManagers:
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(imageGenration_ERT)
             addWebLink_BTN.addListenerWidget(tocBox_BOX)
-
-            imageGeneration_BTN.addListenerWidget(latestExtraImForEntry_LBL)
 
             rebuildCurrentSubsectionLatex_BTN.addListenerWidget(tocBox_BOX)
 
