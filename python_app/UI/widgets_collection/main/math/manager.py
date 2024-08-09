@@ -8,7 +8,7 @@ import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
 import UI.widgets_collection.common as comw
 import data.constants as dc
-
+import file_system.file_system_facade as fsf
 
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
@@ -365,6 +365,9 @@ class MathMenuManager(wm.MenuManager_Interface):
     def moveTocToEntry(self, subsection, imIdx, fromTOCWindow = False):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
+                fsf.Data.Book.currTopSection = subsection.split(".")[0]
+                fsf.Data.Book.subsectionOpenInTOC_UI = subsection
+
                 layout.tocBox.renderFromTOCWindow = fromTOCWindow
                 layout.tocBox.scrollToEntry(subsection, imIdx)
                 layout.tocBox.renderFromTOCWindow = False
