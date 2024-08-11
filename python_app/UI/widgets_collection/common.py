@@ -787,11 +787,24 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         return "proof" in eImText.lower()\
                                 and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
 
+                    def skippProofLink(subsection, imIdx, exImIdx):
+                        extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
+                        eImText = extraImages[exImIdx]
+                        return "proof" in eImText.lower()
+
                     createExtraWidgets = not link
-                    exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
-                                                                    imPad, self.displayedImages, balloon,
-                                                                    skippProof, tocFrame = self, 
-                                                                    createExtraWidgets = createExtraWidgets)
+
+                    if not link:
+                        exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
+                                                                        imPad, self.displayedImages, balloon,
+                                                                        skippProof, tocFrame = self, 
+                                                                        createExtraWidgets = createExtraWidgets)
+                    else:
+                        exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
+                                                                        imPad, self.displayedImages, balloon,
+                                                                        skippProofLink, tocFrame = self, 
+                                                                        createExtraWidgets = createExtraWidgets)
+
                     eImIdxCounter = 0
                     for l in exImLabels:
                         eImIdxCounter += 1

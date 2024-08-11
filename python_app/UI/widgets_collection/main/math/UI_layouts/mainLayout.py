@@ -433,6 +433,8 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
 
             t = Thread(target = __afterImageCreated, args = [self])
             t.start()
+            dt.AppState.ShowProofs.setData(self.appCurrDataAccessToken,
+                                           False)
             mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                             mmm.MathMenuManager)
             mainManager.show()
