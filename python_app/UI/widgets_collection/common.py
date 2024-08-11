@@ -475,6 +475,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
             self.scrollToEntry(data[1], data[2])
         elif broadcasterType == tocw.Filter_ETR:
+            self.showAll = True
             self.filterToken = data[0]
             self.searchSubsectionsText = data[1]
             self.hide()
