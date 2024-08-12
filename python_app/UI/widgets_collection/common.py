@@ -2706,6 +2706,15 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         self.linkFrames = []
         self.showImagesLabels = {}
 
+        # for the search toc we show material for all top sections
+        if self.showAll:
+            self.showSubsectionsForTopSection = {}
+            tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
+
+            if tsList != _u.Token.NotDef.list_t:
+                for ts in tsList:
+                    self.showSubsectionsForTopSection[ts] = True
+
         for child in self.scrollable_frame.winfo_children():
             child.destroy()
 
