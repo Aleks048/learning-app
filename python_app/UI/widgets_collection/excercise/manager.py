@@ -18,6 +18,8 @@ class LayoutManagers:
         subsection = _u.Token.NotDef.str_t
         imIdx = _u.Token.NotDef.str_t
 
+        showExcerciseIm = True
+
         def __init__(self, winRoot):
             appDimensions = [720, 800, 0, 0]
             super().__init__(winRoot, appDimensions)
@@ -29,8 +31,8 @@ class LayoutManagers:
             self.addWidget(self.addExcerciseLine_BTN)
             self.hideExcerciseWindow_BTN = exw.HideExcerciseWindow_BTN(winRoot, self.prefix)
             self.addWidget(self.hideExcerciseWindow_BTN)
-            self.pasteGlLink_BTN = exw.PasteGlLink_BTN(winRoot, self.prefix)
-            self.addWidget(self.pasteGlLink_BTN)
+            self.hideExcerciseImage = exw.HideExcerciseImage(winRoot, self.prefix)
+            self.addWidget(self.hideExcerciseImage)
             addExcerciseLine_ETR = exw.AddExcerciseLine_ETR(winRoot, self.prefix)
             self.addWidget(addExcerciseLine_ETR)
             self.moveTOCtoExcerciseEntry_BTN = exw.MoveTOCtoExcerciseEntry_BTN(winRoot, self.prefix)
@@ -57,8 +59,8 @@ class LayoutManagers:
             self.excerciseImage.subsection = self.subsection
             self.excerciseImage.entryIdx = self.imIdx
 
-            self.pasteGlLink_BTN.subsection = self.subsection
-            self.pasteGlLink_BTN.imIdx = self.imIdx
+            self.hideExcerciseImage.subsection = self.subsection
+            self.hideExcerciseImage.imIdx = self.imIdx
 
             self.hideExcerciseWindow_BTN.subsection = self.subsection
             self.hideExcerciseWindow_BTN.imIdx = self.imIdx
@@ -81,7 +83,12 @@ class LayoutManagers:
 
             # resize the solution box in respect to the size of the excercise image
             self.excerciseImage.widgetObj.update()
-            self.excercise_BOX.canvas.configure(height = 730 - 20 - self.excerciseImage.widgetObj.winfo_height())
+
+            if self.showExcerciseIm:
+                self.excercise_BOX.canvas.configure(height = 730 - 20 - self.excerciseImage.widgetObj.winfo_height())
+            else:
+                self.excercise_BOX.canvas.configure(height = 730 - 20)
+
             self.excercise_BOX.canvas.update()
 
             currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -96,6 +103,9 @@ class LayoutManagers:
                 self.excercise_BOX.latestLineIdxToscrollTo = str(len(lines) - 1)
             else:
                 self.excercise_BOX.latestLineIdxToscrollTo = str(0)
+
+            if not self.showExcerciseIm:
+                self.excerciseImage.hide()
 
             self.excercise_BOX.render()
 
@@ -125,10 +135,11 @@ class ExcerciseManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
-    def show(self):
+    def show(self, showManinExcerciseIm = True):
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
         self.shown = True
+        self.layouts[0].showExcerciseIm = showManinExcerciseIm
 
         return super().show()
     

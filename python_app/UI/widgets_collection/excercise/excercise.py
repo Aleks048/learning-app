@@ -99,6 +99,14 @@ class ExcerciseImage(ww.currUIImpl.Frame):
                         parentWidget, 
                         renderData = data)
     
+    def hide(self, **kwargs):
+        # get an image from the
+        widget = self.widgetObj
+
+        for child in widget.winfo_children():
+            child.destroy()
+        return super().hide(**kwargs)
+
     def render(self, **kwargs):
                 
         # get an image from the
@@ -223,17 +231,19 @@ class ShowExtra_BTN(ww.currUIImpl.Button):
             self.showSolutions = True
 
 
-class PasteGlLink_BTN(ww.currUIImpl.Button):
+class HideExcerciseImage(ww.currUIImpl.Button):
     subsection = None
     imIdx = None
+
+    show = False
 
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
         }
-        text = "P Gl Link"
-        name = "_PasteGlLink_BTN"
+        text = "Hide Main Image"
+        name = "_HideExcerciseImage_BTN"
         super().__init__(prefix, 
                         name, 
                         text, 
@@ -242,18 +252,10 @@ class PasteGlLink_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        sourceSubsection = self.subsection
-        sourceTopSection = sourceSubsection.split(".")[0]
-        sourceImIdx = self.imIdx
-        targetSubsection = dt.UITemp.Link.subsection
-        targetImIdx = dt.UITemp.Link.imIdx
-
-        if targetSubsection != _u.Token.NotDef.str_t\
-            and targetImIdx != _u.Token.NotDef.str_t:
-            gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
-                                    sourceSubsection,
-                                    sourceImIdx,
-                                    sourceTopSection)
+        excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                          wf.Wr.MenuManagers.ExcerciseManager)
+        excerciseManager.show(self.show)
+        self.show = not self.show
 
 class HideAllETRsWindow_BTN(ww.currUIImpl.Button):
     subsection = None
@@ -436,7 +438,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                kwargs = kwargs).start()
 
     def __scrollIntoView(self, event, widget = None):
-        # try:
+        # NOTE: this is a hack to make opening different excercise windows
+        # without it we get a crash
+        try:
             self.scrollable_frame.update()
             self.scrollable_frame.update_idletasks()
 
@@ -467,8 +471,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 self.canvas.yview_moveto((pos / height) - 0.008)
             else:
                 self.canvas.yview_moveto((pos / height) - 0.032)
-        # except:
-        #     pass
+        except:
+             pass
 
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
