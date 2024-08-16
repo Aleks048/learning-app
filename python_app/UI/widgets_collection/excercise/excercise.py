@@ -467,10 +467,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
 
+            preScaceRegular = float(self.canvas.winfo_height() - 100) / height
+            preScaceEntry =int( self.canvas.winfo_height() - 130) / height
+
             if not shouldScrollToRebuild:
-                self.canvas.yview_moveto((pos / height) - 0.008)
+                self.canvas.yview_moveto((pos / height) - preScaceRegular)
             else:
-                self.canvas.yview_moveto((pos / height) - 0.032)
+                self.canvas.yview_moveto((pos / height) - preScaceEntry)
         except:
              pass
 
