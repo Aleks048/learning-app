@@ -94,9 +94,6 @@ class LayoutManagers:
             # showFirstEntryOfTheCurrPage = ml.ShowFirstEntryOfTheCurrPage(winRoot, self.prefix)
             # self.addWidget(showFirstEntryOfTheCurrPage)
 
-            rebuildCurrentSubsectionLatex_BTN = ml.RebuildCurrentSubsectionLatex_BTN(winRoot, self.prefix)
-            self.addWidget(rebuildCurrentSubsectionLatex_BTN)
-
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
@@ -131,8 +128,6 @@ class LayoutManagers:
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(imageGenration_ERT)
             addWebLink_BTN.addListenerWidget(tocBox_BOX)
-
-            rebuildCurrentSubsectionLatex_BTN.addListenerWidget(tocBox_BOX)
 
             #
             # post init

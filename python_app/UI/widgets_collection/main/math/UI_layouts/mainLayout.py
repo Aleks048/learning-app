@@ -83,35 +83,6 @@ class ShowHideLinks_BTN(ww.currUIImpl.Button,
     def cmd(self):
         self.notify(comw.TOC_BOX)
 
-
-class RebuildCurrentSubsectionLatex_BTN(ww.currUIImpl.Button,
-                  dc.AppCurrDataAccessToken):
-
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 13},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_RebuildCurrentSubsectionLatex"
-        text= "Rebuild Latex"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        data, 
-                        self.cmd)
-
-    def receiveNotification(self, broadcasterType) -> None:
-        pass
-
-    def cmd(self):
-        subsection = _upan.Current.Names.Section.name()
-        fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
-                                                           _upan.Names.Group.formatGroupText,
-                                                           _upan.Names.Subsection.getSubsectionPretty,
-                                                           _upan.Names.Subsection.getTopSectionPretty)
-        self.notify(comw.TOC_BOX)
-
 class ScrollToCurrSubsectionAndBack_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):
     toSubsection = True
