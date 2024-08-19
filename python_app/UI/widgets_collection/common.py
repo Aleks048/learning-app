@@ -272,7 +272,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     showAll = None
     shouldScroll = None
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 610, 
+    def __init__(self, parentWidget, prefix, windth = 700, height = 640, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
         data = {
@@ -461,8 +461,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ImageGroupAdd_BTN:
             self.__renderWithScrollAfter()
-        elif broadcasterType == mui.RebuildCurrentSubsectionLatex_BTN:
-            self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
             self.__renderWithScrollAfter()
         # elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
@@ -472,8 +470,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.showLinks = not self.showLinks
             self.showLinksForSubsections = []
             self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ScrollToCurrSubsectionAndBack_BTN:
-            self.scrollToEntry(data[1], data[2])
         elif broadcasterType == tocw.Filter_ETR:
             self.showAll = True
             self.filterToken = data[0]
@@ -686,8 +682,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         self.notify(mui.ScreenshotLocation_LBL)
 
-                        if not self.renderFromTOCWindow:
-                            self.notify(mui.ScrollToCurrSubsectionAndBack_BTN)
+                        # if not self.renderFromTOCWindow:
+                        #     self.notify(mui.ScrollToCurrSubsectionAndBack_BTN)
 
                         self.subsectionClicked = subsection
                         self.entryClicked = imIdx

@@ -114,7 +114,7 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
     def __init__(self, patentWidget, prefix):
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 16},
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 14},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         name = "_chooseOriginalMaterial_OM"

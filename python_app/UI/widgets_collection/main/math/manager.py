@@ -97,7 +97,7 @@ class LayoutManagers:
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
-            addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 3, row = 14)
+            addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 2, row = 14)
             self.addWidget(addWebLink_BTN)
 
             showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 14)
