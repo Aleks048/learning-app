@@ -83,46 +83,6 @@ class ShowHideLinks_BTN(ww.currUIImpl.Button,
     def cmd(self):
         self.notify(comw.TOC_BOX)
 
-class ScrollToCurrSubsectionAndBack_BTN(ww.currUIImpl.Button,
-                  dc.AppCurrDataAccessToken):
-    toSubsection = True
-
-    currTopSection = None 
-    subsection = None
-    imIdx = None
-
-    def __init__(self, patentWidget, prefix):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 13},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
-        }
-        name = "_ScrollToCurrSubsectionAndBack_BTN"
-        text= "Scroll"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        data, 
-                        self.cmd)
-
-        self.currTopSection = fsf.Data.Book.currTopSection 
-        self.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
-        self.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
-
-    def cmd(self):
-        self.toSubsection = not self.toSubsection
-        self.notify(comw.TOC_BOX,
-                    [self.currTopSection,
-                    self.subsection,
-                    self.imIdx])
-
-    def receiveNotification(self, broadcasterType) -> None:
-        self.currTopSection = fsf.Data.Book.currTopSection 
-        self.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
-        self.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
-
-    
-
 
 class ExitApp_BTN(ww.currUIImpl.Button,
                   dc.AppCurrDataAccessToken):

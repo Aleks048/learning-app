@@ -104,10 +104,6 @@ class LayoutManagers:
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
-            scrollToCurrSubsectionAndBack_BTN = ml.ScrollToCurrSubsectionAndBack_BTN(winRoot, self.prefix)
-            self.addWidget(scrollToCurrSubsectionAndBack_BTN)
-            scrollToCurrSubsectionAndBack_BTN.addListenerWidget(tocBox_BOX)
-
             imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
             self.addWidget(imageGroupAdd_BTN)
 
@@ -115,7 +111,6 @@ class LayoutManagers:
             self.addWidget(showHideLinks_BTN)
 
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
-            tocBox_BOX.addListenerWidget(scrollToCurrSubsectionAndBack_BTN)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
