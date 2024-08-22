@@ -172,7 +172,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         def __addCode(*args):
             boldSelText = "\\textbf{Code:} "
             self.insert("0.0", boldSelText)
-        
+
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmddc,
                   lambda *args: __addCode(*args))
 
