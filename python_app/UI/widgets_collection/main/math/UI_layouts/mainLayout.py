@@ -495,6 +495,13 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshc,
                   lambda *args: __addCorollary(*args))
 
+        def __addCode(*args):
+            boldSelText = "\\textbf{Code:} "
+            self.widgetObj.insert("0", boldSelText)
+        
+        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmddc,
+                  lambda *args: __addCode(*args))
+
         def __addExcecise(*args):
             boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
             self.widgetObj.insert("0", boldSelText)

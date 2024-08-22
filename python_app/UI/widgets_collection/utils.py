@@ -169,6 +169,13 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshc,
                   lambda *args: __addCorollary(*args))
 
+        def __addCode(*args):
+            boldSelText = "\\textbf{Code:} "
+            self.insert("0.0", boldSelText)
+        
+        self.bind(ww.currUIImpl.Data.BindID.Keys.cmddc,
+                  lambda *args: __addCode(*args))
+
         def __addExcercise(*args):
             boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
             self.insert("0.0", boldSelText)
