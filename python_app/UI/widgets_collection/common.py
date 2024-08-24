@@ -1936,7 +1936,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                 showLinks = True
                                 break
 
-                        if self.showLinks or showLinks:
+                        if (self.showLinks or showLinks) and (not self.showAll):
                             # adding a frame to show global links
                             linksFrame = _uuicom.TOCFrame(tempFrame,
                                                 prefix = "contentLinksFr_" + nameId,
@@ -2692,6 +2692,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             self.addTOCEntry(subsection, level, i)
 
     def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
+        if self.showAll:
+            self.showLinksForSubsections = []
+
         # import traceback
         # for line in traceback.format_stack():
         #     print(line.strip())
