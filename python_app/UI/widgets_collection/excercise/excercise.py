@@ -163,9 +163,9 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
         self.notify(Excercise_BOX)
 
         if structureCreated:
-            excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                           wf.Wr.MenuManagers.MathMenuManager)
-            excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
+            mainManager.moveTocToEntry(self.subsection, self.imIdx)
 
 
     def receiveNotification(self, broadcasterType):
@@ -738,7 +738,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                                        self.imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
             self.lineIdxShownInText = [(str(len(lines) - 1))]
+            self.latestLineIdxToscrollTo = str(len(lines) - 1)
             self.currEtr = _u.Token.NotDef.dict_t.copy()
+            self.etrTexts = _u.Token.NotDef.dict_t.copy()
             self.render()
         if broadcasterType == HideAllETRsWindow_BTN:
             self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
