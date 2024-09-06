@@ -315,6 +315,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     def renderWithoutScroll(self):
         self.__renderWithoutScroll()
 
+    def renderWithScrollAfter(self):
+        self.__renderWithScrollAfter()
+
     def scrollToEntry(self, subsection, imIdx):
         if "." not in subsection:
             return
@@ -976,68 +979,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                    widget.sourceWebLinkName)
                     self.__renderWithoutScroll()
 
-                def __addExtraIm(subsection, mainImIdx, isProof):     
-                    def ___addExtraIm(subsection, mainImIdx, 
-                                      extraImageIdx, extraImText):
-                        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
-
-                        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
-                            
-                            extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
-                            extraImagesList = []
-
-                            if extraImagesDict == _u.Token.NotDef.dict_t:
-                                extraImagesDict = {}
-
-                            if mainImIdx in list(extraImagesDict.keys()):
-                                extraImagesList = extraImagesDict[mainImIdx]
-
-                            if extraImageIdx == _u.Token.NotDef.str_t:
-                                extraImageIdx = len(extraImagesList) - 1
-
-                            currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                            extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
-
-                            extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
-                            extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
-                            timer = 0
-
-                            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
-                                time.sleep(0.3)
-                                timer += 1
-
-                                if timer > 50:
-                                    _u.log.autolog(f"\
-                    The correct extra image was not created for \n\
-                    '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
-                                    return False
-                            
-                            self.__renderWithScrollAfter()
-
-                        t = Thread(target = __afterEImagecreated, 
-                                args = [mainImIdx, subsection, extraImageIdx, extraImText])
-                        t.start()
-
-                    extraImIdx = _u.Token.NotDef.str_t
-                    extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
-
-                    if not isProof:
-                        if mainImIdx in list(extraImagesDict.keys()):
-                            extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
-                        else:
-                            extraImText = "con0"
-                    else:
-                        extraImText = "proof"
-
-                    ___addExtraIm(subsection, mainImIdx, extraImIdx, extraImText)
-
                 def addExtraImCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
-                    __addExtraIm(widget.subsection, widget.imIdx, False)
+                    _uuicom.addExtraIm(widget.subsection, widget.imIdx, False, self)
 
                 def addExtraImProofCmd(event, *args):
                     widget:_uuicom.TOCLabelWithClick = event.widget
-                    __addExtraIm(widget.subsection, widget.imIdx, True)
+                    _uuicom.addExtraIm(widget.subsection, widget.imIdx, True, self)
 
                 def pasteGlLinkCmd(event, *args):
                     widget = event.widget

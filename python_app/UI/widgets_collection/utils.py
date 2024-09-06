@@ -18,6 +18,7 @@ import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
+import generalManger.generalManger as gm
 
 
 
@@ -1364,6 +1365,66 @@ def addMainEntryImageWidget(rootLabel,
     return tempLabel
 
 
+def addExtraIm(subsection, mainImIdx, isProof, tocFrame, widgetToScrollTo):     
+    def ___addExtraIm(subsection, mainImIdx, 
+                        extraImageIdx, extraImText):
+        gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
+
+        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
+            
+            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+            extraImagesList = []
+
+            if extraImagesDict == _u.Token.NotDef.dict_t:
+                extraImagesDict = {}
+
+            if mainImIdx in list(extraImagesDict.keys()):
+                extraImagesList = extraImagesDict[mainImIdx]
+
+            if extraImageIdx == _u.Token.NotDef.str_t:
+                extraImageIdx = len(extraImagesList) - 1
+
+            currBokkPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            extraImagePath_curr = _upan.Paths.Screenshot.getAbs(currBokkPath, subsection)
+
+            extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
+            extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
+            timer = 0
+
+            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(extraImagePathFull):
+                time.sleep(0.3)
+                timer += 1
+
+                if timer > 50:
+                    _u.log.autolog(f"\
+    The correct extra image was not created for \n\
+    '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
+                    return False
+            
+            tocFrame.renderWithScrollAfter()
+
+            if widgetToScrollTo != None:
+                # NOTE: this is a hack and we shouold implement correct scrolling to the newly created
+                # image later
+                tocFrame.scrollIntoView(None, widgetToScrollTo)
+
+        t = Thread(target = __afterEImagecreated, 
+                args = [mainImIdx, subsection, extraImageIdx, extraImText])
+        t.start()
+
+    extraImIdx = _u.Token.NotDef.str_t
+    extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+
+    if not isProof:
+        if mainImIdx in list(extraImagesDict.keys()):
+            extraImText = "con" + str(len(extraImagesDict[mainImIdx]))
+        else:
+            extraImText = "con0"
+    else:
+        extraImText = "proof"
+
+    ___addExtraIm(subsection, mainImIdx, extraImIdx, extraImText)
+
 def openOMOnThePageOfTheImage(widget:TOCLabelWithClick, targetSubsection, targetImIdx, eImidx = None):
     def __cmd(event = None, *args): 
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -1911,6 +1972,48 @@ def addExtraEntryImagesWidgets(rootLabel,
                 entryCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openEntryCodeProjectCmd])
                 bindChangeColorOnInAndOut(entryCodeProj)
                 entryCodeProj.render()
+
+                addProof = TOCLabelWithClick(tempEImLabel,
+                                                text = "[AddPr",
+                                                prefix = "addProof_" + eImWidgetName,
+                                                row =  i + 7, 
+                                                column = 0,
+                                                sticky = tk.NW,
+                                                columnspan = 2)
+                addProof.imIdx = imIdx
+                addProof.subsection = subsection
+                addProof.eImIdx = i
+                addProof.tocFrame = tocFrame
+
+                def addExtraImProofCmd(event, *args):
+                    widget = event.widget
+                    addExtraIm(widget.subsection, widget.imIdx, 
+                               True, widget.tocFrame, widget)
+
+                addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],[addExtraImProofCmd])
+                bindChangeColorOnInAndOut(addProof)
+                addProof.render()
+
+                addEIm = TOCLabelWithClick(tempEImLabel,
+                                                text = ", AddImage]",
+                                                prefix = "addEIm_" + eImWidgetName,
+                                                row =  i + 7, 
+                                                column = 2,
+                                                sticky = tk.NW,
+                                                columnspan = 3)
+                addEIm.imIdx = imIdx
+                addEIm.subsection = subsection
+                addEIm.eImIdx = i
+                addEIm.tocFrame = tocFrame
+
+                def addExtraImCmd(event, *args):
+                    widget = event.widget
+                    addExtraIm(widget.subsection, widget.imIdx, 
+                               False, widget.tocFrame, widget)
+
+                addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],[addExtraImCmd])
+                bindChangeColorOnInAndOut(addEIm)
+                addEIm.render()
 
             outLabels.append(tempLabel)
 
