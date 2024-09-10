@@ -1374,14 +1374,17 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                     imageUIResize[mainImIdx + "_" + str(i)] =\
                                                             imageUIResize[mainImIdx + "_" + str(i + 1)]
                     imageUIResize.pop(mainImIdx + "_" + str(i + 1))
+
                 if figuresData.get(mainImIdx + "_" + str(i + 1)) != None:
                     figuresData[mainImIdx + "_" + str(i)] =\
                                                             figuresData[mainImIdx + "_" + str(i + 1)]
                     figuresData.pop(mainImIdx + "_" + str(i + 1))
+
                 if figuresLabelsData.get(mainImIdx + "_" + str(i + 1)) != None:
                     figuresLabelsData[mainImIdx + "_" + str(i)] =\
                                                             figuresLabelsData[mainImIdx + "_" + str(i + 1)]
                     figuresLabelsData.pop(mainImIdx + "_" + str(i + 1))
+
                 if bookCodeFile.get(mainImIdx + "_" + str(i + 1)) != None:
                     bookCodeFile[mainImIdx + "_" + str(i)] =\
                                                             bookCodeFile[mainImIdx + "_" + str(i + 1)]
@@ -1395,6 +1398,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                     __updateFile(filepath, oldMarker, tempMarker)
                     __updateFile(filepath, newMarker, oldMarker)
                     __updateFile(filepath, tempMarker, newMarker)
+
                 if subsectionCodeFile.get(mainImIdx + "_" + str(i + 1)) != None:
                     subsectionCodeFile[mainImIdx + "_" + str(i)] =\
                                                             subsectionCodeFile[mainImIdx + "_" + str(i + 1)]
@@ -1464,6 +1468,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.extraImagesDict, extraImagesDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.extraImText, extraImTextDict, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.imageUIResize, imageUIResize, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.figuresData, figuresData, currBookPath)
+        cls.updateProperty(subsection, cls.PubProp.figuresLabelsData, figuresLabelsData, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.bookCodeFile, bookCodeFile, currBookPath)
         cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFile, currBookPath)
 

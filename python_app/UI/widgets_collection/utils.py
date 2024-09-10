@@ -1602,6 +1602,12 @@ def addExtraEntryImagesWidgets(rootLabel,
                         mathMenuManager.renderWithoutScroll()
                         mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
 
+                    pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.PdfReadersManager)
+                    pdfReadersManager.show(changePrevPos = False, removePrevLabel = True, 
+                                           subsection = subsection, imIdx = imIdx,
+                                           extraImIdx = str(widget.eImIdx))                    
+
                     excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                     wf.Wr.MenuManagers.ExcerciseManager)
                     if excerciseManager.shown:
