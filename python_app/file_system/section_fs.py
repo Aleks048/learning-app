@@ -1312,7 +1312,11 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         subsectionCodeFile = cls.readProperty(subsection, cls.PubProp.subsectionCodeFile, currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
-        eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
+
+        if extraImTextDict.get(mainImIdx) != None:
+            eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()
+        else:
+            eImTextsList:list = []
 
         if eImIdx != None:
             if bookCodeFile.get(mainImIdx + "_" + str(eImIdx)) != None:
