@@ -121,6 +121,8 @@ class LayoutManagers:
 class ExcerciseManager(wm.MenuManager_Interface):
     imIdx = 0
     shown = False
+    showManinExcerciseIm = True
+
     def __init__(self):
 
         winRoot = exw.ExcerciseRoot(50, 50)
@@ -135,11 +137,15 @@ class ExcerciseManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
-    def show(self, showManinExcerciseIm = True):
+    def show(self, showManinExcerciseIm = None):
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
         self.shown = True
-        self.layouts[0].showExcerciseIm = showManinExcerciseIm
+
+        if showManinExcerciseIm != None:
+            self.showManinExcerciseIm = showManinExcerciseIm
+    
+        self.layouts[0].showExcerciseIm = self.showManinExcerciseIm
 
         return super().show()
     
