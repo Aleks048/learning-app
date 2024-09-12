@@ -4,6 +4,7 @@ import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.excercise.manager as exm
 import UI.widgets_collection.notes.manager as nom
+import UI.widgets_collection.entryNotes.manager as enom
 import UI.widgets_collection.proofs.manager as prm
 import UI.widgets_collection.image.manager as imm
 import UI.widgets_collection.pdfReader.manager as pdfrm
@@ -34,6 +35,9 @@ class Wr:
             pass
 
         class NotesManager(nom.NotesManager):
+            pass
+
+        class EntryNotesManager(enom.EntryNotesManager):
             pass
 
         class ProofsManager(prm.ProofsManager):

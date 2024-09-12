@@ -207,6 +207,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         hideLInkImages = __EntryUIData("[Hide Links]", 8)
         copyText = __EntryUIData("[Copy text]", 9)
         proof = __EntryUIData("[Show proof]", 10)
+        entryNote = __EntryUIData("[Note]", 11)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -1087,6 +1088,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         notesMenuManger.hide()
 
+                def openEntryNoteMenu(event, *args):
+                    notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.EntryNotesManager)
+                    notesMenuManger.subsection = event.widget.subsection
+                    notesMenuManger.imIdx = event.widget.imIdx
+
+                    event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
+                    if (event.widget.shouldShowNotesMenu):
+                        notesMenuManger.show()
+                    else:
+                        notesMenuManger.hide()
+
                 def hideLinksImagesFunc(event, *args):
                     self.linksOpenImage.clear()
 
@@ -1741,6 +1754,17 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                              [openNoteMenu])
 
+                        openEntryNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                                      text = self.__EntryUIs.entryNote.name, 
+                                                      prefix = "contentOpenEntryNoteUIEntry" + nameId,
+                                                      row = 1, 
+                                                      column = self.__EntryUIs.entryNote.column,
+                                                      columnspan = 1)
+                        openEntryNoteUIEntry.imIdx = k
+                        openEntryNoteUIEntry.subsection = subsection
+                        openEntryNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                             [openEntryNoteMenu])
+
                         copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.copyText.name, 
                                                       prefix = "contentCopyTextToMem" + nameId,
@@ -2158,6 +2182,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             openExUIEntry.render()
                             openProofsUIEntry.render()
                             openNoteUIEntry.render()
+                            openEntryNoteUIEntry.render()
                             showLinksForEntry.render()
                             shiftEntry.render()
                             copyEntry.render()
@@ -2203,6 +2228,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         _uuicom.bindChangeColorOnInAndOut(textLabelFull)
                         _uuicom.bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
                         _uuicom.bindChangeColorOnInAndOut(openNoteUIEntry, shouldBeBrown = notesExist)
+                        _uuicom.bindChangeColorOnInAndOut(openEntryNoteUIEntry)
                         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
                         _uuicom.bindChangeColorOnInAndOut(changeImText)
                         _uuicom.bindChangeColorOnInAndOut(copyTextToMem)

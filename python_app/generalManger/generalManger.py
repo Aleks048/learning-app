@@ -45,9 +45,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
         exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
-        log.autolog("Started '{0}' UI manager".format("toc menu"))
-        notesMenuManager = wf.Wr.MenuManagers.NotesManager()
         log.autolog("Started '{0}' UI manager".format("excercise menu"))
+        notesMenuManager = wf.Wr.MenuManagers.NotesManager()
+        log.autolog("Started '{0}' UI manager".format("dictionary menu"))
+        entryNotesMenuManager = wf.Wr.MenuManagers.EntryNotesManager()
+        log.autolog("Started '{0}' UI manager".format("entry notes menu"))
         proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
         imagagesMenuManager = wf.Wr.MenuManagers.ImagesManager()
@@ -151,6 +153,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.NotesManager)
         notesManager.winRoot.exitApp()
+
+        # notes
+        entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.EntryNotesManager)
+        entryNotesManager.winRoot.exitApp()
 
         lf.Wr.MainLayout.close()
 
