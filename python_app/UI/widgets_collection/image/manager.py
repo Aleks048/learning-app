@@ -58,6 +58,9 @@ class LayoutManagers:
 
 class ImagesManager(wm.MenuManager_Interface):
     imIdx = 0
+    appDimensions = None
+    notesImDimensions = None
+
     def __init__(self):
         winRoot = imw.ImagesRoot(50, 50)
         layouts = []
@@ -71,11 +74,13 @@ class ImagesManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
-    def show(self, appDimensions, extraImIdx):
+    def show(self, appDimensions, extraImIdx, notesImDimensions = 0):
         self.winRoot.hideWidget = self.layouts[0].hideImagesWindow_BTN
 
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
         self.layouts[0].appDimensions = appDimensions
+        self.appDimensions = appDimensions
+        self.notesImDimensions = notesImDimensions
         self.layouts[0].extraImIdx = extraImIdx
         return super().show()

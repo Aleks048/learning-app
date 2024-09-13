@@ -25,6 +25,7 @@ import generalManger.generalManger as gm
 class MultilineText_ETR(scrolledtext.ScrolledText):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
         self.imIdx = None
+        self.eImIdx = None
         self.subsection = None
         self.etrWidget = None
         self.lineImIdx = None
@@ -1269,7 +1270,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         imMenuManger.subsection = event.widget.subsection
         imMenuManger.imIdx = event.widget.imIdx
 
-        width = int(event.widget.width * 1.5)
+        width = int(event.widget.width * 1.5) if int(event.widget.width * 1.5) > 720 else 720
         currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         eImIdx = event.widget.eImIdx
         notePosidx = str(int(eImIdx) + 1) if eImIdx != _u.Token.NotDef.str_t else 0
@@ -1277,6 +1278,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                                            event.widget.subsection,
                                            event.widget.imIdx,
                                            notePosidx)
+        
         if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesIm):
             im = Image.open(notesIm)
             _, imHeight = im.size
@@ -1285,7 +1287,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
 
         height = int(event.widget.height * 1.5) + imHeight + 100
 
-        imMenuManger.show([width, height, 0, 0], eImIdx)
+        imMenuManger.show([width, height, 0, 0], eImIdx, imHeight)
 
     if bindOpenWindow:
         imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openImageManager])
@@ -1365,7 +1367,7 @@ def addMainEntryImageWidget(rootLabel,
     return tempLabel
 
 
-def addExtraIm(subsection, mainImIdx, isProof, tocFrame, widgetToScrollTo):     
+def addExtraIm(subsection, mainImIdx, isProof, tocFrame, widgetToScrollTo = None):     
     def ___addExtraIm(subsection, mainImIdx, 
                         extraImageIdx, extraImText):
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)

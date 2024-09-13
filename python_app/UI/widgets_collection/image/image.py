@@ -4,6 +4,7 @@ import Pmw
 from PIL import Image, ImageTk
 from threading import Thread
 import os
+import time
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -91,9 +92,9 @@ class NotesLabel(ww.currUIImpl.Label,
             t.join()
             self.render()
             position = "0.0"#self.currEtr[1]
-            self.currEtr.focus_force()
 
             try:
+                self.currEtr.focus_force()
                 self.currEtr.mark_set("insert", position)
             except:
                 pass
@@ -134,6 +135,7 @@ class NotesLabel(ww.currUIImpl.Label,
         def __showTextOrImage(event, *args):
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
             widgetnoteImIdx = str(event.widget.noteImIdx)
+            text = ""
 
             if self.noteShownIntext:
                 text = self.currEtr.getData()
@@ -150,6 +152,20 @@ class NotesLabel(ww.currUIImpl.Label,
                 self.noteShownIntext = True
 
             self.render()
+            
+            imagesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.ImagesManager)
+            appDimensions = imagesManager.appDimensions
+            appDimensions[1] -= imagesManager.notesImDimensions
+
+            if self.noteShownIntext:
+                text = self.currEtr.getData()
+                nLines = len(text.split("\n"))
+
+                appDimensions[1] += nLines * 35
+                imagesManager.notesImDimensions = nLines * 35
+            
+            imagesManager.show(appDimensions, self.eImIdx, imagesManager.notesImDimensions)
 
         # image / text
         if not self.noteShownIntext:
@@ -184,6 +200,14 @@ class NotesLabel(ww.currUIImpl.Label,
                 text = self.currEtr.getData()
 
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+                notesIm = _upan.Paths.Entry.NoteImage.getAbs(bookPath,
+                                                event.widget.subsection,
+                                                event.widget.imIdx,
+                                                event.widget.noteImIdx)
+
+                ocf.Wr.FsAppCalls.deleteFile(notesIm)
+
                 self.__renderAfterRebuild(self.subsection,
                             self.imIdx,
                             event.widget.noteImIdx,
@@ -193,9 +217,27 @@ class NotesLabel(ww.currUIImpl.Label,
 
                 self.noteShownIntext = False
 
+                imagesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            wf.Wr.MenuManagers.ImagesManager)
+                appDimensions = imagesManager.appDimensions
+                appDimensions[1] -= imagesManager.notesImDimensions
+   
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesIm):
+                    time.sleep(0.1)
+
+                im = Image.open(notesIm)
+                _, imHeight = im.size
+                imagesManager.notesImDimensions = imHeight
+                appDimensions[1] += imagesManager.notesImDimensions
+                
+                imagesManager.show(appDimensions, self.eImIdx, imagesManager.notesImDimensions)
+
                 return "break"
 
             labETR.noteImIdx = noteImIdx
+            labETR.subsection = self.subsection
+            labETR.imIdx = self.imIdx
+            labETR.eImIdx = self.eImIdx
             labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
 
             labETR.render()
