@@ -67,8 +67,8 @@ class Wr:
             \\newcommand{{\\forward}}{{$\\Rightarrow$}}\
             \\newcommand{{\\back}}{{$\\Leftarrow$}}\
             \\newcommand{{\\closure}}{{\\overline}}\
-            \\newcommand{{\\union}}{{\\cup}}\
-            \\newcommand{{\\intersection}}{{\\cap}}\
+            \\newcommand{{\\union}}{{\\bigcup}}\
+            \\newcommand{{\\intersection}}{{\\bigcap}}\
             \\newcommand{{\\intersect}}{{\\cap}}\
             \\newcommand{{\\cross}}{{\\times}}\
             \
