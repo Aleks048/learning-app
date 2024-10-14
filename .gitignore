@@ -9,4 +9,7 @@
 *.myPDF
 *.jpg
 *.png
+*.zim
 /python_app/test.py
+test.py
+test_book.py
