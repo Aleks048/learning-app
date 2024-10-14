@@ -1,12 +1,23 @@
 {
     "currentState": {
-        "currentState_BookPath": "/Users/ashum048/books/testBooks/tust2",
-        "currentState_BookName": "tust2",
+        "currentState_BookPath": "/Users/ashum048/books/philosophy/Moral",
+        "currentState_BookName": "Moral",
         "currentState_Layout": "Main"
     },
     "booksPaths": {
         "tust2": "/Users/ashum048/books/testBooks/tust2",
-        "SM": "/Users/ashum048/books/math/SM"
+        "SM": "/Users/ashum048/books/math/SM",
+        "VitaActiva": "/Users/ashum048/books/philosophy/VitaActiva",
+        "BurnoutSociety": "/Users/ashum048/books/philosophy/BurnoutSociety",
+        "Capital": "/Users/ashum048/books/philosophy/Capital",
+        "NonViolence": "/Users/ashum048/books/philosophy/nonViolence",
+        "PeoplesMarx": "/Users/ashum048/books/philosophy/PeoplesMarx",
+        "Manifolds": "/Users/ashum048/books/math/Manifolds",
+        "Zarathustra": "/Users/ashum048/books/philosophy/Zarathustra",
+        "CE": "/Users/ashum048/books/philosophy/CE",
+        "PBR": "/Users/ashum048/books/coding/PBR",
+        "ID": "/Users/ashum048/books/philosophy/ideology",
+        "Moral": "/Users/ashum048/books/philosophy/Moral"
     },
     "startup": {
         "startupLayout": "whole_book"
