@@ -1,0 +1,1 @@
+/Users/ashum048/books/_python_local/3.9.18/bin/pip install --target "/Users/ashum048/books/_python_local/3.9.18/lib/python3.9/site-packages" ${1}
