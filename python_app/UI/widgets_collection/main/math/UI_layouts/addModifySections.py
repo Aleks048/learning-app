@@ -11,14 +11,9 @@ import UI.widgets_manager as wm
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as cl
 import file_system.file_system_facade as fsf
-import layouts.layouts_facade as lf
-
-import scripts.osascripts as oscf
-import outside_calls.outside_calls_facade as ocf
 
 import data.constants as dc
 import data.temp as dt
-import settings.facade as sf
 
 
 class MoveToTOC_BTN(ww.currUIImpl.Button,

@@ -3,13 +3,7 @@ import unittest
 import os
 import pathlib
 
-import file_system.file_system_facade as fsm
-import layouts.layouts_facade as lm
-import tex_file.tex_file_facade as tm
 import UI.widgets_facade as wf
-import UI.widgets_collection.startup.startup as sw
-import data.temp as dt
-import daemon_service.daemon_service as das
 import outside_calls.outside_calls_facade as ocf
 
 import generalManger.generalManger as gm

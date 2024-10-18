@@ -1,1 +1,0 @@
-This module is responsible for changing the layout of 3rd-party app

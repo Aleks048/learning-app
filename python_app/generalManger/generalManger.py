@@ -19,7 +19,6 @@ import outside_calls.outside_calls_facade as ocf
 
 import daemon_service.daemon_service as ds
 
-import layouts.layouts_facade as lf
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oscf
 
@@ -158,8 +157,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.EntryNotesManager)
         entryNotesManager.winRoot.exitApp()
-
-        lf.Wr.MainLayout.close()
 
         cls.dserver.close()
         cls.daemonThread.join()

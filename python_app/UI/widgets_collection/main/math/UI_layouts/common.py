@@ -6,7 +6,6 @@ import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
 import UI.widgets_collection.common as comw
 import UI.widgets_facade as wf
-import layouts.layouts_facade as lm
 import _utils._utils_main as _u
 import data.constants as dc
 import data.temp as dt
@@ -14,7 +13,6 @@ import tkinter as tk
 import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
-import layouts.layouts_facade as lf
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):

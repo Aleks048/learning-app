@@ -19,8 +19,6 @@ import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
 import UI.widgets_manager as wm
 
-import layouts.layouts_facade as lf
-
 import data.constants as dc
 import data.temp as dt
 

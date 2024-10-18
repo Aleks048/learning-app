@@ -1,24 +1,16 @@
 import tkinter as tk
-from threading import Thread
 import subprocess
 
 import UI.widgets_wrappers as ww
 import file_system.file_system_facade as fsm
-import _utils.logging as log
-import tex_file.tex_file_facade as tff
 import scripts.osascripts as oscr
 import data.temp as dt
 import data.constants as dc
 
-import _utils._utils_main as _u
-import _utils.pathsAndNames as _upan
 
 import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_collection.main.math.manager as mmm
-import UI.widgets_collection.main.math.UI_layouts.common as comui
-import UI.widgets_manager as wm
-import layouts.layouts_facade as lf
 
 import data.constants as dc
 import data.temp as dt
@@ -94,16 +86,6 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
         frontSkimDocumentName = frontSkimDocumentName.split("_")[1]
         topSection = frontSkimDocumentName.split(".")[0]
         subsection = frontSkimDocumentName
-        
-        imIDX_page = int(frontSkimDocumentName.split(" ")[1])
-
-        # close current section vscode
-        _, windowID, _ = _u.getOwnersName_windowID_ofApp(
-                            "vscode",
-                             fsm.Wr.SectionCurrent.readCurrSection())
-        
-        if (windowID != None):
-            lf.Wr.LayoutsManager.closeIDEWindow(subsection, dt.OtherAppsInfo.VsCode.section_pid)
 
         #change the current subsection for the app
         fsm.Data.Book.currTopSection = topSection
