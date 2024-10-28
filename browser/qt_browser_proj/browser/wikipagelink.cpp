@@ -28,8 +28,6 @@ bool WikiPageLink::eventFilter(QObject *obj, QEvent *event) {
 }
 
 void WikiPageLink::mousePressEvent(QMouseEvent *e) {
-    std::cout << "mouse click" << std::endl;
-
     MainWindow* mwin = static_cast<MainWindow*>(QApplication::activeWindow());
     auto entries = mwin->entriesData;
 

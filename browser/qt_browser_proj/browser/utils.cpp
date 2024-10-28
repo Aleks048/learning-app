@@ -48,8 +48,9 @@ std::vector<std::string> splitString(std::string& s, const std::string& delimite
 }
 
 std::unordered_map<std::string, std::vector<std::string>> getCurrData() {
-    std::string url = URL_SCRIPT_PATH + " KIK://get";
+    std::string url = URL_SCRIPT_PATH + " KIK:/_/getCurrent";
     auto result = executeCmdAndGetResults(url.c_str());
+    std::cout<< result << std::endl;
 
     std::vector<std::string> entries = splitString(result, "\n");
     entries.erase(entries.end() - 1);
@@ -57,41 +58,43 @@ std::unordered_map<std::string, std::vector<std::string>> getCurrData() {
     std::unordered_map<std::string, std::vector<std::string>> out;
 
     for (auto s: entries) {
-        std::cout << "e:" << s << std::endl;
         std::vector<std::string> keyAndValues = splitString(s, "::::");
         auto key = keyAndValues.back();
         keyAndValues.pop_back();
+
         out[key] = keyAndValues;
     }
 
     return out;
 }
 
-void sendSearchTextData(std::string name, std::string searchText) {
-    std::string url = URL_SCRIPT_PATH + " 'KIK://searchText/" + name + "/" + searchText + "'";
+void sendUpdateLinkName(std::string wurl, std::string newName, std::string oldName) {
+    std::string url = URL_SCRIPT_PATH + " 'KIK:/_/updateLinkName/_/" + wurl
+                      + "/_/" + newName + "/_/" + oldName +  "'";
     executeCmdAndGetResults(url.c_str());
 }
 
-void sendSearchNameData(std::string name) {
-    std::string url = URL_SCRIPT_PATH + " 'KIK://searchName/" + name + "'";
+void sendUpdateSearchText(std::string wurl, std::string name, std::string newSearchText) {
+    std::string url = URL_SCRIPT_PATH + " 'KIK:/_/updateLinkSearchText/_/"
+                                      + wurl + "/_/" + name + "/_/"
+                                      + newSearchText + "'";
     executeCmdAndGetResults(url.c_str());
 }
-
 
 void sendDeleteSearchEntry(std::string wurl, std::string name) {
-    std::string url = URL_SCRIPT_PATH + " 'KIK://deleteName/" + wurl
-                      + "/" + name + "'";
+    std::string url = URL_SCRIPT_PATH + " 'KIK:/_/deleteName/_/" + wurl
+                                      + "/_/" + name + "'";
     executeCmdAndGetResults(url.c_str());
 };
 
 void sendDeletePageEntry(std::string wurl) {
-    std::string url = URL_SCRIPT_PATH + " 'KIK://deletePage/" + wurl + "'";
+    std::string url = URL_SCRIPT_PATH + " 'KIK:/_/deletePage/_/" + wurl + "'";
     executeCmdAndGetResults(url.c_str());
 };
 
-void sendSearchPageData(std::string wurl, std::string name, std::string text) {
-    std::string url = URL_SCRIPT_PATH + " 'KIK://searchPage/" + wurl
-                      + "/" + name + "/" + text + "'";
+void sendAddSearchPageData(std::string wurl, std::string name, std::string text) {
+    std::string url = URL_SCRIPT_PATH + " 'KIK:/_/addSearchPage/_/" + wurl
+                      + "/_/" + name + "/_/" + text + "'";
     executeCmdAndGetResults(url.c_str());
 }
 }

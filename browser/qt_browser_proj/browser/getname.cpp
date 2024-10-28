@@ -1,7 +1,9 @@
 #include <QTextEdit>
+#include <QApplication>
 
 #include "getname.h"
 #include "./utils.h"
+#include "./mainwindow.h"
 
 GetName::GetName(std::string wurl, std::string text):
     QMainWindow(), wurl(wurl), text(text) {
@@ -23,9 +25,18 @@ bool GetName::eventFilter(QObject* o, QEvent* ev) {
 
         }
         else if (shiftPressed && (e->key() == ENTER_KEY)) {
-            auto name = this->te->toPlainText().toStdString();
-            utils::sendSearchPageData(wurl, name, text);
-            this->close();
+            for(QWidget *widget: QApplication::topLevelWidgets()) {
+                if (widget->windowTitle().toStdString() == "Browser Main Window") {
+                    MainWindow* mwin = static_cast<MainWindow*>(widget);
+                    auto wurl = mwin->m_browser->url().toString().toStdString();
+
+                    auto name = this->te->toPlainText().toStdString();
+                    utils::sendAddSearchPageData(wurl, name, text);
+                    this->close();
+                    mwin->paint_(mwin->parentWidget());
+                    break;
+                }
+            }
         }
         else {
             QMainWindow::keyPressEvent(e);
@@ -42,25 +53,3 @@ bool GetName::eventFilter(QObject* o, QEvent* ev) {
     }
 }
 
-// void GetName::keyPressEvent(QKeyEvent* e) {
-//     if (e->key() == SHIFT_KEY) {
-//         shiftPressed = true;
-//         QMainWindow::keyPressEvent(e);
-
-//     }
-//     else if (shiftPressed && (e->key() == ENTER_KEY)) {
-//         auto name = this->te->toPlainText().toStdString();
-//         utils::sendSearchPageData(wurl, name, text);
-//     }
-//     else {
-//         QMainWindow::keyPressEvent(e);
-//     }
-// }
-
-// void GetName::keyReleaseEvent(QKeyEvent* e) {
-//     if (e->key() == SHIFT_KEY) {
-//         shiftPressed = false;
-//     }
-
-//     QMainWindow::keyReleaseEvent(e);
-// }

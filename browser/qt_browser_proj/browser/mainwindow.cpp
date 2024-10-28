@@ -155,16 +155,6 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     }
 }
 
-// bool MainWindow::eventFilter(QObject *object, QEvent *event)
-// {
-//     if ((event->type() == KEYPRESS_CODE))
-//     {
-//         this->handleKeyPress(event);
-//         return false;
-//     }
-//     return QMainWindow::eventFilter(object, event);
-// }
-
 void MainWindow::keyPressEvent(QKeyEvent* e) {
     if (e->key() == SHIFT_KEY) {
         shiftPressed = true;

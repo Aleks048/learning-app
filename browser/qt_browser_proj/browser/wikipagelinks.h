@@ -16,9 +16,9 @@ public:
 
     QVBoxLayout* vlayout;
     QGroupBox* verticalGroupBox;
+    void paint_(bool init);
 private:
     std::vector<std::string> searchTokens;
-    void paint_(bool init);
     std::string wurl;
 
     const int SPACING = 20;

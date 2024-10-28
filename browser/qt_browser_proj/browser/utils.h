@@ -18,15 +18,15 @@ std::vector<std::string> splitString(std::string& s, const std::string& delimite
 
 std::unordered_map<std::string, std::vector<std::string>> getCurrData();
 
-void sendSearchTextData(std::string name, std::string searchText);
+void sendUpdateSearchText(std::string wurl, std::string name, std::string newSearchText);
 
-void sendSearchNameData(std::string name);
+void sendUpdateLinkName(std::string wurl, std::string newName, std::string oldName);
 
 void sendDeleteSearchEntry(std::string wurl, std::string name);
 
 void sendDeletePageEntry(std::string wurl);
 
-void sendSearchPageData(std::string wurl, std::string name, std::string text);
+void sendAddSearchPageData(std::string wurl, std::string name, std::string text);
 
 } //end of utils
 

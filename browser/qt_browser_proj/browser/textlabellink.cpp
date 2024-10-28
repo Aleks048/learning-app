@@ -10,10 +10,16 @@
 
 #include "textlabellink.h"
 #include "./utils.h"
+#include "./mainwindow.h"
 
 TextLabelLink::TextLabelLink(std::function<void(QEvent *e, TextLabelLink* self)> urlCall):
     urlCall(urlCall) {
     this->setReadOnly(true);
+}
+
+void TextLabelLink::setText(const QString& text) {
+    originalText = text.toStdString();
+    QTextEdit::setText(text);
 }
 
 void TextLabelLink::keyPressEvent(QKeyEvent* e) {
@@ -30,7 +36,20 @@ void TextLabelLink::keyPressEvent(QKeyEvent* e) {
     }
     else if (shiftPressed && (e->key() == ENTER_KEY)) {
         auto newString = this->toPlainText().toStdString();
-        utils::sendSearchNameData(newString);
+
+        for(QWidget *widget: QApplication::topLevelWidgets()) {
+            if (widget->windowTitle().toStdString() == "Browser Main Window") {
+                MainWindow* mwin = static_cast<MainWindow*>(widget);
+                auto url = "http://localhost/" + mwin->url;
+
+                utils::sendUpdateLinkName(url, newString, originalText);
+                originalText = newString;
+
+                mwin->paint_(mwin->parentWidget());
+                break;
+            }
+        }
+
     }
     else if (cmdPressed && (e->key() == D_KEY)) {
         urlCall(static_cast<QEvent*>(e), this);

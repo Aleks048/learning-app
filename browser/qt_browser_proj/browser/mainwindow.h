@@ -26,7 +26,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget* parent = nullptr,
-               std::string url = "https://google.com");
+               std::string url = "http://localhost/wiki/A/Dual_basis");
     ~MainWindow();
 
     void paint_(QWidget* parent, bool init = false);
