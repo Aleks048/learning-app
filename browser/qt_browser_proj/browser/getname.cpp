@@ -51,5 +51,6 @@ bool GetName::eventFilter(QObject* o, QEvent* ev) {
 
         QMainWindow::keyReleaseEvent(e);
     }
+    return false;
 }
 

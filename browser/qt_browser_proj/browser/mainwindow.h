@@ -26,7 +26,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget* parent = nullptr,
-               std::string url = "http://localhost/wiki/A/Dual_basis");
+               std::string url = "http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing");
     ~MainWindow();
 
     void paint_(QWidget* parent, bool init = false);
