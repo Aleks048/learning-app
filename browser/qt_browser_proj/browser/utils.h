@@ -1,3 +1,6 @@
+#pragma once
+
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -6,56 +9,26 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <array>
+#include <vector>
+#include <unordered_map>
 
-namespace {
-std::string executeCmdAndGetResults(const char* cmd) {
-    // comes from https://stackoverflow.com/a/478960
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+namespace utils {
 
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
-}
-std::vector<std::string> splitString(std::string& s, const std::string& delimiter) {
-    std::vector<std::string> tokens;
-    size_t pos = 0;
-    std::string token;
+std::vector<std::string> splitString(std::string& s, const std::string& delimiter);
 
-    while ((pos = s.find(delimiter)) != std::string::npos) {
-        token = s.substr(0, pos);
-        tokens.push_back(token);
-        s.erase(0, pos + delimiter.length());
-    }
-    tokens.push_back(s);
+std::unordered_map<std::string, std::vector<std::string>> getCurrData();
 
-    return tokens;
-}
-}
+void sendSearchTextData(std::string name, std::string searchText);
 
-std::unordered_map<std::string, std::vector<std::string>> getCurrData() {
-    auto result = executeCmdAndGetResults("/Users/ashum048/books/utils/browser/qt_browser_proj/browser/urlScript.sh KIK://test/1/2/3/4");
+void sendSearchNameData(std::string name);
 
-    std::vector<std::string> entries = splitString(result, "\n");
+void sendDeleteSearchEntry(std::string wurl, std::string name);
 
+void sendDeletePageEntry(std::string wurl);
 
-    std::unordered_map<std::string, std::vector<std::string>> out;
+void sendSearchPageData(std::string wurl, std::string name, std::string text);
 
-    for (auto s: entries) {
-        std::vector<std::string> keyAndValues = splitString(s, "::::");
-        auto key = keyAndValues.back();
-        keyAndValues.pop_back();
-        out[key] = keyAndValues;
-    }
-
-    return out;
-}
+} //end of utils
 
 
 #endif // UTILS_H

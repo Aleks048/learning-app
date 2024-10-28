@@ -66,10 +66,10 @@ include CMakeFiles/browser_autogen_timestamp_deps.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/browser_autogen_timestamp_deps.dir/progress.make
 
-CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtCore.framework/Versions/A/QtCore
+CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/libexec/uic
 CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWebEngineWidgets.framework/Versions/A/QtWebEngineWidgets
 CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/libexec/moc
-CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/libexec/uic
+CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtCore.framework/Versions/A/QtCore
 CMakeFiles/browser_autogen_timestamp_deps: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/QtWidgets
 
 browser_autogen_timestamp_deps: CMakeFiles/browser_autogen_timestamp_deps

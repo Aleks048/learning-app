@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-b536e6eed9b6c3aebd37.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "browser",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "browser::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-browser-Debug-7d321c8b9838a9c1c767.json",
+					"name" : "browser",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "browser_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-browser_autogen-Debug-aae7b33ecf06103ad2ab.json",
+					"name" : "browser_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "browser_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-browser_autogen_timestamp_deps-Debug-f5412473ca6a3d38de3c.json",
+					"name" : "browser_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "browser_qmlimportscan::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-browser_qmlimportscan-Debug-810427cf8b1f4ec5b48b.json",
+					"name" : "browser_qmlimportscan",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug",
+		"source" : "/Users/ashum048/books/utils/browser/qt_browser_proj/browser"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

@@ -1,13 +1,15 @@
-#include "htmlview.h"
 #include <QWidget>
+#include <QKeyEvent>
 
-HtmlView::HtmlView(QWidget* parent):
+#include "htmlview.h"
+#include "./utils.h"
+
+
+HtmlView::HtmlView(QWidget* parent, const std::string url):
     QWebEngineView(parent),
-    m_width(800),
+    m_width(750),
     m_height(1000)
 {
-    //setUrl(QUrl("http://localhost/wiki/A/Dual_basis"));
-
-    setUrl(QUrl("https://google.com"));
+    setUrl(QUrl(QString::fromStdString(url)));
     this->resize(m_width, m_height);
 }

@@ -877,6 +877,12 @@
 	"HEADERS" : 
 	[
 		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.h",
+			"MU",
+			"EWIEGA46WW/moc_getname.cpp",
+			null
+		],
+		[
 			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/htmlview.h",
 			"MU",
 			"EWIEGA46WW/moc_htmlview.cpp",
@@ -889,9 +895,39 @@
 			null
 		],
 		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.h",
+			"MU",
+			"EWIEGA46WW/moc_textlabellink.cpp",
+			null
+		],
+		[
 			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.h",
 			"MU",
 			"EWIEGA46WW/moc_utils.cpp",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.h",
+			"MU",
+			"EWIEGA46WW/moc_wikipagelink.cpp",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.h",
+			"MU",
+			"EWIEGA46WW/moc_wikipagelinks.cpp",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.h",
+			"MU",
+			"EWIEGA46WW/moc_wikipagesearchtext.cpp",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.h",
+			"MU",
+			"EWIEGA46WW/moc_wikisearchtextwidget.cpp",
 			null
 		]
 	],
@@ -996,6 +1032,11 @@
 	"SOURCES" : 
 	[
 		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.cpp",
+			"MU",
+			null
+		],
+		[
 			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/htmlview.cpp",
 			"MU",
 			null
@@ -1007,6 +1048,36 @@
 		],
 		[
 			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/mainwindow.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.cpp",
 			"MU",
 			null
 		]

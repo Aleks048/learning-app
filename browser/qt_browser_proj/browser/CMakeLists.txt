@@ -26,6 +26,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         htmlview.h htmlview.cpp
         utils.h
         urlScript.sh
+        wikipagelink.h wikipagelink.cpp
+        wikipagelinks.h wikipagelinks.cpp
+        textlabellink.h textlabellink.cpp
+        utils.cpp
+        wikisearchtextwidget.h wikisearchtextwidget.cpp
+        wikipagesearchtext.h wikipagesearchtext.cpp
+        getname.h getname.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET browser APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

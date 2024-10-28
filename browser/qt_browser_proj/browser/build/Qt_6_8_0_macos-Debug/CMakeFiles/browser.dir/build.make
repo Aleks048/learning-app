@@ -132,12 +132,117 @@ CMakeFiles/browser.dir/htmlview.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/htmlview.cpp.s"
 	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/htmlview.cpp -o CMakeFiles/browser.dir/htmlview.cpp.s
 
+CMakeFiles/browser.dir/wikipagelink.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/wikipagelink.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.cpp
+CMakeFiles/browser.dir/wikipagelink.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/browser.dir/wikipagelink.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/wikipagelink.cpp.o -MF CMakeFiles/browser.dir/wikipagelink.cpp.o.d -o CMakeFiles/browser.dir/wikipagelink.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.cpp
+
+CMakeFiles/browser.dir/wikipagelink.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/wikipagelink.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.cpp > CMakeFiles/browser.dir/wikipagelink.cpp.i
+
+CMakeFiles/browser.dir/wikipagelink.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/wikipagelink.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelink.cpp -o CMakeFiles/browser.dir/wikipagelink.cpp.s
+
+CMakeFiles/browser.dir/wikipagelinks.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/wikipagelinks.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.cpp
+CMakeFiles/browser.dir/wikipagelinks.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/browser.dir/wikipagelinks.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/wikipagelinks.cpp.o -MF CMakeFiles/browser.dir/wikipagelinks.cpp.o.d -o CMakeFiles/browser.dir/wikipagelinks.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.cpp
+
+CMakeFiles/browser.dir/wikipagelinks.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/wikipagelinks.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.cpp > CMakeFiles/browser.dir/wikipagelinks.cpp.i
+
+CMakeFiles/browser.dir/wikipagelinks.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/wikipagelinks.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagelinks.cpp -o CMakeFiles/browser.dir/wikipagelinks.cpp.s
+
+CMakeFiles/browser.dir/textlabellink.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/textlabellink.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.cpp
+CMakeFiles/browser.dir/textlabellink.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/browser.dir/textlabellink.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/textlabellink.cpp.o -MF CMakeFiles/browser.dir/textlabellink.cpp.o.d -o CMakeFiles/browser.dir/textlabellink.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.cpp
+
+CMakeFiles/browser.dir/textlabellink.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/textlabellink.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.cpp > CMakeFiles/browser.dir/textlabellink.cpp.i
+
+CMakeFiles/browser.dir/textlabellink.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/textlabellink.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/textlabellink.cpp -o CMakeFiles/browser.dir/textlabellink.cpp.s
+
+CMakeFiles/browser.dir/utils.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/utils.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.cpp
+CMakeFiles/browser.dir/utils.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/browser.dir/utils.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/utils.cpp.o -MF CMakeFiles/browser.dir/utils.cpp.o.d -o CMakeFiles/browser.dir/utils.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.cpp
+
+CMakeFiles/browser.dir/utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/utils.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.cpp > CMakeFiles/browser.dir/utils.cpp.i
+
+CMakeFiles/browser.dir/utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/utils.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/utils.cpp -o CMakeFiles/browser.dir/utils.cpp.s
+
+CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.cpp
+CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o -MF CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o.d -o CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.cpp
+
+CMakeFiles/browser.dir/wikisearchtextwidget.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/wikisearchtextwidget.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.cpp > CMakeFiles/browser.dir/wikisearchtextwidget.cpp.i
+
+CMakeFiles/browser.dir/wikisearchtextwidget.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/wikisearchtextwidget.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikisearchtextwidget.cpp -o CMakeFiles/browser.dir/wikisearchtextwidget.cpp.s
+
+CMakeFiles/browser.dir/wikipagesearchtext.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/wikipagesearchtext.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.cpp
+CMakeFiles/browser.dir/wikipagesearchtext.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/browser.dir/wikipagesearchtext.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/wikipagesearchtext.cpp.o -MF CMakeFiles/browser.dir/wikipagesearchtext.cpp.o.d -o CMakeFiles/browser.dir/wikipagesearchtext.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.cpp
+
+CMakeFiles/browser.dir/wikipagesearchtext.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/wikipagesearchtext.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.cpp > CMakeFiles/browser.dir/wikipagesearchtext.cpp.i
+
+CMakeFiles/browser.dir/wikipagesearchtext.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/wikipagesearchtext.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.cpp -o CMakeFiles/browser.dir/wikipagesearchtext.cpp.s
+
+CMakeFiles/browser.dir/getname.cpp.o: CMakeFiles/browser.dir/flags.make
+CMakeFiles/browser.dir/getname.cpp.o: /Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.cpp
+CMakeFiles/browser.dir/getname.cpp.o: CMakeFiles/browser.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/browser.dir/getname.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/browser.dir/getname.cpp.o -MF CMakeFiles/browser.dir/getname.cpp.o.d -o CMakeFiles/browser.dir/getname.cpp.o -c /Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.cpp
+
+CMakeFiles/browser.dir/getname.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/browser.dir/getname.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.cpp > CMakeFiles/browser.dir/getname.cpp.i
+
+CMakeFiles/browser.dir/getname.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/browser.dir/getname.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ashum048/books/utils/browser/qt_browser_proj/browser/getname.cpp -o CMakeFiles/browser.dir/getname.cpp.s
+
 # Object files for target browser
 browser_OBJECTS = \
 "CMakeFiles/browser.dir/browser_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/browser.dir/main.cpp.o" \
 "CMakeFiles/browser.dir/mainwindow.cpp.o" \
-"CMakeFiles/browser.dir/htmlview.cpp.o"
+"CMakeFiles/browser.dir/htmlview.cpp.o" \
+"CMakeFiles/browser.dir/wikipagelink.cpp.o" \
+"CMakeFiles/browser.dir/wikipagelinks.cpp.o" \
+"CMakeFiles/browser.dir/textlabellink.cpp.o" \
+"CMakeFiles/browser.dir/utils.cpp.o" \
+"CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o" \
+"CMakeFiles/browser.dir/wikipagesearchtext.cpp.o" \
+"CMakeFiles/browser.dir/getname.cpp.o"
 
 # External object files for target browser
 browser_EXTERNAL_OBJECTS =
@@ -146,6 +251,13 @@ browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/browser_autogen/mocs_
 browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/main.cpp.o
 browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/mainwindow.cpp.o
 browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/htmlview.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/wikipagelink.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/wikipagelinks.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/textlabellink.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/utils.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/wikisearchtextwidget.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/wikipagesearchtext.cpp.o
+browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/getname.cpp.o
 browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/build.make
 browser.app/Contents/MacOS/browser: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWebEngineWidgets.framework/Versions/A/QtWebEngineWidgets
 browser.app/Contents/MacOS/browser: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWebEngineCore.framework/Versions/A/QtWebEngineCore
@@ -164,7 +276,7 @@ browser.app/Contents/MacOS/browser: /Users/ashum048/books/utils/browser/qt6.8/6.
 browser.app/Contents/MacOS/browser: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtNetwork.framework/Versions/A/QtNetwork
 browser.app/Contents/MacOS/browser: /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtCore.framework/Versions/A/QtCore
 browser.app/Contents/MacOS/browser: CMakeFiles/browser.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable browser.app/Contents/MacOS/browser"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable browser.app/Contents/MacOS/browser"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/browser.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
