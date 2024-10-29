@@ -807,7 +807,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
     @classmethod
     def __shiftMarkerUp(cls, subsection, imIdx):
         def __updateFile(filepath, oldMarker, newMarker):
-            print([oldMarker, newMarker])
             lines = []
 
             with open(filepath, "r") as f:

@@ -82,7 +82,6 @@ def processCall(call:str):
             wikiPages = wikiPagesForEntries[currEntry]
 
             if wikiPages.get(page) == None:
-                print(wikiPages)
                 _upan.log.autolog(f"Cannot delete name '{name}' for page '{page}' since page is not present.")
             else:
                 wikiPage:dict = wikiPages[page]
@@ -110,8 +109,6 @@ def processCall(call:str):
             wikiPage[newName] = wikiPage.pop(oldName)
             wikiPages[url] = wikiPage
             wikiPagesForEntries[currEntry] = wikiPages
-            print(wikiPagesForEntries)
-            print()
             fsf.Data.Sec.wikiPages(currSection, wikiPagesForEntries)
     elif "updateLinkSearchText" == request[1]:
         '''
