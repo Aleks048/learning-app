@@ -11,5 +11,6 @@
 *.png
 *.zim
 /python_app/test.py
+/browser/qt6.8
 test.py
 test_book.py

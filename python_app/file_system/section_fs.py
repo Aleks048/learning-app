@@ -69,6 +69,9 @@ class SectionInfoStructure:
         bookCodeFile = "_bookCodeFile"
         subsectionCodeFile = "_subsectionCodeFile"
 
+        #wiki pages
+        wikiPages = "_wikiPages"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -107,7 +110,8 @@ class SectionInfoStructure:
                 cls.PubProp.figuresData : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.figuresLabelsData : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.bookCodeFile : _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.subsectionCodeFile : _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.subsectionCodeFile : _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.wikiPages:  _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
@@ -264,6 +268,9 @@ class SectionInfoStructure:
         for subsection in subsections:
             newSubsection = subsection.replace(sourceSectionPath, targetSectionPath)
             cls.__moveSectionLinks(bookpath, subsection, newSubsection)
+
+
+        #NOTE: need to update the markers
 
         cls.__deleteSectionFiles(bookpath, sourceSectionPath)
 
@@ -763,6 +770,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         imagesText = cls.__shiftTheItemsInTheDict(imagesText, imIdx)
         cls.updateProperty(subsection, cls.PubProp.imageText, imagesText)
 
+        wikiPages = cls.readProperty(subsection, cls.PubProp.wikiPages)
+        wikiPages.pop(imIdx, None)
+
+        if wikiPages == {}:
+            wikiPages = _u.Token.NotDef.dict_t.copy()
+
+        wikiPages = cls.__shiftTheItemsInTheDict(wikiPages, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.imageText, wikiPages)
+
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText)
         extraImTextDict.pop(imIdx, None)
         extraImTextDict = cls.__shiftTheItemsInTheDict(extraImTextDict, imIdx)
@@ -1015,7 +1031,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.PubProp.imagesGroupDict,
             cls.PubProp.imageText,
             cls.PubProp.extraImText,
-            cls.PubProp.textOnly
+            cls.PubProp.textOnly,
+            cls.PubProp.wikiPages
         ]
 
         for p in properties:
@@ -1235,7 +1252,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                          cls.PubProp.imagesGroupDict,
                          cls.PubProp.imageText,
                          cls.PubProp.extraImText,
-                         cls.PubProp.textOnly
+                         cls.PubProp.textOnly,
+                         cls.PubProp.wikiPages
                          ]
 
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)
