@@ -248,6 +248,7 @@
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qkeysequence.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpaintdevice.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpalette.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpen.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixelformat.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixmap.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qpointingdevice.h \
@@ -257,6 +258,10 @@
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qrgba64.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qscreen.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qscreen_platform.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextcursor.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextdocument.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextformat.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextoption.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtgui-config.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiexports.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiglobal.h \
@@ -265,10 +270,15 @@
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qvectornd.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTextEdit \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractscrollarea.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qframe.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h \
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtextedit.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsexports.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsglobal.h \
-  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qwidget.h
+  /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qwidget.h \
+  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/wikipagesearchtext.h

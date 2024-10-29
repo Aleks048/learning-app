@@ -50,7 +50,6 @@ std::vector<std::string> splitString(std::string& s, const std::string& delimite
 std::unordered_map<std::string, std::vector<std::string>> getCurrData() {
     std::string url = URL_SCRIPT_PATH + " KIK:/_/getCurrent";
     auto result = executeCmdAndGetResults(url.c_str());
-    std::cout<< result << std::endl;
 
     std::vector<std::string> entries = splitString(result, "\n");
     entries.erase(entries.end() - 1);

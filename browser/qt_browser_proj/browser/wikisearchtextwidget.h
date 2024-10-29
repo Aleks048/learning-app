@@ -5,11 +5,15 @@
 #include <QString>
 #include <QKeyEvent>
 
+#include "./wikipagesearchtext.h"
+
 class WikiSearchTextWidget : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit WikiSearchTextWidget(QWidget *parent, QString text);
+private:
+    WikiPageSearchText* t;
 signals:
 };
 

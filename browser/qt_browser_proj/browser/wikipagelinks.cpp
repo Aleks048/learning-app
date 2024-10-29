@@ -47,7 +47,6 @@ void WikiPageLinks::paint_(bool init) {
     size_t tw = 0, th = 0;
 
     for (auto textAndValue: searchTokens) {
-        std::cout << "to:" << textAndValue << std::endl;
         std::vector<std::string> split = utils::splitString(textAndValue, "////");
 
         auto text = split[0];
@@ -57,10 +56,8 @@ void WikiPageLinks::paint_(bool init) {
             if (ev->type() == QEvent::MouseButtonPress) {
                 auto* e = dynamic_cast<QMouseEvent*>(ev);
                 if (e->button() == Qt::LeftButton) {
-                    std::cout << "left button " << self->cmdPressed << std::endl;
                     if (self->cmdPressed) {
                         if (self->shiftPressed) {
-                            std::cout<< "t:" << searchText << std::endl;
                             auto t = new WikiSearchTextWidget(self, QString(searchText.c_str()));
                             t->setWindowTitle(QString(text.c_str()));
                             t->setAttribute( Qt::WA_DeleteOnClose );

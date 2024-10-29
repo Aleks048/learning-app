@@ -107,7 +107,7 @@ void MainWindow::paint_(QWidget* parent, bool init) {
                 }
 
                 auto win = new WikiPageLinks(v, k);
-                auto title = "link: " + key;
+                auto title = "__link: " + key;
                 win->setWindowTitle(QString(title.c_str()));
                 win->setAttribute( Qt::WA_DeleteOnClose );
                 win->show();

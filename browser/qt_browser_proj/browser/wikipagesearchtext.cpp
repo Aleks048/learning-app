@@ -26,9 +26,6 @@ WikiPageSearchText::WikiPageSearchText(QWidget* parent, QString text): QTextEdit
     auto w = std::max(textSize.width() + 10, 100);
     auto h = textSize.height() + 10;
 
-    //ui->plainTextEdit->document()->blockCount();
-    std::cout <<this->document()->blockCount() << " " << textSize.width() << " " << textSize.height() <<std::endl;
-
     this->setMinimumSize(w, this->height());
     this->setMaximumSize(w, this->height() + 10);
 }
@@ -56,7 +53,7 @@ void WikiPageSearchText::keyPressEvent(QKeyEvent* e) {
                 topWidget->close();
                 mwin->paint_(mwin->parentWidget());
                 for(QWidget *widget: QApplication::topLevelWidgets()) {
-                    if (widget->windowTitle().toStdString().find("link") != std::string::npos) {
+                    if (widget->windowTitle().toStdString().find("__link:") != std::string::npos) {
                         WikiPageLinks* lwin = static_cast<WikiPageLinks*>(widget);
                         lwin->paint_(false);
                     }

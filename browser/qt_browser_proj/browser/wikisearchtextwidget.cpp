@@ -7,10 +7,13 @@
 WikiSearchTextWidget::WikiSearchTextWidget(QWidget *parent, QString text)
     : QMainWindow{parent}
 {
-    auto t = new WikiPageSearchText(this, text);
+    t = new WikiPageSearchText(parent = this, text);
 
     this->move(100, 400);
 
-    this->setMinimumSize(t->width(), t->height());
-    this->setMaximumSize(t->width(), t->height());
+    auto width = t->width();
+    auto height = t->height();
+
+    this->setMinimumSize(width, height);
+    this->setMaximumSize(width, height);
 }

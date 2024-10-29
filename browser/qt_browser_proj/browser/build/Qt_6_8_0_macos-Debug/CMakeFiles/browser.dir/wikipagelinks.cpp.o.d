@@ -1156,4 +1156,5 @@ CMakeFiles/browser.dir/wikipagelinks.cpp.o: \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWebEngineCore.framework/Headers/qwebenginepermission.h \
   /Users/ashum048/books/utils/browser/qt_browser_proj/browser/./wikipagelink.h \
   /Users/ashum048/books/utils/browser/qt_browser_proj/browser/./utils.h \
-  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/./wikisearchtextwidget.h
+  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/./wikisearchtextwidget.h \
+  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/./wikipagesearchtext.h

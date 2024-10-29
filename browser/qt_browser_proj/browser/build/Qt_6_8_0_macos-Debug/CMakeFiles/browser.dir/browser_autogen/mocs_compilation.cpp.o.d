@@ -1157,4 +1157,5 @@ CMakeFiles/browser.dir/browser_autogen/mocs_compilation.cpp.o: \
   /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser_autogen/EWIEGA46WW/../../../../wikipagelinks.h \
   /Users/ashum048/books/utils/browser/qt6.8/6.8.0/macos/lib/QtWidgets.framework/Headers/QVBoxLayout \
   /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser_autogen/EWIEGA46WW/moc_wikisearchtextwidget.cpp \
-  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser_autogen/EWIEGA46WW/../../../../wikisearchtextwidget.h
+  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser_autogen/EWIEGA46WW/../../../../wikisearchtextwidget.h \
+  /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser_autogen/EWIEGA46WW/../../../.././wikipagesearchtext.h

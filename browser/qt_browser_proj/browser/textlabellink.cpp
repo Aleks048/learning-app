@@ -23,7 +23,6 @@ void TextLabelLink::setText(const QString& text) {
 }
 
 void TextLabelLink::keyPressEvent(QKeyEvent* e) {
-    std::cout << e->key() << std::endl;
     if (e->key() == SHIFT_KEY) {
         shiftPressed = true;
         QTextEdit::keyPressEvent(e);
