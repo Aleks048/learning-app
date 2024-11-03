@@ -39,6 +39,7 @@ class Wr:
             \\usepackage{{amsfonts, amsmath, amssymb, dsfont, xcolor}}\
             \\usepackage[T1]{{fontenc}}\
             \\usepackage{{mathptmx}}\
+            \\usepackage{{cancel}}\
             \\pagenumbering{{gobble}}\
             \\usepackage{{setspace}}\
             \\onehalfspacing\
