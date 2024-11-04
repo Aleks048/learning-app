@@ -1090,6 +1090,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         notesMenuManger.hide()
 
                 def openEntryNoteMenu(event, *args):
+                    notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.EntryNotesManager)
+                    notesMenuManger.subsection = event.widget.subsection
+                    notesMenuManger.imIdx = event.widget.imIdx
+
+                    event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
+                    if (event.widget.shouldShowNotesMenu):
+                        notesMenuManger.show()
+                    else:
+                        notesMenuManger.hide()
+
+                def openWiki(event, *args):
                     os.system("\
 /Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser.app/Contents/MacOS/browser \
 http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
@@ -1768,7 +1780,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         openEntryWikiUIEntry.imIdx = k
                         openEntryWikiUIEntry.subsection = subsection
                         openEntryWikiUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                    [openEntryNoteMenu])
+                                                    [openWiki])
 
                         copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                                       text = self.__EntryUIs.copyText.name, 

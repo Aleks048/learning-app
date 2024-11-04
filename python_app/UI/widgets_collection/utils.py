@@ -1,5 +1,5 @@
 from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 import tkinter as tk
 from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
@@ -1240,6 +1240,13 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
             newHeight = min(changeFactor * origHeight, origHeight * resizeFactor)
             
             pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
+
+        noteImIdx = str(int(extraImIdx) + 1) if extraImIdx != _u.Token.NotDef.int_t else 0
+        notes:dict = fsf.Wr.EntryInfoStructure.readProperty(subsection,
+                                                       imIdx, 
+                                                       fsf.Wr.EntryInfoStructure.PubProp.entryNotesList)
+        if notes.get(str(noteImIdx)) != None:
+            pilIm = ImageOps.expand(pilIm, border = 2, fill='brown')
 
         img = ImageTk.PhotoImage(pilIm)
 
