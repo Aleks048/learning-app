@@ -7,6 +7,7 @@ import time
 import re
 from threading import Thread
 import os
+import copy
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -883,7 +884,7 @@ class TOCCanvasWithclick(tk.Canvas):
         heightScale = pageSizeZoomAffected[1] / pageSize[1]
 
         if not self.isPdfPage:
-            figuresData = fsf.Data.Sec.figuresData(self.subsection).copy()
+            figuresData = copy.deepcopy(fsf.Data.Sec.figuresData(self.subsection))
 
             if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
                 if figuresData.get(self.imIdx) != None:
@@ -927,6 +928,8 @@ class TOCCanvasWithclick(tk.Canvas):
                                                                 l["labelCoords"][1] * heightScale)
                             self.labels.append(labelToAdd)
 
+        self.rectangles = []
+
         for f in figuresList:
             if f.get("type") != None:
                 f.pop("type")
@@ -937,10 +940,10 @@ class TOCCanvasWithclick(tk.Canvas):
                 f["startX"] = f["startX"] * widthScale
                 f["startY"] = f["startY"] * heightScale
             elif (self.resizeFactor != 1.0):
-                f["endX"] = int(f["endX"] *  (1 / self.resizeFactor)) + 1
-                f["endY"] = int(f["endY"] *  (1 / self.resizeFactor)) + 1
-                f["startX"] = int(f["startX"] *  (1 / self.resizeFactor)) + 1
-                f["startY"] = int(f["startY"] *  (1 / self.resizeFactor)) + 1
+                f["endX"] = float(f["endX"]) *  (1.0 / self.resizeFactor)
+                f["endY"] = float(f["endY"]) *  (1.0 / self.resizeFactor)
+                f["startX"] = float(f["startX"]) *  (1.0 / self.resizeFactor)
+                f["startY"] = float(f["startY"]) *  (1.0 / self.resizeFactor)
 
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(rect)
@@ -966,10 +969,10 @@ class TOCCanvasWithclick(tk.Canvas):
                     f["startX"] = f["startX"] * widthScale
                     f["startY"] = f["startY"] * heightScale
                 elif self.resizeFactor != 1.0:
-                    f["endX"] = f["endX"] *  self.resizeFactor
-                    f["endY"] = f["endY"] *  self.resizeFactor
-                    f["startX"] = f["startX"] *  self.resizeFactor
-                    f["startY"] = f["startY"] *  self.resizeFactor
+                    f["endX"] = float(f["endX"]) *  self.resizeFactor
+                    f["endY"] = float(f["endY"]) *  self.resizeFactor
+                    f["startX"] = float(f["startX"]) *  self.resizeFactor
+                    f["startY"] = float(f["startY"]) *  self.resizeFactor
 
                 figuresList.append(f)
             else:
@@ -1231,15 +1234,17 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
         pilIm = Image.open(imagePath)
 
-        if resizeFactor <= 1.0:
-            pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
-        else:
-            origWidth, origHeight = pilIm.size
-            newWidth = min(imageSize[0] * resizeFactor, origWidth * resizeFactor)
-            changeFactor = (imageSize[0] / origWidth) * resizeFactor
-            newHeight = min(changeFactor * origHeight, origHeight * resizeFactor)
-            
-            pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
+        # NOTE: this is how it was done originally. 
+        #       No idea why. Whis way added figures are messed up at resize
+        # if resizeFactor <= 1.0:
+        #     pilIm.thumbnail([i * resizeFactor for i in imageSize], Image.LANCZOS)
+        # else:
+        origWidth, origHeight = pilIm.size
+        newWidth = min(imageSize[0] * resizeFactor, origWidth * resizeFactor)
+        changeFactor = (imageSize[0] / origWidth) * resizeFactor
+        newHeight = min(changeFactor * origHeight, origHeight * resizeFactor)
+        
+        pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
 
         noteImIdx = str(int(extraImIdx) + 1) if extraImIdx != _u.Token.NotDef.int_t else 0
         notes:dict = fsf.Wr.EntryInfoStructure.readProperty(subsection,
