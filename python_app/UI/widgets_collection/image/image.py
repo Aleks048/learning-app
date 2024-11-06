@@ -121,11 +121,10 @@ class NotesLabel(ww.currUIImpl.Label,
                                                                     text, bookPath, 
                                                                     position = event.widget.noteImIdx)
 
-            if structureCreated:
-                mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-                mainMathManager.moveTocToEntry(self.subsection, self.imIdx)
-            
+            # if structureCreated:
+            mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainMathManager.scrollToLatestClickedWidget(addBrownBorder = True)
             self.render()
 
         addLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [addLabelNoteIdx])

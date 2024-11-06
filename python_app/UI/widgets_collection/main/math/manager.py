@@ -381,13 +381,15 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.render(shouldScroll = False)
                 return
 
-    def scrollToLatestClickedWidget(self):
+    def scrollToLatestClickedWidget(self, refreshImage = False, addBrownBorder = False):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
                 if layout.tocBox.widgetToScrollTo != None:
                     layout.tocBox.scrollIntoView(None, layout.tocBox.widgetToScrollTo)
                     try:
                         layout.tocBox.widgetToScrollTo.readFigures()
+                        if refreshImage or addBrownBorder:
+                            layout.tocBox.widgetToScrollTo.refreshImage(addBrownBorder)
                     except:
                         pass
                 return

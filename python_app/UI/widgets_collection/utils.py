@@ -1046,6 +1046,7 @@ class TOCCanvasWithclick(tk.Canvas):
                  makeDrawable = True, 
                  isPdfPage = False, page = None, pilIm = None,
                  resizeFactor = 1.0,
+                 imagePath = "",
                  *args, **kwargs) -> None:
         self.row = row
         self.column = column
@@ -1060,6 +1061,9 @@ class TOCCanvasWithclick(tk.Canvas):
         self.omPage = page
         self.imagePath  = _u.Token.NotDef.str_t
         self.etrWidget = _u.Token.NotDef.no_t
+        
+        self.imagePath = imagePath
+        self.makeDrawable = makeDrawable
 
         self.imageResize = None
         self.startCoord = []
@@ -1086,12 +1090,39 @@ class TOCCanvasWithclick(tk.Canvas):
 
         super().__init__(root, name = prefix, 
                          width = self.width, height = self.height)
-        self.create_image(0, 0,
-                          image = self.image, anchor='nw', tag = prefix)
+        self.backgroundImage = self.create_image(0, 0,
+                                                image = self.image, 
+                                                anchor='nw', 
+                                                tag = prefix)
 
         self.readFigures()
 
         if makeDrawable:
+            if not self.isPdfPage:
+                self.bindCmd()
+            else:
+                self.bind("<Enter>", self.bindCmd)
+                self.bind("<Leave>", self.unbindCmd)
+
+    def refreshImage(self, addBrownBorder = True):
+        pilIm = Image.open(self.imagePath)
+
+        newWidth = self.image.width()
+        newHeight = self.image.height()
+        
+        pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
+
+        if addBrownBorder:
+            pilIm = ImageOps.expand(pilIm, border = 2, fill = "brown")
+
+        img = ImageTk.PhotoImage(pilIm)
+
+        self.image = img
+        self.itemconfigure(self.backgroundImage, image = img)
+
+        self.readFigures()
+
+        if self.makeDrawable:
             if not self.isPdfPage:
                 self.bindCmd()
             else:
@@ -1258,7 +1289,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                                                        imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryNotesList)
         if notes.get(str(noteImIdx)) != None:
-            pilIm = ImageOps.expand(pilIm, border = 2, fill='brown')
+            pilIm = ImageOps.expand(pilIm, border = 2, fill="brown")
 
         img = ImageTk.PhotoImage(pilIm)
 
@@ -1267,13 +1298,15 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                         row = row, column = column, columnspan = columnspan,
                                         extraImIdx = extraImIdx, makeDrawable = False, 
-                                        resizeFactor = 1 / resizeFactor)
+                                        resizeFactor = 1 / resizeFactor,
+                                        imagePath = imagePath)
         else:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                         row = row, column = column, columnspan = columnspan,
                                         extraImIdx = extraImIdx,
-                                        resizeFactor = 1 / resizeFactor)
+                                        resizeFactor = 1 / resizeFactor,
+                                        imagePath = imagePath)
     else:
         img = None
         imLabel = TOCLabelWithClick(root, prefix = widgetName, text = "-1", padding = [imPad, 0, 0, 0],
