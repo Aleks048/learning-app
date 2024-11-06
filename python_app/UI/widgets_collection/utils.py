@@ -884,14 +884,14 @@ class TOCCanvasWithclick(tk.Canvas):
         heightScale = pageSizeZoomAffected[1] / pageSize[1]
 
         if not self.isPdfPage:
-            figuresData = copy.deepcopy(fsf.Data.Sec.figuresData(self.subsection))
+            figuresData = fsf.Data.Sec.figuresData(self.subsection)
 
             if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
                 if figuresData.get(self.imIdx) != None:
-                    figuresList = figuresData[str(self.imIdx)]
+                    figuresList = copy.deepcopy(figuresData[str(self.imIdx)])
             else:
                 if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
-                    figuresList = figuresData[f"{self.imIdx}_{self.eImIdx}"]
+                    figuresList = copy.deepcopy(figuresData[f"{self.imIdx}_{self.eImIdx}"])
                 else:
                     return
         else:
