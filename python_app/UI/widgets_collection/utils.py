@@ -990,7 +990,7 @@ class TOCCanvasWithclick(tk.Canvas):
             
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.moveTocToCurrEntry()
+            mainManager.scrollToLatestClickedWidget()
         else:
             omBookName = fsf.Data.Book.currOrigMatName
             fsf.Wr.OriginalMaterialStructure.setMaterialPageFigures(omBookName, self.omPage, figuresList)
@@ -1032,6 +1032,12 @@ class TOCCanvasWithclick(tk.Canvas):
                     r = self.rectangles.pop(i)
                     r.deleteRectangle()
                     self.selectedRectangle = None
+
+                    self.saveFigures()
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.scrollToLatestClickedWidget()
                     break
 
     def __init__(self, root, prefix, row, column, imIdx, subsection, 
@@ -1230,7 +1236,8 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    row = 0, column = 0, columnspan = 1,
                    resizeFactor = 1.0,
                    bindOpenWindow = True,
-                   extraImIdx = _u.Token.NotDef.int_t):
+                   extraImIdx = _u.Token.NotDef.int_t,
+                   tocBox = None):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
         pilIm = Image.open(imagePath)
 
@@ -1300,6 +1307,9 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         height = int(event.widget.height * 1.5) + imHeight + 100
 
         imMenuManger.show([width, height, 0, 0], eImIdx, imHeight)
+
+        if tocBox != None:
+            tocBox.widgetToScrollTo = event.widget
 
     if bindOpenWindow:
         imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openImageManager])
@@ -1574,7 +1584,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                             row = 0, column = 1, columnspan = 1,
                                             resizeFactor = resizeFactor,
                                             extraImIdx = i,
-                                            bindOpenWindow = bindOpenWindow)
+                                            bindOpenWindow = bindOpenWindow,
+                                            tocBox = tocFrame)
                 eimLabel.subsection = subsection
                 eimLabel.imIdx = imIdx
                 eimLabel.eImIdx = i

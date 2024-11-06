@@ -381,6 +381,17 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.render(shouldScroll = False)
                 return
 
+    def scrollToLatestClickedWidget(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                if layout.tocBox.widgetToScrollTo != None:
+                    layout.tocBox.scrollIntoView(None, layout.tocBox.widgetToScrollTo)
+                    try:
+                        layout.tocBox.widgetToScrollTo.readFigures()
+                    except:
+                        pass
+                return
+
     def showLinksForEntry(self, subsection, imIdx):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:

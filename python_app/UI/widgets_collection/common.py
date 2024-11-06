@@ -2738,3 +2738,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 self.entryAsETR.widget.focus_force()
             except:
                 pass
+        
+        if shouldScroll:
+            self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
