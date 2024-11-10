@@ -11,6 +11,6 @@
 *.png
 *.zim
 /python_app/test.py
-/browser/qt6.8
+/c++_modules
 test.py
 test_book.py
