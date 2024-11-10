@@ -1360,7 +1360,8 @@ def addMainEntryImageWidget(rootLabel,
                             row = 4,
                             columnspan = 100,
                             column = 0,
-                            bindOpenWindow = True):
+                            bindOpenWindow = True,
+                            tocBox = None):
     # mainImage
     currBookName = sf.Wr.Manager.Book.getCurrBookName()
     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
@@ -1390,7 +1391,8 @@ def addMainEntryImageWidget(rootLabel,
         img, imLabel = getImageWidget(tempLabel, imagePath, mainWidgetName, 
                                     imIdx, subsection, imPad = 0,
                                     row = 0, column = 1, columnspan = 1,
-                                    resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow)
+                                    resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow,
+                                    tocBox = tocBox)
         imLabel.render()
 
         displayedImagesContainer.append(img)

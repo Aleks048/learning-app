@@ -706,8 +706,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     if not textOnly:
                         imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
-                                                                imPad, self.displayedImages, 
-                                                                balloon, bindData, resizeFactor = resizeFactor)
+                                                                  imPad, self.displayedImages, 
+                                                                  balloon, bindData, resizeFactor = resizeFactor,
+                                                                  tocBox = self)
 
                         imLabel.render()
                     else:
