@@ -12,6 +12,8 @@ import copy
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
 import UI.widgets_facade as wf
+import UI.widgets_collection.common as comw
+
 import file_system.file_system_facade as fsf
 import data.constants as dc
 import data.temp as dt
@@ -24,12 +26,14 @@ import generalManger.generalManger as gm
 
 
 class MultilineText_ETR(scrolledtext.ScrolledText):
-    def __init__(self, patentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
+    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
         self.imIdx = None
         self.eImIdx = None
         self.subsection = None
         self.etrWidget = None
         self.lineImIdx = None
+
+        self.root = parentWidget
 
         self.defaultText = text
 
@@ -52,7 +56,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.row = row
         self.column = column
 
-        super().__init__(patentWidget, 
+        super().__init__(parentWidget, 
                          wrap = None, 
                          width = 70, 
                          height = newHeight, 
@@ -295,28 +299,27 @@ class TOCTextWithClick(tk.Text):
         self.sourceSubssection = None
         self.sourceImIdx= None
         self.sourceWebLinkName = None
+
+        self.root = root
+        self.text = text
         
         self.row = row
         self.column = column
         self.columnspan = columnspan
         self.sticky = sticky
 
-        super().__init__(root, name = prefix, *args, **kwargs)
+        super().__init__(root, name = prefix)
+        self.setText()
+
+    def setText(self):
+        text = self.text
+        
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
         self.config(wrap = tk.WORD)
-        
-        self.insert(tk.END, text)   
 
-        # numTextLines = len(text.split("\n"))
-
-        # if numTextLines == 1:
-        #     numLinesToAdd = 0 
-        # else:
-        #     numLinesToAdd = int(numTextLines) - 1
-
-        # numLinesToAdd = int((7/8) * numLinesToAdd)
+        self.insert(tk.END, text)
 
         txtList = text.split(" ")
         txt = ""
@@ -1048,6 +1051,8 @@ class TOCCanvasWithclick(tk.Canvas):
                  resizeFactor = 1.0,
                  imagePath = "",
                  *args, **kwargs) -> None:
+        self.root = root
+
         self.row = row
         self.column = column
         self.columnspan = columnspan
@@ -1195,6 +1200,7 @@ class TOCLabelWithClick(ttk.Label):
                 self.bind(key, cmd)
     
     def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, *args, **kwargs) -> None:
+        self.root = root
         self.clicked = False
         self.imIdx = ""
         self.eImIdx = ""
@@ -1220,6 +1226,10 @@ class TOCLabelWithClick(ttk.Label):
         self.dictWord = None
         self.dictText = None
 
+        self.imageLineIdx = None
+        self.entryText = None
+
+        self.imagePath = None
 
         self.row = row
         self.column = column
@@ -1237,7 +1247,57 @@ class TOCLabelWithClick(ttk.Label):
 
     def getChildren(self):
         return self.winfo_children()
+    
+    def updateImage(self):
+        pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
 
+        shrink = 0.7
+        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+        self.image = ImageTk.PhotoImage(pilIm)
+        super().configure(image = self.image)
+    
+    def updateGroupImage(self):
+        img = comw.getGroupImg(self.subsection, self.group)
+
+        self.image = img
+        super().configure(image = self.image)
+    
+    def updateSubsectionImage(self):
+        if self.subsection in list(fsf.Data.Book.sections.keys()):
+            topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(),
+                                                            self.subsection)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
+                result = Image.open(topSectionImgPath)
+            else:
+                result = fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
+                                                                            _upan.Names.Subsection.getTopSectionPretty)
+
+            shrink = 0.8
+            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+            result = ImageTk.PhotoImage(result)
+
+            self.image = result
+            super().configure(image = self.image)
+        else:
+            subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(), 
+                                                            self.subsection)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+                result = Image.open(subsectionImgPath)
+            else:
+                result = \
+                    fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsection, 
+                                                                            _upan.Names.Subsection.getSubsectionPretty)
+
+            shrink = 0.8
+            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+            result = ImageTk.PhotoImage(result)
+
+            self.image = result
+            super().configure(image = self.image)
 
 def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
     def __changeTextColorBlue(event = None, *args):
@@ -1544,21 +1604,34 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                                    i)
 
             def extraImtextUpdate(event, *args):
-                if (tocFrame.extraImAsETR.subsection != _u.Token.NotDef.str_t) and \
-                    (tocFrame.extraImAsETR.imIdx != _u.Token.NotDef.str_t):
-                    newText = tocFrame.extraImAsETR.widget.getData()
-                    eImTextDict = fsf.Data.Sec.extraImagesDict(tocFrame.extraImAsETR.subsection)
-                    eImTextList = eImTextDict[tocFrame.extraImAsETR.imIdx]
-                    eImTextList[tocFrame.extraImAsETR.eImIdx] = newText
-                    fsf.Data.Sec.extraImagesDict(tocFrame.extraImAsETR.subsection, eImTextDict)
-                    tocFrame.extraImAsETR.reset()
-                    tocFrame.render()
-                else:
-                    tocFrame.extraImAsETR.subsection = event.widget.subsection
-                    tocFrame.extraImAsETR.imIdx = event.widget.imIdx
-                    tocFrame.extraImAsETR.eImIdx = event.widget.eImIdx
-                    tocFrame.extraImAsETR.widget = event.widget.etrWidget
-                    tocFrame.render()
+                eImTextDict = fsf.Data.Sec.extraImagesDict(event.widget.subsection)
+                eImTextList = eImTextDict[event.widget.imIdx]
+                text = eImTextList[event.widget.eImIdx]
+
+                eimLabel = MultilineText_ETR(event.widget.root, 
+                                                eImWidgetName, 
+                                                row = event.widget.row,
+                                                column = event.widget.column,
+                                                imLineIdx = None, 
+                                                text = text)
+                eimLabel.subsection = event.widget.subsection
+                eimLabel.imIdx = event.widget.imIdx
+                eimLabel.eImIdx = event.widget.eImIdx
+                event.widget.grid_forget()
+
+                def __getBack(eimLabel, widget):
+                    newText = eimLabel.getData()
+                    eImTextDict = fsf.Data.Sec.extraImagesDict(eimLabel.subsection)
+                    eImTextList = eImTextDict[eimLabel.imIdx]
+                    eImTextList[eimLabel.eImIdx] = newText
+                    fsf.Data.Sec.extraImagesDict(eimLabel.subsection, eImTextDict)
+                    
+                    eimLabel.grid_forget()
+                    widget.render()
+
+                eimLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                                            [lambda *args: __getBack(eimLabel, event.widget)])
+                eimLabel.render()
 
             mainRow = i + 5 if row == None else row
 

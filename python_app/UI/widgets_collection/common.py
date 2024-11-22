@@ -125,52 +125,44 @@ class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
 
         self.tocBox.renderWithoutScroll()
 
+def getEntryImg(tex, subsection, imIdx):
+    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+    entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
+                                                                        subsection, 
+                                                                        imIdx)
+
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
+        result = Image.open(entryImgPath)
+    else:
+        result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
+                                                    entryImgPath,
+                                                    fixedWidth = 700)
+
+    return result
+
+
+def getGroupImg(subsection, currImGroupName):
+    gi = str(list(fsm.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
+    groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                            subsection,
+                                            gi)
+
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
+        result = Image.open(groupImgPath)
+    else:
+        result = \
+            fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
+                                                                    currImGroupName)
+
+    shrink = 0.8
+    result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+    result = ImageTk.PhotoImage(result)
+
+    return result
+
 
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
-    subsectionClicked = _u.Token.NotDef.str_t
-    entryClicked = _u.Token.NotDef.str_t
-    secondEntryClicked = None
-
-    renderFromTOCWindow = False
-
-    secondEntryClickedImIdx = _u.Token.NotDef.str_t
-    secondEntrySubsectionClicked = _u.Token.NotDef.str_t
-
-    widgetToScrollTo = None
-
-    currEntryWidget = None
-    currSubsectionWidget = None
-
-    showSubsectionsForTopSection = {}
-    displayedImages = []
-    parent = None
-    openedMainImg = None
-
-    showLinks = None
-    showLinksForSubsections = []
-    linksOpenImage = set()
-    linksOpenImageWidgets = {}
-
-    entryCopySubsection = None
-    entryCopyImIdx = None
-
-    cutEntry = False
-
-    subsectionContentLabels = []
-
-    currSecondRowLabels = []
-    linkFrames = []
-
-    showImagesLabels = {}
-
-    currentEntrySubsection = None
-    currentEntryImIdx = None
-
-    updatedWidget = None
-
-    showLinksForCurrWidget = True
-
     class __EntryUIs:
         class __EntryUIData:
             def __init__(self, name, column) -> None:
@@ -277,6 +269,52 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     def __init__(self, parentWidget, prefix, windth = 700, height = 640, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
+        self.subsectionWidgetFrames = {}
+
+        self.subsectionClicked = _u.Token.NotDef.str_t
+        self.entryClicked = _u.Token.NotDef.str_t
+        self.secondEntryClicked = None
+
+        self.renderFromTOCWindow = False
+
+        self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
+        self.secondEntrySubsectionClicked = _u.Token.NotDef.str_t
+
+        self.widgetToScrollTo = None
+
+        self.currEntryWidget = None
+        self.currSubsectionWidget = None
+
+        self.showSubsectionsForTopSection = {}
+        self.displayedImages = []
+        self.parent = None
+        self.openedMainImg = None
+
+        self.showLinks = None
+        self.showLinksForSubsections = []
+        self.linksOpenImage = set()
+        self.linksOpenImageWidgets = {}
+
+        self.entryCopySubsection = None
+        self.entryCopyImIdx = None
+
+        self.cutEntry = False
+
+        self.subsectionContentLabels = []
+
+        self.currSecondRowLabels = []
+        self.linkFrames = []
+
+        self.showImagesLabels = {}
+
+        self.currentEntrySubsection = None
+        self.currentEntryImIdx = None
+
+        self.updatedWidget = None
+
+        self.showLinksForCurrWidget = True
+
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
@@ -445,114 +483,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.__renderWithoutScroll()
         self.scrollToEntry(subsection, imIdx)
 
-    def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
-        if broadcasterType == mui.ExitApp_BTN:
-            tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
-
-            sections = fsm.Data.Book.sections
-
-            for ts in tsList:
-                if ts == _u.Token.NotDef.str_t:
-                    return
-
-                sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
-
-            fsm.Data.Book.sections = sections
-
-            fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
-            fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
-        elif broadcasterType == mui.ImageGeneration_BTN:
-            self.entryClicked = entryClicked
-            self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ImageGroupAdd_BTN:
-            self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ShowAllSubsections_BTN:
-            self.__renderWithScrollAfter()
-        # elif broadcasterType == mui.ShowFirstEntryOfTheCurrPage:
-        #     self.scrollToEntry(data[0], data[1])
-        #     self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ShowHideLinks_BTN:
-            self.showLinks = not self.showLinks
-            self.showLinksForSubsections = []
-            self.__renderWithScrollAfter()
-        elif broadcasterType == tocw.Filter_ETR:
-            self.showAll = True
-            self.filterToken = data[0]
-            self.searchSubsectionsText = data[1]
-            self.hide()
-            self.showSubsectionsForTopSection = {}
-            self.__renderWithoutScroll()
-        else:
-            self.__renderWithScrollAfter()
-
-    def addTOCEntry(self, subsection, level, row):
-        def openPdfOnStartOfTheSection(widget:_uuicom.TOCLabelWithClick):
-            def __cmd(event = None, *args):
-                # open orig material on page
-                origMatNameDict = fsm.Data.Sec.origMatNameDict(subsection)
-                omName = origMatNameDict[list(origMatNameDict.keys())[-1]]
-
-                if str(omName) == _u.Token.NotDef.str_t:
-                    # when there is no entries yet we use the current origMaterial name
-                    omName = fsm.Data.Book.currOrigMatName
-
-                subsectionStartPage = fsm.Data.Sec.start(subsection)
-                fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, subsectionStartPage)
-
-                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.PdfReadersManager)
-                pdfReadersManager.show(page = int(subsectionStartPage))
-
-                event.widget.configure(foreground="white")
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
-        def openWebOfTheImage(widget:_uuicom.TOCLabelWithClick, webLink):
-            def __cmd(event = None, *args):
-                cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
-                _u.runCmdAndWait(cmd)
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
-        # def openSectionOnIdx(widget:_uuicom.TOCLabelWithClick, imIdx):
-        #     def __cmd(event = None, *args):
-        #         # open orig material on page
-        #         bookName = sf.Wr.Manager.Book.getCurrBookName()
-        #         currTopSection = fsm.Data.Book.currTopSection
-
-        #         url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
-                
-        #         os.system("open {0}".format(url))
-        #         event.widget.configure(foreground="white")
-            
-        #     widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
-        def openSecondaryImage(widget:_uuicom.TOCLabelWithClick):
-            def __cmd(event = None, *args):
-                widget = event.widget
-                currImIdx = widget.imIdx
-                secondSubsection = widget.subsection
-
-                if (currImIdx == self.secondEntryClickedImIdx) and \
-                    (secondSubsection == self.secondEntrySubsectionClicked):
-                    self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
-                    self.secondEntrySubsectionClicked = _u.Token.NotDef.str_t
-                    self.secondEntryClicked.clicked = False
-                    self.secondEntryClicked = None
-                else:
-                    widget.clicked = True
-                    self.secondEntrySubsectionClicked = secondSubsection
-                    self.secondEntryClickedImIdx = currImIdx
-                    self.secondEntryClicked = widget
-
-                self.__renderWithoutScroll()
-
-                if (currImIdx == self.secondEntryClickedImIdx) and \
-                    (secondSubsection == self.secondEntrySubsectionClicked):
-                    self.scrollIntoView(None, widget)
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
+    def AddEntryWidget(self, imIdx, subsection, frame):
         def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
                                 shouldScroll = False, 
                                 imPad = 120, link = False, textOnly = False,
@@ -699,7 +630,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
 
-                    if imIdx in list(uiResizeEntryIdx.keys()):
+                    if uiResizeEntryIdx.get(imIdx) != None:
                         resizeFactor = float(uiResizeEntryIdx[imIdx])
                     else:
                         resizeFactor = 1.0
@@ -713,19 +644,50 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         imLabel.render()
                     else:
                         def __updateEntryTextOnly(event, *args):
-                            if (self.entryTextOnlyAsETR.subsection != _u.Token.NotDef.str_t) and \
-                                (self.entryTextOnlyAsETR.imIdx != _u.Token.NotDef.str_t):
-                                newText = self.entryTextOnlyAsETR.widget.getData()
-                                imTextDict = fsm.Data.Sec.imageText(self.entryTextOnlyAsETR.subsection)
-                                imTextDict[self.entryTextOnlyAsETR.imIdx] = newText
-                                fsm.Data.Sec.imageText(self.entryTextOnlyAsETR.subsection, imTextDict)
-                                self.entryTextOnlyAsETR.reset()
-                                self.__renderWithScrollAfter()
-                            else:
-                                self.entryTextOnlyAsETR.subsection = event.widget.subsection
-                                self.entryTextOnlyAsETR.imIdx = event.widget.imIdx
-                                self.entryTextOnlyAsETR.widget = event.widget.etrWidget
-                                self.__renderWithScrollAfter()
+                            widget = event.widget
+                            imLabel = _uuicom.MultilineText_ETR(widget.root, 
+                                                                "mainTOchanging" + widget.imIdx.replace(".", "_") + widget.subsection.replace(".", "_"), 
+                                                                widget.row,
+                                                                widget.column, 
+                                                                0, 
+                                                                widget.text)
+                            imLabel.config(width=90)
+                            imLabel.config(padx=10)
+                            imLabel.config(pady=10)
+                            imLabel.imIdx = widget.imIdx
+                            imLabel.subsection = widget.subsection
+
+                            def __getMainWidgetBack(event):
+                                newText = event.widget.getData()
+                                imTextDict = fsm.Data.Sec.imageText(event.widget.subsection)
+                                imTextDict[event.widget.imIdx] = newText
+                                fsm.Data.Sec.imageText(event.widget.subsection, imTextDict)
+ 
+                                event.widget.grid_forget()
+                                #NOTE: we create a new widget since updating the text did not change the rendered text for some reason
+                                imLabel = _uuicom.TOCTextWithClick(event.widget.root, 
+                                                             "main2" + widget.imIdx.replace(".", "_") + widget.subsection.replace(".", "_"),
+                                                            event.widget.row,
+                                                            event.widget.column,
+                                                            1000,
+                                                            text=newText,
+                                                            padx = 10,
+                                                            pady = 10,
+                                                            width = 95
+                                                            )
+                                imLabel.subsection = event.widget.subsection
+                                imLabel.imIdx = event.widget.imIdx
+                                imLabel.render()
+
+                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                                imLabel.rebind(*bindData)
+                                
+
+                            imLabel.bind(ww.currUIImpl.Data.BindID.Keys.shenter,
+                                         lambda e, *args: __getMainWidgetBack(e))
+                            widget.grid_forget()
+                            imLabel.render()
+                            imLabel.focus_force()
 
                         mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
 
@@ -738,44 +700,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imTextDict[imIdx] = txt
                             fsm.Data.Sec.imageText(subsection, imTextDict)
 
-                        if (subsection == self.entryTextOnlyAsETR.subsection)\
-                            and (imIdx == self.entryTextOnlyAsETR.imIdx) :
-                            imLabel = _uuicom.MultilineText_ETR(tframe, 
-                                                                      mainWidgetName, 
-                                                                      4,
-                                                                      0, 
-                                                                      0, 
-                                                                      txt)
-                            imLabel.config(width=90)
-                            imLabel.config(padx=10)
-                            imLabel.config(pady=10)
-                            imLabel.imIdx = imIdx
-                            imLabel.subsection = subsection
-                            imLabel.etrWidget = imLabel
-                            imLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                                 [__updateEntryTextOnly])
-                            self.entryTextOnlyAsETR.widget = imLabel
-                            imLabel.rebind(*bindData)
-                            imLabel.render()
-                            imLabel.focus_force()
-                        else:
-                            imLabel = _uuicom.TOCTextWithClick(tframe, 
-                                                                mainWidgetName,
-                                                                4,
-                                                                0,
-                                                                1000,
-                                                                text=txt,
-                                                                padx = 10,
-                                                                pady = 10,
-                                                                width = 95
-                                                                )
-                            imLabel.subsection = subsection
-                            imLabel.imIdx = imIdx
-                            imLabel.render()
+                        imLabel = _uuicom.TOCTextWithClick(tframe, 
+                                                            mainWidgetName,
+                                                            4,
+                                                            0,
+                                                            1000,
+                                                            text=txt,
+                                                            padx = 10,
+                                                            pady = 10,
+                                                            width = 95
+                                                            )
+                        imLabel.subsection = subsection
+                        imLabel.imIdx = imIdx
+                        imLabel.render()
 
-                            if not link:
-                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
-                                imLabel.rebind(*bindData)
+                        if not link:
+                            imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                            imLabel.rebind(*bindData)
 
                     if link:
                         self.linksOpenImageWidgets[subsection + "_" + imIdx] = imLabel
@@ -847,14 +788,1497 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             __cmd(event, *args)
 
+        def openSecondaryImage(widget:_uuicom.TOCLabelWithClick):
+            def __cmd(event = None, *args):
+                widget = event.widget
+                currImIdx = widget.imIdx
+                secondSubsection = widget.subsection
+
+                if (currImIdx == self.secondEntryClickedImIdx) and \
+                    (secondSubsection == self.secondEntrySubsectionClicked):
+                    self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
+                    self.secondEntrySubsectionClicked = _u.Token.NotDef.str_t
+                    self.secondEntryClicked.clicked = False
+                    self.secondEntryClicked = None
+                else:
+                    widget.clicked = True
+                    self.secondEntrySubsectionClicked = secondSubsection
+                    self.secondEntryClickedImIdx = currImIdx
+                    self.secondEntryClicked = widget
+
+                self.__renderWithoutScroll()
+
+                if (currImIdx == self.secondEntryClickedImIdx) and \
+                    (secondSubsection == self.secondEntrySubsectionClicked):
+                    self.scrollIntoView(None, widget)
+            
+            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+        def shiftEntryCmd(event, *args):
+            widget = event.widget
+            fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
+                                                        widget.imIdx)
+            self.__renderWithScrollAfter()
+
+        def copyEntryCmd(event, *args):
+            widget = event.widget
+            self.entryCopySubsection = widget.subsection
+            self.entryCopyImIdx = widget.imIdx
+            self.cutEntry = False
+
+        def cutEntryCmd(event, *args):
+            widget = event.widget
+            self.entryCopySubsection = widget.subsection
+            self.entryCopyImIdx = widget.imIdx
+            self.cutEntry = True
+
+        def retakeImageCmd(event, *args):
+            widget = event.widget
+            subsection = widget.subsection
+            imIdx = widget.imIdx
+
+            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            
+            msg = "Do you want to retake entry image?"
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            if not response:
+                return
+
+            imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
+                                                                        subsection,
+                                                                        str(imIdx))
+            ocf.Wr.FsAppCalls.deleteFile(imagePath)
+            figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
+
+            if figuresLabelsData.get(str(imIdx)) != None:
+                figuresLabelsData.pop(str(imIdx))
+
+            fsm.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+
+            dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                            imIdx = imIdx,
+                                                                            selector = True,
+                                                                            removePrevLabel = True)
+            def __cmdAfterImageCreated(self):
+                timer = 0
+
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50:
+                        break
+                
+                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+                mainManager.show()
+                mainManager.moveTocToCurrEntry()
+            
+            t = Thread(target = __cmdAfterImageCreated, args = [self])
+            t.start()
+
+        def pasteEntryCmd(event, *args):
+            widget = event.widget
+
+            if None in [self.entryCopySubsection, self.entryCopyImIdx] or\
+                _u.Token.NotDef.str_t in [self.entryCopySubsection, self.entryCopyImIdx]:
+                _u.log.autolog("Did not paste entry. The copy data is not correct.")
+                return
+
+            fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
+                                                            self.entryCopyImIdx,
+                                                            widget.subsection,
+                                                            widget.imIdx,
+                                                            self.cutEntry)
+            self.__renderWithScrollAfter()
+
+        def removeEntryCmd(event, *args):
+            widget = event.widget
+            fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
+
+            def __afterDeletion(*args):
+                timer = 0
+                while fsm.Data.Sec.figuresLabelsData(subsection).get(widget.imIdx) != None:
+                    time.sleep(0.3)
+                    timer += 1
+                    if timer > 50:
+                        break
+
+                pdfReaderManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                                    wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReaderManager.show(subsection = widget.subsection, 
+                                        imIdx = str(widget.imIdx), 
+                                        removePrevLabel = True)
+
+            t = Thread(target = __afterDeletion)
+            t.start()
+
+            self.__renderWithScrollAfter()
+
+        def delGlLinkCmd(event, *args):
+            widget = event.widget
+            gm.GeneralManger.RemoveGlLink(widget.targetSubssection,
+                                            widget.sourceSubssection,
+                                            widget.sourceImIdx,
+                                            widget.targetImIdx)
+            self.__renderWithoutScroll()
+
+        def delWebLinkCmd(event, *args):
+            widget = event.widget
+            gm.GeneralManger.RemoveWebLink(widget.sourceSubssection,
+                                            widget.sourceImIdx,
+                                            widget.sourceWebLinkName)
+            self.__renderWithoutScroll()
+
+        def addExtraImCmd(event, *args):
+            widget:_uuicom.TOCLabelWithClick = event.widget
+            _uuicom.addExtraIm(widget.subsection, widget.imIdx, False, self)
+
+        def addExtraImProofCmd(event, *args):
+            widget:_uuicom.TOCLabelWithClick = event.widget
+            _uuicom.addExtraIm(widget.subsection, widget.imIdx, True, self)
+
+        def pasteGlLinkCmd(event, *args):
+            widget = event.widget
+            sourceSubsection = widget.subsection
+            sourceTopSection = sourceSubsection.split(".")[0]
+            sourceImIdx = widget.imIdx
+            targetSubsection = dt.UITemp.Link.subsection
+            targetImIdx = dt.UITemp.Link.imIdx
+
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseWidgetShown = excerciseManager.shown
+
+            if targetSubsection != _u.Token.NotDef.str_t\
+                and targetImIdx != _u.Token.NotDef.str_t:
+                gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
+                                        sourceSubsection,
+                                        sourceImIdx,
+                                        sourceTopSection)
+
+                if (not self.showAll)\
+                    and (((self.currentEntrySubsection == sourceSubsection) and ( self.currentEntryImIdx == sourceImIdx))\
+                        or ((self.currentEntrySubsection == targetSubsection) and ( self.currentEntryImIdx == targetImIdx))):
+                    self.showLinksForEntryCmd(None,
+                                                self.currentEntrySubsection, 
+                                                self.currentEntryImIdx,
+                                                True)
+                    self.scrollIntoView(None, widget)
+                elif not self.showAll:
+                    self.__renderWithoutScroll()
+
+            if excerciseWidgetShown:
+                excerciseManager.show()
+
+                if self.showAll:
+                    tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.TOCManager)
+                    tocManager.show()
+
+            if self.showAll:
+                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+                mainManager.moveTocToCurrEntry()
+                # tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                #                                         wf.Wr.MenuManagers.TOCManager)
+                # tocManager.show()
+                mainManager.showLinksForEntry(targetSubsection, str(targetImIdx))
+
+        def copyGlLinkCmd(event, *args):
+            widget:_uuicom.TOCLabelWithClick = event.widget
+            dt.UITemp.Link.subsection = widget.subsection
+            dt.UITemp.Link.imIdx = widget.imIdx
+
+        def resizeEntryImgCMD(event, *args):
+            resizeFactor = event.widget.get()
+
+            # check if the format is right
+            if not re.match("^[0-9]\.[0-9]$", resizeFactor):
+                _u.log.autolog(\
+                    f"The format of the resize factor '{resizeFactor}'is not correct")
+                return
+            
+            subsection = event.widget.subsection
+            imIdx = event.widget.imIdx
+            
+            uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
+
+            if (uiResizeEntryIdx == None) \
+                or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
+                uiResizeEntryIdx = {}
+
+            uiResizeEntryIdx[imIdx] = resizeFactor
+
+            fsm.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
+
+            self.__renderWithScrollAfter()
+
+        def openExcerciseMenu(event, *args):
+            exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.ExcerciseManager)
+            exMenuManger.subsection = event.widget.subsection
+            exMenuManger.imIdx = event.widget.imIdx
+
+            event.widget.shouldShowExMenu = not event.widget.shouldShowExMenu
+            if (event.widget.shouldShowExMenu):
+                exMenuManger.show()
+            else:
+                exMenuManger.hide()
+
+        def openNoteMenu(event, *args):
+            notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.NotesManager)
+            notesMenuManger.subsection = event.widget.subsection
+            notesMenuManger.imIdx = event.widget.imIdx
+
+            event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
+            if (event.widget.shouldShowNotesMenu):
+                notesMenuManger.show()
+            else:
+                notesMenuManger.hide()
+
+        def openEntryNoteMenu(event, *args):
+            notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.EntryNotesManager)
+            notesMenuManger.subsection = event.widget.subsection
+            notesMenuManger.imIdx = event.widget.imIdx
+
+            event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
+            if (event.widget.shouldShowNotesMenu):
+                notesMenuManger.show()
+            else:
+                notesMenuManger.hide()
+
+        def openWiki(event, *args):
+            os.system("\
+    /Users/ashum048/books/utils/c++_modules/qt_KIK_Browser/build/Qt_6_8_0_macos-Debug/browser.app/Contents/MacOS/browser \
+    http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
+
+        def hideLinksImagesFunc(event, *args):
+            self.linksOpenImage.clear()
+
+            for k in self.linksOpenImageWidgets.keys():
+                im = self.linksOpenImageWidgets[k]
+                im.grid_forget()
+
+            self.linksOpenImageWidgets = {}
+
+            self.__renderWithScrollAfter()
+
+
+        def openWebOfTheImage(widget:_uuicom.TOCLabelWithClick, webLink):
+            def __cmd(event = None, *args):
+                cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
+                _u.runCmdAndWait(cmd)
+            
+            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+        def openBookCodeProjectCmd(event, *args):
+            subsection = event.widget.subsection
+            imIdx = event.widget.imIdx
+            dt.CodeTemp.currCodeFullLink = imIdx
+
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
+                _u.log.autolog("Please add a book code project files.")
+                return
+
+            ocf.Wr.IdeCalls.openNewWindow(projectPath)
+
+            bookCodeFiles:dict = fsm.Data.Sec.bookCodeFile(subsection)
+
+            if bookCodeFiles.get(imIdx) != None:
+                relFilepath = bookCodeFiles.get(imIdx)
+                time.sleep(0.5)
+                filepath = os.path.join(projectPath, relFilepath)
+
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                    return
+
+                lines = []
+                with open(filepath) as f:
+                    lines = f.read().splitlines()
+                
+                marker = _upan.Names.codeLineMarkerBook(subsection, imIdx)
+
+                for i in range(len(lines)):
+                    if marker in lines[i]:
+                        ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                        return
+
+                ocf.Wr.IdeCalls.openNewTab(filepath)
+
+        def openSubsectionCodeProjectCmd(event, *args):
+            subsection = event.widget.subsection
+            imIdx = event.widget.imIdx
+            dt.CodeTemp.currCodeFullLink = imIdx
+
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+            codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
+            codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
+                                                                    subsection)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
+                ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
+
+            ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
+
+            subsectionCodeFiles:dict = fsm.Data.Sec.subsectionCodeFile(subsection)
+
+            if subsectionCodeFiles.get(imIdx) != None:
+                relFilepath = subsectionCodeFiles.get(imIdx)
+                time.sleep(0.5)
+                filepath = os.path.join(codeSubsectionPath, relFilepath)
+
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                    _u.log.autolog(f"Subsection '{filepath}' file not found.")
+                    return
+
+                lines = []
+                with open(filepath) as f:
+                    lines = f.read().splitlines()
+                
+                marker = _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
+
+                for i in range(len(lines)):
+                    if marker in lines[i]:
+                        ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                        return
+
+                ocf.Wr.IdeCalls.openNewTab(filepath)
+
+        def openEntryCodeProjectCmd(event, *args):
+            subsection =  event.widget.subsection
+            imIdx =  event.widget.imIdx
+            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+            entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
+                fsm.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
+
+            entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
+                codeProjTemplatePath = \
+                    _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
+                ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
+
+            ocf.Wr.IdeCalls.openNewWindow(_upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx))
+
+        def copyTextToMemCmd(event, *args):
+            dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = event.widget.subsection,
+                                                                    imIdx = event.widget.imIdx,
+                                                                    selector = True,
+                                                                    getTextOfSelector = True)
+
+        def openProofsMenu(event, *args):
+            prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.ProofsManager)
+            prMenuManger.subsection = event.widget.subsection
+            prMenuManger.imIdx = event.widget.imIdx
+
+            event.widget.shouldShowProofMenu = not event.widget.shouldShowProofMenu
+            if (event.widget.shouldShowProofMenu):
+                prMenuManger.show()
+            else:
+                prMenuManger.hide()
+
+        def updateEntry(event, *args):
+            widget = event.widget
+
+            print(type(widget))
+            imLinkDict = fsm.Data.Sec.imLinkDict(widget.subsection)
+            text = imLinkDict[widget.imIdx]
+
+            textLabelPage = _uuicom.MultilineText_ETR(widget.root, 
+                                                        "contentP_" + widget.imIdx + widget.subsection, 
+                                                        0,
+                                                        0, 
+                                                        widget.imageLineIdx, 
+                                                        text)
+            textLabelPage.imIdx = widget.imIdx
+            textLabelPage.subsection = widget.subsection
+            #textLabelPage.etrWidget = textLabelPage
+
+            def __getWidgetBack(textEntry, widget):
+                newText = textEntry.getData()
+                imLinkDict = fsm.Data.Sec.imLinkDict(textEntry.subsection)
+                textOnly = fsm.Data.Sec.textOnly(textEntry.subsection)[textEntry.imIdx]
+                imLinkDict[textEntry.imIdx] = newText
+                fsm.Data.Sec.imLinkDict(textEntry.subsection, imLinkDict)
+                fsm.Wr.SectionInfoStructure.rebuildEntryLatex(textEntry.subsection,
+                                                            textEntry.imIdx,
+                                                            newText,
+                                                            textOnly
+                                                            )
+                
+                widget.render()
+                widget.updateImage()
+                textEntry.grid_forget()
+
+            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                    [lambda *args: __getWidgetBack(textLabelPage, widget)])
+            widget.grid_forget()
+            textLabelPage.render()
+            textLabelPage.focus_force()
+
+        k = imIdx
+        i = int(imIdx)
+
+        v = fsm.Data.Sec.imLinkDict(subsection)[k]
+        subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
+
+        extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
+
+        subsectionText:str = fsm.Data.Sec.text(subsection)
+        textOnly = fsm.Data.Sec.textOnly(subsection)[str(k)]
+
+        entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
+        
+        if k in list(extraImagesDict.keys()):
+            for t in extraImagesDict[k]:
+                entryImText += t
+
+        if self.searchSubsectionsText:
+            tokenInSubsectionText = self.filterToken.lower() not in subsectionText.lower()
+        else:
+            tokenInSubsectionText = True                   
+
+        if (self.filterToken != ""):
+            if (self.filterToken.lower() not in v.lower())\
+                and (self.filterToken.lower() not in entryImText.lower())\
+                and tokenInSubsectionText:
+                return
+
+        imagesGroupDict:dict = fsm.Data.Sec.imagesGroupDict(subsection)
+        imagesGroupsWShouldShow:list = fsm.Data.Sec.imagesGroupsList(subsection)
+        imagesGroups:list = list(imagesGroupsWShouldShow.keys())
+
+        currImGroupidx = imagesGroupDict[k]
+        if int(k) > 0 :
+            if imagesGroupDict.get(str(int(k) - 1)) != None:
+                prevImGroupName = imagesGroups[imagesGroupDict[str(int(k) - 1)]]
+            else:
+                prevImGroupName = _u.Token.NotDef.str_t
+        else:
+            prevImGroupName = imagesGroups[imagesGroupDict[k]]
+
+        if currImGroupidx == _u.Token.NotDef.str_t:
+            currImGroupidx = 0
+
+        currImGroupName = imagesGroups[currImGroupidx]
+
+        topPad = 0
+        gridRowStartIdx = 1
+
+        if currImGroupName != prevImGroupName:
+            if not imagesGroupsWShouldShow[currImGroupName]:
+                topPad = 0
+            elif (k != "0"):
+                topPad = 5
+
+        if self.filterToken != "":
+            topPad = 0
+
+        nameId = _upan.Names.Entry.getEntryNameID(subsection, k)
+
+        tempFrame = _uuicom.TOCFrame(frame,
+                                prefix = "contentFr_" + nameId,
+                                padding=[0, topPad, 0, 0],
+                                row = i + 2, column = 0, columnspan = 100)
+
+        if currImGroupName != prevImGroupName:
+            if currImGroupName != "No group":
+                imageGroupFrame = _uuicom.TOCFrame(tempFrame,
+                                            prefix = "contentImageGroupFr_" + nameId,
+                                            padding=[0, topPad, 0, 0], 
+                                            row = 0, column = 0, columnspan = 100)
+                imageGroupFrame.render()
+
+                def __updateGroup(event, *args):
+                    widget = event.widget
+                    imageGroupLabel = _uuicom.MultilineText_ETR(widget.root, 
+                                            "contentGroupP_" + widget.subsection + widget.group, 
+                                            widget.row, widget.column, 
+                                            "", # NOTE: not used anywhere  
+                                            widget.group)
+                    imageGroupLabel.subsection = widget.subsection
+
+                    def __getImageBack(event, oldGroupName, imageWidget, *args):
+                        etr = event.widget
+                        newText = etr.getData()
+                        imagesGroupsList = \
+                            fsm.Data.Sec.imagesGroupsList(etr.subsection).copy()
+                        imagesGroupsList = \
+                            {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
+                        fsm.Data.Sec.imagesGroupsList(etr.subsection,
+                                                        imagesGroupsList)
+                        fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
+                                                                                newText)
+                        etr.grid_forget()
+                        imageWidget.group = newText
+                        imageWidget.updateGroupImage()
+                        imageWidget.render()
+
+                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                            [lambda e, *args: __getImageBack(e, widget.group, widget)])
+                    widget.grid_forget()
+                    imageGroupLabel.focus_force()
+                    imageGroupLabel.render()
+
+                if (subsection != self.groupAsETR.subsection) or\
+                    (currImGroupName != self.groupAsETR.group):
+                    img = getGroupImg(subsection, currImGroupName)
+                    imageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
+                                                image = img, 
+                                                prefix = "contentGroupP_" + nameId,
+                                                padding = [30, 0, 0, 0], 
+                                                row = 0, column = 0)
+                    imageGroupLabel.image = img
+                    imageGroupLabel.subsection = subsection
+                    imageGroupLabel.group = currImGroupName
+                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                            [__updateGroup])
+
+                imageGroupLabel.render()
+                hideImageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
+                                                        text = "[show/hide]",
+                                                        prefix = "contentHideImageGroupLabel_" + nameId,
+                                                        row = 0, column = 1)
+
+                if not self.showAll:
+                    hideImageGroupLabel.render()
+
+                hideImageGroupLabel.subsection = subsection
+                hideImageGroupLabel.imIdx = k
+                hideImageGroupLabel.group = currImGroupName
+
+                _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
+
+                def __cmd(e):
+                    imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
+                    imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
+                    fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
+                    self.__renderWithoutScroll()
+
+                hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+                newGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                        prefix = "contentNewGroupImageGroupLabel_" + nameId,
+                        row = 0, 
+                        column = 3,
+                        imIdx = k,
+                        text = currImGroupName,
+                        width = 10)
+                newGroup.subsection = subsection
+                newGroup.render()
+                newGroup.setData(currImGroupName)
+
+                moveGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                        prefix = "contentMoveImageGroupLabel_" + nameId,
+                        row = 0, 
+                        column = 2,
+                        imIdx = k,
+                        text = subsection + ":" + str(k),
+                        width = 10)
+                moveGroup.subsection = subsection
+                moveGroup.imIdx = k
+
+                def __moveGroup(e, *args): 
+                    # NOTE: this is a hack but I can't find a better way atm   
+                    wName = str(e.widget)
+                    wName = wName.split("contentmoveimagegrouplabel_")[-1]
+                    wName = wName.split("_imageSizeTOC_ETR")[0]
+                    subsection = wName.split("_")[0].replace("$", ".")
+                    imIdx = wName.split("_")[1]
+                    newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
+                    newGroupNameW = [i for i in e.widget.master.winfo_children() \
+                                        if newGroupNameWName.lower() in str(i)][0]
+
+                    targetWholePath:str = e.widget.get()
+
+                    if ":" not in targetWholePath:
+                        _u.log.autolog("Incorrect destination path")
+
+                    targetSubsection = targetWholePath.split(":")[0]
+                    targetEntryIdx = targetWholePath.split(":")[1]
+                    targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
+                    sourceSubsection = subsection
+                    sourceEntryIdx = imIdx
+                    sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
+                    sourceGroupName = list(fsm.Data.Sec.imagesGroupsList(sourceSubsection).keys())[sourceGroupNameIdx]
+
+                    # ask the user if we wnat to proceed.
+                    msg = "\
+Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n with group name \n'{2}'?".format(targetSubsection, 
+                                                                                    targetEntryIdx, 
+                                                                                    targetGroupName)
+                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.MathMenuManager)
+                    mainManager.show()
+
+                    if not response:
+                        return
+
+                    gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
+                                                            targetSubsection, targetGroupName, targetEntryIdx)
+                    self.__renderWithoutScroll()
+                moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                        [__moveGroup])
+                moveGroup.render()
+
+                gridRowStartIdx = 2
+            else:
+                img = getGroupImg(subsection, currImGroupName)
+                imageNoGroupLabel = _uuicom.TOCLabelWithClick(tempFrame, 
+                                            image = img,
+                                            prefix = "contentNoGroupP_" + nameId,
+                                            padding= [30, 0, 0, 0],
+                                            row = 0, column = 0)
+                imageNoGroupLabel.image = img
+                imageNoGroupLabel.render()
+                gridRowStartIdx = 2
+
+        tempFrameRow1 = _uuicom.TOCFrame(tempFrame,
+                            prefix = "contentRow1Fr_" + nameId,
+                            padding=[0, topPad, 0, 0],
+                            row = gridRowStartIdx - 1, 
+                            column = 0, columnspan = 100)
+
+        tempFrameRow2 = _uuicom.TOCFrame(tempFrame,
+                            prefix = "contentRow2Fr_" + nameId,
+                            padding=[60, topPad, 0, 0],
+                            row = gridRowStartIdx, 
+                            column = 0, columnspan = 100)
+        tempFrameRow2.subsection = subsection
+        tempFrameRow2.imIdx = k
+        self.currSecondRowLabels.append(tempFrameRow2)
+
+        if currImGroupName not in imagesGroups:
+            currImGroupName = imagesGroups[0]
+            imagesGroupDict[k] = 0
+            fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
+
+        imagesGroup = ImageGroupOM(self, subsection, k, tempFrameRow2, 
+                                    tk.StringVar(), currImGroupName, *imagesGroups)
+
+        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
+        pilIm = getEntryImg(latexTxt, subsection, k)
+
+        shrink = 0.7
+        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+        img = ImageTk.PhotoImage(pilIm)
+
+        if (subsection == self.entryAsETR.subsection)\
+            and (k == self.entryAsETR.imIdx) :
+            textLabelPage = _uuicom.MultilineText_ETR(tempFrameRow1, 
+                                                        "contentP_" + nameId, 
+                                                        0,
+                                                        0, 
+                                                        i, 
+                                                        v)
+            textLabelPage.imIdx = k
+            textLabelPage.subsection = subsection
+            textLabelPage.etrWidget = textLabelPage
+            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                    [updateEntry])
+            self.entryAsETR.widget = textLabelPage
+            textLabelPage.focus_force()
+        else:
+            textLabelPage = _uuicom.TOCLabelWithClick(tempFrameRow1,
+                                            image = img, 
+                                            prefix = "contentP_" + nameId, 
+                                            padding= [60, 0, 0, 0],
+                                            row = 0, 
+                                            column = 0)
+            textLabelPage.imIdx = k
+            textLabelPage.subsection = subsection
+            textLabelPage.etrWidget = textLabelPage
+            textLabelPage.imageLineIdx = i
+            textLabelPage.entryText = v
+            textLabelPage.imagePath = v
+
+            textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                    [updateEntry])
+            textLabelPage.image = img
+
+            if (self.entryAsETR.upddatedTextSubsection == subsection) and\
+                (self.entryAsETR.upddatedTextImIdx == k):
+                self.entryAsETR.upddatedTextSubsection = None
+                self.entryAsETR.upddatedTextImIdx = None
+                self.updatedWidget = textLabelPage
+
+        textLabelFull = _uuicom.TOCLabelWithClick(tempFrameRow1, 
+                                        text = self.__EntryUIs.im.name, 
+                                        prefix = "contentFull_" + nameId,
+                                        row = 0, 
+                                        column = self.__EntryUIs.im.column)
+        textLabelFull.subsection = subsection
+        textLabelFull.imIdx = k
+
+        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrameRow2, 
+                                                                subsection, k, 
+                                                                "contentShowAlways_" + nameId,
+                                                                self)
+        showImages = _uuicom.TOCLabelWithClick(tempFrameRow1, 
+                                    text = self.__EntryUIs.full.name,
+                                    prefix = "contentOfImages_" + nameId,
+                                    row = 0,
+                                    column = self.__EntryUIs.full.column)
+        showImages.imIdx = k
+        showImages.subsection = subsection
+        showImages.clicked = False
+        self.showImagesLabels[subsection + k] = showImages
+
+        imShouldBeBrown = False
+
+        if (subsection == self.subsectionClicked) and (str(k) == self.entryClicked):
+            imShouldBeBrown = True 
+
+        if not textOnly:
+            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
+                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True, *args),
+                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
+        else:
+            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
+                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
+                                                                    True, textOnly = True, *args),
+                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
+                                                                    False, textOnly = True,*args)])
+
+        removeEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
+                                        text = self.__EntryUIs.delete.name,
+                                        prefix = "contentRemoveEntry" + nameId,
+                                        row = 0, 
+                                        column = self.__EntryUIs.delete.column)
+        removeEntry.imIdx = k
+        removeEntry.subsection = subsection
+        removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [removeEntryCmd])
+
+        shiftEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
+                                                text = self.__EntryUIs.shift.name,
+                                                prefix = "contentShiftEntry" + nameId,
+                                                row = 1, 
+                                                column = self.__EntryUIs.shift.column)
+        shiftEntry.imIdx = k
+        shiftEntry.subsection = subsection
+        shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [shiftEntryCmd])
+
+        copyEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
+                                                text = self.__EntryUIs.copy.name,
+                                                prefix = "contentCopyEntry" + nameId,
+                                                row = 0, 
+                                                column = self.__EntryUIs.copy.column)
+        copyEntry.imIdx = k
+        copyEntry.subsection = subsection
+        copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [copyEntryCmd])
+        copyEntry.rebind([ww.currUIImpl.Data.BindID.shmouse1],
+                            [cutEntryCmd])
+
+        pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
+                                                text = self.__EntryUIs.pasteAfter.name,
+                                                prefix = "contentPasteAfterEntry" + nameId,
+                                                row = 0, 
+                                                column = self.__EntryUIs.pasteAfter.column)
+        pasteAfterEntry.imIdx = k
+        pasteAfterEntry.subsection = subsection
+        pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [pasteEntryCmd])
+
+        showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
+                                                text = self.__EntryUIs.showLinks.name,
+                                                prefix = "contentShowLinksForEntry" + nameId,
+                                                row = 0, 
+                                                column = self.__EntryUIs.showLinks.column)
+        showLinksForEntry.imIdx = k
+        showLinksForEntry.subsection = subsection
+        showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                    [self.showLinksForEntryCmd])
+
+        linkExist = k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys())
+
+        if linkExist:
+            showLinksForEntry.configure(foreground="brown")                 
+
+        retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
+                                                text =  self.__EntryUIs.retake.name,
+                                                prefix = "contentRetakeImageForEntry" + nameId,
+                                                row = 0, 
+                                                column =  self.__EntryUIs.retake.column)
+        retakeImageForEntry.imIdx = k
+        retakeImageForEntry.subsection = subsection
+        retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                    [retakeImageCmd])
+
+        # addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+        #                                  text = self.__EntryUIs.link.name,
+        #                                  prefix = "contentAddGlLinkEntry" + nameId,
+        #                                  row = 0, 
+        #                                  column = self.__EntryUIs.link.column)
+        # addLinkEntry.imIdx = k
+        # addLinkEntry.subsection = subsection
+        # addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+        #                     [addGlLinkCmd])
+
+        addExtraImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                            text = self.__EntryUIs.addExtra.name,
+                                            prefix = "contentAddExtraImageEntry" + nameId,
+                                            row = 0, 
+                                            column = self.__EntryUIs.addExtra.column)
+        addExtraImage.imIdx = k
+        addExtraImage.subsection = subsection
+        addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [addExtraImCmd])
+
+        addProofImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                            text = self.__EntryUIs.addProof.name,
+                                            prefix = "contentAddExtraProofEntry" + nameId,
+                                            row = 0, 
+                                            column = self.__EntryUIs.addProof.column)
+        addProofImage.imIdx = k
+        addProofImage.subsection = subsection
+        addProofImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [addExtraImProofCmd])
+
+        copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
+                                            text = self.__EntryUIs.copyLink.name,
+                                            prefix = "contentCopyGlLinkEntry" + nameId,
+                                            row = 0, 
+                                            column = self.__EntryUIs.copyLink.column)
+        copyLinkEntry.imIdx = k
+        copyLinkEntry.subsection = subsection
+        copyLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [copyGlLinkCmd])
+
+        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
+                                            text = self.__EntryUIs.pasteLink.name,
+                                            prefix = "contentPasteGlLinkEntry" + nameId,
+                                            row = 0, 
+                                            column = self.__EntryUIs.pasteLink.column)
+        pasteLinkEntry.imIdx = k
+        pasteLinkEntry.subsection = subsection
+        pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [pasteGlLinkCmd])
+
+        openExUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
+                                        text = self.__EntryUIs.excercises.name, 
+                                        prefix = "contentOpenExcerciseUIEntry" + nameId,
+                                        row = 0, 
+                                        column = self.__EntryUIs.excercises.column,
+                                        columnspan = 1000)
+        openExUIEntry.imIdx = k
+        openExUIEntry.subsection = subsection
+        openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openExcerciseMenu])
+
+        openNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.note.name, 
+                                        prefix = "contentOpenNoteUIEntry" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.note.column,
+                                        columnspan = 1)
+        openNoteUIEntry.imIdx = k
+        openNoteUIEntry.subsection = subsection
+        openNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openNoteMenu])
+
+        openEntryNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.entryNote.name, 
+                                        prefix = "contentOpenEntryNoteUIEntry" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.entryNote.column,
+                                        columnspan = 1)
+        openEntryNoteUIEntry.imIdx = k
+        openEntryNoteUIEntry.subsection = subsection
+        openEntryNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openEntryNoteMenu])
+
+        openEntryWikiUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.wikiNote.name, 
+                                        prefix = "contentOpenEntryWikiUIEntry" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.wikiNote.column,
+                                        columnspan = 1)
+        openEntryWikiUIEntry.imIdx = k
+        openEntryWikiUIEntry.subsection = subsection
+        openEntryWikiUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                    [openWiki])
+
+        copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.copyText.name, 
+                                        prefix = "contentCopyTextToMem" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.copyText.column,
+                                        columnspan = 1)
+        copyTextToMem.imIdx = k
+        copyTextToMem.subsection = subsection
+        copyTextToMem.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [copyTextToMemCmd])
+
+        hideLinkImages = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.hideLInkImages.name, 
+                                        prefix = "contenHideLinkImages" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.hideLInkImages.column,
+                                        columnspan = 1)
+        hideLinkImages.imIdx = k
+        hideLinkImages.subsection = subsection
+        hideLinkImages.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [hideLinksImagesFunc])
+        
+        openBookCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.openBookCodeProject.name, 
+                                        prefix = "openBookCodeProject" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.openBookCodeProject.column,
+                                        columnspan = 1)
+        openBookCodeProject.imIdx = k
+        openBookCodeProject.subsection = subsection
+        openBookCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openBookCodeProjectCmd])
+
+        openSubsectionCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.openSubsectionCodeProject.name, 
+                                        prefix = "openSubsectionCodeProject" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.openSubsectionCodeProject.column,
+                                        columnspan = 1)
+        openSubsectionCodeProject.imIdx = k
+        openSubsectionCodeProject.subsection = subsection
+        openSubsectionCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openSubsectionCodeProjectCmd])
+
+        openEntryCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.openEntryCodeProject.name, 
+                                        prefix = "openEntryCodeProject" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.openEntryCodeProject.column,
+                                        columnspan = 1)
+        openEntryCodeProject.imIdx = k
+        openEntryCodeProject.subsection = subsection
+        openEntryCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openEntryCodeProjectCmd])
+
+        fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
+                                                            subsection,
+                                                            k)
+        entryStructureExists = ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)
+        excerciseExists = False
+        notesExist = False
+
+        if entryStructureExists:
+            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+            # entryLinesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+            #                                        k,
+            #                                        fsm.Wr.EntryInfoStructure.PubProp.entryLinesList,
+            #                                        currBookPath)
+
+            # if (entryLinesList != _u.Token.NotDef.list_t) \
+            #     and (entryLinesList != []):
+            excerciseExists = True
+            openExUIEntry.configure(foreground="brown")
+
+            entryWordDictArr = fsm.Wr.EntryInfoStructure.readProperty(subsection,
+                                                    k,
+                                                    fsm.Wr.EntryInfoStructure.PubProp.entryWordDictDict,
+                                                    currBookPath)
+
+            if (entryWordDictArr != _u.Token.NotDef.dict_t)\
+                and (entryWordDictArr != {}):
+                notesExist = True
+                openNoteUIEntry.configure(foreground="brown")
+
+        proofExists = False
+        exImDict = fsm.Data.Sec.extraImagesDict(subsection)
+
+        if k in list(exImDict.keys()):
+            exImNames = exImDict[k]
+            proofExists = len([i for i in exImNames if "proof" in i.lower()]) != 0
+
+        openProofsUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.proof.name, 
+                                        prefix = "contentOpenExcerciseUIEntry" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.proof.column)
+        if proofExists:
+            openProofsUIEntry.configure(foreground="brown")
+
+        openProofsUIEntry.imIdx = k
+        openProofsUIEntry.subsection = subsection
+        openProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [openProofsMenu])
+
+        changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
+                                        text = self.__EntryUIs.update.name, 
+                                        prefix = "contentUpdateEntryText" + nameId,
+                                        row = 1, 
+                                        column = self.__EntryUIs.update.column)
+        changeImText.imIdx = k
+        changeImText.subsection = subsection
+        changeImText.etrWidget = textLabelPage
+        changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [updateEntry])
+
+        uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
+
+        if k in list(uiResizeEntryIdx.keys()):
+            resizeFactor = float(uiResizeEntryIdx[k])
+        else:
+            resizeFactor = 1.0
+
+        changeImSize = _uuicom.ImageSize_ETR(tempFrameRow2,
+                                        prefix = "contentUpdateEntryText" + nameId,
+                                        row = 0, 
+                                        column = self.__EntryUIs.changeImSize.column,
+                                        imIdx = k,
+                                        text = resizeFactor)
+        changeImSize.imIdx = k
+        changeImSize.widgetObj.imIdx = k
+        changeImSize.subsection = subsection
+        changeImSize.widgetObj.subsection = subsection
+        changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                [resizeEntryImgCMD])
+
+        showLinks = False
+
+        for l in self.showLinksForSubsections:
+            if subsection + "_" + k in l:
+                showLinks = True
+                break
+
+        if (self.showLinks or showLinks) and (not self.showAll):
+            # adding a frame to show global links
+            linksFrame = _uuicom.TOCFrame(tempFrame,
+                                prefix = "contentLinksFr_" + nameId,
+                                row = gridRowStartIdx + 1, column = 0, columnspan = 100)
+            linksFrame.subsection = subsection
+            linksFrame.imIdx = k
+
+            if showLinks:
+                self.linkFrames.append(linksFrame)
+
+            imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
+
+            if k in imGlobalLinksDict.keys():
+                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[k]
+
+                glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame, 
+                                        text = "Links: ", 
+                                        prefix = "contentLinksIntroFr_" + nameId,
+                                        padding = [60, 0, 0, 0],
+                                        row = 0, column = 0)
+                glLinkLablel.render()
+                glLinkId = 0
+
+                # NOTE: should put all the links into 
+                # one frame. This way they will be aligned correctly
+                if type(glLinks) == dict:
+                    for ln, lk in glLinks.items():
+                        if "KIK" in lk:
+                            # NOTE: probably should be a frame here
+                            glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                    linksFrame, 
+                                                    prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                    padding = [60, 0, 0, 0],
+                                                    row = glLinkId + 1, column = 0)
+                            glLinkImLablel.render()
+
+                            targetSubsection = ln.split("_")[0]
+                            targetImIdx = ln.split("_")[1]
+                            textOnlyLink = fsm.Data.Sec.textOnly(targetSubsection)[targetImIdx]
+
+                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
+                                                    glLinkImLablel, 
+                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
+                                                    text = targetSubsection + ": ", 
+                                                    padding = [90, 0, 0, 0],
+                                                    row = 0, column = 0)
+                            glLinkSubsectioLbl.render()
+
+                            imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
+
+                            latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
+                            pilIm = getEntryImg(latexTxt, targetSubsection, targetImIdx)
+
+                            shrink = 0.7
+                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+                            img = ImageTk.PhotoImage(pilIm)
+
+                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
+                                                        image = img,
+                                                        text = ln + ": " + imLinkDict[targetImIdx], 
+                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                        row = 0, column = 1
+                                                        )
+                            glLinkLablel.subsection = targetSubsection
+                            glLinkLablel.imIdx = targetImIdx
+                            glLinkLablel.image = img
+
+                            glLinkLablel.render()
+                            _uuicom.openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+
+                            linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                        text = "[f]", 
+                                                        prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
+                                                        row = 0, column= 2)
+                            linkLabelFull.render()
+
+                            linkLabelFull.subsection = ln.split("_")[0]
+                            linkLabelFull.imIdx = ln.split("_")[-1]
+
+                            _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
+
+                            def __moveLinkFull(e, *args):
+                                widget = e.widget
+                                fsm.Data.Book.currTopSection = widget.subsection.split(".")[0]
+                                self.scrollToEntry(widget.subsection,
+                                                widget.imIdx)
+
+                            linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
+
+                            glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                            text = "[i]", 
+                                                            prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
+                                                            row = 0, column = 3)
+                            glLinksShowImages.imIdx = ln.split("_")[-1]
+                            glLinksShowImages.subsection = ln.split("_")[0]
+                            glLinksShowImages.clicked = False
+                            glLinksShowImages.render()
+                            glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
+
+                            _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
+
+                            if not textOnlyLink:
+                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                                                        [lambda e, *args: __showIMagesONClick(e, 
+                                                                                            glLinksShowImages,
+                                                                                            glLinkSubSecID, 
+                                                                                            False, 
+                                                                                            150,
+                                                                                            True, 
+                                                                                            *args)])
+                            else:
+                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                                                        [lambda e, *args: __showIMagesONClick(e, 
+                                                                                            glLinksShowImages,
+                                                                                            glLinkSubSecID, 
+                                                                                            False, 
+                                                                                            150, 
+                                                                                            True, 
+                                                                                            textOnly = True,
+                                                                                            *args)])
+
+                            if not self.showAll:
+                                if (glLinksShowImages.subsection + "_" + glLinksShowImages.imIdx) in \
+                                    self.linksOpenImage:
+                                    glLinksShowImages.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+
+                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                        text = "[d]", 
+                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                        row = 0, column = 4)
+                            linkLabelDelete.render()
+                            
+                            linkLabelDelete.targetSubssection = ln.split("_")[0]
+                            linkLabelDelete.sourceSubssection = subsection
+                            linkLabelDelete.targetImIdx = ln.split("_")[-1]
+                            linkLabelDelete.sourceImIdx = k
+
+                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
+
+                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+
+                            tarProofExists = False
+                            tarExImDict = fsm.Data.Sec.extraImagesDict(ln.split("_")[0])
+
+                            if ln.split("_")[-1] in list(tarExImDict.keys()):
+                                tarExImNames = tarExImDict[ln.split("_")[-1]]
+                                tarProofExists = len([i for i in tarExImNames if "proof" in i.lower()]) != 0
+                            
+                            if tarProofExists:
+                                tarOpenProofsUIEntry = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                        text = self.__EntryUIs.proof.name, 
+                                        prefix = "contentGlLinksTSubsectionProof_" + nameId + "_" + str(glLinkId),
+                                        row = 0, 
+                                        column = 5)
+                                tarOpenProofsUIEntry.configure(foreground="brown")
+
+                                tarOpenProofsUIEntry.imIdx = ln.split("_")[1]
+                                tarOpenProofsUIEntry.subsection = ln.split("_")[0]
+                                tarOpenProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                                    [openProofsMenu])
+                                _uuicom.bindChangeColorOnInAndOut(tarOpenProofsUIEntry, shouldBeBrown = True)
+
+                                tarOpenProofsUIEntry.render()
+
+                        elif "http" in lk:
+                            # NOTE: should be a frame here!
+                            glLinkImLablel = _uuicom.TOCLabelWithClick(
+                                                    linksFrame, 
+                                                    prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
+                                                    padding = [60, 0, 0, 0],
+                                                    row = glLinkId + 1, column = 0)
+                            glLinkImLablel.render()
+
+                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                    text = "web: ", 
+                                                    padding = [90, 0, 0, 0],
+                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
+                                                    row = glLinkId + 1, column = 0)
+                            glLinkSubsectioLbl.render()
+
+                            latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
+                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                            linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
+                                                                            subsection,
+                                                                            k,
+                                                                            ln)
+
+                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
+                                pilIm = Image.open(linkFilepath)
+                            else:
+                                pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
+
+                            shrink = 0.7
+                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+                            img = ImageTk.PhotoImage(pilIm)
+
+                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
+                                                        image = img,
+                                                        text = ln, 
+                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
+                                                        row = glLinkId + 1, column = 1)
+                            glLinkLablel.subsection = subsection
+                            glLinkLablel.imIdx = k
+                            glLinkLablel.image = img
+
+                            glLinkLablel.render()
+                            openWebOfTheImage(glLinkLablel, lk)
+
+                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
+                                                        text = "[d]", 
+                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
+                                                        row = glLinkId + 1, column = 2)
+                            linkLabelDelete.render()
+
+                            linkLabelDelete.sourceSubssection = subsection
+                            linkLabelDelete.sourceImIdx = k
+                            linkLabelDelete.sourceWebLinkName = ln
+
+                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
+
+                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
+
+                        glLinkId += 1
+
+        tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
+
+        if tocWImageDict == _u.Token.NotDef.dict_t:
+            alwaysShow = False
+        else:
+            alwaysShow = tocWImageDict[k] == "1"
+
+        showImages.alwaysShow = alwaysShow
+
+        if ((((subsection == self.subsectionClicked) and (str(k) == self.entryClicked)) or alwaysShow) or\
+            ((subsection == self.secondEntrySubsectionClicked) and (str(k) == self.secondEntryClickedImIdx))):
+            showImages.clicked = False
+
+            if (not (subsection == self.subsectionClicked and str(k) == self.entryClicked)):
+                showImages.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
+            else:
+                self.widgetToScrollTo = showImages
+
+        if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
+            tempFrameRow1.render()
+            textLabelPage.render()
+
+            if not showImages.alwaysShow:
+                textLabelFull.render()
+
+            showImages.render()
+
+            # addLinkEntry.render()
+            addExtraImage.render()
+            addProofImage.render()
+            copyLinkEntry.render()
+            pasteLinkEntry.render()
+
+            if not textOnly:
+                retakeImageForEntry.render()
+
+            showLinks = False
+
+            for l in self.showLinksForSubsections:
+                if subsection + "_" + k in l:
+                    showLinks = True
+                    break
+
+            if self.showLinks or showLinks:
+                linksFrame.render()
+
+            openExUIEntry.render()
+            openProofsUIEntry.render()
+            openNoteUIEntry.render()
+            openEntryNoteUIEntry.render()
+            openEntryWikiUIEntry.render()
+            showLinksForEntry.render()
+            shiftEntry.render()
+            copyEntry.render()
+            pasteAfterEntry.render()
+            changeImText.render()
+            copyTextToMem.render()
+            hideLinkImages.render()
+            openBookCodeProject.render()
+            openSubsectionCodeProject.render()
+            openEntryCodeProject.render()
+
+            if not self.showAll:
+
+                if not textOnly:
+                    chkbtnShowPermamently.grid(row = 0, 
+                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+
+                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
+                                    sticky=tk.NW, columnspan = 3)
+                removeEntry.render()
+
+            if not textOnly:
+                changeImSize.render()
+
+        if self.entryAsETR.widget == None:
+            _uuicom.openOMOnThePageOfTheImage(textLabelPage, subsection, k)
+
+        if imShouldBeBrown:
+            showImages.configure(foreground="brown")  
+        _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = imShouldBeBrown)
+        _uuicom.bindChangeColorOnInAndOut(removeEntry)
+        _uuicom.bindChangeColorOnInAndOut(shiftEntry)
+        _uuicom.bindChangeColorOnInAndOut(copyEntry)
+        _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
+        _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
+        _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
+        # _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
+        _uuicom.bindChangeColorOnInAndOut(addExtraImage)
+        _uuicom.bindChangeColorOnInAndOut(addProofImage)
+        _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
+        _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
+        openSecondaryImage(textLabelFull)
+        _uuicom.bindChangeColorOnInAndOut(textLabelFull)
+        _uuicom.bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
+        _uuicom.bindChangeColorOnInAndOut(openNoteUIEntry, shouldBeBrown = notesExist)
+        _uuicom.bindChangeColorOnInAndOut(openEntryNoteUIEntry)
+        _uuicom.bindChangeColorOnInAndOut(openEntryWikiUIEntry)
+        _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
+        _uuicom.bindChangeColorOnInAndOut(changeImText)
+        _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
+        _uuicom.bindChangeColorOnInAndOut(hideLinkImages)
+        _uuicom.bindChangeColorOnInAndOut(openBookCodeProject)
+        _uuicom.bindChangeColorOnInAndOut(openSubsectionCodeProject)
+        _uuicom.bindChangeColorOnInAndOut(openEntryCodeProject)
+
+        tempFrame.render()
+        prevImGroupName = currImGroupName
+        i += 1
+
+        return showImages
+
+    def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
+        if broadcasterType == mui.ExitApp_BTN:
+            tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
+
+            sections = fsm.Data.Book.sections
+
+            for ts in tsList:
+                if ts == _u.Token.NotDef.str_t:
+                    return
+
+                sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
+
+            fsm.Data.Book.sections = sections
+
+            fsm.Data.Book.subsectionOpenInTOC_UI = self.subsectionClicked
+            fsm.Data.Book.entryImOpenInTOC_UI = self.entryClicked
+        elif broadcasterType == mui.ImageGeneration_BTN:
+            subsection = data[0]
+            imIdx = data[1]
+            self.entryClicked = entryClicked
+            addedWidget = self.AddEntryWidget(imIdx, subsection, self.subsectionWidgetFrames[subsection])
+            addedWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+            self.scrollToEntry(subsection, imIdx)
+        elif broadcasterType == mui.ImageGroupAdd_BTN:
+            self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowAllSubsections_BTN:
+            self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowHideLinks_BTN:
+            self.showLinks = not self.showLinks
+            self.showLinksForSubsections = []
+            self.__renderWithScrollAfter()
+        elif broadcasterType == tocw.Filter_ETR:
+            self.showAll = True
+            self.filterToken = data[0]
+            self.searchSubsectionsText = data[1]
+            self.hide()
+            self.showSubsectionsForTopSection = {}
+            self.__renderWithoutScroll()
+        else:
+            self.__renderWithScrollAfter()
+
+    def addTOCEntry(self, subsection, level, row):
+        def openPdfOnStartOfTheSection(widget:_uuicom.TOCLabelWithClick):
+            def __cmd(event = None, *args):
+                # open orig material on page
+                origMatNameDict = fsm.Data.Sec.origMatNameDict(subsection)
+                omName = origMatNameDict[list(origMatNameDict.keys())[-1]]
+
+                if str(omName) == _u.Token.NotDef.str_t:
+                    # when there is no entries yet we use the current origMaterial name
+                    omName = fsm.Data.Book.currOrigMatName
+
+                subsectionStartPage = fsm.Data.Sec.start(subsection)
+                fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, subsectionStartPage)
+
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.show(page = int(subsectionStartPage))
+
+                event.widget.configure(foreground="white")
+            
+            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+        # def openSectionOnIdx(widget:_uuicom.TOCLabelWithClick, imIdx):
+        #     def __cmd(event = None, *args):
+        #         # open orig material on page
+        #         bookName = sf.Wr.Manager.Book.getCurrBookName()
+        #         currTopSection = fsm.Data.Book.currTopSection
+
+        #         url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
+                
+        #         os.system("open {0}".format(url))
+        #         event.widget.configure(foreground="white")
+            
+        #     widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
         def openContentOfTheSection(frame:_uuicom.TOCFrame, label:_uuicom.TOCLabelWithClick):
+            self.subsectionWidgetFrames[subsection] = frame
+
             def __cmd(event = None, *args):
                 # open orig material on page
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
-                imagesGroupDict:dict = fsm.Data.Sec.imagesGroupDict(subsection)
-                imagesGroupsWShouldShow:list = fsm.Data.Sec.imagesGroupsList(subsection)
-                imagesGroups:list = list(imagesGroupsWShouldShow.keys())
 
                 def closeAllSubsections():
                     for wTop1 in event.widget.master.master.winfo_children():
@@ -863,399 +2287,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 wTop2.clicked = False
                             if "contentFr_"  in str(wTop2) or "contentDummyFr_" in str(wTop2):
                                 wTop2.destroy()
-
-                def shiftEntryCmd(event, *args):
-                    widget = event.widget
-                    fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
-                                                                widget.imIdx)
-                    self.__renderWithScrollAfter()
-
-                def copyEntryCmd(event, *args):
-                    widget = event.widget
-                    self.entryCopySubsection = widget.subsection
-                    self.entryCopyImIdx = widget.imIdx
-                    self.cutEntry = False
-
-                def cutEntryCmd(event, *args):
-                    widget = event.widget
-                    self.entryCopySubsection = widget.subsection
-                    self.entryCopyImIdx = widget.imIdx
-                    self.cutEntry = True
-
-                def retakeImageCmd(event, *args):
-                    widget = event.widget
-                    subsection = widget.subsection
-                    imIdx = widget.imIdx
-
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    
-                    msg = "Do you want to retake entry image?"
-                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-                    if not response:
-                        return
-
-                    imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookPath,
-                                                                                subsection,
-                                                                                str(imIdx))
-                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
-                    figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
-
-                    if figuresLabelsData.get(str(imIdx)) != None:
-                        figuresLabelsData.pop(str(imIdx))
-
-                    fsm.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
-
-                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                                    imIdx = imIdx,
-                                                                                    selector = True,
-                                                                                    removePrevLabel = True)
-                    def __cmdAfterImageCreated(self):
-                        timer = 0
-
-                        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                            time.sleep(0.3)
-                            timer += 1
-
-                            if timer > 50:
-                                break
-                        
-                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.MathMenuManager)
-                        mainManager.show()
-                        mainManager.moveTocToCurrEntry()
-                    
-                    t = Thread(target = __cmdAfterImageCreated, args = [self])
-                    t.start()
-
-                def pasteEntryCmd(event, *args):
-                    widget = event.widget
-
-                    if None in [self.entryCopySubsection, self.entryCopyImIdx] or\
-                       _u.Token.NotDef.str_t in [self.entryCopySubsection, self.entryCopyImIdx]:
-                        _u.log.autolog("Did not paste entry. The copy data is not correct.")
-                        return
-
-                    fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(self.entryCopySubsection,
-                                                                    self.entryCopyImIdx,
-                                                                    widget.subsection,
-                                                                    widget.imIdx,
-                                                                    self.cutEntry)
-                    self.__renderWithScrollAfter()
-
-                def removeEntryCmd(event, *args):
-                    widget = event.widget
-                    fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
-
-                    def __afterDeletion(*args):
-                        timer = 0
-                        while fsm.Data.Sec.figuresLabelsData(subsection).get(widget.imIdx) != None:
-                            time.sleep(0.3)
-                            timer += 1
-                            if timer > 50:
-                                break
-
-                        pdfReaderManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                                          wf.Wr.MenuManagers.PdfReadersManager)
-                        pdfReaderManager.show(subsection = widget.subsection, 
-                                              imIdx = str(widget.imIdx), 
-                                              removePrevLabel = True)
-
-                    t = Thread(target = __afterDeletion)
-                    t.start()
-
-                    self.__renderWithScrollAfter()
-
-                def delGlLinkCmd(event, *args):
-                    widget = event.widget
-                    gm.GeneralManger.RemoveGlLink(widget.targetSubssection,
-                                                  widget.sourceSubssection,
-                                                  widget.sourceImIdx,
-                                                  widget.targetImIdx)
-                    self.__renderWithoutScroll()
-
-                def delWebLinkCmd(event, *args):
-                    widget = event.widget
-                    gm.GeneralManger.RemoveWebLink(widget.sourceSubssection,
-                                                   widget.sourceImIdx,
-                                                   widget.sourceWebLinkName)
-                    self.__renderWithoutScroll()
-
-                def addExtraImCmd(event, *args):
-                    widget:_uuicom.TOCLabelWithClick = event.widget
-                    _uuicom.addExtraIm(widget.subsection, widget.imIdx, False, self)
-
-                def addExtraImProofCmd(event, *args):
-                    widget:_uuicom.TOCLabelWithClick = event.widget
-                    _uuicom.addExtraIm(widget.subsection, widget.imIdx, True, self)
-
-                def pasteGlLinkCmd(event, *args):
-                    widget = event.widget
-                    sourceSubsection = widget.subsection
-                    sourceTopSection = sourceSubsection.split(".")[0]
-                    sourceImIdx = widget.imIdx
-                    targetSubsection = dt.UITemp.Link.subsection
-                    targetImIdx = dt.UITemp.Link.imIdx
-
-                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.ExcerciseManager)
-                    excerciseWidgetShown = excerciseManager.shown
-
-                    if targetSubsection != _u.Token.NotDef.str_t\
-                        and targetImIdx != _u.Token.NotDef.str_t:
-                        gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
-                                                sourceSubsection,
-                                                sourceImIdx,
-                                                sourceTopSection)
-
-                        if (not self.showAll)\
-                            and (((self.currentEntrySubsection == sourceSubsection) and ( self.currentEntryImIdx == sourceImIdx))\
-                                or ((self.currentEntrySubsection == targetSubsection) and ( self.currentEntryImIdx == targetImIdx))):
-                            self.showLinksForEntryCmd(None,
-                                                      self.currentEntrySubsection, 
-                                                      self.currentEntryImIdx,
-                                                      True)
-                            self.scrollIntoView(None, widget)
-                        elif not self.showAll:
-                            self.__renderWithoutScroll()
-
-                    if excerciseWidgetShown:
-                        excerciseManager.show()
-
-                        if self.showAll:
-                            tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.TOCManager)
-                            tocManager.show()
-
-                    if self.showAll:
-                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.MathMenuManager)
-                        mainManager.moveTocToCurrEntry()
-                        # tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                        #                                         wf.Wr.MenuManagers.TOCManager)
-                        # tocManager.show()
-                        mainManager.showLinksForEntry(targetSubsection, str(targetImIdx))
-
-                def copyGlLinkCmd(event, *args):
-                    widget:_uuicom.TOCLabelWithClick = event.widget
-                    dt.UITemp.Link.subsection = widget.subsection
-                    dt.UITemp.Link.imIdx = widget.imIdx
-
-                def resizeEntryImgCMD(event, *args):
-                    resizeFactor = event.widget.get()
-
-                    # check if the format is right
-                    if not re.match("^[0-9]\.[0-9]$", resizeFactor):
-                        _u.log.autolog(\
-                            f"The format of the resize factor '{resizeFactor}'is not correct")
-                        return
-                    
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
-                    
-                    uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
-
-                    if (uiResizeEntryIdx == None) \
-                        or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
-                        uiResizeEntryIdx = {}
-
-                    uiResizeEntryIdx[imIdx] = resizeFactor
-
-                    fsm.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
-
-                    self.__renderWithScrollAfter()
-
-                def openExcerciseMenu(event, *args):
-                    exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.ExcerciseManager)
-                    exMenuManger.subsection = event.widget.subsection
-                    exMenuManger.imIdx = event.widget.imIdx
-
-                    event.widget.shouldShowExMenu = not event.widget.shouldShowExMenu
-                    if (event.widget.shouldShowExMenu):
-                        exMenuManger.show()
-                    else:
-                        exMenuManger.hide()
-
-                def openNoteMenu(event, *args):
-                    notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.NotesManager)
-                    notesMenuManger.subsection = event.widget.subsection
-                    notesMenuManger.imIdx = event.widget.imIdx
-
-                    event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
-                    if (event.widget.shouldShowNotesMenu):
-                        notesMenuManger.show()
-                    else:
-                        notesMenuManger.hide()
-
-                def openEntryNoteMenu(event, *args):
-                    notesMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.EntryNotesManager)
-                    notesMenuManger.subsection = event.widget.subsection
-                    notesMenuManger.imIdx = event.widget.imIdx
-
-                    event.widget.shouldShowNotesMenu = not event.widget.shouldShowNotesMenu
-                    if (event.widget.shouldShowNotesMenu):
-                        notesMenuManger.show()
-                    else:
-                        notesMenuManger.hide()
-
-                def openWiki(event, *args):
-                    os.system("\
-/Users/ashum048/books/utils/browser/qt_browser_proj/browser/build/Qt_6_8_0_macos-Debug/browser.app/Contents/MacOS/browser \
-http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
-
-                def hideLinksImagesFunc(event, *args):
-                    self.linksOpenImage.clear()
-
-                    for k in self.linksOpenImageWidgets.keys():
-                        im = self.linksOpenImageWidgets[k]
-                        im.grid_forget()
-
-                    self.linksOpenImageWidgets = {}
-
-                    self.__renderWithScrollAfter()
-
-                def openBookCodeProjectCmd(event, *args):
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
-                    dt.CodeTemp.currCodeFullLink = imIdx
-
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
-                        _u.log.autolog("Please add a book code project files.")
-                        return
-
-                    ocf.Wr.IdeCalls.openNewWindow(projectPath)
-
-                    bookCodeFiles:dict = fsm.Data.Sec.bookCodeFile(subsection)
-
-                    if bookCodeFiles.get(imIdx) != None:
-                        relFilepath = bookCodeFiles.get(imIdx)
-                        time.sleep(0.5)
-                        filepath = os.path.join(projectPath, relFilepath)
-
-                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
-                            return
-
-                        lines = []
-                        with open(filepath) as f:
-                            lines = f.read().splitlines()
-                        
-                        marker = _upan.Names.codeLineMarkerBook(subsection, imIdx)
-
-                        for i in range(len(lines)):
-                            if marker in lines[i]:
-                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
-                                return
-
-                        ocf.Wr.IdeCalls.openNewTab(filepath)
-
-                def openSubsectionCodeProjectCmd(event, *args):
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
-                    dt.CodeTemp.currCodeFullLink = imIdx
-
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
-                    codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
-                                                                         subsection)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
-                        ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
-
-                    ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
-
-                    subsectionCodeFiles:dict = fsm.Data.Sec.subsectionCodeFile(subsection)
-
-                    if subsectionCodeFiles.get(imIdx) != None:
-                        relFilepath = subsectionCodeFiles.get(imIdx)
-                        time.sleep(0.5)
-                        filepath = os.path.join(codeSubsectionPath, relFilepath)
-
-                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
-                            _u.log.autolog(f"Subsection '{filepath}' file not found.")
-                            return
-
-                        lines = []
-                        with open(filepath) as f:
-                            lines = f.read().splitlines()
-                        
-                        marker = _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
-
-                        for i in range(len(lines)):
-                            if marker in lines[i]:
-                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
-                                return
-
-                        ocf.Wr.IdeCalls.openNewTab(filepath)
-
-                def openEntryCodeProjectCmd(event, *args):
-                    subsection =  event.widget.subsection
-                    imIdx =  event.widget.imIdx
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-
-                    entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
-                        fsm.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
-
-                    entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
-                        codeProjTemplatePath = \
-                            _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
-                        ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
-
-                    ocf.Wr.IdeCalls.openNewWindow(_upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx))
-
-                def copyTextToMemCmd(event, *args):
-                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                wf.Wr.MenuManagers.PdfReadersManager).show(subsection = event.widget.subsection,
-                                                                            imIdx = event.widget.imIdx,
-                                                                            selector = True,
-                                                                            getTextOfSelector = True)
-
-                def openProofsMenu(event, *args):
-                    prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.ProofsManager)
-                    prMenuManger.subsection = event.widget.subsection
-                    prMenuManger.imIdx = event.widget.imIdx
-
-                    event.widget.shouldShowProofMenu = not event.widget.shouldShowProofMenu
-                    if (event.widget.shouldShowProofMenu):
-                        prMenuManger.show()
-                    else:
-                        prMenuManger.hide()
-
-                def updateEntry(event, *args):
-                    if (self.entryAsETR.subsection != _u.Token.NotDef.str_t) and \
-                        (self.entryAsETR.imIdx != _u.Token.NotDef.str_t):
-                        newText = self.entryAsETR.widget.getData()
-                        imLinkDict = fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection)
-                        textOnly = fsm.Data.Sec.textOnly(self.entryAsETR.subsection)[self.entryAsETR.imIdx]
-                        imLinkDict[self.entryAsETR.imIdx] = newText
-                        fsm.Data.Sec.imLinkDict(self.entryAsETR.subsection, imLinkDict)
-                        fsm.Wr.SectionInfoStructure.rebuildEntryLatex(self.entryAsETR.subsection,
-                                                                      self.entryAsETR.imIdx,
-                                                                      newText,
-                                                                      textOnly
-                                                                      )
-                        self.entryAsETR.reset()
-                        self.__renderWithoutScroll()
-                        self.scrollIntoView(None, self.updatedWidget)
-                    else:
-                        self.entryAsETR.subsection = event.widget.subsection
-                        self.entryAsETR.imIdx = event.widget.imIdx
-                        self.entryAsETR.widget =event.widget.etrWidget
-                        self.entryAsETR.upddatedTextSubsection = event.widget.subsection
-                        self.entryAsETR.upddatedTextImIdx = event.widget.imIdx
-                        self.__renderWithoutScroll()
-                        self.scrollIntoView(None, self.entryAsETR.widget)
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -1274,992 +2305,18 @@ http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
                             conWidget.clicked = False
 
                     subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
-                    prevImGroupName = _u.Token.NotDef.str_t
-
-                    extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
-
-                    subsectionText:str = fsm.Data.Sec.text(subsection)
 
                     if subsection != fsm.Data.Book.currSection:
                         return
 
-                    for k,v in links.items():
-                        textOnly = fsm.Data.Sec.textOnly(subsection)[str(k)]
-
-                        entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
-                        
-                        if k in list(extraImagesDict.keys()):
-                            for t in extraImagesDict[k]:
-                                entryImText += t
-
-                        if self.searchSubsectionsText:
-                            tokenInSubsectionText = self.filterToken.lower() not in subsectionText.lower()
+                    for k,_ in links.items():             
+                        if ((subsection != fsm.Data.Book.currSection)\
+                            or (topSection != fsm.Data.Book.currTopSection))\
+                            and (not self.showAll):
+                            continue
                         else:
-                            tokenInSubsectionText = True                   
+                            self.AddEntryWidget(k, subsection, frame)       
 
-                        if (self.filterToken != ""):
-                            if (self.filterToken.lower() not in v.lower())\
-                                and (self.filterToken.lower() not in entryImText.lower())\
-                                and tokenInSubsectionText:
-                                continue
-
-                        currImGroupidx = imagesGroupDict[k]
-
-                        if currImGroupidx == _u.Token.NotDef.str_t:
-                            currImGroupidx = 0
-
-                        currImGroupName = imagesGroups[currImGroupidx]
-
-                        topPad = 0
-                        gridRowStartIdx = 1
-
-                        if currImGroupName != prevImGroupName:
-                            if not imagesGroupsWShouldShow[currImGroupName]:
-                                topPad = 0
-                            elif (k != "0"):
-                                topPad = 5
-
-                        if self.filterToken != "":
-                            topPad = 0
-
-                        nameId = _upan.Names.Entry.getEntryNameID(subsection, k)
-
-                        tempFrame = _uuicom.TOCFrame(frame,
-                                              prefix = "contentFr_" + nameId,
-                                              padding=[0, topPad, 0, 0],
-                                              row = i + 2, column = 0, columnspan = 100)
-
-                        def getGroupImg(subsection, currImGroupName):
-                            gi = str(list(fsm.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
-                            groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
-                                                                    subsection,
-                                                                    gi)
-
-                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
-                                result = Image.open(groupImgPath)
-                            else:
-                                result = \
-                                    fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
-                                                                                            currImGroupName)
-
-                            shrink = 0.8
-                            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-                            result = ImageTk.PhotoImage(result)
-                            return result
-
-                        if currImGroupName != prevImGroupName:
-                            if currImGroupName != "No group":
-                                imageGroupFrame = _uuicom.TOCFrame(tempFrame,
-                                                            prefix = "contentImageGroupFr_" + nameId,
-                                                            padding=[0, topPad, 0, 0], 
-                                                            row = 0, column = 0, columnspan = 100)
-                                imageGroupFrame.render()
-
-                                def __updateGroup(event, *args):
-                                    if (self.groupAsETR.subsection != _u.Token.NotDef.str_t) and\
-                                        (self.groupAsETR.group != _u.Token.NotDef.str_t):
-                                        newText = self.groupAsETR.widget.getData()
-                                        oldGroupName = self.groupAsETR.group
-                                        imagesGroupsList = \
-                                            fsm.Data.Sec.imagesGroupsList(event.widget.subsection)
-                                        imagesGroupsList = \
-                                            {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
-                                        fsm.Data.Sec.imagesGroupsList(self.subsectionAsETR.subsection,
-                                                                      imagesGroupsList)
-                                        fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
-                                                                                                newText)
-
-                                        self.groupAsETR.reset()
-                                    else:
-                                        self.groupAsETR.subsection = event.widget.subsection
-                                        self.groupAsETR.group = event.widget.group
-
-                                    self.__renderWithScrollAfter()
-
-                                if (subsection != self.groupAsETR.subsection) or\
-                                    (currImGroupName != self.groupAsETR.group):
-                                    img = getGroupImg(subsection, currImGroupName)
-                                    imageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
-                                                                image = img, 
-                                                                prefix = "contentGroupP_" + nameId,
-                                                                padding = [30, 0, 0, 0], 
-                                                                row = 0, column = 0)
-                                    imageGroupLabel.image = img
-                                    imageGroupLabel.subsection = subsection
-                                    imageGroupLabel.group = currImGroupName
-                                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                                            [__updateGroup])
-                                else:
-                                    imageGroupLabel = _uuicom.MultilineText_ETR(imageGroupFrame, 
-                                                            "contentGroupP_" + nameId, 
-                                                            0, 0, 
-                                                            "", # NOTE: not used anywhere  
-                                                            currImGroupName)
-                                    imageGroupLabel.subsection = subsection
-                                    imageGroupLabel.etrWidget = imageGroupLabel
-                                    self.groupAsETR.widget = imageGroupLabel
-                                    imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                                            [__updateGroup])
-                                    imageGroupLabel.focus_force()
-
-                                imageGroupLabel.render()
-                                hideImageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
-                                                                        text = "[show/hide]",
-                                                                        prefix = "contentHideImageGroupLabel_" + nameId,
-                                                                        row = 0, column = 1)
-
-                                if not self.showAll:
-                                    hideImageGroupLabel.render()
-
-                                hideImageGroupLabel.subsection = subsection
-                                hideImageGroupLabel.imIdx = k
-                                hideImageGroupLabel.group = currImGroupName
-
-                                _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
-
-                                def __cmd(e):
-                                    imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
-                                    imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
-                                    fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
-                                    self.__renderWithoutScroll()
-
-                                hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-        
-                                newGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
-                                        prefix = "contentNewGroupImageGroupLabel_" + nameId,
-                                        row = 0, 
-                                        column = 3,
-                                        imIdx = k,
-                                        text = currImGroupName,
-                                        width = 10)
-                                newGroup.subsection = subsection
-                                newGroup.render()
-                                newGroup.setData(currImGroupName)
-
-                                moveGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
-                                        prefix = "contentMoveImageGroupLabel_" + nameId,
-                                        row = 0, 
-                                        column = 2,
-                                        imIdx = k,
-                                        text = subsection + ":" + str(k),
-                                        width = 10)
-                                moveGroup.subsection = subsection
-                                moveGroup.imIdx = k
-
-                                def __moveGroup(e, *args): 
-                                    # NOTE: this is a hack but I can't find a better way atm   
-                                    wName = str(e.widget)
-                                    wName = wName.split("contentmoveimagegrouplabel_")[-1]
-                                    wName = wName.split("_imageSizeTOC_ETR")[0]
-                                    subsection = wName.split("_")[0].replace("$", ".")
-                                    imIdx = wName.split("_")[1]
-                                    newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
-                                    newGroupNameW = [i for i in e.widget.master.winfo_children() \
-                                                     if newGroupNameWName.lower() in str(i)][0]
-
-                                    targetWholePath:str = e.widget.get()
-
-                                    if ":" not in targetWholePath:
-                                        _u.log.autolog("Incorrect destination path")
-
-                                    targetSubsection = targetWholePath.split(":")[0]
-                                    targetEntryIdx = targetWholePath.split(":")[1]
-                                    targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
-                                    sourceSubsection = subsection
-                                    sourceEntryIdx = imIdx
-                                    sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
-                                    sourceGroupName = list(fsm.Data.Sec.imagesGroupsList(sourceSubsection).keys())[sourceGroupNameIdx]
-
-                                    # ask the user if we wnat to proceed.
-                                    msg = "\
-Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n with group name \n'{2}'?".format(targetSubsection, 
-                                                                                                 targetEntryIdx, 
-                                                                                                 targetGroupName)
-                                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-                                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                                wf.Wr.MenuManagers.MathMenuManager)
-                                    mainManager.show()
-
-                                    if not response:
-                                        return
-
-                                    gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
-                                                                           targetSubsection, targetGroupName, targetEntryIdx)
-                                    self.__renderWithoutScroll()
-                                moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
-                                                        [__moveGroup])
-                                moveGroup.render()
-
-                                gridRowStartIdx = 2
-                            else:
-                                img = getGroupImg(subsection, currImGroupName)
-                                imageNoGroupLabel = _uuicom.TOCLabelWithClick(tempFrame, 
-                                                            image = img,
-                                                            prefix = "contentNoGroupP_" + nameId,
-                                                            padding= [30, 0, 0, 0],
-                                                            row = 0, column = 0)
-                                imageNoGroupLabel.image = img
-                                imageNoGroupLabel.render()
-                                gridRowStartIdx = 2
-
-                        tempFrameRow1 = _uuicom.TOCFrame(tempFrame,
-                                            prefix = "contentRow1Fr_" + nameId,
-                                            padding=[0, topPad, 0, 0],
-                                            row = gridRowStartIdx - 1, 
-                                            column = 0, columnspan = 100)
-
-                        tempFrameRow2 = _uuicom.TOCFrame(tempFrame,
-                                            prefix = "contentRow2Fr_" + nameId,
-                                            padding=[60, topPad, 0, 0],
-                                            row = gridRowStartIdx, 
-                                            column = 0, columnspan = 100)
-                        tempFrameRow2.subsection = subsection
-                        tempFrameRow2.imIdx = k
-                        self.currSecondRowLabels.append(tempFrameRow2)
-
-                        if currImGroupName not in imagesGroups:
-                            currImGroupName = imagesGroups[0]
-                            imagesGroupDict[k] = 0
-                            fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
-
-                        imagesGroup = ImageGroupOM(self, subsection, k, tempFrameRow2, 
-                                                   tk.StringVar(), currImGroupName, *imagesGroups)
-
-                        def getEntryImg(tex, subsection, imIdx):
-                            textOnly = fsm.Data.Sec.textOnly(subsection)[imIdx]
-                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                            entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
-                                                                                              subsection, 
-                                                                                              imIdx)
-
-                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
-                                result = Image.open(entryImgPath)
-                            else:
-                                result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
-                                                                            entryImgPath,
-                                                                            fixedWidth = 700)
-
-                            return result
-
-                        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
-                        pilIm = getEntryImg(latexTxt, subsection, k)
-
-                        shrink = 0.7
-                        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                        img = ImageTk.PhotoImage(pilIm)
-
-                        if (subsection == self.entryAsETR.subsection)\
-                            and (k == self.entryAsETR.imIdx) :
-                            textLabelPage = _uuicom.MultilineText_ETR(tempFrameRow1, 
-                                                                      "contentP_" + nameId, 
-                                                                      0,
-                                                                      0, 
-                                                                      i, 
-                                                                      v)
-                            textLabelPage.imIdx = k
-                            textLabelPage.subsection = subsection
-                            textLabelPage.etrWidget = textLabelPage
-                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                                 [updateEntry])
-                            self.entryAsETR.widget = textLabelPage
-                            textLabelPage.focus_force()
-                        else:
-                            textLabelPage = _uuicom.TOCLabelWithClick(tempFrameRow1,
-                                                            image = img, 
-                                                            prefix = "contentP_" + nameId, 
-                                                            padding= [60, 0, 0, 0],
-                                                            row = 0, 
-                                                            column = 0)
-                            textLabelPage.imIdx = k
-                            textLabelPage.subsection = subsection
-                            textLabelPage.etrWidget = textLabelPage
-                            textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                                 [updateEntry])
-                            textLabelPage.image = img
-
-                            if (self.entryAsETR.upddatedTextSubsection == subsection) and\
-                               (self.entryAsETR.upddatedTextImIdx == k):
-                                self.entryAsETR.upddatedTextSubsection = None
-                                self.entryAsETR.upddatedTextImIdx = None
-                                self.updatedWidget = textLabelPage
-
-                        textLabelFull = _uuicom.TOCLabelWithClick(tempFrameRow1, 
-                                                       text = self.__EntryUIs.im.name, 
-                                                       prefix = "contentFull_" + nameId,
-                                                       row = 0, 
-                                                       column = self.__EntryUIs.im.column)
-                        textLabelFull.subsection = subsection
-                        textLabelFull.imIdx = k
-
-                        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrameRow2, 
-                                                                             subsection, k, 
-                                                                             "contentShowAlways_" + nameId,
-                                                                             self)
-                        showImages = _uuicom.TOCLabelWithClick(tempFrameRow1, 
-                                                    text = self.__EntryUIs.full.name,
-                                                    prefix = "contentOfImages_" + nameId,
-                                                    row = 0,
-                                                    column = self.__EntryUIs.full.column)
-                        showImages.imIdx = k
-                        showImages.subsection = subsection
-                        showImages.clicked = False
-                        self.showImagesLabels[subsection + k] = showImages
-
-                        imShouldBeBrown = False
-
-                        if (subsection == self.subsectionClicked) and (str(k) == self.entryClicked):
-                            imShouldBeBrown = True 
-
-                        if not textOnly:
-                            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
-                                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True, *args),
-                                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
-                        else:
-                            showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
-                                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
-                                                                                  True, textOnly = True, *args),
-                                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
-                                                                                 False, textOnly = True,*args)])
-
-                        removeEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
-                                                     text = self.__EntryUIs.delete.name,
-                                                     prefix = "contentRemoveEntry" + nameId,
-                                                     row = 0, 
-                                                     column = self.__EntryUIs.delete.column)
-                        removeEntry.imIdx = k
-                        removeEntry.subsection = subsection
-                        removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                           [removeEntryCmd])
-
-                        shiftEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
-                                                               text = self.__EntryUIs.shift.name,
-                                                               prefix = "contentShiftEntry" + nameId,
-                                                               row = 1, 
-                                                               column = self.__EntryUIs.shift.column)
-                        shiftEntry.imIdx = k
-                        shiftEntry.subsection = subsection
-                        shiftEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                          [shiftEntryCmd])
-
-                        copyEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
-                                                               text = self.__EntryUIs.copy.name,
-                                                               prefix = "contentCopyEntry" + nameId,
-                                                               row = 0, 
-                                                               column = self.__EntryUIs.copy.column)
-                        copyEntry.imIdx = k
-                        copyEntry.subsection = subsection
-                        copyEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                         [copyEntryCmd])
-                        copyEntry.rebind([ww.currUIImpl.Data.BindID.shmouse1],
-                                         [cutEntryCmd])
-
-                        pasteAfterEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
-                                                               text = self.__EntryUIs.pasteAfter.name,
-                                                               prefix = "contentPasteAfterEntry" + nameId,
-                                                               row = 0, 
-                                                               column = self.__EntryUIs.pasteAfter.column)
-                        pasteAfterEntry.imIdx = k
-                        pasteAfterEntry.subsection = subsection
-                        pasteAfterEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                               [pasteEntryCmd])
-
-                        showLinksForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
-                                                               text = self.__EntryUIs.showLinks.name,
-                                                               prefix = "contentShowLinksForEntry" + nameId,
-                                                               row = 0, 
-                                                               column = self.__EntryUIs.showLinks.column)
-                        showLinksForEntry.imIdx = k
-                        showLinksForEntry.subsection = subsection
-                        showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                 [self.showLinksForEntryCmd])
-
-                        linkExist = k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys())
-
-                        if linkExist:
-                            showLinksForEntry.configure(foreground="brown")                 
-
-                        retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
-                                                               text =  self.__EntryUIs.retake.name,
-                                                               prefix = "contentRetakeImageForEntry" + nameId,
-                                                               row = 0, 
-                                                               column =  self.__EntryUIs.retake.column)
-                        retakeImageForEntry.imIdx = k
-                        retakeImageForEntry.subsection = subsection
-                        retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                 [retakeImageCmd])
-
-                        # addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                        #                                  text = self.__EntryUIs.link.name,
-                        #                                  prefix = "contentAddGlLinkEntry" + nameId,
-                        #                                  row = 0, 
-                        #                                  column = self.__EntryUIs.link.column)
-                        # addLinkEntry.imIdx = k
-                        # addLinkEntry.subsection = subsection
-                        # addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                        #                     [addGlLinkCmd])
-
-                        addExtraImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                         text = self.__EntryUIs.addExtra.name,
-                                                         prefix = "contentAddExtraImageEntry" + nameId,
-                                                         row = 0, 
-                                                         column = self.__EntryUIs.addExtra.column)
-                        addExtraImage.imIdx = k
-                        addExtraImage.subsection = subsection
-                        addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                            [addExtraImCmd])
-
-                        addProofImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                         text = self.__EntryUIs.addProof.name,
-                                                         prefix = "contentAddExtraProofEntry" + nameId,
-                                                         row = 0, 
-                                                         column = self.__EntryUIs.addProof.column)
-                        addProofImage.imIdx = k
-                        addProofImage.subsection = subsection
-                        addProofImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                            [addExtraImProofCmd])
-
-                        copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
-                                                         text = self.__EntryUIs.copyLink.name,
-                                                         prefix = "contentCopyGlLinkEntry" + nameId,
-                                                         row = 0, 
-                                                         column = self.__EntryUIs.copyLink.column)
-                        copyLinkEntry.imIdx = k
-                        copyLinkEntry.subsection = subsection
-                        copyLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                            [copyGlLinkCmd])
-
-                        pasteLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
-                                                         text = self.__EntryUIs.pasteLink.name,
-                                                         prefix = "contentPasteGlLinkEntry" + nameId,
-                                                         row = 0, 
-                                                         column = self.__EntryUIs.pasteLink.column)
-                        pasteLinkEntry.imIdx = k
-                        pasteLinkEntry.subsection = subsection
-                        pasteLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                            [pasteGlLinkCmd])
-
-                        openExUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
-                                                      text = self.__EntryUIs.excercises.name, 
-                                                      prefix = "contentOpenExcerciseUIEntry" + nameId,
-                                                      row = 0, 
-                                                      column = self.__EntryUIs.excercises.column,
-                                                      columnspan = 1000)
-                        openExUIEntry.imIdx = k
-                        openExUIEntry.subsection = subsection
-                        openExUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openExcerciseMenu])
-
-                        openNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.note.name, 
-                                                      prefix = "contentOpenNoteUIEntry" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.note.column,
-                                                      columnspan = 1)
-                        openNoteUIEntry.imIdx = k
-                        openNoteUIEntry.subsection = subsection
-                        openNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openNoteMenu])
-
-                        openEntryNoteUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.entryNote.name, 
-                                                      prefix = "contentOpenEntryNoteUIEntry" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.entryNote.column,
-                                                      columnspan = 1)
-                        openEntryNoteUIEntry.imIdx = k
-                        openEntryNoteUIEntry.subsection = subsection
-                        openEntryNoteUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openEntryNoteMenu])
-
-                        openEntryWikiUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.wikiNote.name, 
-                                                      prefix = "contentOpenEntryWikiUIEntry" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.wikiNote.column,
-                                                      columnspan = 1)
-                        openEntryWikiUIEntry.imIdx = k
-                        openEntryWikiUIEntry.subsection = subsection
-                        openEntryWikiUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                    [openWiki])
-
-                        copyTextToMem = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.copyText.name, 
-                                                      prefix = "contentCopyTextToMem" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.copyText.column,
-                                                      columnspan = 1)
-                        copyTextToMem.imIdx = k
-                        copyTextToMem.subsection = subsection
-                        copyTextToMem.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [copyTextToMemCmd])
-
-                        hideLinkImages = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.hideLInkImages.name, 
-                                                      prefix = "contenHideLinkImages" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.hideLInkImages.column,
-                                                      columnspan = 1)
-                        hideLinkImages.imIdx = k
-                        hideLinkImages.subsection = subsection
-                        hideLinkImages.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [hideLinksImagesFunc])
-                        
-                        openBookCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.openBookCodeProject.name, 
-                                                      prefix = "openBookCodeProject" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.openBookCodeProject.column,
-                                                      columnspan = 1)
-                        openBookCodeProject.imIdx = k
-                        openBookCodeProject.subsection = subsection
-                        openBookCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openBookCodeProjectCmd])
-
-                        openSubsectionCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.openSubsectionCodeProject.name, 
-                                                      prefix = "openSubsectionCodeProject" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.openSubsectionCodeProject.column,
-                                                      columnspan = 1)
-                        openSubsectionCodeProject.imIdx = k
-                        openSubsectionCodeProject.subsection = subsection
-                        openSubsectionCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openSubsectionCodeProjectCmd])
-
-                        openEntryCodeProject = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.openEntryCodeProject.name, 
-                                                      prefix = "openEntryCodeProject" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.openEntryCodeProject.column,
-                                                      columnspan = 1)
-                        openEntryCodeProject.imIdx = k
-                        openEntryCodeProject.subsection = subsection
-                        openEntryCodeProject.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openEntryCodeProjectCmd])
-
-                        fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(sf.Wr.Manager.Book.getCurrBookFolderPath(),
-                                                                            subsection,
-                                                                            k)
-                        entryStructureExists = ocf.Wr.FsAppCalls.checkIfFileOrDirExists(fullPathToEntryJSON)
-                        excerciseExists = False
-                        notesExist = False
-
-                        if entryStructureExists:
-                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-
-                            # entryLinesList = fsm.Wr.EntryInfoStructure.readProperty(subsection,
-                            #                                        k,
-                            #                                        fsm.Wr.EntryInfoStructure.PubProp.entryLinesList,
-                            #                                        currBookPath)
-
-                            # if (entryLinesList != _u.Token.NotDef.list_t) \
-                            #     and (entryLinesList != []):
-                            excerciseExists = True
-                            openExUIEntry.configure(foreground="brown")
-
-                            entryWordDictArr = fsm.Wr.EntryInfoStructure.readProperty(subsection,
-                                                                   k,
-                                                                   fsm.Wr.EntryInfoStructure.PubProp.entryWordDictDict,
-                                                                   currBookPath)
-
-                            if (entryWordDictArr != _u.Token.NotDef.dict_t)\
-                                and (entryWordDictArr != {}):
-                                notesExist = True
-                                openNoteUIEntry.configure(foreground="brown")
-
-                        proofExists = False
-                        exImDict = fsm.Data.Sec.extraImagesDict(subsection)
-
-                        if k in list(exImDict.keys()):
-                            exImNames = exImDict[k]
-                            proofExists = len([i for i in exImNames if "proof" in i.lower()]) != 0
-
-                        openProofsUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.proof.name, 
-                                                      prefix = "contentOpenExcerciseUIEntry" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.proof.column)
-                        if proofExists:
-                            openProofsUIEntry.configure(foreground="brown")
-
-                        openProofsUIEntry.imIdx = k
-                        openProofsUIEntry.subsection = subsection
-                        openProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [openProofsMenu])
-
-                        changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                                      text = self.__EntryUIs.update.name, 
-                                                      prefix = "contentUpdateEntryText" + nameId,
-                                                      row = 1, 
-                                                      column = self.__EntryUIs.update.column)
-                        changeImText.imIdx = k
-                        changeImText.subsection = subsection
-                        changeImText.etrWidget = textLabelPage
-                        changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                             [updateEntry])
-
-                        uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
-
-                        if k in list(uiResizeEntryIdx.keys()):
-                            resizeFactor = float(uiResizeEntryIdx[k])
-                        else:
-                            resizeFactor = 1.0
-
-                        changeImSize = _uuicom.ImageSize_ETR(tempFrameRow2,
-                                                      prefix = "contentUpdateEntryText" + nameId,
-                                                      row = 0, 
-                                                      column = self.__EntryUIs.changeImSize.column,
-                                                      imIdx = k,
-                                                      text = resizeFactor)
-                        changeImSize.imIdx = k
-                        changeImSize.widgetObj.imIdx = k
-                        changeImSize.subsection = subsection
-                        changeImSize.widgetObj.subsection = subsection
-                        changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
-                                             [resizeEntryImgCMD])
-
-                        showLinks = False
-
-                        for l in self.showLinksForSubsections:
-                            if subsection + "_" + k in l:
-                                showLinks = True
-                                break
-
-                        if (self.showLinks or showLinks) and (not self.showAll):
-                            # adding a frame to show global links
-                            linksFrame = _uuicom.TOCFrame(tempFrame,
-                                                prefix = "contentLinksFr_" + nameId,
-                                                row = gridRowStartIdx + 1, column = 0, columnspan = 100)
-                            linksFrame.subsection = subsection
-                            linksFrame.imIdx = k
-
-                            if showLinks:
-                                self.linkFrames.append(linksFrame)
-
-                            imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
-
-                            if k in imGlobalLinksDict.keys():
-                                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[k]
-
-                                glLinkLablel = _uuicom.TOCLabelWithClick(linksFrame, 
-                                                        text = "Links: ", 
-                                                        prefix = "contentLinksIntroFr_" + nameId,
-                                                        padding = [60, 0, 0, 0],
-                                                        row = 0, column = 0)
-                                glLinkLablel.render()
-                                glLinkId = 0
-
-                                # NOTE: should put all the links into 
-                                # one frame. This way they will be aligned correctly
-                                if type(glLinks) == dict:
-                                    for ln, lk in glLinks.items():
-                                        if "KIK" in lk:
-                                            # NOTE: probably should be a frame here
-                                            glLinkImLablel = _uuicom.TOCLabelWithClick(
-                                                                    linksFrame, 
-                                                                    prefix = "contentLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                    padding = [60, 0, 0, 0],
-                                                                    row = glLinkId + 1, column = 0)
-                                            glLinkImLablel.render()
-            
-                                            targetSubsection = ln.split("_")[0]
-                                            targetImIdx = ln.split("_")[1]
-                                            textOnlyLink = fsm.Data.Sec.textOnly(targetSubsection)[targetImIdx]
-
-                                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(
-                                                                    glLinkImLablel, 
-                                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
-                                                                    text = targetSubsection + ": ", 
-                                                                    padding = [90, 0, 0, 0],
-                                                                    row = 0, column = 0)
-                                            glLinkSubsectioLbl.render()
-
-                                            imLinkDict = fsm.Data.Sec.imLinkDict(targetSubsection)
-
-                                            latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(ln, imLinkDict[targetImIdx])
-                                            pilIm = getEntryImg(latexTxt, targetSubsection, targetImIdx)
-
-                                            shrink = 0.7
-                                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                                            img = ImageTk.PhotoImage(pilIm)
-
-                                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
-                                                                        image = img,
-                                                                        text = ln + ": " + imLinkDict[targetImIdx], 
-                                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
-                                                                        row = 0, column = 1
-                                                                        )
-                                            glLinkLablel.subsection = targetSubsection
-                                            glLinkLablel.imIdx = targetImIdx
-                                            glLinkLablel.image = img
-
-                                            glLinkLablel.render()
-                                            _uuicom.openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
-
-                                            linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[f]", 
-                                                                        prefix = "contentGlLinksTSubsectionFull_" + nameId + "_" + str(glLinkId),
-                                                                        row = 0, column= 2)
-                                            linkLabelFull.render()
-
-                                            linkLabelFull.subsection = ln.split("_")[0]
-                                            linkLabelFull.imIdx = ln.split("_")[-1]
-
-                                            _uuicom.bindChangeColorOnInAndOut(linkLabelFull)
-
-                                            def __moveLinkFull(e, *args):
-                                                widget = e.widget
-                                                fsm.Data.Book.currTopSection = widget.subsection.split(".")[0]
-                                                self.scrollToEntry(widget.subsection,
-                                                                widget.imIdx)
-
-                                            linkLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [__moveLinkFull])
-
-                                            glLinksShowImages = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                            text = "[i]", 
-                                                                            prefix = "contentGlLinksOfImages_" + nameId+ "_" + str(glLinkId),
-                                                                            row = 0, column = 3)
-                                            glLinksShowImages.imIdx = ln.split("_")[-1]
-                                            glLinksShowImages.subsection = ln.split("_")[0]
-                                            glLinksShowImages.clicked = False
-                                            glLinksShowImages.render()
-                                            glLinkSubSecID = _upan.Names.UI.getWidgetSubsecId(ln.split("_")[0])
-
-                                            _uuicom.bindChangeColorOnInAndOut(glLinksShowImages)
-
-                                            if not textOnlyLink:
-                                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                                                                        [lambda e, *args: __showIMagesONClick(e, 
-                                                                                                            glLinksShowImages,
-                                                                                                            glLinkSubSecID, 
-                                                                                                            False, 
-                                                                                                            150,
-                                                                                                            True, 
-                                                                                                            *args)])
-                                            else:
-                                                glLinksShowImages.rebind([ww.currUIImpl.Data.BindID.mouse1], 
-                                                                        [lambda e, *args: __showIMagesONClick(e, 
-                                                                                                            glLinksShowImages,
-                                                                                                            glLinkSubSecID, 
-                                                                                                            False, 
-                                                                                                            150, 
-                                                                                                            True, 
-                                                                                                            textOnly = True,
-                                                                                                            *args)])
-
-                                            if not self.showAll:
-                                                if (glLinksShowImages.subsection + "_" + glLinksShowImages.imIdx) in \
-                                                    self.linksOpenImage:
-                                                    glLinksShowImages.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-
-                                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[d]", 
-                                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                        row = 0, column = 4)
-                                            linkLabelDelete.render()
-                                            
-                                            linkLabelDelete.targetSubssection = ln.split("_")[0]
-                                            linkLabelDelete.sourceSubssection = subsection
-                                            linkLabelDelete.targetImIdx = ln.split("_")[-1]
-                                            linkLabelDelete.sourceImIdx = k
-
-                                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delGlLinkCmd])
-
-                                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
-
-                                            tarProofExists = False
-                                            tarExImDict = fsm.Data.Sec.extraImagesDict(ln.split("_")[0])
-
-                                            if ln.split("_")[-1] in list(tarExImDict.keys()):
-                                                tarExImNames = tarExImDict[ln.split("_")[-1]]
-                                                tarProofExists = len([i for i in tarExImNames if "proof" in i.lower()]) != 0
-                                            
-                                            if tarProofExists:
-                                                tarOpenProofsUIEntry = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                        text = self.__EntryUIs.proof.name, 
-                                                        prefix = "contentGlLinksTSubsectionProof_" + nameId + "_" + str(glLinkId),
-                                                        row = 0, 
-                                                        column = 5)
-                                                tarOpenProofsUIEntry.configure(foreground="brown")
-
-                                                tarOpenProofsUIEntry.imIdx = ln.split("_")[1]
-                                                tarOpenProofsUIEntry.subsection = ln.split("_")[0]
-                                                tarOpenProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                                                    [openProofsMenu])
-                                                _uuicom.bindChangeColorOnInAndOut(tarOpenProofsUIEntry, shouldBeBrown = True)
-
-                                                tarOpenProofsUIEntry.render()
-
-                                        elif "http" in lk:
-                                            # NOTE: should be a frame here!
-                                            glLinkImLablel = _uuicom.TOCLabelWithClick(
-                                                                    linksFrame, 
-                                                                    prefix = "contentWebLinksImLabelIntroFr_" + nameId + "_" + str(glLinkId),
-                                                                    padding = [60, 0, 0, 0],
-                                                                    row = glLinkId + 1, column = 0)
-                                            glLinkImLablel.render()
-
-                                            glLinkSubsectioLbl = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                    text = "web: ", 
-                                                                    padding = [90, 0, 0, 0],
-                                                                    prefix = "contentGlLinksTSubsection_" + nameId + "_" + str(glLinkId),
-                                                                    row = glLinkId + 1, column = 0)
-                                            glLinkSubsectioLbl.render()
-
-                                            latexTxt = tff.Wr.TexFileUtils.formatEntrytext(ln)
-                                            currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                                            linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
-                                                                                            subsection,
-                                                                                            k,
-                                                                                            ln)
-
-                                            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
-                                                pilIm = Image.open(linkFilepath)
-                                            else:
-                                                pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
-
-                                            shrink = 0.7
-                                            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                                            img = ImageTk.PhotoImage(pilIm)
-
-                                            glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
-                                                                        image = img,
-                                                                        text = ln, 
-                                                                        prefix = "contentGlLinks_" + nameId + "_" + str(glLinkId),
-                                                                        row = glLinkId + 1, column = 1)
-                                            glLinkLablel.subsection = subsection
-                                            glLinkLablel.imIdx = k
-                                            glLinkLablel.image = img
-
-                                            glLinkLablel.render()
-                                            openWebOfTheImage(glLinkLablel, lk)
-
-                                            linkLabelDelete = _uuicom.TOCLabelWithClick(glLinkImLablel, 
-                                                                        text = "[d]", 
-                                                                        prefix = "contentGlLinksTSubsectionDel_" + nameId + "_" + str(glLinkId),
-                                                                        row = glLinkId + 1, column = 2)
-                                            linkLabelDelete.render()
-
-                                            linkLabelDelete.sourceSubssection = subsection
-                                            linkLabelDelete.sourceImIdx = k
-                                            linkLabelDelete.sourceWebLinkName = ln
-
-                                            linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], [delWebLinkCmd])
-
-                                            _uuicom.bindChangeColorOnInAndOut(linkLabelDelete)
-
-                                        glLinkId += 1
-
-                        tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
-
-                        if tocWImageDict == _u.Token.NotDef.dict_t:
-                            alwaysShow = False
-                        else:
-                            alwaysShow = tocWImageDict[k] == "1"
-
-                        showImages.alwaysShow = alwaysShow
-
-                        if ((((subsection == self.subsectionClicked) and (str(k) == self.entryClicked)) or alwaysShow) or\
-                            ((subsection == self.secondEntrySubsectionClicked) and (str(k) == self.secondEntryClickedImIdx))):
-                            showImages.clicked = False
-
-                            if (not (subsection == self.subsectionClicked and str(k) == self.entryClicked)):
-                                showImages.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
-                            else:
-                                self.widgetToScrollTo = showImages
-
-                        if imagesGroupsWShouldShow[currImGroupName] or self.showAll:
-                            tempFrameRow1.render()
-                            textLabelPage.render()
-
-                            if not showImages.alwaysShow:
-                                textLabelFull.render()
-
-                            showImages.render()
-
-                            # addLinkEntry.render()
-                            addExtraImage.render()
-                            addProofImage.render()
-                            copyLinkEntry.render()
-                            pasteLinkEntry.render()
-
-                            if not textOnly:
-                                retakeImageForEntry.render()
-
-                            showLinks = False
-
-                            for l in self.showLinksForSubsections:
-                                if subsection + "_" + k in l:
-                                    showLinks = True
-                                    break
-
-                            if self.showLinks or showLinks:
-                                linksFrame.render()
-
-                            openExUIEntry.render()
-                            openProofsUIEntry.render()
-                            openNoteUIEntry.render()
-                            openEntryNoteUIEntry.render()
-                            openEntryWikiUIEntry.render()
-                            showLinksForEntry.render()
-                            shiftEntry.render()
-                            copyEntry.render()
-                            pasteAfterEntry.render()
-                            changeImText.render()
-                            copyTextToMem.render()
-                            hideLinkImages.render()
-                            openBookCodeProject.render()
-                            openSubsectionCodeProject.render()
-                            openEntryCodeProject.render()
-
-                            if not self.showAll:
-
-                                if not textOnly:
-                                    chkbtnShowPermamently.grid(row = 0, 
-                                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
-
-                                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
-                                                 sticky=tk.NW, columnspan = 3)
-                                removeEntry.render()
-
-                            if not textOnly:
-                                changeImSize.render()
-
-                        if self.entryAsETR.widget == None:
-                            _uuicom.openOMOnThePageOfTheImage(textLabelPage, subsection, k)
-
-                        if imShouldBeBrown:
-                            showImages.configure(foreground="brown")  
-                        _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = imShouldBeBrown)
-                        _uuicom.bindChangeColorOnInAndOut(removeEntry)
-                        _uuicom.bindChangeColorOnInAndOut(shiftEntry)
-                        _uuicom.bindChangeColorOnInAndOut(copyEntry)
-                        _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
-                        _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
-                        _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
-                        # _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
-                        _uuicom.bindChangeColorOnInAndOut(addExtraImage)
-                        _uuicom.bindChangeColorOnInAndOut(addProofImage)
-                        _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
-                        _uuicom.bindChangeColorOnInAndOut(pasteLinkEntry)
-                        openSecondaryImage(textLabelFull)
-                        _uuicom.bindChangeColorOnInAndOut(textLabelFull)
-                        _uuicom.bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
-                        _uuicom.bindChangeColorOnInAndOut(openNoteUIEntry, shouldBeBrown = notesExist)
-                        _uuicom.bindChangeColorOnInAndOut(openEntryNoteUIEntry)
-                        _uuicom.bindChangeColorOnInAndOut(openEntryWikiUIEntry)
-                        _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
-                        _uuicom.bindChangeColorOnInAndOut(changeImText)
-                        _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
-                        _uuicom.bindChangeColorOnInAndOut(hideLinkImages)
-                        _uuicom.bindChangeColorOnInAndOut(openBookCodeProject)
-                        _uuicom.bindChangeColorOnInAndOut(openSubsectionCodeProject)
-                        _uuicom.bindChangeColorOnInAndOut(openEntryCodeProject)
-
-                        tempFrame.render()
-                        prevImGroupName = currImGroupName
-                        i += 1
 
                     dummyFrame = _uuicom.TOCFrame(frame, prefix = "contentDummyFr_" + subSecID,
                                         row = i + 1, column = 0)
@@ -2358,25 +2415,40 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             widget = event.widget
             subsection = widget.subsection
 
-            if (self.subsectionAsETR.subsection != _u.Token.NotDef.str_t):
-                newText = self.subsectionAsETR.widget.getData()
+            def __bringImageWidgetBack(event, imageWidget):
+                newText = event.widget.getData()
 
                 if subsection in list(fsm.Data.Book.sections.keys()):
                     sections = fsm.Data.Book.sections
                     sections[subsection]["name"] = newText
                     fsm.Data.Book.sections = sections
-                    fsm.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsectionAsETR.subsection,
+                    fsm.Wr.SectionInfoStructure.rebuildTopSectionLatex(event.widget.subsection,
                                                                     _upan.Names.Subsection.getTopSectionPretty)
                 else:
-                    fsm.Data.Sec.text(self.subsectionAsETR.subsection, newText)
-                    fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsectionAsETR.subsection,
+                    fsm.Data.Sec.text(event.widget.subsection, newText)
+                    fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(event.widget.subsection,
                                                                     _upan.Names.Subsection.getSubsectionPretty)
-                self.subsectionAsETR.reset()
-                self.__renderWithoutScroll()
+                
+                event.widget.grid_forget()
+                imageWidget.updateSubsectionImage()
+                imageWidget.render()
+
+            sectionName = ""
+            if subsection in list(fsm.Data.Book.sections.keys()):
+                sectionName = fsm.Data.Book.sections[subsection]["name"]
             else:
-                self.subsectionAsETR.subsection = event.widget.subsection
-                self.subsectionAsETR.widget =event.widget.etrWidget
-                self.__renderWithoutScroll()
+                sectionName = fsm.Data.Sec.text(subsection)
+
+            subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
+                                                        "subsectionETR" + subsection, 
+                                                        0, 0, 
+                                                        "", # NOTE: not used anywhere  
+                                                        sectionName)
+            subsectionLabel.subsection = subsection
+            subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                    [lambda e, *args: __bringImageWidgetBack(e, widget)])
+            subsectionLabel.focus_force()
+            subsectionLabel.render()
 
         currSubsectionHidden = False
         hiddenSubsections = fsm.Data.Book.subsectionsHiddenInTOC_UI
@@ -2410,20 +2482,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                         [updateSubsection])
                 openPdfOnStartOfTheSection(subsectionLabel)
-                subsectionLabel.render()
-            else:
-                topSectionName = fsm.Data.Book.sections[subsection]["name"]
-                subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
-                                                            nameId, 
-                                                            0, 0, 
-                                                            "", # NOTE: not used anywhere  
-                                                            topSectionName)
-                subsectionLabel.subsection = subsection
-                subsectionLabel.etrWidget = subsectionLabel
-                subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                        [updateSubsection])
-                self.subsectionAsETR.widget = subsectionLabel
-                subsectionLabel.focus_force()
                 subsectionLabel.render()
         else:
             if not currSubsectionHidden:
@@ -2688,6 +2746,8 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
         if self.showAll:
             self.showLinksForSubsections = []
+
+        self.subsectionWidgetFrames = {}
 
         # import traceback
         # for line in traceback.format_stack():
