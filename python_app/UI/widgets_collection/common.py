@@ -1267,8 +1267,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 prevImGroupName = imagesGroups[imagesGroupDict[str(int(k) - 1)]]
             else:
                 prevImGroupName = _u.Token.NotDef.str_t
+        elif k == _u.Token.NotDef.str_t:
+            prevImGroupName = imagesGroups[0]
         else:
-            prevImGroupName = imagesGroups[imagesGroupDict[k]]
+            if imagesGroupDict.get(k) != None:
+                prevImGroupName = imagesGroups[imagesGroupDict[k]]
+            else:
+                prevImGroupName = imagesGroups["0"]
 
         if currImGroupidx == _u.Token.NotDef.str_t:
             currImGroupidx = 0
@@ -1294,7 +1299,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 padding=[0, topPad, 0, 0],
                                 row = i + 2, column = 0, columnspan = 100)
 
-        if currImGroupName != prevImGroupName:
+        if (currImGroupName != prevImGroupName) or (k == "0"):
             if currImGroupName != "No group":
                 imageGroupFrame = _uuicom.TOCFrame(tempFrame,
                                             prefix = "contentImageGroupFr_" + nameId,

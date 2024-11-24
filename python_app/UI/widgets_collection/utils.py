@@ -2174,7 +2174,10 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
                         if "contentOfImages_" in str(gChild):
                             subsection = str(gChild).split("_")[-2].replace("$", ".")
                             idx = str(gChild).split("_")[-1]
-                            alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+
+                            alwaysShow = False
+                            if idx !=  "-1":
+                                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
                             if (not alwaysShow) or showAll: 
                                 gChild.clicked = False
@@ -2190,7 +2193,10 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
                 if dc.UIConsts.imageWidgetID in str(child):
                     subsection = str(child).split("_")[-2].replace("$", ".")
                     idx = str(child).split("_")[-1]
-                    alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+
+                    alwaysShow = False
+                    if idx !=  "-1":
+                        alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
                     if ((not alwaysShow) or showAll or isWidgetLink) and\
                         ([subsection,idx] != secondIm):
