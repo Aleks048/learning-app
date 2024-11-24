@@ -266,7 +266,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     showAll = None
     shouldScroll = None
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 640, 
+    def __init__(self, parentWidget, prefix, windth = 700, height = 620, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
         self.subsectionWidgetFrames = {}
@@ -2320,6 +2320,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             and (not self.showAll):
                             continue
                         else:
+                            i += 1   
                             self.AddEntryWidget(k, subsection, frame)       
 
 
@@ -2513,18 +2514,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                     subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                             [updateSubsection])
                     openPdfOnStartOfTheSection(subsectionLabel)
-                else:
-                    subsectionLabel = _uuicom.MultilineText_ETR(locFrame, 
-                                                                "contentP_" + nameId, 
-                                                                0, 0, 
-                                                                "", # NOTE: not used anywhere  
-                                                                fsm.Data.Sec.text(subsection))
-                    subsectionLabel.subsection = subsection
-                    subsectionLabel.etrWidget = subsectionLabel
-                    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                            [updateSubsection])
-                    self.subsectionAsETR.widget = subsectionLabel
-                    subsectionLabel.focus_force()
 
                 subsectionLabel.render()
 
