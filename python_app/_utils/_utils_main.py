@@ -237,7 +237,7 @@ class JSON:
             if propertyName in jsonData:
                 out = jsonData[propertyName]
 
-                if type(out) != str and type(out) != int:
+                if type(out) != str and type(out) != int  and type(out) != bool:
                     return jsonData[propertyName].copy()
                 else:
                     return jsonData[propertyName]
@@ -246,7 +246,7 @@ class JSON:
                 if type(v) is list:
                     if v == [] or type(v[0]) is str:
                         if propertyName == k:
-                            if type(v) != str and type(v) != int:
+                            if type(v) != str and type(v) != int and type(v) != bool:
                                 return v.copy()
                             else:
                                 return v
@@ -254,20 +254,20 @@ class JSON:
                         for i in v:
                             property = _readProperty(i)
                             if property != None:
-                                if type(property) != str and type(property) != int:
+                                if type(property) != str and type(property) != int  and type(property) != bool:
                                     return property.copy()
                                 else:
                                     return property
                 elif type(v) is dict:
                     property = _readProperty(v)
                     if property != None:
-                        if type(property) != str and type(property) != int:
+                        if type(property) != str and type(property) != int and type(property) != bool:
                             return property.copy()
                         else:
                             return property
         property = _readProperty(jsonData)
 
-        if type(property) != str and type(property) != int:
+        if type(property) != str and type(property) != int and type(property) != bool:
             return property.copy()
         else:
             return property
