@@ -71,6 +71,9 @@ class SectionInfoStructure:
 
         #wiki pages
         wikiPages = "_wikiPages"
+        #isVideo
+        isVideo = "_isVideo"
+        videoPosition = "_videoPosition"
 
     class PrivProp:
         tocData = "_tocData"
@@ -84,6 +87,7 @@ class SectionInfoStructure:
             cls.PubProp.name: _u.Token.NotDef.str_t,
             cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
             cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+            cls.PubProp.isVideo: False,
             cls.PubProp.imagesGroupsList: {"No group": True},
             cls.PubProp.levelData: {
                 cls.PubProp.level: str(level),
@@ -111,7 +115,8 @@ class SectionInfoStructure:
                 cls.PubProp.figuresLabelsData : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.bookCodeFile : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.subsectionCodeFile : _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.wikiPages:  _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.wikiPages:  _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.videoPosition:  _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
@@ -777,7 +782,16 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             wikiPages = _u.Token.NotDef.dict_t.copy()
 
         wikiPages = cls.__shiftTheItemsInTheDict(wikiPages, imIdx)
-        cls.updateProperty(subsection, cls.PubProp.imageText, wikiPages)
+        cls.updateProperty(subsection, cls.PubProp.wikiPages, wikiPages)
+
+        videoPosition = cls.readProperty(subsection, cls.PubProp.videoPosition)
+        videoPosition.pop(imIdx, None)
+
+        if videoPosition == {}:
+            videoPosition = _u.Token.NotDef.dict_t.copy()
+
+        videoPosition = cls.__shiftTheItemsInTheDict(videoPosition, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.videoPosition, videoPosition)
 
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText)
         extraImTextDict.pop(imIdx, None)
@@ -1031,7 +1045,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.PubProp.imageText,
             cls.PubProp.extraImText,
             cls.PubProp.textOnly,
-            cls.PubProp.wikiPages
+            cls.PubProp.wikiPages,
+            cls.PubProp.videoPosition,
         ]
 
         for p in properties:
@@ -1252,7 +1267,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                          cls.PubProp.imageText,
                          cls.PubProp.extraImText,
                          cls.PubProp.textOnly,
-                         cls.PubProp.wikiPages
+                         cls.PubProp.wikiPages,
+                         cls.PubProp.videoPosition
                          ]
 
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)

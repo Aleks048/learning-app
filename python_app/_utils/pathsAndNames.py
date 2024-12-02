@@ -109,6 +109,11 @@ class Paths:
                 sectionFilepath = Paths.Section.getAbs(bookPath, section)
                 return os.path.join(sectionFilepath, "sectionInfo.json")
 
+        class Video:
+            def getAbs(subsection):
+                return os.path.join(fsf.Data.Book.videoDataLocation,
+                                    Names.Subsection.sectionVideoName(subsection))   
+
     class Entry:
         @bookNameArg_dec
         def getAbs(bookPath, section, imIdx, *args):
@@ -379,6 +384,9 @@ class Names:
         def getTopSectionPretty(topSsection):
             secText = fsf.Data.Book.sections[topSsection]["name"]
             return  topSsection + ": " + secText
+
+        def sectionVideoName(subsection):
+            return subsection.replace(".", "_") + ".mp4"
 
     class UI:
         def getWidgetSubsecId(subsection):

@@ -48,6 +48,9 @@ class BookInfoStructure:
         subsectionsHiddenInTOC_UI = "subsectionsHiddenInTOC_UI"
         entryImOpenInTOC_UI = "entryImOpenInTOC_UI"
 
+        # Video Data place 
+        videoDataLocation = "_videoDataLocation"
+
 
     bookInfoTemplate = {
         PubProp.version: "0.1",
@@ -57,6 +60,7 @@ class BookInfoStructure:
         PubProp.entryImOpenInTOC_UI: _u.Token.NotDef.str_t,
         PubProp.subsectionsHiddenInTOC_UI: _u.Token.NotDef.list_t.copy(),
         PubProp.etenriesTextOnlyDefault: _u.Token.NotDef.int_t,
+        PubProp.videoDataLocation: _u.Token.NotDef.str_t,
         PubProp.sections: {
         },
         PubProp.currentState: {
