@@ -266,7 +266,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     showAll = None
     shouldScroll = None
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 620, 
+    def __init__(self, parentWidget, prefix, windth = 700, height = 675, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
         self.subsectionWidgetFrames = {}
@@ -689,40 +689,43 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imLabel.render()
                             imLabel.focus_force()
 
-                        mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
+                        if not fsm.Data.Sec.isVideo(subsection):
+                            mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
 
-                        imTextDict:dict = fsm.Data.Sec.imageText(subsection)
+                            imTextDict:dict = fsm.Data.Sec.imageText(subsection)
 
-                        if(imTextDict.get(imIdx) != None):
-                            txt = fsm.Data.Sec.imageText(subsection)[imIdx]
-                        else:
-                            txt = "No text"
-                            imTextDict[imIdx] = txt
-                            fsm.Data.Sec.imageText(subsection, imTextDict)
+                            if(imTextDict.get(imIdx) != None):
+                                txt = fsm.Data.Sec.imageText(subsection)[imIdx]
+                            else:
+                                txt = "No text"
+                                imTextDict[imIdx] = txt
+                                fsm.Data.Sec.imageText(subsection, imTextDict)
 
-                        imLabel = _uuicom.TOCTextWithClick(tframe, 
-                                                            mainWidgetName,
-                                                            4,
-                                                            0,
-                                                            1000,
-                                                            text=txt,
-                                                            padx = 10,
-                                                            pady = 10,
-                                                            width = 95
-                                                            )
-                        imLabel.subsection = subsection
-                        imLabel.imIdx = imIdx
-                        imLabel.render()
+                            imLabel = _uuicom.TOCTextWithClick(tframe, 
+                                                                mainWidgetName,
+                                                                4,
+                                                                0,
+                                                                1000,
+                                                                text=txt,
+                                                                padx = 10,
+                                                                pady = 10,
+                                                                width = 95
+                                                                )
+                            imLabel.subsection = subsection
+                            imLabel.imIdx = imIdx               
 
-                        if not link:
-                            imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
-                            imLabel.rebind(*bindData)
+                            imLabel.render()
 
-                    if link:
-                        self.linksOpenImageWidgets[subsection + "_" + imIdx] = imLabel
+                            if not link:
+                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                                imLabel.rebind(*bindData)
 
-                    if not isWdgetLink:
-                        self.openedMainImg = imLabel
+                    if not fsm.Data.Sec.isVideo(subsection):
+                        if link:
+                            self.linksOpenImageWidgets[subsection + "_" + imIdx] = imLabel
+
+                        if not isWdgetLink:
+                            self.openedMainImg = imLabel
 
                     def skippProof(subsection, imIdx, exImIdx):
                         extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
@@ -761,7 +764,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 child.clicked = True
 
                     if shouldScroll and (not self.showAll) and (not link):
-                        imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
+                        if not fsm.Data.Sec.isVideo(subsection):
+                            imLabel.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
+                        else:
+                            self.scrollIntoView(event)
                 else:
                     if link:
                         if subsection + "_" + imIdx in self.linksOpenImage:
@@ -1193,7 +1199,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         def updateEntry(event, *args):
             widget = event.widget
 
-            print(type(widget))
             imLinkDict = fsm.Data.Sec.imLinkDict(widget.subsection)
             text = imLinkDict[widget.imIdx]
 
@@ -1263,8 +1268,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         currImGroupidx = imagesGroupDict[k]
         if int(k) > 0 :
-            if imagesGroupDict.get(str(int(k) - 1)) != None:
-                prevImGroupName = imagesGroups[imagesGroupDict[str(int(k) - 1)]]
+            entriesList = list(fsm.Data.Sec.imLinkDict(subsection).keys())
+            entriesList.sort(key = int)
+            idx = entriesList[entriesList.index(k) - 1] #previous entry
+
+            if imagesGroupDict.get(str(idx)) != None:
+                prevImGroupName = imagesGroups[imagesGroupDict[idx]]
             else:
                 prevImGroupName = _u.Token.NotDef.str_t
         elif k == _u.Token.NotDef.str_t:
@@ -1933,7 +1942,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             glLinkLablel.image = img
 
                             glLinkLablel.render()
-                            _uuicom.openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+
+                            if not fsm.Data.Sec.isVideo(subsection):
+                                _uuicom.openOMOnThePageOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
+                            else:
+                                _uuicom.openVideoOnThePlaceOfTheImage(glLinkLablel, targetSubsection, targetImIdx)
 
                             linkLabelFull = _uuicom.TOCLabelWithClick(glLinkImLablel, 
                                                         text = "[f]", 
@@ -2165,7 +2178,10 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 changeImSize.render()
 
         if self.entryAsETR.widget == None:
-            _uuicom.openOMOnThePageOfTheImage(textLabelPage, subsection, k)
+            if not fsm.Data.Sec.isVideo(subsection):
+                _uuicom.openOMOnThePageOfTheImage(textLabelPage, subsection, k)
+            else:
+                _uuicom.openVideoOnThePlaceOfTheImage(textLabelPage, subsection, k)
 
         if imShouldBeBrown:
             showImages.configure(foreground="brown")  
@@ -2223,7 +2239,8 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             self.entryClicked = entryClicked
             addedWidget = self.AddEntryWidget(imIdx, subsection, self.subsectionWidgetFrames[subsection])
             addedWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-            self.scrollToEntry(subsection, imIdx)
+            self.shouldScroll = True
+            self.scrollIntoView(None, addedWidget)
         elif broadcasterType == mui.ImageGroupAdd_BTN:
             self.__renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
@@ -2561,6 +2578,22 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                     [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
 
+                if fsm.Data.Sec.isVideo(subsection):
+                    showVideo = _uuicom.TOCLabelWithClick(locFrame, text = "[show video]",
+                                                    prefix = "showVideo" + subsection.replace(".", ""),
+                                                    row = 0, column = 6)
+                    showVideo.subsection = subsection
+
+                    _uuicom.bindChangeColorOnInAndOut(showVideo)
+
+                    def showSubsectiionVideoWrapper(subsection):  
+                        videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.VideoPlayerManager)
+                        videoPlayerManager.show(subsection, "0")
+
+                    showVideo.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                        [lambda e, *args: showSubsectiionVideoWrapper(e.widget.subsection)])
+
                 def __updateStartPage(e, subsection, *args):
                     newStartPage = e.widget.get()
                     fsm.Data.Sec.start(subsection, newStartPage)
@@ -2633,7 +2666,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 removeSubsection = _uuicom.TOCLabelWithClick(locFrame,
                                                         prefix = "removeSubsectionPosEntryText" + subsection.replace(".", ""),
                                                         row = 0, 
-                                                        column = 6,
+                                                        column = 7,
                                                         text = "[delete]",
                                                         width = 20)
                 removeSubsection.subsection = subsection
@@ -2672,6 +2705,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                 openContentLabel.render()
                 rebuildLatex.render()
+
+                if fsm.Data.Sec.isVideo(subsection):
+                    showVideo.render()
                 changeStartPage.render()
 
                 if not self.showAll:
@@ -2795,4 +2831,5 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 pass
         
         if shouldScroll:
-            self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+            if not fsm.Data.Sec.isVideo(fsm.Data.Book.currSection):
+                self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)

@@ -484,7 +484,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
 
 class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
-    def __init__(self, parentWidget, prefix, windth = 700, height = 750):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 800):
         self.doc = None
         self.subsection = None
         self.imIdx = None
@@ -519,13 +519,13 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.parent = parentWidget.widgetObj
 
-        super().__init__(prefix,
-                        name,
-                        parentWidget,
-                        renderData = data,
-                        height = height,
-                        width = windth,
-                        makeScrollable = True)
+        self.canvas = super().__init__(prefix,
+                                        name,
+                                        parentWidget,
+                                        renderData = data,
+                                        height = height,
+                                        width = windth,
+                                        makeScrollable = True)
 
         filePath =fsf.Wr.OriginalMaterialStructure.getMaterialPath(fsf.Data.Book.currOrigMatName)
         self.doc = fitz.open(filePath)

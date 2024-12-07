@@ -18,8 +18,9 @@ class LayoutManagers:
         getTextOfSelector = False
 
         def __init__(self, winRoot):
-            appDimensions = [720, 800, 0, 0]
-            super().__init__(winRoot, appDimensions)
+            self.winRoot = winRoot
+            self.defaultAppDimensions = [720, 850, 0, 0]
+            super().__init__(winRoot, self.defaultAppDimensions)
             self.pfdReader_BOX = imw.PfdReader_BOX(winRoot, self.prefix)
             self.addWidget(self.pfdReader_BOX)
             self.hidePdfReadersWindow_BTN = imw.HidePdfReaderWindow_BTN(winRoot, self.prefix)
@@ -38,9 +39,17 @@ class LayoutManagers:
 
             winRoot.setGeometry(*self.appDimensions)
 
-        def show(self):
-            self.appDimensions = [720, 800, 0, 0]
+        def show(self, dimensions = None):
             self.pfdReader_BOX.subsection = self.subsection
+            if dimensions == None:
+                self.appDimensions = self.defaultAppDimensions
+            else:
+                self.appDimensions = dimensions
+
+            if self.subsection != _u.Token.NotDef.str_t:
+                if fsf.Data.Sec.isVideo(self.subsection):
+                    self.appDimensions = [720, 517, 0, 352]
+
             self.pfdReader_BOX.imIdx = self.imIdx
             self.pfdReader_BOX.eImIdx = self.extraImIdx
             self.pfdReader_BOX.selectingZone = self.selector
@@ -68,6 +77,9 @@ class LayoutManagers:
             # self.notesLabel.imIdx = self.imIdx
             # self.notesLabel.eImIdx = self.extraImIdx
 
+            self.winRoot.widgetObj.title(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
+
+            self.pfdReader_BOX.canvas.configure(height = self.appDimensions[1] - 50)
             super().show()
         
         def hide(self):
@@ -128,6 +140,9 @@ class PdfReadersManager(wm.MenuManager_Interface):
         # self.layouts[0].appDimensions = appDimensions
         return super().show()
 
+    def changeSize(self, dimensions = None):
+        self.layouts[0].show(dimensions)
+
     def updateOMpage(self):
         self.layouts[0].pfdReader_BOX.updateOMpage()
 
@@ -139,6 +154,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
     def moveToEntry(self, subsection, imIdx, eImIdx):
         currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
+        self.layouts[0].show()
         self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
         self.layouts[0].currPage = currPage
         self.layouts[0].selector = False

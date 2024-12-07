@@ -346,12 +346,13 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
                                                                             str(currImNum))
                 timer = 1
 
-                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                    time.sleep(0.3)
-                    timer += 1
+                if not fsf.Data.Sec.isVideo(currSubsection):
+                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                        time.sleep(0.3)
+                        timer += 1
 
-                    if timer > 50:
-                        return False
+                        if timer > 50:
+                            return False
 
                 nextImNum = str(int(currImNum) + 1)
 
@@ -645,6 +646,14 @@ to subsection: '{1}'?".format(groupName, currSubsection)
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                     mmm.MathMenuManager)
         mainManager.show()
+
+        if fsf.Data.Sec.isVideo(currSubsection):
+            videoPlayerManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+            entriesList = list(fsf.Data.Sec.imLinkDict(currSubsection).keys())
+            entriesList.sort(key = int)
+            imIdx = entriesList[-1]
+            videoPlayerManager.show(currSubsection, str(imIdx))    
         
         if not response:
             return

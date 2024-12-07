@@ -11,6 +11,7 @@ import UI.widgets_collection.pdfReader.manager as pdfrm
 import UI.widgets_collection.excerciseLineNote.manager as enm
 import UI.widgets_collection.excerciseSolution.manager as eslnm
 import UI.widgets_collection.excerciseExtra.manager as eextm
+import UI.widgets_collection.videoPlayer.manager as vpm
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
 
@@ -56,6 +57,9 @@ class Wr:
             pass
 
         class ExcerciseExtraManager(eextm.ExcerciseExtraManager):
+            pass
+
+        class VideoPlayerManager(vpm.VideoPlayerManager):
             pass
     
     class UI_generalManager(wm.UI_generalManager):

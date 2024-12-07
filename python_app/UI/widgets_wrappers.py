@@ -121,6 +121,7 @@ class TkWidgets (DataTranslatable_Interface):
             customTOCMove = "<<TOCMove>>"
 
             class Keys:
+                shspace = "<Shift-space>"
                 enter = "<Return>"
                 shenter = "<Shift-Return>"
                 cmdenter = "<Mod1-Return>"
@@ -138,6 +139,7 @@ class TkWidgets (DataTranslatable_Interface):
                 cmde = "<Mod1-e>"
                 cmdshe = "<Mod1-E>"
                 cmdp = "<Mod1-p>"
+                cmdr = "<Mod1-r>"
                 cmdshp = "<Mod1-P>"
                 cmdu = "<Mod1-u>"
                 ctrlv = "<Control-v>"
@@ -676,6 +678,7 @@ class TkWidgets (DataTranslatable_Interface):
             Notifyable_Interface.__init__(self)
 
             self.bind()
+            return canvas
 
         def bind(self):
             return super().bind()
@@ -721,6 +724,9 @@ class TkWidgets (DataTranslatable_Interface):
 
         def startMainLoop(self):
             self.tk.mainloop()
+        
+        def getId(self):
+            return self.widgetObj.winfo_id()
         
         def stopMainLoop(self):
             self.widgetObj.withdraw()

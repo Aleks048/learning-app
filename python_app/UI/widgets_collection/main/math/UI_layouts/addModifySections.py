@@ -215,6 +215,23 @@ class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
         text = self.labelOptions[0]
         super().__init__(patentWidget, prefix, data, name, text)
 
+class CreateVideoSubsection_CHBX(ww.currUIImpl.Checkbox):
+    def __init__(self, parentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+        }
+        name = "_VideoSubsection_CHB"
+        text = "Video only subsection"
+        super().__init__(prefix, 
+                        name,
+                        parentWidget, 
+                        renderData = renderData, 
+                        text = text)
+        self.setData(False)
+    
+    def receiveNotification(self, broadcasterType):
+        return True if self.getData() == 1 else False
 
 class CurrSectionPath_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
@@ -513,27 +530,6 @@ class NewSectionPath_ETR(ww.currUIImpl.TextEntry):
         return text
 
 
-class RemoveTopSection_BTN(ww.currUIImpl.Button):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
-        }
-        text = "New"
-        name = "_removeTopSection_BTN"
-
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        #TODO: implement removing top section
-        pass
-
-
 class CreateNewSubsection_BTN(ww.currUIImpl.Button,
                               dc.AppCurrDataAccessToken):
     def __init__(self, patentWidget, prefix):
@@ -557,10 +553,11 @@ class CreateNewSubsection_BTN(ww.currUIImpl.Button,
         newSecName = self.notify(SetSectionName_ETR)
         newSecStartPage, newSecEndPage = self.notify(SetSectionStartPage_ETR)
         secPath = self.notify(NewSectionPath_ETR)
+        isVideo = self.notify(CreateVideoSubsection_CHBX)
 
         fsf.Data.Book.entryImOpenInTOC_UI = "-1"
 
-        gm.GeneralManger.AddSubsection(secPath, newSecName, newSecStartPage, newSecEndPage)
+        gm.GeneralManger.AddSubsection(secPath, newSecName, newSecStartPage, newSecEndPage, isVideo)
 
         fsf.Data.Book.currSection = secPath
         fsf.Data.Book.subsectionOpenInTOC_UI = secPath

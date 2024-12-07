@@ -56,11 +56,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager()
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
         excerciseLineNoteManager = wf.Wr.MenuManagers.ExcerciseLineNoteManager()
-        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
+        log.autolog("Started '{0}' UI manager".format("excercise note menu"))
         excerciseSolutionManager = wf.Wr.MenuManagers.ExcerciseSolutionManager()
-        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
+        log.autolog("Started '{0}' UI manager".format("excercise solution menu"))
         excerciseExtraManager = wf.Wr.MenuManagers.ExcerciseExtraManager()
-        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
+        log.autolog("Started '{0}' UI manager".format("excercise extra menu"))
+        videoPlayerManager = wf.Wr.MenuManagers.VideoPlayerManager()
+        log.autolog("Started '{0}' UI manager".format("video player menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 
@@ -153,9 +155,14 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                 wf.Wr.MenuManagers.NotesManager)
         notesManager.winRoot.exitApp()
 
-        # notes
+        # entry notes
         entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.EntryNotesManager)
+        entryNotesManager.winRoot.exitApp()
+
+        # video player
+        entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.VideoPlayerManager)
         entryNotesManager.winRoot.exitApp()
 
         cls.dserver.close()
@@ -201,36 +208,43 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
             timer = 0
 
-            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
-                time.sleep(0.3)
-                timer += 1
+            isVideo = fsf.Data.Sec.isVideo(subsection)
 
-                if timer > 50:
-                    break
+            if (not isVideo) or (eImIdx != None):
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50:
+                        break
+
             if eImIdx == None:
-                imText = _u.getTextFromImage(imPath)
+                if not isVideo:
+                    imText = _u.getTextFromImage(imPath)
+                else:
+                    imText = None
 
                 if textOnly:
                     if imText == None:
                         imText = _u.Token.NotDef.str_t
+                    else:
+                        imText = imText.replace("_", "\_")
 
-                    imText = imText.replace("_", "\_")
+                        imText = re.sub(r"([^\\]){", r"\1\\{", imText)
+                        imText = re.sub(r"([^\\])}", r"\1\\}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
 
-                    imText = re.sub(r"([^\\]){", r"\1\\{", imText)
-                    imText = re.sub(r"([^\\])}", r"\1\\}", imText)
-                    imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
-                    imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
-                    imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
-
-                    imText = imText.replace("[", "(")
-                    imText = imText.replace("]", ")")
-                    imText = imText.replace("\u201c", "\"")
-                    imText = imText.replace("\u201d", "\"")
-                    imText = imText.replace("\u2014", "-")
-                    imText = imText.replace("\ufffd", "")
-                    imText = imText.replace("\n", "")
-                    imText = imText.replace("\u0000", "fi")
-                    imText = imText.replace("\u0394", "\\Delta ")
+                        imText = imText.replace("[", "(")
+                        imText = imText.replace("]", ")")
+                        imText = imText.replace("\u201c", "\"")
+                        imText = imText.replace("\u201d", "\"")
+                        imText = imText.replace("\u2014", "-")
+                        imText = imText.replace("\ufffd", "")
+                        imText = imText.replace("\n", "")
+                        imText = imText.replace("\u0000", "fi")
+                        imText = imText.replace("\u0394", "\\Delta ")
 
                 imageTextsDict = fsf.Data.Sec.imageText(subsection)
                 imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
@@ -302,47 +316,54 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                                                                        str(imIdx))
 
         # take a screenshot
-        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-            msg = "The image with idx '{0}' already exists.\n Overrite?".format(imIdx)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-            
-            if response:
-                ocf.Wr.FsAppCalls.deleteFile(imagePath)
+        if not fsf.Data.Sec.isVideo(subsection):
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                msg = "The image with idx '{0}' already exists.\n Overrite?".format(imIdx)
+                response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+                
+                if response:
+                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
-                dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                    wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                                imIdx = imIdx,
-                                                                                selector = True,
-                                                                                removePrevLabel = True)
+                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                                    imIdx = imIdx,
+                                                                                    selector = True,
+                                                                                    removePrevLabel = True)
 
+                    cls.AddNewImageData(subsection, imIdx, imagePath)
+
+                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+
+                mainManager.show()
+
+                if not response:
+                    return
+            else:
                 cls.AddNewImageData(subsection, imIdx, imagePath)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                wf.Wr.MenuManagers.MathMenuManager)
-
-            mainManager.show()
-
-            if not response:
-                return
-        else:
-            cls.AddNewImageData(subsection, imIdx, imagePath)
 
         def __afterImageCreated(cls, subsection, imIdx:str, imText:str, 
                                  addToTOCwIm:bool, textOnly:bool = False):
             currBorrPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
 
-            imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBorrPath,
-                                                                        subsection,
-                                                                        str(imIdx))
+            isVideo = fsf.Data.Sec.isVideo(subsection)
 
-            timer = 1
+            if not isVideo:
+                imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBorrPath,
+                                                                            subsection,
+                                                                            str(imIdx))
 
-            while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                time.sleep(0.3)
-                timer += 1
+                timer = 1
 
-                if timer > 50:
-                    return False
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50:
+                        return False
+            else:
+                textOnly = True
+            
 
             textOnlyDict = fsf.Data.Sec.textOnly(subsection)
             textOnlyDict[imIdx] = textOnly
@@ -358,32 +379,40 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             fsf.Wr.SectionCurrent.setImLinkAndIDX(imText, imIdx)
 
             # ORIGINAL MATERIAL DATA
-            origMatName = fsf.Data.Book.currOrigMatName
+            if not isVideo:
+                origMatName = fsf.Data.Book.currOrigMatName
 
-            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.PdfReadersManager)
-            pdfReadersManager.updateOMpage()
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.updateOMpage()
 
-            try:
-                page = str(fsf.Data.Sec.figuresLabelsData(subsection)[imIdx]["page"])
-            except:
-                page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+                try:
+                    page = str(fsf.Data.Sec.figuresLabelsData(subsection)[imIdx]["page"])
+                except:
+                    page = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
-            origMatNameDict = {}
+                origMatNameDict = {}
 
-            if fsf.Data.Sec.origMatNameDict(subsection) != _u.Token.NotDef.dict_t:
-                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
+                if fsf.Data.Sec.origMatNameDict(subsection) != _u.Token.NotDef.dict_t:
+                    origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
 
-            origMatNameDict[imIdx] = origMatName
-            fsf.Data.Sec.origMatNameDict(subsection, origMatNameDict)
+                origMatNameDict[imIdx] = origMatName
+                fsf.Data.Sec.origMatNameDict(subsection, origMatNameDict)
 
-            pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
+                pagesDict = fsf.Data.Sec.imLinkOMPageDict(subsection)
 
-            if pagesDict == _u.Token.NotDef.dict_t:
-                pagesDict = {}
+                if pagesDict == _u.Token.NotDef.dict_t:
+                    pagesDict = {}
 
-            pagesDict[imIdx] = page
-            fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
+                pagesDict[imIdx] = page
+                fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
+            else:
+                #Get the position of the video
+                videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+                videoPositionDict = fsf.Data.Sec.videoPosition(subsection)
+                videoPositionDict[imIdx] = videoPlayerManager.getVideoPosition()
+                fsf.Data.Sec.videoPosition(subsection, videoPositionDict)
 
             # toc w image
             tocWImageDict = fsf.Data.Sec.tocWImageDict(subsection)
@@ -414,26 +443,27 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
             # ADD LINK TO THE ORIGINAL MATERIAL
-            subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
-            numNotesOnThePage = 0
-            
-            for subsec in subsectionsList:
-                origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
+            if not isVideo:
+                subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
+                numNotesOnThePage = 0
                 
-                for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
-                    subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
+                for subsec in subsectionsList:
+                    origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
+                    
+                    for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
+                        subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
 
-                    if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
-                        numNotesOnThePage += 1
+                        if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
+                            numNotesOnThePage += 1
 
-            numNotesOnThePage = str(numNotesOnThePage)
-            
-            currOMName = fsf.Data.Book.currOrigMatName
-            bookName = sf.Wr.Manager.Book.getCurrBookName()
-            currTopSection = fsf.Data.Book.currTopSection
-            noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
-            noteText = noteUrl + " " + imText
-            fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
+                numNotesOnThePage = str(numNotesOnThePage)
+                
+                currOMName = fsf.Data.Book.currOrigMatName
+                bookName = sf.Wr.Manager.Book.getCurrBookName()
+                currTopSection = fsf.Data.Book.currTopSection
+                noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
+                noteText = noteUrl + " " + imText
+                fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
 
             # Updating the remote
             msg = "Adding entry: " + subsection + "_" + imIdx
@@ -443,6 +473,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             # tff.Wr.TexFilePopulate.populateCurrMainFile()
 
             dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
+
+            if fsf.Data.Sec.isVideo(subsection):
+                videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+                videoPlayerManager.show(subsection, imIdx)
 
         t = Thread(target = __afterImageCreated, args = [cls, subsection, imIdx, imText,\
                                                           addToTOCwIm, textOnly])
@@ -736,7 +771,7 @@ Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     @classmethod
-    def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage, shouldAsk = True):
+    def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage, isVideo = False, shouldAsk = True):
         import UI.widgets_facade as wf
 
 #         if not re.match("[[\d]+.]*\d+", secPath):
@@ -795,6 +830,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
                 fsf.Data.Sec.text(secPath, newSecName)
                 fsf.Data.Sec.start(secPath, newSecStartPage)
                 fsf.Data.Sec.finish(secPath, newSecEndPage)
+                fsf.Data.Sec.isVideo(secPath, isVideo)
             else:
                 fsf.Wr.FileSystemManager.addTopSectionForCurrBook(secPath)
                 sections  = fsf.Data.Book.sections
@@ -880,6 +916,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
                               sourceGroupName, 
                               startPage,
                               _u.Token.NotDef.str_t,
+                              fsf.Data.Sec.isVideo(targetSubsection),
                               shouldAsk = False)
         
         targetImagesGroupsList = fsf.Data.Sec.imagesGroupsList(targetSubsection)

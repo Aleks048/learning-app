@@ -902,7 +902,7 @@ class TOCCanvasWithclick(tk.Canvas):
                 fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
 
             if type(figuresList) != str:
-                figuresList.copy()
+                figuresList = copy.copy(figuresList)
 
             # NOTE: inafficient and need to be optimised
             subsections = [i for i in fsf.Wr.BookInfoStructure.getSubsectionsList() if "." in i]
@@ -1480,7 +1480,10 @@ def addMainEntryImageWidget(rootLabel,
         imLabel.imIdx = imIdx
         imLabel.render()
 
-    openOMOnThePageOfTheImage(imLabel, subsection, imIdx)
+    if not fsf.Data.Sec.isVideo(subsection):
+        openOMOnThePageOfTheImage(imLabel, subsection, imIdx)
+    else:
+        openVideoOnThePlaceOfTheImage(imLabel, subsection, imIdx)
     return tempLabel
 
 
@@ -1550,6 +1553,19 @@ def openOMOnThePageOfTheImage(widget:TOCLabelWithClick, targetSubsection, target
                                                     wf.Wr.MenuManagers.PdfReadersManager)
         
         pdfReadersManager.moveToEntry(targetSubsection, targetImIdx, eImidx)
+
+    widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])
+
+def openVideoOnThePlaceOfTheImage(widget:TOCLabelWithClick, targetSubsection, targetImIdx, eImidx = None):
+    def __cmd(event = None, *args): 
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.PdfReadersManager)
+        
+        pdfReadersManager.changeSize([720, 517, 0, 352])
+        videoManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.VideoPlayerManager)
+        
+        videoManager.show(targetSubsection, targetImIdx)
 
     widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])
 

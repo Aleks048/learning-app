@@ -28,7 +28,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 830, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 850, monHalfWidth, 0]
 
             super().__init__(winRoot, appDimensions)
 
@@ -216,10 +216,14 @@ class LayoutManagers:
             
             createNewSubsection_BTN = amsl.CreateNewSubsection_BTN(winRoot, self.prefix)
             self.addWidget(createNewSubsection_BTN)
+
+            createVideoSubsection_CHBX = amsl.CreateVideoSubsection_CHBX(winRoot, self.prefix)
+            self.addWidget(createVideoSubsection_CHBX)
             
             createNewSubsection_BTN.addListenerWidget(newSectionPath_ETR)
             createNewSubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             createNewSubsection_BTN.addListenerWidget(setSectionName_ETR)
+            createNewSubsection_BTN.addListenerWidget(createVideoSubsection_CHBX)
 
 
             modifySubsection_BTN = amsl.ModifySubsection_BTN(winRoot, self.prefix)
