@@ -1,7 +1,7 @@
 {
     "currentState": {
-        "currentState_BookPath": "/Users/ashum048/books/testBooks/tust2",
-        "currentState_BookName": "tust2",
+        "currentState_BookPath": "/Users/ashum048/books/philosophy/Moral",
+        "currentState_BookName": "Moral",
         "currentState_Layout": "Main"
     },
     "booksPaths": {
@@ -18,7 +18,8 @@
         "PBR": "/Users/ashum048/books/coding/PBR",
         "ID": "/Users/ashum048/books/philosophy/ideology",
         "Moral": "/Users/ashum048/books/philosophy/Moral",
-        "PhenoSpirit": "/Users/ashum048/books/philosophy/PhenoSpirit"
+        "PhenoSpirit": "/Users/ashum048/books/philosophy/PhenoSpirit",
+        "Mona": "/Users/ashum048/books/philosophy/Mona"
     },
     "startup": {
         "startupLayout": "whole_book"
