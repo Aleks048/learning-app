@@ -39,7 +39,7 @@ class ShowAllSubsections_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 13},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_ShowAllSubsections"
         text= "Show subsections"
@@ -67,7 +67,7 @@ class ShowHideLinks_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 13},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_ShowHideLinks"
         text= "Show/Hide Links"
@@ -88,7 +88,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 13},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_exitApp"
         text= "ExitApp"
@@ -191,7 +191,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2, "columnspan": 5},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_showCurrScreenshotLocation_text"
 
@@ -227,7 +227,7 @@ class TextOnly_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.E}
         }
         name = "_NoImgToTOC_CHB"
         text = "Text Only"
@@ -254,7 +254,7 @@ class addToTOCwImage_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 4, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_toc_w_image"
         text = "TOC entry with image"
@@ -284,7 +284,7 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_imageGeneration_process_BTN"
         text = self.labelOptions[0]
@@ -594,7 +594,7 @@ class ImageGenerationRestart_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
         name = "_imageGenerationRestart"
         text= "restart"
@@ -617,7 +617,7 @@ class ImageGroupAdd_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
         name = "_imageGroupAdd"
         text= "Group Add"

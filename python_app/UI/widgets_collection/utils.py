@@ -222,7 +222,7 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
 
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
 
@@ -260,7 +260,7 @@ class TOCFrame(ttk.Frame):
 
     def render(self):
         self.grid(row = self.row, column = self.column, 
-                  columnspan = self.columnspan, sticky=tk.NW)
+                  columnspan = self.columnspan, sticky = ww.currUIImpl.Orientation.NW)
 
     def getChildren(self):
         return self.winfo_children()
@@ -280,7 +280,7 @@ class TOCTextWithClick(tk.Text):
             else:
                 self.bind(key, cmd)
 
-    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, text = "", *args, **kwargs) -> None:
+    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, text = "", *args, **kwargs) -> None:
         self.clicked = False
         self.imIdx = ""
         self.subsection = ""
@@ -416,11 +416,11 @@ class TOCCanvasWithclick(tk.Canvas):
             self.label = tk.Button(self.canvas, 
                                    text = text, 
                                    command = self.__labelCmd, 
-                                   anchor = tk.W)
+                                   anchor = ww.currUIImpl.Orientation.W)
             self.label.configure(width = 5, bg = "#3E4742", activebackground = "#33B5E5", relief = tk.FLAT)
             self.id = self.canvas.create_window(self.labelStartX, 
                                                 self.labelStartY, 
-                                                anchor = tk.NW, 
+                                                anchor = ww.currUIImpl.Orientation.NW, 
                                                 window = self.label,
                                                 tags = f"button:{self.subsection}:{self.imIdx}")
             self.handleId = self.canvas.create_rectangle(self.labelStartX, 
@@ -1044,7 +1044,7 @@ class TOCCanvasWithclick(tk.Canvas):
                     break
 
     def __init__(self, root, prefix, row, column, imIdx, subsection, 
-                 columnspan = 1, sticky = tk.NW, 
+                 columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
                  image = None, extraImIdx = None,
                  makeDrawable = True, 
                  isPdfPage = False, page = None, pilIm = None,
@@ -1199,7 +1199,7 @@ class TOCLabelWithClick(ttk.Label):
             else:
                 self.bind(key, cmd)
     
-    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = tk.NW, *args, **kwargs) -> None:
+    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, *args, **kwargs) -> None:
         self.root = root
         self.clicked = False
         self.imIdx = ""
@@ -1731,7 +1731,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "delete_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 0,
-                                                sticky = tk.NW)
+                                                sticky = ww.currUIImpl.Orientation.NW)
                 removeEntry.imIdx = imIdx
                 removeEntry.subsection = subsection
                 removeEntry.eImIdx = i
@@ -1772,7 +1772,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "up_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 1,
-                                                sticky = tk.NW)
+                                                sticky = ww.currUIImpl.Orientation.NW)
                 moveEntryDown.imIdx = imIdx
                 moveEntryDown.subsection = subsection
                 moveEntryDown.eImIdx = i
@@ -1811,7 +1811,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "down_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 2,
-                                                sticky = tk.NW)
+                                                sticky = ww.currUIImpl.Orientation.NW)
                 moveEntryUp.imIdx = imIdx
                 moveEntryUp.subsection = subsection
                 moveEntryUp.eImIdx = i
@@ -1851,7 +1851,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "retake_" + eImWidgetName,
                                                 row =  i + 5, 
                                                 column = 3,
-                                                sticky = tk.NW)
+                                                sticky = ww.currUIImpl.Orientation.NW)
                 retake.imIdx = imIdx
                 retake.subsection = subsection
                 retake.eImIdx = i
@@ -1979,7 +1979,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "bookCodeProj_" + eImWidgetName,
                                                 row =  i + 6, 
                                                 column = 0,
-                                                sticky = tk.NE,
+                                                sticky = ww.currUIImpl.Orientation.NE,
                                                 columnspan = 3)
                 bookCodeProj.imIdx = imIdx
                 bookCodeProj.subsection = subsection
@@ -2035,7 +2035,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "subCodeProj_" + eImWidgetName,
                                                 row =  i + 6, 
                                                 column = 3,
-                                                sticky = tk.NW,
+                                                sticky = ww.currUIImpl.Orientation.NW,
                                                 columnspan = 1)
                 subsectionCodeProj.imIdx = imIdx
                 subsectionCodeProj.subsection = subsection
@@ -2093,7 +2093,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "entryCodeProj_" + eImWidgetName,
                                                 row =  i + 6, 
                                                 column = 4,
-                                                sticky = tk.NW,
+                                                sticky = ww.currUIImpl.Orientation.NW,
                                                 columnspan = 1)
                 entryCodeProj.imIdx = imIdx
                 entryCodeProj.subsection = subsection
@@ -2133,7 +2133,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "addProof_" + eImWidgetName,
                                                 row =  i + 7, 
                                                 column = 0,
-                                                sticky = tk.NW,
+                                                sticky = ww.currUIImpl.Orientation.NW,
                                                 columnspan = 2)
                 addProof.imIdx = imIdx
                 addProof.subsection = subsection
@@ -2154,7 +2154,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 prefix = "addEIm_" + eImWidgetName,
                                                 row =  i + 7, 
                                                 column = 2,
-                                                sticky = tk.NW,
+                                                sticky = ww.currUIImpl.Orientation.NW,
                                                 columnspan = 3)
                 addEIm.imIdx = imIdx
                 addEIm.subsection = subsection

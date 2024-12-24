@@ -29,7 +29,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         self.defaultText = text
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
 
@@ -62,7 +62,7 @@ class NotesImage(ww.currUIImpl.Frame):
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.NW}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
         name = "_notesImage_LBL"
 
@@ -106,7 +106,7 @@ class MoveTOCtoNotesEntry_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 4, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Move TOC"
         name = "_MoveTOCToEntry_BTN"
@@ -130,7 +130,7 @@ class AddDictHitToEntry_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Add Word"
         name = "_AddWordWindow_BTN"
@@ -184,7 +184,7 @@ class HideNotesWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Hide"
         name = "_HideNotesWindow_BTN"
@@ -213,7 +213,7 @@ class SearchDict_ETR(ww.currUIImpl.TextEntry):
         defaultText = "Search for definition in the in dictionary"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraOptions = {
             ww.Data.GeneralProperties_ID : {"width" : 70},
@@ -275,7 +275,7 @@ class DictText(tk.Text):
         
         self.tocFrame.render()
 
-    def __init__(self, root, prefix, row = 0, column = 0, columnspan = 1, sticky = tk.NW, 
+    def __init__(self, root, prefix, row = 0, column = 0, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
                  text = "", localWord = False, *args, **kwargs) -> None:
         self.text = text
        
@@ -288,7 +288,7 @@ class DictText(tk.Text):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
-        self.config(wrap = tk.WORD)
+        self.config(wrap = ww.currUIImpl.Orientation.WORD)
         
         self.insert(tk.END, text)
 
@@ -339,7 +339,7 @@ class DictText_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 4, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_DictTextLabel_LBL"
         text = ""
@@ -570,7 +570,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
     def __init__(self, parentWidget, prefix, windth = 730, height = 700):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6, "columnspan" : 6, "rowspan": 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_showNotesCurr_text"
 

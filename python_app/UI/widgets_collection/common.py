@@ -37,7 +37,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
 
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
 
@@ -317,7 +317,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan" : 6, "rowspan": 10},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_showCurrScreenshotLocation_text"
 
@@ -2168,10 +2168,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                 if not textOnly:
                     chkbtnShowPermamently.grid(row = 0, 
-                                            column = self.__EntryUIs.alwaysShow.column, sticky=tk.NW)
+                                               column = self.__EntryUIs.alwaysShow.column, 
+                                               sticky=ww.currUIImpl.Orientation.NW)
 
                 imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
-                                    sticky=tk.NW, columnspan = 3)
+                                    sticky=ww.currUIImpl.Orientation.NW, columnspan = 3)
                 removeEntry.render()
 
             if not textOnly:

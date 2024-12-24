@@ -66,7 +66,7 @@ class NotesLabel(ww.currUIImpl.Label,
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_NotesLabel_LBL"
         text = ""
@@ -151,7 +151,7 @@ class NotesLabel(ww.currUIImpl.Label,
             label = NotesImageLabel(self.widgetObj, "notesImageIMG_", 
                                         self.subsection, self.imIdx, noteImIdx,
                                         padding = [0, 0, 0, 0])
-            label.grid(row = 0, column = 2, sticky = tk.NW)
+            label.grid(row = 0, column = 2, sticky = ww.currUIImpl.Orientation.NW)
             label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
             self.imLabel = label
         else:
@@ -233,7 +233,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : row, "columnspan": 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         self.pageWidth = pageWidth
 
@@ -291,7 +291,7 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Move TOC"
         name = "_MoveTOCToEntry_BTN"
@@ -315,7 +315,7 @@ class HidePdfReaderWindow_BTN(ww.currUIImpl.Button,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Hide"
         name = "_HidePdfReaderWindow_BTN"
@@ -341,7 +341,7 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = ""
         name = "_ResizePDF_BTN"
@@ -404,7 +404,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : self.column, "row" : self.row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         extraBuildOptions = {
@@ -510,7 +510,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_PdfReader_BOX"
 

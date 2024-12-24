@@ -26,7 +26,7 @@ class AddOrigMaterial_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Add"
         name = "_addOrigMaterial_BTN"
@@ -54,7 +54,7 @@ class GetOrigMatPath_ETR(ww.currUIImpl.TextEntry):
         defaultText = "get original material filepath"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 
@@ -79,7 +79,7 @@ class GetOrigMatDestRelPath_ETR(ww.currUIImpl.TextEntry):
         defaultText = "get original material dest rel path"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 
@@ -104,7 +104,7 @@ class GetOrigMatName_ETR(ww.currUIImpl.TextEntry):
         defaultText = "get original material name"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 

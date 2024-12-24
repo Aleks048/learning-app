@@ -153,6 +153,13 @@ class TkWidgets (DataTranslatable_Interface):
                 shdown = "<Shift-Down>"
                 down = "<Down>"
 
+    class Orientation:
+        N = tk.N
+        NW = tk.NW
+        NE = tk.NE
+        E = tk.E
+        W = tk.W
+
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
             super().__init__()
@@ -684,7 +691,7 @@ class TkWidgets (DataTranslatable_Interface):
             return super().bind()
         
         def addTOCEntry(self, entry, row, column):
-            entry.grid(row = row, column = column, sticky=tk.NW)
+            entry.grid(row = row, column = column, sticky=TkWidgets.Orientation.W)
 
     
     class RootWidget(BindableWidget_Interface_Impl,

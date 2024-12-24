@@ -55,7 +55,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_ExcerciseSolutionLabel_LBL"
         super().__init__(prefix, 
@@ -94,7 +94,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                 label = ExcerciseSolutionImageLabel(self.scrollable_frame, f"lineSolutionImageIMG_{solIdx}", 
                                             self.subsection, self.imIdx, solIdx,
                                             padding = [0, 0, 0, 0])
-                label.grid(row = i + 2, column = 2, sticky = tk.NW)
+                label.grid(row = i + 2, column = 2, sticky = ww.currUIImpl.Orientation.NW)
                 self.labels.append(label)
                 self.imLabel = label
                 def __openSolimage(event):
@@ -142,7 +142,7 @@ class HideExcerciseSolutionWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Hide"
         name = "_HidehideExcerciseSolutionWindow_BTN"
@@ -163,7 +163,7 @@ class AddFromClipbordExcerciseSolutionWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Add from clipboard"
         name = "_addFromclipbordExcerciseSolutionWindow_BTN_BTN"
@@ -196,7 +196,7 @@ class AddScreenshotExcerciseSolutionWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Add from screenshot"
         name = "_addFromScreenshotExcerciseSolutionWindow_BTN_BTN"

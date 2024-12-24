@@ -23,7 +23,7 @@ class SwitchToCurrMainLayout_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_swritchToCurrMainLayout_BTN"
         text= "To main"
@@ -45,7 +45,7 @@ class RebuildCurrSection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0,  "pady" : 0, "sticky" : tk.N,}
+            ww.TkWidgets.__name__ : {"padx" : 0,  "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N,}
         }
         name = "_rebuildCurrSubsec_BTN"
         text = "rebuild"
@@ -64,7 +64,7 @@ class ChangeSubsection_BTN(ww.currUIImpl.Button):
     def __init__(self, patentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_changeSubsection_BTN"
         text = "change subsecttion"

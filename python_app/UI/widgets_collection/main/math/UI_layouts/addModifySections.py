@@ -21,7 +21,7 @@ class MoveToTOC_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 3, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Move to TOC"
         name = "_moveToTOC_BTN"
@@ -61,7 +61,7 @@ class ModifySubsection_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Modify"
         name = "_modifySubsection_BTN"
@@ -219,7 +219,7 @@ class CreateVideoSubsection_CHBX(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.E}
         }
         name = "_VideoSubsection_CHB"
         text = "Video only subsection"
@@ -237,7 +237,7 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2, "columnspan": 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_showCurrSectionPath_LBL"
         text = self.__getCurrSectionPath_Formatted()
@@ -305,7 +305,7 @@ class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Modify Link"
         name = "_modifyNotesAppLink_BTN"
@@ -353,7 +353,7 @@ class SetSectionNoteAppLink_ETR(ww.currUIImpl.TextEntry):
         
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 
@@ -385,7 +385,7 @@ class SetSectionStartPage_ETR(ww.currUIImpl.TextEntry,
         
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 
@@ -476,7 +476,7 @@ class SetSectionName_ETR(ww.currUIImpl.TextEntry):
         
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 
@@ -512,7 +512,7 @@ class NewSectionPath_ETR(ww.currUIImpl.TextEntry):
         defaultText = "New section path"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 2, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
         super().__init__(prefix, 

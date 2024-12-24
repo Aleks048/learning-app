@@ -14,7 +14,7 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Start"
         name = "_startupConfirmBTN"
@@ -37,7 +37,7 @@ class AddBook_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 8},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Add Book"
         name = "_addBookBTN"
@@ -88,7 +88,7 @@ class ChooseStartupBook_OM(ww.currUIImpl.OptionMenu):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_chooseBook_optionMenu"
         self.listOfBooksNames = list(sf.Wr.Manager.Book.getListOfBooksNames())
@@ -124,7 +124,7 @@ class StrtupBookName_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
@@ -151,7 +151,7 @@ class StrtupBookLocation_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
@@ -178,7 +178,7 @@ class StrtupOriginalMaterialRelPath_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 4},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
@@ -205,7 +205,7 @@ class StrtupOriginalMaterialName_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 5},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
@@ -232,7 +232,7 @@ class StrtupOriginalMaterialLocation_ETR(ww.currUIImpl.TextEntry):
         name = "_originalMaterialLocattion"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},
@@ -258,7 +258,7 @@ class StrtupRemoteLink_ETR(ww.currUIImpl.TextEntry):
         name = "_remoteTrackingAppLink"
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 7},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor},

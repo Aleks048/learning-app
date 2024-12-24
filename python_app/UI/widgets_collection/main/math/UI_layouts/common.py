@@ -127,7 +127,7 @@ class ShowTocWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix, row =14, column = 4):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_tocWindow"
         text= "TOC win"
@@ -152,7 +152,7 @@ class ShowProofs_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix, column = 1, row = 0):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_showProofs_BTN"
         if dt.AppState.ShowProofs.getData(self.appCurrDataAccessToken):
@@ -194,7 +194,7 @@ class AddGlobalLink_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, column = 0, row = 2):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         defaultText = ""
         name = "_addGlobalLink_ETR"
@@ -217,7 +217,7 @@ class AddWebLink_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix, column = 2, row = 2):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_addWebLink_BTN"
         text = "Create web link"

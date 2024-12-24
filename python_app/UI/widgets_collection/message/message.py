@@ -81,7 +81,7 @@ class Message_LBL(ww.currUIImpl.Label,
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
         }
         extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {"width" : 150, "anchor" : tk.N},
+            ww.Data.GeneralProperties_ID : {"width" : 150, "anchor" : ww.currUIImpl.Orientation.N},
             ww.TkWidgets.__name__ : {}
         }
 

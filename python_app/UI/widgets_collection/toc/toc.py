@@ -13,7 +13,7 @@ class Hide_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 5, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0,  "sticky": tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0,  "sticky": ww.currUIImpl.Orientation.W}
         }
         text = "Hide"
         name = "_decline_BTN"
@@ -35,7 +35,7 @@ class SearchInSubsectionsText_CHB(ww.currUIImpl.Checkbox):
     def __init__(self, parentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : 5, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.E}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.E}
         }
         name = "_SearchInSubsectionsText_CHB"
         text = "Search Subsections Text"

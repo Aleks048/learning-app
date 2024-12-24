@@ -75,7 +75,7 @@ class NotesLabel(ww.currUIImpl.Label,
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 3, "columnspan": 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_NotesLabel_LBL"
         text = ""
@@ -174,7 +174,7 @@ class NotesLabel(ww.currUIImpl.Label,
             label = NotesImageLabel(self.widgetObj, "notesImageIMG_", 
                                         self.subsection, self.imIdx, noteImIdx,
                                         padding = [0, 0, 0, 0])
-            label.grid(row = 0, column = 2, sticky = tk.NW)
+            label.grid(row = 0, column = 2, sticky = ww.currUIImpl.Orientation.NW)
             label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
             self.imLabel = label
         else:
@@ -275,7 +275,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         name = "_imageMainImage_LBL"
 
@@ -326,7 +326,7 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Move TOC"
         name = "_MoveTOCToEntry_BTN"
@@ -350,7 +350,7 @@ class HideImagesWindow_BTN(ww.currUIImpl.Button,
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Hide"
         name = "_HideImagesWindow_BTN"

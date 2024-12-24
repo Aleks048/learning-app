@@ -40,7 +40,7 @@ class HideEntryNotesWindow_BTN(ww.currUIImpl.Button,
     def __init__(self, patentWidget, prefix):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.N}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
         text = "Hide"
         name = "_HideEntryNotesWindow_BTN"
@@ -112,7 +112,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
     def __init__(self, parentWidget, prefix, windth = 730, height = 730):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : tk.W}
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
         name = "_showNotesCurr_text"
 
@@ -294,7 +294,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 label = NotesImageLabel(mainLabels[i], "notesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i,
                                             padding = [60, 0, 0, 0])
-                label.grid(row = 1, column = 1, sticky = tk.NW)
+                label.grid(row = 1, column = 1, sticky = ww.currUIImpl.Orientation.NW)
                 label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
                 label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
                 labelToScrollTo = label
