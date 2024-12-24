@@ -290,7 +290,7 @@ class DictText(tk.Text):
         self.config(spacing3 = 12)
         self.config(wrap = ww.currUIImpl.Orientation.WORD)
         
-        self.insert(tk.END, text)
+        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 
         txtList = text.split(" ")
         txt = ""
@@ -466,7 +466,7 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
-        self.insert(tk.END, text)
+        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 
         self.config(height = newHeight)
         self.place(x = 0, y = 0)
@@ -533,7 +533,7 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
 
     def getData(self):
         try:
-            binString = self.get('1.0', tk.END)
+            binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
             if binString[-1] == "\n":
                 return binString[:-1]
             return binString
@@ -720,7 +720,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
             for k,v in self.currEtr.items():
                 self.etrTexts[k] = [self.currEtr[k].getData(),
-                                    self.currEtr[k].index(tk.INSERT)]
+                                    self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
         for w in self.scrollable_frame.winfo_children():
             w.destroy()

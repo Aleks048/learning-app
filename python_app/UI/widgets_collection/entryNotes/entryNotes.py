@@ -389,7 +389,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
             for k,v in self.currEtr.items():
                 self.etrTexts[k] = [self.currEtr[k].getData(),
-                                    self.currEtr[k].index(tk.INSERT)]
+                                    self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
         for w in self.scrollable_frame.winfo_children():
             w.destroy()

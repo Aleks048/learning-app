@@ -160,6 +160,11 @@ class TkWidgets (DataTranslatable_Interface):
         E = tk.E
         W = tk.W
 
+    class TextInsertPosition:
+        END = tk.END
+        CURRENT = tk.INSERT
+        WRAPPER_WORD=tk.WORD
+
     class DataContainer_Interface_Impl(DataContainer_Interface):
         def __init__(self, *args, **kwargs):
             super().__init__()

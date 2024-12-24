@@ -447,21 +447,21 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
         def __addNoteInPlace(*args):
             boldSelText = "\\textbf{NOTE:} "
-            self.widgetObj.insert(tk.INSERT, boldSelText)
+            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
 
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
                             lambda *args: __addNoteInPlace(*args))
 
         def __addDef(*args):
             boldSelText = "\\textbf{DEF:} "
-            self.widgetObj.insert(tk.INSERT, boldSelText)
+            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
                   lambda *args: __addDef(*args))
 
         def __addProposion(*args):
             boldSelText = "\\textbf{Proposition:} "
-            self.widgetObj.insert(tk.INSERT, boldSelText)
+            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
         
         self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
                   lambda *args: __addProposion(*args))

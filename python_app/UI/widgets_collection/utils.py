@@ -65,7 +65,7 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
-        self.insert(tk.END, text)
+        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 
         self.config(height = newHeight)
         self.place(x = 0, y = 0)
@@ -73,19 +73,19 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
                   lambda *args: self.__pasteText(*args))
 
     def __pasteText(self, *args):
-        pos = self.index(tk.INSERT)
-        oldText = self.get("0.0", tk.END)
+        pos = self.index(ww.currUIImpl.TextInsertPosition.CURRENT)
+        oldText = self.get("0.0", ww.currUIImpl.TextInsertPosition.END)
 
         pb = NSPasteboard.generalPasteboard()
         text:str = pb.stringForType_(NSStringPboardType)
 
         text = text.replace("\u0000", "fi")
 
-        self.insert(tk.INSERT, text)
+        self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, text)
 
     def getData(self):
         try:
-            binString = self.get('1.0', tk.END)
+            binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
             if binString[-1] == "\n":
                 return binString[:-1]
             return binString
@@ -136,21 +136,21 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         def __addNoteInPlace(*args):
             boldSelText = "\\textbf{NOTE:} "
-            self.insert(tk.INSERT, boldSelText)
+            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
 
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
                   lambda *args: __addNoteInPlace(*args))
 
         def __addDef(*args):
             boldSelText = "\\textbf{DEF:} "
-            self.insert(tk.INSERT, boldSelText)
+            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
                   lambda *args: __addDef(*args))
 
         def __addProposion(*args):
             boldSelText = "\\textbf{Proposition:} "
-            self.insert(tk.INSERT, boldSelText)
+            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
                   lambda *args: __addProposion(*args))
@@ -317,9 +317,9 @@ class TOCTextWithClick(tk.Text):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
-        self.config(wrap = tk.WORD)
+        self.config(wrap = ww.currUIImpl.TextInsertPosition.WRAPPER_WORD)
 
-        self.insert(tk.END, text)
+        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 
         txtList = text.split(" ")
         txt = ""
