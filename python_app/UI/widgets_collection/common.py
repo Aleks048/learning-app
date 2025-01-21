@@ -6,6 +6,7 @@ import tkinter as tk
 import re
 import time
 from threading import Thread
+import sys
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -62,28 +63,54 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         pass
 
 
-class ImageGroupOM(ttk.OptionMenu):
+class ImageGroupOM(ww.currUIImpl.OptionMenu):
     var = None
     subsection = None
     imIdx = None
     tocBox = None
 
-    def __init__(self, tocBox, subsection, imIdx, master, variable, default: str, *values: str):
-        self.var = variable
+    def __init__(self,
+                 listOfOptions, 
+                 rootWidget, 
+                 subsection,
+                 imIdx,
+                 tocBox,
+                 column,
+                 currImGroupName = None):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, 
+                                            "row" : 0,
+                                            "columnspan" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, 
+                                     "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "GroupOM_"
+
         self.imIdx = imIdx
         self.subsection = subsection
         self.tocBox = tocBox
 
-        super().__init__(master, variable, default, *values, command=lambda *args: self.chooseGroupCmd())
+        prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
+
+        # print(imIdx)
+        # print(subsection)
+
+        super().__init__(prefix, 
+                         name,
+                         listOfOptions,
+                         rootWidget,
+                         data,
+                         defaultOption = currImGroupName,
+                         cmd = self.chooseGroupCmd)
                         
     def chooseGroupCmd(self):
         imagesGroupList:list = list(fsm.Data.Sec.imagesGroupsList(self.subsection).keys())
         imagesGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsection)
-        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.var.get())
+        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
         fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
 
         self.tocBox.render()
-
 
 class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
     subsection = None
@@ -484,6 +511,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.scrollToEntry(subsection, imIdx)
 
     def AddEntryWidget(self, imIdx, subsection, frame):
+        if str(imIdx) == _u.Token.NotDef.str_t:
+            return
+
         def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
                                 shouldScroll = False, 
                                 imPad = 120, link = False, textOnly = False,
@@ -1237,7 +1267,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         k = imIdx
         i = int(imIdx)
 
-        v = fsm.Data.Sec.imLinkDict(subsection)[k]
+        if fsm.Data.Sec.imLinkDict(subsection).get(k) != None:
+            v = fsm.Data.Sec.imLinkDict(subsection)[k]
+        else:
+            i = 0
+            for i in range(50):
+                time.sleep(0.1)
+                if fsm.Data.Sec.imLinkDict(subsection).get(k) != None:
+                    v = fsm.Data.Sec.imLinkDict(subsection)[k]
+                    break
+            if fsm.Data.Sec.imLinkDict(subsection).get(k) == None:
+                sys.exit()
+            
+
         subSecID = _upan.Names.UI.getWidgetSubsecId(subsection)
 
         extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
@@ -1266,7 +1308,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         imagesGroupsWShouldShow:list = fsm.Data.Sec.imagesGroupsList(subsection)
         imagesGroups:list = list(imagesGroupsWShouldShow.keys())
 
-        currImGroupidx = imagesGroupDict[k]
+        if imagesGroupDict.get(k) != None:
+            currImGroupidx = imagesGroupDict[k]
+        else:
+            currImGroupidx = 0
+
         if int(k) > 0 :
             entriesList = list(fsm.Data.Sec.imLinkDict(subsection).keys())
             entriesList.sort(key = int)
@@ -1282,7 +1328,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             if imagesGroupDict.get(k) != None:
                 prevImGroupName = imagesGroups[imagesGroupDict[k]]
             else:
-                prevImGroupName = imagesGroups["0"]
+                prevImGroupName = imagesGroups[0]
 
         if currImGroupidx == _u.Token.NotDef.str_t:
             currImGroupidx = 0
@@ -1482,8 +1528,13 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             imagesGroupDict[k] = 0
             fsm.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
-        imagesGroup = ImageGroupOM(self, subsection, k, tempFrameRow2, 
-                                    tk.StringVar(), currImGroupName, *imagesGroups)
+        imagesGroup = ImageGroupOM(imagesGroups,
+                                   tempFrameRow2, 
+                                   subsection,
+                                   imIdx,
+                                   self,
+                                   column = self.__EntryUIs.group.column,
+                                   currImGroupName = currImGroupName)
 
         latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(k, v)
         pilIm = getEntryImg(latexTxt, subsection, k)
@@ -2171,8 +2222,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                column = self.__EntryUIs.alwaysShow.column, 
                                                sticky=ww.currUIImpl.Orientation.NW)
 
-                imagesGroup.grid(row = 0, column = self.__EntryUIs.group.column, 
-                                    sticky=ww.currUIImpl.Orientation.NW, columnspan = 3)
+                imagesGroup.render()
+                # grid(row = 0, column = self.__EntryUIs.group.column, 
+                #                     sticky=ww.currUIImpl.Orientation.NW, columnspan = 3)
                 removeEntry.render()
 
             if not textOnly:
@@ -2833,4 +2885,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         
         if shouldScroll:
             if not fsm.Data.Sec.isVideo(fsm.Data.Book.currSection):
-                self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+                try:
+                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+                except:
+                    pass

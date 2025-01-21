@@ -265,6 +265,25 @@ class TOCFrame(ttk.Frame):
     def getChildren(self):
         return self.winfo_children()
 
+# class TOCFrame(ww.currUIImpl.Frame):
+#     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
+#         data = {
+#             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": columnspan},
+#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+#         }
+
+#         self.subsection = None
+#         self.imIdx = None
+
+#         self.row = row
+#         self.column = column
+#         self.columnspan = columnspan
+
+#         super().__init__(prefix, "EntryFrame1", root, renderData = data, *args, **kwargs)
+
+#     def getChildren(self):
+#         return self.winfo_children()
+
 class TOCTextWithClick(tk.Text):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
@@ -2181,7 +2200,8 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
     '''
     close all images of children of the widget
     '''
-    for parent in gpframe.getChildren():
+    # print(type(gpframe))
+    for parent in gpframe.winfo_children():
         # NOTE this is not an ideal hack to get the 
         if "getChildren" in dir(parent):
             for child in parent.getChildren():

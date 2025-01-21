@@ -288,7 +288,7 @@ class DictText(tk.Text):
         self.config(spacing1 = 10)
         self.config(spacing2 = 10)
         self.config(spacing3 = 12)
-        self.config(wrap = ww.currUIImpl.Orientation.WORD)
+        self.config(wrap = ww.currUIImpl.TextInsertPosition.WRAPPER_WORD)
         
         self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 

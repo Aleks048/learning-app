@@ -320,6 +320,7 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData, 
                     cmd, 
                     extraOptions = {},
+                    defaultOption = None,
                     bindCmd = lambda *args: (None, None)):
             
             self.renderData = currUIImpl.translateRenderOptions(renderData)
@@ -332,14 +333,26 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Frame(self.rootWidget.widjetObj, 
-                                name = self.name, 
-                                background="Blue")
-            optionMenu = tk.OptionMenu(widgetObj, 
-                                    self.getDataObject(), 
-                                    *self.listOfOptions, 
-                                    command= lambda _: cmd(),
-                                    **extraOptions)
+            if "widjetObj" in dir(self.rootWidget):
+                widgetObj = tk.Frame(self.rootWidget.widjetObj, 
+                                    name = self.name, 
+                                    background="Blue")
+            else:
+                widgetObj = tk.Frame(self.rootWidget, 
+                                    name = self.name, 
+                                    background="Blue")
+
+            if defaultOption == None:
+                defaultOption = self.listOfOptions[0]
+
+            # print(f"d {defaultOption}")
+
+            optionMenu = ttk.OptionMenu(widgetObj, 
+                                        self.getDataObject(), 
+                                        defaultOption,
+                                        *self.listOfOptions, 
+                                        command= lambda _: cmd(),
+                                        **extraOptions)
             self.optionMenu = optionMenu
             self.optionMenu.grid(column= 0, row = 0)
             
@@ -350,7 +363,7 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widgetObj,)
             Notifyable_Interface.__init__(self)
 
-            self.setData(self.listOfOptions[0])
+            self.setData(defaultOption)
             super().bind()
                     
         # def render(self, **kwargs):
@@ -597,6 +610,9 @@ class TkWidgets (DataTranslatable_Interface):
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
 
+        def getChildren(self):
+            return self.widgetObj.getChildren()
+
     class ScrollableBox (Notifyable_Interface,
                 DataContainer_Interface_Impl,
                 HasChildren_Interface_Impl, 
@@ -696,8 +712,10 @@ class TkWidgets (DataTranslatable_Interface):
             return super().bind()
         
         def addTOCEntry(self, entry, row, column):
-            entry.grid(row = row, column = column, sticky=TkWidgets.Orientation.W)
-
+            if "grid" in dir(entry):
+                entry.grid(row = row, column = column, sticky=TkWidgets.Orientation.W)
+            else:
+                entry.render()
     
     class RootWidget(BindableWidget_Interface_Impl,
                      RenderableWidget_Interface_Impl,
