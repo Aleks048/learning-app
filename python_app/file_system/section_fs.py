@@ -75,6 +75,10 @@ class SectionInfoStructure:
         isVideo = "_isVideo"
         videoPosition = "_videoPosition"
 
+        #leading entry
+        leadingEntry = "_leadingEntry"
+        showSubentries = "_showSubentries"
+
     class PrivProp:
         tocData = "_tocData"
 
@@ -116,7 +120,9 @@ class SectionInfoStructure:
                 cls.PubProp.bookCodeFile : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.subsectionCodeFile : _u.Token.NotDef.dict_t.copy(),
                 cls.PubProp.wikiPages:  _u.Token.NotDef.dict_t.copy(),
-                cls.PubProp.videoPosition:  _u.Token.NotDef.dict_t.copy()
+                cls.PubProp.videoPosition:  _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.leadingEntry:  _u.Token.NotDef.dict_t.copy(),
+                cls.PubProp.showSubentries:  _u.Token.NotDef.dict_t.copy()
             }
         }
         return sectionInfo_template
@@ -793,6 +799,33 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         videoPosition = cls.__shiftTheItemsInTheDict(videoPosition, imIdx)
         cls.updateProperty(subsection, cls.PubProp.videoPosition, videoPosition)
 
+        leadingEntry = cls.readProperty(subsection, cls.PubProp.leadingEntry)
+        leadingEntry = {k:v for k, v in leadingEntry.items() if str(v) != str(imIdx)}
+
+        for k,v in leadingEntry.items():
+            if int(v) > int(imIdx):
+                leadingEntry[k] = str(int(v) - 1)
+
+        cls.updateProperty(subsection, cls.PubProp.leadingEntry, leadingEntry)
+
+        leadingEntry = cls.readProperty(subsection, cls.PubProp.leadingEntry)
+        leadingEntry.pop(imIdx, None)
+
+        if leadingEntry == {}:
+            leadingEntry = _u.Token.NotDef.dict_t.copy()
+
+        leadingEntry = cls.__shiftTheItemsInTheDict(leadingEntry, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.leadingEntry, leadingEntry)
+
+        showSubentries = cls.readProperty(subsection, cls.PubProp.showSubentries)
+        showSubentries.pop(imIdx, None)
+
+        if showSubentries == {}:
+            showSubentries = _u.Token.NotDef.dict_t.copy()
+
+        showSubentries = cls.__shiftTheItemsInTheDict(showSubentries, imIdx)
+        cls.updateProperty(subsection, cls.PubProp.showSubentries, showSubentries)
+
         extraImTextDict = cls.readProperty(subsection, cls.PubProp.extraImText)
         extraImTextDict.pop(imIdx, None)
         extraImTextDict = cls.__shiftTheItemsInTheDict(extraImTextDict, imIdx)
@@ -1035,6 +1068,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             dataDict = cls.__shiftTheItemsInTheDict(dataDict, imIdx, False)
             cls.updateProperty(subsection, propertyName, dataDict)
 
+        leadingEntry = cls.readProperty(subsection, cls.PubProp.leadingEntry)
+
+        for k,v in leadingEntry.items():
+            if int(v) >= int(imIdx):
+                leadingEntry[k] = str(int(imIdx) + 1)
+
+        cls.updateProperty(subsection, cls.PubProp.leadingEntry, leadingEntry)
+
         properties = [
             cls.PubProp.imLinkDict,
             cls.PubProp.imLinkOMPageDict,
@@ -1047,6 +1088,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.PubProp.textOnly,
             cls.PubProp.wikiPages,
             cls.PubProp.videoPosition,
+            cls.PubProp.leadingEntry,
+            cls.PubProp.showSubentries,
         ]
 
         for p in properties:
@@ -1268,7 +1311,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                          cls.PubProp.extraImText,
                          cls.PubProp.textOnly,
                          cls.PubProp.wikiPages,
-                         cls.PubProp.videoPosition
+                         cls.PubProp.videoPosition,
+                         cls.PubProp.leadingEntry,
+                         cls.PubProp.showSubentries,
                          ]
 
         imageUIResize = cls.readProperty(subsection, cls.PubProp.imageUIResize)

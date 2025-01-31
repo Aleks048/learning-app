@@ -214,7 +214,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         link = __EntryUIData("[]", 6)
         addExtra = __EntryUIData("[Add exta]", 7)
         addProof = __EntryUIData("[Add proof]", 8)
-        group = __EntryUIData("", 9)
+        showSubentries = __EntryUIData("[Show sub]", 9)
+        leadingEntry = __EntryUIData("", 10)
+        group = __EntryUIData("", 11)
 
         # row 2.5 
         openBookCodeProject = __EntryUIData("[code:b", 1)
@@ -513,6 +515,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     def AddEntryWidget(self, imIdx, subsection, frame):
         if str(imIdx) == _u.Token.NotDef.str_t:
             return
+
+        if fsm.Data.Sec.leadingEntry(subsection).get(imIdx) != None:
+            leadingEntry = fsm.Data.Sec.leadingEntry(subsection)[imIdx]
+
+            if fsm.Data.Sec.showSubentries(subsection).get(leadingEntry) != None:
+                showSubentries = fsm.Data.Sec.showSubentries(subsection)[leadingEntry]
+            else:
+                showSubentries = True
+
+            if (showSubentries != _u.Token.NotDef.str_t) and (not showSubentries):
+                return
 
         def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
                                 shouldScroll = False, 
@@ -930,6 +943,30 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             self.cutEntry)
             self.__renderWithScrollAfter()
 
+        def showSubentriesCmd(event, *args):
+            widget = event.widget
+            
+            showSubentries = fsm.Data.Sec.showSubentries(widget.subsection)
+            if showSubentries.get(imIdx) != None:
+                showSubentries[widget.imIdx] = not showSubentries[widget.imIdx]
+            else:
+                showSubentries[widget.imIdx] = True
+    
+            fsm.Data.Sec.showSubentries(widget.subsection, showSubentries)
+
+            self.__renderWithScrollAfter()
+
+        def changeLeadingEntryCmd(event, subsection, imIdx,  *args):
+            widget = event.widget
+
+            leadingEntryIdx = widget.get()
+
+            leadingEntry = fsm.Data.Sec.leadingEntry(subsection)
+            leadingEntry[imIdx] = leadingEntryIdx
+            fsm.Data.Sec.leadingEntry(subsection, leadingEntry)
+
+            self.__renderWithScrollAfter()
+
         def removeEntryCmd(event, *args):
             widget = event.widget
             fsm.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
@@ -1103,7 +1140,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.linksOpenImageWidgets = {}
 
             self.__renderWithScrollAfter()
-
 
         def openWebOfTheImage(widget:_uuicom.TOCLabelWithClick, webLink):
             def __cmd(event = None, *args):
@@ -1349,9 +1385,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         nameId = _upan.Names.Entry.getEntryNameID(subsection, k)
 
+        leadingEntry = fsm.Data.Sec.leadingEntry(subsection)
+
+        if leadingEntry.get(imIdx) != None:
+            leftPad = 30
+        else:
+            leftPad = 0
+
         tempFrame = _uuicom.TOCFrame(frame,
                                 prefix = "contentFr_" + nameId,
-                                padding=[0, topPad, 0, 0],
+                                padding=[leftPad, topPad, 0, 0],
                                 row = i + 2, column = 0, columnspan = 100)
 
         if (currImGroupName != prevImGroupName) or (k == "0"):
@@ -1619,6 +1662,41 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                                     True, textOnly = True, *args),
                             lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
                                                                     False, textOnly = True,*args)])
+
+        if str(imIdx) in fsm.Data.Sec.leadingEntry(subsection).values():
+            hasSubentries = True
+        else:
+            hasSubentries = False
+
+        showSubentries = _uuicom.TOCLabelWithClick(tempFrameRow2,
+                                        text = self.__EntryUIs.showSubentries.name,
+                                        prefix = "contentShowSubentriesEntry" + nameId,
+                                        row = 0, 
+                                        column = self.__EntryUIs.showSubentries.column)
+        showSubentries.imIdx = k
+        showSubentries.subsection = subsection
+        showSubentries.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [showSubentriesCmd])
+        
+        if hasSubentries:
+            showSubentries.configure(foreground="brown") 
+
+        if leadingEntry.get(imIdx) != None:
+            leadingEntryText = leadingEntry[imIdx]
+        else:
+            leadingEntryText = _u.Token.NotDef.str_t
+
+        leadingEntry = _uuicom.ImageSize_ETR(tempFrameRow2,
+                                            prefix = "leadingEntry_" + nameId,
+                                            row = 0, 
+                                            column = self.__EntryUIs.leadingEntry.column,
+                                            imIdx = i,
+                                            text = leadingEntryText)
+        
+        leadingEntry.imIdx = k
+        leadingEntry.subsection = subsection
+        leadingEntry.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                [lambda e, *args: changeLeadingEntryCmd(e, subsection, imIdx)])
 
         removeEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                         text = self.__EntryUIs.delete.name,
@@ -2214,6 +2292,8 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             openBookCodeProject.render()
             openSubsectionCodeProject.render()
             openEntryCodeProject.render()
+            showSubentries.render()
+            leadingEntry.render()
 
             if not self.showAll:
 
@@ -2238,7 +2318,10 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         if imShouldBeBrown:
             showImages.configure(foreground="brown")  
+
+
         _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = imShouldBeBrown)
+        _uuicom.bindChangeColorOnInAndOut(showSubentries, shouldBeBrown = hasSubentries)
         _uuicom.bindChangeColorOnInAndOut(removeEntry)
         _uuicom.bindChangeColorOnInAndOut(shiftEntry)
         _uuicom.bindChangeColorOnInAndOut(copyEntry)
