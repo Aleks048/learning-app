@@ -773,8 +773,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     def skippProof(subsection, imIdx, exImIdx):
                         extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
                         eImText = extraImages[exImIdx]
-                        return "proof" in eImText.lower()\
-                                and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken")
+                        return ("proof" in eImText.lower()\
+                                and not dt.AppState.ShowProofs.getData("appCurrDataAccessToken"))\
+                                or\
+                                (("proof" in eImText.lower()) and self.showAll)
 
                     def skippProofLink(subsection, imIdx, exImIdx):
                         extraImages = fsm.Data.Sec.extraImagesDict(subsection)[imIdx]
