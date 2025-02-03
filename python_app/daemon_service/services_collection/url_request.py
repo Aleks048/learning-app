@@ -55,30 +55,6 @@ def processCall(url):
 
         return
 
-    if "notes" in linktType.lower():
-        notesAppLink = fsf.Data.Sec.notesAppLink(subsecPath)
-        
-        if notesAppLink != _u.Token.NotDef.str_t:
-            log.autolog("Will only open notesapp page of '{0}'".format(subsecPath))
-            oscf.Wr.NoteAppCalls.openPage(notesAppLink)
-            
-            time.sleep(2.0)
-
-            _, _, ownerPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.goodNotes_ID, subsecPath)
-
-            mon_width, mon_height = _u.getMonitorSize()
-            mon_halfWidth = mon_width / 2
-            
-            goodNotesBounds = [mon_halfWidth, mon_height, 0, 0]
-            cmd = oscr.getMoveWindowCMD(ownerPID,
-                                    goodNotesBounds,
-                                    subsecPath)
-            os.system(cmd)
-        else:
-            log.autolog("Notesapp link of '{0}' is empty. Cannot open it".format(subsecPath))
-        
-        return
-
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
     

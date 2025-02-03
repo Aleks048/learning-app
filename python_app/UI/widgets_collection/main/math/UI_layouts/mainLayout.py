@@ -132,22 +132,6 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         self.prevChoice = currOrigMatName
     
     def cmd(self):
-        # close original material document
-        # fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(self.prevChoice)
-        # prevChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(self.prevChoice)
-        # _, _, oldPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-        #                                             prevChoiceID)     
-        
-        # if oldPID != None:
-        #     lf.Wr.LayoutsManager.closePDFwindow(prevChoiceID, oldPID)
-        
-        # time.sleep(0.3)
-
-        # open another original material
-
-        # origMatPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(origMatName)
-        # ocf.Wr.PdfApp.openPDF(origMatPath, origMatCurrPage)
-
         origMatName = self.getData()
         self.prevChoice = origMatName
 
@@ -162,18 +146,6 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         '''
         This was used when the pdf app was separate. need to see what is needed before deletion!
         '''
-        # width, height = _u.getMonitorSize()
-        # halfWidth = int(width / 2)
-
-        # newChoiceID = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(origMatName)
-        # _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-        #                                             newChoiceID)
-        # while newPID == None:
-        #     time.sleep(0.1)
-        #     _, _, newPID = _u.getOwnersName_windowID_ofApp(sf.Wr.Data.TokenIDs.AppIds.skim_ID, 
-        #                                             newChoiceID)
-        # cmd = oscr.getMoveWindowCMD(newPID, [halfWidth, height, 0, 0], newChoiceID)
-        # _u.runCmdAndWait(cmd)
 
         # update book settings
         fsf.Data.Book.currOrigMatName = origMatName

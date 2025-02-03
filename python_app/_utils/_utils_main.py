@@ -1,7 +1,6 @@
-import sys, os, json, time, subprocess
+import os, json, subprocess
 from threading import Thread
 from AppKit import NSScreen, NSWorkspace
-import Quartz
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -68,7 +67,6 @@ def findPositionsOfMarkerInFile(filepath, marker, lineToken = ""):
     return outPos, fLines
 
 
-
 def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
     outPos, fLines = findPositionsOfMarkerInFile(filepath, marker, lineToken)
 
@@ -107,16 +105,6 @@ def readFile(fp):
         return lines
 
 
-def readPyArgs():
-    '''
-    read the arguments proveded to the python script to a readToList
-    '''
-    readToList = []
-    for i in range(1, len(sys.argv)):
-        readToList.append(sys.argv[i])
-    return readToList
-
-
 def filePathToParentDir(fp):
     '''
     returns path to the parrent directory from the fp
@@ -126,56 +114,6 @@ def filePathToParentDir(fp):
 
 def getPathToBooks():
     return os.getenv("BOOKS_ROOT_PATH")
-
-
-def getAllRunningApps():
-    #get all the running applications
-    workspace = NSWorkspace.sharedWorkspace()
-    activeApps = workspace.runningApplications()
-    return activeApps
-
-
-def getWindowsList():
-    # if app.isActive():
-    options = Quartz.kCGWindowListOptionOnScreenOnly
-    return Quartz.CGWindowListCopyWindowInfo(options, Quartz.kCGNullWindowID)
-
-
-def getOwnersName_windowID_ofApp(appName:str, windowIdentifier = ""):
-    activeApps = getAllRunningApps()
-    
-    app = [i for i in activeApps if appName.lower() in str(i).lower()]
-    counter = 0
-    while len(app) == 0 and counter < 5:
-        time.sleep(0.1)
-        activeApps = getAllRunningApps()
-        app = [i for i in activeApps if appName.lower() in str(i).lower()]
-        counter += 1
-    
-    if len(app) < 1:
-        log.autolog("could not get the PID for '{0}'. Please open the app. 1".format(appName))
-        return None, None, None
-
-    app = app[0]
-
-    if app == None :
-        log.autolog("could not get the PID for '{0}'. Please open the app. 2".format(appName))
-        return None, None, None
-    
-    windowList = getWindowsList()
-    
-    for window in windowList:
-        if window["kCGWindowOwnerName"].lower() == app.localizedName().lower():
-            if windowIdentifier.lower() in window["kCGWindowName"].lower():
-                ownerName = str(window["kCGWindowOwnerName"])
-                windowName = str(window["kCGWindowName"])
-                ownerPID = str(window["kCGWindowOwnerPID"])            
-
-                return ownerName, windowName, ownerPID
-    
-    # log.autolog("getOwnersName_windowID_ofApp - window was not found")
-    log.autolog("could not get the PID for '{0}'. Please open the app. 3".format(appName))
-    return None, None, None
 
 
 '''
