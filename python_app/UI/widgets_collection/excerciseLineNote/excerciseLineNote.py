@@ -1,9 +1,6 @@
-import tkinter as tk
 from tkinter import ttk
-import Pmw
 from PIL import Image, ImageTk
 from threading import Thread
-import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf

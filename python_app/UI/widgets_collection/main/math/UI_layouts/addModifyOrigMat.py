@@ -1,6 +1,3 @@
-import tkinter as tk
-
-
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.common as cl
 

@@ -1,4 +1,3 @@
-import tkinter as tk
 import tkinter as Tk
 import os
 import vlc

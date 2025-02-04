@@ -1,5 +1,3 @@
-import tkinter as tk
-
 import UI.widgets_manager as wm
 import UI.widgets_collection.main.math.manager as mathm
 

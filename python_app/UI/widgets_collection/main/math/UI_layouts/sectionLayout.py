@@ -1,4 +1,3 @@
-import tkinter as tk
 import subprocess
 
 import UI.widgets_wrappers as ww

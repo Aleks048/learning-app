@@ -1,8 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
 import Pmw
-from PIL import Image, ImageTk
-from threading import Thread
 
 from tkinter import scrolledtext
 
@@ -316,7 +313,7 @@ class DictText(tk.Text):
         else:
             self.config(background = "#7c3b3b")
 
-        self.config(state=tk.DISABLED)
+        self.config(state = tk.DISABLED)
         self.place(x = 0, y = 0)
 
         self.rebind([ww.currUIImpl.Data.BindID.mouse2],[self.__showAsETR])

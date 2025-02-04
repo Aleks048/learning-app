@@ -1,7 +1,3 @@
-import tkinter as tk
-import re
-
-import _utils.logging as log
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
