@@ -1,9 +1,5 @@
-import tkinter as tk
-from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
-import time
-import os
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -13,18 +9,16 @@ import _utils.pathsAndNames as _upan
 import data.constants as dc
 import file_system.file_system_facade as fsf
 import settings.facade as sf
-import outside_calls.outside_calls_facade as ocf
-import scripts.osascripts as osascr
-import UI.widgets_data as wd
 import data.temp as dt
-import generalManger.generalManger as gm
 
-images = []
+class ProofImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, lineIdx):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : lineIdx + 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "ProofImLabel" + imIdx + str(lineIdx)
 
-class ProofImageLabel(ttk.Label):
-    lineImIdx = None
-
-    def __init__(self, root, name, subsection, imIdx, lineIdx):
         self.lineImIdx = str(lineIdx)
 
         bookName = sf.Wr.Manager.Book.getCurrBookName()
@@ -34,8 +28,12 @@ class ProofImageLabel(ttk.Label):
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([530, 1000], Image.LANCZOS)
         img = ImageTk.PhotoImage(pilIm)
-        images.append(img)
-        return super().__init__(root, name = name, image = img, padding = [90, 0, 0, 0])
+        self.image = img
+
+        return super().__init__(prefix, name, root, data, 
+                                text = _u.Token.NotDef.str_t, 
+                                image = self.image, 
+                                padding = [90, 0, 0, 0])
 
 
 class ProofMainImage(ww.currUIImpl.Frame):
@@ -151,6 +149,7 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
         name = "_showProofCurr_text"
 
         self.parent = parentWidget.widgetObj
+        self.images = []
 
         super().__init__(prefix,
                         name,
@@ -179,12 +178,14 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
             if extraImagesForEntry[i] != None:
                 label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i)
-                label.grid(row = i + 1, column = 0)
-            
+                self.images.append(label.image)
+                label.render()
+
+    def hide(self, **kwargs):
+        self.images = []
+        return super().hide(**kwargs)     
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        global images
-        images = []
         for w in self.scrollable_frame.winfo_children():
             w.destroy()
 

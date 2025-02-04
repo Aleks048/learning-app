@@ -552,7 +552,17 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widjetObj = tk.Label(self.rootWidget.widjetObj, text = self.text)
+            if "widjetObj" in dir(self.rootWidget):
+                widjetObj = ttk.Label(self.rootWidget.widjetObj, 
+                                      text = self.text, 
+                                      image = self.image,
+                                      padding = self.padding)
+            else:
+                widjetObj = ttk.Label(self.rootWidget, 
+                                      text = self.text, 
+                                      image = self.image,
+                                      padding = self.padding)
+
             self.widgetObj = widjetObj
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)

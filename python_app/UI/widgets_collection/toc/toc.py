@@ -1,5 +1,3 @@
-import tkinter as tk
-
 import UI.widgets_wrappers as ww
 
 import data.constants as dc
