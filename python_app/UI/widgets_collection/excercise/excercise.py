@@ -54,11 +54,16 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         pass
 
 
-class ExcerciseImageLabel(ttk.Label):
-    lineImIdx = None
-
-    def __init__(self, root, name, subsection, imIdx, lineIdx, text = _u.Token.NotDef.str_t):
+class ExcerciseImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, lineIdx, row, column, text = _u.Token.NotDef.str_t):
         self.lineImIdx = str(lineIdx)
+
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "_ExcerciseImageLabel_"
 
         if text ==  _u.Token.NotDef.str_t:
             bookName = sf.Wr.Manager.Book.getCurrBookName()
@@ -77,9 +82,9 @@ class ExcerciseImageLabel(ttk.Label):
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
             img = ImageTk.PhotoImage(pilIm)
             exImages.append(img)
-            return super().__init__(root, name = name, image = img, padding = [0, 0, 0, 0])
+            return super().__init__(prefix, name, root, data, image = img, padding = [0, 0, 0, 0])
         else:
-            return super().__init__(root, name = name, text = text, padding = [0, 0, 0, 0])
+            return super().__init__(prefix, name, root, data, text = text, padding = [0, 0, 0, 0])
 
 
 class ExcerciseImage(ww.currUIImpl.Frame):
@@ -495,10 +500,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         numRowsPre = 1
 
         for i in range(len(lines)):
-            def __showTextOrImage(event, *args):
-                self.latestLineIdxToscrollTo = event.widget.lineImIdx
+            def __showTextOrImage(lineImIdx, *args):
+                self.latestLineIdxToscrollTo = lineImIdx
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                widgetlineImIdx = str(event.widget.lineImIdx)
+                widgetlineImIdx = str(lineImIdx)
 
                 # for lineImIdx in self.lineIdxShownInText:
                 #     if lineImIdx in list(self.currEtr.keys()):
@@ -516,23 +521,24 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     if text != self.currEtr[widgetlineImIdx].defaultText:
                         _rebuildLine(self.subsection,
                                             self.imIdx,
-                                            event.widget.lineImIdx,
+                                            lineImIdx,
                                             text,
                                             bookPath)
 
                     self.currEtr.pop(widgetlineImIdx)
                 else:
-                    self.lineIdxShownInText.append(str(event.widget.lineImIdx))
+                    self.lineIdxShownInText.append(str(lineImIdx))
 
                 self.render()
 
             # image / text
             if str(i) not in self.lineIdxShownInText:
                 label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                label.grid(row = i + numRowsPre + 1, column = 6)
-                label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
-                label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
+                                            self.subsection, self.imIdx, i, 
+                                            row = i + numRowsPre + 1, column = 6)
+                label.render()
+                label.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1],
+                              [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
                 label = _ucomw.TOCFrame(self.scrollable_frame, 
@@ -540,8 +546,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                 i + numRowsPre + 1, 6, 1
                                 )
                 labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                labIm.grid(row = 0, column = 0)
+                                            self.subsection, self.imIdx, i,
+                                            row = 0, column = 0)
+                labIm.render()
 
                 text = ""
                 if str(i) in list(self.etrTexts.keys()):
@@ -578,8 +585,8 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.lineImIdx = str(i)
                 labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
                 labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
-                labIm.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
-                labIm.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
+                labIm.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
+                             [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)
 
                 labETR.render()
@@ -752,9 +759,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         exImages = []
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
-        dummyPreLabel = tk.Label(self.scrollable_frame, height = 1000)
-        dummyPreLabel.grid(row = 1, column=0)
-
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
 
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
@@ -783,8 +787,17 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.addExcerciseLines()
 
 
-        dummyPostLabel = tk.Label(self.scrollable_frame, height = 1000)
-        dummyPostLabel.grid(row = 1 + numLines + 1, column=0)
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 1 + numLines + 1, "row" : 1 + numLines + 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+        }
+
+        dummyPostLabel = ww.currUIImpl.Label(str(1 + numLines + 1),
+                                             "_excersiePostDummy_",
+                                             self.scrollable_frame,
+                                             renderData,
+                                             text= "\n" * 1000)
+        dummyPostLabel.render()
 
 
         super().render(widjetObj, renderData, **kwargs)
