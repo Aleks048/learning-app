@@ -1,4 +1,3 @@
-import tkinter as tk
 import Pmw
 
 from tkinter import scrolledtext
@@ -12,10 +11,8 @@ import data.constants as dc
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
-import scripts.osascripts as osascr
 import UI.widgets_data as wd
 import data.temp as dt
-import generalManger.generalManger as gm
 import wordDict.wordDict as wordd
 
 exImages = []
@@ -247,8 +244,7 @@ class SearchDict_ETR(ww.currUIImpl.TextEntry):
         return [ww.currUIImpl.Data.BindID.Keys.shenter], \
                 [__searchCmd]
 
-
-class DictText(tk.Text):
+class DictText(ww.currUIImpl.Label):
     '''
     This used to show the text retrieved from the dict
     '''
@@ -274,53 +270,29 @@ class DictText(tk.Text):
 
     def __init__(self, root, prefix, row = 0, column = 0, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
                  text = "", localWord = False, *args, **kwargs) -> None:
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": columnspan},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : sticky}
+        }
+
+        name = "DictHit_"
+
         self.text = text
-       
-        self.row = row
-        self.column = column
-        self.columnspan = columnspan
-        self.sticky = sticky
 
-        super().__init__(root, name = prefix, *args, **kwargs)
-        self.config(spacing1 = 10)
-        self.config(spacing2 = 10)
-        self.config(spacing3 = 12)
-        self.config(wrap = ww.currUIImpl.TextInsertPosition.WRAPPER_WORD)
-        
-        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
-
-        txtList = text.split(" ")
-        txt = ""
-        lineLength = 0
-
-        for w in txtList:
-            lineLength += len(w.replace("\n", "")) + 1
-            txt += w + " "
-
-            if ("\n" in w) or (lineLength > 113):
-                if not("\n" in w):
-                    txt += "\n"
-
-                lineLength = 0
-
-        Font_tuple = ("TkFixedFont", 12)
-        self.config(font = Font_tuple)
-        self.config(width = 85)
-        self.config(height = int(len(txt.split("\n"))))
-
+        super().__init__(prefix, 
+                        name,
+                        root, 
+                        renderData = data, 
+                        text = text,
+                        bindCmd = self.__bindCmd)
+        self.widgetObj.configure(wraplength = 730)
         if not localWord:
-            self.config(background = "#394d43")
+            self.widgetObj.configure(style = "Dict.TLabel")
         else:
-            self.config(background = "#7c3b3b")
-
-        self.config(state = tk.DISABLED)
-        self.place(x = 0, y = 0)
-
-        self.rebind([ww.currUIImpl.Data.BindID.mouse2],[self.__showAsETR])
+            self.widgetObj.configure(style = "DictLoc.TLabel")
     
-    def render(self):
-        self.grid(row = self.row, column = self.column,
-                  columnspan = self.columnspan, sticky = self.sticky)
+    def __bindCmd(self):
+        return [ww.currUIImpl.Data.BindID.mouse2],[self.__showAsETR]
 
     def generateEvent(self, event, *args, **kwargs):
         self.event_generate(event, *args, **kwargs)
@@ -708,9 +680,6 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
         global exImages
         exImages = []
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
-
-        dummyPreLabel = tk.Label(self.scrollable_frame, height = 1000)
-        dummyPreLabel.grid(row = 1, column=0)
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
 

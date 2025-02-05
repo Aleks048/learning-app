@@ -100,6 +100,27 @@ class Data:
     widgetsWidth = "width"
 
 class TkWidgets (DataTranslatable_Interface):
+    s = ttk.Style()
+    s.theme_use("default")
+    # Create style used by default for all Frames
+    s.configure('Dict.TLabel', background = "#394d43")
+    s.configure('DictLoc.TLabel', background = "#7c3b3b")
+    s.configure('TLabel', foreground = "#ffffff", background = "#323232")
+    s.configure('TFrame', background = "#323232")
+    s.configure("TMenubutton", background="#323232")
+    s.configure('TCheckbutton', background = '#323232')
+    s.configure("Horizontal.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
+                    background="#323262", darkcolor="#323232", lightcolor="#323232",
+                    troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
+
+    s.configure("Vertical.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
+                    background="#323262", darkcolor="#323232", lightcolor="#323232",
+                    troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
+
+    # Create style for the first frame
+    s.configure('Frame1.TFrame', background='red')
+
+
     class Data:
         textColor_ID = "fg"
         tk = tk.Toplevel()
@@ -279,8 +300,10 @@ class TkWidgets (DataTranslatable_Interface):
                                 )
 
             ttk.Style().configure('green/black.TButton', 
-                                foreground='white', 
-                                background='black')
+                                foreground = 'black',
+                                background = '#323262',
+                                borderwidth = 1,
+                                focusthickness = 1)
             
             def btnCmd():
                 cmd()
@@ -501,13 +524,20 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = tk.Checkbutton(self.rootWidget.widjetObj, 
+            widgetObj = ttk.Checkbutton(self.rootWidget.widjetObj, 
                                 name = self.name, 
                                 text = self.text,
                                 variable = self.getDataObject(), 
                                 onvalue = 1, 
                                 offvalue = 0,
                                 **extraOptions)
+            # widgetObj = tk.Checkbutton(self.rootWidget.widjetObj, 
+            #                     name = self.name, 
+            #                     text = self.text,
+            #                     variable = self.getDataObject(), 
+            #                     onvalue = 1, 
+            #                     offvalue = 0,
+            #                     **extraOptions)
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
