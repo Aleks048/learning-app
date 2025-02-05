@@ -513,6 +513,7 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData : dict,
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
+                    command = lambda *args: None,
                     text = ""):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -524,13 +525,25 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            widgetObj = ttk.Checkbutton(self.rootWidget.widjetObj, 
-                                name = self.name, 
-                                text = self.text,
-                                variable = self.getDataObject(), 
-                                onvalue = 1, 
-                                offvalue = 0,
-                                **extraOptions)
+            if "widjetObj" in dir(self.rootWidget):
+                widgetObj = ttk.Checkbutton(self.rootWidget.widjetObj, 
+                                    name = self.name, 
+                                    text = self.text,
+                                    variable = self.getDataObject(), 
+                                    onvalue = 1, 
+                                    offvalue = 0,
+                                    command = command,
+                                    **extraOptions)
+            else:
+                widgetObj = ttk.Checkbutton(self.rootWidget, 
+                                    name = self.name, 
+                                    text = self.text,
+                                    variable = self.getDataObject(), 
+                                    onvalue = 1, 
+                                    offvalue = 0,
+                                    command = command,
+                                    **extraOptions)
+
             # widgetObj = tk.Checkbutton(self.rootWidget.widjetObj, 
             #                     name = self.name, 
             #                     text = self.text,

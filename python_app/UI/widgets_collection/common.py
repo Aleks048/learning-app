@@ -112,13 +112,14 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
 
         self.tocBox.render()
 
-class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
-    subsection = None
-    imidx = None
-    var = None
-    tocBox = None
-    
-    def __init__(self, parent, subsection, imIdx, name, tocBox):
+class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
+    def __init__(self, parent, subsection, imIdx, prefix, tocBox, row, column):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_EntryShowPermamentlyCheckbox_"
+
         self.subsection = subsection
         self.imidx = str(imIdx)
         self.tocBox = tocBox
@@ -129,25 +130,22 @@ class EntryShowPermamentlyCheckbox(ttk.Checkbutton):
         else:
             alwaysShow = tocWImageDict[self.imidx]
 
-        self.var = tk.IntVar()
-        self.var.set(int(alwaysShow))
-
-        super().__init__(parent, 
-                        text ='', 
-                        takefocus = 0, 
-                        variable= self.var,
-                        name = name,
-                        command = lambda *args: self.__cmd())
+        super().__init__(prefix,
+                         name,
+                         parent, 
+                         renderData,
+                         command = lambda *args: self.__cmd())
+        self.setData(int(alwaysShow))
 
     def __cmd(self):
-        if self.var == None:
+        if self.getData() == None:
             return
 
         if self.tocBox == None:
             return
 
         tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        tocWImageDict[self.imidx] = str(self.var.get())
+        tocWImageDict[self.imidx] = str(self.getData())
         fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
 
         self.tocBox.renderWithoutScroll()
@@ -1636,9 +1634,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         textLabelFull.imIdx = k
 
         chkbtnShowPermamently = EntryShowPermamentlyCheckbox(tempFrameRow2, 
-                                                                subsection, k, 
-                                                                "contentShowAlways_" + nameId,
-                                                                self)
+                                                             subsection, k, 
+                                                             "contentShowAlways_" + nameId,
+                                                             self,
+                                                             row = 0, 
+                                                             column = self.__EntryUIs.alwaysShow.column,)
         showImages = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                     text = self.__EntryUIs.full.name,
                                     prefix = "contentOfImages_" + nameId,
@@ -2300,9 +2300,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             if not self.showAll:
 
                 if not textOnly:
-                    chkbtnShowPermamently.grid(row = 0, 
-                                               column = self.__EntryUIs.alwaysShow.column, 
-                                               sticky=ww.currUIImpl.Orientation.NW)
+                    chkbtnShowPermamently.render()
 
                 imagesGroup.render()
                 # grid(row = 0, column = self.__EntryUIs.group.column, 
