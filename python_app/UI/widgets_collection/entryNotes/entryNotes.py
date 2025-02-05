@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
 from threading import Thread
@@ -62,11 +60,18 @@ After updating the notes for \n\
         _u.log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-class NotesImageLabel(ttk.Label):
+class NotesImageLabel(ww.currUIImpl.Label):
     noteImIdx = None
 
-    def __init__(self, root, name, subsection, imIdx, 
-                 noteIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+    def __init__(self, root, prefix, subsection, imIdx, 
+                 noteIdx, row, column, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+        }
+
+        name = "_NotesImageLabel_"
+
         self.noteImIdx = str(noteIdx)
 
         if text ==  _u.Token.NotDef.str_t:
@@ -86,9 +91,9 @@ class NotesImageLabel(ttk.Label):
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
             img = ImageTk.PhotoImage(pilIm)
             exImages.append(img)
-            return super().__init__(root, name = name, image = img, padding = padding)
+            return super().__init__(prefix, name, root, renderData, image = img, padding = padding)
         else:
-            return super().__init__(root, name = name, text = text, padding = padding)
+            return super().__init__(prefix, name, root, renderData, text = text, padding = padding)
 
 
 
@@ -267,10 +272,10 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             if str(i) not in list(notes.keys()):
                 continue
 
-            def __showTextOrImage(event, *args):
-                self.latestNoteIdxToscrollTo = event.widget.noteImIdx
+            def __showTextOrImage(noteImIdx, *args):
+                self.latestNoteIdxToscrollTo = noteImIdx
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                widgetnoteImIdx = str(event.widget.noteImIdx)
+                widgetnoteImIdx = str(noteImIdx)
 
                 if widgetnoteImIdx in self.noteIdxShownInText:
                     self.noteIdxShownInText.remove(widgetnoteImIdx)
@@ -279,13 +284,13 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                     if text != self.currEtr[widgetnoteImIdx].defaultText:
                         _rebuildNote(self.subsection,
                                             self.imIdx,
-                                            event.widget.noteImIdx,
+                                            noteImIdx,
                                             text,
                                             bookPath)
 
                     self.currEtr.pop(widgetnoteImIdx)
                 else:
-                    self.noteIdxShownInText.append(str(event.widget.noteImIdx))
+                    self.noteIdxShownInText.append(str(noteImIdx))
 
                 self.render()
 
@@ -293,10 +298,11 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             if str(i) not in self.noteIdxShownInText:
                 label = NotesImageLabel(mainLabels[i], "notesImageIMG_" + str(i), 
                                             self.subsection, self.imIdx, i,
-                                            padding = [60, 0, 0, 0])
-                label.grid(row = 1, column = 1, sticky = ww.currUIImpl.Orientation.NW)
-                label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
-                label.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
+                                            padding = [60, 0, 0, 0], 
+                                            row = 1, column = 1)
+                label.render()
+                label.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
+                           [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
                 label = _ucomw.TOCFrame(mainLabels[i], 
@@ -304,8 +310,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                                 1, 1, 1
                                 )
                 labIm = NotesImageLabel(label, "notesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                labIm.grid(row = 0, column = 1)
+                                            self.subsection, self.imIdx, i,
+                                            row = 0, column = 1)
 
                 text = ""
                 if str(i) in list(self.etrTexts.keys()):
@@ -337,8 +343,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.noteImIdx = str(i)
                 labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
                 labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
-                labIm.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
-                labIm.bind(ww.currUIImpl.Data.BindID.mouse1, self.__scrollIntoView)
+                labIm.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1],
+                             [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)
 
                 labETR.render()
@@ -380,9 +386,6 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         global exImages
         exImages = []
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
-
-        dummyPreLabel = tk.Label(self.scrollable_frame, height = 1000)
-        dummyPreLabel.grid(row = 1, column=0)
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
 

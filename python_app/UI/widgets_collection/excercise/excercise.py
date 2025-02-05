@@ -1,9 +1,5 @@
-import tkinter as tk
-from tkinter import ttk
 import Pmw
 from PIL import Image, ImageTk
-import time
-import os
 from threading import Thread
 
 import UI.widgets_wrappers as ww
@@ -15,10 +11,8 @@ import data.constants as dc
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
-import scripts.osascripts as osascr
 import UI.widgets_data as wd
 import data.temp as dt
-import generalManger.generalManger as gm
 
 exImages = []
 
