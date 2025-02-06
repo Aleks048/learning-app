@@ -1,8 +1,6 @@
-from tkinter import ttk
 from PIL import Image, ImageTk
 import Pmw
 import os
-import tkinter as tk
 import re
 import time
 from threading import Thread
@@ -684,49 +682,55 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         imLabel.render()
                     else:
-                        def __updateEntryTextOnly(event, *args):
-                            widget = event.widget
+                        def __updateEntryTextOnly(widget, subsection, imIdx, row, column, text, *args):
                             imLabel = _uuicom.MultilineText_ETR(widget.root, 
-                                                                "mainTOchanging" + widget.imIdx.replace(".", "_") + widget.subsection.replace(".", "_"), 
-                                                                widget.row,
-                                                                widget.column, 
+                                                                "mainTOchanging" + imIdx.replace(".", "_") + subsection.replace(".", "_"), 
+                                                                row,
+                                                                column, 
                                                                 0, 
-                                                                widget.text)
+                                                                text)
+
                             imLabel.config(width=90)
                             imLabel.config(padx=10)
                             imLabel.config(pady=10)
-                            imLabel.imIdx = widget.imIdx
-                            imLabel.subsection = widget.subsection
+                            imLabel.imIdx = imIdx
+                            imLabel.subsection = subsection
 
-                            def __getMainWidgetBack(event):
-                                newText = event.widget.getData()
-                                imTextDict = fsm.Data.Sec.imageText(event.widget.subsection)
-                                imTextDict[event.widget.imIdx] = newText
-                                fsm.Data.Sec.imageText(event.widget.subsection, imTextDict)
+                            def __getMainWidgetBack(widget, subsection, imIdx, row, column):
+                                newText = widget.getData()
+                                imTextDict = fsm.Data.Sec.imageText(subsection)
+                                imTextDict[imIdx] = newText
+                                fsm.Data.Sec.imageText(subsection, imTextDict)
  
-                                event.widget.grid_forget()
                                 #NOTE: we create a new widget since updating the text did not change the rendered text for some reason
-                                imLabel = _uuicom.TOCTextWithClick(event.widget.root, 
-                                                             "main2" + widget.imIdx.replace(".", "_") + widget.subsection.replace(".", "_"),
-                                                            event.widget.row,
-                                                            event.widget.column,
+                                imLabel = _uuicom.TOCTextWithClick(widget.root, 
+                                                             "mainTOEntry2" + imIdx.replace(".", "_") + subsection.replace(".", "_"),
+                                                            row,
+                                                            column,
                                                             1000,
                                                             text=newText,
                                                             padx = 10,
                                                             pady = 10,
                                                             width = 95
                                                             )
-                                imLabel.subsection = event.widget.subsection
-                                imLabel.imIdx = event.widget.imIdx
+                                imLabel.subsection = subsection
+                                imLabel.imIdx = imIdx
+                                widget.grid_forget()
                                 imLabel.render()
 
-                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], 
+                                               [lambda e, *args: __updateEntryTextOnly(imLabel, 
+                                                                                       subsection, 
+                                                                                       imIdx,
+                                                                                       row, 
+                                                                                       column,
+                                                                                       newText)])
                                 imLabel.rebind(*bindData)
-                                
-
+                               
                             imLabel.bind(ww.currUIImpl.Data.BindID.Keys.shenter,
-                                         lambda e, *args: __getMainWidgetBack(e))
-                            widget.grid_forget()
+                                         lambda e, *args: __getMainWidgetBack(imLabel, subsection, imIdx, 
+                                                                              row, column))
+                            widget.hide()
                             imLabel.render()
                             imLabel.focus_force()
 
@@ -758,7 +762,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             imLabel.render()
 
                             if not link:
-                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], [__updateEntryTextOnly])
+                                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], 
+                                               [lambda e, *args: __updateEntryTextOnly(imLabel, subsection, imIdx,
+                                                                                       4, 0, txt)])
                                 imLabel.rebind(*bindData)
 
                     if not fsm.Data.Sec.isVideo(subsection):
@@ -830,7 +836,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         for w in  self.currSecondRowLabels:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
-                                w.grid_forget()
+                                if "grid_forget" in dir(w):
+                                    w.grid_forget()
+                                else:
+                                    w.hide()
                                 self.linksOpenImage.clear()
 
                     _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
@@ -2969,6 +2978,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         if shouldScroll:
             if not fsm.Data.Sec.isVideo(fsm.Data.Book.currSection):
                 try:
-                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
+                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
                 except:
                     pass

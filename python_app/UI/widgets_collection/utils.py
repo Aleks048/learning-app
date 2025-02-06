@@ -247,8 +247,14 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
         pass
 
 
-class TOCFrame(ttk.Frame):
+class TOCFrame(ww.currUIImpl.Frame):
     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, "columnspan": columnspan},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_TOCFrame_"
+
         self.subsection = None
         self.imIdx = None
 
@@ -256,14 +262,7 @@ class TOCFrame(ttk.Frame):
         self.column = column
         self.columnspan = columnspan
 
-        super().__init__(root, name = prefix, *args, **kwargs)
-
-    def render(self):
-        self.grid(row = self.row, column = self.column, 
-                  columnspan = self.columnspan, sticky = ww.currUIImpl.Orientation.NW)
-
-    def getChildren(self):
-        return self.winfo_children()
+        super().__init__(prefix, name, root, renderData, *args, **kwargs)
 
 # class TOCFrame(ww.currUIImpl.Frame):
 #     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
@@ -284,22 +283,19 @@ class TOCFrame(ttk.Frame):
 #     def getChildren(self):
 #         return self.winfo_children()
 
-class TOCTextWithClick(tk.Text):
+class TOCTextWithClick(ww.currUIImpl.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
     '''
 
-    def rebind(self, keys, cmds):
-        for i in range(len(keys)):
-            key = keys[i]
-            cmd = cmds[i]
-
-            if key == ww.TkWidgets.Data.BindID.allKeys:
-                self.bind_all(key, lambda event: cmd(event))
-            else:
-                self.bind(key, cmd)
-
     def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, text = "", *args, **kwargs) -> None:
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, "columnspan": columnspan},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : sticky}
+        }
+
+        name = "_TOCTextWithClick_"
+        
         self.clicked = False
         self.imIdx = ""
         self.subsection = ""
@@ -327,47 +323,13 @@ class TOCTextWithClick(tk.Text):
         self.columnspan = columnspan
         self.sticky = sticky
 
-        super().__init__(root, name = prefix)
-        self.setText()
+        super().__init__(prefix, name, root, renderData, text = self.text)
 
-    def setText(self):
-        text = self.text
-        
-        self.config(spacing1 = 10)
-        self.config(spacing2 = 10)
-        self.config(spacing3 = 12)
-        self.config(wrap = ww.currUIImpl.TextInsertPosition.WRAPPER_WORD)
+        self.widgetObj.configure(wraplength = 730)
+        self.widgetObj.configure(style = "EntryText.TLabel")
 
-        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
-
-        txtList = text.split(" ")
-        txt = ""
-        lineLength = 0
-
-        for w in txtList:
-            lineLength += len(w.replace("\n", "")) + 1
-            txt += w + " "
-
-            if ("\n" in w) or (lineLength > 113):
-                if not("\n" in w):
-                    txt += "\n"
-
-                lineLength = 0
-
-        Font_tuple = ("TkFixedFont", 12)
-        self.config(font = Font_tuple)
-        self.config(width = 85)
-        self.config(height = int(len(txt.split("\n"))))
-        self.config(background = "#394d43")
-        self.config(state=tk.DISABLED)
-        self.place(x = 0, y = 0)
-    
-    def render(self):
-        self.grid(row = self.row, column = self.column,
-                  columnspan = self.columnspan, sticky = self.sticky)
-
-    def generateEvent(self, event, *args, **kwargs):
-        self.event_generate(event, *args, **kwargs)
+    def hide(self, **kwargs):
+        return super().hide(**kwargs)
 
     def getChildren(self):
         return self.winfo_children()
@@ -1255,7 +1217,10 @@ class TOCLabelWithClick(ttk.Label):
         self.columnspan = columnspan
         self.sticky = sticky
 
-        super().__init__(root, name = prefix, *args, **kwargs)
+        if "tk" in dir(root):
+            super().__init__(root, name = prefix, *args, **kwargs)
+        else:
+            super().__init__(root.widgetObj, name = prefix, *args, **kwargs)
 
     def render(self):
         self.grid(row = self.row, column = self.column,

@@ -285,6 +285,7 @@ class DictText(ww.currUIImpl.Label):
                         renderData = data, 
                         text = text,
                         bindCmd = self.__bindCmd)
+
         self.widgetObj.configure(wraplength = 730)
         if not localWord:
             self.widgetObj.configure(style = "Dict.TLabel")
