@@ -105,9 +105,14 @@ class TkWidgets (DataTranslatable_Interface):
     # Create style used by default for all Frames
     s.configure('Dict.TLabel', background = "#394d43")
     s.configure('DictLoc.TLabel', background = "#7c3b3b")
+    s.configure('EntryText.TLabel', background = "#394d43")
     s.configure('TLabel', foreground = "#ffffff", background = "#323232")
     s.configure('TFrame', background = "#323232")
     s.configure("TMenubutton", background="#323232")
+    s.configure("Canvas.TMenubutton", width = 5, 
+                                      background = "#3E4742", 
+                                      activebackground = "#33B5E5", 
+                                      relief = tk.FLAT)
     s.configure('TCheckbutton', background = '#323232')
     s.configure("Horizontal.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
                     background="#323262", darkcolor="#323232", lightcolor="#323232",
@@ -226,6 +231,9 @@ class TkWidgets (DataTranslatable_Interface):
         def hide(self, **kwargs):
             self.widjetObj.grid_remove()
 
+        def delete(self, **kwargs):
+            self.widjetObj.grid_forget()
+
     class EventGeneratable_Interface_Impl(EventGeneratable_Interface):
         def __init__(self, widgetObj = None,  *args, **kwargs):
             self.widgetObj = widgetObj
@@ -267,7 +275,12 @@ class TkWidgets (DataTranslatable_Interface):
                     self.widgetObj.bind_all(key, lambda event: cmd(event))
                 else:
                     self.widgetObj.bind(key, cmd)
+        
+        def unbind(self, keys):
+            for i in range(len(keys)):
+                key = keys[i]
 
+                self.widgetObj.unbind(key)
 
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
@@ -568,9 +581,6 @@ class TkWidgets (DataTranslatable_Interface):
                  HasListenersWidget_Interface_Impl,
                  BindableWidget_Interface_Impl,
                  EventGeneratable_Interface_Impl):
-
-        widgetObj = None
-
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -665,6 +675,121 @@ class TkWidgets (DataTranslatable_Interface):
 
         def getChildren(self):
             return self.widgetObj.getChildren()
+
+    class Canvas(Notifyable_Interface,
+                RenderableWidget_Interface_Impl,
+                HasChildren_Interface_Impl,
+                BindableWidget_Interface_Impl):
+        def __init__(self, 
+                     prefix: str, 
+                     name : str,
+                     rootWidget, 
+                     renderData : dict,
+                     image,
+                     width,
+                     height,
+                     extraOptions = {},
+                     bindCmd = lambda *args: (None, None)):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+
+            self.name = prefix.lower() + name
+            self.rootWidget = rootWidget
+            
+            if ("widjetObj" not in dir(self.rootWidget)):
+                widjetObj = tk.Canvas(self.rootWidget, width = width, height = height)
+            else:
+                widjetObj = tk.Canvas(self.rootWidget.widjetObj, width = width, height = height)
+
+            self.backgroundImage = widjetObj.create_image(0, 0,
+                                                          image = image, 
+                                                          anchor='nw', 
+                                                          tag = prefix)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, 
+                                                               renderData = self.renderData)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            Notifyable_Interface.__init__(self)
+        
+        def render(self, **kwargs):
+            return super().render(self.widjetObj, self.renderData, **kwargs)
+
+        def getChildren(self):
+            return self.widgetObj.getChildren()
+    
+        def findOverlapping(self, x1, y1, x2, y2):
+            return self.widgetObj.find_overlapping(x1, y1, x2, y2)
+        
+        def createButton(self,
+                         labelStartX, 
+                         labelStartY, 
+                         anchor, 
+                         buttonWidget,
+                         tags):
+            # return the id of the created widget
+            return self.widgetObj.create_window(labelStartX, 
+                                                labelStartY, 
+                                                anchor = anchor, 
+                                                window = buttonWidget.widgetObj,
+                                                tags = tags)
+        def createRectangle(self,
+                            labelStartX, 
+                            labelStartY,
+                            labelEndX,
+                            labelEndY,
+                            fill,
+                            tags):
+            return self.widgetObj.create_rectangle(labelStartX, 
+                                                   labelStartY,
+                                                   labelEndX,
+                                                   labelEndY,
+                                                   fill = fill,
+                                                   tags = tags)
+
+        def createOval(self,
+                       startX, 
+                       startY,
+                       endX,
+                       endY,
+                       fill,
+                       outline,
+                       tags):
+            return self.widgetObj.create_oval(startX, 
+                                              startY,
+                                              endX, 
+                                              endY,
+                                              fill = fill, 
+                                              outline = outline,
+                                              tags = tags)
+
+        def createImage(self,
+                        x1, 
+                        y1, 
+                        image,
+                        anchor, 
+                        tag):
+            return self.widgetObj.create_image(x1, 
+                                               y1, 
+                                               image = image,
+                                               anchor = anchor, 
+                                               tag = tag)
+     
+        def createPolygon(self,
+                          coordinates, 
+                          fill,
+                          outline,
+                          tags):
+            return self.widgetObj.create_polygon(coordinates, 
+                                                 fill = fill,
+                                                 outline = outline,
+                                                 tags = tags)
+        
+        def findByTag(self, tag):
+            return self.widgetObj.find_withtag(tag)
+        
+        def deleteByTag(self, tag):
+            return self.widgetObj.delete(tag)
 
     class ScrollableBox (Notifyable_Interface,
                 DataContainer_Interface_Impl,
