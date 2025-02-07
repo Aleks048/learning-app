@@ -68,7 +68,6 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.insert(ww.currUIImpl.TextInsertPosition.END, text)
 
         self.config(height = newHeight)
-        self.place(x = 0, y = 0)
         self.bind(ww.currUIImpl.Data.BindID.Keys.ctrlv,
                   lambda *args: self.__pasteText(*args))
 
@@ -334,13 +333,13 @@ class TOCTextWithClick(ww.currUIImpl.Label):
     def getChildren(self):
         return self.winfo_children()
 
-class TOCCanvasWithclick(tk.Canvas):
+class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     class Label:
         def __init__(self, subsection, imIdx, canvas, 
                      startX, startY, endX, endY,
                      omPage, 
                      labelStartX = None, labelStartY = None):
-            self.canvas:tk.Canvas = canvas
+            self.canvas = canvas
             self.subsection = subsection
 
             self.id = None
@@ -394,23 +393,34 @@ class TOCCanvasWithclick(tk.Canvas):
             if self.eImIdx != None:
                 text += f"_{self.eImIdx}"
 
-            self.label = tk.Button(self.canvas, 
-                                   text = text, 
-                                   command = self.__labelCmd, 
-                                   anchor = ww.currUIImpl.Orientation.W)
-            self.label.configure(width = 5, bg = "#3E4742", activebackground = "#33B5E5", relief = tk.FLAT)
-            self.id = self.canvas.create_window(self.labelStartX, 
-                                                self.labelStartY, 
-                                                anchor = ww.currUIImpl.Orientation.NW, 
-                                                window = self.label,
-                                                tags = f"button:{self.subsection}:{self.imIdx}")
-            self.handleId = self.canvas.create_rectangle(self.labelStartX, 
+            subsecId = self.subsection.replace(".", "_")
+            prefix = f"{subsecId}_{self.imIdx}"
+            name = "_CanvasButton_"
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
+            }
+            self.label = ww.currUIImpl.Button(prefix = prefix,
+                                 name = name,
+                                 text = text,
+                                 rootWidget = self.canvas,
+                                 renderData = renderData,
+                                 cmd = self.__labelCmd
+                                 )
+
+            self.label.widgetObj.configure(style = "Canvas.TMenubutton")
+            self.id = self.canvas.createButton(self.labelStartX, 
+                                               self.labelStartY, 
+                                               anchor = ww.currUIImpl.Orientation.NW, 
+                                               buttonWidget = self.label,
+                                               tags = f"button:{self.subsection}:{self.imIdx}")
+            self.handleId = self.canvas.createRectangle(self.labelStartX, 
                                         self.labelStartY,
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "green",
                                         tags = f"buttonRect:{self.subsection}:{self.imIdx}")
-            self.handleId2 = self.canvas.create_rectangle(self.labelStartX + 70, 
+            self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70, 
                                         self.labelStartY,
                                         self.labelStartX + 80,
                                         self.labelStartY - 10,
@@ -418,17 +428,18 @@ class TOCCanvasWithclick(tk.Canvas):
                                         tags = f"buttonRect:{self.subsection}:{self.imIdx}")
 
             def __drawLine(self):
-                self.line = self.canvas.create_rectangle(self.startX - 5, self.startY,
+                self.line = self.canvas.createRectangle(self.startX - 5, self.startY,
                                                     self.startX + 1, self.endY,
-                                                    fill = "red")
+                                                    fill = "red",
+                                                    tags = f"entryLineRect:{self.subsection}:{self.imIdx}")
 
             def __deleteLine(self):
                 if self.line != None:
-                    self.canvas.delete(self.line)
+                    self.canvas.deleteByTag(self.line)
                     self.line = None              
 
-            self.label.bind("<Enter>", lambda *args: __drawLine(self))
-            self.label.bind("<Leave>", lambda *args: __deleteLine(self))
+            self.label.rebind(["<Enter>", "<Leave>"], 
+                              [lambda *args: __drawLine(self), lambda *args: __deleteLine(self)])
 
         def moveCenter(self, x, y, handle2 = False):
             width = 80
@@ -452,16 +463,16 @@ class TOCCanvasWithclick(tk.Canvas):
             self.draw()
 
         def select(self):
-            self.canvas.delete(self.handleId)
-            self.canvas.delete(self.handleId2)
+            self.canvas.deleteByTag(self.handleId)
+            self.canvas.deleteByTag(self.handleId2)
             if self.label != None:
-                self.handleId = self.canvas.create_rectangle(self.labelStartX, 
+                self.handleId = self.canvas.createRectangle(self.labelStartX, 
                                         self.labelStartY,
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "yellow",
                                         tags = f"buttonRect:{self.subsection}:{self.imIdx}")
-                self.handleId2 = self.canvas.create_rectangle(self.labelStartX + 70, 
+                self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70, 
                                         self.labelStartY,
                                         self.labelStartX + 80,
                                         self.labelStartY - 10,
@@ -469,16 +480,16 @@ class TOCCanvasWithclick(tk.Canvas):
                                         tags = f"buttonRect:{self.subsection}:{self.imIdx}")
 
         def unselect(self):
-            self.canvas.delete(self.handleId) 
-            self.canvas.delete(self.handleId2) 
+            self.canvas.deleteByTag(self.handleId) 
+            self.canvas.deleteByTag(self.handleId2) 
             if self.label != None:
-                self.handleId = self.canvas.create_rectangle(self.labelStartX, 
+                self.handleId = self.canvas.createRectangle(self.labelStartX, 
                                         self.labelStartY,
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "green",
                                         tags = f"buttonRect:{self.subsection}:{self.imIdx}")
-                self.handleId2 = self.canvas.create_rectangle(self.labelStartX + 70,
+                self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70,
                                             self.labelStartY,
                                             self.labelStartX + 80,
                                             self.labelStartY - 10,
@@ -487,13 +498,13 @@ class TOCCanvasWithclick(tk.Canvas):
 
         def deleteLabel(self):
             if self.id != None:
-                self.canvas.delete(self.id)
+                self.canvas.deleteByTag(self.id)
                 self.canvas.labels = [i for i in self.canvas.labels if i.id != self.id]
-                self.label.grid_forget()
+                self.label.hide()
                 self.id = None
             if self.handleId != None:
-                self.canvas.delete(self.handleId)
-                self.canvas.delete(self.handleId2)
+                self.canvas.deleteByTag(self.handleId)
+                self.canvas.deleteByTag(self.handleId2)
                 self.handleId = None
                 self.handleId2 = None
 
@@ -528,7 +539,7 @@ class TOCCanvasWithclick(tk.Canvas):
             self.cornerWidgetsIds = [None, None, None, None]
             self.imageContainer = None
 
-            self.canvas:tk.Canvas = canvas
+            self.canvas = canvas
             
             self.draw()
             
@@ -564,28 +575,28 @@ class TOCCanvasWithclick(tk.Canvas):
             self.deleteCornerWidgets()
             radius = 5
 
-            self.cornerWidgetsIds[0] = self.canvas.create_oval(self.startX - radius, 
+            self.cornerWidgetsIds[0] = self.canvas.createOval(self.startX - radius, 
                                                             self.startY - radius,
                                                             self.startX + radius, 
                                                             self.startY + radius,
                                                             fill = self.cornerWidgetsColor, 
                                                             outline = self.cornerWidgetsOutline,
                                                             tags = "cornerWidget")
-            self.cornerWidgetsIds[1] = self.canvas.create_oval(self.endX - radius, 
+            self.cornerWidgetsIds[1] = self.canvas.createOval(self.endX - radius, 
                                                             self.startY - radius,
                                                             self.endX + radius, 
                                                             self.startY + radius, 
                                                             fill = self.cornerWidgetsColor, 
                                                             outline = self.cornerWidgetsOutline,
                                                             tags = "cornerWidget")
-            self.cornerWidgetsIds[2] = self.canvas.create_oval(self.startX - radius, 
+            self.cornerWidgetsIds[2] = self.canvas.createOval(self.startX - radius, 
                                                             self.endY - radius,
                                                             self.startX + radius, 
                                                             self.endY + radius, 
                                                             fill = self.cornerWidgetsColor, 
                                                             outline = self.cornerWidgetsOutline,
                                                             tags = "cornerWidget")
-            self.cornerWidgetsIds[3] = self.canvas.create_oval(self.endX - radius, 
+            self.cornerWidgetsIds[3] = self.canvas.createOval(self.endX - radius, 
                                                             self.endY - radius,
                                                             self.endX + radius, 
                                                             self.endY + radius, 
@@ -644,10 +655,12 @@ class TOCCanvasWithclick(tk.Canvas):
             self.imageContainer = ImageTk.PhotoImage(image)
 
             if not self.canvas.selectingZone:
-                self.id =  self.canvas.create_image(x1, y1, image = self.imageContainer, anchor='nw', 
-                                                                                tag = self.tag)
+                self.id =  self.canvas.createImage(x1, y1, 
+                                                   image = self.imageContainer, 
+                                                   anchor=ww.currUIImpl.Orientation.NW, 
+                                                   tag = self.tag)
             else:
-                self.id =  self.canvas.create_polygon([x1, y1, x2, y1, x2, y2, x1, y2], 
+                self.id =  self.canvas.createPolygon([x1, y1, x2, y1, x2, y2, x1, y2], 
                                                     fill = '',
                                                     outline = "black",
                                                     tags = self.tag)
@@ -655,14 +668,14 @@ class TOCCanvasWithclick(tk.Canvas):
         def deleteCornerWidgets(self):      
             for w in self.cornerWidgetsIds:
                 if w != None:
-                    self.canvas.delete(w)
+                    self.canvas.deleteByTag(w)
             
             self.cornerWidgetsIds = [None, None, None, None]
 
         def deleteRectangle(self):
             if self.id != None:
                 self.deleteCornerWidgets()
-                self.canvas.delete(self.id)
+                self.canvas.deleteByTag(self.id)
 
                 if self.canvas.drawing:
                     self.canvas.rectangles = [i for i in self.canvas.rectangles if i != None]
@@ -677,8 +690,10 @@ class TOCCanvasWithclick(tk.Canvas):
         self.movingFigure = None
         self.resizingFigure = None
 
-        self.bind_all("<Mod1-s>", lambda *args: self.saveFigures(stampChanges = True))
-        self.bind_all("<Delete>", self.deleteSelectedRectangle)
+        keys = ["<Mod1-s>", "<Delete>"]
+        cmds = [lambda *args: self.saveFigures(stampChanges = True),
+                lambda *args: self.deleteSelectedRectangle()]
+        self.rebind(keys, cmds)
 
         if self.selectingZone \
             and self.lastRecrangle != None:
@@ -766,7 +781,7 @@ class TOCCanvasWithclick(tk.Canvas):
         x1 = event.x
         y1 = event.y
 
-        overlapIds = self.find_overlapping(x1, y1, x1, y1)
+        overlapIds = self.findOverlapping(x1, y1, x1, y1)
         if len(overlapIds) != 0:
             overlapId = overlapIds[-1]
 
@@ -804,7 +819,7 @@ class TOCCanvasWithclick(tk.Canvas):
             return
 
         if not self.drawing:
-            overlapIds = self.find_overlapping(x1, y1, x1, y1)
+            overlapIds = self.findOverlapping(x1, y1, x1, y1)
 
             if len(overlapIds) != 0:
                 overlapId = overlapIds[-1]
@@ -842,7 +857,7 @@ class TOCCanvasWithclick(tk.Canvas):
         endx = max(self.startCoord[0], x1)
         endy = max(self.startCoord[1], y1)
 
-        cws = self.find_withtag("cornerWidget")
+        cws = self.findByTag("cornerWidget")
         for cw in cws:
             self.delete(cw)
 
@@ -1074,21 +1089,31 @@ class TOCCanvasWithclick(tk.Canvas):
         self.width = self.image.width()
         self.height = self.image.height()
 
-        super().__init__(root, name = prefix, 
-                         width = self.width, height = self.height)
-        self.backgroundImage = self.create_image(0, 0,
-                                                image = self.image, 
-                                                anchor='nw', 
-                                                tag = prefix)
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+        }
+        name = "_Canvas_"
 
+        super().__init__(prefix, name, root, renderData, image, self.width, self.height)
         self.readFigures()
 
         if makeDrawable:
             if not self.isPdfPage:
-                self.bindCmd()
+                keys, cmds = self.__bindCmd()
+                self.rebind(keys, cmds)
             else:
-                self.bind("<Enter>", self.bindCmd)
-                self.bind("<Leave>", self.unbindCmd)
+                keys = ["<Enter>", "<Leave>"]
+
+                def __b(*args):
+                    keys, cmds = self.__bindCmd()
+                    self.rebind(keys, cmds)
+                def __ub(*args):
+                    keys = self.__unbindCmd()
+                    self.unbind(keys)
+
+                cmds = [__b, __ub]
+                self.rebind(keys, cmds)
 
     def refreshImage(self, addBrownBorder = True):
         pilIm = Image.open(self.imagePath)
@@ -1110,10 +1135,20 @@ class TOCCanvasWithclick(tk.Canvas):
 
         if self.makeDrawable:
             if not self.isPdfPage:
-                self.bindCmd()
+                keys, cmds = self.__bindCmd()
+                self.rebind(keys, cmds)
             else:
-                self.bind("<Enter>", self.bindCmd)
-                self.bind("<Leave>", self.unbindCmd)
+                keys = ["<Enter>", "<Leave>"]
+
+                def __b(*args):
+                    keys, cmds = self.__bindCmd()
+                    self.rebind(keys, cmds)
+                def __ub(*args):
+                    keys = self.__unbindCmd()
+                    self.unbind(keys)
+
+                cmds = [__b, __ub]
+                self.rebind(keys, cmds)
 
     def getEntryWidget(self, subsection, imIdx , eImIdx = None):
         for l in self.labels:
@@ -1126,44 +1161,20 @@ class TOCCanvasWithclick(tk.Canvas):
 
         return None
 
+    def __bindCmd(self, *args):
+        return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", "<ButtonRelease-1>"],\
+               [self.draw, self.draw, self.clickOnFigure, self.release]
 
-    def bindCmd(self, *args):
-        self.bind("<Shift-B1-Motion>", self.draw)
-        self.bind("<B1-Motion>", self.draw)
-        self.__btnClickFuncId = self.bind("<Button-1>", self.clickOnFigure)
-        self.bind("<ButtonRelease-1>", self.release)
-
-    def unbindCmd(self, *args):
-        self.unbind("<Shift-B1-Motion>")
-        self.unbind("<B1-Motion>")
-        try:
-            self.unbind("<Button-1>", self.__btnClickFuncId)
-        except:
-            pass
-        self.unbind("<ButtonRelease-1>")
-
-        self.unbind("<Mod1-s>")
-        self.unbind("<Delete>")
-
-    def render(self):
-        self.grid(row = self.row, column = self.column,
-                  columnspan = self.columnspan, sticky = self.sticky)
+    def __unbindCmd(self, *args):
+        return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
+                "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
 
     def generateEvent(self, event, *args, **kwargs):
-        self.event_generate(event, *args, **kwargs)
+        self.widgetObj.event_generate(event, *args, **kwargs)
 
     def getChildren(self):
         return self.winfo_children()
 
-    def rebind(self, keys, cmds):
-        for i in range(len(keys)):
-            key = keys[i]
-            cmd = cmds[i]
-
-            if key == ww.TkWidgets.Data.BindID.allKeys:
-                self.bind_all(key, lambda event: cmd(event))
-            else:
-                self.bind(key, cmd)
 
 class TOCLabelWithClick(ttk.Label):
     '''
@@ -1450,7 +1461,11 @@ def addMainEntryImageWidget(rootLabel,
                 imText = _u.Token.NotDef.str_t
         else:
             imText = _u.Token.NotDef.str_t
-        imageBaloon.bind(imLabel, "{0}".format(imText))
+        
+        if "widgetObj" in dir(imLabel):
+            imageBaloon.bind(imLabel.widgetObj, "{0}".format(imText))
+        else:
+            imageBaloon.bind(imLabel, "{0}".format(imText))
     else:
         text = fsf.Data.Sec.imageText(subsection)[imIdx]
         imLabel = TOCTextWithClick(tempLabel, 
