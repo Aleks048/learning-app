@@ -652,7 +652,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
             x1, y1, x2, y2 = self.startX, self.startY, self.endX, self.endY
             image = Image.new('RGBA', (abs(int(x2-x1)), abs(int(y2-y1))), fill)
-            self.imageContainer = ImageTk.PhotoImage(image)
+            self.imageContainer = ww.currUIImpl.UIImage(image)
 
             if not self.canvas.selectingZone:
                 self.id =  self.canvas.createImage(x1, y1, 
@@ -709,12 +709,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             if self.getTextOfSelector:
                 text = _u.getTextFromImage(None, im)
 
-                r = tk.Tk()
-                r.withdraw()
-                r.clipboard_clear()
-                r.clipboard_append(text)
-                r.update()
-                r.destroy()
+                subprocess.run("pbcopy", text=True, input=text)
                 self.selectingZone = False
                 self.getTextOfSelector = False
                 self.lastRecrangle = None
@@ -1043,7 +1038,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                  columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
                  image = None, extraImIdx = None,
                  makeDrawable = True, 
-                 isPdfPage = False, page = None, pilIm = None,
+                 isPdfPage = False, page = None,
                  resizeFactor = 1.0,
                  imagePath = "",
                  *args, **kwargs) -> None:
@@ -1086,8 +1081,12 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
         self.resizeFactor = resizeFactor
 
-        self.width = self.image.width()
-        self.height = self.image.height()
+        if "width" in dir(self.image):
+            self.width = self.image.width()
+            self.height = self.image.height()
+        else:
+            self.width = self.image.getWidth()
+            self.height = self.image.getHeight()
 
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
@@ -1116,20 +1115,20 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                 self.rebind(keys, cmds)
 
     def refreshImage(self, addBrownBorder = True):
-        pilIm = Image.open(self.imagePath)
+        self.pilIm = Image.open(self.imagePath)
+        pilIm = self.pilIm
 
-        newWidth = self.image.width()
-        newHeight = self.image.height()
+        newWidth = self.image.getWidth()
+        newHeight = self.image.getHeight()
         
         pilIm = pilIm.resize([int(newWidth), int(newHeight)], Image.LANCZOS)
 
         if addBrownBorder:
             pilIm = ImageOps.expand(pilIm, border = 2, fill = "brown")
 
-        img = ImageTk.PhotoImage(pilIm)
+        self.image = ww.currUIImpl.UIImage(pilIm)
 
-        self.image = img
-        self.itemconfigure(self.backgroundImage, image = img)
+        self.itemconfigure(self.backgroundImage, image = self.image)
 
         self.readFigures()
 
@@ -1176,22 +1175,18 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         return self.winfo_children()
 
 
-class TOCLabelWithClick(ttk.Label):
+class TOCLabelWithClick(ww.currUIImpl.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
     '''
+    def __init__(self, root, prefix, row, column, columnspan = 1, 
+                 sticky = ww.currUIImpl.Orientation.NW, *args, **kwargs) -> None:   
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : columnspan},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : sticky}
+        }
+        name = "_TOCLabelWithClick_"
 
-    def rebind(self, keys, cmds):
-        for i in range(len(keys)):
-            key = keys[i]
-            cmd = cmds[i]
-
-            if key == ww.TkWidgets.Data.BindID.allKeys:
-                self.bind_all(key, lambda event: cmd(event))
-            else:
-                self.bind(key, cmd)
-    
-    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, *args, **kwargs) -> None:
         self.root = root
         self.clicked = False
         self.imIdx = ""
@@ -1229,33 +1224,28 @@ class TOCLabelWithClick(ttk.Label):
         self.sticky = sticky
 
         if "tk" in dir(root):
-            super().__init__(root, name = prefix, *args, **kwargs)
+            super().__init__(prefix, name, root, 
+                             renderData, 
+                             *args, **kwargs)
         else:
-            super().__init__(root.widgetObj, name = prefix, *args, **kwargs)
-
-    def render(self):
-        self.grid(row = self.row, column = self.column,
-                  columnspan = self.columnspan, sticky = self.sticky)
+            super().__init__(prefix, name, root.widgetObj, 
+                             renderData, 
+                             *args, **kwargs)
 
     def generateEvent(self, event, *args, **kwargs):
-        self.event_generate(event, *args, **kwargs)
-
-    def getChildren(self):
-        return self.winfo_children()
+        self.widgetObj.event_generate(event, *args, **kwargs)
     
     def updateImage(self):
         pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
 
         shrink = 0.7
         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(pilIm)
-        super().configure(image = self.image)
+        self.image = ww.currUIImpl.UIImage(pilIm)
+        super().updateImage(self.image)
     
     def updateGroupImage(self):
-        img = comw.getGroupImg(self.subsection, self.group)
-
-        self.image = img
-        super().configure(image = self.image)
+        self.image = comw.getGroupImg(self.subsection, self.group)
+        super().updateImage(self.image)
     
     def updateSubsectionImage(self):
         if self.subsection in list(fsf.Data.Book.sections.keys()):
@@ -1264,48 +1254,44 @@ class TOCLabelWithClick(ttk.Label):
                                                             self.subsection)
 
             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
-                result = Image.open(topSectionImgPath)
+                self.result = Image.open(topSectionImgPath)
             else:
-                result = fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
+                self.result = fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
                                                                             _upan.Names.Subsection.getTopSectionPretty)
-
+            result = self.result
             shrink = 0.8
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-            result = ImageTk.PhotoImage(result)
-
-            self.image = result
-            super().configure(image = self.image)
+            self.image = ww.currUIImpl.UIImage(result)
+            super().updateImage(self.image)
         else:
             subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
                                                             sf.Wr.Manager.Book.getCurrBookName(), 
                                                             self.subsection)
 
             if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
-                result = Image.open(subsectionImgPath)
+                self.result = Image.open(subsectionImgPath)
             else:
-                result = \
+                self.result = \
                     fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsection, 
                                                                             _upan.Names.Subsection.getSubsectionPretty)
-
+            result = self.result
             shrink = 0.8
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-            result = ImageTk.PhotoImage(result)
-
-            self.image = result
-            super().configure(image = self.image)
+            self.image = ww.currUIImpl.UIImage(result)
+            super().updateImage(self.image)
 
 def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
     def __changeTextColorBlue(event = None, *args):
-        event.widget.configure(foreground="blue")
+        event.widget.changeColor("blue")
 
     def __changeTextColorBrown(event = None, *args):
-        event.widget.configure(foreground="brown")
+        event.widget.changeColor("brown")
 
     def __changeTextColorRed(event = None, *args):
-        event.widget.configure(foreground="red")
+        event.widget.changeColor("red")
 
     def __changeTextColorWhite(event = None, *args):
-        event.widget.configure(foreground="white")
+        event.widget.changeColor("white")
     
     widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
     if not shouldBeRed:
@@ -1316,6 +1302,7 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
     if shouldBeBrown:
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
+openedImages = []
 
 def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    imPad = 0, imageSize = [450, 1000], 
@@ -1325,8 +1312,10 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    extraImIdx = _u.Token.NotDef.int_t,
                    tocBox = None):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+        global openedImages
         pilIm = Image.open(imagePath)
-
+        openedImages.append(pilIm)
+        
         # NOTE: this is how it was done originally. 
         #       No idea why. Whis way added figures are messed up at resize
         # if resizeFactor <= 1.0:
@@ -1346,15 +1335,17 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
         if notes.get(str(noteImIdx)) != None:
             pilIm = ImageOps.expand(pilIm, border = 2, fill="brown")
 
-        img = ImageTk.PhotoImage(pilIm)
+        img = ww.currUIImpl.UIImage(pilIm)
+        openedImages.append(img)
 
         if bindOpenWindow:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                         row = row, column = column, columnspan = columnspan,
-                                        extraImIdx = extraImIdx, makeDrawable = False, 
+                                        extraImIdx = extraImIdx, 
                                         resizeFactor = 1 / resizeFactor,
-                                        imagePath = imagePath)
+                                        imagePath = imagePath,
+                                        makeDrawable = False)
         else:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
                                         prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],

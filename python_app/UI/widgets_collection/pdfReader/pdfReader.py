@@ -376,10 +376,10 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
 
             self.notify(PfdReader_BOX)
 
-        self.increaseLabel.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: __resizeCmd(True))        
-        self.decreaseLabel.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: __resizeCmd(False))        
+        self.increaseLabel.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                  [lambda *args: __resizeCmd(True)])        
+        self.decreaseLabel.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                  [lambda *args: __resizeCmd(False)])        
 
         self.increaseLabel.render()
         self.decreaseLabel.render()
@@ -456,10 +456,10 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         _ucomw.bindChangeColorOnInAndOut(self.decreasePage)
 
 
-        self.increasePage.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: self.changePage(True))        
-        self.decreasePage.bind(ww.currUIImpl.Data.BindID.mouse1,
-                                lambda *args: self.changePage(False))        
+        self.increasePage.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                 [lambda *args: self.changePage(True)])
+        self.decreasePage.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                 [lambda *args: self.changePage(False)])
 
         self.increasePage.render()
         self.decreasePage.render()

@@ -179,7 +179,7 @@ def getGroupImg(subsection, currImGroupName):
 
     shrink = 0.8
     result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-    result = ImageTk.PhotoImage(result)
+    result = ww.currUIImpl.UIImage(result)
 
     return result
 
@@ -534,9 +534,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             TODO: need to change to the wrapper
             '''
             if link:
-                tframe = label.master
+                tframe = label.getParent()
             else:
-                tframe = label.master.master
+                tframe = label.getGrandParent()
 
             gpframe = tframe.master
             balloon = Pmw.Balloon(tframe)
@@ -1665,14 +1665,18 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         if not textOnly:
             showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
-                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True, *args),
-                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False, *args)])
+                            [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, True,
+                                                                  *args),
+                             lambda e, *args: __showIMagesONClick(e, showImages, subSecID, False,
+                                                                  *args)])
         else:
             showImages.rebind([ww.currUIImpl.Data.BindID.mouse1, ww.currUIImpl.Data.BindID.customTOCMove],
                             [lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
-                                                                    True, textOnly = True, *args),
-                            lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
-                                                                    False, textOnly = True,*args)])
+                                                                    True, textOnly = True,
+                                                                    *args),
+                             lambda e, *args: __showIMagesONClick(e, showImages, subSecID, 
+                                                                     False, textOnly = True,
+                                                                     *args)])
 
         if str(imIdx) in fsm.Data.Sec.leadingEntry(subsection).values():
             hasSubentries = True
@@ -1943,7 +1947,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             # if (entryLinesList != _u.Token.NotDef.list_t) \
             #     and (entryLinesList != []):
             excerciseExists = True
-            openExUIEntry.configure(foreground="brown")
+            openExUIEntry.changeColor("brown")
 
             entryWordDictArr = fsm.Wr.EntryInfoStructure.readProperty(subsection,
                                                     k,
@@ -2326,7 +2330,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 _uuicom.openVideoOnThePlaceOfTheImage(textLabelPage, subsection, k)
 
         if imShouldBeBrown:
-            showImages.configure(foreground="brown")  
+            showImages.changeColor("brown")  
 
 
         _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = imShouldBeBrown)
@@ -2448,7 +2452,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
 
                 def closeAllSubsections():
-                    for wTop1 in event.widget.master.master.winfo_children():
+                    for wTop1 in event.widget.getGrandParent().winfo_children():
                         for wTop2 in wTop1.winfo_children():
                             if "labelwithclick" in str(wTop2):
                                 wTop2.clicked = False
@@ -2526,7 +2530,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                     self.scrollIntoView(event)
 
-                event.widget.configure(foreground="white")
+                event.widget.changeColor("white")
             
             label.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -2812,8 +2816,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                         prefix = "removeSubsectionPosEntryText" + subsection.replace(".", ""),
                                                         row = 0, 
                                                         column = 7,
-                                                        text = "[delete]",
-                                                        width = 20)
+                                                        text = "[delete]")
                 removeSubsection.subsection = subsection
                 removeSubsection.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                         [lambda e, *args:__removeSubsection(e, removeSubsection.subsection, *args)])

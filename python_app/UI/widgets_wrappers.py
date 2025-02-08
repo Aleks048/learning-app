@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from PIL import ImageTk
+import inspect
 
 import _utils.logging as log
 import _utils._utils_main as _u
@@ -212,6 +214,13 @@ class TkWidgets (DataTranslatable_Interface):
         def getChildren(self):
             return self.widgetObj.winfo_children()
 
+        def getParent(self):
+            return self.widgetObj.master
+
+        def getGrandParent(self):
+            return self.widgetObj.master.master
+
+
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
         def __init__(self, widgetObj = None, renderData = {}, *args, **kwargs):
             self.wasRendered = False
@@ -248,34 +257,78 @@ class TkWidgets (DataTranslatable_Interface):
             super().__init__()
 
     class BindableWidget_Interface_Impl(BindableWidget_Interface):
-        def __init__(self, widgetObj = None, 
+        class Data:
+            def __init__(self, event, callerObject):
+                self.widget = callerObject
+                self.event = event
+                self.type = event.type
+                self.keysym = event.keysym
+
+        def __init__(self, callingObject = None, 
                     bindCmd = lambda *args: (None, None) , *args, **kwargs):
             self.bindCmd = bindCmd
-            self.widgetObj = widgetObj
+            self.callingObject = callingObject
             super().__init__()
         
         def bind(self):
+
             keys, cmds = self.bindCmd()
             if keys != None and cmds != None:
                 for i in range(len(keys)):
                     key = keys[i]
                     cmd = cmds[i]
-
+                   
                     if key == TkWidgets.Data.BindID.allKeys:
-                        self.widgetObj.bind_all(key, lambda event: cmd(event))
+                        if "widgetObj" in dir(self.callingObject):
+                            self.callingObject.widgetObj.bind_all(key, 
+                                                        lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+                        else:
+                            self.callingObject.bind_all(key, 
+                                                        lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+
                     else:
-                        self.widgetObj.bind(key, cmd)
+                        if "widgetObj" in dir(self.callingObject):
+                            self.callingObject.widgetObj.bind(key, 
+                                                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+                        else:
+                            self.callingObject.bind(key, 
+                                                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
 
         def rebind(self, keys, cmds):
+            bind_all_keys = ["<Delete>", "<Mod1-s>"]
+
             for i in range(len(keys)):
                 key = keys[i]
                 cmd = cmds[i]
+                
+                shouldUseBindAll = (key == TkWidgets.Data.BindID.allKeys)\
+                                   or \
+                        ((type(self.callingObject.widjetObj) == tk.Canvas) and (key in bind_all_keys))
 
-                if key == TkWidgets.Data.BindID.allKeys:
-                    self.widgetObj.bind_all(key, lambda event: cmd(event))
+                if "widgetObj" in dir(self.callingObject):
+                    if cmd.__name__ in dir(self.callingObject):
+                        #if we are binding a call to the function class
+                        name:str = cmd.__name__
+                        l = lambda event, name = name : getattr(self.callingObject, name)(event)
+                        if shouldUseBindAll:
+                            self.callingObject.widgetObj.bind_all(keys[i], l)
+                        else:
+                            self.callingObject.widgetObj.bind(keys[i], l)
+                    else:
+                        if shouldUseBindAll:
+                            self.callingObject.widgetObj.bind_all(key, 
+                                lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+                        else:
+                            self.callingObject.widgetObj.bind(key, 
+                                lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
                 else:
-                    self.widgetObj.bind(key, cmd)
-        
+                    if shouldUseBindAll:
+                        self.callingObject.bind_all(key, 
+                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+                    else:
+                        self.callingObject.bind(key, 
+                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+
         def unbind(self, keys):
             for i in range(len(keys)):
                 key = keys[i]
@@ -322,11 +375,15 @@ class TkWidgets (DataTranslatable_Interface):
                 cmd()
             
             widgetObj.configure(command = lambda : btnCmd())
+                        
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widgetObj,)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = widgetObj)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -391,12 +448,15 @@ class TkWidgets (DataTranslatable_Interface):
                                         **extraOptions)
             self.optionMenu = optionMenu
             self.optionMenu.grid(column= 0, row = 0)
-            
+                        
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widgetObj,)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             Notifyable_Interface.__init__(self)
 
             self.setData(defaultOption)
@@ -474,11 +534,15 @@ class TkWidgets (DataTranslatable_Interface):
                             textvariable = self.getDataObject(),
                             name = self.name,
                             **extraOptions)
+            
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, widgetObj = widgetObj,)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, callingObject = child,)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -557,18 +621,14 @@ class TkWidgets (DataTranslatable_Interface):
                                     command = command,
                                     **extraOptions)
 
-            # widgetObj = tk.Checkbutton(self.rootWidget.widjetObj, 
-            #                     name = self.name, 
-            #                     text = self.text,
-            #                     variable = self.getDataObject(), 
-            #                     onvalue = 1, 
-            #                     offvalue = 0,
-            #                     **extraOptions)
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widgetObj, bindCmd = self.bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, widgetObj = widgetObj)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = self.bindCmd, callingObject = child)
             Notifyable_Interface.__init__(self)
 
             super().bind()
@@ -605,23 +665,32 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
+            if type(image) == TkWidgets.UIImage:
+                tkImage = image.data
+            else:
+                tkImage = image
+
             if "widjetObj" in dir(self.rootWidget):
                 widjetObj = ttk.Label(self.rootWidget.widjetObj, 
                                       text = self.text, 
-                                      image = self.image,
+                                      image = tkImage,
                                       padding = self.padding)
             else:
                 widjetObj = ttk.Label(self.rootWidget, 
                                       text = self.text, 
-                                      image = self.image,
+                                      image = tkImage,
                                       padding = self.padding)
 
             self.widgetObj = widjetObj
+                        
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             TkWidgets.EventGeneratable_Interface_Impl.__init__(self, widgetObj = widjetObj)
             Notifyable_Interface.__init__(self)
             Datable_Interface.__init__(self, data)
@@ -640,6 +709,13 @@ class TkWidgets (DataTranslatable_Interface):
 
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
+
+        def updateImage(self, image):
+            self.widgetObj.configure(image = image.data)
+            return image
+        
+        def changeColor(self, newColor):
+            self.widgetObj.configure(foreground=newColor)
 
 
     class Frame(Notifyable_Interface,
@@ -673,9 +749,6 @@ class TkWidgets (DataTranslatable_Interface):
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
 
-        def getChildren(self):
-            return self.widgetObj.getChildren()
-
     class Canvas(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
                 HasChildren_Interface_Impl,
@@ -701,22 +774,31 @@ class TkWidgets (DataTranslatable_Interface):
             else:
                 widjetObj = tk.Canvas(self.rootWidget.widjetObj, width = width, height = height)
 
-            self.backgroundImage = widjetObj.create_image(0, 0,
-                                                          image = image, 
-                                                          anchor='nw', 
-                                                          tag = prefix)
+            self.image = image
+
+            if type(self.image) != TkWidgets.UIImage:
+                self.backgroundImage = widjetObj.create_image(0, 0,
+                                                            image = self.image, 
+                                                            anchor='nw', 
+                                                            tag = prefix)
+            else:
+                self.backgroundImage = widjetObj.create_image(0, 0,
+                                                            image = self.image.data, 
+                                                            anchor='nw', 
+                                                            tag = prefix)
+
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
             
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, 
                                                                renderData = self.renderData)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             Notifyable_Interface.__init__(self)
         
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
-
-        def getChildren(self):
-            return self.widgetObj.getChildren()
     
         def findOverlapping(self, x1, y1, x2, y2):
             return self.widgetObj.find_overlapping(x1, y1, x2, y2)
@@ -771,7 +853,7 @@ class TkWidgets (DataTranslatable_Interface):
                         tag):
             return self.widgetObj.create_image(x1, 
                                                y1, 
-                                               image = image,
+                                               image = image.data,
                                                anchor = anchor, 
                                                tag = tag)
      
@@ -876,11 +958,15 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.container = container
             widjetObj = container
+                        
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
 
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = widjetObj)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             Notifyable_Interface.__init__(self)
 
             self.bind()
@@ -908,7 +994,11 @@ class TkWidgets (DataTranslatable_Interface):
             
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, widgetObj = self.widgetObj)
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
+
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj, bindCmd = bindCmd, renderData = self.renderData)
         
             super().bind()
@@ -958,7 +1048,18 @@ class TkWidgets (DataTranslatable_Interface):
         
         def exitApp(self):
             self.widgetObj.destroy()
-    
+
+    class UIImage():
+        def __init__(self, image):
+            self.image = image
+            self.data = ImageTk.PhotoImage(self.image)
+        
+        def getWidth(self):
+            return self.data.width()
+
+        def getHeight(self):
+            return self.data.height()
+
     def startLoop():
         def tick():
             # this function stamps the changes every 180 seconds
