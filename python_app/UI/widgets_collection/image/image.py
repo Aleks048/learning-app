@@ -168,7 +168,7 @@ class NotesLabel(ww.currUIImpl.Label,
         # image / text
         if not self.noteShownIntext:
             if self.currEtr != None:
-                self.currEtr.grid_forget()
+                self.currEtr.hide()
                 self.currEtr = None
             label = NotesImageLabel(self.widgetObj, "notesImageIMG_", 
                                         self.subsection, self.imIdx, noteImIdx,

@@ -508,6 +508,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.scrollToEntry(subsection, imIdx)
 
     def AddEntryWidget(self, imIdx, subsection, frame):
+        if subsection != fsm.Data.Book.subsectionOpenInTOC_UI:
+            return
+
         if str(imIdx) == _u.Token.NotDef.str_t:
             return
 
@@ -1588,7 +1591,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         shrink = 0.7
         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-        img = ImageTk.PhotoImage(pilIm)
+        img = ww.currUIImpl.UIImage(pilIm)
 
         if (subsection == self.entryAsETR.subsection)\
             and (k == self.entryAsETR.imIdx) :
@@ -2068,7 +2071,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             shrink = 0.7
                             pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                            img = ImageTk.PhotoImage(pilIm)
+                            img = ww.currUIImpl.UIImage(pilIm)
 
                             glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
                                                         image = img,
@@ -2211,7 +2214,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             shrink = 0.7
                             pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-                            img = ImageTk.PhotoImage(pilIm)
+                            img = ww.currUIImpl.UIImage(pilIm)
 
                             glLinkLablel = _uuicom.TOCLabelWithClick(glLinkImLablel,
                                                         image = img,
@@ -2626,7 +2629,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 shrink = 0.8
                 result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-                result = ImageTk.PhotoImage(result)
+                result = ww.currUIImpl.UIImage(result)
 
                 subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, 
                                                 prefix = nameId, padding = [0, 20, 0, 0],
@@ -2653,7 +2656,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     shrink = 0.8
                     result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-                    result = ImageTk.PhotoImage(result)
+                    result = ww.currUIImpl.UIImage(result)
 
                     subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
                                                         row = 0, column= 0)

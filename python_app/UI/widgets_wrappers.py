@@ -256,6 +256,9 @@ class TkWidgets (DataTranslatable_Interface):
         def getYCoord(self):
             return self.widgetObj.winfo_y()
 
+        def forceFocus(self):
+            self.widjetObj.focus_force()
+
 
     class EventGeneratable_Interface_Impl(EventGeneratable_Interface):
         def __init__(self, widgetObj = None,  *args, **kwargs):
@@ -666,7 +669,7 @@ class TkWidgets (DataTranslatable_Interface):
                     bindCmd = lambda *args: (None, None),
                     padding = [0, 0, 0, 0],
                     image = None,
-                    text = _u.Token.NotDef.str_t,
+                    text = None,
                     data = {}):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
@@ -777,10 +780,14 @@ class TkWidgets (DataTranslatable_Interface):
                                       padding = self.padding,)
                                       #name = name)
             else:
-                widjetObj = ttk.Frame(self.rootWidget.widjetObj, 
-                                      padding = self.padding,)
-                                    #   name = name)
-            
+                if "widjetObj" in dir(self.rootWidget):
+                    widjetObj = ttk.Frame(self.rootWidget.widjetObj, 
+                                        padding = self.padding,)
+                else:
+                    widjetObj = ttk.Frame(self.rootWidget, 
+                                        padding = self.padding,)
+                                        #   name = name)
+
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             Notifyable_Interface.__init__(self)
@@ -1168,6 +1175,12 @@ class TkWidgets (DataTranslatable_Interface):
 
         def getHeight(self):
             return self.canvas.winfo_height()
+    
+        def getChildren(self):
+            return self.scrollable_frame.winfo_children()
+            
+        def forceFocus(self):
+            self.scrollable_frame.focus_force()
 
 
     class RootWidget(BindableWidget_Interface_Impl,

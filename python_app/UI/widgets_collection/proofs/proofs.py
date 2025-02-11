@@ -1,5 +1,5 @@
 import Pmw
-from PIL import Image, ImageTk
+from PIL import Image
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -27,11 +27,9 @@ class ProofImageLabel(ww.currUIImpl.Label):
 
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([530, 1000], Image.LANCZOS)
-        img = ImageTk.PhotoImage(pilIm)
-        self.image = img
+        self.image = ww.currUIImpl.UIImage(pilIm)
 
-        return super().__init__(prefix, name, root, data, 
-                                text = _u.Token.NotDef.str_t, 
+        return super().__init__(prefix, name, root, data,
                                 image = self.image, 
                                 padding = [90, 0, 0, 0])
 
@@ -66,7 +64,7 @@ class ProofMainImage(ww.currUIImpl.Frame):
                                                       self.subsection, self.entryIdx,
                                                       120, self.displayedImages, balloon)
         self.imLabel.render()
-        self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
@@ -186,10 +184,10 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
         return super().hide(**kwargs)     
 
     def render(self, widjetObj=None, renderData=..., **kwargs):
-        for w in self.scrollable_frame.winfo_children():
+        for w in self.getChildren():
             w.destroy()
 
-        self.scrollable_frame.focus_force()
+        self.forceFocus()
 
         self.addProofLines()
 
