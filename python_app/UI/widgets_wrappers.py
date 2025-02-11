@@ -4,6 +4,10 @@ from tkinter import ttk
 from PIL import ImageTk
 import inspect
 
+import os
+from ctypes import c_void_p, cdll
+import vlc
+
 import _utils.logging as log
 import _utils._utils_main as _u
 import UI.widgets_data as wd
@@ -103,6 +107,8 @@ class Data:
     widgetsWidth = "width"
 
 class TkWidgets (DataTranslatable_Interface):
+    tkinterVersion = tk.TkVersion
+
     s = ttk.Style()
     s.theme_use("default")
     # Create style used by default for all Frames
@@ -781,6 +787,74 @@ class TkWidgets (DataTranslatable_Interface):
         
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
+
+    class VideoPayer(Frame):
+        def render(self, videoPath, **kwargs):
+            # Creating VLC player
+            self.instance = vlc.Instance()
+            self.player = self.instance.media_player_new()
+
+             # Function to start player from given source
+            self.media = self.instance.media_new(videoPath)
+            self.media.get_mrl()
+            self.player.set_media(self.media)
+
+            # libtk = cdll.LoadLibrary(ctypes.util.find_library('tk'))
+            # returns the tk library /usr/lib/libtk.dylib from macOS,
+            # but we need the tkX.Y library bundled with Python 3+
+            # and matching the version of tkinter, _tkinter, etc.
+            libtk = 'libtk%s.dylib' % (TkWidgets.tkinterVersion)
+            #NOTE: we keep the lib in the same dir as the python file
+            libtk = os.path.join(os.path.dirname(os.path.realpath(__file__)), "tk_specific", libtk)
+            libtk = cdll.LoadLibrary(libtk)
+            # getNSView = libtk.TkMacOSXDrawableView  # XXX not found?
+            getNSView = libtk.TkMacOSXGetRootControl
+            getNSView.restype = c_void_p
+            getNSView.argtypes = c_void_p,
+            self.player.set_nsobject(getNSView(self.widjetObj.winfo_id()))
+
+            super().render(**kwargs)
+        
+        def GetHandle(self):
+            # Getting frame ID
+            return self.canvas.winfo_id()
+        
+        def pause(self):
+            if self.player.is_playing():
+                self.playing = True
+                self.play()
+
+        def play(self, playPosition = None, videoName = ""):
+            self.rootWidget.widgetObj.title(f"Video for: {videoName} at " + "{:.2f}".format(self.player.get_position()))
+            if not self.playing:
+                self.player.play()
+                if playPosition != None:
+                    self.player.set_position(playPosition)
+            else:
+                self.player.pause()
+
+            self.playing = not self.playing
+        
+        def scroll(self, numSeconds):
+            secondAsPercentage = 1.0 / (float(self.player.get_length()) / 1000.0)
+            self.player.set_position(self.player.get_position() + (numSeconds * secondAsPercentage))
+
+        def getVideoPosition(self):
+            return self.player.get_position()
+        
+        def isPlaying(self):
+            return self.player.is_playing()
+
+        def close(self):
+            self.player.stop()
+            self.media = None
+            self.player = None
+            self.widgetObj.grid_forget()
+            self.widjetObj.grid_forget()
+
+        def forceFocus(self):
+            self.rootWidget.widjetObj.focus_force()
+        
 
     class MultilineText(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,

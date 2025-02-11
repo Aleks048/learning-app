@@ -1,7 +1,3 @@
-import tkinter as Tk
-import os
-import vlc
-from ctypes import c_void_p, cdll
 import time
 
 import UI.widgets_wrappers as ww
@@ -13,7 +9,7 @@ import _utils.pathsAndNames as _upan
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as osc
 
-class VideoPlayerLabel(ww.currUIImpl.Frame):
+class VideoPlayerLabel(ww.currUIImpl.VideoPayer):
     def __init__(self, parentWidget, prefix):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 1},
@@ -29,42 +25,14 @@ class VideoPlayerLabel(ww.currUIImpl.Frame):
                         name,
                         parentWidget, 
                         renderData = data)
-
-    def GetHandle(self):
-        # Getting frame ID
-        return self.canvas.winfo_id()
     
-    def pause(self):
-        if self.player.is_playing():
-            self.playing = True
-            self.play()
-
-    def play(self, playPosition = None):
-        self.rootWidget.widgetObj.title(f"Video for: {self.subsection}/{self.imIdx} at " + "{:.2f}".format(self.player.get_position()))
-        if not self.playing:
-            self.player.play()
-            if playPosition != None:
-                self.player.set_position(playPosition)
-        else:
-            self.player.pause()
-
-        self.playing = not self.playing
-    
-    def scroll(self, numSeconds):
-        secondAsPercentage = 1.0 / (float(self.player.get_length()) / 1000.0)
-        self.player.set_position(self.player.get_position() + (numSeconds * secondAsPercentage))
-
-    def getVideoPosition(self):
-        return self.player.get_position()
+    def play(self, playPosition=None):
+        return super().play(playPosition, f"{self.subsection}:{self.imIdx}")
 
     def render(self, **kwargs):
         if self.subsection != None:
             if self.playing:
                 self.pause()
-
-            # Creating VLC player
-            self.instance = vlc.Instance()
-            self.player = self.instance.media_player_new()
 
             #TODO: change to relevant path
             videoPath = _upan.Paths.Section.Video.getAbs(self.subsection)
@@ -73,50 +41,24 @@ class VideoPlayerLabel(ww.currUIImpl.Frame):
                 _u.log.autolog(f"The file '{videoPath}' does not exist. Stop opening the menu.")
                 return
 
-            # Function to start player from given source
-            self.media = self.instance.media_new(videoPath)
-            self.media.get_mrl()
-            self.player.set_media(self.media)
-
-            # libtk = cdll.LoadLibrary(ctypes.util.find_library('tk'))
-            # returns the tk library /usr/lib/libtk.dylib from macOS,
-            # but we need the tkX.Y library bundled with Python 3+
-            # and matching the version of tkinter, _tkinter, etc.
-            libtk = 'libtk%s.dylib' % (Tk.TkVersion,)
-            #NOTE: we keep the lib in the same dir as the python file
-            libtk = os.path.join(os.path.dirname(os.path.realpath(__file__)), libtk)
-            libtk = cdll.LoadLibrary(libtk)
-            # getNSView = libtk.TkMacOSXDrawableView  # XXX not found?
-            getNSView = libtk.TkMacOSXGetRootControl
-            getNSView.restype = c_void_p
-            getNSView.argtypes = c_void_p,
-            self.player.set_nsobject(getNSView(self.widjetObj.winfo_id()))
-
-            super().render(**kwargs)
+            super().render(videoPath, **kwargs)
 
             videoPositionDict:dict = fsf.Data.Sec.videoPosition(self.subsection)
             if videoPositionDict.get(self.imIdx) != None:
                 self.play(videoPositionDict[self.imIdx])
 
-                while not self.player.is_playing():
+                while not self.isPlaying():
                     time.sleep(0.1)
                 time.sleep(0.1)
                 self.play()
             else:
                 self.play()
-                while not self.player.is_playing():
+                while not self.isPlaying():
                     time.sleep(0.1)
                 time.sleep(0.1)
                 self.play()
                 
-            self.rootWidget.widjetObj.focus_force()
-
-    def close(self):
-        self.player.stop()
-        self.media = None
-        self.player = None
-        self.widgetObj.grid_forget()
-        self.widjetObj.grid_forget()
+            self.forceFocus()
 
 class VideoPlayerRoot(ww.currUIImpl.RootWidget):
     def __init__(self, width, height, bindCmd=...):
