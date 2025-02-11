@@ -84,11 +84,6 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
 
 def getMonitorSize():
     # NOTE: this is an alternative way to get screen size. Might be better?
-    # from screeninfo import get_monitors
-    # import tkinter
-    # root = tkinter.Toplevel()
-    # root.withdraw()
-    # return [root.winfo_screenwidth(), root.winfo_screenheight()]
     return [(screen.frame().size.width, screen.frame().size.height)
             for screen in NSScreen.screens()][0]
 
@@ -149,8 +144,6 @@ class JSON:
 
     @classmethod
     def readFile(cls, filePath):
-        # print("JSON.readFile - reading json file: " + filePath)
-
         if filePath not in list(cls.__tempFiles.keys()):
             outputList = None
 
@@ -164,7 +157,6 @@ class JSON:
 
     @classmethod
     def writeFile(cls, filePath, dataTowrite):
-        # print("JSON.writeFile - writing to json file: " + filePath)
         cls.__tempFiles[filePath] = dataTowrite
 
     @lockutils.synchronized('not_thread_safe')
@@ -212,8 +204,6 @@ class JSON:
 
     @lockutils.synchronized('not_thread_safe')
     def updateProperty(jsonFilepath, propertyName, newValue):
-        # print("JSON.updateProperty - updating property " + propertyName + " in settings file")
-    
         def _updateProperty(jsonData, newValue):
             if propertyName in jsonData:
                 if type(newValue) != type(jsonData[propertyName]):
