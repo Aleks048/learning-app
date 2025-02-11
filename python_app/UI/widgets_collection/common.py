@@ -91,9 +91,6 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
 
         prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
 
-        # print(imIdx)
-        # print(subsection)
-
         super().__init__(prefix, 
                          name,
                          listOfOptions,
@@ -413,39 +410,44 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if not self.shouldScroll:
             return
 
-        try:
-            posy = 0
+        posy = 0
 
-            if widget == None:
-                pwidget = event.widget
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
+
+
+        self.canvas.yview_scroll(-100, "units")
+        self.canvas.update()
+        pwidget.update()
+
+        while pwidget != self.parent:
+            if "tkinter." not in str(type(pwidget)):
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
             else:
-                pwidget = widget
-
-
-            self.canvas.yview_scroll(-100, "units")
-            self.canvas.update()
-            pwidget.update()
-
-            while pwidget != self.parent:
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            posy = 0
+        posy = 0
 
-            if widget == None:
-                pwidget = event.widget
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
+
+        while pwidget != self.parent:
+            if "tkinter." not in str(type(pwidget)):
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
             else:
-                pwidget = widget
-
-            while pwidget != self.parent:
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            pos = posy - self.scrollable_frame.winfo_rooty() - 50
-            height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) - 0.04)
-        except:
-            pass
+        pos = posy - self.scrollable_frame.winfo_rooty() - 50
+        height = self.scrollable_frame.winfo_height()
+        self.canvas.yview_moveto((pos / height) - 0.04)
     
     def __renderWithScrollAfter(self):
         self.shouldScroll = False
@@ -454,10 +456,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         if self.currEntryWidget != None:
             self.currEntryWidget.clicked = False
-            try:
-                self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.mouse1)
-            except:
-                pass
+            self.currEntryWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
 
     def __renderWithoutScroll(self):
         self.shouldScroll = False
@@ -563,29 +562,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 if not link:
                     for w in self.linkFrames:
-                        try:
-                            if (w.subsection == subsection) and (w.imIdx == imIdx):
-                                w.render()
-                            else:
-                                if not self.showLinks:
-                                    w.grid_forget()
-                        except:
-                            pass
+                        if (w.subsection == subsection) and (w.imIdx == imIdx):
+                            w.render()
+                        else:
+                            if not self.showLinks:
+                                w.grid_forget()
 
                     for w in self.currSecondRowLabels:
-                        try:
-                            if (w.subsection == subsection) and (w.imIdx == imIdx):
-                                w.render()
+                        if (w.subsection == subsection) and (w.imIdx == imIdx):
+                            w.render()
 
-                                if not self.showAll:
-                                    self.currentEntrySubsection = subsection
-                                    self.currentEntryImIdx = imIdx
+                            if not self.showAll:
+                                self.currentEntrySubsection = subsection
+                                self.currentEntryImIdx = imIdx
 
-                                shoulShowSecondRow = True
-                            else:
+                            shoulShowSecondRow = True
+                        else:
+                            if "grid_forget" in dir(w):
                                 w.grid_forget()
-                        except:
-                            pass
+                            else:
+                                w.hide()
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
@@ -598,14 +594,14 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             if k == subsection + imIdx:
                                 try:
                                     showImages = self.showImagesLabels[subsection + imIdx]
-                                    showImages.configure(foreground = "brown")  
+                                    showImages.changeColor("brown")  
                                     _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = True)
                                 except:
                                     pass
                             else:
                                 try:
                                     showImages = self.showImagesLabels[k]
-                                    showImages.configure(foreground = "white")  
+                                    showImages.changeColor("white")  
                                     _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = False)
                                 except:
                                     pass
@@ -732,7 +728,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                               row, column))
                             widget.hide()
                             imLabel.render()
-                            imLabel.focus_force()
+                            # imLabel.focus_force()
 
                         if not fsm.Data.Sec.isVideo(subsection):
                             mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
@@ -1287,7 +1283,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             textLabelPage.subsection = widget.subsection
             #textLabelPage.etrWidget = textLabelPage
 
-            def __getWidgetBack(textEntry, widget):
+            def __getWidgetBack(textEntry:_uuicom.MultilineText_ETR, widget):
                 newText = textEntry.getData()
                 imLinkDict = fsm.Data.Sec.imLinkDict(textEntry.subsection)
                 textOnly = fsm.Data.Sec.textOnly(textEntry.subsection)[textEntry.imIdx]
@@ -1301,13 +1297,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 
                 widget.render()
                 widget.updateImage()
-                textEntry.grid_forget()
+                textEntry.hide()
 
             textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                     [lambda *args: __getWidgetBack(textLabelPage, widget)])
-            widget.grid_forget()
+            widget.hide()
             textLabelPage.render()
-            textLabelPage.focus_force()
+            # textLabelPage.focus_force()
 
         k = imIdx
         i = int(imIdx)
@@ -1406,16 +1402,21 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                 padding=[leftPad, topPad, 0, 0],
                                 row = i + 2, column = 0, columnspan = 100)
 
-        if (currImGroupName != prevImGroupName) or (k == "0"):
-            if currImGroupName != "No group":
-                imageGroupFrame = _uuicom.TOCFrame(tempFrame,
-                                            prefix = "contentImageGroupFr_" + nameId,
-                                            padding=[0, topPad, 0, 0], 
-                                            row = 0, column = 0, columnspan = 100)
-                imageGroupFrame.render()
+        if (currImGroupName != prevImGroupName) or (str(k) == "0"):
+            imageGroupFrame = _uuicom.TOCFrame(tempFrame,
+                                        prefix = "contentImageGroupFr_" + nameId,
+                                        padding=[0, topPad, 0, 0], 
+                                        row = 0, column = 0, columnspan = 100)
+            imageGroupFrame.render()
+
+            if True:#currImGroupName != "No group":
 
                 def __updateGroup(event, *args):
                     widget = event.widget
+
+                    if widget.group == "No group":
+                        return
+
                     imageGroupLabel = _uuicom.MultilineText_ETR(widget.root, 
                                             "contentGroupP_" + widget.subsection + widget.group, 
                                             widget.row, widget.column, 
@@ -1434,15 +1435,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                         imagesGroupsList)
                         fsm.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
                                                                                 newText)
-                        etr.grid_forget()
+                        etr.hide()
                         imageWidget.group = newText
                         imageWidget.updateGroupImage()
                         imageWidget.render()
 
                     imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                             [lambda e, *args: __getImageBack(e, widget.group, widget)])
-                    widget.grid_forget()
-                    imageGroupLabel.focus_force()
+                    widget.hide()
+                    # imageGroupLabel.focus_force()
                     imageGroupLabel.render()
 
                 if (subsection != self.groupAsETR.subsection) or\
@@ -1456,108 +1457,102 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     imageGroupLabel.image = img
                     imageGroupLabel.subsection = subsection
                     imageGroupLabel.group = currImGroupName
+
+                    # NOTE: without rebind groups sometimes not shoing up #FIXME
                     imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                             [__updateGroup])
 
                 imageGroupLabel.render()
-                hideImageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
-                                                        text = "[show/hide]",
-                                                        prefix = "contentHideImageGroupLabel_" + nameId,
-                                                        row = 0, column = 1)
 
-                if not self.showAll:
-                    hideImageGroupLabel.render()
+                if currImGroupName != "No group":
+                    hideImageGroupLabel = _uuicom.TOCLabelWithClick(imageGroupFrame, 
+                                                            text = "[show/hide]",
+                                                            prefix = "contentHideImageGroupLabel_" + nameId,
+                                                            row = 0, column = 1)
 
-                hideImageGroupLabel.subsection = subsection
-                hideImageGroupLabel.imIdx = k
-                hideImageGroupLabel.group = currImGroupName
+                    if not self.showAll:
+                        hideImageGroupLabel.render()
 
-                _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
+                    hideImageGroupLabel.subsection = subsection
+                    hideImageGroupLabel.imIdx = k
+                    hideImageGroupLabel.group = currImGroupName
 
-                def __cmd(e):
-                    imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
-                    imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
-                    fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
-                    self.__renderWithoutScroll()
+                    _uuicom.bindChangeColorOnInAndOut(hideImageGroupLabel)
 
-                hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+                    def __cmd(e):
+                        imagesGroupsList = fsm.Data.Sec.imagesGroupsList(e.widget.subsection)
+                        imagesGroupsList[e.widget.group] = not imagesGroupsList[e.widget.group]
+                        fsm.Data.Sec.imagesGroupsList(e.widget.subsection, imagesGroupsList)
+                        self.__renderWithoutScroll()
 
-                newGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
-                        prefix = "contentNewGroupImageGroupLabel_" + nameId,
-                        row = 0, 
-                        column = 3,
-                        imIdx = k,
-                        text = currImGroupName,
-                        width = 10)
-                newGroup.subsection = subsection
-                newGroup.render()
-                newGroup.setData(currImGroupName)
+                    hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-                moveGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
-                        prefix = "contentMoveImageGroupLabel_" + nameId,
-                        row = 0, 
-                        column = 2,
-                        imIdx = k,
-                        text = subsection + ":" + str(k),
-                        width = 10)
-                moveGroup.subsection = subsection
-                moveGroup.imIdx = k
+                    newGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                            prefix = "contentNewGroupImageGroupLabel_" + nameId,
+                            row = 0, 
+                            column = 3,
+                            imIdx = k,
+                            text = currImGroupName,
+                            width = 10)
+                    newGroup.subsection = subsection
+                    newGroup.render()
+                    newGroup.setData(currImGroupName)
 
-                def __moveGroup(e, *args): 
-                    # NOTE: this is a hack but I can't find a better way atm   
-                    wName = str(e.widget)
-                    wName = wName.split("contentmoveimagegrouplabel_")[-1]
-                    wName = wName.split("_imageSizeTOC_ETR")[0]
-                    subsection = wName.split("_")[0].replace("$", ".")
-                    imIdx = wName.split("_")[1]
-                    newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
-                    newGroupNameW = [i for i in e.widget.master.winfo_children() \
-                                        if newGroupNameWName.lower() in str(i)][0]
+                    moveGroup = _uuicom.ImageSize_ETR(imageGroupFrame,
+                            prefix = "contentMoveImageGroupLabel_" + nameId,
+                            row = 0, 
+                            column = 2,
+                            imIdx = k,
+                            text = subsection + ":" + str(k),
+                            width = 10)
+                    moveGroup.subsection = subsection
+                    moveGroup.imIdx = k
 
-                    targetWholePath:str = e.widget.get()
+                    def __moveGroup(e, *args): 
+                        # NOTE: this is a hack but I can't find a better way atm   
+                        wName = str(e.widget)
+                        wName = wName.split("contentmoveimagegrouplabel_")[-1]
+                        wName = wName.split("_imageSizeTOC_ETR")[0]
+                        subsection = wName.split("_")[0].replace("$", ".")
+                        imIdx = wName.split("_")[1]
+                        newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
+                        newGroupNameW = [i for i in e.widget.master.winfo_children() \
+                                            if newGroupNameWName.lower() in str(i)][0]
 
-                    if ":" not in targetWholePath:
-                        _u.log.autolog("Incorrect destination path")
+                        targetWholePath:str = e.widget.get()
 
-                    targetSubsection = targetWholePath.split(":")[0]
-                    targetEntryIdx = targetWholePath.split(":")[1]
-                    targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
-                    sourceSubsection = subsection
-                    sourceEntryIdx = imIdx
-                    sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
-                    sourceGroupName = list(fsm.Data.Sec.imagesGroupsList(sourceSubsection).keys())[sourceGroupNameIdx]
+                        if ":" not in targetWholePath:
+                            _u.log.autolog("Incorrect destination path")
 
-                    # ask the user if we wnat to proceed.
-                    msg = "\
-Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n with group name \n'{2}'?".format(targetSubsection, 
-                                                                                    targetEntryIdx, 
-                                                                                    targetGroupName)
-                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+                        targetSubsection = targetWholePath.split(":")[0]
+                        targetEntryIdx = targetWholePath.split(":")[1]
+                        targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
+                        sourceSubsection = subsection
+                        sourceEntryIdx = imIdx
+                        sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
+                        sourceGroupName = list(fsm.Data.Sec.imagesGroupsList(sourceSubsection).keys())[sourceGroupNameIdx]
 
-                    mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.MathMenuManager)
-                    mainManager.show()
+                        # ask the user if we wnat to proceed.
+                        msg = "\
+    Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n with group name \n'{2}'?".format(targetSubsection, 
+                                                                                        targetEntryIdx, 
+                                                                                        targetGroupName)
+                        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                    if not response:
-                        return
+                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                        mainManager.show()
 
-                    gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
-                                                            targetSubsection, targetGroupName, targetEntryIdx)
-                    self.__renderWithoutScroll()
-                moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
-                                        [__moveGroup])
-                moveGroup.render()
+                        if not response:
+                            return
 
-                gridRowStartIdx = 2
-            else:
-                img = getGroupImg(subsection, currImGroupName)
-                imageNoGroupLabel = _uuicom.TOCLabelWithClick(tempFrame, 
-                                            image = img,
-                                            prefix = "contentNoGroupP_" + nameId,
-                                            padding= [30, 0, 0, 0],
-                                            row = 0, column = 0)
-                imageNoGroupLabel.image = img
-                imageNoGroupLabel.render()
+                        gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
+                                                                targetSubsection, targetGroupName, targetEntryIdx)
+                        self.__renderWithoutScroll()
+                    moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                            [__moveGroup])
+                    moveGroup.render()
+
                 gridRowStartIdx = 2
 
         tempFrameRow1 = _uuicom.TOCFrame(tempFrame,
@@ -1609,7 +1604,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                     [updateEntry])
             self.entryAsETR.widget = textLabelPage
-            textLabelPage.focus_force()
+            # textLabelPage.focus_force()
         else:
             textLabelPage = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                             image = img, 
@@ -1694,7 +1689,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                             [showSubentriesCmd])
         
         if hasSubentries:
-            showSubentries.configure(foreground="brown") 
+            showSubentries.changeColor("brown") 
 
         if leadingEntry.get(imIdx) != None:
             leadingEntryText = leadingEntry[imIdx]
@@ -1768,7 +1763,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         linkExist = k in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys())
 
         if linkExist:
-            showLinksForEntry.configure(foreground="brown")                 
+            showLinksForEntry.changeColor("brown")                 
 
         retakeImageForEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
                                                 text =  self.__EntryUIs.retake.name,
@@ -1957,7 +1952,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             if (entryWordDictArr != _u.Token.NotDef.dict_t)\
                 and (entryWordDictArr != {}):
                 notesExist = True
-                openNoteUIEntry.configure(foreground="brown")
+                openNoteUIEntry.changeColor("brown")
 
         proofExists = False
         exImDict = fsm.Data.Sec.extraImagesDict(subsection)
@@ -1968,11 +1963,11 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         openProofsUIEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                         text = self.__EntryUIs.proof.name, 
-                                        prefix = "contentOpenExcerciseUIEntry" + nameId,
+                                        prefix = "contentOpenProofsUIEntry" + nameId,
                                         row = 1, 
                                         column = self.__EntryUIs.proof.column)
         if proofExists:
-            openProofsUIEntry.configure(foreground="brown")
+            openProofsUIEntry.changeColor("brown")
 
         openProofsUIEntry.imIdx = k
         openProofsUIEntry.subsection = subsection
@@ -2176,7 +2171,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                         prefix = "contentGlLinksTSubsectionProof_" + nameId + "_" + str(glLinkId),
                                         row = 0, 
                                         column = 5)
-                                tarOpenProofsUIEntry.configure(foreground="brown")
+                                tarOpenProofsUIEntry.changeColor("brown")
 
                                 tarOpenProofsUIEntry.imIdx = ln.split("_")[1]
                                 tarOpenProofsUIEntry.subsection = ln.split("_")[0]
@@ -2426,22 +2421,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                         wf.Wr.MenuManagers.PdfReadersManager)
                 pdfReadersManager.show(page = int(subsectionStartPage))
 
-                event.widget.configure(foreground="white")
+                event.widget.changeColor("white")
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
-        # def openSectionOnIdx(widget:_uuicom.TOCLabelWithClick, imIdx):
-        #     def __cmd(event = None, *args):
-        #         # open orig material on page
-        #         bookName = sf.Wr.Manager.Book.getCurrBookName()
-        #         currTopSection = fsm.Data.Book.currTopSection
-
-        #         url = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full", notLatex=True)
-                
-        #         os.system("open {0}".format(url))
-        #         event.widget.configure(foreground="white")
-            
-        #     widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
         def openContentOfTheSection(frame:_uuicom.TOCFrame, label:_uuicom.TOCLabelWithClick):
             self.subsectionWidgetFrames[subsection] = frame
@@ -2560,7 +2542,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                         self.showSubsectionsForTopSection[subsection] = False
                         self.__renderWithScrollAfter()
 
-                event.widget.configure(foreground="white")
+                event.widget.changeColor("white")
             
             label.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -2601,7 +2583,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                     fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(event.widget.subsection,
                                                                     _upan.Names.Subsection.getSubsectionPretty)
                 
-                event.widget.grid_forget()
+                event.widget.hide()
                 imageWidget.updateSubsectionImage()
                 imageWidget.render()
 
@@ -2619,7 +2601,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             subsectionLabel.subsection = subsection
             subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                     [lambda e, *args: __bringImageWidgetBack(e, widget)])
-            subsectionLabel.focus_force()
+            # subsectionLabel.focus_force()
             subsectionLabel.render()
 
         currSubsectionHidden = False
@@ -2744,7 +2726,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                         [lambda e, *args: showSubsectiionVideoWrapper(e.widget.subsection)])
 
                 def __updateStartPage(e, subsection, *args):
-                    newStartPage = e.widget.get()
+                    newStartPage = e.widget.getData()
                     fsm.Data.Sec.start(subsection, newStartPage)
                     omName = fsm.Data.Book.currOrigMatName
                     
@@ -2826,7 +2808,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                 row = 0, column = 2)
                 subsectionsList = fsm.Wr.BookInfoStructure.getSubsectionsList(subsection)
                 if subsectionsList != []:
-                    hideSubsections.configure(foreground="brown")
+                    hideSubsections.changeColor("brown")
 
                 hideSubsections.subsection = subsection
 
@@ -2926,10 +2908,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             self.showLinksForSubsections = []
 
         self.subsectionWidgetFrames = {}
-
-        # import traceback
-        # for line in traceback.format_stack():
-        #     print(line.strip())
         self.shouldScroll = shouldScroll
         self.displayedImages = []
         self.subsectionContentLabels = []
@@ -2961,26 +2939,20 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         super().render(widjetObj, renderData, **kwargs)
 
         if self.widgetToScrollTo != None:
-            try:
-                self.widgetToScrollTo.event_generate(ww.currUIImpl.Data.BindID.mouse1)
-            except:
-                pass
+            self.widgetToScrollTo.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+
+        return
 
         if self.openedMainImg != None and shouldScroll:
-            try:
-                self.openedMainImg.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
-            except:
-                pass
+            self.openedMainImg.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
         
-        if self.entryAsETR.widget != None:
-            try:
-                self.entryAsETR.widget.focus_force()
-            except:
-                pass
+        # if self.entryAsETR.widget != None:
+        #     try:
+        #         self.entryAsETR.widget.focus_force()
+        #     except:
+        #         pass
         
         if shouldScroll:
             if not fsm.Data.Sec.isVideo(fsm.Data.Book.currSection):
-                try:
-                    self.currEntryWidget.event_generate(ww.currUIImpl.Data.BindID.customTOCMove)
-                except:
-                    pass
+                if self.currEntryWidget != None:
+                    self.currEntryWidget.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)

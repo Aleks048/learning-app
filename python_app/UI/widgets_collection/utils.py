@@ -1,6 +1,5 @@
-from tkinter import ttk
-from PIL import Image, ImageTk, ImageOps
-import tkinter as tk
+from PIL import Image, ImageOps
+import subprocess
 from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
 import time
@@ -25,8 +24,15 @@ import generalManger.generalManger as gm
 
 
 
-class MultilineText_ETR(scrolledtext.ScrolledText):
+class MultilineText_ETR(ww.currUIImpl.MultilineText):
     def __init__(self, parentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+
+        name = "_MultilineText_ETR_"
+
         self.imIdx = None
         self.eImIdx = None
         self.subsection = None
@@ -56,20 +62,31 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         self.row = row
         self.column = column
 
-        super().__init__(parentWidget, 
-                         wrap = None, 
-                         width = 70, 
-                         height = newHeight, 
-                         *args, 
-                         **kwargs)
-        self.config(spacing1 = 10)
-        self.config(spacing2 = 10)
-        self.config(spacing3 = 12)
-        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
+        if "widgetObj" in dir(parentWidget):
+            super().__init__(prefix,
+                             name,
+                            parentWidget.widgetObj, 
+                            renderData,
+                            text = text,
+                            wrap = None, 
+                            width = 70, 
+                            height = newHeight, 
+                            *args, 
+                            **kwargs)
+        else:
+             super().__init__(prefix,
+                             name,
+                            parentWidget, 
+                            renderData,
+                            text = text,
+                            wrap = None, 
+                            width = 70, 
+                            height = newHeight, 
+                            *args, 
+                            **kwargs)
 
-        self.config(height = newHeight)
-        self.bind(ww.currUIImpl.Data.BindID.Keys.ctrlv,
-                  lambda *args: self.__pasteText(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.ctrlv],
+                    [lambda *args: self.__pasteText(*args)])
 
     def __pasteText(self, *args):
         pos = self.index(ww.currUIImpl.TextInsertPosition.CURRENT)
@@ -82,27 +99,28 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
 
         self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, text)
 
-    def getData(self):
-        try:
-            binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
-            if binString[-1] == "\n":
-                return binString[:-1]
-            return binString
-        except:
-            return _u.Token.NotDef.str_t
-        bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
+    # def getData(self):
+    #     retur
+    #     try:
+    #         binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
+    #         if binString[-1] == "\n":
+    #             return binString[:-1]
+    #         return binString
+    #     except:
+    #         return _u.Token.NotDef.str_t
+    #     bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
 
-        # removing the unnecessary newlines from the end
-        while binString[-1] == "\n":
-            binString = binString[:-1]
+    #     # removing the unnecessary newlines from the end
+    #     while binString[-1] == "\n":
+    #         binString = binString[:-1]
 
-            if len(binString) == 0:
-                binString = _u.Token.NotDef.str_t
-                break
+    #         if len(binString) == 0:
+    #             binString = _u.Token.NotDef.str_t
+    #             break
 
-        return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
+    #     return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
 
-    def rebind(self, keys, funcs):
+    def rebind_(self, keys, funcs):
         for i in range(len(keys)):
             self.bind(keys[i], funcs[i])
         
@@ -202,9 +220,6 @@ class MultilineText_ETR(scrolledtext.ScrolledText):
         
         self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
                   lambda *args: __addProof(*args))
-
-    def render(self):
-        self.grid(row = self.row, column = self.column)
     
     def generateEvent(self, event):
         self.event_generate(event)
@@ -395,6 +410,10 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
             subsecId = self.subsection.replace(".", "_")
             prefix = f"{subsecId}_{self.imIdx}"
+
+            if self.eImIdx != None:
+                prefix += f"_{self.eImIdx}"
+
             name = "_CanvasButton_"
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
@@ -703,7 +722,10 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             y1 = self.lastRecrangle.endY
             self.lastRecrangle.deleteRectangle()
 
-            im = self.pilImage
+            if "image" in dir(self.image):
+                im = self.image.image
+            else:
+                im = self.image
             im = im.crop([x - 1, y - 1, x1 + 1, y1 + 1])
 
             if self.getTextOfSelector:
@@ -734,7 +756,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                 OMName = fsf.Data.Book.currOrigMatName
                 fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, self.omPage)
                 imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(self.subsection)
-                imLinkOMPageDict[self.imIdx] = self.omPage
+                imLinkOMPageDict[self.imIdx] = str(self.omPage)
                 fsf.Data.Sec.imLinkOMPageDict(self.subsection, imLinkOMPageDict)
 
                 self.labels.append(TOCCanvasWithclick.Label(self.subsection,
@@ -750,6 +772,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                                             x, y, x1, y1,
                                                             self.omPage,
                                                             x - 85, y))
+            self.saveFigures()
 
             im.save(imPath)
 
@@ -1049,7 +1072,6 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         self.columnspan = columnspan
         self.sticky = sticky
         self.image = image
-        self.pilImage = pilIm
         self.imIdx = imIdx
         self.subsection = subsection
         self.eImIdx = extraImIdx
@@ -1180,7 +1202,7 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
     this is used to run different commands on whether the label was clicked even or odd times
     '''
     def __init__(self, root, prefix, row, column, columnspan = 1, 
-                 sticky = ww.currUIImpl.Orientation.NW, *args, **kwargs) -> None:   
+                 sticky = ww.currUIImpl.Orientation.NW, padding = [0, 0 ,0, 0], image = None, text = None) -> None:   
         renderData = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan" : columnspan},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : sticky}
@@ -1194,7 +1216,8 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         self.subsection = ""
         self.imagePath = ""
         self.group = ""
-        self.image = None
+        self.image = image
+        self.text = text
         self.alwaysShow = None
         self.shouldShowExMenu = False
         self.shouldShowProofMenu = False
@@ -1226,12 +1249,16 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         if "tk" in dir(root):
             super().__init__(prefix, name, root, 
                              renderData, 
-                             *args, **kwargs)
+                             image = self.image,
+                             text = self.text,
+                             padding = padding)
         else:
             super().__init__(prefix, name, root.widgetObj, 
                              renderData, 
-                             *args, **kwargs)
-
+                             image = self.image,
+                             text = self.text,
+                             padding = padding)
+ 
     def generateEvent(self, event, *args, **kwargs):
         self.widgetObj.event_generate(event, *args, **kwargs)
     
@@ -1302,8 +1329,6 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
     if shouldBeBrown:
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
-openedImages = []
-
 def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    imPad = 0, imageSize = [450, 1000], 
                    row = 0, column = 0, columnspan = 1,
@@ -1312,9 +1337,7 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    extraImIdx = _u.Token.NotDef.int_t,
                    tocBox = None):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-        global openedImages
         pilIm = Image.open(imagePath)
-        openedImages.append(pilIm)
         
         # NOTE: this is how it was done originally. 
         #       No idea why. Whis way added figures are messed up at resize
@@ -1336,7 +1359,6 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
             pilIm = ImageOps.expand(pilIm, border = 2, fill="brown")
 
         img = ww.currUIImpl.UIImage(pilIm)
-        openedImages.append(img)
 
         if bindOpenWindow:
             imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
@@ -2162,7 +2184,7 @@ def addExtraEntryImagesWidgets(rootLabel,
 
             outLabels.append(tempLabel)
 
-            imageBaloon.bind(eimLabel, "{0}".format(eImText))
+            # imageBaloon.bind(eimLabel, "{0}".format(eImText))
 
     return outLabels
 
@@ -2171,16 +2193,15 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
     '''
     close all images of children of the widget
     '''
-    # print(type(gpframe))
     for parent in gpframe.winfo_children():
-        # NOTE this is not an ideal hack to get the 
-        if "getChildren" in dir(parent):
-            for child in parent.getChildren():
-                if "getChildren" in dir(child):
-                    for gChild in child.getChildren():
-                        if "contentOfImages_" in str(gChild):
-                            subsection = str(gChild).split("_")[-2].replace("$", ".")
-                            idx = str(gChild).split("_")[-1]
+        # NOTE this is not an ideal hack to get the
+        if True:#"getChildren" in dir(parent):
+            for child in parent.winfo_children():
+                if True:#"getChildren" in dir(child):
+                    for gChild in child.winfo_children():
+                        if "contentOfImages_".lower() in str(gChild).lower():
+                            subsection = str(gChild).split("_")[-4].replace("$", ".")
+                            idx = str(gChild).split("_")[-3]
 
                             alwaysShow = False
                             if idx !=  "-1":
@@ -2193,13 +2214,33 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
 
                             if "Row2" in str(child):
                                 child.destroy()
+                        if dc.UIConsts.imageWidgetID.lower() in str(child).lower():
+                            subsection = str(child).split("_")[-4].replace("$", ".")
+                            idx = str(child).split("_")[-3]
+
+                            alwaysShow = False
+                            if idx !=  "-1":
+                                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+
+                            if ((not alwaysShow) or showAll or isWidgetLink) and\
+                                ([subsection,idx] != secondIm):
+
+                                if isWidgetLink:
+                                    if idx == linkIdx:
+                                        child.grid_remove()
+                                    else:
+                                        continue
+                                try:
+                                    child.grid_remove()
+                                except:
+                                    pass
 
                 if "contentGlLinksOfImages_" in str(child):
                     child.clicked = False
 
                 if dc.UIConsts.imageWidgetID in str(child):
-                    subsection = str(child).split("_")[-2].replace("$", ".")
-                    idx = str(child).split("_")[-1]
+                    subsection = str(child).split("_")[-4].replace("$", ".")
+                    idx = str(child).split("_")[-3]
 
                     alwaysShow = False
                     if idx !=  "-1":
@@ -2210,10 +2251,10 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
 
                         if isWidgetLink:
                             if idx == linkIdx:
-                                child.destroy()
+                                child.grid_remove()
                             else:
                                 continue
                         try:
-                            child.destroy()
+                            child.grid_remove()
                         except:
                             pass

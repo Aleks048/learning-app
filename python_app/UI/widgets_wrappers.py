@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import scrolledtext
 from tkinter import ttk
 from PIL import ImageTk
 import inspect
@@ -243,6 +244,13 @@ class TkWidgets (DataTranslatable_Interface):
         def delete(self, **kwargs):
             self.widjetObj.grid_forget()
 
+        def update(self):
+            self.widgetObj.update()
+
+        def getYCoord(self):
+            return self.widgetObj.winfo_y()
+
+
     class EventGeneratable_Interface_Impl(EventGeneratable_Interface):
         def __init__(self, widgetObj = None,  *args, **kwargs):
             self.widgetObj = widgetObj
@@ -271,7 +279,6 @@ class TkWidgets (DataTranslatable_Interface):
             super().__init__()
         
         def bind(self):
-
             keys, cmds = self.bindCmd()
             if keys != None and cmds != None:
                 for i in range(len(keys)):
@@ -298,12 +305,17 @@ class TkWidgets (DataTranslatable_Interface):
             bind_all_keys = ["<Delete>", "<Mod1-s>"]
 
             for i in range(len(keys)):
+
                 key = keys[i]
                 cmd = cmds[i]
                 
+                if "widgetObj" in dir(self.callingObject):
+                    shouldUseBindAll = (type(self.callingObject.widgetObj) == tk.Canvas) and (key in bind_all_keys)
+                else:
+                    shouldUseBindAll = (type(self.callingObject) == tk.Canvas) and (key in bind_all_keys)
+
                 shouldUseBindAll = (key == TkWidgets.Data.BindID.allKeys)\
-                                   or \
-                        ((type(self.callingObject.widjetObj) == tk.Canvas) and (key in bind_all_keys))
+                                   or shouldUseBindAll
 
                 if "widgetObj" in dir(self.callingObject):
                     if cmd.__name__ in dir(self.callingObject):
@@ -437,8 +449,6 @@ class TkWidgets (DataTranslatable_Interface):
 
             if defaultOption == None:
                 defaultOption = self.listOfOptions[0]
-
-            # print(f"d {defaultOption}")
 
             optionMenu = ttk.OptionMenu(widgetObj, 
                                         self.getDataObject(), 
@@ -656,7 +666,7 @@ class TkWidgets (DataTranslatable_Interface):
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name = prefix.lower() + name
-            # self.name = self.name.replace(".", "")
+            self.name = self.name.replace(".", "_")
             # self.name = self.name.replace("_", "")
             self.rootWidget = rootWidget
             self.text = text
@@ -670,16 +680,29 @@ class TkWidgets (DataTranslatable_Interface):
             else:
                 tkImage = image
 
+
             if "widjetObj" in dir(self.rootWidget):
-                widjetObj = ttk.Label(self.rootWidget.widjetObj, 
-                                      text = self.text, 
-                                      image = tkImage,
-                                      padding = self.padding)
+                if text != None:
+                    widjetObj = ttk.Label(self.rootWidget.widjetObj, 
+                                        text = self.text,
+                                        padding = self.padding,
+                                        name = self.name)
+                else:
+                    widjetObj = ttk.Label(self.rootWidget.widjetObj,
+                                        image = tkImage,
+                                        padding = self.padding,
+                                        name = self.name)
             else:
-                widjetObj = ttk.Label(self.rootWidget, 
-                                      text = self.text, 
-                                      image = tkImage,
-                                      padding = self.padding)
+                if text != None:
+                    widjetObj = ttk.Label(self.rootWidget, 
+                                        text = self.text,
+                                        padding = self.padding,
+                                        name = self.name)
+                else:
+                    widjetObj = ttk.Label(self.rootWidget,
+                                        image = tkImage,
+                                        padding = self.padding,
+                                        name = self.name)
 
             self.widgetObj = widjetObj
                         
@@ -715,20 +738,68 @@ class TkWidgets (DataTranslatable_Interface):
             return image
         
         def changeColor(self, newColor):
-            self.widgetObj.configure(foreground=newColor)
-
+            try:
+                self.widgetObj.configure(foreground=newColor)
+            except:
+                pass
+        
+        def getChildren(self):
+            return super().getChildren()
 
     class Frame(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
                 HasChildren_Interface_Impl):
         def __init__(self, 
-            prefix: str, 
-            name : str,
-            rootWidget, 
-            renderData : dict,
-            extraOptions = {},
-            bindCmd = lambda *args: (None, None),
-            padding = [0, 0, 0, 0]):
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    extraOptions = {},
+                    bindCmd = lambda *args: (None, None),
+                    padding = [0, 0, 0, 0]):
+            self.renderData = currUIImpl.translateRenderOptions(renderData)
+            extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
+
+            self.name:str = prefix.lower() + name
+            self.name = self.name.replace(".", "_")
+            self.rootWidget = rootWidget
+            self.padding = padding
+            
+            
+            if (type(self.rootWidget) == ttk.Frame):
+                widjetObj = ttk.Frame(self.rootWidget, 
+                                      padding = self.padding,)
+                                      #name = name)
+            else:
+                widjetObj = ttk.Frame(self.rootWidget.widjetObj, 
+                                      padding = self.padding,)
+                                    #   name = name)
+            
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            Notifyable_Interface.__init__(self)
+        
+        def render(self, **kwargs):
+            return super().render(self.widjetObj, self.renderData, **kwargs)
+
+    class MultilineText(Notifyable_Interface,
+                RenderableWidget_Interface_Impl,
+                HasChildren_Interface_Impl,
+                BindableWidget_Interface_Impl,
+                DataContainer_Interface_Impl):
+        def __init__(self, 
+                    prefix: str, 
+                    name : str,
+                    rootWidget, 
+                    renderData : dict,
+                    text = "",
+                    wrap = None, 
+                    width = 70, 
+                    height = 30, 
+                    extraOptions = {},
+                    bindCmd = lambda *args: (None, None),
+                    padding = [0, 0, 0, 0],
+                    data = {}):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
@@ -738,14 +809,42 @@ class TkWidgets (DataTranslatable_Interface):
             
             
             if (type(self.rootWidget) == ttk.Frame):
-                widjetObj = ttk.Frame(self.rootWidget, padding = self.padding)
+                widjetObj = scrolledtext.ScrolledText(self.rootWidget,
+                                                      wrap = wrap, 
+                                                      width = width, 
+                                                      height = height,
+                                                      name = name)
             else:
-                widjetObj = ttk.Frame(self.rootWidget.widjetObj, padding = self.padding)
+                widjetObj = scrolledtext.ScrolledText(self.rootWidget.widjetObj, 
+                                                      wrap = wrap, 
+                                                      width = width, 
+                                                      height = height,
+                                                      name = name)
+            widjetObj.config(spacing1 = 10)
+            widjetObj.config(spacing2 = 10)
+            widjetObj.config(spacing3 = 12)
             
+            widjetObj.insert(TkWidgets.TextInsertPosition.END, text)
+
+            widjetObj.config(height = height)
+
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            child = localvars['self']
+
+
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
             Notifyable_Interface.__init__(self)
-        
+
+            self.setData(text)
+
+        def getData(self):
+            newData = self.widgetObj.get('1.0', TkWidgets.TextInsertPosition.END)
+            self.setData(newData)
+            return newData
+
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
 
@@ -970,7 +1069,6 @@ class TkWidgets (DataTranslatable_Interface):
             Notifyable_Interface.__init__(self)
 
             self.bind()
-            return canvas
 
         def bind(self):
             return super().bind()
@@ -980,7 +1078,24 @@ class TkWidgets (DataTranslatable_Interface):
                 entry.grid(row = row, column = column, sticky=TkWidgets.Orientation.W)
             else:
                 entry.render()
-    
+
+        def scrollY(self, value):
+            self.canvas.yview_scroll(value,'units')
+
+        def moveY(self, value):
+            self.canvas.yview_moveto(value)
+
+        def moveX(self, value):
+            self.canvas.xview_moveto(value)
+
+        def getY(self):
+            y, _ = self.canvas.yview()
+            return y
+
+        def getHeight(self):
+            return self.canvas.winfo_height()
+
+
     class RootWidget(BindableWidget_Interface_Impl,
                      RenderableWidget_Interface_Impl,
                      DataContainer_Interface_Impl):

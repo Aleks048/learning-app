@@ -415,7 +415,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         makeScrollable = False)
 
         def on_vertical(event):
-            self.canvas.yview_scroll(-1 * event.delta, 'units')
+            self.scrollY(-1 * event.delta)
 
         self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
 
@@ -460,8 +460,12 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         break
 
             while pwidget != self.parent:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+                if "tkinter." not in str(type(pwidget)):
+                    posy += pwidget.getYCoord()
+                    pwidget = pwidget.getParent()
+                else:
+                    posy += pwidget.winfo_y()
+                    pwidget = pwidget.master
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
@@ -471,13 +475,13 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             else:
                 pwidget = widget
 
-            preScaceRegular = float(self.canvas.winfo_height() - 100 - pwidget.winfo_height()) / height
-            preScaceEntry =int( self.canvas.winfo_height() - 100) / height
+            preScaceRegular = float(self.getHeight() - 100 - pwidget.winfo_height()) / height
+            preScaceEntry =int( self.getHeight() - 100) / height
 
             if not shouldScrollToRebuild:
-                self.canvas.yview_moveto((pos / height) - preScaceRegular)
+                self.moveY((pos / height) - preScaceRegular)
             else:
-                self.canvas.yview_moveto((pos / height) - preScaceEntry)
+                self.moveY((pos / height) - preScaceEntry)
         except:
              pass
 

@@ -168,8 +168,12 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             pwidget.update()
 
             while pwidget != self.parent:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+                if "tkinter." not in str(type(pwidget)):
+                    posy += pwidget.getYCoord()
+                    pwidget = pwidget.getParent()
+                else:
+                    posy += pwidget.winfo_y()
+                    pwidget = pwidget.master
 
             posy = 0
 
@@ -179,8 +183,12 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
             while pwidget != self.parent:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+                if "tkinter." not in str(type(pwidget)):
+                    posy += pwidget.getYCoord()
+                    pwidget = pwidget.getParent()
+                else:
+                    posy += pwidget.winfo_y()
+                    pwidget = pwidget.master
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()

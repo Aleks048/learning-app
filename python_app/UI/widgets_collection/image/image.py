@@ -285,17 +285,27 @@ class ImageMainImage(ww.currUIImpl.Frame):
 
     def hide(self, **kwargs):
         if self.imLabel != None:
-            for l in self.imLabel.winfo_children():
-                if type(l) == _ucomw.TOCCanvasWithclick:
-                    l.saveFigures()
+            if "tk" not in dir(self.imLabel):
+                for l in self.imLabel.getChildren():
+                    if type(l) == _ucomw.TOCCanvasWithclick:
+                        l.saveFigures()
+            else:
+                for l in self.imLabel.winfo_children():
+                    if type(l) == _ucomw.TOCCanvasWithclick:
+                        l.saveFigures()
         return super().hide(**kwargs)    
 
     def render(self, **kwargs):     
         # get an image from the
         widget = self.widgetObj
 
-        for child in widget.winfo_children():
-            child.destroy()
+        if "tk" not in dir(widget):
+            for child in widget.getChildren():
+                child.remove()
+        else:
+            for child in widget.winfo_children():
+                child.destroy()
+
 
         balloon = Pmw.Balloon(widget)
 
@@ -313,7 +323,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
                                                         bindOpenWindow = False,
                                                         resizeFactor = 1.5)[self.extraWidgetIdx]
         self.imLabel.render()
-        self.imLabel.focus_force()
+        # self.imLabel.focus_force()
 
         return super().render(**kwargs)
 

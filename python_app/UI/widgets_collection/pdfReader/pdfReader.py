@@ -261,7 +261,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         width, height = pilIm.size
         pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
                       Image.LANCZOS)
-        img = ImageTk.PhotoImage(pilIm)
+        img = ww.currUIImpl.UIImage(pilIm)
         self.imLabel = _ucomw.TOCCanvasWithclick(widget, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
                                         image = img, padding = [0, 0, 0, 0],
@@ -278,7 +278,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             self.imLabel.eImIdx = self.extraImIdx
 
         self.imLabel.render()
-        self.imLabel.focus_force()
+        # self.imLabel.focus_force()
 
         return super().render(**kwargs)
 
@@ -518,19 +518,19 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.parent = parentWidget.widgetObj
 
-        self.canvas = super().__init__(prefix,
-                                        name,
-                                        parentWidget,
-                                        renderData = data,
-                                        height = height,
-                                        width = windth,
-                                        makeScrollable = True)
+        super().__init__(prefix,
+                         name,
+                         parentWidget,
+                         renderData = data,
+                         height = height,
+                         width = windth,
+                         makeScrollable = True)
 
         filePath =fsf.Wr.OriginalMaterialStructure.getMaterialPath(fsf.Data.Book.currOrigMatName)
         self.doc = fitz.open(filePath)
 
         def on_vertical(event):
-            self.canvas.yview_scroll(-1 * event.delta, 'units')
+            self.scrollY(-1 * event.delta)
 
         self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
 
@@ -552,39 +552,43 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                kwargs = kwargs).start()
 
     def __scrollIntoView(self, event, widget = None):
-        try:
-            posy = 0
+        posy = 0
 
-            if widget == None:
-                pwidget = event.widget
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
+
+        self.scrollY(-100)
+        self.update()
+        pwidget.update()
+
+        while pwidget != self.parent:
+            if "tkinter." not in str(type(pwidget)):
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
             else:
-                pwidget = widget
-
-
-            self.canvas.yview_scroll(-100, "units")
-            self.canvas.update()
-            pwidget.update()
-
-            while pwidget != self.parent:
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            posy = 0
+        posy = 0
 
-            if widget == None:
-                pwidget = event.widget
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
+
+        while pwidget != self.parent:
+            if "tkinter." not in str(type(pwidget)):
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
             else:
-                pwidget = widget
-
-            while pwidget != self.parent:
                 posy += pwidget.winfo_y()
                 pwidget = pwidget.master
 
-            pos = posy - self.scrollable_frame.winfo_rooty()
-            height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) - 0.008)
-        except:
-            pass
+        pos = posy - self.scrollable_frame.winfo_rooty()
+        height = self.scrollable_frame.winfo_height()
+        self.moveY((pos / height) - 0.008)
 
     def removeMainLabel(self, subsection, imIdx, eImIdx):
         for p in self.displayedPdfPages:
@@ -653,7 +657,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         origMatName = fsf.Data.Book.currOrigMatName
 
         addPage = 0
-        prevYview, _ = self.canvas.yview()
+        prevYview = self.getY()
 
         if (0.0 <= prevYview) and (prevYview < 0.2):
             addPage = -2
@@ -703,7 +707,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         # if (self.latestWidgetToscrollTo != None) and (shouldScroll):
         #     self.__scrollIntoView(None, self.latestWidgetToscrollTo)
-        self.canvas.yview_moveto(self.prevPosition)
+        self.moveY(self.prevPosition)
 
     def changePage(self, currPage):
         self.saveFigures()
@@ -723,7 +727,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.render()
 
-        self.canvas.yview_moveto(0.4)
+        self.moveY(0.4)
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
         self.saveFigures()
@@ -736,21 +740,16 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                 zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
                 self.pageWidth = zoomLevel
 
-                self.canvas.update()
+                self.update()
                 self.render()
 
-            # self.container.update()
-            # self.canvas.update_idletasks()
-            # self.scrollbar_top.update()
-            # self.scrollbar_right.update()
-            # self.canvas.xview(tk.SCROLL, 100, 'page') 
-            self.canvas.xview_moveto(0.06) # not perfect but should work for now
+            self.moveX(0.06) # not perfect but should work for now
         elif broadcasterType == ChangePagePdfReaderWindow_ETR:
             origMatName = fsf.Data.Book.currOrigMatName
             self.currPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
 
             self.updateScrollerPosition()
-            prevYview, _ = self.canvas.yview()
+            prevYview = self.getY()
 
             if data != None:
                 if len(data) != 0:
@@ -761,12 +760,12 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                         prevYview += 0.2
 
             self.render()
-            self.canvas.yview_moveto(prevYview)
+            self.moveY(prevYview)
 
     def updateScrollerPosition(self):
         self.saveFigures()
 
-        prevYview, _ = self.canvas.yview()
+        prevYview = self.getY()
         self.prevPos = prevYview
         self.prevPosition = prevYview
 
