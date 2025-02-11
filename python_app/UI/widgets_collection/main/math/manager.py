@@ -129,6 +129,8 @@ class LayoutManagers:
             #
 
         def show(self):
+            self.tocBox.widgetToScrollTo = None
+
             self.winRoot.configureColumn(0, weight = 1)
             self.winRoot.configureColumn(1, weight = 1)
             self.winRoot.configureColumn(2, weight = 3)
