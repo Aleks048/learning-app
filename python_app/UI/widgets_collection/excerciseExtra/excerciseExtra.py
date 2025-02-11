@@ -16,9 +16,18 @@ import data.temp as dt
 
 images = []
 
-class ExcerciseExtraImageLabel(ttk.Label):
-    def __init__(self, root, name, subsection, imIdx, extraIdx,
-                 text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+class ExcerciseExtraImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, extraIdx,
+                 text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0],
+                 row = 0, column = 0):
+        
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "_ExcerciseExtraImageLabel_"
+
         self.image = None
         self.solImIdx = extraIdx
         self.subsection = subsection
@@ -43,11 +52,10 @@ class ExcerciseExtraImageLabel(ttk.Label):
             else:
                 pilIm.thumbnail([530, 1000], Image.LANCZOS)
 
-            img = ImageTk.PhotoImage(pilIm)
-            self.image = img
-            return super().__init__(root, name = name, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, renderData, image = self.image, padding = padding)
         else:
-            return super().__init__(root, name = name, text = text, padding = padding)
+            return super().__init__(prefix, name, root, renderData, text = text, padding = padding)
 
 class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
                  dc.AppCurrDataAccessToken):
@@ -71,7 +79,7 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
 
     def hide(self, **kwargs):
         for l in self.labels:
-            l.grid_forget()
+            l.hide()
 
         return super().hide(**kwargs)
 
@@ -98,10 +106,12 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
                 solIdx = extrasIndicies[i]
                 label = ExcerciseExtraImageLabel(self.scrollable_frame, f"lineExtraImageIMG_{solIdx}", 
                                             self.subsection, self.imIdx, solIdx,
-                                            padding = [0, 0, 0, 0])
-                label.grid(row = i + 2, column = 2, sticky = ww.currUIImpl.Orientation.NW)
+                                            padding = [0, 0, 0, 0],
+                                            row = i + 2, column = 2)
+                label.render()
                 self.labels.append(label)
                 self.imLabel = label
+
                 def __openSolimage(event):
                     w = event.widget
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -110,7 +120,7 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
                                                                                       w.imIdx,
                                                                                       w.solImIdx
                                                                                       ))
-                label.bind(ww.currUIImpl.Data.BindID.mouse1, __openSolimage)
+                label.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openSolimage])
 
                 # '''
                 # delete
@@ -130,7 +140,7 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
                                                                                         w.imIdx,
                                                                                         w.solImIdx))
                     for l in self.labels:
-                        l.grid_forget()
+                        l.hide()
 
                     self.render()
 
