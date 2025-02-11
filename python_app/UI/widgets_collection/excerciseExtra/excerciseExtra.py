@@ -1,6 +1,5 @@
-from tkinter import ttk
 import time
-from PIL import Image, ImageTk, ImageGrab
+from PIL import Image, ImageGrab
 import os
 
 import UI.widgets_wrappers as ww

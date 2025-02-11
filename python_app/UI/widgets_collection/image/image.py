@@ -1,6 +1,5 @@
-from tkinter import ttk
 import Pmw
-from PIL import Image, ImageTk
+from PIL import Image
 from threading import Thread
 import os
 import time
@@ -29,9 +28,17 @@ def _rebuildNote(*args, **kwargs):
     return t
 
 
-class NotesImageLabel(ttk.Label):
-    def __init__(self, root, name, subsection, imIdx, 
-                 noteIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+class NotesImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, 
+                 noteIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0],
+                 row = 0, column = 0):               
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "_NotesImageLabel_"
+
         self.noteImIdx = None
         self.image = None
 
@@ -56,11 +63,10 @@ class NotesImageLabel(ttk.Label):
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            self.image = img
-            return super().__init__(root, name = name, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, renderData, image = self.image, padding = padding)
         else:
-            return super().__init__(root, name = name, text = text, padding = padding)
+            return super().__init__(prefix, name, root, renderData, text = text, padding = padding)
 
 class NotesLabel(ww.currUIImpl.Label,
                  dc.AppCurrDataAccessToken):
@@ -172,13 +178,14 @@ class NotesLabel(ww.currUIImpl.Label,
                 self.currEtr = None
             label = NotesImageLabel(self.widgetObj, "notesImageIMG_", 
                                         self.subsection, self.imIdx, noteImIdx,
-                                        padding = [0, 0, 0, 0])
-            label.grid(row = 0, column = 2, sticky = ww.currUIImpl.Orientation.NW)
-            label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+                                        padding = [0, 0, 0, 0],
+                                        row = 0, column = 2)
+            label.render()
+            label.rebind([ww.currUIImpl.Data.BindID.mouse2], [__showTextOrImage])
             self.imLabel = label
         else:
             if self.imLabel != None:
-                self.imLabel.grid_forget()
+                self.imLabel.hide()
                 self.imLabel = None
 
             label = _ucomw.TOCFrame(self.widgetObj, 
