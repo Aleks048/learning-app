@@ -928,6 +928,9 @@ class TkWidgets (DataTranslatable_Interface):
 
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
+    
+        def getCurrCursorPosition(self):
+            return self.widgetObj.index(TkWidgets.TextInsertPosition.CURRENT)
 
     class Canvas(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,

@@ -1,6 +1,5 @@
-from tkinter import ttk
 import time
-from PIL import Image, ImageTk, ImageGrab
+from PIL import Image, ImageGrab
 import os
 
 import UI.widgets_wrappers as ww
@@ -16,9 +15,16 @@ import data.temp as dt
 
 images = []
 
-class ExcerciseSolutionImageLabel(ttk.Label):
-    def __init__(self, root, name, subsection, imIdx, solutionIdx,
-                 text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+class ExcerciseSolutionImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, solutionIdx,
+                 text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0], row = 0, column = 0):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "_ExcerciseSolutionImageLabel_"
+
         self.image = None
         self.solImIdx = solutionIdx
         self.subsection = subsection
@@ -37,11 +43,10 @@ class ExcerciseSolutionImageLabel(ttk.Label):
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            self.image = img
-            return super().__init__(root, name = name, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, renderData, image = self.image, padding = padding)
         else:
-            return super().__init__(root, name = name, text = text, padding = padding)
+            return super().__init__(prefix, name, root, renderData, padding = padding)
 
 class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                  dc.AppCurrDataAccessToken):
@@ -65,7 +70,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
 
     def hide(self, **kwargs):
         for l in self.labels:
-            l.grid_forget()
+            l.hide()
 
         return super().hide(**kwargs)
 
@@ -92,8 +97,9 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                 solIdx = solutionsIndicies[i]
                 label = ExcerciseSolutionImageLabel(self.scrollable_frame, f"lineSolutionImageIMG_{solIdx}", 
                                             self.subsection, self.imIdx, solIdx,
-                                            padding = [0, 0, 0, 0])
-                label.grid(row = i + 2, column = 2, sticky = ww.currUIImpl.Orientation.NW)
+                                            padding = [0, 0, 0, 0],
+                                            row = i + 2, column = 2)
+                label.render()
                 self.labels.append(label)
                 self.imLabel = label
                 def __openSolimage(event):
@@ -104,7 +110,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                                                                                       w.imIdx,
                                                                                       w.solImIdx
                                                                                       ))
-                label.bind(ww.currUIImpl.Data.BindID.mouse1, __openSolimage)
+                label.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openSolimage])
 
                 # '''
                 # delete
@@ -124,7 +130,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                                                                                         w.imIdx,
                                                                                         w.solImIdx))
                     for l in self.labels:
-                        l.grid_forget()
+                        l.hide()
 
                     self.render()
 

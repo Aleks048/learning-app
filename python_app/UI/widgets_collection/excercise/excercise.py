@@ -119,7 +119,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
                                                       self.subsection, self.entryIdx,
                                                       120, self.displayedImages, balloon)
         self.imLabel.render()
-        self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
@@ -426,7 +426,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             t.join()
             self.render()
             position = self.etrTexts[lineIdx][1]
-            self.currEtr[lineIdx].focus_force()
+            self.currEtr[lineIdx].forceFocus()
 
             try:
                 self.currEtr[lineIdx].mark_set("insert", position)
@@ -564,7 +564,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 def rebuildETRImage(event, *args):
                     widgetlineImIdx = event.widget.lineImIdx
                     text = self.currEtr[widgetlineImIdx].getData()
-                    position = self.currEtr[widgetlineImIdx].index(ww.currUIImpl.TextInsertPosition.CURRENT)
 
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     self.__renderAfterRebuild(self.subsection,
@@ -573,10 +572,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                 text,
                                 bookPath,
                                 lineIdx = widgetlineImIdx)
-                    # self.render(shouldScroll = False)
-                    # self.currEtr[widgetlineImIdx].focus_force()
-                    # self.currEtr[widgetlineImIdx].mark_set("insert", position)
-                    # self.__scrollIntoView(event)
 
                     return "break"
 
@@ -730,7 +725,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             shouldBeBrown = False
 
             if entryLinesNotesList.get(str(i)) != None:
-                noteLabel.configure(foreground="brown")
+                noteLabel.changeColor("brown")
                 shouldBeBrown = True
 
             noteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [noteForLineIdx])
@@ -762,7 +757,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
             for k,v in self.currEtr.items():
                 self.etrTexts[k] = [self.currEtr[k].getData(),
-                                    self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
+                                    self.currEtr[k].getCurrCursorPosition()]
 
         for w in self.scrollable_frame.winfo_children():
             w.destroy()

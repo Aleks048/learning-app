@@ -1,5 +1,4 @@
-from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import Image
 from threading import Thread
 
 import UI.widgets_wrappers as ww
@@ -15,9 +14,17 @@ import data.temp as dt
 
 images = []
 
-class ExcerciseLineNoteImageLabel(ttk.Label):
-    def __init__(self, root, name, subsection, imIdx, 
-                 lineIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0]):
+class ExcerciseLineNoteImageLabel(ww.currUIImpl.Label):
+    def __init__(self, root, prefix, subsection, imIdx, 
+                 lineIdx, text = _u.Token.NotDef.str_t, padding = [0, 0, 0, 0],
+                 row = 0, column = 0):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "_ExcerciseLineNoteImageLabel_"
+
         self.noteImIdx = None
         self.image = None
 
@@ -34,11 +41,10 @@ class ExcerciseLineNoteImageLabel(ttk.Label):
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            self.image = img
-            return super().__init__(root, name = name, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, renderData, image = self.image, padding = padding)
         else:
-            return super().__init__(root, name = name, text = text, padding = padding)
+            return super().__init__(prefix, name, root, renderData, text = text, padding = padding)
 
 
 def _rebuildLineNote(*args, **kwargs):
@@ -139,17 +145,18 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
         # image / text
         if not self.noteShownIntext:
             if self.currEtr != None:
-                self.currEtr.grid_forget()
+                self.currEtr.hide()
                 self.currEtr = None
             label = ExcerciseLineNoteImageLabel(self.widgetObj, "lineNotesImageIMG_", 
                                         self.subsection, self.imIdx, self.lineIdx,
-                                        padding = [0, 0, 0, 0])
-            label.grid(row = 0, column = 2, sticky = ww.currUIImpl.Orientation.NW)
-            label.bind(ww.currUIImpl.Data.BindID.mouse2, __showTextOrImage)
+                                        padding = [0, 0, 0, 0],
+                                        row = 0, column = 2)
+            label.render()
+            label.rebind([ww.currUIImpl.Data.BindID.mouse2], [__showTextOrImage])
             self.imLabel = label
         else:
             if self.imLabel != None:
-                self.imLabel.grid_forget()
+                self.imLabel.hide()
                 self.imLabel = None
 
             label = _ucomw.TOCFrame(self.widgetObj, 
@@ -166,17 +173,27 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
             self.currEtr = labETR
 
             def rebuildETRImage(event, *args):
-                text = self.currEtr.getData()
+                newText = self.currEtr.getData()
+                notes = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
+                                                       str(self.imIdx), 
+                                                       fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList)
+                notes[str(self.lineIdx)] = newText
+                fsf.Wr.EntryInfoStructure.updateProperty(self.subsection,
+                                                       str(self.imIdx), 
+                                                       fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
+                                                       notes)
+
 
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 self.__renderAfterRebuild(self.subsection, 
                                           self.imIdx,
                                           self.lineIdx,
-                                          text, 
+                                          newText, 
                                           bookPath)
 
                 self.noteShownIntext = False
-
+                
+                #FIXME: needed by tkinter
                 return "break"
 
             labETR.lineImIdx = self.lineIdx
@@ -237,15 +254,14 @@ class ExcerciseLineNoteLineImage(ww.currUIImpl.Frame):
 
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([530, 1000], Image.LANCZOS)
-        img = ImageTk.PhotoImage(pilIm) 
-        self.pilIm = img
+        self.image = ww.currUIImpl.UIImage(pilIm)
         self.imLabel = _ucomw.TOCLabelWithClick(self.widgetObj,
                                                 "_lineMainImage_",
                                                 0, 0, 1,
-                                                image = img)
+                                                image = self.image)
 
         self.imLabel.render()
-        self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
         return super().render(**kwargs)
 
