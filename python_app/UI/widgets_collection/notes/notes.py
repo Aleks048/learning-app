@@ -252,13 +252,6 @@ class DictText(ww.currUIImpl.Label):
     tocFrame = None
     text = None
 
-    def rebind(self, keys, cmds):
-        for i in range(len(keys)):
-            key = keys[i]
-            cmd = cmds[i]
-
-            self.bind(key, cmd)
-
     def __showAsETR(self, *args):
         dictHits = self.tocFrame.dictHits
 

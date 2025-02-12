@@ -967,7 +967,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         def changeLeadingEntryCmd(event, subsection, imIdx,  *args):
             widget = event.widget
 
-            leadingEntryIdx = widget.get()
+            leadingEntryIdx = widget.getData()
 
             leadingEntry = fsm.Data.Sec.leadingEntry(subsection)
             leadingEntry[imIdx] = leadingEntryIdx
