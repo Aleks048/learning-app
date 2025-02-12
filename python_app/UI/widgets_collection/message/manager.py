@@ -69,10 +69,10 @@ class LayoutManagers:
 
 class MessageMenuManager(wm.MenuManager_Interface):
     def __init__(self):
-        winRoot = mw.MessageRoot(600, 600)
+        self.winRoot = mw.MessageRoot(600, 600)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
-            layouts.append(lm(winRoot))
+            layouts.append(lm(self.winRoot))
             
         currLayout = None
         for layout in layouts:
@@ -80,7 +80,7 @@ class MessageMenuManager(wm.MenuManager_Interface):
                 currLayout = layout
                 break
         
-        super().__init__(winRoot,
+        super().__init__(self.winRoot,
                         layouts,
                         currLayout)
 
@@ -90,8 +90,12 @@ class MessageMenuManager(wm.MenuManager_Interface):
         def decline(*args):
             self.stopWait(False)
             self.hide()
-        self.winRoot.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.enter,  confirm)
-        self.winRoot.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.escape,  decline)
+
+        self.winRoot.rebind([ww.currUIImpl.Data.BindID.Keys.enter,
+                              ww.currUIImpl.Data.BindID.Keys.escape],
+                            [confirm,
+                              decline])
+
     
     def show(self, text, shouldWait = False):
         if shouldWait:

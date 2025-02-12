@@ -101,14 +101,13 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         return super().hide(**kwargs)
 
     def render(self, **kwargs):
-
         for child in self.getChildren():
             child.destroy()
 
-        balloon = Pmw.Balloon(self.widgetObj)
         self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                       self.subsection, self.entryIdx,
-                                                      120, self.displayedImages, balloon)
+                                                      imPadLeft = 120, 
+                                                      displayedImagesContainer = self.displayedImages)
         self.imLabel.render()
         self.imLabel.forceFocus()
 
@@ -117,7 +116,8 @@ class ExcerciseImage(ww.currUIImpl.Frame):
 
         exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
                                                        self.subsection, self.entryIdx,
-                                                       120, self.displayedImages, balloon,
+                                                       imPadLeft = 120, 
+                                                       displayedImagesContainer = self.displayedImages,
                                                        skippConditionFn = skipProofs)
         for l in exImLabels:
             l.render()
@@ -396,7 +396,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         name = "_showExcerciseCurr_text"
 
-        self.parent = parentWidget.widgetObj
+        self.parent = parentWidget
 
         super().__init__(prefix,
                         name,
@@ -409,7 +409,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         def on_vertical(event):
             self.scrollY(-1 * event.delta)
 
-        self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+        self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
     def __renderAfterRebuild(self, *args, **kwargs):
         def __internal(*args, **kwargs):
@@ -450,8 +450,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     shouldScrollToRebuild = True
                     break
 
-        while pwidget != self.parent:
+        while (pwidget != self.parent):
             if "tkinter." not in str(type(pwidget)):
+                if (pwidget == None):
+                    break
                 posy += pwidget.getYCoord()
                 pwidget = pwidget.getParent()
             else:

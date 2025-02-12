@@ -121,8 +121,6 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showNotesCurr_text"
 
-        self.parent = parentWidget.widgetObj
-
         super().__init__(prefix,
                         name,
                         parentWidget,
@@ -132,9 +130,9 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                         makeScrollable = False)
 
         def on_vertical(event):
-            self.canvas.yview_scroll(-1 * event.delta, 'units')
+            self.scrollY(-1 * event.delta)
 
-        self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+        self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
     def __renderAfterRebuild(self, *args, **kwargs):
         def __internal(*args, **kwargs):
@@ -222,13 +220,13 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                               )
 
         imageLables = []
-        balloon = Pmw.Balloon(self.scrollable_frame)
         imLabel = _ucomw.addMainEntryImageWidget(mainLabels[0], 
-                                                      self.subsection, self.imIdx,
-                                                      0, self.displayedImages, balloon,
-                                                      row = 0,
-                                                      columnspan = 1,
-                                                      column = 1)
+                                                self.subsection, self.imIdx,
+                                                imPadLeft = 0, 
+                                                displayedImagesContainer = self.displayedImages,
+                                                row = 0,
+                                                columnspan = 1,
+                                                column = 1)
         imageLables.append(imLabel)
         imLabel.focus_force()
 
@@ -237,7 +235,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         
         exImLabels = _ucomw.addExtraEntryImagesWidgets(mainLabels[1:], 
                                                        self.subsection, self.imIdx,
-                                                       0, self.displayedImages, balloon,
+                                                       imPadLeft = 0, 
+                                                       displayedImagesContainer = self.displayedImages,
                                                        skippConditionFn = skipProofs,
                                                        row = 0,
                                                        columnspan = 1,

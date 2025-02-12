@@ -103,7 +103,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
                         currLayout)
 
     def unbind(self):
-        self.winRoot.unbind()
+        self.winRoot.unbindAll()
 
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,

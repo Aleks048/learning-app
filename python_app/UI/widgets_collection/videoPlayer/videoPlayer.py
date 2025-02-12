@@ -89,20 +89,20 @@ class VideoPlayerRoot(ww.currUIImpl.RootWidget):
             self.videoFrame.play(0.0)
 
         def __bindAll(*args):
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shenter, lambda *args: __startAddingEntry())
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shspace, lambda *args: self.videoFrame.play())
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, lambda *args: self.videoFrame.scroll(-5))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, lambda *args: self.videoFrame.scroll(5))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.cmdu, lambda *args: __updatePosition(*args))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.cmdr, lambda *args: __restart(*args))
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [lambda *args: __startAddingEntry()])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shspace], [lambda *args: self.videoFrame.play()])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], [lambda *args: self.videoFrame.scroll(-5)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shright], [lambda *args: self.videoFrame.scroll(5)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdu], [lambda *args: __updatePosition(*args)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdr], [lambda *args: __restart(*args)])
 
         def __unbindAll(*args):
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shenter)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shspace)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shleft)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shright)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.cmdu)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.cmdr)
+            self.unbind([ww.currUIImpl.Data.BindID.Keys.shenter,
+                         ww.currUIImpl.Data.BindID.Keys.shspace,
+                         ww.currUIImpl.Data.BindID.Keys.shleft,
+                         ww.currUIImpl.Data.BindID.Keys.shright,
+                         ww.currUIImpl.Data.BindID.Keys.cmdu,
+                         ww.currUIImpl.Data.BindID.Keys.cmdr])
     
 
         return [ww.currUIImpl.Data.BindID.enterWidget,

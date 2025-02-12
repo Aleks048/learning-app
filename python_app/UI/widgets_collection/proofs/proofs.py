@@ -52,27 +52,25 @@ class ProofMainImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def render(self, **kwargs):
-                
-        # get an image from the
-        widget = self.widgetObj
 
-        for child in widget.winfo_children():
+        for child in self.getChildren():
             child.destroy()
 
-        balloon = Pmw.Balloon(widget)
-        self.imLabel = _ucomw.addMainEntryImageWidget(widget, 
+        self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                       self.subsection, self.entryIdx,
-                                                      120, self.displayedImages, balloon)
+                                                      imPadLeft = 120, 
+                                                      displayedImagesContainer = self.displayedImages)
         self.imLabel.render()
         self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
+        exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
                                                        self.subsection, self.entryIdx,
-                                                       120, self.displayedImages, balloon,
-                                                       skipProofs)
+                                                       imPadLeft = 120, 
+                                                       displayedImagesContainer = self.displayedImages,
+                                                       skippConditionFn = skipProofs)
         for l in exImLabels:
             l.render()
 

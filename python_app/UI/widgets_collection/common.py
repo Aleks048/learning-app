@@ -676,7 +676,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if not textOnly:
                         imLabel = _uuicom.addMainEntryImageWidget(tframe, subsection, imIdx, 
                                                                   imPad, self.displayedImages, 
-                                                                  balloon, bindData, resizeFactor = resizeFactor,
+                                                                  bindData, resizeFactor = resizeFactor,
                                                                   tocBox = self)
 
                         imLabel.render()
@@ -726,12 +726,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                                        newText)])
                                 imLabel.rebind(*bindData)
                                
-                            imLabel.bind(ww.currUIImpl.Data.BindID.Keys.shenter,
-                                         lambda e, *args: __getMainWidgetBack(imLabel, subsection, imIdx, 
-                                                                              row, column))
+                            imLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                           [lambda e, *args: __getMainWidgetBack(imLabel, subsection, imIdx, row, column)])
                             widget.hide()
                             imLabel.render()
-                            # imLabel.focus_force()
+                            imLabel.forceFocus()
 
                         if not fsm.Data.Sec.isVideo(subsection):
                             mainWidgetName = _upan.Names.UI.getMainEntryWidgetName(subsection, imIdx)
@@ -790,13 +789,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     if not link:
                         exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
-                                                                        imPad, self.displayedImages, balloon,
-                                                                        skippProof, tocFrame = self, 
+                                                                        imPadLeft = imPad, 
+                                                                        displayedImagesContainer = self.displayedImages,
+                                                                        skippConditionFn = skippProof, 
+                                                                        tocFrame = self, 
                                                                         createExtraWidgets = createExtraWidgets)
                     else:
                         exImLabels = _uuicom.addExtraEntryImagesWidgets(tframe, subsection, imIdx,
-                                                                        imPad, self.displayedImages, balloon,
-                                                                        skippProofLink, tocFrame = self, 
+                                                                        imPadLeft = imPad, 
+                                                                        displayedImagesContainer = self.displayedImages,
+                                                                        skippConditionFn = skippProofLink, 
+                                                                        tocFrame = self, 
                                                                         createExtraWidgets = createExtraWidgets)
 
                     eImIdxCounter = 0

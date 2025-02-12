@@ -388,125 +388,106 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             self.updateDafaultText(str(int(secImIndex) + 1))
         
         def __boldenText(*args):
-            startSelIDX = self.widgetObj.index("sel.first")
-            endSelIDX = self.widgetObj.index("sel.last")
-            selText = self.widgetObj.get(startSelIDX, endSelIDX)
-            boldSelText = f"\\textbf{{{selText}}}"
-            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+            self.wrapSelectedText("\\textbf{", "}")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdb,
-                            lambda *args: __boldenText(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdb],
+                    [lambda *args: __boldenText(*args)])
 
         def __underlineText(*args):
-            startSelIDX = self.widgetObj.index("sel.first")
-            endSelIDX = self.widgetObj.index("sel.last")
-            selText = self.widgetObj.get(startSelIDX, endSelIDX)
-            boldSelText = f"\\underline{{{selText}}}"
-            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+            self.wrapSelectedText("\\underline", "}")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdu,
-                  lambda *args: __underlineText(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdu],
+                    [lambda *args: __underlineText(*args)])
 
         def __addNote(*args):
-            boldSelText = "\\textbf{NOTE:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{NOTE:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
-                  lambda *args: __addNote(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdn],
+                    [lambda *args: __addNote(*args)])
 
         def __addNoteInPlace(*args):
-            boldSelText = "\\textbf{NOTE:} "
-            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{NOTE:} ")
 
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
-                            lambda *args: __addNoteInPlace(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshn],
+                    [lambda *args: __addNoteInPlace(*args)])
 
         def __addDef(*args):
-            boldSelText = "\\textbf{DEF:} "
-            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{DEF:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
-                  lambda *args: __addDef(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdd],
+                    [lambda *args: __addDef(*args)])
 
         def __addProposion(*args):
-            boldSelText = "\\textbf{Proposition:} "
-            self.widgetObj.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{Proposition:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
-                  lambda *args: __addProposion(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshp],
+                    [lambda *args: __addProposion(*args)])
 
         def __addProof(*args):
-            boldSelText = "proof"
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("proof")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
-                  lambda *args: __addProof(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdp],
+                    [lambda *args: __addProof(*args)])
 
         def __addExample(*args):
-            boldSelText = "\\textbf{EX:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{EX:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
-                  lambda *args: __addExample(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmde],
+                    [lambda *args: __addExample(*args)])
 
         def __addLemma(*args):
-            boldSelText = "\\textbf{Lemma:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{Lemma:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdl,
-                  lambda *args: __addLemma(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdl],
+                    [lambda *args: __addLemma(*args)])
         
         def __addCorollary(*args):
-            boldSelText = "\\textbf{Corollary:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{Corollary:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshc,
-                  lambda *args: __addCorollary(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshc],
+                    [lambda *args: __addCorollary(*args)])
 
         def __addCode(*args):
-            boldSelText = "\\textbf{Code:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{Code:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmddc,
-                  lambda *args: __addCode(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmddc],
+                    [lambda *args: __addCode(*args)])
 
         def __addExcecise(*args):
-            boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{\\underline{EXCERCISE:}} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
-                  lambda *args: __addExcecise(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshe],
+                    [lambda *args: __addExcecise(*args)])
 
         def __addTheorem(*args):
-            boldSelText = "\\textbf{Theorem:} "
-            self.widgetObj.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{Theorem:} ")
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdt,
-                  lambda *args: __addTheorem(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdt],
+                    [lambda *args: __addTheorem(*args)])
 
         def __notifyImGenerationBtn(*args):
             self.notify(ImageGeneration_BTN)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.shenter,
-                  lambda *args: __notifyImGenerationBtn(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                    [lambda *args: __notifyImGenerationBtn(*args)])
 
         def __notifyImGenerationRestartBtn(*args):
             self.notify(ImageGenerationRestart_BTN)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.escape,
-                  lambda *args: __notifyImGenerationRestartBtn(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.escape],
+                    [lambda *args: __notifyImGenerationRestartBtn(*args)])
 
         def __notifyAlwaysShowChBx(*args):
             self.notify(addToTOCwImage_CHB)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdshi,
-                  lambda *args: __notifyAlwaysShowChBx(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshi],
+                    [lambda *args: __notifyAlwaysShowChBx(*args)])
 
         def __notifyTextOnlyChBx(*args):
             self.notify(TextOnly_CHB)
         
-        self.widgetObj.bind(ww.currUIImpl.Data.BindID.Keys.cmdsht,
-                  lambda *args: __notifyTextOnlyChBx(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdsht],
+                    [lambda *args: __notifyTextOnlyChBx(*args)])
 
     def receiveNotification(self, broadcasterType, dataToSet = None):
         if broadcasterType == ImageGenerationRestart_BTN:

@@ -66,26 +66,23 @@ class NotesImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def render(self, **kwargs):
-                
-        # get an image from the
-        widget = self.widgetObj
-
-        for child in widget.winfo_children():
+        for child in self.getChildren():
             child.destroy()
 
-        balloon = Pmw.Balloon(widget)
-        self.imLabel = _ucomw.addMainEntryImageWidget(widget, 
+        self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                       self.subsection, self.entryIdx,
-                                                      120, self.displayedImages, balloon)
+                                                      imPadLeft = 120, 
+                                                      displayedImagesContainer = self.displayedImages)
         self.imLabel.render()
         self.imLabel.focus_force()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
+        exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
                                                        self.subsection, self.entryIdx,
-                                                       120, self.displayedImages, balloon,
+                                                       imPadLeft = 120, 
+                                                       displayedImagesContainer = self.displayedImages,
                                                        skippConditionFn = skipProofs)
         for l in exImLabels:
             l.render()
@@ -434,7 +431,7 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
         self.config(height = newHeight)
         self.place(x = 0, y = 0)
 
-        self.bind(ww.currUIImpl.Data.BindID.Keys.shenter, self.__wtireToWordDict)
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [self.__wtireToWordDict])
 
     def __wtireToWordDict(self, *args):
         newText = self.getData()
@@ -503,10 +500,6 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
         except:
             return _u.Token.NotDef.str_t
 
-    def rebind(self, keys, funcs):
-        for i in range(len(keys)):
-            self.bind(keys[i], funcs[i])
-
     def render(self):
         self.grid(row = self.row, column = self.column)
 
@@ -548,9 +541,9 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                         makeScrollable = False)
 
         def on_vertical(event):
-            self.canvas.yview_scroll(-1 * event.delta, 'units')
+            self.scrollY(-1 * event.delta)
 
-        self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+        self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
     # def __renderAfterRebuild(self, *args, **kwargs):
     #     def __internal(*args, **kwargs):

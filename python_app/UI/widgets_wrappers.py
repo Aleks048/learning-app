@@ -189,6 +189,8 @@ class TkWidgets (DataTranslatable_Interface):
                 left = "<Left>"
                 shdown = "<Shift-Down>"
                 down = "<Down>"
+                focusIn = "<FocusIn>"
+                focusOut = "<FocusOut>"
 
     class Orientation:
         N = tk.N
@@ -288,7 +290,25 @@ class TkWidgets (DataTranslatable_Interface):
             self.bindCmd = bindCmd
             self.callingObject = callingObject
             super().__init__()
-            self.bind_all_keys = ["<Delete>", "<Mod1-s>"]
+            self.bind_all_keys = ["<Delete>", 
+                                  "<Mod1-s>",
+                                  '<Mod1-MouseWheel>',
+                                  ]
+
+            self.root_bind_all_keys = [TkWidgets.Data.BindID.Keys.left,
+                                       TkWidgets.Data.BindID.Keys.shleft,
+                                       TkWidgets.Data.BindID.Keys.up,
+                                       TkWidgets.Data.BindID.Keys.down,
+                                       TkWidgets.Data.BindID.Keys.right,
+                                       TkWidgets.Data.BindID.Keys.shright,
+                                       TkWidgets.Data.BindID.Keys.shenter,
+                                       TkWidgets.Data.BindID.Keys.escape,
+                                       TkWidgets.Data.BindID.Keys.shenter, 
+                                       TkWidgets.Data.BindID.Keys.shspace,
+                                       TkWidgets.Data.BindID.Keys.shleft,
+                                       TkWidgets.Data.BindID.Keys.shright, 
+                                       TkWidgets.Data.BindID.Keys.cmdu, 
+                                       TkWidgets.Data.BindID.Keys.cmdr]
         
         def bind(self):
             keys, cmds = self.bindCmd()
@@ -305,8 +325,10 @@ class TkWidgets (DataTranslatable_Interface):
                 else:
                     shouldUseBindAll = (type(self.callingObject) == tk.Canvas) and (key in self.bind_all_keys)
 
+                shouldRootUseBindAll = ("root" in str(type(self.callingObject)).lower()) and (key in self.root_bind_all_keys)
+
                 shouldUseBindAll = (key == TkWidgets.Data.BindID.allKeys)\
-                                   or shouldUseBindAll
+                                   or shouldUseBindAll or shouldRootUseBindAll
 
                 if "widgetObj" in dir(self.callingObject):
                     if cmd.__name__ in dir(self.callingObject):
@@ -337,6 +359,7 @@ class TkWidgets (DataTranslatable_Interface):
                 key = keys[i]
 
                 self.widgetObj.unbind(key)
+                self.widgetObj.unbind_all(key)
 
     class Button (Notifyable_Interface,
                 HasChildren_Interface_Impl, 
@@ -577,6 +600,19 @@ class TkWidgets (DataTranslatable_Interface):
             cmds = [lambda *args: self.defaultTextCMD(), 
                     lambda *args: self.defaultTextCMD()]
             return keys, cmds
+
+        def wrapSelectedText(self, txtBefore, txtAfter):
+            startSelIDX = self.widgetObj.index("sel.first")
+            endSelIDX = self.widgetObj.index("sel.last")
+            selText = self.widgetObj.get(startSelIDX, endSelIDX)
+            boldSelText = f"{txtBefore}{selText}{txtAfter}"
+            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        def addTextAtStart(self, text):
+            self.widgetObj.insert("0.0", text)
+        
+        def addTextAtCurrent(self, text):
+            self.widgetObj.insert(TkWidgets.TextInsertPosition.CURRENT, text)
     
     class Checkbox (Notifyable_Interface,
                     DataContainer_Interface_Impl,
@@ -928,6 +964,19 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.insert(TkWidgets.TextInsertPosition.CURRENT, text)
 
+        def wrapSelectedText(self, txtBefore, txtAfter):
+            startSelIDX = self.widgetObj.index("sel.first")
+            endSelIDX = self.widgetObj.index("sel.last")
+            selText = self.widgetObj.get(startSelIDX, endSelIDX)
+            boldSelText = f"{txtBefore}{selText}{txtAfter}"
+            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+        
+        def addTextAtStart(self, text):
+            self.widgetObj.insert("0.0", text)
+        
+        def addTextAtCurrent(self, text):
+            self.widgetObj.insert(TkWidgets.TextInsertPosition.CURRENT, text)
+
     class Canvas(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
                 HasChildren_Interface_Impl,
@@ -1199,7 +1248,11 @@ class TkWidgets (DataTranslatable_Interface):
             localvars = caller.f_locals
             child = localvars['self']
 
-            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
+            if "widgetObj" in dir(child):
+                TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
+            else:
+                TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = self.widgetObj)
+
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj, bindCmd = bindCmd, renderData = self.renderData)
         
             super().bind()

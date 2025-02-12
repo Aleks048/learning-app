@@ -304,28 +304,20 @@ class ImageMainImage(ww.currUIImpl.Frame):
 
     def render(self, **kwargs):     
         # get an image from the
-        widget = self.widgetObj
 
-        if "tk" not in dir(widget):
-            for child in widget.getChildren():
-                child.remove()
-        else:
-            for child in widget.winfo_children():
-                child.destroy()
-
-
-        balloon = Pmw.Balloon(widget)
+        for child in self.getChildren():
+            child.remove()
 
         if self.extraWidgetIdx == _u.Token.NotDef.int_t:
-            self.imLabel = _ucomw.addMainEntryImageWidget(widget, 
+            self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                         self.subsection, self.entryIdx,
-                                                        0, self.displayedImages, balloon,
+                                                        0, self.displayedImages,
                                                         bindOpenWindow = False,
                                                         resizeFactor = 1.5)
         else:
-            self.imLabel = _ucomw.addExtraEntryImagesWidgets(widget, 
+            self.imLabel = _ucomw.addExtraEntryImagesWidgets(self, 
                                                         self.subsection, self.entryIdx,
-                                                        0, self.displayedImages, balloon,
+                                                        0, self.displayedImages,
                                                         createExtraWidgets = False,
                                                         bindOpenWindow = False,
                                                         resizeFactor = 1.5)[self.extraWidgetIdx]
@@ -395,10 +387,9 @@ class ImagesRoot(ww.currUIImpl.RootWidget):
         super().__init__(width, height)
     
         def __bind(*args):
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.escape, 
-                                    lambda *args: self.hideWidget.cmd())
-        def __nunbind(*args):
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.escape)
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.escape], 
+                        [lambda *args: self.hideWidget.cmd()])
+        def __unbind(*args):
+            self.unbind([ww.currUIImpl.Data.BindID.Keys.escape])
 
-        self.widgetObj.bind("<Enter>", __bind, add = True)
-        self.widgetObj.bind("<Leave>", __nunbind, add = True)
+        self.rebind(["<Enter>", "<Leave>"], [__bind, __unbind])

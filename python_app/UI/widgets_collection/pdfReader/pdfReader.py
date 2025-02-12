@@ -369,7 +369,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         def on_vertical(event):
             self.scrollY(-1 * event.delta)
 
-        self.container.bind_all('<Mod1-MouseWheel>', on_vertical)
+        self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
     def __scrollIntoView(self, event, widget = None):
         posy = 0
@@ -616,31 +616,46 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
             self.pdfBox.updateScrollerPosition()
 
         def __bind(*args):
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.left, 
-                                    lambda *args: self.pageLbl.changePage(False, None, True))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shleft, 
-                                    lambda *args: __changePage(False))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shright, 
-                                    lambda *args: __changePage(True))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.right, 
-                                    lambda *args: self.pageLbl.changePage(True, None, True))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.up,
-                                    lambda *args: self.pdfBox.canvas.yview_scroll(-1, 'units'))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.down,
-                                    lambda *args: self.pdfBox.canvas.yview_scroll(1, 'units'))
-            self.widgetObj.bind_all(ww.currUIImpl.Data.BindID.Keys.shenter,
-                                    lambda *args: __atsrAddingCmd())
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
+                        [lambda e, mainObj = self, *args: mainObj.pageLbl.changePage(False, None, True)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.right], 
+                        [lambda *args: self.pageLbl.changePage(True, None, True)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], 
+                        [lambda *args: __changePage(False)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shright], 
+                        [lambda *args: __changePage(True)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.up],
+                        [lambda *args: self.pdfBox.scrollY(-1)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.down],
+                        [lambda *args: self.pdfBox.scrottY(1)])
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                        [lambda *args: __atsrAddingCmd()])
+
         def __nunbind(*args):
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.left)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shleft)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.up)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.down)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.right)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shright)
-            self.widgetObj.unbind_all(ww.currUIImpl.Data.BindID.Keys.shenter)
+            self.unbind([ww.currUIImpl.Data.BindID.Keys.left,
+                            ww.currUIImpl.Data.BindID.Keys.shleft,
+                            ww.currUIImpl.Data.BindID.Keys.up,
+                            ww.currUIImpl.Data.BindID.Keys.down,
+                            ww.currUIImpl.Data.BindID.Keys.right,
+                            ww.currUIImpl.Data.BindID.Keys.shright,
+                            ww.currUIImpl.Data.BindID.Keys.shenter,
+                        ])
 
-        self.widgetObj.bind("<FocusIn>", __bind, add = True)
-        self.widgetObj.bind("<FocusOut>", __nunbind, add = True)
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.focusIn,
+                     ww.currUIImpl.Data.BindID.Keys.focusOut],
+                    [__bind,
+                     __nunbind])
 
-    def unbind(self, *args):
-        self.widgetObj.event_generate("<FocusOut>")
+    def __nunbind(self, *args):
+        self.unbind([ww.currUIImpl.Data.BindID.Keys.left,
+                        ww.currUIImpl.Data.BindID.Keys.shleft,
+                        ww.currUIImpl.Data.BindID.Keys.up,
+                        ww.currUIImpl.Data.BindID.Keys.down,
+                        ww.currUIImpl.Data.BindID.Keys.right,
+                        ww.currUIImpl.Data.BindID.Keys.shright,
+                        ww.currUIImpl.Data.BindID.Keys.shenter,
+                    ])
+
+    def unbindAll(self):
+        self.__nunbind()
+

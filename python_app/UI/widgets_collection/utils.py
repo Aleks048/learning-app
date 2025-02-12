@@ -91,6 +91,7 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
 
         self.rebind([ww.currUIImpl.Data.BindID.Keys.ctrlv],
                     [lambda *args: self.pasteTextFromClipboard(*args)])
+        self.rebind_()
 
     # def getData(self):
     #     retur
@@ -113,106 +114,87 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
 
     #     return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
 
-    def rebind_(self, keys, funcs):
-        for i in range(len(keys)):
-            self.bind(keys[i], funcs[i])
+    def rebind_(self, keys = [], funcs = []):
+        self.rebind(keys, funcs)
         
         def __boldenText(*args):
-            startSelIDX = self.index("sel.first")
-            endSelIDX = self.index("sel.last")
-            selText = self.get(startSelIDX, endSelIDX)
-            boldSelText = f"\\textbf{{{selText}}}"
-            self.replace(startSelIDX, endSelIDX, boldSelText)
+            self.wrapSelectedText("\\textbf{", "}")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdb,
-                  lambda *args: __boldenText(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdb],
+                    [lambda *args: __boldenText(*args)])
+        
 
         def __underlineText(*args):
-            startSelIDX = self.index("sel.first")
-            endSelIDX = self.index("sel.last")
-            selText = self.get(startSelIDX, endSelIDX)
-            boldSelText = f"\\underline{{{selText}}}"
-            self.replace(startSelIDX, endSelIDX, boldSelText)
+             self.wrapSelectedText("\\underline{", "}")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdu,
-                  lambda *args: __underlineText(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdu],
+                  [lambda *args: __underlineText(*args)])
 
         def __addNote(*args):
-            boldSelText = "\\textbf{NOTE:} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{NOTE:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdn,
-                  lambda *args: __addNote(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdn],
+                  [lambda *args: __addNote(*args)])
 
         def __addNoteInPlace(*args):
-            boldSelText = "\\textbf{NOTE:} "
-            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{NOTE:} ")\
 
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshn,
-                  lambda *args: __addNoteInPlace(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshn],
+                  [lambda *args: __addNoteInPlace(*args)])
 
         def __addDef(*args):
-            boldSelText = "\\textbf{DEF:} "
-            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{DEF:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdd,
-                  lambda *args: __addDef(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdd],
+                  [lambda *args: __addDef(*args)])
 
         def __addProposion(*args):
-            boldSelText = "\\textbf{Proposition:} "
-            self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, boldSelText)
+            self.addTextAtCurrent("\\textbf{Proposition:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshp,
-                  lambda *args: __addProposion(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshp],
+                  [lambda *args: __addProposion(*args)])
 
         def __addExample(*args):
-            boldSelText = "\\textbf{EX:} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{EX:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmde,
-                  lambda *args: __addExample(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmde],
+                  [lambda *args: __addExample(*args)])
 
         def __addLemma(*args):
-            boldSelText = "\\textbf{Lemma:} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{Lemma:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdl,
-                  lambda *args: __addLemma(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdl],
+                  [lambda *args: __addLemma(*args)])
 
         def __addCorollary(*args):
-            boldSelText = "\\textbf{Corollary:} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{Corollary:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshc,
-                  lambda *args: __addCorollary(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshc],
+                  [lambda *args: __addCorollary(*args)])
 
         def __addCode(*args):
-            boldSelText = "\\textbf{Code:} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{Code:} ")
 
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmddc,
-                  lambda *args: __addCode(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmddc],
+                    [lambda *args: __addCode(*args)])
 
         def __addExcercise(*args):
-            boldSelText = "\\textbf{\\underline{EXCERCISE:}} "
-            self.insert("0.0", boldSelText)
+            self.addTextAtStart("\\textbf{\\underline{EXCERCISE:}} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdshe,
-                  lambda *args: __addExcercise(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshe],
+                    [lambda *args: __addExcercise(*args)])
 
         def __addTheorem(*args):
-            boldSelText = "\\textbf{Theorem:} "
-            self.insert("0", boldSelText)
+            self.addTextAtStart("\\textbf{Theorem:} ")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdt,
-                  lambda *args: __addTheorem(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdt],
+                    [lambda *args: __addTheorem(*args)])
 
         def __addProof(*args):
-            boldSelText = "proof"
-            self.insert("0", boldSelText)
+            self.addTextAtStart("proof")
         
-        self.bind(ww.currUIImpl.Data.BindID.Keys.cmdp,
-                  lambda *args: __addProof(*args))
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdp],
+                  [lambda *args: __addProof(*args)])
     
     def generateEvent(self, event):
         self.event_generate(event)
@@ -1415,7 +1397,6 @@ def addMainEntryImageWidget(rootLabel,
                             subsection, imIdx,
                             imPadLeft, 
                             displayedImagesContainer,
-                            imageBaloon,
                             mainImgBindData = None,
                             resizeFactor = 1.0,
                             row = 4,
@@ -1457,21 +1438,6 @@ def addMainEntryImageWidget(rootLabel,
         imLabel.render()
 
         displayedImagesContainer.append(img)
-
-        imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
-
-        if type(imLinkDict) == dict:
-            if str(imIdx) in list(imLinkDict.keys()):
-                imText = imLinkDict[str(imIdx)]
-            else:
-                imText = _u.Token.NotDef.str_t
-        else:
-            imText = _u.Token.NotDef.str_t
-        
-        if "widgetObj" in dir(imLabel):
-            imageBaloon.bind(imLabel.widgetObj, "{0}".format(imText))
-        else:
-            imageBaloon.bind(imLabel, "{0}".format(imText))
     else:
         text = fsf.Data.Sec.imageText(subsection)[imIdx]
         imLabel = TOCTextWithClick(tempLabel, 
@@ -1578,7 +1544,6 @@ def addExtraEntryImagesWidgets(rootLabel,
                                subsection, imIdx,
                                imPadLeft, 
                                displayedImagesContainer,
-                               imageBaloon, 
                                skippConditionFn = lambda *args: False,
                                tocFrame = None,
                                row = None,
@@ -2176,8 +2141,6 @@ def addExtraEntryImagesWidgets(rootLabel,
                 addEIm.render()
 
             outLabels.append(tempLabel)
-
-            # imageBaloon.bind(eimLabel, "{0}".format(eImText))
 
     return outLabels
 
