@@ -1,6 +1,5 @@
 from PIL import Image, ImageOps
 import subprocess
-from AppKit import NSPasteboard, NSStringPboardType
 from tkinter import scrolledtext
 import time
 import re
@@ -25,7 +24,7 @@ import generalManger.generalManger as gm
 
 
 class MultilineText_ETR(ww.currUIImpl.MultilineText):
-    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text, *args, **kwargs):
+    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, *args, **kwargs):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
@@ -42,6 +41,11 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
         self.root = parentWidget
 
         self.defaultText = text
+
+        while text[-2:] == "\n":
+            text = text[:-2]
+
+        text = text.rstrip()
 
         txt = ""
         lineLength = 0
@@ -86,18 +90,7 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
                             **kwargs)
 
         self.rebind([ww.currUIImpl.Data.BindID.Keys.ctrlv],
-                    [lambda *args: self.__pasteText(*args)])
-
-    def __pasteText(self, *args):
-        pos = self.index(ww.currUIImpl.TextInsertPosition.CURRENT)
-        oldText = self.get("0.0", ww.currUIImpl.TextInsertPosition.END)
-
-        pb = NSPasteboard.generalPasteboard()
-        text:str = pb.stringForType_(NSStringPboardType)
-
-        text = text.replace("\u0000", "fi")
-
-        self.insert(ww.currUIImpl.TextInsertPosition.CURRENT, text)
+                    [lambda *args: self.pasteTextFromClipboard(*args)])
 
     # def getData(self):
     #     retur

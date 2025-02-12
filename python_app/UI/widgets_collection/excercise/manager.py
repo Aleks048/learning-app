@@ -137,6 +137,10 @@ class ExcerciseManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+        winRoot.ExcerciseBox = self.layouts[0].excercise_BOX
+        winRoot.AddExcerciseBTN = self.layouts[0].addExcerciseLine_BTN
+
     def show(self, showManinExcerciseIm = None):
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx

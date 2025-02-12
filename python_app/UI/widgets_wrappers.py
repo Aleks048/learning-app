@@ -8,6 +8,8 @@ import os
 from ctypes import c_void_p, cdll
 import vlc
 
+from AppKit import NSPasteboard, NSStringPboardType
+
 import _utils.logging as log
 import _utils._utils_main as _u
 import UI.widgets_data as wd
@@ -286,42 +288,22 @@ class TkWidgets (DataTranslatable_Interface):
             self.bindCmd = bindCmd
             self.callingObject = callingObject
             super().__init__()
+            self.bind_all_keys = ["<Delete>", "<Mod1-s>"]
         
         def bind(self):
             keys, cmds = self.bindCmd()
-            if keys != None and cmds != None:
-                for i in range(len(keys)):
-                    key = keys[i]
-                    cmd = cmds[i]
-                   
-                    if key == TkWidgets.Data.BindID.allKeys:
-                        if "widgetObj" in dir(self.callingObject):
-                            self.callingObject.widgetObj.bind_all(key, 
-                                                        lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
-                        else:
-                            self.callingObject.bind_all(key, 
-                                                        lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
-
-                    else:
-                        if "widgetObj" in dir(self.callingObject):
-                            self.callingObject.widgetObj.bind(key, 
-                                                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
-                        else:
-                            self.callingObject.bind(key, 
-                                                            lambda event, cmd = cmd: cmd(TkWidgets.BindableWidget_Interface_Impl.Data(event, self.callingObject)))
+            if keys != None:
+                self.rebind(keys, cmds)
 
         def rebind(self, keys, cmds):
-            bind_all_keys = ["<Delete>", "<Mod1-s>"]
-
             for i in range(len(keys)):
-
                 key = keys[i]
                 cmd = cmds[i]
                 
                 if "widgetObj" in dir(self.callingObject):
-                    shouldUseBindAll = (type(self.callingObject.widgetObj) == tk.Canvas) and (key in bind_all_keys)
+                    shouldUseBindAll = (type(self.callingObject.widgetObj) == tk.Canvas) and (key in self.bind_all_keys)
                 else:
-                    shouldUseBindAll = (type(self.callingObject) == tk.Canvas) and (key in bind_all_keys)
+                    shouldUseBindAll = (type(self.callingObject) == tk.Canvas) and (key in self.bind_all_keys)
 
                 shouldUseBindAll = (key == TkWidgets.Data.BindID.allKeys)\
                                    or shouldUseBindAll
@@ -580,7 +562,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.defaultText = newText
 
         def defaultTextCMD(self):
-            current = str(self.getData())
+            current = str(self.getData()).rstrip()
             # [KIK-63] since " " in text data cause errors so we store "_" instead
             current = current.replace("_", " ")
             if current == self.defaultText:
@@ -754,6 +736,9 @@ class TkWidgets (DataTranslatable_Interface):
         
         def getChildren(self):
             return super().getChildren()
+        
+        def getHeight(self):
+            return self.widgetObj.winfo_height()
 
     class Frame(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
@@ -794,6 +779,9 @@ class TkWidgets (DataTranslatable_Interface):
         
         def render(self, **kwargs):
             return super().render(self.widjetObj, self.renderData, **kwargs)
+        
+        def getHeight(self):
+            return self.widjetObj.winfo_height()
 
     class VideoPayer(Frame):
         def render(self, videoPath, **kwargs):
@@ -876,7 +864,7 @@ class TkWidgets (DataTranslatable_Interface):
                     text = "",
                     wrap = None, 
                     width = 70, 
-                    height = 30, 
+                    height = 10, 
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
                     padding = [0, 0, 0, 0],
@@ -922,7 +910,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.setData(text)
 
         def getData(self):
-            newData = self.widgetObj.get('1.0', TkWidgets.TextInsertPosition.END)
+            newData = self.widgetObj.get('1.0', TkWidgets.TextInsertPosition.END).rstrip()
             self.setData(newData)
             return newData
 
@@ -931,6 +919,14 @@ class TkWidgets (DataTranslatable_Interface):
     
         def getCurrCursorPosition(self):
             return self.widgetObj.index(TkWidgets.TextInsertPosition.CURRENT)
+        
+        def pasteTextFromClipboard(self, *args):
+            pb = NSPasteboard.generalPasteboard()
+            text:str = pb.stringForType_(NSStringPboardType)
+
+            text = text.replace("\u0000", "fi")
+
+            self.insert(TkWidgets.TextInsertPosition.CURRENT, text)
 
     class Canvas(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,

@@ -1,5 +1,5 @@
 import Pmw
-from PIL import Image, ImageTk
+from PIL import Image
 from threading import Thread
 
 import UI.widgets_wrappers as ww
@@ -13,8 +13,6 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import UI.widgets_data as wd
 import data.temp as dt
-
-exImages = []
 
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imLineIdx, text):
@@ -74,9 +72,8 @@ class ExcerciseImageLabel(ww.currUIImpl.Label):
 
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            exImages.append(img)
-            return super().__init__(prefix, name, root, data, image = img, padding = [0, 0, 0, 0])
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, data, image = self.image, padding = [0, 0, 0, 0])
         else:
             return super().__init__(prefix, name, root, data, text = text, padding = [0, 0, 0, 0])
 
@@ -99,23 +96,17 @@ class ExcerciseImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def hide(self, **kwargs):
-        # get an image from the
-        widget = self.widgetObj
-
-        for child in widget.winfo_children():
+        for child in self.getChildren():
             child.destroy()
         return super().hide(**kwargs)
 
     def render(self, **kwargs):
-                
-        # get an image from the
-        widget = self.widgetObj
 
-        for child in widget.winfo_children():
+        for child in self.getChildren():
             child.destroy()
 
-        balloon = Pmw.Balloon(widget)
-        self.imLabel = _ucomw.addMainEntryImageWidget(widget, 
+        balloon = Pmw.Balloon(self.widgetObj)
+        self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                       self.subsection, self.entryIdx,
                                                       120, self.displayedImages, balloon)
         self.imLabel.render()
@@ -124,7 +115,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(widget, 
+        exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
                                                        self.subsection, self.entryIdx,
                                                        120, self.displayedImages, balloon,
                                                        skippConditionFn = skipProofs)
@@ -383,25 +374,26 @@ def _rebuildLine(*args, **kwargs):
 
 class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-
-    currLineCopyIdx = _u.Token.NotDef.int_t
-
-    lineIdxShownInText = []
-    currEtr = _u.Token.NotDef.dict_t.copy()
-    etrTexts = _u.Token.NotDef.dict_t.copy()
-
-    displayedImages = []
-
-    latestWidgetToscrollTo = None
-    latestLineIdxToscrollTo = None
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 7, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
+        self.subsection = None
+        self.imIdx = None
+
+        self.currLineCopyIdx = _u.Token.NotDef.int_t
+
+        self.lineIdxShownInText = []
+        self.currEtr = _u.Token.NotDef.dict_t.copy()
+        self.etrTexts = _u.Token.NotDef.dict_t.copy()
+
+        self.displayedImages = []
+
+        self.latestWidgetToscrollTo = None
+        self.latestLineIdxToscrollTo = None
+
         name = "_showExcerciseCurr_text"
 
         self.parent = parentWidget.widgetObj
@@ -439,51 +431,52 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
     def __scrollIntoView(self, event, widget = None):
         # NOTE: this is a hack to make opening different excercise windows
         # without it we get a crash
-        try:
-            self.scrollable_frame.update()
-            self.scrollable_frame.update_idletasks()
+        self.scrollable_frame.update()
+        self.scrollable_frame.update_idletasks()
 
-            posy = 0
+        posy = 0
 
-            if widget == None:
-                pwidget = event.widget
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
+
+        shouldScrollToRebuild = False
+
+        if "linesImageFRM_" in str(pwidget):
+            for ch in pwidget.winfo_children():
+                if "linesImageRebuild_" in str(ch):
+                    pwidget = ch
+                    shouldScrollToRebuild = True
+                    break
+
+        while pwidget != self.parent:
+            if "tkinter." not in str(type(pwidget)):
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
             else:
-                pwidget = widget
+                posy += pwidget.winfo_y()
+                pwidget = pwidget.master
 
-            shouldScrollToRebuild = False
+        pos = posy - self.scrollable_frame.winfo_rooty()
+        height = self.scrollable_frame.winfo_height()
 
-            if "linesImageFRM_" in str(pwidget):
-                for ch in pwidget.winfo_children():
-                    if "linesImageRebuild_" in str(ch):
-                        pwidget = ch
-                        shouldScrollToRebuild = True
-                        break
+        if widget == None:
+            pwidget = event.widget
+        else:
+            pwidget = widget
 
-            while pwidget != self.parent:
-                if "tkinter." not in str(type(pwidget)):
-                    posy += pwidget.getYCoord()
-                    pwidget = pwidget.getParent()
-                else:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
-
-            pos = posy - self.scrollable_frame.winfo_rooty()
-            height = self.scrollable_frame.winfo_height()
-
-            if widget == None:
-                pwidget = event.widget
-            else:
-                pwidget = widget
-
+        if "tkinter." in str(type(pwidget)):
             preScaceRegular = float(self.getHeight() - 100 - pwidget.winfo_height()) / height
-            preScaceEntry =int( self.getHeight() - 100) / height
+        else:
+            preScaceRegular = float(self.getHeight() - 100 - pwidget.getHeight()) / height
 
-            if not shouldScrollToRebuild:
-                self.moveY((pos / height) - preScaceRegular)
-            else:
-                self.moveY((pos / height) - preScaceEntry)
-        except:
-             pass
+        preScaceEntry =int( self.getHeight() - 100) / height
+
+        if not shouldScrollToRebuild:
+            self.moveY((pos / height) - preScaceRegular)
+        else:
+            self.moveY((pos / height) - preScaceEntry)
 
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
@@ -502,15 +495,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 self.latestLineIdxToscrollTo = lineImIdx
                 bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                 widgetlineImIdx = str(lineImIdx)
-
-                # for lineImIdx in self.lineIdxShownInText:
-                #     if lineImIdx in list(self.currEtr.keys()):
-                #         text = self.currEtr[lineImIdx].getData()
-                #         fsf.Wr.EntryInfoStructure.rebuildLine(self.subsection,
-                #                                                 self.imIdx,
-                #                                                 lineImIdx,
-                #                                                 text,
-                #                                                 bookPath)
 
                 if widgetlineImIdx in self.lineIdxShownInText:
                     self.lineIdxShownInText.remove(widgetlineImIdx)
@@ -536,14 +520,14 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                             row = i + numRowsPre + 1, column = 6)
                 label.render()
                 label.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
+                              [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
                 label = _ucomw.TOCFrame(self.scrollable_frame, 
-                                "linesImageFRM_" + str(i),
+                                "linesImageFRM_" + self.subsection.replace(".", "_") + self.imIdx + str(i),
                                 i + numRowsPre + 1, 6, 1
                                 )
-                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + str(i), 
+                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + self.subsection.replace(".", "_") + self.imIdx + str(i), 
                                             self.subsection, self.imIdx, i,
                                             row = 0, column = 0)
                 labIm.render()
@@ -579,16 +563,16 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
                 labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
                 labIm.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
-                             [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
+                             [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)
 
                 labETR.render()
                 labRebuild.render()
                 label.render()
+                
                 labelToScrollTo = label
 
-
-            if (str(i) == self.latestLineIdxToscrollTo) and label != None:
+            if (str(i) == str(self.latestLineIdxToscrollTo)) and (labelToScrollTo != None):
                 self.latestWidgetToscrollTo = labelToScrollTo
 
             '''
@@ -748,8 +732,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.render()
 
     def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
-        global exImages
-        exImages = []
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
@@ -799,24 +781,24 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
-    ExcerciseBox = None
-    AddExcerciseBTN = None
+    ExcerciseBox:Excercise_BOX = None
+    AddExcerciseBTN:AddExcerciseLine_BTN = None
 
     def __init__(self, width, height, bindCmd=...):
         super().__init__(width, height, self.bindCmd)    
 
     def bindCmd(self):
+        
         def __scrollUp(*args):
             if self.ExcerciseBox != None:
-                self.ExcerciseBox.canvas.yview_scroll(1, "units")
+                self.ExcerciseBox.scrollY(1)
         def __scrollDown(*args):
             if self.ExcerciseBox != None:
-                self.ExcerciseBox.canvas.yview_scroll(-1, "units")
+                self.ExcerciseBox.scrollY(-1)
         def __addLine(*args):
-            if self.ExcerciseBox != None:
+            if self.AddExcerciseBTN != None:
                 self.AddExcerciseBTN.cmd()
         return [ww.currUIImpl.Data.BindID.Keys.shdown, 
                 ww.currUIImpl.Data.BindID.Keys.shup,
                 ww.currUIImpl.Data.BindID.Keys.cmdshs], \
                [__scrollUp, __scrollDown, __addLine]
-    pass
