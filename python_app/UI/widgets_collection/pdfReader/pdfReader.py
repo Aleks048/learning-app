@@ -627,7 +627,7 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
             self.rebind([ww.currUIImpl.Data.BindID.Keys.up],
                         [lambda *args: self.pdfBox.scrollY(-1)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.down],
-                        [lambda *args: self.pdfBox.scrottY(1)])
+                        [lambda *args: self.pdfBox.scrollY(1)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                         [lambda *args: __atsrAddingCmd()])
 

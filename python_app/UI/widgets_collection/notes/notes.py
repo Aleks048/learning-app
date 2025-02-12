@@ -371,12 +371,12 @@ class DictText_LBL(ww.currUIImpl.Label):
 
     def render(self):
         for w in self.textWidgets:
-            w.grid_forget()
+            w.hide()
         self.textWidgets = []
         self.getWords()
         return super().render()
 
-class MultilineDictHit_ETR(scrolledtext.ScrolledText):
+class MultilineDictHit_ETR(ww.currUIImpl.MultilineText):
     imIdx = None
     subsection = None
     etrWidget = None
@@ -393,6 +393,15 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
     localWord = False
 
     def __init__(self, patentWidget, row, column, text, key, tocFrame, *args, **kwargs):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : row, "row" : column},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
+        }
+
+        name = "_MultilineDictHit_ETR_"
+
+        prefix = str(row) + str(column)
+
         self.defaultText = text
         self.key = key
         self.tocFrame = tocFrame
@@ -417,19 +426,16 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
         newHeight = int(len(txt.split("\n"))) + 1
         self.column = column
 
-        super().__init__(patentWidget, 
+        super().__init__(prefix,
+                         name,
+                         patentWidget, 
+                         renderData,
+                         text = text,
                          wrap = None, 
                          width = self.width, 
                          height = newHeight, 
                          *args, 
                          **kwargs)
-        self.config(spacing1 = 10)
-        self.config(spacing2 = 10)
-        self.config(spacing3 = 12)
-        self.insert(ww.currUIImpl.TextInsertPosition.END, text)
-
-        self.config(height = newHeight)
-        self.place(x = 0, y = 0)
 
         self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [self.__wtireToWordDict])
 
@@ -490,18 +496,6 @@ class MultilineDictHit_ETR(scrolledtext.ScrolledText):
             self.tocFrame.dictHits.append([newText, False, self.key])
         
         self.tocFrame.render()
-
-    def getData(self):
-        try:
-            binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
-            if binString[-1] == "\n":
-                return binString[:-1]
-            return binString
-        except:
-            return _u.Token.NotDef.str_t
-
-    def render(self):
-        self.grid(row = self.row, column = self.column)
 
 class Dict_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
