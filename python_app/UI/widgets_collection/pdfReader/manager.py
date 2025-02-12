@@ -32,10 +32,6 @@ class LayoutManagers:
 
             self.resizePdfReaderWindow_BTN.addListenerWidget(self.pfdReader_BOX)
             self.changePagePdfReaderWindow_ETR.addListenerWidget(self.pfdReader_BOX)
-            # self.moveTOCtoPdfReaderEntry_BTN = imw.MoveTOCtoImageEntry_BTN(winRoot, self.prefix)
-            # self.addWidget(self.moveTOCtoPdfReaderEntry_BTN)
-            # self.notesLabel = imw.NotesLabel(winRoot, self.prefix)
-            # self.addWidget(self.notesLabel)
 
             winRoot.setGeometry(*self.appDimensions)
 
@@ -69,13 +65,6 @@ class LayoutManagers:
 
             self.changePagePdfReaderWindow_ETR.subsection = self.subsection
             self.changePagePdfReaderWindow_ETR.imIdx = self.imIdx
-
-            # self.moveTOCtoPdfReaderEntry_BTN.subsection = self.subsection
-            # self.moveTOCtoPdfReaderEntry_BTN.imIdx = self.imIdx
-
-            # self.notesLabel.subsection = self.subsection
-            # self.notesLabel.imIdx = self.imIdx
-            # self.notesLabel.eImIdx = self.extraImIdx
 
             self.winRoot.widgetObj.title(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
 
