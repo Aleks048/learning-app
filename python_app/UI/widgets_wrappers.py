@@ -192,6 +192,8 @@ class TkWidgets (DataTranslatable_Interface):
                 focusIn = "<FocusIn>"
                 focusOut = "<FocusOut>"
 
+        class Styles:
+            entryText = "EntryText.TLabel"
     class Orientation:
         N = tk.N
         NW = tk.NW
@@ -262,6 +264,9 @@ class TkWidgets (DataTranslatable_Interface):
 
         def forceFocus(self):
             self.widjetObj.focus_force()
+        
+        def sefStyle(self, style):
+            self.widgetObj.configure(style = style)
 
 
     class EventGeneratable_Interface_Impl(EventGeneratable_Interface):
@@ -609,7 +614,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
         
         def addTextAtStart(self, text):
-            self.widgetObj.insert("0.0", text)
+            self.widgetObj.insert("0", text)
         
         def addTextAtCurrent(self, text):
             self.widgetObj.insert(TkWidgets.TextInsertPosition.CURRENT, text)
@@ -707,7 +712,6 @@ class TkWidgets (DataTranslatable_Interface):
             else:
                 tkImage = image
 
-
             if "widjetObj" in dir(self.rootWidget):
                 if text != None:
                     widjetObj = ttk.Label(self.rootWidget.widjetObj, 
@@ -775,6 +779,9 @@ class TkWidgets (DataTranslatable_Interface):
         
         def getHeight(self):
             return self.widgetObj.winfo_height()
+        
+        def setWrapLength(self, wraplength):
+            self.widgetObj.configure(wraplength = wraplength)
 
     class Frame(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
@@ -791,30 +798,27 @@ class TkWidgets (DataTranslatable_Interface):
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
             self.name:str = prefix.lower() + name
-            self.name = self.name.replace(".", "_")
+            self.name = "_Frame_" + self.name.replace(".", "_")
             self.rootWidget = rootWidget
             self.padding = padding
             
-            
             if (type(self.rootWidget) == ttk.Frame):
-                widjetObj = ttk.Frame(self.rootWidget, 
-                                      padding = self.padding,)
-                                      #name = name)
+                self.widjetObj = ttk.Frame(self.rootWidget, 
+                                           padding = self.padding,
+                                           name = self.name)
             else:
                 if "widjetObj" in dir(self.rootWidget):
-                    widjetObj = ttk.Frame(self.rootWidget.widjetObj, 
-                                        padding = self.padding,)
+                    self.widjetObj = ttk.Frame(self.rootWidget.widjetObj, 
+                                        padding = self.padding,
+                                        name = self.name)
                 else:
-                    widjetObj = ttk.Frame(self.rootWidget, 
-                                        padding = self.padding,)
-                                        #   name = name)
+                    self.widjetObj = ttk.Frame(self.rootWidget, 
+                                        padding = self.padding,
+                                        name = self.name)
 
-            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd)
-            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = widjetObj, bindCmd = bindCmd, renderData = self.renderData)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widgetObj = self.widjetObj, bindCmd = bindCmd)
+            TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widgetObj = self.widjetObj, bindCmd = bindCmd, renderData = self.renderData)
             Notifyable_Interface.__init__(self)
-        
-        def render(self, **kwargs):
-            return super().render(self.widjetObj, self.renderData, **kwargs)
         
         def getHeight(self):
             return self.widjetObj.winfo_height()

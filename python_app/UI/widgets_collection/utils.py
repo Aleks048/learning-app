@@ -65,29 +65,17 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
         newHeight = int(len(txt.split("\n"))) + 1
         self.row = row
         self.column = column
-
-        if "widgetObj" in dir(parentWidget):
-            super().__init__(prefix,
-                             name,
-                            parentWidget.widgetObj, 
-                            renderData,
-                            text = text,
-                            wrap = None, 
-                            width = 70, 
-                            height = newHeight, 
-                            *args, 
-                            **kwargs)
-        else:
-             super().__init__(prefix,
-                             name,
-                            parentWidget, 
-                            renderData,
-                            text = text,
-                            wrap = None, 
-                            width = 70, 
-                            height = newHeight, 
-                            *args, 
-                            **kwargs)
+     
+        super().__init__(prefix,
+                         name,
+                         parentWidget, 
+                         renderData,
+                         text = text,
+                         wrap = None, 
+                         width = 70, 
+                         height = newHeight, 
+                         *args, 
+                         **kwargs)
 
         self.rebind([ww.currUIImpl.Data.BindID.Keys.ctrlv],
                     [lambda *args: self.pasteTextFromClipboard(*args)])
@@ -237,12 +225,12 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
 
 
 class TOCFrame(ww.currUIImpl.Frame):
-    def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
+    def __init__(self, root, prefix, row, column, columnspan = 1, padding = [0, 0, 0, 0]) -> None:
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, "columnspan": columnspan},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
-        name = "_TOCFrame_"
+        name = "_TOCFrame"
 
         self.subsection = None
         self.imIdx = None
@@ -251,7 +239,7 @@ class TOCFrame(ww.currUIImpl.Frame):
         self.column = column
         self.columnspan = columnspan
 
-        super().__init__(prefix, name, root, renderData, *args, **kwargs)
+        super().__init__(prefix, name, root, renderData, padding = padding)
 
 # class TOCFrame(ww.currUIImpl.Frame):
 #     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
@@ -314,8 +302,8 @@ class TOCTextWithClick(ww.currUIImpl.Label):
 
         super().__init__(prefix, name, root, renderData, text = self.text)
 
-        self.widgetObj.configure(wraplength = 730)
-        self.widgetObj.configure(style = "EntryText.TLabel")
+        self.setWrapLength(730)
+        self.sefStyle(ww.currUIImpl.Data.Styles.entryText)
 
     def hide(self, **kwargs):
         return super().hide(**kwargs)
@@ -1221,18 +1209,11 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         self.columnspan = columnspan
         self.sticky = sticky
 
-        if "tk" in dir(root):
-            super().__init__(prefix, name, root, 
-                             renderData, 
-                             image = self.image,
-                             text = self.text,
-                             padding = padding)
-        else:
-            super().__init__(prefix, name, root.widgetObj, 
-                             renderData, 
-                             image = self.image,
-                             text = self.text,
-                             padding = padding)
+        super().__init__(prefix, name, root, 
+                            renderData, 
+                            image = self.image,
+                            text = self.text,
+                            padding = padding)
  
     def generateEvent(self, event, *args, **kwargs):
         self.widgetObj.event_generate(event, *args, **kwargs)
@@ -1884,7 +1865,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 retake.render()
 
                 def resizeEntryImgCMD(event, tocFrame, *args):
-                    resizeFactor = event.widget.get()
+                    resizeFactor = event.widget.getData()
 
                     # check if the format is right
                     if not re.match("^[0-9]\.[0-9]$", resizeFactor):

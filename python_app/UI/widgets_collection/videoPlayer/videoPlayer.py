@@ -70,7 +70,6 @@ class VideoPlayerRoot(ww.currUIImpl.RootWidget):
 
         self.widgetObj.protocol("WM_DELETE_WINDOW", lambda *args: __onClose())
         self.widgetObj.resizable(width=False, height=False)
-        # self.rootWidget.widgetObj.overrideredirect(True)
 
     def bindCmd(self):
         def __startAddingEntry(*args):

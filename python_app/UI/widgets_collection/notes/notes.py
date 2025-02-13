@@ -1,7 +1,3 @@
-import Pmw
-
-from tkinter import scrolledtext
-
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw

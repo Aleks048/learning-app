@@ -343,7 +343,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showCurrScreenshotLocation_text"
 
-        self.parent = parentWidget.widgetObj
+        self.parent = parentWidget
         self.showAll = showAll
         self.showLinks = showLinks
 
@@ -424,6 +424,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         while pwidget != self.parent:
             if "tkinter." not in str(type(pwidget)):
+                if pwidget == None:
+                    break
                 posy += pwidget.getYCoord()
                 pwidget = pwidget.getParent()
             else:
@@ -439,6 +441,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         while pwidget != self.parent:
             if "tkinter." not in str(type(pwidget)):
+                if pwidget == None:
+                    break
                 posy += pwidget.getYCoord()
                 pwidget = pwidget.getParent()
             else:
@@ -1077,7 +1081,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             dt.UITemp.Link.imIdx = widget.imIdx
 
         def resizeEntryImgCMD(event, *args):
-            resizeFactor = event.widget.get()
+            resizeFactor = event.widget.getData()
 
             # check if the format is right
             if not re.match("^[0-9]\.[0-9]$", resizeFactor):
@@ -1522,17 +1526,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         subsection = wName.split("_")[0].replace("$", ".")
                         imIdx = wName.split("_")[1]
                         newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
-                        newGroupNameW = [i for i in e.widget.master.winfo_children() \
+                        newGroupNameW = [i for i in e.widget.getParent().getchildren() \
                                             if newGroupNameWName.lower() in str(i)][0]
 
-                        targetWholePath:str = e.widget.get()
+                        targetWholePath:str = e.widget.getData()
 
                         if ":" not in targetWholePath:
                             _u.log.autolog("Incorrect destination path")
 
                         targetSubsection = targetWholePath.split(":")[0]
                         targetEntryIdx = targetWholePath.split(":")[1]
-                        targetGroupName = newGroupNameW.get() if newGroupNameW.get() != "" else "No Group"
+                        targetGroupName = newGroupNameW.getData() if newGroupNameW.getData() != "" else "No Group"
                         sourceSubsection = subsection
                         sourceEntryIdx = imIdx
                         sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
@@ -2005,9 +2009,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         imIdx = k,
                                         text = resizeFactor)
         changeImSize.imIdx = k
-        changeImSize.widgetObj.imIdx = k
         changeImSize.subsection = subsection
-        changeImSize.widgetObj.subsection = subsection
         changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                 [resizeEntryImgCMD])
 
@@ -2431,10 +2433,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        def openContentOfTheSection(frame:_uuicom.TOCFrame, label:_uuicom.TOCLabelWithClick):
+        def __openContentOfTheSection(frame:_uuicom.TOCFrame, label:_uuicom.TOCLabelWithClick):
             self.subsectionWidgetFrames[subsection] = frame
 
-            def __cmd(event = None, *args):
+            def __cmd(event, subsection, *args):
                 # open orig material on page
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
@@ -2442,15 +2444,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def closeAllSubsections():
                     for wTop1 in event.widget.getGrandParent().winfo_children():
                         for wTop2 in wTop1.winfo_children():
-                            if "labelwithclick" in str(wTop2):
+                            if "labelwithclick".lower() in str(wTop2).lower():
                                 wTop2.clicked = False
-                            if "contentFr_"  in str(wTop2) or "contentDummyFr_" in str(wTop2):
+                            if ("contentFr_".lower()  in str(wTop2).lower()) \
+                                or ("contentDummyFr_".lower() in str(wTop2).lower()):
                                 wTop2.destroy()
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
                 if ((not label.clicked) and (int(event.type) == 4)) or\
                     ((self.subsectionClicked == subsection) and (int(event.type) == 19)):
+                    fsm.Data.Book.subsectionOpenInTOC_UI = subsection
                     if ((not label.clicked) and (int(event.type) == 4)):
                         fsm.Data.Book.currSection = subsection
 
@@ -2503,10 +2507,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     self.scrollIntoView(event)
                 else:
-                    for child in frame.getChildren():
-                        if "content" in str(child):
-                            child.destroy()
-                    
                     if int(event.type) == 4:
                         if not self.showAll:
                             closeAllSubsections()
@@ -2520,7 +2520,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 event.widget.changeColor("white")
             
-            label.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+            label.rebind([ww.currUIImpl.Data.BindID.mouse1], [lambda e, subsection = subsection: __cmd(e, subsection)])
 
             if ((self.subsectionClicked == subsection) and (level != 0)) or self.showAll:
                 label.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
@@ -2560,10 +2560,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         topSection = subsection.split(".")[0]
         
-        labelName = "label_" + subsection.replace(".", "")
+        frameName = subsection.replace(".", "")
 
         locFrame = _uuicom.TOCFrame(self.scrollable_frame, 
-                            prefix = labelName,
+                            prefix = frameName,
                             row = row, column = 0)
         super().addTOCEntry(locFrame, row, 0)
 
@@ -2634,9 +2634,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
                 result = ww.currUIImpl.UIImage(result)
 
-                subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, 
-                                                prefix = nameId, padding = [0, 20, 0, 0],
-                                                row = 0, column= 0)
+                subsectionLabel = _uuicom.TOCLabelWithClick(root = locFrame,
+                                                            image = result,
+                                                            prefix = "_topSection" + nameId, 
+                                                            padding = [0, 20, 0, 0],
+                                                            row = 0, column= 0)
                 subsectionLabel.image = result
                 subsectionLabel.subsection = subsection
                 subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
@@ -2661,8 +2663,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
                     result = ww.currUIImpl.UIImage(result)
 
-                    subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, image = result, prefix = nameId,
-                                                        row = 0, column= 0)
+                    subsectionLabel = _uuicom.TOCLabelWithClick(locFrame, 
+                                                                image = result, 
+                                                                prefix = "_subsecion" + nameId,
+                                                                row = 0, column= 0)
                     subsectionLabel.image = result
                     subsectionLabel.subsection = subsection
                     subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
@@ -2687,9 +2691,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if (topSection == fsm.Data.Book.currTopSection)\
                     and (not self.showAll)\
                     and (subsection not in hiddenSubsections):
-                    openContentOfTheSection(locFrame, openContentLabel)
+                    __openContentOfTheSection(locFrame, openContentLabel)
                 elif self.showAll:
-                    openContentOfTheSection(locFrame, openContentLabel)
+                    __openContentOfTheSection(locFrame, openContentLabel)
 
                 _uuicom.bindChangeColorOnInAndOut(openContentLabel)
 
@@ -2754,7 +2758,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                         [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
 
                 def __updateSubsectionPath(e, subsection, *args):
-                    targetSubsection = e.widget.get()
+                    targetSubsection = e.widget.getData()
                     sourceSubsection = subsection
 
                     # ask the user if we wnat to proceed.
@@ -2831,6 +2835,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if subsection in subsectionsHidden:
                         subsectionsHidden.remove(subsection)
                     else:
+                        self.widgetToScrollTo = None
+                        self.currEntryWidget = None
                         subsectionsHidden.append(subsection)
                     
                     fsm.Data.Book.subsectionsHiddenInTOC_UI =  subsectionsHidden
@@ -2910,6 +2916,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.addTOCEntry(subsection, level, i)
 
     def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
+        # import traceback
+        
+        # for line in traceback.format_stack():
+        #     print(line.strip())
+
         if self.showAll:
             self.showLinksForSubsections = []
 
