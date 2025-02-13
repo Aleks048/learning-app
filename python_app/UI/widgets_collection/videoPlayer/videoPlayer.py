@@ -66,10 +66,10 @@ class VideoPlayerRoot(ww.currUIImpl.RootWidget):
         super().__init__(width, height, bindCmd= self.bindCmd)
         def __onClose(*args):
             self.videoFrame.close()
-            self.widgetObj.destroy()
+            self.destroy()
 
-        self.widgetObj.protocol("WM_DELETE_WINDOW", lambda *args: __onClose())
-        self.widgetObj.resizable(width=False, height=False)
+        self.bindToClose(__onClose)
+        self.makeUnmovable()
 
     def bindCmd(self):
         def __startAddingEntry(*args):

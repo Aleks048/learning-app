@@ -13,7 +13,7 @@ import file_system.file_system_facade as fsm
 
 
 class MainMenuRoot(ww.currUIImpl.RootWidget):
-    def render(self, widjetObj=None, changePdfReader = True, renderData=..., **kwargs):
+    def render(self, changePdfReader = True):
         # origMatName = fsm.Data.Book.currOrigMatName
         # fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
 
@@ -28,7 +28,7 @@ class MainMenuRoot(ww.currUIImpl.RootWidget):
             t = Thread(target= __showPdf)
             t.start()
 
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render()
 
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):

@@ -11,8 +11,6 @@ import UI.widgets_data as wd
 import data.temp as dt
 import wordDict.wordDict as wordd
 
-exImages = []
-
 class ImageText_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imNoteIdx, text):
         name = "_textImage_ETR" + str(imNoteIdx)
@@ -272,11 +270,11 @@ class DictText(ww.currUIImpl.Label):
                         text = text,
                         bindCmd = self.__bindCmd)
 
-        self.widgetObj.configure(wraplength = 730)
+        self.setWrapLength(730)
         if not localWord:
-            self.widgetObj.configure(style = "Dict.TLabel")
+            self.setData("Dict.TLabel")
         else:
-            self.widgetObj.configure(style = "DictLoc.TLabel")
+            self.setStyle("DictLoc.TLabel")
     
     def __bindCmd(self):
         return [ww.currUIImpl.Data.BindID.mouse2],[self.__showAsETR]
@@ -346,7 +344,7 @@ class DictText_LBL(ww.currUIImpl.Label):
         column = 0
 
         for k,v in entryWordDictDict.items():
-            textWidget = _ucomw.TOCLabelWithClick(self.widgetObj, "_DictTextLabelText_" + str(column), 
+            textWidget = _ucomw.TOCLabelWithClick(self, "_DictTextLabelText_" + str(column), 
                                                     row = 0, column = column, text = "[" + k)
             textWidget.dictWord = k
             textWidget.dictText = v
@@ -355,7 +353,7 @@ class DictText_LBL(ww.currUIImpl.Label):
             textWidget.render()
             self.textWidgets.append(textWidget)
 
-            textDelWidget = _ucomw.TOCLabelWithClick(self.widgetObj, "_DictTextdelLabelText_" + str(column), 
+            textDelWidget = _ucomw.TOCLabelWithClick(self, "_DictTextdelLabelText_" + str(column), 
                                                     row = 0, column = column + 1, text = "d]")
             textDelWidget.dictWord = k
             _ucomw.bindChangeColorOnInAndOut(textDelWidget)
@@ -520,7 +518,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showNotesCurr_text"
 
-        self.parent = parentWidget.widgetObj
+        self.parent = parentWidget
 
         super().__init__(prefix,
                         name,
@@ -562,8 +560,8 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
 
-            self.canvas.yview_scroll(-100, "units")
-            self.canvas.update()
+            self.scrollY(-100, "units")
+            self.update()
             pwidget.update()
 
             while pwidget != self.parent:
@@ -591,7 +589,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) - 0.008)
+            self.moveY((pos / height) - 0.008)
         except:
             pass
 
@@ -661,9 +659,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
         
         label.render()
 
-    def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
-        global exImages
-        exImages = []
+    def render(self, shouldScroll = True):
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
@@ -683,7 +679,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
         else:
             self.addLocalDictResults()
 
-        super().render(widjetObj, renderData, **kwargs)
+        super().render(self.renderData)
 
         if (self.latestWidgetToscrollTo != None) and (shouldScroll):
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)

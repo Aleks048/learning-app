@@ -468,10 +468,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         else:
             pwidget = widget
 
-        if "tkinter." in str(type(pwidget)):
-            preScaceRegular = float(self.getHeight() - 100 - pwidget.winfo_height()) / height
-        else:
-            preScaceRegular = float(self.getHeight() - 100 - pwidget.getHeight()) / height
+        preScaceRegular = float(self.getHeight() - 100 - pwidget.getHeight()) / height
 
         preScaceEntry =int( self.getHeight() - 100) / height
 
@@ -733,7 +730,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             self.currEtr = _u.Token.NotDef.dict_t.copy()
             self.render()
 
-    def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
+    def render(self, shouldScroll = True):
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
@@ -777,7 +774,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         dummyPostLabel.render()
 
 
-        super().render(widjetObj, renderData, **kwargs)
+        super().render(self.renderData)
 
         if (self.latestWidgetToscrollTo != None) and (shouldScroll):
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)

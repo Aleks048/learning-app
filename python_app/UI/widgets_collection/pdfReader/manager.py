@@ -66,9 +66,9 @@ class LayoutManagers:
             self.changePagePdfReaderWindow_ETR.subsection = self.subsection
             self.changePagePdfReaderWindow_ETR.imIdx = self.imIdx
 
-            self.winRoot.widgetObj.title(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
+            self.winRoot.changeTitle(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
 
-            self.pfdReader_BOX.canvas.configure(height = self.appDimensions[1] - 50)
+            self.pfdReader_BOX.setCanvasHeight(self.appDimensions[1] - 50)
             super().show()
         
         def hide(self):

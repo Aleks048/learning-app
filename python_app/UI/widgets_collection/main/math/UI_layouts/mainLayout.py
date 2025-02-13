@@ -147,14 +147,14 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         # update book settings
         fsf.Data.Book.currOrigMatName = origMatName
     
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         names = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
         self.updateOptions(names)
 
         currOrigMatName = fsf.Data.Book.currOrigMatName
         self.setData(currOrigMatName)
 
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render(self.renderData)
 
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
@@ -498,7 +498,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
 
             nextImIdx = str(currImIdx + 1)
             self.setData(nextImIdx)
-            self.widgetObj.focus_force()
+            self.forceFocus()
             return
         elif broadcasterType == ImageGeneration_BTN:
             prevData = self.getData()
@@ -509,7 +509,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
             if dataToSet != None:
                 self.setData(dataToSet)
 
-            self.widgetObj.focus_force()
+            self.forceFocus()
 
             return prevData
         elif broadcasterType == ImageGroupAdd_BTN:

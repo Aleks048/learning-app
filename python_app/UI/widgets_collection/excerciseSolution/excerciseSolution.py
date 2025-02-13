@@ -74,10 +74,10 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
 
         return super().hide(**kwargs)
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         self.addSolutionWidgets()
 
-        return super().render(**kwargs)
+        return super().render(self.renderData)
 
     def addSolutionWidgets(self):
         # image

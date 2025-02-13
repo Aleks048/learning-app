@@ -144,7 +144,6 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showProofCurr_text"
 
-        self.parent = parentWidget.widgetObj
         self.images = []
 
         super().__init__(prefix,
@@ -181,7 +180,7 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
         self.images = []
         return super().hide(**kwargs)     
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         for w in self.getChildren():
             w.destroy()
 
@@ -189,7 +188,7 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
 
         self.addProofLines()
 
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render(self.renderData)
 
 class ProofsRoot(ww.currUIImpl.RootWidget):
     pass

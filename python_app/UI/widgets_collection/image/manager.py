@@ -45,7 +45,7 @@ class LayoutManagers:
             super().show()
 
             # resize the solution box in respect to the size of the main image
-            self.imageMainImage.widgetObj.update()
+            self.imageMainImage.update()
 
     @classmethod
     def listOfLayouts(cls):

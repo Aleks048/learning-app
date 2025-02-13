@@ -107,13 +107,13 @@ class NotesLabel(ww.currUIImpl.Label,
                args = args, 
                kwargs = kwargs).start()
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         self.addNotesWidgets()
 
-        return super().render(**kwargs)
+        return super().render(self.renderData)
 
     def addNotesWidgets(self):
-        addLabel = _ucomw.TOCLabelWithClick(self.widgetObj, "_addNote_", 0, 0, text = "Add")
+        addLabel = _ucomw.TOCLabelWithClick(self, "_addNote_", 0, 0, text = "Add")
         
         noteImIdx = str(int(self.eImIdx) + 1) if self.eImIdx != _u.Token.NotDef.int_t else 0
 
@@ -176,7 +176,7 @@ class NotesLabel(ww.currUIImpl.Label,
             if self.currEtr != None:
                 self.currEtr.hide()
                 self.currEtr = None
-            label = NotesImageLabel(self.widgetObj, "notesImageIMG_", 
+            label = NotesImageLabel(self, "notesImageIMG_", 
                                         self.subsection, self.imIdx, noteImIdx,
                                         padding = [0, 0, 0, 0],
                                         row = 0, column = 2)
@@ -188,7 +188,7 @@ class NotesLabel(ww.currUIImpl.Label,
                 self.imLabel.hide()
                 self.imLabel = None
 
-            label = _ucomw.TOCFrame(self.widgetObj, 
+            label = _ucomw.TOCFrame(self, 
                             "notesImageFRM_",
                             0, 2, 1
                             )
@@ -252,7 +252,7 @@ class NotesLabel(ww.currUIImpl.Label,
         # '''
         # delete
         # '''
-        deleteLabel = _ucomw.TOCLabelWithClick(self.widgetObj, "_deleteNote_", 
+        deleteLabel = _ucomw.TOCLabelWithClick(self, "_deleteNote_", 
                                                 0, 1, text = "Del")
         deleteLabel.noteImIdx = noteImIdx
 

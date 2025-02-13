@@ -28,7 +28,7 @@ class LayoutManagers:
             self.videoPlayerLabel.imIdx = self.imIdx
             self.videoPlayerLabel.startPlayWithRender = True
 
-            self.winRoot.widgetObj.title(f"Video for: {self.subsection}/{self.imIdx}")
+            self.winRoot.changeTitle(f"Video for: {self.subsection}/{self.imIdx}")
             super().show()
 
         def getVideoPosition(self):

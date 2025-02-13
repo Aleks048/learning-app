@@ -82,14 +82,14 @@ class LayoutManagers:
             super().show()
 
             # resize the solution box in respect to the size of the excercise image
-            self.excerciseImage.widgetObj.update()
+            self.excerciseImage.update()
 
             if self.showExcerciseIm:
-                self.excercise_BOX.canvas.configure(height = 730 - 20 - self.excerciseImage.widgetObj.winfo_height())
+                self.excercise_BOX.setCanvasHeight(730 - 20 - self.excerciseImage.getHeight())
             else:
-                self.excercise_BOX.canvas.configure(height = 730 - 20)
+                self.excercise_BOX.setCanvasHeight(730 - 20)
 
-            self.excercise_BOX.canvas.update()
+            self.excercise_BOX.update()
 
             currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
             fullPathToEntryJSON = _upan.Paths.Entry.JSON.getAbs(currBookpath, 

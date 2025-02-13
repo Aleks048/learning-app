@@ -1,6 +1,6 @@
 from tkinter import ttk
 import fitz
-from PIL import Image, ImageTk
+from PIL import Image
 from threading import Thread
 import io
 
@@ -46,9 +46,8 @@ class NotesImageLabel(ttk.Label):
         if text == _u.Token.NotDef.str_t:
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            self.image = img
-            return super().__init__(root, name = name, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(root, name = name, image = self.image, padding = padding)
         else:
             return super().__init__(root, name = name, text = text, padding = padding)
 
@@ -85,9 +84,8 @@ class PdfReaderImage(ww.currUIImpl.Frame):
     
     def render(self, **kwargs):     
         # get an image from the
-        widget = self.widgetObj
 
-        for child in widget.winfo_children():
+        for child in self.getChildren():
             child.destroy()
 
         page = self.pdfDoc.load_page(self.pageNum)
@@ -99,7 +97,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
                       Image.LANCZOS)
         img = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = _ucomw.TOCCanvasWithclick(widget, imIdx =  None, subsection = None,
+        self.imLabel = _ucomw.TOCCanvasWithclick(self, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
                                         image = img, padding = [0, 0, 0, 0],
                                         row = 1, column = 1, columnspan = 1,
@@ -189,10 +187,10 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
 
     def render(self, **kwargs):
         if self.increaseLabel == None:
-            self.increaseLabel = _ucomw.TOCLabelWithClick(self.widgetObj, "_ResizePDF_BTNincreaseSize", 
+            self.increaseLabel = _ucomw.TOCLabelWithClick(self, "_ResizePDF_BTNincreaseSize", 
                                     row = 0, column = 0, text = "+")
         if self.decreaseLabel == None:
-            self.decreaseLabel = _ucomw.TOCLabelWithClick(self.widgetObj, "_ResizePDF_BTNDecreaseSize", 
+            self.decreaseLabel = _ucomw.TOCLabelWithClick(self, "_ResizePDF_BTNDecreaseSize", 
                                     row = 0, column = 1, text = "-")
         _ucomw.bindChangeColorOnInAndOut(self.increaseLabel)
         _ucomw.bindChangeColorOnInAndOut(self.decreaseLabel)
@@ -284,10 +282,10 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         self.setData(self.currPage)
 
         if self.increasePage == None:
-            self.increasePage = _ucomw.TOCLabelWithClick(self.rootWidget.widjetObj, "_ResizePDF_BTNNextIm", 
+            self.increasePage = _ucomw.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNNextIm", 
                                     row = self.row, column = self.column + 1, text = ">")
         if self.decreasePage == None:
-            self.decreasePage = _ucomw.TOCLabelWithClick(self.rootWidget.widjetObj, "_ResizePDF_BTNPrevIm", 
+            self.decreasePage = _ucomw.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNPrevIm", 
                                     row = self.row, column = self.column - 1, text = "<")
         _ucomw.bindChangeColorOnInAndOut(self.increasePage)
         _ucomw.bindChangeColorOnInAndOut(self.decreasePage)
@@ -353,7 +351,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         origMatName = fsf.Data.Book.currOrigMatName
         self.currPage = int(fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName))
 
-        self.parent = parentWidget.widgetObj
+        self.parent = parentWidget
 
         super().__init__(prefix,
                          name,
@@ -503,7 +501,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         return super().hide(**kwargs)
 
-    def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
+    def render(self):
         self.updateOMpage()
         self.currPage = int(self.currPage)
 
@@ -512,18 +510,18 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                 self.prevPosition = self.prevPos
 
         for im in self.displayedPdfPages:
-            im.widgetObj.grid_forget()
+            im.hide()
 
         self.displayedPdfPages = []
 
-        for w in self.scrollable_frame.winfo_children():
+        for w in self.getChildren():
             w.grid_forget()
 
-        self.scrollable_frame.focus_force()
+        self.forceFocus()
 
         self.addPdfPages()
 
-        super().render(widjetObj, renderData, **kwargs)
+        super().render(self.renderData)
 
         # if (self.latestWidgetToscrollTo != None) and (shouldScroll):
         #     self.__scrollIntoView(None, self.latestWidgetToscrollTo)

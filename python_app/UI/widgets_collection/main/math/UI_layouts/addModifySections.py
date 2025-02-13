@@ -186,7 +186,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
                 self.updateOptions(newOptionList)
                 self.setData(prevSubsectionPath)
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
 
         if subsectionsList == []:
@@ -197,7 +197,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         currSubsection = _upan.Current.Names.Section.name()
         self.setData(currSubsection)
 
-        return super().render(widjetObj, renderData, **kwargs)
+        return super().render(self.renderData)
 
 class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
     labelOptions = ["Swith layout", "Swith layout"]
@@ -289,11 +289,11 @@ class CurrSectionPath_LBL(ww.currUIImpl.Label):
 {0} : '{1}'.\
  Starr: '{2}', pages to be added '{3}'".format(secName, name, startPage, pagesToBeAdded)
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         text = self.__getCurrSectionPath_Formatted()
         self.changeText(text)
 
-        return super().render(**kwargs)
+        return super().render(self.renderData)
 
 
 class ModifyNotesAppLink_BTN(ww.currUIImpl.Button,

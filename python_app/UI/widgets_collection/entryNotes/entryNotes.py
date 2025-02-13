@@ -1,8 +1,5 @@
-import Pmw
-from PIL import Image, ImageTk
 from threading import Thread
-
-from tkinter import scrolledtext
+from PIL import Image
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -89,9 +86,8 @@ class NotesImageLabel(ww.currUIImpl.Label):
 
             pilIm = Image.open(imagePath)
             pilIm.thumbnail([530, 1000], Image.LANCZOS)
-            img = ImageTk.PhotoImage(pilIm)
-            exImages.append(img)
-            return super().__init__(prefix, name, root, renderData, image = img, padding = padding)
+            self.image = ww.currUIImpl.UIImage(pilIm)
+            return super().__init__(prefix, name, root, renderData, image = self.image, padding = padding)
         else:
             return super().__init__(prefix, name, root, renderData, text = text, padding = padding)
 
@@ -161,8 +157,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
 
-            self.canvas.yview_scroll(-100, "units")
-            self.canvas.update()
+            self.scrollY(-100)
+            self.update()
             pwidget.update()
 
             while pwidget != self.parent:
@@ -190,7 +186,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
 
             pos = posy - self.scrollable_frame.winfo_rooty()
             height = self.scrollable_frame.winfo_height()
-            self.canvas.yview_moveto((pos / height) - 0.008)
+            self.moveY((pos / height) - 0.008)
         except:
             pass
 
@@ -389,9 +385,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         for mainLabel in mainLabels:
             mainLabel.render()
 
-    def render(self, widjetObj=None, renderData=..., shouldScroll = True, **kwargs):
-        global exImages
-        exImages = []
+    def render(self, shouldScroll = True):
         self.etrTexts =  _u.Token.NotDef.dict_t.copy()
 
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
@@ -411,7 +405,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
 
         self.addNotesNotes()
 
-        super().render(widjetObj, renderData, **kwargs)
+        super().render(self.renderData)
 
         if (self.latestWidgetToscrollTo != None) and (shouldScroll):
             self.__scrollIntoView(None, self.latestWidgetToscrollTo)

@@ -43,9 +43,9 @@ class LayoutManagers:
             super().show()
 
             # resize the solution box in respect to the size of the main image
-            self.proofMainImage.widgetObj.update()
-            self.proof_BOX.canvas.configure(height = 730 - 20 - self.proofMainImage.widgetObj.winfo_height())
-            self.proof_BOX.canvas.update()
+            self.proofMainImage.update()
+            self.proof_BOX.setCanvasHeight(730 - 20 - self.proofMainImage.getHeight())
+            self.proof_BOX.update()
 
     @classmethod
     def listOfLayouts(cls):

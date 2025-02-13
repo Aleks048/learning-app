@@ -82,10 +82,10 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
 
         return super().hide(**kwargs)
 
-    def render(self, widjetObj=None, renderData=..., **kwargs):
+    def render(self):
         self.addExtraWidgets()
 
-        return super().render(**kwargs)
+        return super().render(self.renderData)
 
     def addExtraWidgets(self):
         # image

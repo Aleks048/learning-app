@@ -24,7 +24,7 @@ import generalManger.generalManger as gm
 
 
 class MultilineText_ETR(ww.currUIImpl.MultilineText):
-    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, *args, **kwargs):
+    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, width = 70, *args, **kwargs):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
@@ -72,7 +72,7 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
                          renderData,
                          text = text,
                          wrap = None, 
-                         width = 70, 
+                         width = width, 
                          height = newHeight, 
                          *args, 
                          **kwargs)
@@ -101,6 +101,9 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
     #             break
 
     #     return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
+
+    # def setData(self, newData):
+    #     self.addTextAtStart(newData)
 
     def rebind_(self, keys = [], funcs = []):
         self.rebind(keys, funcs)
@@ -303,7 +306,7 @@ class TOCTextWithClick(ww.currUIImpl.Label):
         super().__init__(prefix, name, root, renderData, text = self.text)
 
         self.setWrapLength(730)
-        self.sefStyle(ww.currUIImpl.Data.Styles.entryText)
+        self.setStyle(ww.currUIImpl.Data.Styles.entryText)
 
     def hide(self, **kwargs):
         return super().hide(**kwargs)
@@ -390,7 +393,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                  cmd = self.__labelCmd
                                  )
 
-            self.label.widgetObj.configure(style = "Canvas.TMenubutton")
+            self.label.setStyle("Canvas.TMenubutton")
             self.id = self.canvas.createButton(self.labelStartX, 
                                                self.labelStartY, 
                                                anchor = ww.currUIImpl.Orientation.NW, 
@@ -1153,9 +1156,6 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
                 "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
 
-    def generateEvent(self, event, *args, **kwargs):
-        self.widgetObj.event_generate(event, *args, **kwargs)
-
     def getChildren(self):
         return self.winfo_children()
 
@@ -1214,9 +1214,6 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
                             image = self.image,
                             text = self.text,
                             padding = padding)
- 
-    def generateEvent(self, event, *args, **kwargs):
-        self.widgetObj.event_generate(event, *args, **kwargs)
     
     def updateImage(self):
         pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
@@ -1613,17 +1610,17 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                 row = mainRow,
                                                 column = column,
                                                 imLineIdx = None, 
-                                                text = eImText)
+                                                text = eImText,
+                                                width = 90)
                 else:
                     eimLabel = MultilineText_ETR(rootLabel, 
                                                 eImWidgetName, 
                                                 row = mainRow,
                                                 column = column,
                                                 imLineIdx = None, 
-                                                text = eImText)
-                eimLabel.config(width=90)
-                eimLabel.config(padx=10)
-                eimLabel.config(pady=10)
+                                                text = eImText,
+                                                width = 90)
+                eimLabel.setPads(padx=10, pady=10)
                 eimLabel.imIdx = imIdx
                 eimLabel.subsection = subsection
                 eimLabel.etrWidget = eimLabel
@@ -1631,7 +1628,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                         [extraImtextUpdate])
                 tocFrame.extraImAsETR.widget = eimLabel
                 eimLabel.render()
-                eimLabel.focus_force()
+                eimLabel.forceFocus()
 
                 eImWidgetsList.append(eimLabel)
                 tempLabel = eimLabel
@@ -1907,9 +1904,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                             imIdx = imIdx + "_" + str(i),
                                             text = resizeFactor)
                 changeImSize.imIdx = imIdx + "_" + str(i)
-                changeImSize.widgetObj.imIdx = imIdx + "_" + str(i)
                 changeImSize.subsection = subsection
-                changeImSize.widgetObj.subsection = subsection
                 changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                         [lambda e, *args: resizeEntryImgCMD(e, tocFrame)])
                 changeImSize.render()

@@ -1,4 +1,4 @@
-from PIL import Image, ImageTk
+from PIL import Image
 import Pmw
 import os
 import re
@@ -417,9 +417,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         else:
             pwidget = widget
 
-
-        self.canvas.yview_scroll(-100, "units")
-        self.canvas.update()
+        self.scrollY(-100)
+        self.update()
         pwidget.update()
 
         while pwidget != self.parent:
@@ -451,7 +450,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         pos = posy - self.scrollable_frame.winfo_rooty() - 50
         height = self.scrollable_frame.winfo_height()
-        self.canvas.yview_moveto((pos / height) - 0.04)
+        self.moveY((pos / height) - 0.04)
     
     def __renderWithScrollAfter(self):
         self.shouldScroll = False
@@ -1313,7 +1312,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                     [lambda *args: __getWidgetBack(textLabelPage, widget)])
             widget.hide()
             textLabelPage.render()
-            # textLabelPage.focus_force()
+            textLabelPage.forceFocus()
 
         k = imIdx
         i = int(imIdx)
@@ -1453,7 +1452,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                             [lambda e, *args: __getImageBack(e, widget.group, widget)])
                     widget.hide()
-                    # imageGroupLabel.focus_force()
+                    imageGroupLabel.forceFocus()
                     imageGroupLabel.render()
 
                 if (subsection != self.groupAsETR.subsection) or\
@@ -1614,7 +1613,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                     [updateEntry])
             self.entryAsETR.widget = textLabelPage
-            # textLabelPage.focus_force()
+            textLabelPage.forceFocus()
         else:
             textLabelPage = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                             image = img, 
@@ -2442,6 +2441,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
 
                 def closeAllSubsections():
+                    self.currSecondRowLabels = []
+
                     for wTop1 in event.widget.getGrandParent().winfo_children():
                         for wTop2 in wTop1.winfo_children():
                             if "labelwithclick".lower() in str(wTop2).lower():
@@ -2607,7 +2608,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsectionLabel.subsection = subsection
             subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                     [lambda e, *args: __bringImageWidgetBack(e, widget)])
-            # subsectionLabel.focus_force()
+            subsectionLabel.forceFocus()
             subsectionLabel.render()
 
         currSubsectionHidden = False
@@ -2915,7 +2916,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             self.addTOCEntry(subsection, level, i)
 
-    def render(self, widjetObj=None, shouldScroll = False, renderData=..., **kwargs):
+    def render(self, shouldScroll = False):
         # import traceback
         
         # for line in traceback.format_stack():
@@ -2953,7 +2954,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.populateTOC()
 
-        super().render(widjetObj, renderData, **kwargs)
+        super().render(self.renderData)
 
         if self.widgetToScrollTo != None:
             self.widgetToScrollTo.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
