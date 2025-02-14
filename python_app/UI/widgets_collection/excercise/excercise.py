@@ -433,9 +433,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         # without it we get a crash
         self.scrollable_frame.update()
 
-        # required by tk
-        self.updateFrameIdleTasks()
-
         posy = 0
 
         if widget == None:
