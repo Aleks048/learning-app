@@ -432,7 +432,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         # NOTE: this is a hack to make opening different excercise windows
         # without it we get a crash
         self.scrollable_frame.update()
-        self.scrollable_frame.update_idletasks()
+
+        # required by tk
+        self.updateFrameIdleTasks()
 
         posy = 0
 
@@ -444,24 +446,20 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         shouldScrollToRebuild = False
 
         if "linesImageFRM_" in str(pwidget):
-            for ch in pwidget.winfo_children():
+            for ch in pwidget.getChildren():
                 if "linesImageRebuild_" in str(ch):
                     pwidget = ch
                     shouldScrollToRebuild = True
                     break
 
         while (pwidget != self.parent):
-            if "tkinter." not in str(type(pwidget)):
-                if (pwidget == None):
-                    break
-                posy += pwidget.getYCoord()
-                pwidget = pwidget.getParent()
-            else:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+            if (pwidget == None):
+                break
+            posy += pwidget.getYCoord()
+            pwidget = pwidget.getParent()
 
-        pos = posy - self.scrollable_frame.winfo_rooty()
-        height = self.scrollable_frame.winfo_height()
+        pos = posy - self.yPosition()
+        height = self.getFrameHeight()
 
         if widget == None:
             pwidget = event.widget
@@ -740,10 +738,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].getCurrCursorPosition()]
 
-        for w in self.scrollable_frame.winfo_children():
+        for w in self.getChildren():
             w.destroy()
 
-        self.scrollable_frame.focus_force()
+        self.forceFocus()
 
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         entryLinesPath = _upan.Paths.Entry.getAbs(bookPath, self.subsection, self.imIdx)

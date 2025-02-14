@@ -382,12 +382,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         pwidget.update()
 
         while pwidget != self.parent:
-            if "tkinter." not in str(type(pwidget)):
-                posy += pwidget.getYCoord()
-                pwidget = pwidget.getParent()
-            else:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+            posy += pwidget.getYCoord()
+            pwidget = pwidget.getParent()
 
         posy = 0
 
@@ -397,15 +393,11 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             pwidget = widget
 
         while pwidget != self.parent:
-            if "tkinter." not in str(type(pwidget)):
-                posy += pwidget.getYCoord()
-                pwidget = pwidget.getParent()
-            else:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+            posy += pwidget.getYCoord()
+            pwidget = pwidget.getParent()
 
-        pos = posy - self.scrollable_frame.winfo_rooty()
-        height = self.scrollable_frame.winfo_height()
+        pos = posy - self.yPosition()
+        height = self.getFrameHeight()
         self.moveY((pos / height) - 0.008)
 
     def removeMainLabel(self, subsection, imIdx, eImIdx):

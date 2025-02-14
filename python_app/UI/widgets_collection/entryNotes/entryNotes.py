@@ -162,12 +162,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             pwidget.update()
 
             while pwidget != self.parent:
-                if "tkinter." not in str(type(pwidget)):
-                    posy += pwidget.getYCoord()
-                    pwidget = pwidget.getParent()
-                else:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
 
             posy = 0
 
@@ -177,15 +173,11 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
             while pwidget != self.parent:
-                if "tkinter." not in str(type(pwidget)):
-                    posy += pwidget.getYCoord()
-                    pwidget = pwidget.getParent()
-                else:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
 
-            pos = posy - self.scrollable_frame.winfo_rooty()
-            height = self.scrollable_frame.winfo_height()
+            pos = posy - self.yPosition()
+            height = self.getFrameHeight()
             self.moveY((pos / height) - 0.008)
         except:
             pass
@@ -395,10 +387,10 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
-        for w in self.scrollable_frame.winfo_children():
+        for w in self.getChildren():
             w.destroy()
 
-        self.scrollable_frame.focus_force()
+        self.forceFocus()
 
         bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         entryNotesPath = _upan.Paths.Entry.getAbs(bookPath, self.subsection, self.imIdx)

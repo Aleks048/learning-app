@@ -422,14 +422,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         pwidget.update()
 
         while pwidget != self.parent:
-            if "tkinter." not in str(type(pwidget)):
-                if pwidget == None:
-                    break
-                posy += pwidget.getYCoord()
-                pwidget = pwidget.getParent()
-            else:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+            if pwidget == None:
+                break
+            posy += pwidget.getYCoord()
+            pwidget = pwidget.getParent()
 
         posy = 0
 
@@ -439,17 +435,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             pwidget = widget
 
         while pwidget != self.parent:
-            if "tkinter." not in str(type(pwidget)):
-                if pwidget == None:
-                    break
-                posy += pwidget.getYCoord()
-                pwidget = pwidget.getParent()
-            else:
-                posy += pwidget.winfo_y()
-                pwidget = pwidget.master
+            if pwidget == None:
+                break
+            posy += pwidget.getYCoord()
+            pwidget = pwidget.getParent()
 
-        pos = posy - self.scrollable_frame.winfo_rooty() - 50
-        height = self.scrollable_frame.winfo_height()
+        pos = posy - self.yPosition() - 50
+        height = self.getFrameHeight()
         self.moveY((pos / height) - 0.04)
     
     def __renderWithScrollAfter(self):
@@ -543,8 +535,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             else:
                 tframe = label.getGrandParent()
 
-            gpframe = tframe.master
-            balloon = Pmw.Balloon(tframe)
+            gpframe = tframe.getParent()
 
             isWdgetLink = "gllink" in str(label).lower().split(".")[-1]
 
@@ -813,7 +804,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     # NOTE: for links
                     if int(event.type) == 4 or \
                        int(event.type) == 35:
-                        for child in tframe.winfo_children():
+                        for child in tframe.getChildren():
                             if "contentImages_" + subSecID in str(child):
                                 child.clicked = True
 
@@ -2443,11 +2434,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 def closeAllSubsections():
                     self.currSecondRowLabels = []
 
-                    for wTop1 in event.widget.getGrandParent().winfo_children():
-                        for wTop2 in wTop1.winfo_children():
-                            if "labelwithclick".lower() in str(wTop2).lower():
+                    for wTop1 in event.widget.getGrandParent().getChildren():
+                        for wTop2 in wTop1.getChildren():
+                            if "labelwithclick".lower() in str(wTop2.name).lower():
                                 wTop2.clicked = False
-                            if ("contentFr_".lower()  in str(wTop2).lower()) \
+                            if ("contentFr_".lower()  in str(wTop2.name).lower()) \
                                 or ("contentDummyFr_".lower() in str(wTop2).lower()):
                                 wTop2.destroy()
 
@@ -2942,7 +2933,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 for ts in tsList:
                     self.showSubsectionsForTopSection[ts] = True
 
-        for child in self.scrollable_frame.winfo_children():
+        for child in self.getChildren():
             child.destroy()
 
         if self.showSubsectionsForTopSection == {}:

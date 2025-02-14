@@ -279,12 +279,6 @@ class DictText(ww.currUIImpl.Label):
     def __bindCmd(self):
         return [ww.currUIImpl.Data.BindID.mouse2],[self.__showAsETR]
 
-    def generateEvent(self, event, *args, **kwargs):
-        self.event_generate(event, *args, **kwargs)
-
-    def getChildren(self):
-        return self.winfo_children()
-
 class DictText_LBL(ww.currUIImpl.Label):
     textWidgets = [] 
     subsection = None
@@ -560,17 +554,13 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
 
-            self.scrollY(-100, "units")
+            self.scrollY(-100)
             self.update()
             pwidget.update()
 
             while pwidget != self.parent:
-                if "tkinter." not in str(type(pwidget)):
-                    posy += pwidget.getYCoord()
-                    pwidget = pwidget.getParent()
-                else:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
 
             posy = 0
 
@@ -580,15 +570,11 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                 pwidget = widget
 
             while pwidget != self.parent:
-                if "tkinter." not in str(type(pwidget)):
-                    posy += pwidget.getYCoord()
-                    pwidget = pwidget.getParent()
-                else:
-                    posy += pwidget.winfo_y()
-                    pwidget = pwidget.master
+                posy += pwidget.getYCoord()
+                pwidget = pwidget.getParent()
 
-            pos = posy - self.scrollable_frame.winfo_rooty()
-            height = self.scrollable_frame.winfo_height()
+            pos = posy - self.yPosition()
+            height = self.getFrameHeight()
             self.moveY((pos / height) - 0.008)
         except:
             pass
@@ -669,10 +655,10 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
-        for w in self.scrollable_frame.winfo_children():
+        for w in self.getChildren():
             w.destroy()
 
-        self.scrollable_frame.focus_force()
+        self.forceFocus()
 
         if not self.showLocalWord:
             self.addDictResults()

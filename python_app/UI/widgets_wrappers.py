@@ -227,19 +227,21 @@ class TkWidgets (DataTranslatable_Interface):
             self.children = []
         
         def getChildren(self):
-            return self.widget.widgetObj.winfo_children()
+            return self.widget.children
         
-        def addChild(self, childWidget):
-            self.children.append(childWidget)
+        def addChild(self, child):
+            if child not in self.children:
+                self.children.append(child)
         
         def removeChild(self, child):
-            self.children.remove(child)
+            if child in self.children:
+                self.children.remove(child)
 
         def getParent(self):
-            return self.widget.widgetObj.master
+            return self.widget.rootWidget
 
         def getGrandParent(self):
-            return self.widget.widgetObj.master.master
+            return self.widget.rootWidget.rootWidget
 
 
     class RenderableWidget_Interface_Impl(RenderableWidget_Interface):
@@ -247,6 +249,9 @@ class TkWidgets (DataTranslatable_Interface):
             self.wasRendered = False
             self.widget = widget
             self.renderData = renderData
+
+            if not issubclass(type(self.widget), TkWidgets.RootWidget):
+                self.widget.rootWidget.addChild(self.widget)
 
         def render(self, renderData = {}):
             if self.wasRendered:
@@ -260,19 +265,32 @@ class TkWidgets (DataTranslatable_Interface):
                 
                 self.wasRendered = True
 
+            if not issubclass(TkWidgets.RootWidget, type(self.widget)):
+                self.widget.rootWidget.addChild(self.widget)
+
         def __render(self, **kwargs):
             self.widget.widgetObj.grid(**kwargs)
         
         def hide(self, **kwargs):
+            if not issubclass(TkWidgets.RootWidget, type(self.widget)):
+                self.widget.rootWidget.removeChild(self.widget)
+
             self.widget.widgetObj.grid_remove()
             self.wasRendered = False
+
 
         def delete(self, **kwargs):
             self.widget.widgetObj.grid_forget()
             self.wasRendered = False
+
+            if not issubclass(TkWidgets.RootWidget, type(self.widget)):
+                self.widget.rootWidget.removeChild(self.widget)
         
         def destroy(self):
             self.widget.widgetObj.destroy()
+
+            if not issubclass(TkWidgets.RootWidget, type(self.widget)):
+                self.widget.rootWidget.removeChild(self.widget)
 
         def update(self):
             self.widget.widgetObj.update()
@@ -779,9 +797,6 @@ class TkWidgets (DataTranslatable_Interface):
             except:
                 pass
         
-        def getChildren(self):
-            return super().getChildren()
-        
         def getHeight(self):
             return self.widgetObj.winfo_height()
         
@@ -994,9 +1009,9 @@ class TkWidgets (DataTranslatable_Interface):
                      name : str,
                      rootWidget, 
                      renderData : dict,
-                     image,
-                     width,
-                     height,
+                     image = None,
+                     width = 100,
+                     height = 100,
                      extraOptions = {},
                      bindCmd = lambda *args: (None, None)):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
@@ -1012,16 +1027,19 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.image = image
 
-            if type(self.image) != TkWidgets.UIImage:
-                self.backgroundImage = self.widgetObj.create_image(0, 0,
-                                                            image = self.image, 
-                                                            anchor='nw', 
-                                                            tag = prefix)
+            if image != None:
+                if type(self.image) != TkWidgets.UIImage:
+                    self.backgroundImage = self.widgetObj.create_image(0, 0,
+                                                                image = self.image, 
+                                                                anchor='nw', 
+                                                                tag = prefix)
+                else:
+                    self.backgroundImage = self.widgetObj.create_image(0, 0,
+                                                                image = self.image.data, 
+                                                                anchor='nw', 
+                                                                tag = prefix)
             else:
-                self.backgroundImage = self.widgetObj.create_image(0, 0,
-                                                            image = self.image.data, 
-                                                            anchor='nw', 
-                                                            tag = prefix)
+                self.backgroundImage = None
 
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
@@ -1136,61 +1154,60 @@ class TkWidgets (DataTranslatable_Interface):
 
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
-            container = ttk.Frame(rootWidget.widgetObj)
-            canvas = tk.Canvas(container, height = height, width = width)
-            self.canvas = canvas
+            self.container = TkWidgets.Frame(self.name, "_container", rootWidget, {})
+            self.canvas = TkWidgets.Canvas(self.name, "_canvas", self.container, 
+                                      height = height, width = width, renderData = {})
 
-            scrollbar = ttk.Scrollbar(container, orient="vertical", command = canvas.yview)
-            scrollbar2 = ttk.Scrollbar(container, orient="horizontal", command = canvas.xview)
+            scrollbar = ttk.Scrollbar(self.container.widgetObj, orient="vertical", command = self.canvas.widgetObj.yview)
+            scrollbar2 = ttk.Scrollbar(self.container.widgetObj, orient="horizontal", command = self.canvas.widgetObj.xview)
             self.scrollbar_top = scrollbar
             self.scrollbar_right = scrollbar2
-            scrollable_frame = ttk.Frame(canvas)
-            scrollable_frame2 = ttk.Frame(canvas)
+            scrollable_frame = TkWidgets.Frame(self.name, "_scrollableFrame", self.canvas, {})
+            scrollable_frame2 = TkWidgets.Frame(self.name, "_scrollableFrame2", self.canvas, {})
             self.scrollable_frame = scrollable_frame
 
-            scrollable_frame.bind(
+            scrollable_frame.widgetObj.bind(
                 "<Configure>",
-                lambda e: canvas.configure(
-                    scrollregion = canvas.bbox("all")
+                lambda e: self.canvas.widgetObj.configure(
+                    scrollregion = self.canvas.widgetObj.bbox("all")
                 )
             )
-            scrollable_frame2.bind(
+            scrollable_frame2.widgetObj.bind(
                 "<Configure>",
-                lambda e: canvas.configure(
-                    scrollregion = canvas.bbox("all")
+                lambda e: self.canvas.widgetObj.configure(
+                    scrollregion = self.canvas.widgetObj.bbox("all")
                 )
             )
 
-            self.canvas.create_window((0, 0), window = scrollable_frame, anchor="nw")
-            self.canvas.create_window((0, 0), window = scrollable_frame2, anchor="se")
+            self.canvas.widgetObj.create_window((0, 0), window = scrollable_frame.widgetObj, anchor="nw")
+            self.canvas.widgetObj.create_window((0, 0), window = scrollable_frame2.widgetObj, anchor="se")
 
-            self.canvas.configure(yscrollcommand=scrollbar.set)
-            self.canvas.configure(xscrollcommand=scrollbar2.set)
+            self.canvas.widgetObj.configure(yscrollcommand=scrollbar.set)
+            self.canvas.widgetObj.configure(xscrollcommand=scrollbar2.set)
 
-            container.grid(column = 0, row = 0)
+            self.container.render()
             scrollbar.pack(side="right", fill="y")
             scrollbar2.pack(side="top", fill="x")
-            self.canvas.pack(side="top", fill="both", expand = True)
+            self.canvas.widgetObj.pack(side="top", fill="both", expand = True)
 
             def on_vertical(event):
-                self.canvas.yview_scroll(-1 * event.delta, 'units')
+                self.canvas.widgetObj.yview_scroll(-1 * event.delta, 'units')
 
             def on_horizontal(event):
-                self.canvas.xview_scroll(-1 * event.delta, 'units')
+                self.canvas.widgetObj.xview_scroll(-1 * event.delta, 'units')
 
             if makeScrollable:
                 def __bindScroll(*args):
-                    self.container.bind_all('<MouseWheel>', on_vertical)
-                    self.container.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+                    self.container.widgetObj.bind_all('<MouseWheel>', on_vertical)
+                    self.container.widgetObj.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
                 def __unbindScroll(*args):
-                    self.container.unbind_all('<MouseWheel>')
-                    self.container.unbind_all('<Shift-MouseWheel>') # scroll left-right
+                    self.container.widgetObj.unbind_all('<MouseWheel>')
+                    self.container.widgetObj.unbind_all('<Shift-MouseWheel>') # scroll left-right
 
-                self.canvas.bind("<Enter>", __bindScroll, add = True)
-                self.canvas.bind("<Leave>", __unbindScroll, add = True)
+                self.canvas.widgetObj.bind("<Enter>", __bindScroll, add = True)
+                self.canvas.widgetObj.bind("<Leave>", __unbindScroll, add = True)
 
-            self.container = container
-            self.widgetObj = container
+            self.widgetObj = self.container.widgetObj
                         
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
@@ -1214,34 +1231,43 @@ class TkWidgets (DataTranslatable_Interface):
                 entry.render()
 
         def scrollY(self, value):
-            self.canvas.yview_scroll(value,'units')
+            self.canvas.widgetObj.yview_scroll(value,'units')
 
         def moveY(self, value):
-            self.canvas.yview_moveto(value)
+            self.canvas.widgetObj.yview_moveto(value)
 
         def moveX(self, value):
-            self.canvas.xview_moveto(value)
+            self.canvas.widgetObj.xview_moveto(value)
 
         def getY(self):
-            y, _ = self.canvas.yview()
+            y, _ = self.canvas.widgetObj.yview()
             return y
 
         def getHeight(self):
-            return self.canvas.winfo_height()
+            return self.canvas.widgetObj.winfo_height()
     
+        def setCanvasHeight(self, newHeight):
+            self.canvas.widgetObj.configure(height = newHeight)
+
         def getChildren(self):
-            return self.scrollable_frame.winfo_children()
+            return self.scrollable_frame.getChildren()
             
         def forceFocus(self):
-            self.scrollable_frame.focus_force()
+            self.scrollable_frame.widgetObj.focus_force()
+            
+        def yPosition(self):
+            return self.scrollable_frame.widgetObj.winfo_rooty()
         
-        def setCanvasHeight(self, newHeight):
-            self.canvas.configure(height = newHeight)
-
+        def getFrameHeight(self):
+            return self.scrollable_frame.widgetObj.winfo_height()
+        
+        def updateFrameIdleTasks(self):
+            return self.scrollable_frame.widgetObj.update_idletasks()
 
     class RootWidget(BindableWidget_Interface_Impl,
                      RenderableWidget_Interface_Impl,
-                     DataContainer_Interface_Impl):
+                     DataContainer_Interface_Impl,
+                     HasChildren_Interface_Impl):
         def __init__(self, 
                      width, 
                      height,
@@ -1263,6 +1289,7 @@ class TkWidgets (DataTranslatable_Interface):
                 TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = self.widgetObj)
 
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widget = self)
+            TkWidgets.HasChildren_Interface_Impl.__init__(self, widget = self)
         
             super().bind()
 

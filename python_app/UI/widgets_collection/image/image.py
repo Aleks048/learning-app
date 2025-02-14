@@ -292,14 +292,9 @@ class ImageMainImage(ww.currUIImpl.Frame):
 
     def hide(self, **kwargs):
         if self.imLabel != None:
-            if "tk" not in dir(self.imLabel):
-                for l in self.imLabel.getChildren():
-                    if type(l) == _ucomw.TOCCanvasWithclick:
-                        l.saveFigures()
-            else:
-                for l in self.imLabel.winfo_children():
-                    if type(l) == _ucomw.TOCCanvasWithclick:
-                        l.saveFigures()
+            for l in self.imLabel.getChildren():
+                if type(l) == _ucomw.TOCCanvasWithclick:
+                    l.saveFigures()
         return super().hide(**kwargs)    
 
     def render(self, **kwargs):     

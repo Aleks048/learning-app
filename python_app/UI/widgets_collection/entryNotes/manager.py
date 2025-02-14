@@ -33,7 +33,7 @@ class LayoutManagers:
 
             super().show()
 
-            self.entryNotes_BOX.scrollable_frame.focus_force()
+            self.entryNotes_BOX.forceFocus()
 
     @classmethod
     def listOfLayouts(cls):

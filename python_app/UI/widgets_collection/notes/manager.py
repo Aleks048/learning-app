@@ -57,7 +57,7 @@ class LayoutManagers:
 
             super().show()
 
-            self.dict_BOX.scrollable_frame.focus_force()
+            self.dict_BOX.forceFocus()
 
     @classmethod
     def listOfLayouts(cls):

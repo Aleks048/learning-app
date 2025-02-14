@@ -244,25 +244,6 @@ class TOCFrame(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, root, renderData, padding = padding)
 
-# class TOCFrame(ww.currUIImpl.Frame):
-#     def __init__(self, root, prefix, row, column, columnspan = 1, *args, **kwargs) -> None:
-#         data = {
-#             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": columnspan},
-#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-#         }
-
-#         self.subsection = None
-#         self.imIdx = None
-
-#         self.row = row
-#         self.column = column
-#         self.columnspan = columnspan
-
-#         super().__init__(prefix, "EntryFrame1", root, renderData = data, *args, **kwargs)
-
-#     def getChildren(self):
-#         return self.winfo_children()
-
 class TOCTextWithClick(ww.currUIImpl.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
@@ -310,9 +291,6 @@ class TOCTextWithClick(ww.currUIImpl.Label):
 
     def hide(self, **kwargs):
         return super().hide(**kwargs)
-
-    def getChildren(self):
-        return self.winfo_children()
 
 class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     class Label:
@@ -1155,9 +1133,6 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     def __unbindCmd(self, *args):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
                 "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
-
-    def getChildren(self):
-        return self.winfo_children()
 
 
 class TOCLabelWithClick(ww.currUIImpl.Label):
@@ -2125,68 +2100,47 @@ def closeAllImages(gpframe, showAll, isWidgetLink, secondIm = [None, None], link
     '''
     close all images of children of the widget
     '''
-    for parent in gpframe.winfo_children():
+    parents = gpframe.getChildren().copy()
+    for parent in parents:
         # NOTE this is not an ideal hack to get the
-        if True:#"getChildren" in dir(parent):
-            for child in parent.winfo_children():
-                if True:#"getChildren" in dir(child):
-                    for gChild in child.winfo_children():
-                        if "contentOfImages_".lower() in str(gChild).lower():
-                            subsection = str(gChild).split("_")[-4].replace("$", ".")
-                            idx = str(gChild).split("_")[-3]
-
-                            alwaysShow = False
-                            if idx !=  "-1":
-                                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
-
-                            if (not alwaysShow) or showAll: 
-                                gChild.clicked = False
-                            else: 
-                                gChild.clicked = True
-
-                            if "Row2" in str(child):
-                                child.destroy()
-                        if dc.UIConsts.imageWidgetID.lower() in str(child).lower():
-                            subsection = str(child).split("_")[-4].replace("$", ".")
-                            idx = str(child).split("_")[-3]
-
-                            alwaysShow = False
-                            if idx !=  "-1":
-                                alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
-
-                            if ((not alwaysShow) or showAll or isWidgetLink) and\
-                                ([subsection,idx] != secondIm):
-
-                                if isWidgetLink:
-                                    if idx == linkIdx:
-                                        child.grid_remove()
-                                    else:
-                                        continue
-                                try:
-                                    child.grid_remove()
-                                except:
-                                    pass
-
-                if "contentGlLinksOfImages_" in str(child):
-                    child.clicked = False
-
-                if dc.UIConsts.imageWidgetID in str(child):
-                    subsection = str(child).split("_")[-4].replace("$", ".")
-                    idx = str(child).split("_")[-3]
+        children =  parent.getChildren().copy()
+        for child in children:
+            gChildren = child.getChildren().copy()
+            for gChild in gChildren:
+                if "contentOfImages_".lower() in str(gChild.name).lower():
+                    subsection = str(gChild.name).split("_")[-4].replace("$", ".")
+                    idx = str(gChild.name).split("_")[-3]
 
                     alwaysShow = False
                     if idx !=  "-1":
                         alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
 
-                    if ((not alwaysShow) or showAll or isWidgetLink) and\
-                        ([subsection,idx] != secondIm):
+                    if (not alwaysShow) or showAll: 
+                        gChild.clicked = False
+                    else: 
+                        gChild.clicked = True
 
-                        if isWidgetLink:
-                            if idx == linkIdx:
-                                child.grid_remove()
-                            else:
-                                continue
-                        try:
-                            child.grid_remove()
-                        except:
-                            pass
+                    if "Row2" in str(child):
+                        child.destroy()
+            if "contentGlLinksOfImages_" in str(child.name):
+                child.clicked = False
+
+            # deal with extra images
+            if dc.UIConsts.imageWidgetID.lower() in str(child.name).lower():
+                subsection = str(child.name).split("_")[-4].replace("$", ".")
+                idx = str(child.name).split("_")[-3].replace("-", "_").split("_")[0]
+
+                alwaysShow = False
+                if idx !=  "-1":
+                    alwaysShow = fsf.Data.Sec.tocWImageDict(subsection)[idx] == "1"
+
+                if ((not alwaysShow) or showAll or isWidgetLink) and\
+                    ([subsection,idx] != secondIm):
+
+                    if isWidgetLink:
+                        if idx == linkIdx:
+                            child.destroy()
+                        else:
+                            continue
+                    
+                    child.destroy()
