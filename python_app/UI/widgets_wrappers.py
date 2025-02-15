@@ -234,8 +234,11 @@ class TkWidgets (DataTranslatable_Interface):
                 self.children.append(child)
         
         def removeChild(self, child):
+            gChildren = child.children.copy()
+            for gChild in gChildren:
+                child.removeChild(gChild)
             if child in self.children:
-                self.children.remove(child)
+                self.children.remove(child)                
 
         def getParent(self):
             return self.widget.rootWidget
