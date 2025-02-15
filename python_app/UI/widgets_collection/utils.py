@@ -81,30 +81,6 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
                     [lambda *args: self.pasteTextFromClipboard(*args)])
         self.rebind_()
 
-    # def getData(self):
-    #     retur
-    #     try:
-    #         binString = self.get('1.0', ww.currUIImpl.TextInsertPosition.END)
-    #         if binString[-1] == "\n":
-    #             return binString[:-1]
-    #         return binString
-    #     except:
-    #         return _u.Token.NotDef.str_t
-    #     bitStringIsEmpty = len([i for i in binString if i=="" or i == "\n"]) == len(binString)
-
-    #     # removing the unnecessary newlines from the end
-    #     while binString[-1] == "\n":
-    #         binString = binString[:-1]
-
-    #         if len(binString) == 0:
-    #             binString = _u.Token.NotDef.str_t
-    #             break
-
-    #     return binString if not bitStringIsEmpty else _u.Token.NotDef.str_t
-
-    # def setData(self, newData):
-    #     self.addTextAtStart(newData)
-
     def rebind_(self, keys = [], funcs = []):
         self.rebind(keys, funcs)
         
@@ -186,9 +162,6 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
         
         self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdp],
                   [lambda *args: __addProof(*args)])
-    
-    def generateEvent(self, event):
-        self.event_generate(event)
 
 
 class ImageSize_ETR(ww.currUIImpl.TextEntry):

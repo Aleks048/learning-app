@@ -50,6 +50,11 @@ class ExcerciseImageLabel(ww.currUIImpl.Label):
     def __init__(self, root, prefix, subsection, imIdx, lineIdx, row, column, text = _u.Token.NotDef.str_t):
         self.lineImIdx = str(lineIdx)
 
+        self.subsection = subsection
+        self.bookName = sf.Wr.Manager.Book.getCurrBookName()
+        self.imIdx = imIdx
+        self.lineIdx = lineIdx
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
@@ -76,6 +81,16 @@ class ExcerciseImageLabel(ww.currUIImpl.Label):
             return super().__init__(prefix, name, root, data, image = self.image, padding = [0, 0, 0, 0])
         else:
             return super().__init__(prefix, name, root, data, text = text, padding = [0, 0, 0, 0])
+
+    def updateImage(self):
+        imagePath = _upan.Paths.Entry.LineImage.getAbs(self.bookName, 
+                                                       self.subsection, 
+                                                       self.imIdx, 
+                                                       self.lineIdx)
+        pilIm = Image.open(imagePath)
+        pilIm.thumbnail([530, 1000], Image.LANCZOS)
+        self.image = ww.currUIImpl.UIImage(pilIm)
+        return super().updateImage(self.image)
 
 
 class ExcerciseImage(ww.currUIImpl.Frame):
@@ -386,6 +401,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
         self.currLineCopyIdx = _u.Token.NotDef.int_t
 
         self.lineIdxShownInText = []
+        self.lineIdxShownInTextPosition = {}
         self.currEtr = _u.Token.NotDef.dict_t.copy()
         self.etrTexts = _u.Token.NotDef.dict_t.copy()
 
@@ -413,17 +429,11 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
     def __renderAfterRebuild(self, *args, **kwargs):
         def __internal(*args, **kwargs):
-            lineIdx = kwargs["lineIdx"]
+            labIm = kwargs["labIm"]
             t = _rebuildLine(*args, **kwargs)
             t.join()
-            self.render()
-            position = self.etrTexts[lineIdx][1]
-            self.currEtr[lineIdx].forceFocus()
-
-            try:
-                self.currEtr[lineIdx].mark_set("insert", position)
-            except:
-                pass
+            labIm.updateImage()
+            labIm.render()
         Thread(target = __internal,
                args = args, 
                kwargs = kwargs).start()
@@ -492,6 +502,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
                 if widgetlineImIdx in self.lineIdxShownInText:
                     self.lineIdxShownInText.remove(widgetlineImIdx)
+                    if self.lineIdxShownInTextPosition.get(widgetlineImIdx) != None:
+                        self.lineIdxShownInTextPosition.pop(widgetlineImIdx)
+
                     text = self.currEtr[widgetlineImIdx].getData()
 
                     if text != self.currEtr[widgetlineImIdx].defaultText:
@@ -533,29 +546,35 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     text = lines[i]
 
                 labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, text)
+                if self.lineIdxShownInTextPosition.get(str(i)) != None:
+                    labETR.setPosition(self.lineIdxShownInTextPosition[str(i)].split(".")[0], 
+                                       self.lineIdxShownInTextPosition[str(i)].split(".")[1])
                 self.currEtr[str(i)] = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
                                                 2, 0, text = "Rebuild")
                 labRebuild.lineImIdx = str(i)
 
-                def rebuildETRImage(event, *args):
+                def rebuildETRImage(event, labIm, *args):
                     widgetlineImIdx = event.widget.lineImIdx
+                    self.lineIdxShownInTextPosition[widgetlineImIdx] = event.widget.getPosition()
                     text = self.currEtr[widgetlineImIdx].getData()
 
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
                     self.__renderAfterRebuild(self.subsection,
-                                self.imIdx,
-                                event.widget.lineImIdx,
-                                text,
-                                bookPath,
-                                lineIdx = widgetlineImIdx)
+                                              self.imIdx,
+                                              event.widget.lineImIdx,
+                                              text,
+                                              bookPath,
+                                              labIm = labIm)
 
                     return "break"
 
                 labETR.lineImIdx = str(i)
-                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], [rebuildETRImage])
-                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1], [rebuildETRImage])
+                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], 
+                              [lambda e, l = labIm, *args:rebuildETRImage(e, l)])
+                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                  [lambda e, l = labIm, *args:rebuildETRImage(e, l)])
                 labIm.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
                              [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
                 _ucomw.bindChangeColorOnInAndOut(labRebuild)

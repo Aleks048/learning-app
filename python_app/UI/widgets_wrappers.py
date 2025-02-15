@@ -1002,6 +1002,13 @@ class TkWidgets (DataTranslatable_Interface):
 
         def setPads(self, padx, pady):
             self.widgetObj.config(padx = padx, pady = pady)
+        
+        def getPosition(self):
+            return self.widgetObj.index("insert")
+
+        def setPosition(self, line, column):
+            self.widgetObj.mark_set("insert", "%d.%d" % (int(line), int(column)))
+
 
     class Canvas(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
