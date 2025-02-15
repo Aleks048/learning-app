@@ -482,7 +482,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                     for k in self.linksOpenImageWidgets.keys():
                         im = self.linksOpenImageWidgets[k]
-                        im.grid_forget()
+                        im.hide()
 
                     self.linksOpenImageWidgets = {}
 
@@ -563,7 +563,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                             w.render()
                         else:
                             if not self.showLinks:
-                                w.grid_forget()
+                                w.hide()
 
                     for w in self.currSecondRowLabels:
                         if (w.subsection == subsection) and (w.imIdx == imIdx):
@@ -575,10 +575,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                             shoulShowSecondRow = True
                         else:
-                            if "grid_forget" in dir(w):
-                                w.grid_forget()
-                            else:
-                                w.hide()
+                            w.hide()
 
                 if ((not label.clicked) and ((int(event.type) == 4))) or\
                     ((not label.clicked) and ((int(event.type) == 35))) or\
@@ -708,7 +705,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             )
                                 imLabel.subsection = subsection
                                 imLabel.imIdx = imIdx
-                                widget.grid_forget()
+                                widget.hide()
                                 imLabel.render()
 
                                 imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2], 
@@ -820,7 +817,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         
                         if subsection + "_" + imIdx in self.linksOpenImageWidgets.keys():
                             im = self.linksOpenImageWidgets.pop(subsection + "_" + imIdx)
-                            im.grid_forget()
+                            im.hide()
 
                     if not isWdgetLink:
                         if int(event.type) == 4:
@@ -832,10 +829,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         for w in  self.currSecondRowLabels:
                             if (w.subsection == subsection) and (w.imIdx == imIdx):
-                                if "grid_forget" in dir(w):
-                                    w.grid_forget()
-                                else:
-                                    w.hide()
+                                w.hide()
                                 self.linksOpenImage.clear()
 
                     _uuicom.closeAllImages(gpframe, self.showAll, link, linkIdx = imIdx)
@@ -1140,7 +1134,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             for k in self.linksOpenImageWidgets.keys():
                 im = self.linksOpenImageWidgets[k]
-                im.grid_forget()
+                im.hide()
 
             self.linksOpenImageWidgets = {}
 

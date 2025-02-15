@@ -82,9 +82,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
                         parentWidget,
                         renderData = data)
     
-    def render(self, **kwargs):     
-        # get an image from the
-
+    def render(self):
         for child in self.getChildren():
             child.destroy()
 
@@ -97,7 +95,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
                       Image.LANCZOS)
         img = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = _ucomw.TOCCanvasWithclick(self, imIdx =  None, subsection = None,
+        self.imLabel = _ucomw.TOCCanvasWithclick(root = self, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
                                         image = img, padding = [0, 0, 0, 0],
                                         row = 1, column = 1, columnspan = 1,
@@ -113,9 +111,9 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             self.imLabel.eImIdx = self.extraImIdx
 
         self.imLabel.render()
-        # self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
-        return super().render(**kwargs)
+        return super().render()
 
 class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
                                   dc.AppCurrDataAccessToken):
@@ -507,7 +505,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.displayedPdfPages = []
 
         for w in self.getChildren():
-            w.grid_forget()
+            w.hide()
 
         self.forceFocus()
 
@@ -607,9 +605,9 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
 
         def __bind(*args):
             self.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
-                        [lambda e, mainObj = self, *args: mainObj.pageLbl.changePage(False, None, True)])
+                        [lambda e, pl = self.pageLbl, *args: pl.changePage(False, None, True)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.right], 
-                        [lambda *args: self.pageLbl.changePage(True, None, True)])
+                        [lambda e, pl = self.pageLbl, *args: pl.changePage(True, None, True)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], 
                         [lambda *args: __changePage(False)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.shright], 

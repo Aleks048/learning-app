@@ -846,7 +846,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                     continue
 
                 figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
-
+               
                 for k, l in figuresLabelsData.items():
                     if type(l) == dict:
                         if l["page"] == self.omPage:
@@ -1529,7 +1529,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 eimLabel.subsection = event.widget.subsection
                 eimLabel.imIdx = event.widget.imIdx
                 eimLabel.eImIdx = event.widget.eImIdx
-                event.widget.grid_forget()
+                event.widget.hide()
 
                 def __getBack(eimLabel, widget):
                     newText = eimLabel.getData()
@@ -1538,7 +1538,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                     eImTextList[eimLabel.eImIdx] = newText
                     fsf.Data.Sec.extraImagesDict(eimLabel.subsection, eImTextDict)
                     
-                    eimLabel.grid_forget()
+                    eimLabel.hide()
                     widget.render()
 
                 eimLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],

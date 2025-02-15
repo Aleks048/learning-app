@@ -136,6 +136,12 @@ class TkWidgets (DataTranslatable_Interface):
     # Create style for the first frame
     s.configure('Frame1.TFrame', background='red')
 
+    s.configure('green/black.TButton', 
+                foreground = 'black',
+                background = '#323262',
+                borderwidth = 1,
+                focusthickness = 1)
+
 
     class Data:
         textColor_ID = "fg"
@@ -426,7 +432,6 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            
             self.widgetObj = ttk.Button(self.rootWidget.widgetObj, 
                                 name = self.name,
                                 text= self.text,
@@ -434,14 +439,8 @@ class TkWidgets (DataTranslatable_Interface):
                                 **extraOptions
                                 )
 
-            ttk.Style().configure('green/black.TButton', 
-                                foreground = 'black',
-                                background = '#323262',
-                                borderwidth = 1,
-                                focusthickness = 1)
-            
             def btnCmd():
-                cmd()
+                self.cmd()
             
             self.widgetObj.configure(command = lambda : btnCmd())     
                         
@@ -1029,11 +1028,11 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.name = prefix.lower() + name
             self.rootWidget = rootWidget
-            
-            if ("widgetObj" not in dir(self.rootWidget)):
-                self.widgetObj = tk.Canvas(self.rootWidget, width = width, height = height)
-            else:
-                self.widgetObj = tk.Canvas(self.rootWidget.widgetObj, width = width, height = height)
+
+            self.widgetObj = tk.Canvas(self.rootWidget.widgetObj, 
+                                       width = width, 
+                                       height = height,
+                                       name = self.name)
 
             self.image = image
 
