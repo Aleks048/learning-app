@@ -403,9 +403,9 @@ class Names:
             return mainWidgetName
 
         def getExtraEntryWidgetName(subsection, imIdx, eImNum):
-            ename = dc.UIConsts.imageWidgetID + "_e_" \
-                    + str(eImNum) + "_" +  _upan.Names.UI.getWidgetSubsecId(subsection)\
-                    + "_" + imIdx
+            ename = "E" + dc.UIConsts.imageWidgetID \
+                    + "_" +  _upan.Names.UI.getWidgetSubsecId(subsection)\
+                   + "_" + imIdx + "-" + str(eImNum)
             ename = ename.replace(".", "$")
             return ename
 
