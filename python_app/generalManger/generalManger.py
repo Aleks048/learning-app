@@ -267,7 +267,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 eImageTextsDict[mainImIdx] = eImageTextsList
                 fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
 
-        t = Thread(target = __executeAfterImageCreated, args = [subsection, mainImIdx, imPath, eImIdx, textOnly])
+        t = Thread(\
+            target = lambda s = subsection, mi = mainImIdx, ip = imPath, eii = eImIdx, to =textOnly:__executeAfterImageCreated(s, mi, ip, eii, to))
         t.start()
     @classmethod
     def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):

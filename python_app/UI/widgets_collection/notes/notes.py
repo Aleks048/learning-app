@@ -272,7 +272,7 @@ class DictText(ww.currUIImpl.Label):
 
         self.setWrapLength(730)
         if not localWord:
-            self.setData("Dict.TLabel")
+            self.setStyle("Dict.TLabel")
         else:
             self.setStyle("DictLoc.TLabel")
     

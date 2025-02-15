@@ -48,7 +48,7 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
     def switchUILayout(self, toLayoutType):
         self.hideAllWidgets(changePdfWidget = False)
-        self.winRoot.render(changePdfReader = False)
+        self.winRoot.render()
 
         for layout in self.layouts:
             if type(layout) == toLayoutType:
