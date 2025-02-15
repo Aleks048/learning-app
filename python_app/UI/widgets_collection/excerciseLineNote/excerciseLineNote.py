@@ -84,13 +84,9 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
             t = _rebuildLineNote(*args, **kwargs)
             t.join()
             self.render()
-            position = "0.0"#self.currEtr[1]
-            # self.currEtr.focus_force()
+            self.currEtr.forceFocus()
+            self.currEtr.setPosition(0, 0)
 
-            try:
-                self.currEtr.mark_set("insert", position)
-            except:
-                pass
         Thread(target = __internal,
                args = args, 
                kwargs = kwargs).start()

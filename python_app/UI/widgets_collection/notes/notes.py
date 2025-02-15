@@ -527,23 +527,6 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
 
         self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
-    # def __renderAfterRebuild(self, *args, **kwargs):
-    #     def __internal(*args, **kwargs):
-    #         noteIdx = kwargs["noteIdx"]
-    #         t = _rebuildNote(*args, **kwargs)
-    #         t.join()
-    #         self.render()
-    #         position = self.etrTexts[noteIdx][1]
-    #         self.currEtr[noteIdx].focus_force()
-
-    #         try:
-    #             self.currEtr[noteIdx].mark_set("insert", position)
-    #         except:
-    #             pass
-    #     Thread(target = __internal,
-    #            args = args, 
-    #            kwargs = kwargs).start()
-
     def __scrollIntoView(self, event, widget = None):
         try:
             posy = 0

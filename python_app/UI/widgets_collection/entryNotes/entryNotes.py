@@ -137,12 +137,11 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             t.join()
             self.render()
             position = self.etrTexts[noteIdx][1]
-            self.currEtr[noteIdx].focus_force()
+            self.currEtr[noteIdx].forceFocus()
 
-            try:
-                self.currEtr[noteIdx].mark_set("insert", position)
-            except:
-                pass
+            self.currEtr[noteIdx].setPosition(position.split(".")[0],
+                                              position.split(".")[1])
+
         Thread(target = __internal,
                args = args, 
                kwargs = kwargs).start()
