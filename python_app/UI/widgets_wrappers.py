@@ -432,12 +432,20 @@ class TkWidgets (DataTranslatable_Interface):
             self.rootWidget = rootWidget
             self.cmd = cmd
 
-            self.widgetObj = ttk.Button(self.rootWidget.widgetObj, 
-                                name = self.name,
-                                text= self.text,
-                                style='green/black.TButton',
-                                **extraOptions
-                                )
+            if "_CanvasButton_".lower() in name.lower():
+                # this is needed since ttk button does not provide the y coordinates correctly
+                self.widgetObj = tk.Button(self.rootWidget.widgetObj, 
+                                    name = self.name,
+                                    text= self.text,
+                                    **extraOptions
+                                    )
+            else:
+                self.widgetObj = ttk.Button(self.rootWidget.widgetObj, 
+                                    name = self.name,
+                                    text= self.text,
+                                    style='green/black.TButton',
+                                    **extraOptions
+                                    )
 
             def btnCmd():
                 self.cmd()
@@ -463,6 +471,11 @@ class TkWidgets (DataTranslatable_Interface):
         def getLabel(self):
             return self.widgetObj["text"]
 
+        def setStyle(self, style):
+            if "_CanvasButton_".lower() in self.name.lower():
+                pass
+            else:
+                super().setStyle(style)
 
 
     class OptionMenu (Notifyable_Interface,

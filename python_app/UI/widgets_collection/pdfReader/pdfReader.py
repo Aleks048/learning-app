@@ -379,7 +379,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.update()
         pwidget.update()
 
-        while pwidget != self.parent:
+        while pwidget != self.rootWidget:
             posy += pwidget.getYCoord()
             pwidget = pwidget.getParent()
 
