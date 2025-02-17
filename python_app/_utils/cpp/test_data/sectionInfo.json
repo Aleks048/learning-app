@@ -1,0 +1,390 @@
+{
+    "_name": "21.1",
+    "_latestSubchapter": "-1",
+    "_notesAppLink": "-1",
+    "_isVideo": false,
+    "imagesGroupsList": {
+        "No group": true,
+        "assdsddf": true,
+        "popor": true
+    },
+    "_levelData": {
+        "_level": "2"
+    },
+    "_tocData": {
+        "TOC_text": "tesdo\n\n",
+        "TOC_sectionStart": "50",
+        "TOC_sectionFinish": ""
+    },
+    "_imageProp": {
+        "_imageContentFileMoveLinesNumber": "-1",
+        "imLinkDict": {
+            "0": "sdsdd\nsdsd\nsd\n\n\n",
+            "1": "sd",
+            "2": "\\textbf{as}",
+            "3": "sd",
+            "4": "sd",
+            "5": "sdpp",
+            "6": "sd",
+            "7": "sdllsdlkmdsvksdmvlkdmvsld\n\n\n\nsdsd\nddfd\n\n\n\n\nsdcsdck",
+            "8": "sd",
+            "9": "xd",
+            "10": "sd",
+            "11": "sd",
+            "12": "sd",
+            "13": "t"
+        },
+        "imLinkOMPageDict": {
+            "-1": "-1",
+            "0": "145",
+            "0_0": "148",
+            "1": "153",
+            "2": "120",
+            "3": "134",
+            "4": "124",
+            "5": "124",
+            "6": "136",
+            "7": "136",
+            "8": "136",
+            "9": "135",
+            "10": "40",
+            "11": "40",
+            "12": "40",
+            "13": "34"
+        },
+        "imGlobalLinksDict": {
+            "-1": "-1"
+        },
+        "origMatNameDict": {
+            "0": "mainBook",
+            "1": "mainBook",
+            "2": "mainBook",
+            "3": "mainBook",
+            "4": "mainBook",
+            "5": "mainBook",
+            "6": "mainBook",
+            "7": "mainBook",
+            "8": "mainBook",
+            "9": "mainBook",
+            "10": "mainBook",
+            "11": "mainBook",
+            "12": "mainBook",
+            "13": "mainBook"
+        },
+        "extraImagesDict": {
+            "0": [
+                "con0"
+            ],
+            "1": [
+                "con0"
+            ]
+        },
+        "tocWImageDict": {
+            "0": "0",
+            "1": "0",
+            "2": "0",
+            "3": "0",
+            "4": "0",
+            "5": "0",
+            "6": "0",
+            "7": "0",
+            "8": "0",
+            "9": "0",
+            "10": "0",
+            "11": "0",
+            "12": "0",
+            "13": "0"
+        },
+        "imagesGroupDict": {
+            "0": 1,
+            "1": 0,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1,
+            "13": 1
+        },
+        "imageUIResize": {
+            "10": "1.0"
+        },
+        "imageText": {
+            "0": "written classically as\ndy _ an\nFeedThere are two different solutions with the initial condition (0) = 0, namely0) ce) =0 for all t,\n12 =z for all t.\nIn this case, the function J, given by f(a) = a, is not differentiable. Unique-ness wil} always be insured when f: U > R\" is C!, but it can also be obtainedA ee ee a ee | ee ee a a ee eS\n",
+            "1": "0) ce) =0 for all= tp@) =F for all 1.\nIn this case, the function J, given by f(a) = a, is not differentiable. Unique-ness wil} always be insured when f: U > R\" is C!, but it can also be obtainedwith a rather less stringent condition. We say that the function f satisfies aLipschitz condition on U if there is some K such that\nfe) - SOs Kix-yl for allx, ye U.\n",
+            "2": "then\nSok: \"RB\" \u2014{0}) > @\"B\" ~ (0}).We will say that f is orientation preserving at 0 if fh is homotopic to theidentity map 1: (R\",R\" \u2014 {0}) > (R\".B\" = {0}). Check that this does notdepend on the choice of By C V.(@) For p \u20ac RM, Jet Tp: RY > RY be Tyg) = p+g. If f:U > Visa\nLeamenmrnhion where Tl V = DY are ner we url) cau thar \u00a3 te netentation\n",
+            "3": "evaluating at p gives\nA(X)(p) = ALY )(P).\nQ To prove the result, it obviously suffices to show that A(X)(p) = 0 ifX(p) = 0. Let (x,U) be a coordinate system around p, so that on U wecan write\na\nyl\nwhere all ifn) \u20141\n",
+            "5": "sulting bundle, denoted by T*M, is called the cotangent bundle of M; the fibreof T*M over p is (Mp)*. Like TM, the cotangent bundle T*M is actually aC\u00ae vector bundle: since two trivializations x4 and ys of TM are C%-related,the same is clearly true for x.\u2019 and y,/ {in fact, ye\u2019 0 (X4\u2019)~! = Ye 0 (%4)7!).\u2018We can thus define C\u00ae, as well as continuous, sections of T*M. If w isa C\u00b0section of T*M and X is a C\u00ae vector field, then w(X) is the C\u00ae functionPr o(p)(X(p)).\nIf f: M \u2014 Ris a C\u00ae function, then a C\u00ae section df of T*M can bedefined by\n",
+            "6": "\u2018There are all sorts of algebraic tricks one can play with 7)'(V); although theyshould be kept to a minimum, certain ones are quite important. Let End(V)denote the vector space of all linear transformations T: V > V (\u201cendomor-phisms\u201d of V), Notice that each S \u20ac End(V) gives rise to a bilinear 5 \u20ac 5;1(V),\n\u00a7:VxV*+R,\n",
+            "7": "Finally, we are ready to introduce \u201cmixed\u201d tensor fields. To make the intro-duction less painful, we consider a special case first, If V is a vector space, letT(V) denote all bilinear functions\nT:VxV*R.\n",
+            "8": "er\nA vector bundle \u00a7 E \u2014 B gives rise to a vector bundle 7;!(), obtained byreplacing each fibre x~\"(p) by J; @r~'(p)). In particular, sections of T)!(TM)are called tensor fields, covariant of order I and contravariant of order 1.\u2018There are all sorts of algebraic tricks one can play with J;'(V); although theyshould be kept to a minimum, certain ones are quite important. Let End(V)\n\n",
+            "9": "(A\u00ae B)(p) = A(p) \u00ae B(p) (operating on Mp x ++. x My k +1 times).\nAlthough covariant tensor fields will be our main concern, if only for thesake of completeness we should define contravariant tensor fields. Recall thata contravariant vector field is a section X of TM. So each Xp \u20ac My. Now anclement v ofa vector space V can be thought of asa linear function v: V* > Rywe just define v() to be A(v). A contravariant tensor field of order & is just.\n",
+            "10": "(b) The points inside the three surfaces of Problem 20 are homeomorphic.\n",
+            "11": "(b} The points inside the three surfaces of Problem 20 are homeomorphic.\n22. (a) Every open subset of R is homeomorphic to the disjoint union of inter-vals.(b) There are only countably many non-homeomorphic open subsets of R.\n23. For the purposes of this problem we wiabr, =F dale\nuse a consequence of the Urysohn\nPr sienna\n",
+            "12": "(b) There are only countably many non-homeomorphic open subsets of R.\n23. For the purposes of this problem we will use a consequence of the UrysohnMetrization Theorem, that for any connected manifold M, there is a homeo-morphism f from M to a subset of the countable product R x R x ---\n(@) If M is a connected non-compact manifold, then there is a continuousfunction f: M \u2014 R such that f \u201cgoes to 00 at co\u201d, i.e., if {xp} is a sequencewhich is eventually in the complement of every compact set, then f(xn) + co.(Compare with Problem 2-30.)\n(b) Given a homeomorphism f: M > R xR x --- anda g: M \u2014 R which\n\n",
+            "13": "We have already discussed some spaces which are not manifolds only becausethey have a \u201cboundary\u201d, for example, the Mobius strip and the disc. Pointson these \u201cboundaries\u201d do not have neighborhoods homeomorphic to R\", butthey do have neighborhoods homeomorphic to an important subset of R\". The(closed) half-space HI\u201d is defined by\nH\u201d = {(x!,...,x\") \u20ac R72\" > 0}.A manifold-with-boundary is a metric space M with the following property:\nIf x \u20ac M, then there is some neighborhood U of x and some integer\n"
+        },
+        "extraImText": {
+            "0": [
+                "which may also be considered as a system of \u00bb differential equations for thefunctions \u00a2,\nLO = S(O.---se0)\nWe also want the \u201cinitial conditions\u201d\ni=l,\n(0) = x!(p).\n"
+            ],
+            "1": [
+                "VE Alp and the neal Gerivalion K COrrespones CO, tnat I, DEtWween (x, 4), and\n* aLe oe\nist\nconsequently, we will not hesitate to write v(/) for a differentiable functiondefined in a neighborhood of p. In fact, a tangent vector is often most easilydescribed by telling what derivation it corresponds to, and the map f, is oftenmost easily analyzed from the relation\n\n"
+            ]
+        },
+        "textOnly": {
+            "-1": "-1",
+            "0": false,
+            "1": false,
+            "2": false,
+            "3": false,
+            "4": false,
+            "5": false,
+            "6": false,
+            "7": false,
+            "8": false,
+            "9": false,
+            "10": false,
+            "11": false,
+            "12": false,
+            "13": false
+        },
+        "_figuresData": {
+            "-1": "-1",
+            "0": [],
+            "2": [
+                {
+                    "type": "rectangle",
+                    "alpha": 0.3,
+                    "color": "yellow",
+                    "endX": 330.0,
+                    "endY": 58.666666666666664,
+                    "startX": 221.33333333333331,
+                    "startY": 50.0,
+                    "tag": "rectangle_20"
+                }
+            ]
+        },
+        "_figuresLabelsData": {
+            "-1": "-1",
+            "0": {
+                "page": 145,
+                "coords": [
+                    84.04799999999999,
+                    334.7628865979381,
+                    568.752,
+                    493.16288659793815
+                ],
+                "labelCoords": [
+                    14.687999999999999,
+                    334.7628865979381
+                ]
+            },
+            "0_0": {
+                "page": 145,
+                "coords": [
+                    81.6,
+                    433.55876288659795,
+                    522.24,
+                    564.1979381443299
+                ],
+                "labelCoords": [
+                    12.239999999999998,
+                    433.55876288659795
+                ]
+            },
+            "1": {
+                "page": 153,
+                "coords": [
+                    75.88799999999999,
+                    396.81649484536075,
+                    531.216,
+                    549.5010309278349
+                ],
+                "labelCoords": [
+                    6.528,
+                    396.81649484536075
+                ]
+            },
+            "2": {
+                "page": 120,
+                "coords": [
+                    82.416,
+                    193.50927835051547,
+                    520.608,
+                    398.4494845360825
+                ],
+                "labelCoords": [
+                    13.056,
+                    193.50927835051547
+                ]
+            },
+            "3": {
+                "page": 134,
+                "coords": [
+                    79.96799999999999,
+                    189.42680412371135,
+                    528.7679999999999,
+                    314.35051546391753
+                ],
+                "labelCoords": [
+                    10.607999999999999,
+                    189.42680412371135
+                ]
+            },
+            "4": {
+                "page": 124,
+                "coords": [
+                    82.416,
+                    64.50309278350515,
+                    552.432,
+                    439.2742268041237
+                ],
+                "labelCoords": [
+                    13.056,
+                    64.50309278350515
+                ]
+            },
+            "5": {
+                "page": 124,
+                "coords": [
+                    72.624,
+                    277.60824742268034,
+                    534.48,
+                    427.0268041237113
+                ],
+                "labelCoords": [
+                    3.264,
+                    277.60824742268034
+                ]
+            },
+            "6": {
+                "page": 136,
+                "coords": [
+                    81.6,
+                    217.18762886597938,
+                    527.136,
+                    318.43298969072157
+                ],
+                "labelCoords": [
+                    12.239999999999998,
+                    217.18762886597938
+                ]
+            },
+            "7": {
+                "page": 136,
+                "coords": [
+                    75.07199999999999,
+                    65.31958762886596,
+                    526.3199999999999,
+                    160.84948453608249
+                ],
+                "labelCoords": [
+                    5.712,
+                    65.31958762886596
+                ]
+            },
+            "8": {
+                "page": 136,
+                "coords": [
+                    79.96799999999999,
+                    144.51958762886596,
+                    532.0319999999999,
+                    250.6639175257732
+                ],
+                "labelCoords": [
+                    10.607999999999999,
+                    144.51958762886596
+                ]
+            },
+            "9": {
+                "page": 135,
+                "coords": [
+                    83.232,
+                    116.75876288659794,
+                    532.848,
+                    232.701030927835
+                ],
+                "labelCoords": [
+                    13.872,
+                    116.75876288659794
+                ]
+            },
+            "10": {
+                "page": 40,
+                "coords": [
+                    84.86399999999999,
+                    143.70309278350516,
+                    527.136,
+                    303.7360824742268
+                ],
+                "labelCoords": [
+                    15.504,
+                    143.70309278350516
+                ]
+            },
+            "11": {
+                "page": 40,
+                "coords": [
+                    81.6,
+                    277.60824742268034,
+                    539.376,
+                    390.28453608247423
+                ],
+                "labelCoords": [
+                    12.239999999999998,
+                    277.60824742268034
+                ]
+            },
+            "12": {
+                "page": 40,
+                "coords": [
+                    73.44,
+                    343.74432989690723,
+                    532.848,
+                    506.22680412371125
+                ],
+                "labelCoords": [
+                    4.08,
+                    343.74432989690723
+                ]
+            },
+            "13": {
+                "page": 34,
+                "coords": [
+                    77.52,
+                    205.75670103092784,
+                    532.848,
+                    382.119587628866
+                ],
+                "labelCoords": [
+                    8.16,
+                    205.75670103092784
+                ]
+            }
+        },
+        "_bookCodeFile": {
+            "-1": "-1"
+        },
+        "_subsectionCodeFile": {
+            "-1": "-1"
+        },
+        "_wikiPages": {
+            "-1": "-1"
+        },
+        "_videoPosition": {
+            "-1": "-1"
+        },
+        "_leadingEntry": {
+            "-1": "-1"
+        },
+        "_showSubentries": {
+            "-1": "-1"
+        }
+    }
+}

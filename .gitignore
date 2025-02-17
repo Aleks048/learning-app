@@ -14,3 +14,9 @@
 /c++_modules
 test.py
 test_book.py
+/dewrap_attempt
+/detect_link
+/python_app/.build
+/python_app/_utils/cpp/.deps
+/python_app/_utils/cpp/.bin
+*.so
