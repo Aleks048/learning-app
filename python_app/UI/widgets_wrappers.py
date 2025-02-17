@@ -230,21 +230,21 @@ class TkWidgets (DataTranslatable_Interface):
         def __init__(self, widget = None):
             self.widget = widget
 
-            self.children = []
+            self.children = set()
         
         def getChildren(self):
             return self.widget.children
         
         def addChild(self, child):
             if child not in self.children:
-                self.children.append(child)
+                self.children.add(child)
         
         def removeChild(self, child):
             gChildren = child.children.copy()
             for gChild in gChildren:
                 child.removeChild(gChild)
-            if child in self.children:
-                self.children.remove(child)                
+            
+            self.children.discard(child)                
 
         def getParent(self):
             return self.widget.rootWidget

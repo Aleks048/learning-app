@@ -2429,12 +2429,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     self.currSecondRowLabels = []
 
                     for wTop1 in event.widget.getGrandParent().getChildren():
-                        for wTop2 in wTop1.getChildren():
+                        for wTop2 in wTop1.getChildren().copy():
                             if "labelwithclick".lower() in str(wTop2.name).lower():
                                 wTop2.clicked = False
-                            if ("contentFr_".lower()  in str(wTop2.name).lower()) \
+                            if ("frame".lower()  in str(wTop2.name).lower()) \
                                 or ("contentDummyFr_".lower() in str(wTop2).lower()):
+                                for wTop3 in wTop2.getChildren().copy():
+                                    wTop3.destroy()
                                 wTop2.destroy()
+                            else:
+                                for wTop3 in wTop2.getChildren().copy():
+                                    wTop3.destroy()
 
                 # 4 : event of mouse click
                 # 19 : event of being rendered
@@ -2927,7 +2932,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 for ts in tsList:
                     self.showSubsectionsForTopSection[ts] = True
 
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.destroy()
 
         if self.showSubsectionsForTopSection == {}:
