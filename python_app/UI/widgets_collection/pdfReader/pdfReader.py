@@ -83,7 +83,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def render(self):
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.destroy()
 
         page = self.pdfDoc.load_page(self.pageNum)
@@ -504,7 +504,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.displayedPdfPages = []
 
-        for w in self.getChildren():
+        for w in self.getChildren().copy():
             w.hide()
 
         self.forceFocus()

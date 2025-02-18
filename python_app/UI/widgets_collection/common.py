@@ -2527,6 +2527,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     fsm.Data.Book.currTopSection = subsection
                     label.clicked = True
                     self.showSubsectionsForTopSection[subsection] = True
+                    self.widgetToScrollTo = None
                     self.__renderWithScrollAfter()
                 else:
                     if int(event.type) == 4:

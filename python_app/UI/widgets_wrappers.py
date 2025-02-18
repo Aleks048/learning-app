@@ -759,7 +759,7 @@ class TkWidgets (DataTranslatable_Interface):
                 tkImage = image
 
             if "widgetObj" in dir(self.rootWidget):
-                if text != None:
+                if image == None:
                     self.widgetObj = ttk.Label(self.rootWidget.widgetObj, 
                                         text = self.text,
                                         padding = self.padding,
@@ -770,7 +770,7 @@ class TkWidgets (DataTranslatable_Interface):
                                         padding = self.padding,
                                         name = self.name)
             else:
-                if text != None:
+                if image == None:
                     self.widgetObj = ttk.Label(self.rootWidget, 
                                         text = self.text,
                                         padding = self.padding,
