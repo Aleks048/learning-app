@@ -8,7 +8,7 @@ using namespace rapidjson;
 #include "json.h"
 
 int main() {
-    JSON_file jf ("/Users/ashum048/books/utils/python_app/_utils/cpp/test_data/sectionInfo.json");
+    data::JSON_file jf ("/Users/ashum048/books/utils/python_app/_utils/cpp/test_data/sectionInfo.json");
     std::cout << jf;
     // // 1. Parse a JSON string into DOM.
     // const char* json = "{\"project\":\"rapidjson\",\"stars\":10}";
