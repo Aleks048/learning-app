@@ -1,45 +1,46 @@
-import Pmw
-from PIL import Image
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
 import _utils._utils_main as _u
-import _utils.pathsAndNames as _upan
 import data.constants as dc
 import file_system.file_system_facade as fsf
-import settings.facade as sf
 import data.temp as dt
 
-class ProofImageLabel(ww.currUIImpl.Label):
+class ProofImageLabel(ww.currUIImpl.Frame):
     def __init__(self, root, prefix, subsection, imIdx, lineIdx):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : lineIdx + 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
-        name = "ProofImLabel" + imIdx + str(lineIdx)
+        self.displayedImages = []
+        self.subsection = subsection
+        self.imIdx = imIdx
+        self.eImIdx = lineIdx
+        name = "_ProofImageLabel_" + imIdx + str(lineIdx)
 
         self.lineImIdx = str(lineIdx)
 
-        bookName = sf.Wr.Manager.Book.getCurrBookName()
-
-        imagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(bookName, subsection, imIdx, str(lineIdx))
-
-        pilIm = Image.open(imagePath)
-        pilIm.thumbnail([530, 1000], Image.LANCZOS)
-        self.image = ww.currUIImpl.UIImage(pilIm)
-
-        return super().__init__(prefix, name, root, data,
-                                image = self.image, 
-                                padding = [90, 0, 0, 0])
-
+        super().__init__(prefix, 
+                         name, 
+                         root, 
+                         renderData = data)
+    def render(self, **kwargs):
+        exImLabel = _ucomw.addExtraEntryImagesWidgets(self, 
+                                                       self.subsection, str(self.imIdx),
+                                                       imPadLeft = 120, 
+                                                       displayedImagesContainer = self.displayedImages,
+                                                       leftMove = 700)[int(self.eImIdx)]
+        exImLabel.render()
+        return super().render(**kwargs)
+   
 
 class ProofMainImage(ww.currUIImpl.Frame):
-    displayedImages = []
-    subsection = None
-    entryIdx = None
 
     def __init__(self, parentWidget, prefix):
+        self.displayedImages = []
+        self.subsection = None
+        self.entryIdx = None
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
@@ -59,7 +60,8 @@ class ProofMainImage(ww.currUIImpl.Frame):
         self.imLabel = _ucomw.addMainEntryImageWidget(self, 
                                                       self.subsection, self.entryIdx,
                                                       imPadLeft = 120, 
-                                                      displayedImagesContainer = self.displayedImages)
+                                                      displayedImagesContainer = self.displayedImages,
+                                                      leftMove = 700)
         self.imLabel.render()
         self.imLabel.forceFocus()
 
@@ -70,7 +72,8 @@ class ProofMainImage(ww.currUIImpl.Frame):
                                                        self.subsection, self.entryIdx,
                                                        imPadLeft = 120, 
                                                        displayedImagesContainer = self.displayedImages,
-                                                       skippConditionFn = skipProofs)
+                                                       skippConditionFn = skipProofs,
+                                                       leftMove = 700)
         for l in exImLabels:
             l.render()
 
@@ -144,8 +147,6 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showProofCurr_text"
 
-        self.images = []
-
         super().__init__(prefix,
                         name,
                         parentWidget,
@@ -161,23 +162,21 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
             return
         
         extraImagesForEntry = extraImagesForSubsection[self.imIdx]
-        extraImagesForEntry = \
-            [i if "proof" in i.lower() else None for i in extraImagesForEntry]
 
         '''
         for each extra Image add widgets:
         '''
 
         for i in range(len(extraImagesForEntry)):
-            # image
-            if extraImagesForEntry[i] != None:
-                label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i)
-                self.images.append(label.image)
-                label.render()
+            if "proof" in extraImagesForEntry[i].lower():
+                # image
+                if extraImagesForEntry[i] != None:
+                    label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
+                                                self.subsection, self.imIdx, i)
+                    # label.rebind([ww.currUIImpl.Data.BindID.mouse1], [lambda e, *args: _ucomw.openImageManager(e, leftMove = 700)])
+                    label.render()
 
     def hide(self, **kwargs):
-        self.images = []
         return super().hide(**kwargs)     
 
     def render(self):

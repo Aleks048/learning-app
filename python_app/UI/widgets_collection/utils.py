@@ -959,6 +959,13 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             _u.log.autolog(msg)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
+            proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ProofsManager)
+            if proofsManager.isShown():
+                proofsManager.hide()
+                proofsManager.show()
+
+
     def deleteSelectedRectangle(self, *args):
         if self.selectedRectangle != None:
             for i in range(len(self.rectangles)):
@@ -1236,7 +1243,8 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
                    resizeFactor = 1.0,
                    bindOpenWindow = True,
                    extraImIdx = _u.Token.NotDef.int_t,
-                   tocBox = None):
+                   tocBox = None,
+                   leftMove = 0):
     if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
         pilIm = Image.open(imagePath)
         
@@ -1285,39 +1293,38 @@ def getImageWidget(root, imagePath, widgetName, imIdx, subsection,
     imLabel.imagePath = imagePath
     imLabel.etrWidget = imLabel
 
-    def __openImageManager(event, *args):
-        imMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.ImagesManager)
-        imMenuManger.subsection = event.widget.subsection
-        imMenuManger.imIdx = event.widget.imIdx
-
-        width = int(event.widget.width * 1.5) if int(event.widget.width * 1.5) > 720 else 720
-        currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        eImIdx = event.widget.eImIdx
-        notePosidx = str(int(eImIdx) + 1) if eImIdx != _u.Token.NotDef.str_t else 0
-        notesIm = _upan.Paths.Entry.NoteImage.getAbs(currBookpath,
-                                           event.widget.subsection,
-                                           event.widget.imIdx,
-                                           notePosidx)
-        
-        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesIm):
-            im = Image.open(notesIm)
-            _, imHeight = im.size
-        else:
-            imHeight = 30
-
-        height = int(event.widget.height * 1.5) + imHeight + 100
-
-        imMenuManger.show([width, height, 0, 0], eImIdx, imHeight)
-
-        if tocBox != None:
-            tocBox.widgetToScrollTo = event.widget
-
     if bindOpenWindow:
-        imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__openImageManager])
+        imLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [lambda e, tb = tocBox, *args: openImageManager(e,tb, leftMove = leftMove)])
 
     return img, imLabel
 
+def openImageManager(event, tocBox = None, leftMove = 0, *args):
+    imMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ImagesManager)
+    imMenuManger.subsection = event.widget.subsection
+    imMenuManger.imIdx = event.widget.imIdx
+
+    width = int(event.widget.width * 1.5) if int(event.widget.width * 1.5) > 720 else 720
+    currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+    eImIdx = event.widget.eImIdx
+    notePosidx = str(int(eImIdx) + 1) if eImIdx != _u.Token.NotDef.str_t else 0
+    notesIm = _upan.Paths.Entry.NoteImage.getAbs(currBookpath,
+                                        event.widget.subsection,
+                                        event.widget.imIdx,
+                                        notePosidx)
+    
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(notesIm):
+        im = Image.open(notesIm)
+        _, imHeight = im.size
+    else:
+        imHeight = 30
+
+    height = int(event.widget.height * 1.5) + imHeight + 100
+
+    imMenuManger.show([width, height, leftMove, 0], eImIdx, imHeight)
+
+    if tocBox != None:
+        tocBox.widgetToScrollTo = event.widget
 
 def addMainEntryImageWidget(rootLabel,
                             subsection, imIdx,
@@ -1329,7 +1336,8 @@ def addMainEntryImageWidget(rootLabel,
                             columnspan = 100,
                             column = 0,
                             bindOpenWindow = True,
-                            tocBox = None):
+                            tocBox = None,
+                            leftMove = 0):
     # mainImage
     currBookName = sf.Wr.Manager.Book.getCurrBookName()
     imagePath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName,
@@ -1360,7 +1368,7 @@ def addMainEntryImageWidget(rootLabel,
                                     imIdx, subsection, imPad = 0,
                                     row = 0, column = 1, columnspan = 1,
                                     resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow,
-                                    tocBox = tocBox)
+                                    tocBox = tocBox, leftMove = leftMove)
         imLabel.render()
 
         displayedImagesContainer.append(img)
@@ -1477,7 +1485,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                columnspan = 1000,
                                createExtraWidgets = True,
                                bindOpenWindow = True,
-                               resizeFactor = None):
+                               resizeFactor = None,
+                               leftMove = 0):
     import UI.widgets_collection.common as comw
     outLabels = []
 
@@ -1605,7 +1614,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                             resizeFactor = resizeFactor,
                                             extraImIdx = i,
                                             bindOpenWindow = bindOpenWindow,
-                                            tocBox = tocFrame)
+                                            tocBox = tocFrame,
+                                            leftMove = leftMove)
                 eimLabel.subsection = subsection
                 eimLabel.imIdx = imIdx
                 eimLabel.eImIdx = i
