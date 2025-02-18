@@ -386,7 +386,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
-        for w in self.getChildren():
+        for w in self.getChildren().copy():
             w.destroy()
 
         self.forceFocus()

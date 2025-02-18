@@ -60,7 +60,7 @@ class NotesImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def render(self, **kwargs):
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.destroy()
 
         self.imLabel = _ucomw.addMainEntryImageWidget(self, 
@@ -638,7 +638,7 @@ class Dict_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
 
-        for w in self.getChildren():
+        for w in self.getChildren().copy():
             w.destroy()
 
         self.forceFocus()

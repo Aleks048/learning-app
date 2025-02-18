@@ -111,12 +111,12 @@ class ExcerciseImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def hide(self, **kwargs):
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.destroy()
         return super().hide(**kwargs)
 
     def render(self, **kwargs):
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.destroy()
 
         self.imLabel = _ucomw.addMainEntryImageWidget(self, 
@@ -754,7 +754,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 self.etrTexts[k] = [self.currEtr[k].getData(),
                                     self.currEtr[k].getCurrCursorPosition()]
 
-        for w in self.getChildren():
+        for w in self.getChildren().copy():
             w.destroy()
 
         self.forceFocus()

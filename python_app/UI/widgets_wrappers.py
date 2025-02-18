@@ -652,9 +652,12 @@ class TkWidgets (DataTranslatable_Interface):
         def wrapSelectedText(self, txtBefore, txtAfter):
             startSelIDX = self.widgetObj.index("sel.first")
             endSelIDX = self.widgetObj.index("sel.last")
-            selText = self.widgetObj.get(startSelIDX, endSelIDX)
+            selText = self.widgetObj.selection_get()
+            allText = self.widgetObj.get()
             boldSelText = f"{txtBefore}{selText}{txtAfter}"
-            self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
+            finalText = allText.replace(selText, boldSelText)
+            self.widgetObj.delete("0", tk.END)
+            self.widgetObj.insert("0", finalText)
         
         def addTextAtStart(self, text):
             self.widgetObj.insert("0", text)

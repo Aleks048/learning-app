@@ -296,7 +296,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
     def render(self, **kwargs):     
         # get an image from the
 
-        for child in self.getChildren():
+        for child in self.getChildren().copy():
             child.remove()
 
         if self.extraWidgetIdx == _u.Token.NotDef.int_t:
