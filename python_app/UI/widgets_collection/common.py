@@ -2427,6 +2427,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 def closeAllSubsections():
                     self.currSecondRowLabels = []
+                    self.linkFrames = []
 
                     for wTop1 in event.widget.getGrandParent().getChildren():
                         for wTop2 in wTop1.getChildren().copy():
