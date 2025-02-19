@@ -796,6 +796,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     eImIdxCounter = 0
                     for l in exImLabels:
                         eImIdxCounter += 1
+                        if link:
+                            self.linksOpenImageWidgets[subsection + "_" + imIdx + "_e" + str(eImIdxCounter)] = l
                         l.render()
 
                     # NOTE: for links
@@ -815,9 +817,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if subsection + "_" + imIdx in self.linksOpenImage:
                             self.linksOpenImage.remove(subsection + "_" + imIdx)
                         
-                        if subsection + "_" + imIdx in self.linksOpenImageWidgets.keys():
-                            im = self.linksOpenImageWidgets.pop(subsection + "_" + imIdx)
-                            im.hide()
+                        for k,_ in self.linksOpenImageWidgets.copy().items():
+                            if (subsection + "_" + imIdx).lower() in k.lower():
+                                im = self.linksOpenImageWidgets.pop(k)
+                                im.destroy()
 
                     if not isWdgetLink:
                         if int(event.type) == 4:
