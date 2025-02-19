@@ -6,7 +6,6 @@
 #include <iostream>
 #include <map>
 
-
 namespace data {
 
 class JSON_file {
