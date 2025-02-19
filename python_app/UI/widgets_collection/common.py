@@ -2895,18 +2895,19 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         else:
             text_curr_filtered = text_curr
 
-        for i in range(len(text_curr_filtered)):
-            subsection = text_curr_filtered[i][0]
-            topSection = subsection.split(".")[0]
-            level = text_curr_filtered[i][1]
+        if (not self.showAll) or (self.filterToken != ""):
+            for i in range(len(text_curr_filtered)):
+                subsection = text_curr_filtered[i][0]
+                topSection = subsection.split(".")[0]
+                level = text_curr_filtered[i][1]
 
-            if (topSection == fsm.Data.Book.currTopSection) \
-                or self.showAll:
-                self.showSubsectionsForTopSection[subsection] = True
-            else:
-                self.showSubsectionsForTopSection[subsection] = False
+                if (topSection == fsm.Data.Book.currTopSection) \
+                    or self.showAll:
+                    self.showSubsectionsForTopSection[subsection] = True
+                else:
+                    self.showSubsectionsForTopSection[subsection] = False
 
-            self.addTOCEntry(subsection, level, i)
+                self.addTOCEntry(subsection, level, i)
 
     def render(self, shouldScroll = False):
         # import traceback
