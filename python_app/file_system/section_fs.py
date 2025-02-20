@@ -398,6 +398,22 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         imLinkOMPageDict = sorted(list(oldImLinkOMPageDict) + list(newImLinkOMPageDict))
 
+        sourceGroupsList:dict = cls.readProperty(sourceSubsection, cls.PubProp.imagesGroupsList)
+        targetGroupsDict:dict = cls.readProperty(targetSubsection, cls.PubProp.imagesGroupDict)
+        targetGroupsList:dict = cls.readProperty(targetSubsection, cls.PubProp.imagesGroupsList)
+        group = list(sourceGroupsList.keys())[targetGroupsDict[targetImIdx]]
+
+        if group in list(targetGroupsList.keys()):
+            groupIdx = list(targetGroupsList.keys()).index(group)
+        else:
+            targetGroupsList[group] = True
+            groupIdx = len(list(targetGroupsList.keys())) - 1
+            cls.updateProperty(targetSubsection, cls.PubProp.imagesGroupsList, targetGroupsList)
+
+        targetGroupsDict = cls.readProperty(targetSubsection, cls.PubProp.imagesGroupDict)
+        targetGroupsDict[targetImIdx] = groupIdx
+        cls.updateProperty(targetSubsection, cls.PubProp.imagesGroupDict, targetGroupsDict)
+
         for page in set(imLinkOMPageDict):
             gm.GeneralManger.readdNotesToPage(page)
 
