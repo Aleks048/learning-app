@@ -1214,7 +1214,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         log.autolog(msg)
 
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
-        imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
 
         imLinkDict = cls.readProperty(subsection, cls.PubProp.imLinkDict)
 
@@ -1273,19 +1272,20 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         for i in range(len(extraImFilenames)):
             ocf.Wr.FsAppCalls.copyFile(extraImFilenames[i][0], extraImFilenames[i][1])
 
-        tex = imLinkDict[imIdx]
-        imNameNew = _upan.Names.getImageName(targetImIdx)
+        tex = tff.Wr.TexFileUtils.fromEntryToLatexTxt(targetImIdx, imLinkDict[imIdx])
         tff.Wr.TexFileUtils.fromTexToImage(tex,
-                                           os.path.join(imagesPath, imNameNew + ".png"),
+                                           _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookName,
+                                                                                                 targetSubsection,
+                                                                                                 targetImIdx),
                                            fixedWidth = 700)
-
+        
         oldsSecreenshotPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName, 
                                                                                  subsection,
                                                                                  imIdx)
         newsecreenshotPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookName, 
                                                                                 targetSubsection,
                                                                                 targetImIdx)
-
+        
         ocf.Wr.FsAppCalls.copyFile(oldsSecreenshotPath, newsecreenshotPath)
 
         # deal with the links

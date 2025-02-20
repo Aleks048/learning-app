@@ -869,6 +869,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             widget = event.widget
             fsm.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
                                                         widget.imIdx)
+            self.widgetToScrollTo = None
             self.__renderWithScrollAfter()
 
         def copyEntryCmd(event, *args):
@@ -942,7 +943,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                             self.entryCopyImIdx,
                                                             widget.subsection,
                                                             widget.imIdx,
-                                                            self.cutEntry)
+                                                            self.cutEntry,
+                                                            shouldAsk = True)
             self.__renderWithScrollAfter()
 
         def showSubentriesCmd(event, *args):
@@ -1357,7 +1359,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             idx = entriesList[entriesList.index(k) - 1] #previous entry
 
             if imagesGroupDict.get(str(idx)) != None:
-                prevImGroupName = imagesGroups[imagesGroupDict[idx]]
+                if idx == _u.Token.NotDef.str_t:
+                    prevImGroupName = _u.Token.NotDef.str_t
+                else:
+                    prevImGroupName = imagesGroups[imagesGroupDict[idx]]
             else:
                 prevImGroupName = _u.Token.NotDef.str_t
         elif k == _u.Token.NotDef.str_t:
@@ -1506,15 +1511,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     moveGroup.imIdx = k
 
                     def __moveGroup(e, *args): 
-                        # NOTE: this is a hack but I can't find a better way atm   
-                        wName = str(e.widget)
-                        wName = wName.split("contentmoveimagegrouplabel_")[-1]
-                        wName = wName.split("_imageSizeTOC_ETR")[0]
-                        subsection = wName.split("_")[0].replace("$", ".")
-                        imIdx = wName.split("_")[1]
-                        newGroupNameWName ="contentNewGroupImageGroupLabel_".lower()
-                        newGroupNameW = [i for i in e.widget.getParent().getchildren() \
-                                            if newGroupNameWName.lower() in str(i)][0]
+                        subsection = e.widget.subsection
+                        imIdx = e.widget.imIdx
+                        # NOTE: this is a hack but I can't find a better way atm
+                        newGroupNameWName = "contentNewGroupImageGroupLabel_".lower()
+                        newGroupNameW = [i for i in e.widget.getParent().getChildren() \
+                                            if newGroupNameWName.lower() in i.name][0]
 
                         targetWholePath:str = e.widget.getData()
 
@@ -1523,7 +1525,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                         targetSubsection = targetWholePath.split(":")[0]
                         targetEntryIdx = targetWholePath.split(":")[1]
-                        targetGroupName = newGroupNameW.getData() if newGroupNameW.getData() != "" else "No Group"
+                        targetGroupName = newGroupNameW.getData() if newGroupNameW.getData() != "" else "No group"
                         sourceSubsection = subsection
                         sourceEntryIdx = imIdx
                         sourceGroupNameIdx = fsm.Data.Sec.imagesGroupDict(sourceSubsection)[sourceEntryIdx]
@@ -1536,15 +1538,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                                         targetGroupName)
                         response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.MathMenuManager)
-                        mainManager.show()
 
                         if not response:
                             return
 
                         gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
                                                                 targetSubsection, targetGroupName, targetEntryIdx)
+
+                        self.widgetToScrollTo = None
+                        self.linkFrames = None
+                        self.currSecondRowLabels = None
                         self.__renderWithoutScroll()
                     moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                             [__moveGroup])

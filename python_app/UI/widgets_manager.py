@@ -47,14 +47,16 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         dt.AppState.UIManagers.setData(self.appCurrDataAccessToken, UIManagers)
 
     def switchUILayout(self, toLayoutType):
-        #self.hideAllWidgets(changePdfWidget = False)
-        self.winRoot.render()
+        # self.hideAllWidgets(changePdfWidget = False)
 
         for layout in self.layouts:
             if type(layout) == toLayoutType:
                 self.currLayout = layout
                 layout.show()
+                self.winRoot.render()
                 return
+            else:
+                layout.hide()
         raise KeyError
 
     def startMainLoop(self):
