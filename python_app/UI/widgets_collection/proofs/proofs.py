@@ -41,6 +41,10 @@ class ProofMainImage(ww.currUIImpl.Frame):
         self.displayedImages = []
         self.subsection = None
         self.entryIdx = None
+
+        self.imLabel = None
+        self.exImLabels = None
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 6},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
@@ -68,16 +72,26 @@ class ProofMainImage(ww.currUIImpl.Frame):
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
+        self.exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
                                                        self.subsection, self.entryIdx,
                                                        imPadLeft = 120, 
                                                        displayedImagesContainer = self.displayedImages,
                                                        skippConditionFn = skipProofs,
                                                        leftMove = 700)
-        for l in exImLabels:
+        for l in self.exImLabels:
             l.render()
 
         return super().render(**kwargs)
+
+    def hide(self, **kwargs):
+        if self.imLabel != None:
+            self.imLabel.destroy()
+            self.imLabel = None
+        if self.exImLabels != None:
+            for l in self.exImLabels:
+                l.destroy()
+            self.exImLabels = None
+        return super().hide(**kwargs)
 
 class MoveTOCtoProofEntry_BTN(ww.currUIImpl.Button,
                                   dc.AppCurrDataAccessToken):
@@ -130,17 +144,16 @@ class HideProofsWindow_BTN(ww.currUIImpl.Button,
 
 class Proof_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-
-    currLineCopyIdx = _u.Token.NotDef.int_t
-
-    lineIdxShownInText = []
-    currEtr = _u.Token.NotDef.dict_t.copy()
-
-    displayedImages = []
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 500):
+        self.subsection = None
+        self.imIdx = None
+
+        self.currLineCopyIdx = _u.Token.NotDef.int_t
+
+        self.lineIdxShownInText = []
+        self.displayedImages = []
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
@@ -177,6 +190,8 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
                     label.render()
 
     def hide(self, **kwargs):
+        self.displayedImages = []
+        self.lineIdxShownInText = []
         return super().hide(**kwargs)     
 
     def render(self):

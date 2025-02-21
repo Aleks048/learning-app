@@ -865,19 +865,20 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         self.rectangles = []
 
         for f in figuresList:
-            if f.get("type") != None:
-                f.pop("type")
+            if type(f) != str:
+                if f.get("type") != None:
+                    f.pop("type")
 
-            if self.isPdfPage:
-                f["endX"] = f["endX"] * widthScale
-                f["endY"] = f["endY"] * heightScale
-                f["startX"] = f["startX"] * widthScale
-                f["startY"] = f["startY"] * heightScale
-            elif (self.resizeFactor != 1.0):
-                f["endX"] = float(f["endX"]) *  (1.0 / self.resizeFactor)
-                f["endY"] = float(f["endY"]) *  (1.0 / self.resizeFactor)
-                f["startX"] = float(f["startX"]) *  (1.0 / self.resizeFactor)
-                f["startY"] = float(f["startY"]) *  (1.0 / self.resizeFactor)
+                if self.isPdfPage:
+                    f["endX"] = f["endX"] * widthScale
+                    f["endY"] = f["endY"] * heightScale
+                    f["startX"] = f["startX"] * widthScale
+                    f["startY"] = f["startY"] * heightScale
+                elif (self.resizeFactor != 1.0):
+                    f["endX"] = float(f["endX"]) *  (1.0 / self.resizeFactor)
+                    f["endY"] = float(f["endY"]) *  (1.0 / self.resizeFactor)
+                    f["startX"] = float(f["startX"]) *  (1.0 / self.resizeFactor)
+                    f["startY"] = float(f["startY"]) *  (1.0 / self.resizeFactor)
 
             rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(rect)

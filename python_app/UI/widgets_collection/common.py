@@ -490,14 +490,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 break
 
         if linkShouldBePresent:
-            if imIdx in list(fsm.Data.Sec.imGlobalLinksDict(subsection).keys()):
-                glLinks:dict = fsm.Data.Sec.imGlobalLinksDict(subsection)[imIdx]
+            imGlobalLinksDict = fsm.Data.Sec.imGlobalLinksDict(subsection)
+            if type(imGlobalLinksDict) == dict:
+                if imIdx in list(imGlobalLinksDict.keys()):
+                    glLinks:dict = imGlobalLinksDict[imIdx]
 
-                for ln in glLinks:
-                    if not self.showLinks:
-                        self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
+                    for ln in glLinks:
+                        if not self.showLinks:
+                            self.showLinksForSubsections.append(subsection + "_" + imIdx + "_" + ln)
 
-                self.showLinksForSubsections.append(liskShpowId)
+                    self.showLinksForSubsections.append(liskShpowId)
 
         self.__renderWithoutScroll()
         self.scrollToEntry(subsection, imIdx)

@@ -99,9 +99,9 @@ class MessageMenuManager(wm.MenuManager_Interface):
     
     def show(self, text, shouldWait = False):
         if shouldWait:
-            self.switchUILayout(LayoutManagers.ConfirmationMessageLayout)
+            self.switchUILayout(LayoutManagers.ConfirmationMessageLayout, hideWidgets = False)
         else:
-            self.switchUILayout(LayoutManagers.PlainMessageLayout)
+            self.switchUILayout(LayoutManagers.PlainMessageLayout, hideWidgets = False)
          
         self.currLayout.setProps(text)
         super().show()
