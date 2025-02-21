@@ -47,6 +47,10 @@ class Wr:
             \\definecolor{{orange}}{{HTML}}{{{imageColor}}}\
             \\pagecolor{{orange}}\
             \
+            \\usepackage[utf8]{{inputenc}}\n\
+            \\usepackage[english, russian]{{babel}}\n\
+            \\usepackage{{iwona}}\n\
+            \
             \\newcommand{{\\Real}}{{\\mathbb{{R}}}}\
             \\newcommand{{\\R}}{{\\mathbb{{R}}}}\
             \\renewcommand{{\\Re}}{{\\mathbb{{R}}}}\
@@ -55,7 +59,7 @@ class Wr:
             \\newcommand{{\\Int}}{{\\mathbb{{Z}}}}\
             \\newcommand{{\\Complex}}{{\\mathbb{{C}}}}\
             \\newcommand{{\\Ball}}{{\\mathbb{{B}}}}\
-            \\newcommand{{\\Proj}}{{\\mathbb{{P}}}}\
+            \\renewcommand{{\\Proj}}{{\\mathbb{{P}}}}\
             \\renewcommand{{\\P}}{{\\mathbb{{P}}}}\
             \
             \\newcommand{{\\Done}}{{$\\blacksquare$}}\
