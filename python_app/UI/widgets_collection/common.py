@@ -1542,6 +1542,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         if not response:
                             return
 
+                        # UI
+                        pdfMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                                        wf.Wr.MenuManagers.PdfReadersManager)
+                        pdfMenuManager.saveFigures()
+
                         gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
                                                                 targetSubsection, targetGroupName, targetEntryIdx)
 
@@ -1549,6 +1554,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.linkFrames = None
                         self.currSecondRowLabels = None
                         self.__renderWithoutScroll()
+
+                        pdfMenuManager.forceUpdate()
                     moveGroup.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
                                             [__moveGroup])
                     moveGroup.render()

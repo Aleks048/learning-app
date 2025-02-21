@@ -459,8 +459,9 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
             self.displayedPdfPages.append(pageImage)
 
-    def updateOMpage(self):
-        self.saveFigures()
+    def updateOMpage(self, force = False):
+        if not force:
+            self.saveFigures()
 
         origMatName = fsf.Data.Book.currOrigMatName
 
@@ -491,8 +492,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         return super().hide(**kwargs)
 
-    def render(self):
-        self.updateOMpage()
+    def render(self, force = False):
+        self.updateOMpage(force = force)
         self.currPage = int(self.currPage)
 
         if self.currPage == self.prevPage:
@@ -505,7 +506,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.displayedPdfPages = []
 
         for w in self.getChildren().copy():
-            w.hide()
+            w.destroy()
 
         self.forceFocus()
 

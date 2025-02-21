@@ -74,6 +74,12 @@ class LayoutManagers:
         def hide(self):
             self.pfdReader_BOX.changePrevPos = self.changePrevPos
             return super().hide()
+    
+        def saveFigures(self):
+             self.pfdReader_BOX.saveFigures()
+            
+        def forceUpdate(self):
+            self.pfdReader_BOX.render(force = True)
 
     @classmethod
     def listOfLayouts(cls):
@@ -101,6 +107,12 @@ class PdfReadersManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+    def forceUpdate(self):
+        self.layouts[0].forceUpdate()
+    
+    def saveFigures(self):
+        self.layouts[0].saveFigures()
 
     def unbind(self):
         self.winRoot.unbindAll()
