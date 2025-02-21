@@ -2966,17 +2966,3 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.widgetToScrollTo.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
 
         return
-
-        if self.openedMainImg != None and shouldScroll:
-            self.openedMainImg.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)
-        
-        # if self.entryAsETR.widget != None:
-        #     try:
-        #         self.entryAsETR.widget.focus_force()
-        #     except:
-        #         pass
-        
-        if shouldScroll:
-            if not fsm.Data.Sec.isVideo(fsm.Data.Book.currSection):
-                if self.currEntryWidget != None:
-                    self.currEntryWidget.generateEvent(ww.currUIImpl.Data.BindID.customTOCMove)

@@ -68,7 +68,7 @@ class NotesImage(ww.currUIImpl.Frame):
                                                       imPadLeft = 120, 
                                                       displayedImagesContainer = self.displayedImages)
         self.imLabel.render()
-        self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()

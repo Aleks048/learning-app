@@ -215,7 +215,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                                                 columnspan = 1,
                                                 column = 1)
         imageLables.append(imLabel)
-        imLabel.focus_force()
+        imLabel.forceFocus()
 
         def skipProofs(*args):
            return False

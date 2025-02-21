@@ -314,7 +314,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
                                                         bindOpenWindow = False,
                                                         resizeFactor = 1.5)[self.extraWidgetIdx]
         self.imLabel.render()
-        # self.imLabel.focus_force()
+        self.imLabel.forceFocus()
 
         return super().render(**kwargs)
 
