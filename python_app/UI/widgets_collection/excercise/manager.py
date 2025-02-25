@@ -140,6 +140,7 @@ class ExcerciseManager(wm.MenuManager_Interface):
 
         winRoot.ExcerciseBox = self.layouts[0].excercise_BOX
         winRoot.AddExcerciseBTN = self.layouts[0].addExcerciseLine_BTN
+        winRoot.hide()
 
     def show(self, showManinExcerciseIm = None):
         self.layouts[0].subsection = self.subsection

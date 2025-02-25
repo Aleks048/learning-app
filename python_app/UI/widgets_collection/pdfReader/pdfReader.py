@@ -578,12 +578,24 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.prevPos = prevYview
         self.prevPosition = prevYview
 
-class PdfReadersRoot(ww.currUIImpl.RootWidget):
-    pageLbl = None
-    pdfBox = None
+class PdfReadersRoot(ww.currUIImpl.Frame):
 
-    def __init__(self, width, height):
-        super().__init__(width, height)
+    def __init__(self, rootWidget, width, height):
+        self.pageLbl = None
+        self.pdfBox = None
+
+        name = "_PdfReadersRoot_"
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 20},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+        extraOptions = {
+            ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+            ww.TkWidgets.__name__ : {}
+        }
+
+
+        super().__init__("", name, rootWidget, renderData = renderData, extraOptions = extraOptions)
 
         def __atsrAddingCmd():
             self.pdfBox.updateScrollerPosition()
@@ -635,6 +647,7 @@ class PdfReadersRoot(ww.currUIImpl.RootWidget):
                     [__bind,
                      __nunbind])
 
+        self.render()
     def __nunbind(self, *args):
         self.unbind([ww.currUIImpl.Data.BindID.Keys.left,
                         ww.currUIImpl.Data.BindID.Keys.shleft,

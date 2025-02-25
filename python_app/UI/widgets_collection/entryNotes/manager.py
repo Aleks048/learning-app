@@ -61,6 +61,7 @@ class EntryNotesManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+        winRoot.hide()
     def show(self):
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx

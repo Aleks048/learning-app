@@ -365,7 +365,7 @@ class ImageGeneration_ETR(ww.currUIImpl.TextEntry):
         }
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {},
-            ww.TkWidgets.__name__ : {"width": 240}
+            ww.TkWidgets.__name__ : {"width": 60}
         }
         name = "_imageGeneration_ETR"
         defaultText = "0"

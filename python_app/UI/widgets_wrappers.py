@@ -111,41 +111,41 @@ class Data:
 class TkWidgets (DataTranslatable_Interface):
     tkinterVersion = tk.TkVersion
 
-    s = ttk.Style()
-    s.theme_use("default")
-    # Create style used by default for all Frames
-    s.configure('Dict.TLabel', background = "#394d43")
-    s.configure('DictLoc.TLabel', background = "#7c3b3b")
-    s.configure('EntryText.TLabel', background = "#394d43")
-    s.configure('TLabel', foreground = "#ffffff", background = "#323232")
-    s.configure('TFrame', background = "#323232")
-    s.configure("TMenubutton", background="#323232")
-    s.configure("Canvas.TMenubutton", width = 5, 
-                                      background = "#3E4742", 
-                                      activebackground = "#33B5E5", 
-                                      relief = tk.FLAT)
-    s.configure('TCheckbutton', background = '#323232')
-    s.configure("Horizontal.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
-                    background="#323262", darkcolor="#323232", lightcolor="#323232",
-                    troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
-
-    s.configure("Vertical.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
-                    background="#323262", darkcolor="#323232", lightcolor="#323232",
-                    troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
-
-    # Create style for the first frame
-    s.configure('Frame1.TFrame', background='red')
-
-    s.configure('green/black.TButton', 
-                foreground = 'black',
-                background = '#323262',
-                borderwidth = 1,
-                focusthickness = 1)
-
 
     class Data:
         textColor_ID = "fg"
-        tk = tk.Toplevel()
+        app = tk.Tk()
+        s = ttk.Style()
+        s.theme_use("default")
+        # Create style used by default for all Frames
+        s.configure('Dict.TLabel', background = "#394d43")
+        s.configure('DictLoc.TLabel', background = "#7c3b3b")
+        s.configure('EntryText.TLabel', background = "#394d43")
+        s.configure('TLabel', foreground = "#ffffff", background = "#323232")
+        s.configure('TFrame', background = "#323232")
+        s.configure("TMenubutton", background="#323232")
+        s.configure("Canvas.TMenubutton", width = 5, 
+                                        background = "#3E4742", 
+                                        activebackground = "#33B5E5", 
+                                        relief = tk.FLAT)
+        s.configure('TCheckbutton', background = '#323232')
+        s.configure("Horizontal.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
+                        background="#323262", darkcolor="#323232", lightcolor="#323232",
+                        troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
+
+        s.configure("Vertical.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
+                        background="#323262", darkcolor="#323232", lightcolor="#323232",
+                        troughcolor="#323232", bordercolor="#323232", arrowcolor="#323232")
+
+        # Create style for the first frame
+        s.configure('Frame1.TFrame', background='red')
+
+        s.configure('green/black.TButton', 
+                    foreground = 'black',
+                    background = '#323262',
+                    borderwidth = 1,
+                    focusthickness = 1)
+
         class BindID:
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
@@ -823,7 +823,8 @@ class TkWidgets (DataTranslatable_Interface):
 
     class Frame(Notifyable_Interface,
                 RenderableWidget_Interface_Impl,
-                HasChildren_Interface_Impl):
+                HasChildren_Interface_Impl,
+                BindableWidget_Interface_Impl):
         def __init__(self, 
                     prefix: str, 
                     name : str,
@@ -854,12 +855,24 @@ class TkWidgets (DataTranslatable_Interface):
                                         padding = self.padding,
                                         name = self.name)
 
+            caller = inspect.stack()[1].frame
+            localvars = caller.f_locals
+            if localvars.get("self") != None:
+                child = localvars['self']
+            else:
+                child = self
+
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widget = self)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widget = self, renderData = self.renderData)
+            TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
+            
             Notifyable_Interface.__init__(self)
         
         def getHeight(self):
             return self.widgetObj.winfo_height()
+        
+        def setGeometry(self, width, height):
+            self.widgetObj.configure(width = width, height = height)
 
     class VideoPayer(Frame):
         def render(self, videoPath, **kwargs):
@@ -1297,16 +1310,20 @@ class TkWidgets (DataTranslatable_Interface):
                      width, 
                      height,
                      bindCmd = lambda *args: (None, None)):
-            self.tk = TkWidgets.Data.tk
-            self.tk.geometry(str(width) + "x" + str(height))
-            self.widgetObj = tk.Toplevel(self.tk)
-            self.widgetObj = self.widgetObj
             
             TkWidgets.DataContainer_Interface_Impl.__init__(self)
 
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
-            child = localvars['self']
+            if localvars.get("self") != None:
+                child = localvars['self']
+            else:
+                child = self
+
+            if "startup" not in str(child).lower():
+                self.widgetObj = tk.Toplevel(TkWidgets.Data.app)
+            else:
+                self.widgetObj = TkWidgets.Data.app
 
             if "widgetObj" in dir(child):
                 TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
@@ -1390,10 +1407,10 @@ class TkWidgets (DataTranslatable_Interface):
             msg = "After time has passed'."
             log.autolog(msg)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-            TkWidgets.Data.tk.after(180000, tick)
+            TkWidgets.Data.app.after(180000, tick)
             return None
 
         tick()
-        TkWidgets.Data.tk.mainloop()
+        TkWidgets.Data.app.mainloop()
 
 currUIImpl = TkWidgets

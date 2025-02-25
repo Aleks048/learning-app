@@ -12,24 +12,6 @@ import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
 
 
-class MainMenuRoot(ww.currUIImpl.RootWidget):
-    def render(self, changePdfReader = True):
-        # origMatName = fsm.Data.Book.currOrigMatName
-        # fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
-
-        def __showPdf(*args):
-            pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.PdfReadersManager)
-            if not pdfMenuManager.shown:
-                pdfMenuManager.show(changePrevPos = False)
-                pdfMenuManager.show(changePrevPos = False)
-
-        if changePdfReader:
-            t = Thread(target= __showPdf)
-            t.start()
-
-        return super().render()
-
 class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
     labelOptions = ["To Add/Modify L", "To Main L"]
@@ -238,3 +220,35 @@ class AddWebLink_BTN(ww.currUIImpl.Button,
 
         gm.GeneralManger.AddWebLink(linkName, webAddress, sourceSubsection, sourceIDX, sourceTopSection)
         self.notify(comw.TOC_BOX)
+
+class MainMenuRoot(ww.currUIImpl.Frame):
+    def __init__(self, rootWidget, width, height):
+        name = "_MainMenuRoot_"
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 0, "columnspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+        extraOptions = {
+            ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+            ww.TkWidgets.__name__ : {}
+        }
+        prefix = ""
+
+        super().__init__(prefix, name, rootWidget, renderData, extraOptions)
+
+    def render(self, changePdfReader = True):
+        # origMatName = fsm.Data.Book.currOrigMatName
+        # fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
+
+        def __showPdf(*args):
+            pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+            if not pdfMenuManager.shown:
+                pdfMenuManager.show(changePrevPos = False)
+                pdfMenuManager.show(changePrevPos = False)
+
+        if changePdfReader:
+            t = Thread(target= __showPdf)
+            t.start()
+
+        return super().render()

@@ -17,7 +17,7 @@ class LayoutManagers:
 
         addEntryETR = None
 
-        def __init__(self, winRoot : ww.currUIImpl.RootWidget):
+        def __init__(self, winRoot):
             #
             # pre init
             #
@@ -26,9 +26,9 @@ class LayoutManagers:
             #
             # init
             #
-            monitorSize = dc.MonitorSize.getData()
-            monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 850, monHalfWidth, 0]
+            # monitorSize = dc.MonitorSize.getData()
+            # monHalfWidth = int(monitorSize[0] / 2)
+            appDimensions = [300, 850]
 
             super().__init__(winRoot, appDimensions)
 
@@ -131,11 +131,11 @@ class LayoutManagers:
         def show(self):
             self.tocBox.widgetToScrollTo = None
 
-            self.winRoot.configureColumn(0, weight = 1)
-            self.winRoot.configureColumn(1, weight = 1)
-            self.winRoot.configureColumn(2, weight = 3)
-            self.winRoot.configureColumn(3, weight = 1)
-            self.winRoot.configureColumn(4, weight = 1)
+            # self.winRoot.configureColumn(0, weight = 1)
+            # self.winRoot.configureColumn(1, weight = 1)
+            # self.winRoot.configureColumn(2, weight = 3)
+            # self.winRoot.configureColumn(3, weight = 1)
+            # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
 
 
@@ -153,7 +153,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 90]
 
             super().__init__(winRoot, appDimensions)
 
@@ -176,11 +176,11 @@ class LayoutManagers:
             #
         
         def show(self):
-            self.winRoot.configureColumn(0, weight = 1)
-            self.winRoot.configureColumn(1, weight = 1)
-            self.winRoot.configureColumn(2, weight = 1)
-            self.winRoot.configureColumn(3, weight = 1)
-            self.winRoot.configureColumn(4, weight = 1)
+            # self.winRoot.configureColumn(0, weight = 1)
+            # self.winRoot.configureColumn(1, weight = 1)
+            # self.winRoot.configureColumn(2, weight = 1)
+            # self.winRoot.configureColumn(3, weight = 1)
+            # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
     
 
@@ -193,7 +193,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 120, monHalfWidth, 0]
+            appDimensions = [monHalfWidth, 120]
 
             #
             # init
@@ -248,11 +248,11 @@ class LayoutManagers:
 
 
         def show(self):
-            self.winRoot.configureColumn(0, weight = 1)
-            self.winRoot.configureColumn(1, weight = 1)
-            self.winRoot.configureColumn(2, weight = 1)
-            self.winRoot.configureColumn(3, weight = 1)
-            self.winRoot.configureColumn(4, weight = 1)
+            # self.winRoot.configureColumn(0, weight = 1)
+            # self.winRoot.configureColumn(1, weight = 1)
+            # self.winRoot.configureColumn(2, weight = 1)
+            # self.winRoot.configureColumn(3, weight = 1)
+            # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
     
 
@@ -265,7 +265,7 @@ class LayoutManagers:
             #
             monitorSize = dc.MonitorSize.getData()
             monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 90, monHalfWidth, 0]
+            appDimensions = [1300, 90]
 
             #
             # init
@@ -296,9 +296,9 @@ class LayoutManagers:
 
 
         def show(self):
-            self.winRoot.configureColumn(0, weight = 1)
-            self.winRoot.configureColumn(1, weight = 1)
-            self.winRoot.configureColumn(2, weight = 1)
+            # self.winRoot.configureColumn(0, weight = 1)
+            # self.winRoot.configureColumn(1, weight = 1)
+            # self.winRoot.configureColumn(2, weight = 1)
             return super().show()
     
 
@@ -312,15 +312,15 @@ class LayoutManagers:
         return results
 
 class MathMenuManager(wm.MenuManager_Interface):
-    layouts = []
-    isShown = False
-
-    def __init__(self):
-        winRoot = commw.MainMenuRoot(0, 0)
+    def __init__(self, rootWidget):
+        self.layouts = []
+        self.isShown = False
+    
+        self.winRoot = commw.MainMenuRoot(rootWidget, 1300, 700)
         layouts = self.layouts
 
         for lm in LayoutManagers.listOfLayouts():
-            layouts.append(lm(winRoot))
+            layouts.append(lm(self.winRoot))
         
         currLayout = None
         for layout in layouts:
@@ -328,7 +328,7 @@ class MathMenuManager(wm.MenuManager_Interface):
                 currLayout = layout
                 break
         
-        super().__init__(winRoot,
+        super().__init__(self.winRoot,
                         layouts,
                         currLayout)
 

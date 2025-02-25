@@ -60,6 +60,7 @@ class VideoPlayerManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+        winRoot.hide()
     def show(self, subsection, imIdx):
         self.subsection = subsection
         self.imIdx = imIdx

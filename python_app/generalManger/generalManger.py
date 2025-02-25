@@ -35,11 +35,16 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # start the daemon to process client calls
         cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
 
+        cls.winRoot = wf.Wr.WidgetWrappers.RootWidget(1400, 700)
+        cls.winRoot.setGeometry(1500, 850, 0, 0)
+        cls.winRoot.configureColumn(0, weight=1)
+        cls.winRoot.configureColumn(1, weight=1)
+
         # create startup menu
         log.autolog("-- Srartup of other menus started: ")
         messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
         log.autolog("Started '{0}' UI manager".format("message menu"))
-        mainMenuManager = wf.Wr.MenuManagers.MathMenuManager()
+        mainMenuManager = wf.Wr.MenuManagers.MathMenuManager(cls.winRoot)
         log.autolog("Started '{0}' UI manager".format("main menu"))
         tocMenuManager = wf.Wr.MenuManagers.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
@@ -53,7 +58,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
         imagagesMenuManager = wf.Wr.MenuManagers.ImagesManager()
         log.autolog("Started '{0}' UI manager".format("image menu"))
-        pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager()
+        pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager(cls.winRoot)
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
         excerciseLineNoteManager = wf.Wr.MenuManagers.ExcerciseLineNoteManager()
         log.autolog("Started '{0}' UI manager".format("excercise note menu"))
@@ -66,7 +71,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         log.autolog("-- Srartup  of other menus ended.")
 
-        mainMenuManager.showOnly()
+        pdfReadersMenuManager.show()
+        mainMenuManager.show()
 
 
     @classmethod
@@ -78,7 +84,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
         log.autolog("Started '{0}' UI manager".format("startup menu"))
 
-        startupMenuManager.showOnly()
+        startupMenuManager.show()
         log.autolog("-- Srartup of startup menu ended.")
 
         wf.Wr.WidgetWrappers.startLoop()
@@ -94,19 +100,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         # main
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.winRoot.exitApp()
+        # mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+        #                                         wf.Wr.MenuManagers.MathMenuManager)
+        # mainManager.winRoot.exitApp()
 
         # message
         mesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.MessageMenuManager)
         mesManager.winRoot.exitApp()
         
-        # startup
-        stManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.StartupMenuManager)
-        stManager.winRoot.exitApp()
         
         # toc
         tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -132,7 +134,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.PdfReadersManager)
         pdfReadersManager.updateOMpage()
-        pdfReadersManager.winRoot.exitApp()
+        # pdfReadersManager.winRoot.exitApp()
 
         # excerciseLineNoteManager
         excerciseLineNoteManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -163,6 +165,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.VideoPlayerManager)
         entryNotesManager.winRoot.exitApp()
+
+        cls.winRoot.exitApp()
+
+        # startup
+        stManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.StartupMenuManager)
+        stManager.winRoot.exitApp()
 
         cls.dserver.close()
         cls.daemonThread.join()

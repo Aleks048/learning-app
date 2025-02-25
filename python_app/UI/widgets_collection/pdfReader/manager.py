@@ -19,7 +19,7 @@ class LayoutManagers:
 
         def __init__(self, winRoot):
             self.winRoot = winRoot
-            self.defaultAppDimensions = [720, 850, 0, 0]
+            self.defaultAppDimensions = [720, 850]
             super().__init__(winRoot, self.defaultAppDimensions)
             self.pfdReader_BOX = imw.PfdReader_BOX(winRoot, self.prefix)
             self.addWidget(self.pfdReader_BOX)
@@ -44,7 +44,7 @@ class LayoutManagers:
 
             if self.subsection != _u.Token.NotDef.str_t:
                 if fsf.Data.Sec.isVideo(self.subsection):
-                    self.appDimensions = [720, 517, 0, 352]
+                    self.appDimensions = [720, 517]
 
             self.pfdReader_BOX.imIdx = self.imIdx
             self.pfdReader_BOX.eImIdx = self.extraImIdx
@@ -66,7 +66,7 @@ class LayoutManagers:
             self.changePagePdfReaderWindow_ETR.subsection = self.subsection
             self.changePagePdfReaderWindow_ETR.imIdx = self.imIdx
 
-            self.winRoot.changeTitle(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
+            # self.winRoot.changeTitle(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
 
             self.pfdReader_BOX.setCanvasHeight(self.appDimensions[1] - 50)
             super().show()
@@ -94,8 +94,10 @@ class PdfReadersManager(wm.MenuManager_Interface):
     imIdx = 0
     shown = False
 
-    def __init__(self):
-        winRoot = imw.PdfReadersRoot(50, 50)
+    def __init__(self, rootWidget):
+        winRoot = imw.PdfReadersRoot(rootWidget, 
+                                     width = 50, 
+                                     height = 50)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))

@@ -83,6 +83,7 @@ class MessageMenuManager(wm.MenuManager_Interface):
         super().__init__(self.winRoot,
                         layouts,
                         currLayout)
+        self.winRoot.hide()
 
         def confirm(*args):
             self.stopWait(True)

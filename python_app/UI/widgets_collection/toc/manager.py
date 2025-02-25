@@ -55,4 +55,5 @@ class TOCManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+        winRoot.hide()
         

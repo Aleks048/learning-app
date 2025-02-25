@@ -62,6 +62,7 @@ class ExcerciseLineNoteManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+        winRoot.hide()
     def show(self, subsection, imIdx, lineIdx):
         self.layouts[0].subsection = subsection
         self.layouts[0].imIdx = imIdx
