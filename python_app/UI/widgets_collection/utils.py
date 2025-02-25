@@ -962,9 +962,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
             proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.ProofsManager)
-            if proofsManager.isShown():
-                proofsManager.hide()
-                proofsManager.show()
+            proofsManager.refresh(self.subsection, self.imIdx)
 
 
     def deleteSelectedRectangle(self, *args):

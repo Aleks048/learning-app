@@ -299,7 +299,8 @@ class TkWidgets (DataTranslatable_Interface):
             self.widget.widgetObj.destroy()
 
             if not issubclass(TkWidgets.RootWidget, type(self.widget)):
-                self.widget.rootWidget.removeChild(self.widget)
+                if "rootWidget" in dir(self.widget):
+                    self.widget.rootWidget.removeChild(self.widget)
 
         def update(self):
             self.widget.widgetObj.update()
@@ -1335,6 +1336,13 @@ class TkWidgets (DataTranslatable_Interface):
         
             super().bind()
 
+            renderData = {
+                Data.GeneralProperties_ID : {"column" : 0, "row" : 0},
+                TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : TkWidgets.Orientation.N                             }
+            }
+
+            self.frame = TkWidgets.Frame(str(child), "_RootWidgetFrame_", self, renderData)
+
         def setGeometry(self, width = -1, height = -1, posx = -1, posy = -1):
             width = str(width)
             height = str(height)
@@ -1349,15 +1357,18 @@ class TkWidgets (DataTranslatable_Interface):
                 self.widgetObj.geometry(width + "x" + height + "+" + posx + "+" + posy)
 
         
-        def getHeight(self):
-            return self.tk.winfo_height()
+        # def getHeight(self):
+        #     return self.tk.winfo_height()
 
-        def startMainLoop(self):
-            self.tk.mainloop()
+        # def startMainLoop(self):
+        #     self.tk.mainloop()
         
         def getId(self):
             return self.widgetObj.winfo_id()
         
+        def bindClosing(self, bindCmd):
+            self.widgetObj.protocol("WM_DELETE_WINDOW", bindCmd)
+
         def stopMainLoop(self):
             self.widgetObj.withdraw()
 
@@ -1371,6 +1382,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.deiconify()
             self.widgetObj.focus_force()
             self.widgetObj.lift()
+            self.frame.render()
         
         def wait(self):
             self.widgetObj.wait_variable(self.getDataObject())

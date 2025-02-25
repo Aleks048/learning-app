@@ -93,59 +93,65 @@ class ProofMainImage(ww.currUIImpl.Frame):
             self.exImLabels = None
         return super().hide(**kwargs)
 
-class MoveTOCtoProofEntry_BTN(ww.currUIImpl.Button,
-                                  dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
+class EntryImages_BOX(ww.currUIImpl.ScrollableBox,
+                    dc.AppCurrDataAccessToken):
 
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 4, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+    def __init__(self, parentWidget, prefix, windth = 700, height = 300):
+        self.subsection = None
+        self.imIdx = None
+
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan" : 6, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
         }
-        text = "Move TOC"
-        name = "_MoveTOCToEntry_BTN"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
+        name = "_EntryImages_BOX"
 
-    def cmd(self):
-        mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.moveTocToEntry(self.subsection, self.imIdx)
+        super().__init__(prefix,
+                        name,
+                        parentWidget,
+                        renderData = data,
+                        height = height,
+                        width = windth,
+                        makeScrollable = False)
+        
+        self.imagesFrame = ProofMainImage(self.scrollable_frame, prefix)
 
-class HideProofsWindow_BTN(ww.currUIImpl.Button,
-                              dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
 
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-        text = "Hide"
-        name = "_HideProofsWindow_BTN"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
+    def render(self):
+        self.imagesFrame.subsection = self.subsection
+        self.imagesFrame.entryIdx = self.imIdx
+        self.imagesFrame.render()
 
-    def cmd(self):
-        proofsManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.ProofsManager)
-        proofsManager.hide()
+        return super().render(self.renderData)
 
+# class MoveTOCtoProofEntry_BTN(ww.currUIImpl.Button,
+#                                   dc.AppCurrDataAccessToken):
+#     subsection = None
+#     imIdx = None
+
+#     def __init__(self, patentWidget, prefix):
+#         renderData = {
+#             ww.Data.GeneralProperties_ID :{"column" : 4, "row" : 2},
+#             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+#         }
+#         text = "Move TOC"
+#         name = "_MoveTOCToEntry_BTN"
+#         super().__init__(prefix, 
+#                         name, 
+#                         text, 
+#                         patentWidget, 
+#                         renderData, 
+#                         self.cmd)
+
+#     def cmd(self):
+#         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+#                                                           wf.Wr.MenuManagers.MathMenuManager)
+#         mainManager.moveTocToEntry(self.subsection, self.imIdx)
 
 class Proof_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 500):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 600):
         self.subsection = None
         self.imIdx = None
 
@@ -204,5 +210,15 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
 
         return super().render(self.renderData)
 
-class ProofsRoot(ww.currUIImpl.RootWidget):
-    pass
+class ProofsRoot(ww.currUIImpl.RootWidget,
+                 dc.AppCurrDataAccessToken):
+    def __init__(self, width, height, subsection, imIdx):
+        self.subsection = subsection
+        self.imIdx = imIdx
+        super().__init__(width, height)
+        self.bindClosing(self.__onClosing)
+
+    def __onClosing(self):
+        proofsManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.ProofsManager)
+        proofsManager.hide(self.subsection, self.imIdx) 

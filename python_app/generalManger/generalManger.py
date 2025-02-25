@@ -123,7 +123,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # proof
         proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.ProofsManager)
-        proofsManager.winRoot.exitApp()
+        proofsManager.hideAll()
 
         # images
         imagesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",

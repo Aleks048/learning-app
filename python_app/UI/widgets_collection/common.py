@@ -1259,12 +1259,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         def openProofsMenu(event, *args):
             prMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.ProofsManager)
-            prMenuManger.subsection = event.widget.subsection
-            prMenuManger.imIdx = event.widget.imIdx
 
             event.widget.shouldShowProofMenu = not event.widget.shouldShowProofMenu
             if (event.widget.shouldShowProofMenu):
-                prMenuManger.show()
+                prMenuManger.show(subsection =  event.widget.subsection, imIdx = event.widget.imIdx)
             else:
                 prMenuManger.hide()
 
