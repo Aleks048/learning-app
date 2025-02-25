@@ -642,10 +642,12 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                             ww.currUIImpl.Data.BindID.Keys.shenter,
                         ])
 
-        self.rebind([ww.currUIImpl.Data.BindID.Keys.focusIn,
-                     ww.currUIImpl.Data.BindID.Keys.focusOut],
+        self.rebind([ww.currUIImpl.Data.BindID.focusIn,
+                     ww.currUIImpl.Data.BindID.focusOut],
                     [__bind,
                      __nunbind])
+        self.rebind([ww.currUIImpl.Data.BindID.enterWidget],
+                    [lambda *args: self.forceFocus()])
 
         self.render()
     def __nunbind(self, *args):
