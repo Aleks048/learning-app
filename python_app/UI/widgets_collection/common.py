@@ -204,25 +204,23 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         changeImSize = __EntryUIData("", 3)
         delete = __EntryUIData("[Delete]", 4)
         retake = __EntryUIData("[Retake]", 5)
-        link = __EntryUIData("[]", 6)
-        addExtra = __EntryUIData("[Add exta]", 7)
-        addProof = __EntryUIData("[Add proof]", 8)
-        showSubentries = __EntryUIData("[Show sub]", 9)
-        leadingEntry = __EntryUIData("", 10)
-        group = __EntryUIData("", 11)
+        addExtra = __EntryUIData("[Add exta]", 6)
+        addProof = __EntryUIData("[Add proof]", 7)
+        showSubentries = __EntryUIData("[Show sub]", 8)
+        leadingEntry = __EntryUIData("", 9)
+        group = __EntryUIData("", 10)
 
         # row 2.5 
         openBookCodeProject = __EntryUIData("[code:b", 1)
         openSubsectionCodeProject = __EntryUIData(",s", 2)
         openEntryCodeProject = __EntryUIData(",e]", 3)
         shift = __EntryUIData("[Shift Up]", 4)
-        update = __EntryUIData("[Update]", 5)
-        note = __EntryUIData("[Dictionary]", 7)
-        hideLInkImages = __EntryUIData("[Hide Links]", 8)
-        copyText = __EntryUIData("[Copy text]", 9)
-        proof = __EntryUIData("[Show proof]", 10)
-        entryNote = __EntryUIData("[Note]", 11)
-        wikiNote = __EntryUIData("[Wiki]", 12)
+        note = __EntryUIData("[Dictionary]", 5)
+        hideLInkImages = __EntryUIData("[Hide Links]", 6)
+        copyText = __EntryUIData("[Copy text]", 7)
+        proof = __EntryUIData("[Show proof]", 8)
+        entryNote = __EntryUIData("[Note]", 9)
+        wikiNote = __EntryUIData("[Wiki]", 10)
 
     # this data structure is used to store the
     # entry image widget that is turned into ETR for update
@@ -1785,16 +1783,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                     [lambda e, l = showImages, *args: retakeImageCmd(e, l)])
 
-        # addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-        #                                  text = self.__EntryUIs.link.name,
-        #                                  prefix = "contentAddGlLinkEntry" + nameId,
-        #                                  row = 0, 
-        #                                  column = self.__EntryUIs.link.column)
-        # addLinkEntry.imIdx = k
-        # addLinkEntry.subsection = subsection
-        # addLinkEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-        #                     [addGlLinkCmd])
-
         addExtraImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                             text = self.__EntryUIs.addExtra.name,
                                             prefix = "contentAddExtraImageEntry" + nameId,
@@ -1984,16 +1972,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         openProofsUIEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                 [openProofsMenu])
 
-        changeImText = _uuicom.TOCLabelWithClick(tempFrameRow2, 
-                                        text = self.__EntryUIs.update.name, 
-                                        prefix = "contentUpdateEntryText" + nameId,
-                                        row = 1, 
-                                        column = self.__EntryUIs.update.column)
-        changeImText.imIdx = k
-        changeImText.subsection = subsection
-        changeImText.etrWidget = textLabelPage
-        changeImText.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                [updateEntry])
 
         uiResizeEntryIdx = fsm.Data.Sec.imageUIResize(subsection)
 
@@ -2304,7 +2282,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             shiftEntry.render()
             copyEntry.render()
             pasteAfterEntry.render()
-            changeImText.render()
             copyTextToMem.render()
             hideLinkImages.render()
             openBookCodeProject.render()
@@ -2356,7 +2333,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         _uuicom.bindChangeColorOnInAndOut(openEntryNoteUIEntry)
         _uuicom.bindChangeColorOnInAndOut(openEntryWikiUIEntry)
         _uuicom.bindChangeColorOnInAndOut(openProofsUIEntry, shouldBeBrown = proofExists)
-        _uuicom.bindChangeColorOnInAndOut(changeImText)
         _uuicom.bindChangeColorOnInAndOut(copyTextToMem)
         _uuicom.bindChangeColorOnInAndOut(hideLinkImages)
         _uuicom.bindChangeColorOnInAndOut(openBookCodeProject)
