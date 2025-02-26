@@ -401,10 +401,6 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(self.renderData)
 
-        if (self.latestWidgetToscrollTo != None) and (shouldScroll):
-            self.__scrollIntoView(None, self.latestWidgetToscrollTo)
-
-
 class EntryNotesRoot(ww.currUIImpl.RootWidget):
     NotesBox = None
     AddNotesBTN = None
