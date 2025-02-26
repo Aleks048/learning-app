@@ -615,12 +615,20 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, newPage)
             self.pdfBox.moveToCurrPage()
             self.pdfBox.updateScrollerPosition()
+            self.forceFocus()
+
+        def __changePositionUp(*args):
+            self.pageLbl.changePage(False, None, True)
+            self.forceFocus()
+        def __changePositionDown(*args):
+            self.pageLbl.changePage(True, None, True)
+            self.forceFocus()
 
         def __bind(*args):
             self.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
-                        [lambda e, pl = self.pageLbl, *args: pl.changePage(False, None, True)])
+                        [lambda e, *args: __changePositionUp()])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.right], 
-                        [lambda e, pl = self.pageLbl, *args: pl.changePage(True, None, True)])
+                        [lambda e, *args: __changePositionDown()])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], 
                         [lambda *args: __changePage(False)])
             self.rebind([ww.currUIImpl.Data.BindID.Keys.shright], 

@@ -1073,7 +1073,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
         self.image = ww.currUIImpl.UIImage(pilIm)
 
-        self.itemconfigure(self.backgroundImage, image = self.image)
+        super().refreshImage(self.backgroundImage, self.image)
 
         self.readFigures()
 
@@ -1391,7 +1391,7 @@ def addMainEntryImageWidget(rootLabel,
     return tempLabel
 
 
-def addExtraIm(subsection, mainImIdx, isProof, tocFrame, widgetToScrollTo = None):     
+def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None):     
     def ___addExtraIm(subsection, mainImIdx, 
                         extraImageIdx, extraImText):
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
@@ -1426,13 +1426,9 @@ def addExtraIm(subsection, mainImIdx, isProof, tocFrame, widgetToScrollTo = None
     The correct extra image was not created for \n\
     '{subsection}':'{mainImIdx}' with id '{extraImageIdx}' and text '{extraImText}'")
                     return False
-            
-            tocFrame.renderWithScrollAfter()
-
-            if widgetToScrollTo != None:
-                # NOTE: this is a hack and we shouold implement correct scrolling to the newly created
-                # image later
-                tocFrame.scrollIntoView(None, widgetToScrollTo)
+                
+            if entryLabel != None:
+                entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
 
         t = Thread(target = __afterEImagecreated, 
                 args = [mainImIdx, subsection, extraImageIdx, extraImText])
@@ -1762,7 +1758,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 retake.eImIdx = i
                 retake.tocFrame = tocFrame
 
-                def retakeCmd(event, *args):
+                def retakeCmd(event, l, *args):
                     widget = event.widget
                     subsection = widget.subsection
                     imIdx = widget.imIdx
@@ -1783,10 +1779,15 @@ def addExtraEntryImagesWidgets(rootLabel,
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
                     figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
+                    figuresData = fsf.Data.Sec.figuresData(subsection)
 
                     if figuresLabelsData.get(f"{imIdx}_{eImIdx}") != None:
                         figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
                         fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+
+                    if figuresData.get(f"{imIdx}_{eImIdx}") != None:
+                        figuresData.pop(f"{imIdx}_{eImIdx}")
+                        fsf.Data.Sec.figuresData(subsection, figuresData)
                     
                     dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                         wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
@@ -1804,16 +1805,20 @@ def addExtraEntryImagesWidgets(rootLabel,
                             if timer > 50:
                                 break
                         
-                        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.MathMenuManager)
-                        mainManager.show()
-                        # NOTE: should move to extra image but this should work for now
-                        mainManager.moveTocToCurrEntry()
+                        if l != None:
+                            l.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
                     
                     t = Thread(target = __cmdAfterImageCreated)
                     t.start()
 
-                retake.rebind([ww.currUIImpl.Data.BindID.mouse1],[retakeCmd])
+                shownImage = None
+
+                if tocFrame != None:
+                    if "showImagesLabels" in dir(tocFrame):
+                        shownImage = tocFrame.showImagesLabels[subsection + imIdx]
+
+                retake.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                              [lambda e, l = shownImage, *args: retakeCmd(e, l)])
 
                 bindChangeColorOnInAndOut(retake)
                 retake.render()
@@ -2043,12 +2048,13 @@ def addExtraEntryImagesWidgets(rootLabel,
                 addProof.eImIdx = i
                 addProof.tocFrame = tocFrame
 
-                def addExtraImProofCmd(event, *args):
+                def addExtraImProofCmd(event, l, *args):
                     widget = event.widget
                     addExtraIm(widget.subsection, widget.imIdx, 
-                               True, widget.tocFrame, widget)
+                               True, entryLabel = l)
 
-                addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],[addExtraImProofCmd])
+                addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [lambda e, l = shownImage, *args: addExtraImProofCmd(e, l)])
                 bindChangeColorOnInAndOut(addProof)
                 addProof.render()
 
@@ -2064,12 +2070,13 @@ def addExtraEntryImagesWidgets(rootLabel,
                 addEIm.eImIdx = i
                 addEIm.tocFrame = tocFrame
 
-                def addExtraImCmd(event, *args):
+                def addExtraImCmd(event, l, *args):
                     widget = event.widget
                     addExtraIm(widget.subsection, widget.imIdx, 
-                               False, widget.tocFrame, widget)
+                               False, entryLabel = l)
 
-                addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],[addExtraImCmd])
+                addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                              [lambda e, l = shownImage, *args: addExtraImCmd(e, l)])
                 bindChangeColorOnInAndOut(addEIm)
                 addEIm.render()
 

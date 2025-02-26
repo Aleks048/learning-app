@@ -82,6 +82,9 @@ class ProofsManager(wm.MenuManager_Interface):
             v.hide()
             v.winRoot.destroy()
 
+    def hide(self):
+        self.hideAll()
+
     def hide(self, subsection, imIdx):
         layout = self.__winRoots.pop(str(subsection) + str(imIdx))
         layout.hide()

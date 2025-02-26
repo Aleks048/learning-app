@@ -886,7 +886,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.entryCopyImIdx = widget.imIdx
             self.cutEntry = True
 
-        def retakeImageCmd(event, *args):
+        def retakeImageCmd(event, entrylLabel, *args):
             widget = event.widget
             subsection = widget.subsection
             imIdx = widget.imIdx
@@ -904,11 +904,17 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                                                         str(imIdx))
             ocf.Wr.FsAppCalls.deleteFile(imagePath)
             figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection)
+            figuresData = fsm.Data.Sec.figuresData(subsection)
 
             if figuresLabelsData.get(str(imIdx)) != None:
                 figuresLabelsData.pop(str(imIdx))
+            
+            if figuresData.get(str(imIdx)) != None:
+                figuresData.pop(str(imIdx))
+            
 
             fsm.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+            fsm.Data.Sec.figuresData(subsection, figuresData)
 
             dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                 wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
@@ -925,10 +931,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if timer > 50:
                         break
                 
-                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-                mainManager.show()
-                mainManager.moveTocToCurrEntry()
+                entrylLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
             
             t = Thread(target = __cmdAfterImageCreated, args = [self])
             t.start()
@@ -1011,13 +1014,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                                             widget.sourceWebLinkName)
             self.__renderWithoutScroll()
 
-        def addExtraImCmd(event, *args):
+        def addExtraImCmd(event, l, *args):
             widget:_uuicom.TOCLabelWithClick = event.widget
-            _uuicom.addExtraIm(widget.subsection, widget.imIdx, False, self)
+            _uuicom.addExtraIm(widget.subsection, widget.imIdx, False, entryLabel = l)
 
-        def addExtraImProofCmd(event, *args):
+        def addExtraImProofCmd(event, l, *args):
             widget:_uuicom.TOCLabelWithClick = event.widget
-            _uuicom.addExtraIm(widget.subsection, widget.imIdx, True, self)
+            _uuicom.addExtraIm(widget.subsection, widget.imIdx, True, entryLabel = l)
 
         def pasteGlLinkCmd(event, *args):
             widget = event.widget
@@ -1780,7 +1783,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         retakeImageForEntry.imIdx = k
         retakeImageForEntry.subsection = subsection
         retakeImageForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                    [retakeImageCmd])
+                                    [lambda e, l = showImages, *args: retakeImageCmd(e, l)])
 
         # addLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow2, 
         #                                  text = self.__EntryUIs.link.name,
@@ -1800,7 +1803,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         addExtraImage.imIdx = k
         addExtraImage.subsection = subsection
         addExtraImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                            [addExtraImCmd])
+                            [lambda e, l = showImages, *args: addExtraImCmd(e, l)])
 
         addProofImage = _uuicom.TOCLabelWithClick(tempFrameRow2, 
                                             text = self.__EntryUIs.addProof.name,
@@ -1810,7 +1813,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         addProofImage.imIdx = k
         addProofImage.subsection = subsection
         addProofImage.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                            [addExtraImProofCmd])
+                            [lambda e, l = showImages, *args: addExtraImProofCmd(e, l)])
 
         copyLinkEntry = _uuicom.TOCLabelWithClick(tempFrameRow1, 
                                             text = self.__EntryUIs.copyLink.name,

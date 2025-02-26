@@ -91,7 +91,8 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         
         UIManagers = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken)
         for UIManager in UIManagers:
-            if not((not changePdfWidget) and ("pdfreadersmanage" in str(type(UIManager)).lower())):
+            if not((not changePdfWidget) and ("pdfreadersmanage" in str(type(UIManager)).lower()))\
+                and ("proof" not in str(type(UIManager)).lower()):
                 UIManager.hide()
 
     def startManager(self):

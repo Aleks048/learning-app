@@ -1092,6 +1092,9 @@ class TkWidgets (DataTranslatable_Interface):
     
         def findOverlapping(self, x1, y1, x2, y2):
             return self.widgetObj.find_overlapping(x1, y1, x2, y2)
+    
+        def refreshImage(self, id, image):
+            self.widgetObj.itemconfigure(id, image = image.data)
         
         def createButton(self,
                          labelStartX, 
