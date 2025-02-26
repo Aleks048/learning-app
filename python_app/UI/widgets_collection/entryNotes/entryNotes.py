@@ -296,9 +296,10 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                                             row = 1, column = 1)
                 label.render()
                 label.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
-                           [lambda *args: __showTextOrImage(i), self.__scrollIntoView])
+                           [lambda e, idx = str(i), *args: __showTextOrImage(idx), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
+                # print(i)
                 label = _ucomw.TOCFrame(mainLabels[i], 
                                 "notesImageFRM_" + str(i),
                                 1, 1, 1
@@ -325,6 +326,8 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                     text = self.currEtr[widgetnoteImIdx].getData()
 
                     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                    self.noteIdxShownInText.remove(widgetnoteImIdx)
+
                     self.__renderAfterRebuild(self.subsection,
                                 self.imIdx,
                                 event.widget.noteImIdx,
@@ -384,7 +387,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
         if self.currEtr != _u.Token.NotDef.dict_t.copy():
             for k,v in self.currEtr.items():
                 self.etrTexts[k] = [self.currEtr[k].getData(),
-                                    self.currEtr[k].index(ww.currUIImpl.TextInsertPosition.CURRENT)]
+                                    self.currEtr[k].getCurrCursorPosition()]
 
         for w in self.getChildren().copy():
             w.destroy()
