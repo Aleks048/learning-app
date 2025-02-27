@@ -228,6 +228,12 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
             if eImIdx == None:
                 if not isVideo:
+                    while not oscf.Wr.FsAppCalls.checkIfImageExists(imPath):
+                        time.sleep(0.3)
+                        timer += 1
+
+                        if timer > 50:
+                            break
                     imText = _u.getTextFromImage(imPath)
                 else:
                     imText = None

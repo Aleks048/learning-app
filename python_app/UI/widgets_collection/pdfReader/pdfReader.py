@@ -2,6 +2,7 @@ from tkinter import ttk
 import fitz
 from PIL import Image
 from threading import Thread
+import time
 import io
 
 import UI.widgets_wrappers as ww
@@ -603,6 +604,23 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                                                         wf.Wr.MenuManagers.MathMenuManager)
             mainManager.startAddingTheEntry()
             self.pdfBox.getIntoDrawingMode()
+
+            def __cmdAfterImageCreated(self):
+                timer = 0
+                subsection = fsf.Data.Book.subsectionOpenInTOC_UI
+                numImages = len(list(fsf.Data.Sec.imLinkDict(subsection)))
+
+                while len(list(fsf.Data.Sec.imLinkDict(subsection))) == numImages:
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50:
+                        break
+
+                self.forceFocus()
+            
+            t = Thread(target = __cmdAfterImageCreated, args = [self])
+            t.start()
 
         def __changePage(increase):
             if increase:
