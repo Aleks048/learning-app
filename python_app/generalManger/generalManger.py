@@ -234,7 +234,10 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
                         if timer > 50:
                             break
-                    imText = _u.getTextFromImage(imPath)
+                    if oscf.Wr.FsAppCalls.checkIfImageExists(imPath):
+                        imText = _u.getTextFromImage(imPath)
+                    else:
+                        imText = _u.Token.NotDef.str_t
                 else:
                     imText = None
 

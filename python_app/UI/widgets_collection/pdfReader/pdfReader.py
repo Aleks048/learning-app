@@ -606,16 +606,24 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
             self.pdfBox.getIntoDrawingMode()
 
             def __cmdAfterImageCreated(self):
-                timer = 0
                 subsection = fsf.Data.Book.subsectionOpenInTOC_UI
-                numImages = len(list(fsf.Data.Sec.imLinkDict(subsection)))
+                numImages = len(list(fsf.Data.Sec.imLinkDict(subsection).keys()))
+                timer = 0
+                keys = list(fsf.Data.Sec.imLinkDict(subsection).copy().keys())
+                defValPresent = _u.Token.NotDef.str_t in keys
 
-                while len(list(fsf.Data.Sec.imLinkDict(subsection))) == numImages:
+                while numImages >= len(keys):
                     time.sleep(0.3)
                     timer += 1
 
-                    if timer > 50:
+
+                    if timer > 500:
                         break
+                    if (_u.Token.NotDef.str_t in keys) != defValPresent:
+                        break
+
+                    keys = list(fsf.Data.Sec.imLinkDict(subsection).copy().keys())
+
 
                 self.forceFocus()
             

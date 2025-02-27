@@ -1403,7 +1403,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         tempFrame = _uuicom.TOCFrame(frame,
                                 prefix = "contentFr_" + nameId,
                                 padding=[leftPad, topPad, 0, 0],
-                                row = i + 2, column = 0, columnspan = 100)
+                                row = int(k) + 2, column = 0, columnspan = 100)
 
         if (currImGroupName != prevImGroupName) or (str(k) == "0"):
             imageGroupFrame = _uuicom.TOCFrame(tempFrame,
@@ -2341,8 +2341,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         tempFrame.render()
         prevImGroupName = currImGroupName
-        i += 1
-
         return showImages
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
