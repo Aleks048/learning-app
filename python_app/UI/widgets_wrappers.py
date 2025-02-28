@@ -1095,6 +1095,9 @@ class TkWidgets (DataTranslatable_Interface):
     
         def refreshImage(self, id, image):
             self.widgetObj.itemconfigure(id, image = image.data)
+
+        def getHeight(self):
+            return self.widgetObj.winfo_reqheight()
         
         def createButton(self,
                          labelStartX, 

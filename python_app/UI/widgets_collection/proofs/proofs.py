@@ -57,7 +57,6 @@ class ProofMainImage(ww.currUIImpl.Frame):
                         renderData = data)
     
     def render(self, **kwargs):
-
         for child in self.getChildren().copy():
             child.destroy()
 
@@ -121,6 +120,13 @@ class EntryImages_BOX(ww.currUIImpl.ScrollableBox,
         self.imagesFrame.subsection = self.subsection
         self.imagesFrame.entryIdx = self.imIdx
         self.imagesFrame.render()
+        imagesHeight = max([i.getHeight() for i in self.imagesFrame.imLabel.getChildren()]) + 10
+
+        for l in self.imagesFrame.exImLabels:
+            imagesHeight += max([i.getHeight() for i in l.getChildren()]) + 10
+
+        newHeight = min(imagesHeight, 300)
+        self.setCanvasHeight(newHeight)
 
         return super().render(self.renderData)
 
