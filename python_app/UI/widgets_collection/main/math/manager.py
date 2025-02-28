@@ -400,6 +400,12 @@ class MathMenuManager(wm.MenuManager_Interface):
                         pass
                 return
 
+    def scrollToWidget(self, event, widget):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                if layout.tocBox.widgetToScrollTo != None:
+                    layout.tocBox.scrollIntoView(event, widget)
+
     def showLinksForEntry(self, subsection, imIdx):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:

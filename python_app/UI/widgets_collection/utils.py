@@ -1391,14 +1391,13 @@ def addMainEntryImageWidget(rootLabel,
     return tempLabel
 
 
-def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None):     
+def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):     
     def ___addExtraIm(subsection, mainImIdx, 
                         extraImageIdx, extraImText):
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
 
-        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText):
-            
-            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText, event):            
+            extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection).copy()
             extraImagesList = []
 
             if extraImagesDict == _u.Token.NotDef.dict_t:
@@ -1430,8 +1429,13 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None):
             if entryLabel != None:
                 entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
 
+            if event != None:
+                mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                            wf.Wr.MenuManagers.MathMenuManager)
+                mathMenuManager.scrollToWidget(event, None)
+
         t = Thread(target = __afterEImagecreated, 
-                args = [mainImIdx, subsection, extraImageIdx, extraImText])
+                args = [mainImIdx, subsection, extraImageIdx, extraImText, event])
         t.start()
 
     extraImIdx = _u.Token.NotDef.str_t
@@ -2051,7 +2055,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 def addExtraImProofCmd(event, l, *args):
                     widget = event.widget
                     addExtraIm(widget.subsection, widget.imIdx, 
-                               True, entryLabel = l)
+                               True, entryLabel = l, event = event)
 
                 addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],
                                 [lambda e, l = shownImage, *args: addExtraImProofCmd(e, l)])
@@ -2073,7 +2077,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 def addExtraImCmd(event, l, *args):
                     widget = event.widget
                     addExtraIm(widget.subsection, widget.imIdx, 
-                               False, entryLabel = l)
+                               False, entryLabel = l, event = event)
 
                 addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],
                               [lambda e, l = shownImage, *args: addExtraImCmd(e, l)])
