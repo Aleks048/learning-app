@@ -2084,7 +2084,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 bindChangeColorOnInAndOut(addEIm)
                 addEIm.render()
 
-            outLabels.append(tempLabel)
+                outLabels.append(tempLabel)
 
     return outLabels
 

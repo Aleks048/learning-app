@@ -522,7 +522,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
         # row 1
         full = __EntryUIData("[f]", 1)
-        im = __EntryUIData("[i]", 2)
         copyLink = __EntryUIData("[cl]", 3)
         pasteLink = __EntryUIData("[pl]", 4)
         copy = __EntryUIData("[c]", 5)
@@ -533,7 +532,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         showLinks = __EntryUIData("[Links]", 1)
         alwaysShow = __EntryUIData("", 2)
         changeImSize = __EntryUIData("", 3)
-        delete = __EntryUIData("[Delete]", 4)
         retake = __EntryUIData("[Retake]", 5)
         addExtra = __EntryUIData("[Add image]", 6)
         addProof = __EntryUIData("[Add proof]", 7)
@@ -1164,18 +1162,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         showImages.subsection = subsection
         showImages.clicked = False
 
-
-
-        removeEntry = _uuicom.TOCLabelWithClick(tempFrameRow2,
-                                        text = self.__EntryUIs.delete.name,
-                                        prefix = "contentRemoveEntry" + nameId,
-                                        row = 0, 
-                                        column = self.__EntryUIs.delete.column)
-        removeEntry.imIdx = k
-        removeEntry.subsection = subsection
-        removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                            [removeEntryCmd])
-
         copyEntry = _uuicom.TOCLabelWithClick(tempFrameRow1,
                                                 text = self.__EntryUIs.copy.name,
                                                 prefix = "contentCopyEntry" + nameId,
@@ -1437,11 +1423,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
         tocWImageDict = fsm.Data.Sec.tocWImageDict(subsection)
 
-        if tocWImageDict == _u.Token.NotDef.dict_t:
-            alwaysShow = False
-        else:
-            alwaysShow = tocWImageDict[k] == "1"
-
         tempFrameRow1.render()
         textLabelPage.render()
 
@@ -1476,12 +1457,10 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             changeImSize.render()
 
         _uuicom.bindChangeColorOnInAndOut(showImages, shouldBeBrown = True)
-        _uuicom.bindChangeColorOnInAndOut(removeEntry)
         _uuicom.bindChangeColorOnInAndOut(copyEntry)
         _uuicom.bindChangeColorOnInAndOut(pasteAfterEntry)
         _uuicom.bindChangeColorOnInAndOut(retakeImageForEntry)
         _uuicom.bindChangeColorOnInAndOut(showLinksForEntry, shouldBeBrown = linkExist)
-        # _uuicom.bindChangeColorOnInAndOut(addLinkEntry)
         _uuicom.bindChangeColorOnInAndOut(addExtraImage)
         _uuicom.bindChangeColorOnInAndOut(addProofImage)
         _uuicom.bindChangeColorOnInAndOut(copyLinkEntry)
