@@ -11,6 +11,7 @@ import UI.widgets_facade as wf
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
 import UI.widgets_collection.main.math.UI_layouts.common as mcomui
 import UI.widgets_collection.toc.toc as tocw
+import UI.widgets_collection.pdfReader.pdfReader as pdfw
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
@@ -62,10 +63,6 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
 
 
 class ImageGroupOM(ww.currUIImpl.OptionMenu):
-    var = None
-    subsection = None
-    imIdx = None
-    tocBox = None
 
     def __init__(self,
                  listOfOptions, 
@@ -105,7 +102,10 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
         imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
         fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
 
-        self.tocBox.render()
+        if "EntryWindow_BOX" in str(type(self.tocBox)):
+            self.tocBox.notify(TOC_BOX, data = [self.subsection, self.imIdx, True])
+        else:
+            self.tocBox.render()
 
 class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
     def __init__(self, parent, subsection, imIdx, prefix, tocBox, row, column):
@@ -637,7 +637,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         super().render(self.renderData)
         self.updateHeight(scrollTOC)
 
-    def updateHeight(self, scrollTOC = True):
+    def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
         newHeight = 10
         for ch in self.scrollable_frame.getChildren():
            newHeight += ch.getHeight()
@@ -649,6 +649,11 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, True])
         else:
             self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, False])
+
+        if updateSecondaryFrame:
+            self.notify(pdfw.SecondaryImagesFrame, data = [True])
+        else:
+            self.notify(pdfw.SecondaryImagesFrame)
 
     def pasteGlLinkCmd(self, event, *args):
         pasteGlLinkCmd(event, *args)
@@ -1895,26 +1900,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         def openSecondaryImage(widget:_uuicom.TOCLabelWithClick):
             def __cmd(event = None, *args):
                 widget = event.widget
-                currImIdx = widget.imIdx
-                secondSubsection = widget.subsection
+                imIdx = widget.imIdx
+                subsection = widget.subsection
 
-                if (currImIdx == self.secondEntryClickedImIdx) and \
-                    (secondSubsection == self.secondEntrySubsectionClicked):
-                    self.secondEntryClickedImIdx = _u.Token.NotDef.str_t
-                    self.secondEntrySubsectionClicked = _u.Token.NotDef.str_t
-                    self.secondEntryClicked.clicked = False
-                    self.secondEntryClicked = None
-                else:
-                    widget.clicked = True
-                    self.secondEntrySubsectionClicked = secondSubsection
-                    self.secondEntryClickedImIdx = currImIdx
-                    self.secondEntryClicked = widget
-
-                self.__renderWithoutScroll()
-
-                if (currImIdx == self.secondEntryClickedImIdx) and \
-                    (secondSubsection == self.secondEntrySubsectionClicked):
-                    self.scrollIntoView(None, widget)
+                pdfMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                                        wf.Wr.MenuManagers.PdfReadersManager)
+                pdfMenuManager.addSecondaryFrame(subsection, imIdx)
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
@@ -2668,8 +2659,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             tempFrameRow1.render()
             textLabelPage.render()
 
-            if not showImages.alwaysShow:
-                textLabelFull.render()
+            textLabelFull.render()
 
             showImages.render()
 

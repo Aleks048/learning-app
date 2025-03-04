@@ -1444,7 +1444,8 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
                     else:
                         # this comes from the Entry menu
                         entryLabel.updateTOC()
-                        entryLabel.updateHeight(scrollTOC = True)
+                        updateSecondaryFrame = str(mainImIdx) != str(fsf.Data.Book.entryImOpenInTOC_UI)
+                        entryLabel.updateHeight(scrollTOC = True, updateSecondaryFrame = updateSecondaryFrame)
                         entryLabel.scrollToImage(entryLabel.imIdx, extraImageIdx)
 
             if event != None:
@@ -1520,7 +1521,6 @@ def addExtraEntryImagesWidgets(rootLabel,
         for i in range(0, len(extraImages)):
             if skippConditionFn(subsection, imIdx, i):
                 continue
-
             shouldResetResizeFactor = False
 
             if resizeFactor == None:
@@ -1530,8 +1530,6 @@ def addExtraEntryImagesWidgets(rootLabel,
                     resizeFactor = float(uiResizeEntryIdx[imIdx + "_" + str(i)])
                 else:
                     resizeFactor = 1.0
-
-            eImText = extraImages[i]
 
             extraImFilepath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookName,
                                                                                   subsection,
@@ -1574,517 +1572,516 @@ def addExtraEntryImagesWidgets(rootLabel,
 
             mainRow = i + 5 if row == None else row
 
-            if tocFrame != None:
-                if type(rootLabel) == list:
-                    tempLabel = TOCLabelWithClick(rootLabel[i], prefix = "temp_" + eImWidgetName,
-                                    padding = [0, 0, 0, 0],
-                                    row = mainRow, column = column, columnspan = columnspan)
+            if type(rootLabel) == list:
+                tempLabel = TOCLabelWithClick(rootLabel[i], prefix = "temp_" + eImWidgetName,
+                                padding = [0, 0, 0, 0],
+                                row = mainRow, column = column, columnspan = columnspan)
+            else:
+                tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + eImWidgetName,
+                                padding = [0, 0, 0, 0],
+                                row = mainRow, column = column, columnspan = columnspan)
+
+            emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + eImWidgetName,
+                                        padding = [imPadLeft, 0, 0, 0],
+                                        row = 0, column = 0, columnspan = 1)
+            emptyLabel.render()
+            tempLabel.imagePath = extraImFilepath
+            tempLabel.subsection = subsection
+            tempLabel.imIdx = imIdx
+            tempLabel.eImIdx = i
+
+            eImg, eimLabel = getImageWidget(tempLabel, extraImFilepath, eImWidgetName, 
+                                        imIdx, subsection, imPad = 0,
+                                        row = 0, column = 1, columnspan = 1,
+                                        resizeFactor = resizeFactor,
+                                        extraImIdx = i,
+                                        bindOpenWindow = bindOpenWindow,
+                                        tocBox = tocFrame,
+                                        leftMove = leftMove)
+            eimLabel.subsection = subsection
+            eimLabel.imIdx = imIdx
+            eimLabel.eImIdx = i
+
+            openOMOnThePageOfTheImage(eimLabel, subsection, imIdx, str(i))
+
+            eimLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                            [extraImtextUpdate])
+
+            eImWidgetsList.append(tempLabel)
+            tempEImLabel = TOCLabelWithClick(tempLabel, 
+                                            text = "",
+                                            prefix = "tempLabel_" + eImWidgetName,
+                                            row = 0,
+                                            column = 0)
+
+            removeEntry = TOCLabelWithClick(tempEImLabel,
+                                            text = "[d]",
+                                            prefix = "delete_" + eImWidgetName,
+                                            row =  i + 5, 
+                                            column = 0,
+                                            sticky = ww.currUIImpl.Orientation.NW)
+            removeEntry.imIdx = imIdx
+            removeEntry.subsection = subsection
+            removeEntry.eImIdx = i
+            removeEntry.tocFrame = tocFrame
+
+            def delEIm(event, *args):
+                widget:TOCLabelWithClick = event.widget
+                fsf.Wr.SectionInfoStructure.removeExtraIm(widget.subsection,
+                                                        widget.imIdx,
+                                                        eImIdx = widget.eImIdx)
+                
+                if widget.tocFrame != None:
+                    tocFrame.render()
                 else:
-                    tempLabel = TOCLabelWithClick(rootLabel, prefix = "temp_" + eImWidgetName,
-                                    padding = [0, 0, 0, 0],
-                                    row = mainRow, column = column, columnspan = columnspan)
+                    mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                    mathMenuManager.renderWithoutScroll()
+                    mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
 
-                emptyLabel = TOCLabelWithClick(tempLabel, prefix = "empty_" + eImWidgetName,
-                                            padding = [imPadLeft, 0, 0, 0],
-                                            row = 0, column = 0, columnspan = 1)
-                emptyLabel.render()
-                tempLabel.imagePath = extraImFilepath
-                tempLabel.subsection = subsection
-                tempLabel.imIdx = imIdx
-                tempLabel.eImIdx = i
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.show(changePrevPos = False, removePrevLabel = True, 
+                                        subsection = subsection, imIdx = imIdx,
+                                        extraImIdx = str(widget.eImIdx),
+                                        withoutRender = True)                    
 
-                eImg, eimLabel = getImageWidget(tempLabel, extraImFilepath, eImWidgetName, 
-                                            imIdx, subsection, imPad = 0,
-                                            row = 0, column = 1, columnspan = 1,
-                                            resizeFactor = resizeFactor,
-                                            extraImIdx = i,
-                                            bindOpenWindow = bindOpenWindow,
-                                            tocBox = tocFrame,
-                                            leftMove = leftMove)
-                eimLabel.subsection = subsection
-                eimLabel.imIdx = imIdx
-                eimLabel.eImIdx = i
+                excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.ExcerciseManager)
+                if excerciseManager.shown:
+                    excerciseManager.show()
 
-                openOMOnThePageOfTheImage(eimLabel, subsection, imIdx, str(i))
+            removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
 
-                eimLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                [extraImtextUpdate])
+            bindChangeColorOnInAndOut(removeEntry)
+            removeEntry.render()
 
-                eImWidgetsList.append(tempLabel)
-                tempEImLabel = TOCLabelWithClick(tempLabel, 
-                                              text = "",
-                                              prefix = "tempLabel_" + eImWidgetName,
-                                              row = 0,
-                                              column = 0)
+            moveEntryDown = TOCLabelWithClick(tempEImLabel,
+                                            text = "[\u2193",
+                                            prefix = "up_" + eImWidgetName,
+                                            row =  i + 5, 
+                                            column = 1,
+                                            sticky = ww.currUIImpl.Orientation.NW)
+            moveEntryDown.imIdx = imIdx
+            moveEntryDown.subsection = subsection
+            moveEntryDown.eImIdx = i
+            moveEntryDown.tocFrame = tocFrame
 
-                removeEntry = TOCLabelWithClick(tempEImLabel,
-                                                text = "[d]",
-                                                prefix = "delete_" + eImWidgetName,
-                                                row =  i + 5, 
-                                                column = 0,
-                                                sticky = ww.currUIImpl.Orientation.NW)
-                removeEntry.imIdx = imIdx
-                removeEntry.subsection = subsection
-                removeEntry.eImIdx = i
-                removeEntry.tocFrame = tocFrame
+            def moveDown(event, *args):
+                widget:TOCLabelWithClick = event.widget
+                fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
+                                                        widget.imIdx,
+                                                        eImIdx = widget.eImIdx,
+                                                        down = True)
+                
+                if widget.tocFrame != None:
+                    widget.tocFrame.render()
+                    widget.tocFrame.shouldScroll = True
+                    if (widget.eImIdx + 1) in range(len(eImWidgetsList)):
+                        widget.tocFrame.scrollIntoView(None, 
+                                                eImWidgetsList[widget.eImIdx + 1])
+                else:
+                    mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                    mathMenuManager.renderWithoutScroll()
+                    mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
 
-                def delEIm(event, *args):
-                    widget:TOCLabelWithClick = event.widget
-                    fsf.Wr.SectionInfoStructure.removeExtraIm(widget.subsection,
-                                                            widget.imIdx,
-                                                            eImIdx = widget.eImIdx)
-                    
-                    if widget.tocFrame != None:
-                        tocFrame.render()
-                    else:
-                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.MathMenuManager)
-                        mathMenuManager.renderWithoutScroll()
-                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+                excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.ExcerciseManager)
+                if excerciseManager.shown:
+                    excerciseManager.show()
 
-                    pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.PdfReadersManager)
-                    pdfReadersManager.show(changePrevPos = False, removePrevLabel = True, 
-                                           subsection = subsection, imIdx = imIdx,
-                                           extraImIdx = str(widget.eImIdx),
-                                           withoutRender = True)                    
+            moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
+            bindChangeColorOnInAndOut(moveEntryDown)
+            moveEntryDown.render()
 
-                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.ExcerciseManager)
-                    if excerciseManager.shown:
-                        excerciseManager.show()
+            moveEntryUp = TOCLabelWithClick(tempEImLabel,
+                                            text = "\u2191]",
+                                            prefix = "down_" + eImWidgetName,
+                                            row =  i + 5, 
+                                            column = 2,
+                                            sticky = ww.currUIImpl.Orientation.NW)
+            moveEntryUp.imIdx = imIdx
+            moveEntryUp.subsection = subsection
+            moveEntryUp.eImIdx = i
+            moveEntryUp.tocFrame = tocFrame
 
-                removeEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],[delEIm])
+            def moveUp(event, *args):
+                widget:TOCLabelWithClick = event.widget
+                fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
+                                                        widget.imIdx,
+                                                        eImIdx = widget.eImIdx,
+                                                        down = False)
+                
+                if widget.tocFrame != None:
+                    widget.tocFrame.render()
+                    widget.tocFrame.shouldScroll = True
+                    if (widget.eImIdx - 1) in range(len(eImWidgetsList)):
+                        widget.tocFrame.scrollIntoView(None, 
+                                                eImWidgetsList[widget.eImIdx - 1])
+                else:
+                    mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                    mathMenuManager.renderWithoutScroll()
+                    mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
 
-                bindChangeColorOnInAndOut(removeEntry)
-                removeEntry.render()
+                excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.ExcerciseManager)
+                if excerciseManager.shown:
+                    excerciseManager.show()
 
-                moveEntryDown = TOCLabelWithClick(tempEImLabel,
-                                                text = "[\u2193",
-                                                prefix = "up_" + eImWidgetName,
-                                                row =  i + 5, 
-                                                column = 1,
-                                                sticky = ww.currUIImpl.Orientation.NW)
-                moveEntryDown.imIdx = imIdx
-                moveEntryDown.subsection = subsection
-                moveEntryDown.eImIdx = i
-                moveEntryDown.tocFrame = tocFrame
+            moveEntryUp.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveUp])
 
-                def moveDown(event, *args):
-                    widget:TOCLabelWithClick = event.widget
-                    fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
-                                                            widget.imIdx,
-                                                            eImIdx = widget.eImIdx,
-                                                            down = True)
-                    
-                    if widget.tocFrame != None:
-                        widget.tocFrame.render()
-                        widget.tocFrame.shouldScroll = True
-                        if (widget.eImIdx + 1) in range(len(eImWidgetsList)):
-                            widget.tocFrame.scrollIntoView(None, 
-                                                    eImWidgetsList[widget.eImIdx + 1])
-                    else:
-                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.MathMenuManager)
-                        mathMenuManager.renderWithoutScroll()
-                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+            bindChangeColorOnInAndOut(moveEntryUp)
+            moveEntryUp.render()
 
-                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.ExcerciseManager)
-                    if excerciseManager.shown:
-                        excerciseManager.show()
+            retake = TOCLabelWithClick(tempEImLabel,
+                                            text = "[r]",
+                                            prefix = "retake_" + eImWidgetName,
+                                            row =  i + 5, 
+                                            column = 3,
+                                            sticky = ww.currUIImpl.Orientation.NW)
+            retake.imIdx = imIdx
+            retake.subsection = subsection
+            retake.eImIdx = i
+            retake.tocFrame = tocFrame
 
-                moveEntryDown.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveDown])
-                bindChangeColorOnInAndOut(moveEntryDown)
-                moveEntryDown.render()
+            def retakeCmd(event, l, entryWidget, *args):
+                widget = event.widget
+                subsection = widget.subsection
+                imIdx = widget.imIdx
+                eImIdx = widget.eImIdx
 
-                moveEntryUp = TOCLabelWithClick(tempEImLabel,
-                                                text = "\u2191]",
-                                                prefix = "down_" + eImWidgetName,
-                                                row =  i + 5, 
-                                                column = 2,
-                                                sticky = ww.currUIImpl.Orientation.NW)
-                moveEntryUp.imIdx = imIdx
-                moveEntryUp.subsection = subsection
-                moveEntryUp.eImIdx = i
-                moveEntryUp.tocFrame = tocFrame
+                currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                imagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
+                                                                            subsection,
+                                                                            str(imIdx),
+                                                                            str(eImIdx))
 
-                def moveUp(event, *args):
-                    widget:TOCLabelWithClick = event.widget
-                    fsf.Wr.SectionInfoStructure.moveExtraIm(widget.subsection,
-                                                            widget.imIdx,
-                                                            eImIdx = widget.eImIdx,
-                                                            down = False)
-                    
-                    if widget.tocFrame != None:
-                        widget.tocFrame.render()
-                        widget.tocFrame.shouldScroll = True
-                        if (widget.eImIdx - 1) in range(len(eImWidgetsList)):
-                            widget.tocFrame.scrollIntoView(None, 
-                                                    eImWidgetsList[widget.eImIdx - 1])
-                    else:
-                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.MathMenuManager)
-                        mathMenuManager.renderWithoutScroll()
-                        mathMenuManager.scrollTocToEntry(widget.subsection, widget.imIdx)
+                msg = "Do you want to retake extra image?"
+                response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.ExcerciseManager)
-                    if excerciseManager.shown:
-                        excerciseManager.show()
-
-                moveEntryUp.rebind([ww.currUIImpl.Data.BindID.mouse1],[moveUp])
-
-                bindChangeColorOnInAndOut(moveEntryUp)
-                moveEntryUp.render()
-
-                retake = TOCLabelWithClick(tempEImLabel,
-                                                text = "[r]",
-                                                prefix = "retake_" + eImWidgetName,
-                                                row =  i + 5, 
-                                                column = 3,
-                                                sticky = ww.currUIImpl.Orientation.NW)
-                retake.imIdx = imIdx
-                retake.subsection = subsection
-                retake.eImIdx = i
-                retake.tocFrame = tocFrame
-
-                def retakeCmd(event, l, entryWidget, *args):
-                    widget = event.widget
-                    subsection = widget.subsection
-                    imIdx = widget.imIdx
-                    eImIdx = widget.eImIdx
-
-                    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    imagePath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookPath,
-                                                                                subsection,
-                                                                                str(imIdx),
-                                                                                str(eImIdx))
-
-                    msg = "Do you want to retake extra image?"
-                    response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-                    if not response:
-                        return
-
-                    ocf.Wr.FsAppCalls.deleteFile(imagePath)
-
-                    figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
-                    figuresData = fsf.Data.Sec.figuresData(subsection)
-
-                    if figuresLabelsData.get(f"{imIdx}_{eImIdx}") != None:
-                        figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
-                        fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
-
-                    if figuresData.get(f"{imIdx}_{eImIdx}") != None:
-                        figuresData.pop(f"{imIdx}_{eImIdx}")
-                        fsf.Data.Sec.figuresData(subsection, figuresData)
-                    
-                    pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                        wf.Wr.MenuManagers.PdfReadersManager)
-                    pdfReadersManager.show(subsection = subsection,
-                                           imIdx = imIdx,
-                                           selector = True,
-                                           removePrevLabel = True,
-                                           extraImIdx = eImIdx,
-                                           withoutRender = True)
-                    def __cmdAfterImageCreated(l, entryWidget):
-                        timer = 0
-
-                        while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
-                            time.sleep(0.3)
-                            timer += 1
-
-                            if timer > 50:
-                                break
-                        
-                        if l != None:
-                            l.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-
-                        if entryWidget != None:
-                            if type(entryWidget) == TOCLabelWithClick:
-                                # this comes from main menu
-                                entryWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-                            else:
-                                # this comes from entry menu
-                                entryWidget.updateTOC()
-                                entryWidget.updateHeight(scrollTOC = True)
-                    
-                    t = Thread(target = __cmdAfterImageCreated, args = [l, entryWidget])
-                    t.start()
+                if not response:
                     return
 
-                shownImage = None
+                ocf.Wr.FsAppCalls.deleteFile(imagePath)
+
+                figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection)
+                figuresData = fsf.Data.Sec.figuresData(subsection)
+
+                if figuresLabelsData.get(f"{imIdx}_{eImIdx}") != None:
+                    figuresLabelsData.pop(f"{imIdx}_{eImIdx}")
+                    fsf.Data.Sec.figuresLabelsData(subsection, figuresLabelsData)
+
+                if figuresData.get(f"{imIdx}_{eImIdx}") != None:
+                    figuresData.pop(f"{imIdx}_{eImIdx}")
+                    fsf.Data.Sec.figuresData(subsection, figuresData)
+                
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                    wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.show(subsection = subsection,
+                                        imIdx = imIdx,
+                                        selector = True,
+                                        removePrevLabel = True,
+                                        extraImIdx = eImIdx,
+                                        withoutRender = True)
+                def __cmdAfterImageCreated(l, entryWidget):
+                    timer = 0
+
+                    while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
+                        time.sleep(0.3)
+                        timer += 1
+
+                        if timer > 50:
+                            break
+                    
+                    if l != None:
+                        l.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+
+                    if entryWidget != None:
+                        if type(entryWidget) == TOCLabelWithClick:
+                            # this comes from main menu
+                            entryWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                        else:
+                            # this comes from entry menu
+                            entryWidget.updateTOC()
+                            entryWidget.updateHeight(scrollTOC = True)
+                
+                t = Thread(target = __cmdAfterImageCreated, args = [l, entryWidget])
+                t.start()
+                return
+
+            shownImage = None
+
+            if tocFrame != None:
+                if "showImagesLabels" in dir(tocFrame):
+                    if tocFrame.showImagesLabels.get(subsection + imIdx) != None:
+                        shownImage = tocFrame.showImagesLabels[subsection + imIdx]
+
+            retake.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, l = shownImage, ew = entryWidget, *args: retakeCmd(e, l, ew)])
+
+            bindChangeColorOnInAndOut(retake)
+            retake.render()
+
+            def resizeEntryImgCMD(event, tocFrame, *args):
+                resizeFactor = event.widget.getData()
+
+                # check if the format is right
+                if not re.match("^[0-9]\.[0-9]$", resizeFactor):
+                    _u.log.autolog(\
+                        f"The format of the resize factor '{resizeFactor}'is not correct")
+                    return
+                
+                subsection = event.widget.subsection
+                imIdx = event.widget.imIdx
+                
+                uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
+
+                if (uiResizeEntryIdx == None) \
+                    or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
+                    uiResizeEntryIdx = {}
+
+                uiResizeEntryIdx[imIdx] = resizeFactor
+
+                fsf.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
 
                 if tocFrame != None:
-                    if "showImagesLabels" in dir(tocFrame):
-                        if tocFrame.showImagesLabels.get(subsection + imIdx) != None:
-                            shownImage = tocFrame.showImagesLabels[subsection + imIdx]
+                    tocFrame.renderWithoutScroll()
+                else:
+                    mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                    wf.Wr.MenuManagers.MathMenuManager)
+                    mathMenuManager.renderWithoutScroll()
+                    mathMenuManager.scrollTocToEntry(event.widget.subsection, 
+                                                        event.widget.imIdx)
 
-                retake.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda e, l = shownImage, ew = entryWidget, *args: retakeCmd(e, l, ew)])
+                excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                wf.Wr.MenuManagers.ExcerciseManager)
+                if excerciseManager.shown:
+                    excerciseManager.show()
 
-                bindChangeColorOnInAndOut(retake)
-                retake.render()
+            changeImSize = ImageSize_ETR(tempEImLabel,
+                                        prefix =  "imSize_" + eImWidgetName,
+                                        row = i + 5, 
+                                        column = 4,
+                                        imIdx = imIdx + "_" + str(i),
+                                        text = resizeFactor)
+            changeImSize.imIdx = imIdx + "_" + str(i)
+            changeImSize.subsection = subsection
+            changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                    [lambda e, *args: resizeEntryImgCMD(e, tocFrame)])
+            changeImSize.render()
 
-                def resizeEntryImgCMD(event, tocFrame, *args):
-                    resizeFactor = event.widget.getData()
+            if createExtraWidgets:
+                tempEImLabel.render()
 
-                    # check if the format is right
-                    if not re.match("^[0-9]\.[0-9]$", resizeFactor):
-                        _u.log.autolog(\
-                            f"The format of the resize factor '{resizeFactor}'is not correct")
+            eimLabel.render()
+
+            displayedImagesContainer.append(eImg)
+
+            if shouldResetResizeFactor:
+                resizeFactor = None
+                shouldResetResizeFactor = False
+
+            bookCodeProj = TOCLabelWithClick(tempEImLabel,
+                                            text = "code: [b",
+                                            prefix = "bookCodeProj_" + eImWidgetName,
+                                            row =  i + 6, 
+                                            column = 0,
+                                            sticky = ww.currUIImpl.Orientation.NE,
+                                            columnspan = 3)
+            bookCodeProj.imIdx = imIdx
+            bookCodeProj.subsection = subsection
+            bookCodeProj.eImIdx = i
+            bookCodeProj.tocFrame = tocFrame
+
+            def openBookCodeProjectCmd(event, *args):
+                subsection = event.widget.subsection
+                imIdx = event.widget.imIdx
+                eImIdx = event.widget.eImIdx
+
+                fullLink = imIdx + "_" + str(eImIdx)
+                dt.CodeTemp.currCodeFullLink = fullLink
+
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
+
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
+                    _u.log.autolog("Please add a book code project files.")
+                    return
+
+                ocf.Wr.IdeCalls.openNewWindow(projectPath)
+
+                bookCodeFiles:dict = fsf.Data.Sec.bookCodeFile(subsection)
+
+                if bookCodeFiles.get(fullLink) != None:
+                    relFilepath = bookCodeFiles.get(fullLink)
+                    time.sleep(0.5)
+                    filepath = os.path.join(projectPath, relFilepath)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
                         return
+
+                    lines = []
+                    with open(filepath) as f:
+                        lines = f.read().splitlines()
                     
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
+                    marker = _upan.Names.codeLineMarkerBook(subsection, fullLink)
+
+                    for i in range(len(lines)):
+                        if marker in lines[i]:
+                            ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                            return
+
+                    ocf.Wr.IdeCalls.openNewTab(filepath)
+
+            bookCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openBookCodeProjectCmd])
+            bindChangeColorOnInAndOut(bookCodeProj)
+            bookCodeProj.render()
+
+            subsectionCodeProj = TOCLabelWithClick(tempEImLabel,
+                                            text = ", s",
+                                            prefix = "subCodeProj_" + eImWidgetName,
+                                            row =  i + 6, 
+                                            column = 3,
+                                            sticky = ww.currUIImpl.Orientation.NW,
+                                            columnspan = 1)
+            subsectionCodeProj.imIdx = imIdx
+            subsectionCodeProj.subsection = subsection
+            subsectionCodeProj.eImIdx = i
+            subsectionCodeProj.tocFrame = tocFrame
+
+            def openSubsectionCodeProjectCmd(event, *args):
+                subsection = event.widget.subsection
+                imIdx = event.widget.imIdx
+                eImIdx = event.widget.eImIdx
+                fullLink = imIdx + "_" + str(eImIdx)
+
+                dt.CodeTemp.currCodeFullLink = fullLink
+
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+                codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
+                codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
+                                                                        subsection)
+
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
+                    ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
+
+                ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
+
+                subsectionCodeFiles:dict = fsf.Data.Sec.subsectionCodeFile(subsection)
+
+                if subsectionCodeFiles.get(fullLink) != None:
+                    relFilepath = subsectionCodeFiles.get(fullLink)
+                    time.sleep(0.5)
+                    filepath = os.path.join(codeSubsectionPath, relFilepath)
+
+                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
+                        _u.log.autolog(f"Subsection '{filepath}' file not found.")
+                        return
+
+                    lines = []
+                    with open(filepath) as f:
+                        lines = f.read().splitlines()
                     
-                    uiResizeEntryIdx = fsf.Data.Sec.imageUIResize(subsection)
+                    marker = _upan.Names.codeLineMarkerSubsection(subsection, fullLink)
 
-                    if (uiResizeEntryIdx == None) \
-                        or (uiResizeEntryIdx == _u.Token.NotDef.dict_t):
-                        uiResizeEntryIdx = {}
+                    for i in range(len(lines)):
+                        if marker in lines[i]:
+                            ocf.Wr.IdeCalls.openNewTab(filepath, i)
+                            return
 
-                    uiResizeEntryIdx[imIdx] = resizeFactor
+                    ocf.Wr.IdeCalls.openNewTab(filepath)
 
-                    fsf.Data.Sec.imageUIResize(subsection, uiResizeEntryIdx)
+            subsectionCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openSubsectionCodeProjectCmd])
+            bindChangeColorOnInAndOut(subsectionCodeProj)
+            subsectionCodeProj.render()
 
-                    if tocFrame != None:
-                        tocFrame.renderWithoutScroll()
-                    else:
-                        mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.MathMenuManager)
-                        mathMenuManager.renderWithoutScroll()
-                        mathMenuManager.scrollTocToEntry(event.widget.subsection, 
-                                                         event.widget.imIdx)
-
-                    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                    wf.Wr.MenuManagers.ExcerciseManager)
-                    if excerciseManager.shown:
-                        excerciseManager.show()
-
-                changeImSize = ImageSize_ETR(tempEImLabel,
-                                            prefix =  "imSize_" + eImWidgetName,
-                                            row = i + 5, 
+            entryCodeProj = TOCLabelWithClick(tempEImLabel,
+                                            text = ", e]",
+                                            prefix = "entryCodeProj_" + eImWidgetName,
+                                            row =  i + 6, 
                                             column = 4,
-                                            imIdx = imIdx + "_" + str(i),
-                                            text = resizeFactor)
-                changeImSize.imIdx = imIdx + "_" + str(i)
-                changeImSize.subsection = subsection
-                changeImSize.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
-                                        [lambda e, *args: resizeEntryImgCMD(e, tocFrame)])
-                changeImSize.render()
+                                            sticky = ww.currUIImpl.Orientation.NW,
+                                            columnspan = 1)
+            entryCodeProj.imIdx = imIdx
+            entryCodeProj.subsection = subsection
+            entryCodeProj.eImIdx = i
+            entryCodeProj.tocFrame = tocFrame
 
-                if createExtraWidgets:
-                    tempEImLabel.render()
+            def openEntryCodeProjectCmd(event, *args):
+                subsection =  event.widget.subsection
+                imIdx =  event.widget.imIdx
+                eImIdx =  event.widget.eImIdx
 
-                eimLabel.render()
+                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
 
-                displayedImagesContainer.append(eImg)
+                entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
 
-                if shouldResetResizeFactor:
-                    resizeFactor = None
-                    shouldResetResizeFactor = False
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
+                    fsf.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
 
-                bookCodeProj = TOCLabelWithClick(tempEImLabel,
-                                                text = "code: [b",
-                                                prefix = "bookCodeProj_" + eImWidgetName,
-                                                row =  i + 6, 
-                                                column = 0,
-                                                sticky = ww.currUIImpl.Orientation.NE,
-                                                columnspan = 3)
-                bookCodeProj.imIdx = imIdx
-                bookCodeProj.subsection = subsection
-                bookCodeProj.eImIdx = i
-                bookCodeProj.tocFrame = tocFrame
+                entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
+                codeFolderbaseName = _upan.Names.codeProjectBaseName()
+                entryCodeProjFilepath = entryCodeProjFilepath.replace(codeFolderbaseName, 
+                                                                        codeFolderbaseName + "_" + str(eImIdx))
 
-                def openBookCodeProjectCmd(event, *args):
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
-                    eImIdx = event.widget.eImIdx
+                if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
+                    codeProjTemplatePath = \
+                        _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
+                    ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
 
-                    fullLink = imIdx + "_" + str(eImIdx)
-                    dt.CodeTemp.currCodeFullLink = fullLink
+                ocf.Wr.IdeCalls.openNewWindow(entryCodeProjFilepath)
 
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    projectPath = _upan.Paths.Book.Code.getAbs(bookPath)
+            entryCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openEntryCodeProjectCmd])
+            bindChangeColorOnInAndOut(entryCodeProj)
+            entryCodeProj.render()
 
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(projectPath):
-                        _u.log.autolog("Please add a book code project files.")
-                        return
+            addProof = TOCLabelWithClick(tempEImLabel,
+                                            text = "[AddPr",
+                                            prefix = "addProof_" + eImWidgetName,
+                                            row =  i + 7, 
+                                            column = 0,
+                                            sticky = ww.currUIImpl.Orientation.NW,
+                                            columnspan = 2)
+            addProof.imIdx = imIdx
+            addProof.subsection = subsection
+            addProof.eImIdx = i
+            addProof.tocFrame = tocFrame
 
-                    ocf.Wr.IdeCalls.openNewWindow(projectPath)
+            def addExtraImProofCmd(event, l, *args):
+                widget = event.widget
+                addExtraIm(widget.subsection, widget.imIdx, 
+                            True, entryLabel = l, event = event)
 
-                    bookCodeFiles:dict = fsf.Data.Sec.bookCodeFile(subsection)
+            addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, l = entryWidget, *args: addExtraImProofCmd(e, l)])
+            bindChangeColorOnInAndOut(addProof)
+            addProof.render()
 
-                    if bookCodeFiles.get(fullLink) != None:
-                        relFilepath = bookCodeFiles.get(fullLink)
-                        time.sleep(0.5)
-                        filepath = os.path.join(projectPath, relFilepath)
+            addEIm = TOCLabelWithClick(tempEImLabel,
+                                            text = ", AddImage]",
+                                            prefix = "addEIm_" + eImWidgetName,
+                                            row =  i + 7, 
+                                            column = 2,
+                                            sticky = ww.currUIImpl.Orientation.NW,
+                                            columnspan = 3)
+            addEIm.imIdx = imIdx
+            addEIm.subsection = subsection
+            addEIm.eImIdx = i
+            addEIm.tocFrame = tocFrame
 
-                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
-                            return
+            def addExtraImCmd(event, l, *args):
+                widget = event.widget
+                addExtraIm(widget.subsection, widget.imIdx, 
+                            False, entryLabel = l, event = event)
 
-                        lines = []
-                        with open(filepath) as f:
-                            lines = f.read().splitlines()
-                        
-                        marker = _upan.Names.codeLineMarkerBook(subsection, fullLink)
+            addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, l = entryWidget, *args: addExtraImCmd(e, l)])
+            bindChangeColorOnInAndOut(addEIm)
+            addEIm.render()
 
-                        for i in range(len(lines)):
-                            if marker in lines[i]:
-                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
-                                return
-
-                        ocf.Wr.IdeCalls.openNewTab(filepath)
-
-                bookCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openBookCodeProjectCmd])
-                bindChangeColorOnInAndOut(bookCodeProj)
-                bookCodeProj.render()
-
-                subsectionCodeProj = TOCLabelWithClick(tempEImLabel,
-                                                text = ", s",
-                                                prefix = "subCodeProj_" + eImWidgetName,
-                                                row =  i + 6, 
-                                                column = 3,
-                                                sticky = ww.currUIImpl.Orientation.NW,
-                                                columnspan = 1)
-                subsectionCodeProj.imIdx = imIdx
-                subsectionCodeProj.subsection = subsection
-                subsectionCodeProj.eImIdx = i
-                subsectionCodeProj.tocFrame = tocFrame
-
-                def openSubsectionCodeProjectCmd(event, *args):
-                    subsection = event.widget.subsection
-                    imIdx = event.widget.imIdx
-                    eImIdx = event.widget.eImIdx
-                    fullLink = imIdx + "_" + str(eImIdx)
-
-                    dt.CodeTemp.currCodeFullLink = fullLink
-
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    codeTemplatePath =_upan.Paths.Book.Code.getSubsectionTemplatePathAbs(bookPath)
-                    codeSubsectionPath =_upan.Paths.Section.getCodeRootAbs(bookPath,
-                                                                           subsection)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(codeSubsectionPath):
-                        ocf.Wr.FsAppCalls.copyFile(codeTemplatePath, codeSubsectionPath)
-
-                    ocf.Wr.IdeCalls.openNewWindow(codeSubsectionPath)
-
-                    subsectionCodeFiles:dict = fsf.Data.Sec.subsectionCodeFile(subsection)
-
-                    if subsectionCodeFiles.get(fullLink) != None:
-                        relFilepath = subsectionCodeFiles.get(fullLink)
-                        time.sleep(0.5)
-                        filepath = os.path.join(codeSubsectionPath, relFilepath)
-
-                        if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(filepath):
-                            _u.log.autolog(f"Subsection '{filepath}' file not found.")
-                            return
-
-                        lines = []
-                        with open(filepath) as f:
-                            lines = f.read().splitlines()
-                        
-                        marker = _upan.Names.codeLineMarkerSubsection(subsection, fullLink)
-
-                        for i in range(len(lines)):
-                            if marker in lines[i]:
-                                ocf.Wr.IdeCalls.openNewTab(filepath, i)
-                                return
-
-                        ocf.Wr.IdeCalls.openNewTab(filepath)
-
-                subsectionCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openSubsectionCodeProjectCmd])
-                bindChangeColorOnInAndOut(subsectionCodeProj)
-                subsectionCodeProj.render()
-
-                entryCodeProj = TOCLabelWithClick(tempEImLabel,
-                                                text = ", e]",
-                                                prefix = "entryCodeProj_" + eImWidgetName,
-                                                row =  i + 6, 
-                                                column = 4,
-                                                sticky = ww.currUIImpl.Orientation.NW,
-                                                columnspan = 1)
-                entryCodeProj.imIdx = imIdx
-                entryCodeProj.subsection = subsection
-                entryCodeProj.eImIdx = i
-                entryCodeProj.tocFrame = tocFrame
-
-                def openEntryCodeProjectCmd(event, *args):
-                    subsection =  event.widget.subsection
-                    imIdx =  event.widget.imIdx
-                    eImIdx =  event.widget.eImIdx
-
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-
-                    entryPath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryPath):
-                        fsf.Wr.EntryInfoStructure.createStructure(bookPath, subsection, imIdx)
-
-                    entryCodeProjFilepath = _upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx)
-                    codeFolderbaseName = _upan.Names.codeProjectBaseName()
-                    entryCodeProjFilepath = entryCodeProjFilepath.replace(codeFolderbaseName, 
-                                                                          codeFolderbaseName + "_" + str(eImIdx))
-
-                    if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryCodeProjFilepath):
-                        codeProjTemplatePath = \
-                            _upan.Paths.Book.Code.getEntryTemplatePathAbs(bookPath)
-                        ocf.Wr.FsAppCalls.copyFile(codeProjTemplatePath, entryCodeProjFilepath)
-
-                    ocf.Wr.IdeCalls.openNewWindow(entryCodeProjFilepath)
-
-                entryCodeProj.rebind([ww.currUIImpl.Data.BindID.mouse1],[openEntryCodeProjectCmd])
-                bindChangeColorOnInAndOut(entryCodeProj)
-                entryCodeProj.render()
-
-                addProof = TOCLabelWithClick(tempEImLabel,
-                                                text = "[AddPr",
-                                                prefix = "addProof_" + eImWidgetName,
-                                                row =  i + 7, 
-                                                column = 0,
-                                                sticky = ww.currUIImpl.Orientation.NW,
-                                                columnspan = 2)
-                addProof.imIdx = imIdx
-                addProof.subsection = subsection
-                addProof.eImIdx = i
-                addProof.tocFrame = tocFrame
-
-                def addExtraImProofCmd(event, l, *args):
-                    widget = event.widget
-                    addExtraIm(widget.subsection, widget.imIdx, 
-                               True, entryLabel = l, event = event)
-
-                addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                [lambda e, l = entryWidget, *args: addExtraImProofCmd(e, l)])
-                bindChangeColorOnInAndOut(addProof)
-                addProof.render()
-
-                addEIm = TOCLabelWithClick(tempEImLabel,
-                                                text = ", AddImage]",
-                                                prefix = "addEIm_" + eImWidgetName,
-                                                row =  i + 7, 
-                                                column = 2,
-                                                sticky = ww.currUIImpl.Orientation.NW,
-                                                columnspan = 3)
-                addEIm.imIdx = imIdx
-                addEIm.subsection = subsection
-                addEIm.eImIdx = i
-                addEIm.tocFrame = tocFrame
-
-                def addExtraImCmd(event, l, *args):
-                    widget = event.widget
-                    addExtraIm(widget.subsection, widget.imIdx, 
-                               False, entryLabel = l, event = event)
-
-                addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda e, l = entryWidget, *args: addExtraImCmd(e, l)])
-                bindChangeColorOnInAndOut(addEIm)
-                addEIm.render()
-
-                outLabels.append(tempLabel)
+            outLabels.append(tempLabel)
 
     return outLabels
 

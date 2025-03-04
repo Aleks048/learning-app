@@ -2,7 +2,6 @@ import UI.widgets_collection.pdfReader.pdfReader as imw
 
 import UI.widgets_manager as wm
 import file_system.file_system_facade as fsf
-import settings.facade as sf
 import _utils._utils_main as _u
 
 
@@ -21,14 +20,18 @@ class LayoutManagers:
             self.winRoot = winRoot
             self.defaultAppDimensions = [720, 850]
             super().__init__(winRoot, self.defaultAppDimensions)
-            self.pfdReader_BOX = imw.PfdReader_BOX(winRoot, self.prefix)
+            self.pfdReader_BOX = imw.PfdReader_BOX(winRoot.topSubframe, self.prefix)
             self.addWidget(self.pfdReader_BOX)
-            self.hidePdfReadersWindow_BTN = imw.HidePdfReaderWindow_BTN(winRoot, self.prefix)
+            self.hidePdfReadersWindow_BTN = imw.HidePdfReaderWindow_BTN(winRoot.topSubframe, self.prefix)
             self.addWidget(self.hidePdfReadersWindow_BTN)
-            self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(winRoot, self.prefix)
+            self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(winRoot.topSubframe, self.prefix)
             self.addWidget(self.resizePdfReaderWindow_BTN)
-            self.changePagePdfReaderWindow_ETR = imw.ChangePagePdfReaderWindow_ETR(winRoot, self.prefix)
+            self.changePagePdfReaderWindow_ETR = imw.ChangePagePdfReaderWindow_ETR(winRoot.topSubframe, self.prefix)
             self.addWidget(self.changePagePdfReaderWindow_ETR)
+
+            self.secondaryEntry = imw.SecondaryImagesFrame(winRoot.bottomSubframe)
+            self.addWidget(self.secondaryEntry)
+            self.secondaryEntry.addListenerWidget(self.pfdReader_BOX)
 
             self.resizePdfReaderWindow_BTN.addListenerWidget(self.pfdReader_BOX)
             self.changePagePdfReaderWindow_ETR.addListenerWidget(self.pfdReader_BOX)
@@ -66,9 +69,6 @@ class LayoutManagers:
             self.changePagePdfReaderWindow_ETR.subsection = self.subsection
             self.changePagePdfReaderWindow_ETR.imIdx = self.imIdx
 
-            # self.winRoot.changeTitle(f"Pdf document for pages: {int(self.pfdReader_BOX.currPage) - 2}/{int(self.pfdReader_BOX.currPage) + 2}")
-
-            self.pfdReader_BOX.setCanvasHeight(self.appDimensions[1] - 50)
             super().show()
         
         def hide(self):
@@ -96,8 +96,8 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
     def __init__(self, rootWidget):
         winRoot = imw.PdfReadersRoot(rootWidget, 
-                                     width = 50, 
-                                     height = 50)
+                                     width = 0, 
+                                     height = 0)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))
@@ -161,6 +161,10 @@ class PdfReadersManager(wm.MenuManager_Interface):
         self.shown = False
         self.layouts[0].currPage = None
         return super().hide()
+
+    def addSecondaryFrame(self, subsection, imIdx):
+        self.layouts[0].secondaryEntry.addSecondaryFrame(subsection, imIdx)
+        self.layouts[0].secondaryEntry.render()
 
     def moveToEntry(self, subsection, imIdx, eImIdx):
         currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])

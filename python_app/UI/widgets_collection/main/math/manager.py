@@ -374,6 +374,12 @@ class MathMenuManager(wm.MenuManager_Interface):
                 layout.tocBox.renderFromTOCWindow = False
                 return
 
+    def addTOCListener(self, widget):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                widget.addListenerWidget(layout.tocBox)
+                return
+
     def moveTocToCurrEntry(self):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:

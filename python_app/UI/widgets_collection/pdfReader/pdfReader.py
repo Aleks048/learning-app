@@ -8,14 +8,15 @@ import io
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as wcom
 import UI.widgets_data as wd
 import _utils._utils_main as _u
+import data.temp as dt
 import _utils.pathsAndNames as _upan
 import data.constants as dc
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
-import data.temp as dt
 
 def _rebuildNote(*args, **kwargs):
     '''
@@ -565,6 +566,10 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.moveY(0.4)
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
+        if broadcasterType == SecondaryImagesFrame:
+            newHeight = data[0]
+            self.setCanvasHeight(820 - newHeight - 20)
+
         self.saveFigures()
         if broadcasterType == ResizePdfReaderWindow_BTN:
             if data != None:
@@ -604,24 +609,160 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.prevPos = prevYview
         self.prevPosition = prevYview
 
-class PdfReadersRoot(ww.currUIImpl.Frame):
 
+class SecondaryImagesFrame(ww.currUIImpl.Frame):
+
+    def __init__(self, rootWidget):
+        name = "_SecondaryImagesFrame_"
+        self.subsection = None
+        self.imIdx = None
+        self.secondWidgetFrameFrame = None
+        self.mainTOCWidget = None
+
+        self.secondImFrames = set()
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+        super().__init__("", name, rootWidget, renderData = renderData)
+
+    def addSecondaryFrame(self, subsection, imIdx):
+        self.secondImFrames.add(subsection +  "_" + str(imIdx))
+        self.subsection = subsection
+        self.imIdx = str(imIdx)
+
+    def receiveNotification(self, broadcasterType, data = None):
+        if data != None:
+            if data[0]:
+                self.secondWidgetFrameFrame.destroy()
+                self.secondWidgetFrameFrame = self.__addSecondaryFrameWidget(self.subsection, self.imIdx)
+                self.secondWidgetFrameFrame.render()
+        else:
+            self.update()
+            newHeight = self.getHeight()
+            self.notify(PfdReader_BOX, data = [newHeight])
+
+    def __addSecondaryFrameSelector(self):
+        seclectorFrameRenderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        seclectorFrame = ww.currUIImpl.Frame("_SelectorFrame_", self.name, self, seclectorFrameRenderData)
+
+        column = 0
+        for k in self.secondImFrames:
+            label = _ucomw.TOCLabelWithClick(seclectorFrame, 
+                                     k.replace(".", "") + "selectorLabel",
+                                     0,
+                                     column,
+                                     text = "   " + k + "   ")
+            shouldBeBrown = k == (str(self.subsection) + "_" + str(self.imIdx))
+            _ucomw.bindChangeColorOnInAndOut(label, shouldBeBrown = shouldBeBrown)
+            if shouldBeBrown:
+                label.changeColor("brown")
+            column += 1
+            label.render()
+            label.subsection = k.split("_")[0]
+            label.imIdx = k.split("_")[1]
+
+            def __showLabel(label):
+                if (str(label.subsection) == str(self.subsection))\
+                    and (str(label.imIdx) == str(self.imIdx)):
+                    self.subsection = None
+                    self.imIdx = None
+                else:
+                    self.subsection = str(label.subsection)
+                    self.imIdx = str(label.imIdx)
+                self.render()
+
+            label.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                         [lambda e, l = label, *args: __showLabel(l)])
+            
+            def __deleteLabel(label):
+                self.secondImFrames.remove(label.subsection + "_" + label.imIdx)
+                if (self.subsection == label.subsection)\
+                    and (label.imIdx == self.imIdx):
+                    self.subsection = None
+                    self.imIdx = None
+                self.render()
+
+            label.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                         [lambda e, l = label, *args: __deleteLabel(l)])
+        return seclectorFrame
+    
+    def __addSecondaryFrameWidget(self, subsection, imIdx):
+        seconEntryWidgetFrameRenderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+        
+        secondWidgetFrameFrame = ww.currUIImpl.Frame("_SecondWidgetFrame_", self.name, 
+                                                     self, seconEntryWidgetFrameRenderData)
+
+        prefix = "seconadaryFrameLabel_" + subsection.replace(".", "") +  "_" + str(imIdx)
+        entryWidget = wcom.EntryWindow_BOX(secondWidgetFrameFrame, prefix)
+
+        entryWidget.subsection = subsection
+        entryWidget.imIdx = imIdx
+        entryWidget.render()
+        entryWidget.addListenerWidget(self)
+        return secondWidgetFrameFrame
+    
+    def render(self):
+        import traceback
+        
+        # for line in traceback.format_stack():
+        #     print(line.strip())
+        for ch in self.getChildren().copy():
+            ch.destroy()
+
+        frameSelector = self.__addSecondaryFrameSelector()
+        frameSelector.render()
+
+        if (self.subsection != None) and (self.imIdx != None):
+            self.secondWidgetFrameFrame = self.__addSecondaryFrameWidget(self.subsection, self.imIdx)
+            self.secondWidgetFrameFrame.render()
+        
+        super().render(self.renderData)
+
+        newHeight = self.getHeight()
+        self.notify(PfdReader_BOX, data = [newHeight])
+
+class PdfReadersRoot(ww.currUIImpl.Frame):
     def __init__(self, rootWidget, width, height):
         self.pageLbl = None
         self.pdfBox = None
 
         name = "_PdfReadersRoot_"
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 20},
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
         extraOptions = {
             ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
             ww.TkWidgets.__name__ : {}
         }
-
-
         super().__init__("", name, rootWidget, renderData = renderData, extraOptions = extraOptions)
+
+        topSubframeRenderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        self.topSubframe = ww.currUIImpl.Frame("leftTopSubframe", self.name, self, 
+                                               topSubframeRenderData)
+        self.topSubframe.render()
+        bottomSubframeRenderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        self.bottomSubframe = ww.currUIImpl.Frame("leftBottomSubframe", self.name, self, 
+                                               bottomSubframeRenderData)
+        self.bottomSubframe.render()
+
 
         def __atsrAddingCmd():
             self.pdfBox.updateScrollerPosition()

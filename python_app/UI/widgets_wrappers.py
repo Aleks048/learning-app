@@ -1296,6 +1296,7 @@ class TkWidgets (DataTranslatable_Interface):
             return y
 
         def getHeight(self):
+            self.canvas.widgetObj.update()
             return self.canvas.widgetObj.winfo_height()
     
         def setCanvasHeight(self, newHeight):
