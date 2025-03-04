@@ -83,6 +83,18 @@ class PdfReaderImage(ww.currUIImpl.Frame):
                         parentWidget,
                         renderData = data)
     
+    def toSelectingZone(self, subsection, imIdx, eImIdx, getTextOfSelector):
+        self.subsection = subsection
+        self.imIdx = imIdx
+        self.extraImIdx = eImIdx
+        self.imLabel.subsection = subsection
+        self.imLabel.imIdx = imIdx
+        self.imLabel.eImIdx = eImIdx
+        self.selectingZone = True
+        self.getTextOfSelector = getTextOfSelector
+        self.imLabel.selectingZone = True
+        self.imLabel.getTextOfSelector = getTextOfSelector
+
     def render(self):
         for child in self.getChildren().copy():
             child.destroy()
@@ -416,6 +428,19 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             im.getTextOfSelector = self.getTextOfSelector
             im.imLabel.selectingZone = self.selectingZone
             im.imLabel.getTextOfSelector = self.getTextOfSelector
+
+    def getIntoSelectingMode(self, subsection, imIdx, eImIdx, getTextOfSelector):
+        self.selectingZone = True
+        self.getTextOfSelector = getTextOfSelector
+
+        self.subsection = subsection
+        self.imIdx = imIdx
+
+        if eImIdx != None:
+            eImIdx = int(eImIdx)
+        
+        for im in self.displayedPdfPages:
+            im.toSelectingZone(subsection, imIdx, eImIdx, getTextOfSelector)
 
     def saveFigures(self):
         for im in self.displayedPdfPages:

@@ -36,6 +36,11 @@ class LayoutManagers:
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
+    
+            entryWindow_BOX = comw.EntryWindow_BOX(winRoot, self.prefix)
+            self.addWidget(entryWindow_BOX)
+            tocBox_BOX.addListenerWidget(entryWindow_BOX)
+            entryWindow_BOX.addListenerWidget(tocBox_BOX)
             
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
             self.addWidget(addToTOCwImage_CHB)

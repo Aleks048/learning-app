@@ -206,12 +206,14 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     
     def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
-        dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                            imIdx = mainImIdx,
-                                                                            selector = True,
-                                                                            extraImIdx = eImIdx,
-                                                                            changePrevPos = True)            
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.show(subsection = subsection,
+                               imIdx = mainImIdx,
+                               selector = True,
+                               extraImIdx = eImIdx,
+                               changePrevPos = True,
+                               withoutRender = True)            
 
         def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
             timer = 0
@@ -223,21 +225,13 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                     time.sleep(0.3)
                     timer += 1
 
-                    if timer > 50:
-                        break
+                    if timer > 50: 
+                        _u.log.autolog(f"The image at path '{imPath}' was not created.")
+                        return
 
             if eImIdx == None:
                 if not isVideo:
-                    while not oscf.Wr.FsAppCalls.checkIfImageExists(imPath):
-                        time.sleep(0.3)
-                        timer += 1
-
-                        if timer > 50:
-                            break
-                    if oscf.Wr.FsAppCalls.checkIfImageExists(imPath):
-                        imText = _u.getTextFromImage(imPath)
-                    else:
-                        imText = _u.Token.NotDef.str_t
+                    imText = _u.getTextFromImage(imPath)
                 else:
                     imText = None
 
@@ -277,7 +271,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 else:
                     eImageTextsList = eImageTextsDict[mainImIdx]
 
-                if int(eImIdx) == len(eImageTextsList):
+                if int(eImIdx) >= len(eImageTextsList):
                     eImageTextsList.append(eImText)
                 else:
                     eImageTextsList[int(eImIdx)] = eImText
@@ -342,18 +336,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 if response:
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
-                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                                    imIdx = imIdx,
-                                                                                    selector = True,
-                                                                                    removePrevLabel = True)
-
                     cls.AddNewImageData(subsection, imIdx, imagePath)
-
-                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken", 
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-
-                mainManager.show()
 
                 if not response:
                     return
@@ -598,10 +581,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             msg = "The path \n\n'{0}'\n\n is not correct.\n Please correct it.".format(wholeLinkPathStr)
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
             return
         
         targetSubsection = ".".join(wholeLinkPath[:-1])
@@ -653,10 +632,6 @@ Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_
                             )
                 response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
-                mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-                mainManager.show()
-
                 if not response:
                     return
 
@@ -699,11 +674,6 @@ Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_
         
         if (theLinksAreNotPresentMsg != []) and shouldConfirm:
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification("".join(theLinksAreNotPresentMsg), True)
-
-            mainManager = dt.AppState.UIManagers.getData(cls.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
             return
 
         #

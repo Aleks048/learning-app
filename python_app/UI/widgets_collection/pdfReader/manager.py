@@ -121,14 +121,20 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
-             changePrevPos = True, removePrevLabel = False, getTextOfSelector = False):
+             changePrevPos = True, removePrevLabel = False, getTextOfSelector = False,
+             withoutRender = False):
         self.winRoot.pageLbl = self.layouts[0].changePagePdfReaderWindow_ETR
         self.winRoot.pdfBox = self.layouts[0].pfdReader_BOX
 
         if removePrevLabel:
             self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx, extraImIdx)
 
-        self.hide(changePrevPos = changePrevPos)
+        if not withoutRender:
+            self.hide(changePrevPos = changePrevPos)
+        else:
+            self.layouts[0].pfdReader_BOX.getIntoSelectingMode(subsection, imIdx, extraImIdx, 
+                                                               getTextOfSelector)
+
         self.shown = True
         self.layouts[0].subsection = self.subsection if subsection == None else subsection
         self.layouts[0].imIdx = self.imIdx if imIdx == None else imIdx
@@ -141,7 +147,8 @@ class PdfReadersManager(wm.MenuManager_Interface):
             fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, int(page))
             self.layouts[0].currPage = page
         # self.layouts[0].appDimensions = appDimensions
-        return super().show()
+        if not withoutRender:
+            return super().show()
 
     def changeSize(self, dimensions = None):
         self.layouts[0].show(dimensions)

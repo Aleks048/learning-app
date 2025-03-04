@@ -272,11 +272,6 @@ class ImageGeneration_BTN(ww.currUIImpl.Button,
             if not re.match("^[0-9]+$", str(self.dataFromUser[0])):
                 msg = "Incorrect image index \n\nId: '{0}'.".format(self.dataFromUser[0])
                 wm.UI_generalManager.showNotification(msg, True)
-
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-                mainManager.show()
-
                 return
 
             addToTOCwIm = self.notify(addToTOCwImage_CHB)
@@ -287,9 +282,6 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
             response = wm.UI_generalManager.showNotification(msg, True)
             
             if not response:
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-                mainManager.show()
                 # self.rootWidget.render()
                 self.notify(ImageGeneration_ETR, None)
                 return
@@ -334,10 +326,7 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
             t.start()
             dt.AppState.ShowProofs.setData(self.appCurrDataAccessToken,
                                            False)
-            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            mmm.MathMenuManager)
-            mainManager.show()
-        
+
         buttonNamesToFunc = {self.labelOptions[0]: lambda *args: self.notify(ImageGeneration_ETR, ""),
                             self.labelOptions[1]: _createTexForTheProcessedImage}
 

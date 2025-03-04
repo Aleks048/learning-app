@@ -1214,6 +1214,14 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
             self.image = ww.currUIImpl.UIImage(result)
             super().updateImage(self.image)
 
+    def changePermamentColor(self, newColor):
+        super().changeColor(newColor)
+        if newColor == "brown":
+            bindChangeColorOnInAndOut(self, shouldBeBrown = True)
+        else:
+            bindChangeColorOnInAndOut(self, shouldBeBrown = False)
+
+
 def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
     def __changeTextColorBlue(event = None, *args):
         event.widget.changeColor("blue")
@@ -1396,7 +1404,9 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
                         extraImageIdx, extraImText):
         gm.GeneralManger.AddExtraImageForEntry(mainImIdx, subsection, extraImageIdx, extraImText)
 
-        def __afterEImagecreated(mainImIdx, subsection, extraImageIdx, extraImText, event):            
+        def __afterEImagecreated(mainImIdx, subsection, 
+                                 extraImageIdx, extraImText, event,
+                                 entryLabel):            
             extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection).copy()
             extraImagesList = []
 
@@ -1427,7 +1437,15 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
                     return False
                 
             if entryLabel != None:
-                entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                if entryLabel != None:
+                    if type(entryLabel) == TOCLabelWithClick:
+                        #this comes from the main TOC menu
+                        entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                    else:
+                        # this comes from the Entry menu
+                        entryLabel.updateTOC()
+                        entryLabel.updateHeight(scrollTOC = True)
+                        entryLabel.scrollToImage(entryLabel.imIdx, extraImageIdx)
 
             if event != None:
                 mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -1435,7 +1453,7 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
                 mathMenuManager.scrollToWidget(event, None)
 
         t = Thread(target = __afterEImagecreated, 
-                args = [mainImIdx, subsection, extraImageIdx, extraImText, event])
+                args = [mainImIdx, subsection, extraImageIdx, extraImText, event, entryLabel])
         t.start()
 
     extraImIdx = _u.Token.NotDef.str_t
@@ -1485,7 +1503,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                createExtraWidgets = True,
                                bindOpenWindow = True,
                                resizeFactor = None,
-                               leftMove = 0):
+                               leftMove = 0,
+                               entryWidget = None):
     import UI.widgets_collection.common as comw
     outLabels = []
 
@@ -1555,40 +1574,7 @@ def addExtraEntryImagesWidgets(rootLabel,
 
             mainRow = i + 5 if row == None else row
 
-            if (tocFrame != None)\
-                and (subsection == tocFrame.extraImAsETR.subsection)\
-                and (imIdx == tocFrame.extraImAsETR.imIdx) \
-                and (i == tocFrame.extraImAsETR.eImIdx):
-
-                if type(rootLabel) == list:
-                    eimLabel = MultilineText_ETR(rootLabel[i], 
-                                                eImWidgetName, 
-                                                row = mainRow,
-                                                column = column,
-                                                imLineIdx = None, 
-                                                text = eImText,
-                                                width = 90)
-                else:
-                    eimLabel = MultilineText_ETR(rootLabel, 
-                                                eImWidgetName, 
-                                                row = mainRow,
-                                                column = column,
-                                                imLineIdx = None, 
-                                                text = eImText,
-                                                width = 90)
-                eimLabel.setPads(padx=10, pady=10)
-                eimLabel.imIdx = imIdx
-                eimLabel.subsection = subsection
-                eimLabel.etrWidget = eimLabel
-                eimLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                        [extraImtextUpdate])
-                tocFrame.extraImAsETR.widget = eimLabel
-                eimLabel.render()
-                eimLabel.forceFocus()
-
-                eImWidgetsList.append(eimLabel)
-                tempLabel = eimLabel
-            else:
+            if tocFrame != None:
                 if type(rootLabel) == list:
                     tempLabel = TOCLabelWithClick(rootLabel[i], prefix = "temp_" + eImWidgetName,
                                     padding = [0, 0, 0, 0],
@@ -1660,7 +1646,8 @@ def addExtraEntryImagesWidgets(rootLabel,
                                                                     wf.Wr.MenuManagers.PdfReadersManager)
                     pdfReadersManager.show(changePrevPos = False, removePrevLabel = True, 
                                            subsection = subsection, imIdx = imIdx,
-                                           extraImIdx = str(widget.eImIdx))                    
+                                           extraImIdx = str(widget.eImIdx),
+                                           withoutRender = True)                    
 
                     excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                                     wf.Wr.MenuManagers.ExcerciseManager)
@@ -1762,7 +1749,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                 retake.eImIdx = i
                 retake.tocFrame = tocFrame
 
-                def retakeCmd(event, l, *args):
+                def retakeCmd(event, l, entryWidget, *args):
                     widget = event.widget
                     subsection = widget.subsection
                     imIdx = widget.imIdx
@@ -1793,13 +1780,15 @@ def addExtraEntryImagesWidgets(rootLabel,
                         figuresData.pop(f"{imIdx}_{eImIdx}")
                         fsf.Data.Sec.figuresData(subsection, figuresData)
                     
-                    dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
-                                                                                    imIdx = imIdx,
-                                                                                    selector = True,
-                                                                                    removePrevLabel = True,
-                                                                                    extraImIdx = eImIdx)
-                    def __cmdAfterImageCreated():
+                    pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                        wf.Wr.MenuManagers.PdfReadersManager)
+                    pdfReadersManager.show(subsection = subsection,
+                                           imIdx = imIdx,
+                                           selector = True,
+                                           removePrevLabel = True,
+                                           extraImIdx = eImIdx,
+                                           withoutRender = True)
+                    def __cmdAfterImageCreated(l, entryWidget):
                         timer = 0
 
                         while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imagePath):
@@ -1811,18 +1800,29 @@ def addExtraEntryImagesWidgets(rootLabel,
                         
                         if l != None:
                             l.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+
+                        if entryWidget != None:
+                            if type(entryWidget) == TOCLabelWithClick:
+                                # this comes from main menu
+                                entryWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                            else:
+                                # this comes from entry menu
+                                entryWidget.updateTOC()
+                                entryWidget.updateHeight(scrollTOC = True)
                     
-                    t = Thread(target = __cmdAfterImageCreated)
+                    t = Thread(target = __cmdAfterImageCreated, args = [l, entryWidget])
                     t.start()
+                    return
 
                 shownImage = None
 
                 if tocFrame != None:
                     if "showImagesLabels" in dir(tocFrame):
-                        shownImage = tocFrame.showImagesLabels[subsection + imIdx]
+                        if tocFrame.showImagesLabels.get(subsection + imIdx) != None:
+                            shownImage = tocFrame.showImagesLabels[subsection + imIdx]
 
                 retake.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda e, l = shownImage, *args: retakeCmd(e, l)])
+                              [lambda e, l = shownImage, ew = entryWidget, *args: retakeCmd(e, l, ew)])
 
                 bindChangeColorOnInAndOut(retake)
                 retake.render()
@@ -2058,7 +2058,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                True, entryLabel = l, event = event)
 
                 addProof.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                [lambda e, l = shownImage, *args: addExtraImProofCmd(e, l)])
+                                [lambda e, l = entryWidget, *args: addExtraImProofCmd(e, l)])
                 bindChangeColorOnInAndOut(addProof)
                 addProof.render()
 
@@ -2080,7 +2080,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                                False, entryLabel = l, event = event)
 
                 addEIm.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda e, l = shownImage, *args: addExtraImCmd(e, l)])
+                              [lambda e, l = entryWidget, *args: addExtraImCmd(e, l)])
                 bindChangeColorOnInAndOut(addEIm)
                 addEIm.render()
 

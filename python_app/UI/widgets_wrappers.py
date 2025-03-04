@@ -276,6 +276,9 @@ class TkWidgets (DataTranslatable_Interface):
 
             if not issubclass(TkWidgets.RootWidget, type(self.widget)):
                 self.widget.rootWidget.addChild(self.widget)
+            
+        def update(self):
+            self.widget.widgetObj.update()
 
         def __render(self, **kwargs):
             self.widget.widgetObj.grid(**kwargs)
@@ -823,6 +826,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.configure(wraplength = wraplength)
 
     class Frame(Notifyable_Interface,
+                HasListenersWidget_Interface_Impl,
                 RenderableWidget_Interface_Impl,
                 HasChildren_Interface_Impl,
                 BindableWidget_Interface_Impl):
@@ -866,10 +870,12 @@ class TkWidgets (DataTranslatable_Interface):
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widget = self)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widget = self, renderData = self.renderData)
             TkWidgets.BindableWidget_Interface_Impl.__init__(self, bindCmd = bindCmd, callingObject = child)
+            TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj)
             
             Notifyable_Interface.__init__(self)
         
         def getHeight(self):
+            self.widgetObj.update()
             return self.widgetObj.winfo_height()
         
         def setGeometry(self, width, height):
@@ -1097,6 +1103,7 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.itemconfigure(id, image = image.data)
 
         def getHeight(self):
+            self.widgetObj.update()
             return self.widgetObj.winfo_reqheight()
         
         def createButton(self,
@@ -1293,6 +1300,7 @@ class TkWidgets (DataTranslatable_Interface):
     
         def setCanvasHeight(self, newHeight):
             self.canvas.widgetObj.configure(height = newHeight)
+            self.canvas.widgetObj.update()
 
         def getChildren(self):
             return self.scrollable_frame.getChildren()

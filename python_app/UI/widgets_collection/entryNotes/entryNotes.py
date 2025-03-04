@@ -299,7 +299,6 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                            [lambda e, idx = str(i), *args: __showTextOrImage(idx), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
-                # print(i)
                 label = _ucomw.TOCFrame(mainLabels[i], 
                                 "notesImageFRM_" + str(i),
                                 1, 1, 1
