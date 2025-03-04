@@ -103,7 +103,7 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
         fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
 
         if "EntryWindow_BOX" in str(type(self.tocBox)):
-            self.tocBox.notify(TOC_BOX, data = [self.subsection, self.imIdx, True])
+            self.tocBox.rerenderMainTOC()
         else:
             self.tocBox.render()
 
@@ -255,7 +255,7 @@ class LinksFrame(ww.currUIImpl.Frame):
         self.render()
 
     def __moveLinkFull(self, e, *args):
-        self.entryFrame.notify(TOC_BOX, data = [e.widget.subsection, e.widget.imIdx])
+        self.entryFrame.updateTOC(e.widget.subsection, e.widget.imIdx)
 
     def __openWebOfTheImageCmd(self, event, webLink, *args):
         cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
@@ -548,6 +548,9 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         copyText = __EntryUIData("[Copy text]", 7)
         proof = __EntryUIData("[Show proof]", 8)
 
+    class Notifyers:
+        pass
+
     def showLinksForEntryCmd(self, linksFrame):
         if linksFrame.wasRendered:
             linksFrame.hide()
@@ -589,8 +592,34 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         else:
             self.render(scrollTOC = False)
 
-    def updateTOC(self):
+    def updateTOC(self, subsection = None, imIdx = None):
+        if subsection != None:
+            self.subsection = subsection
+        if imIdx != None:
+            self.imIdx = imIdx 
         self.notify(TOC_BOX, data = [self.subsection, self.imIdx])
+  
+    def rerenderMainTOC(self, shouldScroll = True):
+        self.notify(TOC_BOX, [self.subsection, self.imIdx, shouldScroll])
+
+    def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
+        newHeight = 10
+        for ch in self.scrollable_frame.getChildren():
+           newHeight += ch.getHeight()
+
+        newHeight = min(newHeight, self.maxHeight)
+        self.setCanvasHeight(min(newHeight, self.maxHeight))
+
+        if scrollTOC:
+            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, True])
+        else:
+            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, False])
+
+        if updateSecondaryFrame:
+            self.notify(pdfw.SecondaryImagesFrame, data = [True])
+        else:
+            self.notify(pdfw.SecondaryImagesFrame)
+
 
     def scrollToImage(self, imIdx, eImIdx = None):
         if self.imagesFrame != None:
@@ -623,9 +652,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         pos = posy - self.yPosition()
         height = self.getFrameHeight()
         self.moveY((pos / height))
-    
-    def rerenderMainTOC(self):
-        self.notify(TOC_BOX, [self.subsection, self.imIdx, True])
 
     def render(self, scrollTOC = True):
         for ch in self.scrollable_frame.getChildren().copy():
@@ -636,24 +662,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(self.renderData)
         self.updateHeight(scrollTOC)
-
-    def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
-        newHeight = 10
-        for ch in self.scrollable_frame.getChildren():
-           newHeight += ch.getHeight()
-
-        newHeight = min(newHeight, self.maxHeight)
-        self.setCanvasHeight(min(newHeight, self.maxHeight))
-        # if self.subsection != None:
-        if scrollTOC:
-            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, True])
-        else:
-            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, False])
-
-        if updateSecondaryFrame:
-            self.notify(pdfw.SecondaryImagesFrame, data = [True])
-        else:
-            self.notify(pdfw.SecondaryImagesFrame)
 
     def pasteGlLinkCmd(self, event, *args):
         pasteGlLinkCmd(event, *args)
@@ -767,7 +775,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                     if timer > 50:
                         break
 
-                self.notify(TOC_BOX, data = [self.subsection, self.imIdx])
+                self.updateTOC()
                 self.updateHeight()
             
             t = Thread(target = __cmdAfterImageCreated, args = [])
@@ -848,7 +856,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             msg = f"After resize of {subsection} {imIdx}"
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            self.notify(TOC_BOX, data = [self.subsection, self.imIdx])
+            self.updateTOC()
 
         def openExcerciseMenu(event, *args):
             exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
