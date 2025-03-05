@@ -32,10 +32,11 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     @classmethod
     def startNonStartMenus(cls):
         import UI.widgets_facade as wf
+        import UI.widgets_collection.common as comw
         # start the daemon to process client calls
         cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
 
-        cls.winRoot = wf.Wr.WidgetWrappers.RootWidget(1400, 700)
+        cls.winRoot = comw.MainRoot(1400, 700)
         cls.winRoot.setGeometry(1500, 850, 0, 0)
         cls.winRoot.configureColumn(0, weight=1)
         cls.winRoot.configureColumn(1, weight=1)

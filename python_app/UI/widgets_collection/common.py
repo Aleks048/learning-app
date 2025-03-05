@@ -103,7 +103,7 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
         fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
 
         if "EntryWindow_BOX" in str(type(self.tocBox)):
-            self.tocBox.rerenderMainTOC()
+            self.tocBox.rerenderAndSetMainTOC()
         else:
             self.tocBox.render()
 
@@ -144,7 +144,7 @@ class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
         fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
 
         self.tocBox.render()
-        self.tocBox.rerenderMainTOC()
+        self.tocBox.rerenderAndSetMainTOC()
 
 def getEntryImg(tex, subsection, imIdx):
     currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -255,7 +255,7 @@ class LinksFrame(ww.currUIImpl.Frame):
         self.render()
 
     def __moveLinkFull(self, e, *args):
-        self.entryFrame.updateTOC(e.widget.subsection, e.widget.imIdx)
+        self.entryFrame.setMain(e.widget.subsection, e.widget.imIdx)
 
     def __openWebOfTheImageCmd(self, event, webLink, *args):
         cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
@@ -549,7 +549,10 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         proof = __EntryUIData("[Show proof]", 8)
 
     class Notifyers:
-        pass
+        class IDs:
+            rerenderAndSetMain = "_rerenderAndSetMain"
+            changeHeight = "_changeHeight"
+            setMain = "_setMain"
 
     def showLinksForEntryCmd(self, linksFrame):
         if linksFrame.wasRendered:
@@ -592,15 +595,16 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         else:
             self.render(scrollTOC = False)
 
-    def updateTOC(self, subsection = None, imIdx = None):
+    def setMain(self, subsection = None, imIdx = None):
         if subsection != None:
             self.subsection = subsection
         if imIdx != None:
             self.imIdx = imIdx 
-        self.notify(TOC_BOX, data = [self.subsection, self.imIdx])
+        self.notify(TOC_BOX, data = {EntryWindow_BOX.Notifyers.IDs.setMain: [self.subsection, self.imIdx]})
   
-    def rerenderMainTOC(self, shouldScroll = True):
-        self.notify(TOC_BOX, [self.subsection, self.imIdx, shouldScroll])
+    def rerenderAndSetMainTOC(self, shouldScroll = True):
+        self.notify(TOC_BOX, 
+                    data = {EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain: [self.subsection, self.imIdx, shouldScroll]})
 
     def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
         newHeight = 10
@@ -611,9 +615,11 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         self.setCanvasHeight(min(newHeight, self.maxHeight))
 
         if scrollTOC:
-            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, True])
+            self.notify(TOC_BOX, 
+                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: [newHeight, self.subsection, self.imIdx, True]})
         else:
-            self.notify(TOC_BOX, data = [newHeight, self.subsection, self.imIdx, False])
+            self.notify(TOC_BOX, 
+                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: [newHeight, self.subsection, self.imIdx, False]})
 
         if updateSecondaryFrame:
             self.notify(pdfw.SecondaryImagesFrame, data = [True])
@@ -775,7 +781,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                     if timer > 50:
                         break
 
-                self.updateTOC()
+                self.setMain()
                 self.updateHeight()
             
             t = Thread(target = __cmdAfterImageCreated, args = [])
@@ -856,7 +862,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             msg = f"After resize of {subsection} {imIdx}"
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            self.updateTOC()
+            self.setMain()
 
         def openExcerciseMenu(event, *args):
             exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -2724,7 +2730,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
         if broadcasterType == EntryWindow_BOX:
-            if len(data) == 4:
+            if data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight) != None:
+                data = data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight)
                 entryWidgetHeight = data[0]
                 self.setCanvasHeight(680 - entryWidgetHeight)
                 if data[1] != None:
@@ -2732,11 +2739,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         self.shouldScroll = True
                         self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
                         self.shouldScroll = False
-            elif (len(data) == 3):
+            elif data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain) != None:
+                data = data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain)
                 if data[2]:
                     self.render()
                     self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-            else:
+            elif data.get(EntryWindow_BOX.Notifyers.IDs.setMain) != None:
+                data = data.get(EntryWindow_BOX.Notifyers.IDs.setMain)
                 self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
         elif broadcasterType == mui.ExitApp_BTN:
             tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
@@ -3337,3 +3346,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             self.widgetToScrollTo.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
 
         return
+
+class MainRoot(ww.currUIImpl.RootWidget):
+    def __init__(self, width, height):
+        super().__init__(width, height, self.__bindCmd)
+    
+    def __bindCmd(self):
+        def __largerEntry():
+            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainMenuManager.changeLowerSubframeHeight(600)
+        
+        def __smallerEntry():
+            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainMenuManager.changeLowerSubframeHeight(375)
+        return [ww.currUIImpl.Data.BindID.Keys.cmdone, ww.currUIImpl.Data.BindID.Keys.cmdtwo], \
+               [lambda *args: __largerEntry(), lambda *args: __smallerEntry()]

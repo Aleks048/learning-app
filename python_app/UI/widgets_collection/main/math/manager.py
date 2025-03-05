@@ -37,10 +37,10 @@ class LayoutManagers:
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
     
-            entryWindow_BOX = comw.EntryWindow_BOX(winRoot, self.prefix)
-            self.addWidget(entryWindow_BOX)
-            tocBox_BOX.addListenerWidget(entryWindow_BOX)
-            entryWindow_BOX.addListenerWidget(tocBox_BOX)
+            self.entryWindow_BOX = comw.EntryWindow_BOX(winRoot, self.prefix)
+            self.addWidget(self.entryWindow_BOX)
+            tocBox_BOX.addListenerWidget(self.entryWindow_BOX)
+            self.entryWindow_BOX.addListenerWidget(tocBox_BOX)
             
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
             self.addWidget(addToTOCwImage_CHB)
@@ -142,6 +142,9 @@ class LayoutManagers:
             # self.winRoot.configureColumn(3, weight = 1)
             # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
+        
+        def changeEntryBoxMaxHeight(self, newHeight):
+            self.entryWindow_BOX.maxHeight = newHeight
 
 
     class _Section(wm.MenuLayout_Interface):
@@ -268,8 +271,6 @@ class LayoutManagers:
             #
             # pre init
             #
-            monitorSize = dc.MonitorSize.getData()
-            monHalfWidth = int(monitorSize[0] / 2)
             appDimensions = [1300, 90]
 
             #
@@ -351,6 +352,11 @@ class MathMenuManager(wm.MenuManager_Interface):
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
 
+    def changeLowerSubframeHeight(self, newHeight):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.changeEntryBoxMaxHeight(newHeight)
+                self.show()
     # def renderTocWidget(self):
     #     for layout in self.layouts:
     #         if type(layout) == LayoutManagers._Main:

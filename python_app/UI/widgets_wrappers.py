@@ -179,6 +179,8 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdn = "<Mod1-n>"
                 cmdshn = "<Mod1-N>"
                 cmdd = "<Mod1-d>"
+                cmdone = "<Mod1-!>"
+                cmdtwo = "<Mod1-@>"
                 cmde = "<Mod1-e>"
                 cmdshe = "<Mod1-E>"
                 cmdp = "<Mod1-p>"

@@ -1443,7 +1443,7 @@ def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
                         entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
                     else:
                         # this comes from the Entry menu
-                        entryLabel.updateTOC()
+                        entryLabel.setMain()
                         updateSecondaryFrame = str(mainImIdx) != str(fsf.Data.Book.entryImOpenInTOC_UI)
                         entryLabel.updateHeight(scrollTOC = True, updateSecondaryFrame = updateSecondaryFrame)
                         entryLabel.scrollToImage(entryLabel.imIdx, extraImageIdx)
@@ -1804,7 +1804,7 @@ def addExtraEntryImagesWidgets(rootLabel,
                             entryWidget.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
                         else:
                             # this comes from entry menu
-                            entryWidget.updateTOC()
+                            entryWidget.setMain()
                             entryWidget.updateHeight(scrollTOC = True)
                 
                 t = Thread(target = __cmdAfterImageCreated, args = [l, entryWidget])
