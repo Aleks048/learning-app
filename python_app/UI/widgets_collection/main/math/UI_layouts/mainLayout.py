@@ -608,6 +608,18 @@ to subsection: '{1}'?".format(groupName, currSubsection)
         self.notify(comw.TOC_BOX)
 
 
+class MainEntryBox(comw.EntryWindow_BOX): 
+    def notificationRetakeImage(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+
+    def notificationResizeImage(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+
+    def notificationlinkFullMove(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+
+    def notificationAfterImageWasCreated(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
 
 class ImageCreation:
     pass

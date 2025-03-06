@@ -702,7 +702,7 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
                                                      self, seconEntryWidgetFrameRenderData)
 
         prefix = "seconadaryFrameLabel_" + subsection.replace(".", "") +  "_" + str(imIdx)
-        entryWidget = wcom.EntryWindow_BOX(secondWidgetFrameFrame, prefix)
+        entryWidget = SecondaryEntryBox(secondWidgetFrameFrame, prefix)
 
         entryWidget.subsection = subsection
         entryWidget.imIdx = imIdx
@@ -729,6 +729,19 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
 
         newHeight = self.getHeight()
         self.notify(PfdReader_BOX, data = [newHeight])
+
+class SecondaryEntryBox(wcom.EntryWindow_BOX): 
+    def notificationRetakeImage(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+
+    def notificationResizeImage(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+
+    def notificationlinkFullMove(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
+    
+    def notificationAfterImageWasCreated(self, subsection, imIdx):
+        super().setMain(subsection, imIdx)
 
 class PdfReadersRoot(ww.currUIImpl.Frame):
     def __init__(self, rootWidget, width, height):

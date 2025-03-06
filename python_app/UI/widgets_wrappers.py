@@ -60,7 +60,7 @@ class HasListenersWidget_Interface:
     
     def notify(self, reciverWidgetType, *args, **kwargs):
         for widget in self.listeners:
-            if type(widget) == reciverWidgetType:
+            if (type(widget) == reciverWidgetType) or (reciverWidgetType in type(widget).__bases__):
                 return widget.receiveNotification(type(self), *args, **kwargs)
 
 class Notifyable_Interface:

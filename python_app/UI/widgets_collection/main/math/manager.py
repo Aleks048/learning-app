@@ -37,7 +37,7 @@ class LayoutManagers:
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
     
-            self.entryWindow_BOX = comw.EntryWindow_BOX(winRoot, self.prefix)
+            self.entryWindow_BOX = ml.MainEntryBox(winRoot, self.prefix)
             self.addWidget(self.entryWindow_BOX)
             tocBox_BOX.addListenerWidget(self.entryWindow_BOX)
             self.entryWindow_BOX.addListenerWidget(tocBox_BOX)

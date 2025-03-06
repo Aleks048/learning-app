@@ -8,14 +8,10 @@ import sys
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
-import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
-import UI.widgets_collection.main.math.UI_layouts.common as mcomui
 import UI.widgets_collection.toc.toc as tocw
-import UI.widgets_collection.pdfReader.pdfReader as pdfw
 import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
-import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
@@ -255,7 +251,7 @@ class LinksFrame(ww.currUIImpl.Frame):
         self.render()
 
     def __moveLinkFull(self, e, *args):
-        self.entryFrame.setMain(e.widget.subsection, e.widget.imIdx)
+        self.linkFullMoveNotification(e.subsection, e.imIdx)
 
     def __openWebOfTheImageCmd(self, event, webLink, *args):
         cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
@@ -587,6 +583,18 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                         extraOptions= extraOptions,
                         height = self.maxHeight)
 
+    def notificationRetakeImage(self, subsection, imIdx):
+        raise NotImplementedError()
+
+    def notificationResizeImage(self, subsection, imIdx):
+        raise NotImplementedError()
+
+    def notificationlinkFullMove(self, subsection, imIdx):
+        raise NotImplementedError()
+
+    def notificationAfterImageWasCreated(self, subsection, imIdx):
+        raise NotImplementedError()
+
     def receiveNotification(self, broadcasterType, data = None):
         if data != None:
             self.subsection = data[0]
@@ -621,6 +629,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             self.notify(TOC_BOX, 
                         data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: [newHeight, self.subsection, self.imIdx, False]})
 
+        import UI.widgets_collection.pdfReader.pdfReader as pdfw
         if updateSecondaryFrame:
             self.notify(pdfw.SecondaryImagesFrame, data = [True])
         else:
@@ -664,7 +673,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             ch.destroy()
 
         if (self.subsection != None):
-            self.AddEntryWidget(self.imIdx, self.subsection, self.scrollable_frame)
+            self.__AddEntryWidget(self.imIdx, self.subsection, self.scrollable_frame)
 
         super().render(self.renderData)
         self.updateHeight(scrollTOC)
@@ -710,7 +719,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         for l in exImLabels:
             l.render()
 
-    def AddEntryWidget(self, imIdx, subsection, frame):
+    def __AddEntryWidget(self, imIdx, subsection, frame):
         if fsm.Data.Sec.leadingEntry(subsection).get(imIdx) != None:
             leadingEntry = fsm.Data.Sec.leadingEntry(subsection)[imIdx]
 
@@ -781,7 +790,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                     if timer > 50:
                         break
 
-                self.setMain()
+                self.retakeImageNotification(self.subsection, self.imIdx)
                 self.updateHeight()
             
             t = Thread(target = __cmdAfterImageCreated, args = [])
@@ -862,7 +871,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             msg = f"After resize of {subsection} {imIdx}"
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            self.setMain()
+            self.resizeImageNotification(self.subsection, self.imIdx)
 
         def openExcerciseMenu(event, *args):
             exMenuManger = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -2729,7 +2738,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         return showImages
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
-        if broadcasterType == EntryWindow_BOX:
+        import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
+        if (EntryWindow_BOX in broadcasterType.__bases__) or (EntryWindow_BOX == broadcasterType):
             if data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight) != None:
                 data = data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight)
                 entryWidgetHeight = data[0]
@@ -2888,6 +2898,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         fsm.Data.Book.currTopSection = subsection.split(".")[0]
                         fsm.Data.Book.entryImOpenInTOC_UI = "-1"
 
+                        import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
                         self.notify(mui.ScreenshotLocation_LBL)
 
                     self.scrollIntoView(event)
