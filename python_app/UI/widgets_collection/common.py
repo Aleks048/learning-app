@@ -697,11 +697,11 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         else:
             resizeFactor = 1.0
 
-        imLabel = _uuicom.addMainEntryImageWidget(self.imagesFrame, 
-                                                      self.subsection, self.imIdx,
-                                                      imPadLeft = 120, 
-                                                      displayedImagesContainer = [],
-                                                      resizeFactor = resizeFactor)
+        entryImagesFactory = _uuicom.EntryImagesFactory(self.subsection, self.imIdx)
+        imLabel = entryImagesFactory.produceEntryMainImageWidget(self.imagesFrame,
+                                                       imPadLeft = 120,
+                                                       resizeFactor = resizeFactor)
+
         imLabel.render()
 
         def skipProofs(subsection, imIdx, i):
@@ -710,10 +710,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             else:
                 return "proof" in fsm.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _uuicom.addExtraEntryImagesWidgets(self.imagesFrame, 
-                                                       self.subsection, self.imIdx,
-                                                       imPadLeft = 120, 
-                                                       displayedImagesContainer = [],
+        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(self.imagesFrame,
                                                        skippConditionFn = skipProofs,
                                                        entryWidget = self)
         for l in exImLabels:
