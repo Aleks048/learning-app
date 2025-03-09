@@ -6,6 +6,3 @@ class Data:
         defaultTextColor = "blue"
     class BTN:
         buttonWidget_ID = "BTN"
-
-    class Reactors:
-        entryChangeReactors = {}

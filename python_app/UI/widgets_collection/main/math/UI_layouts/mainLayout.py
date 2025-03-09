@@ -11,7 +11,6 @@ import outside_calls.outside_calls_facade as ocf
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
-import UI.widgets_data as wd
 import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
@@ -621,20 +620,6 @@ class MainEntryBox(comw.EntryWindow_BOX):
 
     def notificationAfterImageWasCreated(self, subsection, imIdx):
         super().setMain(subsection, imIdx)
-
-    def onFullEntryMove(self):
-        self.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
-        self.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
-        self.render()
-
-    def onPasteLink(self):
-        print("hi")
-        self.linkFrameShown = True
-        self.render()
-
-    def render(self, scrollTOC=True):
-        wd.Data.Reactors.entryChangeReactors[self.name] = self
-        return super().render(scrollTOC)
 
 class ImageCreation:
     pass
