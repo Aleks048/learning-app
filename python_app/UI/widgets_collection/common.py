@@ -1074,6 +1074,9 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             textLabelPage.render()
             textLabelPage.forceFocus()
 
+        if imIdx == _u.Token.NotDef.str_t:
+            return
+
         k = imIdx
         i = int(imIdx)
 
@@ -1597,6 +1600,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     def __init__(self, parentWidget, prefix, windth = 700, height = 300, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False):
+        self.entryWidgetManagers = {}
+
         # used to filter toc data when the search is performed
         self.filterToken = ""
         self.searchSubsectionsText = False
@@ -1817,6 +1822,41 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         pasteGlLinkCmd(event, *args)
         self.notify(EntryWindow_BOX)
 
+    def onPaste(self, subsection, imIdx):
+        if None in [dt.UITemp.Copy.subsection, dt.UITemp.Copy.imIdx] or\
+            _u.Token.NotDef.str_t in [dt.UITemp.Copy.subsection, dt.UITemp.Copy.imIdx]:
+            _u.log.autolog("Did not paste entry. The copy data is not correct.")
+            return
+
+        fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(dt.UITemp.Copy.subsection,
+                                                        dt.UITemp.Copy.imIdx,
+                                                        subsection,
+                                                        imIdx,
+                                                        dt.UITemp.Copy.cut,
+                                                        shouldAsk = True)
+        #TODO: we should optimise this
+        self.render()
+
+    def onFullEntryMove(self):
+        currSubsection = fsm.Data.Book.subsectionOpenInTOC_UI
+        currEntryIdx = fsm.Data.Book.entryImOpenInTOC_UI
+        hash = currSubsection + currEntryIdx
+
+        shownEntryFrame = None
+
+        for k, efm in self.entryWidgetManagers.items():
+            if k != hash:
+                efm.hideImages()
+                efm.changeFullMoveColor(True)
+            else:
+                efm.showImages()
+                efm.changeFullMoveColor(False)
+                shownEntryFrame = efm.entryFrame
+
+        if shownEntryFrame != None:
+            self.shouldScroll = True
+            self.scrollIntoView(None, shownEntryFrame)
+
     def AddEntryWidget(self, imIdx, subsection, frame):
         if subsection != fsm.Data.Book.subsectionOpenInTOC_UI:
             return
@@ -1834,6 +1874,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             if (showSubentries != _u.Token.NotDef.str_t) and (not showSubentries):
                 return
+        
+                
+        entryWidgetFactory = _uuicom.EntryWidgetFactory(subsection, imIdx, frame, self, 0, 0)
+        self.entryWidgetManagers[subsection + imIdx] = entryWidgetFactory.entryFrameManager
+        entryWidgetFactory.produceEntryWidgetsForTOCFrame()
+
+        return
 
         def __showIMagesONClick(event, label:_uuicom.TOCLabelWithClick, subSecID, 
                                 shouldScroll = False, 
@@ -1851,8 +1898,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                     if not self.showAll:
                         self.currentEntrySubsection = subsection
                         self.currentEntryImIdx = imIdx
-
-                    shoulShowSecondRow = True
                 else:
                     w.hide()
 
@@ -2085,7 +2130,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 exMenuManger.show()
             else:
                 exMenuManger.hide()
-
 
         def copyTextToMemCmd(event, *args):
             dt.AppState.UIManagers.getData("appCurrDataAccessToken",
@@ -2744,16 +2788,16 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if data[1] != None:
                     if data[3]:
                         self.shouldScroll = True
-                        self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
+                        # self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
                         self.shouldScroll = False
             elif data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain) != None:
                 data = data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain)
                 if data[2]:
                     self.render()
-                    self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                    # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
             elif data.get(EntryWindow_BOX.Notifyers.IDs.setMain) != None:
                 data = data.get(EntryWindow_BOX.Notifyers.IDs.setMain)
-                self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+                # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
         elif broadcasterType == mui.ExitApp_BTN:
             tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
 
@@ -3311,6 +3355,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 self.addTOCEntry(subsection, level, i)
 
     def render(self, shouldScroll = False):
+        wd.Data.Reactors.entryChangeReactors[self.name] = self
         # import traceback
         
         # for line in traceback.format_stack():

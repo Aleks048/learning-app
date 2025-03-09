@@ -865,7 +865,10 @@ class TkWidgets (DataTranslatable_Interface):
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
             if localvars.get("self") != None:
-                child = localvars['self']
+                if "widget" not in dir(caller):
+                    child = self
+                else:
+                    child = localvars['self']
             else:
                 child = self
 

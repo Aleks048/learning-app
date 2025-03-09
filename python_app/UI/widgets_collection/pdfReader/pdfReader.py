@@ -711,10 +711,8 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
         return secondWidgetFrameFrame
     
     def render(self):
-        import traceback
-        
-        # for line in traceback.format_stack():
-        #     print(line.strip())
+        wd.Data.Reactors.entryChangeReactors[self.name] = self
+
         for ch in self.getChildren().copy():
             ch.destroy()
 
@@ -730,7 +728,12 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
         newHeight = self.getHeight()
         self.notify(PfdReader_BOX, data = [newHeight])
 
-class SecondaryEntryBox(wcom.EntryWindow_BOX): 
+    def onSecondaryImageOpen(self, subsection, imIdx):
+        pdfMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfMenuManager.addSecondaryFrame(subsection, imIdx)
+
+class SecondaryEntryBox(wcom.EntryWindow_BOX):
     def notificationRetakeImage(self, subsection, imIdx):
         super().setMain(subsection, imIdx)
 

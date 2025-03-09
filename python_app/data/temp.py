@@ -72,6 +72,10 @@ class OtherAppsInfo:
         main_pid = _u.Token.NotDef.str_t
 
 class UITemp:
+    class Copy:
+        subsection = _u.Token.NotDef.str_t
+        imIdx = _u.Token.NotDef.str_t
+        cut = _u.Token.NotDef.no_t
     class Link:
         subsection = _u.Token.NotDef.str_t
         imIdx = _u.Token.NotDef.str_t
