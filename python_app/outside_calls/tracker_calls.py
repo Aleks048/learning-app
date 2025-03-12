@@ -1,5 +1,6 @@
 import os
 import time
+import warnings
 
 import outside_calls.fsApp_calls as fsc
 import _utils.logging as log
@@ -41,12 +42,14 @@ class GitTracker:
 
         if dc.StartupConsts.WITH_TRACKING:
             if not force:
-                cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\" && git push origin main".format(bookPath, id)
+                cmd = "cd \"{0}\" && git add -A &> /dev/null && git commit -m \"{1}\" &> /dev/null && git push origin main &> /dev/null".format(bookPath, id)
             else:
-                cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\" && git push -f origin main".format(bookPath, id)
+                cmd = "cd \"{0}\" && git add -A &> /dev/null && git commit -m \"{1}\" &> /dev/null && git push -f origin main &> /dev/null".format(bookPath, id)
         else:
-            cmd = "cd \"{0}\" && git add -A && git commit -m \"{1}\"".format(bookPath, id)
+            cmd = "cd \"{0}\" && git add -A &> /dev/null && git commit -m \"{1}\" &> /dev/null".format(bookPath, id)
 
-        _u.runCmdAndWait(cmd)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            _u.runCmdAndWait(cmd)
 
 currrtrackerApp = GitTracker
