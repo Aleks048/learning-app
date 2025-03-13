@@ -207,28 +207,24 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                               )
 
         imageLables = []
-        imLabel = _ucomw.addMainEntryImageWidget(mainLabels[0], 
-                                                self.subsection, self.imIdx,
-                                                imPadLeft = 0, 
-                                                displayedImagesContainer = self.displayedImages,
-                                                row = 0,
-                                                columnspan = 1,
-                                                column = 1)
+        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.imIdx)
+        imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = mainLabels[0],
+                                                                imPadLeft = 0,
+                                                                row = 0,
+                                                                columnspan = 1,
+                                                                column = 1)
+
         imageLables.append(imLabel)
         imLabel.forceFocus()
 
         def skipProofs(*args):
            return False
         
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(mainLabels[1:], 
-                                                       self.subsection, self.imIdx,
-                                                       imPadLeft = 0, 
-                                                       displayedImagesContainer = self.displayedImages,
-                                                       skippConditionFn = skipProofs,
-                                                       row = 0,
-                                                       columnspan = 1,
-                                                       column = 1,
-                                                       createExtraWidgets = False)
+
+        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(mainLabels[1:], 
+                                                                       skippConditionFn = skipProofs,
+                                                                       imPadLeft = 0,
+                                                                       createExtraWidgets = False)
   
         imageLables.extend(exImLabels)
 

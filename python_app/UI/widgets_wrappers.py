@@ -181,6 +181,7 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdd = "<Mod1-d>"
                 cmdone = "<Mod1-!>"
                 cmdtwo = "<Mod1-@>"
+                cmdshh = "<Mod1-H>"
                 cmde = "<Mod1-e>"
                 cmdshe = "<Mod1-E>"
                 cmdp = "<Mod1-p>"
@@ -264,6 +265,16 @@ class TkWidgets (DataTranslatable_Interface):
             if not issubclass(type(self.widget), TkWidgets.RootWidget):
                 self.widget.rootWidget.addChild(self.widget)
 
+        def hideAllWithChildren(self):
+            for ch in self.widget.getChildren().copy():
+                ch.hide()
+            self.hide()
+        
+        def renderAllWithChildren(self):
+            for ch in self.widget.getChildren().copy():
+                ch.render()
+            self.widget.render()
+
         def render(self, renderData = {}):
             if self.wasRendered:
                 self.__render(**self.renderData)
@@ -281,6 +292,7 @@ class TkWidgets (DataTranslatable_Interface):
             
         def update(self):
             self.widget.widgetObj.update()
+            self.widget.widgetObj.update_idletasks()
 
         def __render(self, **kwargs):
             self.widget.widgetObj.grid(**kwargs)
@@ -291,7 +303,6 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.widget.widgetObj.grid_remove()
             self.wasRendered = False
-
 
         def delete(self, **kwargs):
             self.widget.widgetObj.grid_forget()
@@ -308,6 +319,7 @@ class TkWidgets (DataTranslatable_Interface):
                     self.widget.rootWidget.removeChild(self.widget)
 
         def update(self):
+            self.widget.widgetObj.update_idletasks()
             self.widget.widgetObj.update()
 
         def getYCoord(self):
@@ -865,7 +877,10 @@ class TkWidgets (DataTranslatable_Interface):
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
             if localvars.get("self") != None:
-                child = localvars['self']
+                if "widget" not in dir(caller):
+                    child = self
+                else:
+                    child = localvars['self']
             else:
                 child = self
 

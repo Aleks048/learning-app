@@ -300,19 +300,22 @@ class ImageMainImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
+        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.entryIdx)
+        
         if self.extraWidgetIdx == _u.Token.NotDef.int_t:
-            self.imLabel = _ucomw.addMainEntryImageWidget(self, 
-                                                        self.subsection, self.entryIdx,
-                                                        0, self.displayedImages,
-                                                        bindOpenWindow = False,
-                                                        resizeFactor = 1.5)
+            self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,
+                                                                          imPadLeft = 0, 
+                                                                          bindOpenWindow = False, 
+                                                                          resizeFactor = 1.5)
+
         else:
-            self.imLabel = _ucomw.addExtraEntryImagesWidgets(self, 
-                                                        self.subsection, self.entryIdx,
-                                                        0, self.displayedImages,
-                                                        createExtraWidgets = False,
-                                                        bindOpenWindow = False,
-                                                        resizeFactor = 1.5)[self.extraWidgetIdx]
+            self.imLabel = entryImagesFactory.produceEntryExtraImageFrame(rootLabel = self,
+                                                           eImIdx = str(self.extraWidgetIdx),
+                                                           createExtraWidgets = False,
+                                                           bindOpenWindow = False,
+                                                           resizeFactor = 1.5,
+                                                           imPadLeft = 0,
+                                                           leftMove = 0)
         self.imLabel.render()
         self.imLabel.forceFocus()
 

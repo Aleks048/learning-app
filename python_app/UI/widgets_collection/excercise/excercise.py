@@ -119,21 +119,19 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
-        self.imLabel = _ucomw.addMainEntryImageWidget(self, 
-                                                      self.subsection, self.entryIdx,
-                                                      imPadLeft = 120, 
-                                                      displayedImagesContainer = self.displayedImages)
+        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.entryIdx)
+        self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,
+                                                                        imPadLeft = 120)
         self.imLabel.render()
         self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
-                                                       self.subsection, self.entryIdx,
-                                                       imPadLeft = 120, 
-                                                       displayedImagesContainer = self.displayedImages,
-                                                       skippConditionFn = skipProofs)
+
+        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self,
+                                                                        imPadLeft = 120,
+                                                                        skippConditionFn = skipProofs)
         for l in exImLabels:
             l.render()
 

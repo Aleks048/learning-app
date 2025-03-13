@@ -389,7 +389,6 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         else:
             pwidget = widget
 
-        self.scrollY(-100)
         self.update()
         pwidget.update()
 
@@ -459,7 +458,6 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, str(self.currPage))
 
         self.prevPosition = 0.4
-        self.render()
 
         entryWidget = self.displayedPdfPages[2].imLabel.getEntryWidget(subsection, 
                                                                        imIdx,
@@ -471,6 +469,9 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         '''
         for page in the pdf:
         '''
+        if self.currPage < 2:
+            return
+
         for i in range(self.currPage - 2, self.currPage + 3):
             pageImage = PdfReaderImage(self.scrollable_frame, f"_pdfPageIm{i}", i, self.doc, i, self.pageWidth)    
             pageImage.selectingZone = self.selectingZone
@@ -507,7 +508,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         newPage = str(int(self.currPage) + addPage)
 
         if newPage !=  str(fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)):
-                fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(origMatName, newPage)
+            fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(origMatName, newPage)
 
     def hide(self, **kwargs):
         self.updateOMpage()
@@ -520,8 +521,16 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         return super().hide(**kwargs)
 
     def render(self, force = False):
+        wd.Data.Reactors.entryChangeReactors[self.name] = self
+
         self.updateOMpage(force = force)
         self.currPage = int(self.currPage)
+
+        if int(self.currPage) in self.getShownPagesList():
+            for p in self.displayedPdfPages:
+                if p.pageNum == int(int(self.currPage)):
+                    self.__scrollIntoView(p)
+            return
 
         if self.currPage == self.prevPage:
             if (self.prevPos != 0.0) and (self.prevPos != None):
@@ -566,12 +575,12 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.moveY(0.4)
 
     def receiveNotification(self, broadcasterType, data = None) -> None:
-        if broadcasterType == SecondaryImagesFrame:
-            newHeight = data[0]
-            self.setCanvasHeight(820 - newHeight - 20)
-
         self.saveFigures()
-        if broadcasterType == ResizePdfReaderWindow_BTN:
+        if broadcasterType == SecondaryImagesFrame:
+            newHeight = 820 -  data[0] - 20
+            if self.getHeight() != newHeight:
+                self.setCanvasHeight(newHeight = newHeight)
+        elif broadcasterType == ResizePdfReaderWindow_BTN:
             if data != None:
                 for p in self.displayedPdfPages:
                     p.imLabel.saveFigures()
@@ -609,9 +618,48 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.prevPos = prevYview
         self.prevPosition = prevYview
 
+    def onExtraImDelete(self, subsection, imIdx, eImIdx):
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.show(changePrevPos = False, removePrevLabel = True, 
+                                subsection = subsection, imIdx = imIdx,
+                                extraImIdx = str(eImIdx),
+                                withoutRender = True)  
+
+    def getShownPagesList(self):
+        return [int(i.pageNum) for i in self.displayedPdfPages]
+
+    def onFullEntryMove(self):
+        if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.moveToEntry(fsf.Data.Book.subsectionOpenInTOC_UI, 
+                                        fsf.Data.Book.entryImOpenInTOC_UI,
+                                        None)
+
+    def onCopyTextToMem(self, subsection, imIdx):
+         dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                        wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                    imIdx = imIdx,
+                                                                    selector = True,
+                                                                    getTextOfSelector = True, 
+                                                                    withoutRender = True)
+
+    def onEntryDelete(self, subsection, imIdx):
+        pdfReaderManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReaderManager.removeLabel(subsection, imIdx, None)
+    
+    def onRetakeBefore(self, subsection, imIdx):
+        dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                            wf.Wr.MenuManagers.PdfReadersManager).show(subsection = subsection,
+                                                                        imIdx = imIdx,
+                                                                        selector = True,
+                                                                        removePrevLabel = True,
+                                                                        withoutRender = True)
+
 
 class SecondaryImagesFrame(ww.currUIImpl.Frame):
-
     def __init__(self, rootWidget):
         name = "_SecondaryImagesFrame_"
         self.subsection = None
@@ -711,10 +759,8 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
         return secondWidgetFrameFrame
     
     def render(self):
-        import traceback
-        
-        # for line in traceback.format_stack():
-        #     print(line.strip())
+        wd.Data.Reactors.entryChangeReactors[self.name] = self
+
         for ch in self.getChildren().copy():
             ch.destroy()
 
@@ -730,18 +776,63 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
         newHeight = self.getHeight()
         self.notify(PfdReader_BOX, data = [newHeight])
 
-class SecondaryEntryBox(wcom.EntryWindow_BOX): 
-    def notificationRetakeImage(self, subsection, imIdx):
-        super().setMain(subsection, imIdx)
+    def onSecondaryImageOpen(self, subsection, imIdx):
+        pdfMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfMenuManager.addSecondaryFrame(subsection, imIdx)
 
-    def notificationResizeImage(self, subsection, imIdx):
-        super().setMain(subsection, imIdx)
+class SecondaryEntryBox(wcom.EntryWindow_BOX):
+    def onExtraImDelete(self, subsection, imIdx, eImIdx):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                etm = self.entryManager
+                etm.deleteExtraImage(eImIdx)
 
-    def notificationlinkFullMove(self, subsection, imIdx):
-        super().setMain(subsection, imIdx)
-    
-    def notificationAfterImageWasCreated(self, subsection, imIdx):
-        super().setMain(subsection, imIdx)
+    def onMainLatexImageUpdate(self, subsection, imIdx):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                etm = self.entryManager
+                etm.updateEntryImage()
+
+    def onExtraImMove(self, subsection, imIdx, eImIdx, moveUp:bool):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                etm = self.entryManager
+                eImFrame = etm.moveExtraIm(eImIdx, moveUp)
+
+                if eImFrame != None:
+                    self.shouldScroll = True
+                    self.scrollIntoView(None, eImFrame)
+
+    def onAlwaysShowChange(self, subsection, imIdx):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                for ch in self.entryManager.rowFrame2.getChildren():
+                    ch.render()
+
+    def onAlwaysShowChange(self, subsection, imIdx):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                self.entryManager.rowFrame1.hide()
+                self.entryManager.rowFrame1.render()
+
+    def onImageResize(self, subsection, imIdx, eImIdx):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                if eImIdx == None:
+                    self.entryManager.updateMainImage()
+                else:
+                    self.entryManager.updateExtraImage(eImIdx)
+                self.entryManager.updateResizeEtrText()
+
+    def onRetakeAfter(self, subsection, imIdx, eImidx = _u.Token.NotDef.str_t):
+        if (subsection == self.subsection) and (imIdx == self.imIdx):
+            if self.entryManager != None:
+                self.entryManager.updateMainImage()
+
+    def render(self, scrollTOC=True):
+        wd.Data.Reactors.entryChangeReactors[self.name] = self
+        super().render(scrollTOC)
 
 class PdfReadersRoot(ww.currUIImpl.Frame):
     def __init__(self, rootWidget, width, height):

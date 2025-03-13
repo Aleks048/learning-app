@@ -1572,7 +1572,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFile, currBookPath)
 
     @classmethod
-    def moveExtraIm(cls, subsection, mainImIdx, eImIdx = None, down = True):
+    def moveExtraIm(cls, subsection, mainImIdx, eImIdx, destEimIdx):
         def __updateFile(filepath, oldMarker, newMarker):
             lines = []
 
@@ -1588,8 +1588,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
             with open(filepath, "w") as f:
                 f.writelines(lines)
-
-        destEimIdx = int(eImIdx) + 1 if down else int(eImIdx) - 1 
 
         currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
         extraImagesDict = cls.readProperty(subsection, cls.PubProp.extraImagesDict, currBookPath)
@@ -1671,8 +1669,9 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
                                                     currBookPath)
 
         eImList:list = extraImagesDict.pop(mainImIdx).copy()
-        if ((int(eImIdx) == len(eImList) - 1) and down) or\
-           ((int(eImIdx) == 0) and (not down)):
+
+        if (int(eImIdx) >= len(eImList)) or (int(destEimIdx) >= len(eImList))\
+            or ((int(eImIdx) < 0)) or ((int(destEimIdx) < 0)):
             return
 
         eImTextsList:list = extraImTextDict.pop(mainImIdx).copy()

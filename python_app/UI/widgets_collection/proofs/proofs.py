@@ -26,11 +26,14 @@ class ProofImageLabel(ww.currUIImpl.Frame):
                          root, 
                          renderData = data)
     def render(self, **kwargs):
-        exImLabel = _ucomw.addExtraEntryImagesWidgets(self, 
-                                                       self.subsection, str(self.imIdx),
-                                                       imPadLeft = 120, 
-                                                       displayedImagesContainer = self.displayedImages,
-                                                       leftMove = 700)[int(self.eImIdx)]
+        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.imIdx)
+        exImLabel = entryImagesFactory.produceEntryExtraImageFrame(rootLabel = self,
+                                                              eImIdx = self.eImIdx,
+                                                              createExtraWidgets = False,
+                                                              bindOpenWindow = True,
+                                                              resizeFactor = 1.0,
+                                                              imPadLeft = 120,
+                                                              leftMove = 700)
         exImLabel.render()
         return super().render(**kwargs)
    
@@ -60,23 +63,22 @@ class ProofMainImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
-        self.imLabel = _ucomw.addMainEntryImageWidget(self, 
-                                                      self.subsection, self.entryIdx,
-                                                      imPadLeft = 120, 
-                                                      displayedImagesContainer = self.displayedImages,
-                                                      leftMove = 700)
+        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.entryIdx)
+        self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,
+                                                                        imPadLeft = 120,
+                                                                        leftMove = 700)
         self.imLabel.render()
         self.imLabel.forceFocus()
 
         def skipProofs(subsection, imIdx, i):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
-        self.exImLabels = _ucomw.addExtraEntryImagesWidgets(self, 
-                                                       self.subsection, self.entryIdx,
-                                                       imPadLeft = 120, 
-                                                       displayedImagesContainer = self.displayedImages,
-                                                       skippConditionFn = skipProofs,
-                                                       leftMove = 700)
+        self.exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(self, 
+                                                                       skippConditionFn = skipProofs,
+                                                                       imPadLeft = 120,
+                                                                       leftMove = 700,
+                                                                       createExtraWidgets = False)
+
         for l in self.exImLabels:
             l.render()
 
@@ -198,7 +200,6 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
                 if extraImagesForEntry[i] != None:
                     label = ProofImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
                                                 self.subsection, self.imIdx, i)
-                    # label.rebind([ww.currUIImpl.Data.BindID.mouse1], [lambda e, *args: _ucomw.openImageManager(e, leftMove = 700)])
                     label.render()
 
     def hide(self, **kwargs):

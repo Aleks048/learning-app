@@ -119,6 +119,9 @@ class PdfReadersManager(wm.MenuManager_Interface):
     def unbind(self):
         self.winRoot.unbindAll()
 
+    def removeLabel(self, subsection, imIdx, eImIdx):
+        self.layouts[0].pfdReader_BOX.removeMainLabel(subsection, imIdx, eImIdx)
+
     def show(self, appDimensions = None, extraImIdx = None,
              subsection = None, imIdx = None, page = None, selector = False,
              changePrevPos = True, removePrevLabel = False, getTextOfSelector = False,
@@ -167,11 +170,17 @@ class PdfReadersManager(wm.MenuManager_Interface):
         self.layouts[0].secondaryEntry.render()
 
     def moveToEntry(self, subsection, imIdx, eImIdx):
-        currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
-        self.layouts[0].show()
-        self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
+        if eImIdx == None:
+            currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
+        else:
+            currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx + "_" + str(eImIdx)])
+
+        # self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
         self.layouts[0].currPage = currPage
         self.layouts[0].selector = False
-        # self.layouts[0].pfdReader_BOX.changePage(currPage)
+        self.layouts[0].pfdReader_BOX.changePage(currPage)
         self.layouts[0].pfdReader_BOX.getIntoDrawingMode()
+
+        if int(currPage) not in self.layouts[0].pfdReader_BOX.getShownPagesList():
+            self.layouts[0].show()
         self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)
