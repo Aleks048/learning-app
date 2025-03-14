@@ -138,7 +138,12 @@ class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
     
     def render(self):
         tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        self.setData(tocWImageDict[self.imIdx])
+        newData = _u.Token.NotDef.str_t
+
+        if tocWImageDict.get(self.imIdx) != None:
+            newData = tocWImageDict[self.imIdx]
+
+        self.setData(newData)
         return super().render(self.renderData)
 
 
@@ -934,6 +939,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.update()
         pwidget.update()
+
+        if widget == None:
+            _u.log.autolog("Cant scroll to widget since it is None.")
+            return
+
         widget.update()
 
         while pwidget != self.parent:
@@ -1046,13 +1056,18 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def onAlwaysShowChange(self, subsection, imIdx):
         etm = self.entryWidgetManagers[subsection + "_" + imIdx]
+        currSubsection = fsm.Data.Book.subsectionOpenInTOC_UI
+        currEntryIdx = fsm.Data.Book.entryImOpenInTOC_UI
+
         if etm.alwaysShow():
-            etm.showImages()
+            if ((subsection != currSubsection) or (imIdx != currEntryIdx)) or (dt.UITemp.Layout.noMainEntryShown):
+                etm.showImages()
         else:
             etm.hideImages()
         
-        for ch in etm.rowFrame2.getChildren():
-            ch.render()
+        if (subsection == currSubsection) or (imIdx == currEntryIdx):
+            for ch in etm.rowFrame2.getChildren():
+                ch.render()
 
         etmMain = self.entryWidgetManagers[fsm.Data.Book.subsectionOpenInTOC_UI + 
                                            "_" + fsm.Data.Book.entryImOpenInTOC_UI]
@@ -1072,13 +1087,26 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             if k != hash:
                 if (fsm.Data.Sec.tocWImageDict(subsection)[imIdx] == "1"):
                     efm.changeFullMoveColor(True)
+
+                    if not efm.imagesShown:
+                        efm.showImages()
+
+                    efm.hideRow2()
                     efm.setFullImageLabelNotClicked()
                 else:
                     if efm.imagesShown:
                         efm.hideImages()
-                        efm.changeFullMoveColor(True)
+                    efm.changeFullMoveColor(True)
+                    efm.hideRow2()
             else:
-                efm.showImages()
+                efm.showRow2()
+
+                if dt.UITemp.Layout.noMainEntryShown:
+                    efm.showImages()
+                else:
+                    if efm.imagesShown:
+                        efm.hideImages()
+
                 efm.changeFullMoveColor(False)
                 shownEntryFrame = efm.entryFrame
 
@@ -1841,15 +1869,18 @@ class MainRoot(ww.currUIImpl.RootWidget):
         def __largerEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
+            dt.UITemp.Layout.noMainEntryShown = False
             mainMenuManager.changeLowerSubframeHeight(600)
         
         def __smallerEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
+            dt.UITemp.Layout.noMainEntryShown = False
             mainMenuManager.changeLowerSubframeHeight(375)
         def __noEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
+            dt.UITemp.Layout.noMainEntryShown = True
             mainMenuManager.changeLowerSubframeHeight(0)
         return [ww.currUIImpl.Data.BindID.Keys.cmdone, 
                 ww.currUIImpl.Data.BindID.Keys.cmdtwo,

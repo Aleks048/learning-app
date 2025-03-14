@@ -80,5 +80,8 @@ class UITemp:
         subsection = _u.Token.NotDef.str_t
         imIdx = _u.Token.NotDef.str_t
     
+    class Layout:
+        noMainEntryShown = False
+    
 class CodeTemp:
     currCodeFullLink = _u.Token.NotDef.str_t

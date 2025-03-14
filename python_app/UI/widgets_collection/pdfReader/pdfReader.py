@@ -459,9 +459,12 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         self.prevPosition = 0.4
 
-        entryWidget = self.displayedPdfPages[2].imLabel.getEntryWidget(subsection, 
-                                                                       imIdx,
-                                                                       eImIdx)
+        entryWidget = None
+
+        for l in self.displayedPdfPages:
+            if str(l.pageNum) == str(self.currPage):
+                entryWidget = l.imLabel.getEntryWidget(subsection, imIdx, eImIdx)
+
         if entryWidget != None:
             self.__scrollIntoView(None, entryWidget.label)
 
@@ -520,17 +523,18 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
         return super().hide(**kwargs)
 
-    def render(self, force = False):
+    def render(self, force = False, forceRerender = False):
         wd.Data.Reactors.entryChangeReactors[self.name] = self
 
         self.updateOMpage(force = force)
         self.currPage = int(self.currPage)
 
-        if int(self.currPage) in self.getShownPagesList():
-            for p in self.displayedPdfPages:
-                if p.pageNum == int(int(self.currPage)):
-                    self.__scrollIntoView(p)
-            return
+        if not forceRerender:
+            if int(self.currPage) in self.getShownPagesList():
+                for p in self.displayedPdfPages:
+                    if p.pageNum == int(int(self.currPage)):
+                        self.__scrollIntoView(p)
+                return
 
         if self.currPage == self.prevPage:
             if (self.prevPos != 0.0) and (self.prevPos != None):
@@ -608,7 +612,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                     else:
                         prevYview += 0.2
 
-            self.render()
+            self.render(forceRerender = True)
             self.moveY(prevYview)
 
     def updateScrollerPosition(self):
@@ -630,12 +634,14 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         return [int(i.pageNum) for i in self.displayedPdfPages]
 
     def onFullEntryMove(self):
-        if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
-            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.PdfReadersManager)
-            pdfReadersManager.moveToEntry(fsf.Data.Book.subsectionOpenInTOC_UI, 
-                                        fsf.Data.Book.entryImOpenInTOC_UI,
-                                        None)
+        pass
+        #NOTE: we disable this for now since it creates two much movement on the pdf widget
+        # if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
+        #     pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+        #                                             wf.Wr.MenuManagers.PdfReadersManager)
+        #     pdfReadersManager.moveToEntry(fsf.Data.Book.subsectionOpenInTOC_UI, 
+        #                                 fsf.Data.Book.entryImOpenInTOC_UI,
+        #                                 None)
 
     def onCopyTextToMem(self, subsection, imIdx):
          dt.AppState.UIManagers.getData("appCurrDataAccessToken",

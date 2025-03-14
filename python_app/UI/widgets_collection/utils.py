@@ -1097,7 +1097,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
     def getEntryWidget(self, subsection, imIdx , eImIdx = None):
         for l in self.labels:
-            if (l.subsection == subsection) and (l.imIdx == imIdx):
+            if (l.subsection == subsection) and (str(l.imIdx) == str(imIdx)):
                 if eImIdx == None:
                     return l
                 else:
@@ -1440,9 +1440,15 @@ class EntryFrameManager:
             if self.extraImLabels[eImIdx].resizeEtr != None:
                 self.extraImLabels[eImIdx].resizeEtr.setData(newResizeFactor)
 
-    def showImages(self):   
+    def showRow2(self):   
         self.rowFrame2.render()
+        self.imagesShown = True   
 
+    def hideRow2(self):
+        self.rowFrame2.hide()
+        self.imagesShown = False   
+
+    def showImages(self):
         self.imagesShown = True   
 
         # if self.fullMoveWidget != None:
@@ -1457,8 +1463,6 @@ class EntryFrameManager:
             self.fullMoveWidget.clicked = False 
 
     def hideImages(self):
-        self.rowFrame2.hide()
-
         self.imagesShown = False
         for ch in self.imagesFrame.getChildren().copy():
             ch.destroy()
@@ -1676,32 +1680,33 @@ class EntryImagesFactory:
         if mainImgBindData != None:
             tempLabel.rebind(*mainImgBindData)
         
-        textOnly = fsf.Data.Sec.textOnly(self.subsection)[self.imIdx]
+        if fsf.Data.Sec.textOnly(self.subsection).get(self.imIdx) != None:
+            textOnly = fsf.Data.Sec.textOnly(self.subsection)[self.imIdx]
 
-        if not textOnly:
-            imLabel = self.__getImageWidget(tempLabel, imagePath, mainWidgetName, 
-                                        self.imIdx, self.subsection, imPad = 0,
-                                        row = 0, column = 1, columnspan = 1,
-                                        resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow,
-                                        leftMove = leftMove)
-            imLabel.render()
-        else:
-            text = fsf.Data.Sec.imageText(self.subsection)[self.imIdx]
-            imLabel = TOCTextWithClick(tempLabel, 
-                                        mainWidgetName,
-                                        row = 0, column = 1, columnspan = 1,
-                                        text = text,
-                                        padx = 10,
-                                        pady = 10
-                                        )
-            imLabel.subsection = self.subsection
-            imLabel.imIdx = self.imIdx
-            imLabel.render()
+            if not textOnly:
+                imLabel = self.__getImageWidget(tempLabel, imagePath, mainWidgetName, 
+                                            self.imIdx, self.subsection, imPad = 0,
+                                            row = 0, column = 1, columnspan = 1,
+                                            resizeFactor = resizeFactor, bindOpenWindow = bindOpenWindow,
+                                            leftMove = leftMove)
+                imLabel.render()
+            else:
+                text = fsf.Data.Sec.imageText(self.subsection)[self.imIdx]
+                imLabel = TOCTextWithClick(tempLabel, 
+                                            mainWidgetName,
+                                            row = 0, column = 1, columnspan = 1,
+                                            text = text,
+                                            padx = 10,
+                                            pady = 10
+                                            )
+                imLabel.subsection = self.subsection
+                imLabel.imIdx = self.imIdx
+                imLabel.render()
 
-        if not fsf.Data.Sec.isVideo(self.subsection):
-            bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
-        else:
-            openVideoOnThePlaceOfTheImage(imLabel, self.subsection, self.imIdx)
+            if not fsf.Data.Sec.isVideo(self.subsection):
+                bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
+            else:
+                openVideoOnThePlaceOfTheImage(imLabel, self.subsection, self.imIdx)
         return tempLabel
 
     def __produceEntryExtraImageExtraLabels(self, eImIdx, parentLabel, resizeFactor):
@@ -2814,33 +2819,41 @@ class EntryWidgetFactory:
             textLabelPage.render()
             textLabelPage.forceFocus()
 
-        v = fsf.Data.Sec.imLinkDict(self.subsection)[self.imIdx]
+        if fsf.Data.Sec.imLinkDict(self.subsection).get(self.imIdx) != None:
+            v = fsf.Data.Sec.imLinkDict(self.subsection)[self.imIdx]
 
-        latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(self.imIdx, v)
-        pilIm = comw.getEntryImg(latexTxt, self.subsection, self.imIdx)
+            latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(self.imIdx, v)
+            pilIm = comw.getEntryImg(latexTxt, self.subsection, self.imIdx)
 
-        shrink = 0.7
-        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-        img = ww.currUIImpl.UIImage(pilIm)
+            shrink = 0.7
+            pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+            img = ww.currUIImpl.UIImage(pilIm)
 
-        textLabelPage = TOCLabelWithClick(parentWidget,
-                                        image = img, 
-                                        prefix = "contentP_" + self.__nameIdPrefix, 
-                                        padding= [60, 0, 0, 0],
-                                        row = 0, 
-                                        column = 0)
-        textLabelPage.imIdx = self.imIdx
-        textLabelPage.subsection = self.subsection
-        textLabelPage.etrWidget = textLabelPage
-        textLabelPage.imageLineIdx = int(self.imIdx)
-        textLabelPage.entryText = v
-        textLabelPage.imagePath = v
+            textLabelPage = TOCLabelWithClick(parentWidget,
+                                            image = img, 
+                                            prefix = "contentP_" + self.__nameIdPrefix, 
+                                            padding= [60, 0, 0, 0],
+                                            row = 0, 
+                                            column = 0)
+            textLabelPage.imIdx = self.imIdx
+            textLabelPage.subsection = self.subsection
+            textLabelPage.etrWidget = textLabelPage
+            textLabelPage.imageLineIdx = int(self.imIdx)
+            textLabelPage.entryText = v
+            textLabelPage.imagePath = v
 
-        textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                [updateEntry])
-        
-        bindOpenOMOnThePageOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
-        textLabelPage.image = img
+            textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                    [updateEntry])
+            
+            bindOpenOMOnThePageOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
+            textLabelPage.image = img
+        else:
+            textLabelPage = TOCLabelWithClick(parentWidget,
+                                                text = _u.Token.NotDef.str_t, 
+                                                prefix = "contentP_" + self.__nameIdPrefix, 
+                                                padding= [60, 0, 0, 0],
+                                                row = 0, 
+                                                column = 0)
 
         self.entryFrameManager.latexEntryImage = textLabelPage
         return textLabelPage
@@ -3216,7 +3229,12 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     def produceGroupOM(self, parentWidget):
         imagesGroupDict:dict = fsf.Data.Sec.imagesGroupDict(self.subsection)
         imagesGroups = fsf.Data.Sec.imagesGroupsList(self.subsection)
-        currImGroupidx = imagesGroupDict[self.imIdx]
+
+        currImGroupidx = 0
+
+        if imagesGroupDict.get(self.imIdx) != None:
+            currImGroupidx = imagesGroupDict[self.imIdx]
+
         currImGroupName = list(imagesGroups.keys())[currImGroupidx]
 
         imageGroupOM = comw.ImageGroupOM(imagesGroups,
@@ -3583,6 +3601,7 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
         mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)
         mainImageWidget.render()
 
+        self.entryFrameManager.rowFrame2.render()
         self.entryFrameManager.showImages()
 
         full = self.EntryUIs.full.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
@@ -3710,7 +3729,7 @@ def bindOpenOMOnThePageOfTheImage(widget:TOCLabelWithClick, targetSubsection, ta
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.PdfReadersManager)
         
-        pdfReadersManager.moveToEntry(targetSubsection, targetImIdx, eImidx)
+        pdfReadersManager.moveToEntry(targetSubsection, targetImIdx, eImidx, forcePageChange = True)
 
     widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])
 

@@ -169,13 +169,15 @@ class PdfReadersManager(wm.MenuManager_Interface):
         self.layouts[0].secondaryEntry.addSecondaryFrame(subsection, imIdx)
         self.layouts[0].secondaryEntry.render()
 
-    def moveToEntry(self, subsection, imIdx, eImIdx):
+    def moveToEntry(self, subsection, imIdx, eImIdx, forcePageChange = False):
         if eImIdx == None:
             currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
         else:
             currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx + "_" + str(eImIdx)])
 
-        # self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
+        if forcePageChange:
+            self.layouts[0].changePagePdfReaderWindow_ETR.changePage(None, currPage)
+
         self.layouts[0].currPage = currPage
         self.layouts[0].selector = False
         self.layouts[0].pfdReader_BOX.changePage(currPage)
@@ -183,4 +185,5 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
         if int(currPage) not in self.layouts[0].pfdReader_BOX.getShownPagesList():
             self.layouts[0].show()
+        
         self.layouts[0].pfdReader_BOX.moveToEntryWidget(subsection, imIdx, eImIdx)
