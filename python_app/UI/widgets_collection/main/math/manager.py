@@ -136,6 +136,8 @@ class LayoutManagers:
         def show(self):
             self.tocBox.widgetToScrollTo = None
 
+            self.entryWindow_BOX.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
+            self.entryWindow_BOX.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
             # self.winRoot.configureColumn(0, weight = 1)
             # self.winRoot.configureColumn(1, weight = 1)
             # self.winRoot.configureColumn(2, weight = 3)

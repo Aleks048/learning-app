@@ -316,6 +316,9 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
                         if timer > 50:
                             return False
 
+                fsf.Data.Book.subsectionOpenInTOC_UI = currSubsection
+                fsf.Data.Book.entryImOpenInTOC_UI = str(currImNum)
+
                 nextImNum = str(int(currImNum) + 1)
 
                 fsf.Data.Book.subsectionOpenInTOC_UI = currSubsection

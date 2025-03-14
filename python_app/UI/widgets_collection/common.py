@@ -677,10 +677,11 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         self.moveY((pos / height))
 
     def render(self, scrollTOC = True):
-        for ch in self.scrollable_frame.getChildren().copy():
-            ch.destroy()
+        self.scrollable_frame.removeAllChildren()
+        # for ch in self.scrollable_frame.getChildren().copy():
+        #     ch.destroy()
 
-        if (self.subsection != None):
+        if (self.subsection != None) and (str(fsm.Data.Book.entryImOpenInTOC_UI) != _u.Token.NotDef.str_t):
             self.__AddEntryWidget(self.imIdx, self.subsection, self.scrollable_frame)
 
         super().render(self.renderData)

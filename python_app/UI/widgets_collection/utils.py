@@ -3234,6 +3234,8 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         if imagesGroupDict.get(self.imIdx) != None:
             currImGroupidx = imagesGroupDict[self.imIdx]
+        
+        currImGroupidx = 0 if currImGroupidx == _u.Token.NotDef.str_t else currImGroupidx
 
         currImGroupName = list(imagesGroups.keys())[currImGroupidx]
 

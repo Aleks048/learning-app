@@ -200,7 +200,7 @@ class ChooseSubsection_OM(ww.currUIImpl.OptionMenu):
         return super().render(self.renderData)
 
 class SwitchLayoutSectionVSMain_amsl_BTN(cl.SwitchLayoutSectionVSMain_BTN):
-    labelOptions = ["Swith layout", "Swith layout"]
+    labelOptions = ["Switch layout", "Switch layout"]
 
     def __init__(self, patentWidget, prefix):
         data = {
@@ -551,9 +551,10 @@ class CreateNewSubsection_BTN(ww.currUIImpl.Button,
         secPath = self.notify(NewSectionPath_ETR)
         isVideo = self.notify(CreateVideoSubsection_CHBX)
 
-        fsf.Data.Book.entryImOpenInTOC_UI = "-1"
-
         gm.GeneralManger.AddSubsection(secPath, newSecName, newSecStartPage, newSecEndPage, isVideo)
+
+        fsf.Data.Book.entryImOpenInTOC_UI = str(secPath)
 
         fsf.Data.Book.currSection = secPath
         fsf.Data.Book.subsectionOpenInTOC_UI = secPath
+        fsf.Data.Book.entryImOpenInTOC_UI = _u.Token.NotDef.str_t
