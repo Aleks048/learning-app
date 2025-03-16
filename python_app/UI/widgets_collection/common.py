@@ -1086,19 +1086,20 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsection = k.split("_")[0]
             imIdx = k.split("_")[1]
             if k != hash:
-                if (fsm.Data.Sec.tocWImageDict(subsection)[imIdx] == "1"):
-                    efm.changeFullMoveColor(True)
+                if subsection == currSubsection:
+                    if (fsm.Data.Sec.tocWImageDict(subsection)[imIdx] == "1"):
+                        efm.changeFullMoveColor(True)
 
-                    if not efm.imagesShown:
-                        efm.showImages()
+                        if not efm.imagesShown:
+                            efm.showImages()
 
-                    efm.hideRow2()
-                    efm.setFullImageLabelNotClicked()
-                else:
-                    if efm.imagesShown:
-                        efm.hideImages()
-                    efm.changeFullMoveColor(True)
-                    efm.hideRow2()
+                        efm.hideRow2()
+                        efm.setFullImageLabelNotClicked()
+                    else:
+                        if efm.imagesShown:
+                            efm.hideImages()
+                        efm.changeFullMoveColor(True)
+                        efm.hideRow2()
             else:
                 efm.showRow2()
 
@@ -1321,6 +1322,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
             def __cmd(event, subsection, *args):
                 # open orig material on page
+
+                self.entryWidgetManagers = {}
 
                 links:dict = fsm.Data.Sec.imLinkDict(subsection)
 
