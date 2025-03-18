@@ -737,8 +737,8 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             if (showSubentries != _u.Token.NotDef.str_t) and (not showSubentries):
                 return
         
-        entryWidgetFactory = _uuicom.EntryWidgetFactoryEntryWindow(subsection, imIdx, frame, self, 0, 0)
-        entryWidgetFactory.produceEntryWidgetsForFrame()
+        entryWidgetFactory = _uuicom.EntryWidgetFactoryEntryWindow(subsection, imIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(frame)
         self.entryManager = entryWidgetFactory.entryFrameManager
         return
 
@@ -1184,8 +1184,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         if fsm.Data.Book.entryImOpenInTOC_UI == imIdx:
             fsm.Data.Book.entryImOpenInTOC_UI = newIdx
 
-        entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, newIdx, frame, self, 0, 0)
-        entryWidgetFactory.produceEntryWidgetsForFrame()
+        entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, newIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(frame)
         self.entryWidgetManagers[subsection + "_" + newIdx] = entryWidgetFactory.entryFrameManager
         etmNew = self.entryWidgetManagers[subsection + "_" + newIdx]
 
@@ -1226,8 +1226,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 return
 
                 
-        entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, imIdx, frame, self, 0, 0)
-        entryWidgetFactory.produceEntryWidgetsForFrame()
+        entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, imIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(frame)
         self.entryWidgetManagers[subsection + "_" + imIdx] = entryWidgetFactory.entryFrameManager
         return
 

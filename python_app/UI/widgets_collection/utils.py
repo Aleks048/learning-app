@@ -2276,11 +2276,10 @@ class EntryWidgetFactory:
         def __init__(self):
             raise NotImplementedError()
 
-    def __init__(self, subsection, imIdx, parentWidget, scrollableFrame, topPad, leftPad):
+    def __init__(self, subsection, imIdx, topPad, leftPad):
         self.subsection = subsection
         self.imIdx = imIdx
-        self.frame = parentWidget
-        self.scrollableFrame = scrollableFrame
+        self.frame = None
         self.__nameIdPrefix = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
         self.EntryUIs = self.EntryUIs()
 
@@ -2495,14 +2494,16 @@ class EntryWidgetFactory:
         return pasteAfterEntry
 
     def produceShowLinksForEntry(self, parentWidget):
-        def showLinksForEntryCmd(manager):
+        def showLinksForEntryCmd(e, manager):
             linksFrame = manager.linkFrame
             if linksFrame.wasRendered:
                 linksFrame.hide()
             else:
                 linksFrame.render()
 
-            self.scrollableFrame.updateHeight()
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onLinksShow" in dir(w):
+                    w.onLinksShow(e.widget.subsection, e.widget.imIdx)
 
         showLinksForEntry = TOCLabelWithClick(parentWidget,
                                                 text = self.EntryUIs.showLinks.name,
@@ -2513,7 +2514,7 @@ class EntryWidgetFactory:
         showLinksForEntry.subsection = self.subsection
 
         showLinksForEntry.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                    [lambda e, lf = self.entryFrameManager, *args: showLinksForEntryCmd(lf)])
+                                    [lambda e, lf = self.entryFrameManager, *args: showLinksForEntryCmd(e, lf)])
 
         linkExist = self.imIdx in list(fsf.Data.Sec.imGlobalLinksDict(self.subsection).keys())
 
@@ -3100,7 +3101,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             self.widgetToScrollTo = None
             self.linkFrames = None
             self.currSecondRowLabels = None
-            self.scrollableFrame.__renderWithoutScroll()
 
             pdfMenuManager.forceUpdate()
 
@@ -3506,7 +3506,9 @@ class EntryWidgetFactoryTOC(EntryWidgetFactory):
             self.shift = self.__EntryUIData("[Shift Up]", 10, EntryWidgetFactory.produceShiftLabelWidget)
             self.copyText = self.__EntryUIData("[Copy text]", 11, EntryWidgetFactory.produceCopyTextToMemWidget)
 
-    def produceEntryWidgetsForFrame(self):
+    def produceEntryWidgetsForFrame(self, parentWidget):
+        self.frame = parentWidget
+
         leadingEntry = fsf.Data.Sec.leadingEntry(self.subsection)
 
         rowsPad = 0
@@ -3604,7 +3606,9 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
             self.copyText = self.__EntryUIData("[Copy text]", 6, EntryWidgetFactory.produceCopyTextToMemWidget, row = 1)
             self.proof = self.__EntryUIData("[Show proof]", 7, EntryWidgetFactory.produceOpenProofMenu, row = 1)
 
-    def produceEntryWidgetsForFrame(self):
+    def produceEntryWidgetsForFrame(self, parentWidget):
+        self.frame = parentWidget
+
         self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, leftPad = self.leftPad)
 
         mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)

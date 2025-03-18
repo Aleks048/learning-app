@@ -628,6 +628,9 @@ class MainEntryBox(comw.EntryWindow_BOX):
     def notificationAfterImageWasCreated(self, subsection, imIdx):
         super().setMain(subsection, imIdx)
 
+    def onLinksShow(self, subsection, imIdx):
+        super().updateHeight()
+
     def onAddExtraImage(self, subsection, mainImIdx, extraImIdx):
         etm = self.entryManager
         if etm != None:
