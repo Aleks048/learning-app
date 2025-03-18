@@ -1246,7 +1246,9 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
 class EntryFrameManager:
-    def __init__(self, entryFrame, subsection, imIdx):
+    def __init__(self, entryFrame, subsection, imIdx, widgetFactory):
+        self.factory = widgetFactory
+
         self.subsection = subsection
         self.imIdx = imIdx
 
@@ -3439,7 +3441,10 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                 row = int(self.imIdx) + 2, column = 0, columnspan = 100)
         entryFrame.render()
 
-        entryFrameManager = EntryFrameManager(entryFrame, self.subsection, self.imIdx)
+        entryFrameManager = EntryFrameManager(entryFrame = entryFrame, 
+                                              subsection = self.subsection, 
+                                              imIdx = self.imIdx,
+                                              widgetFactory = self)
 
         entryFrameManager.groupFrame = self.produceGroupWidget(entryFrame)
 
