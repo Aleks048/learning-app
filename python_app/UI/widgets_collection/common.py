@@ -1185,10 +1185,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             fsm.Data.Book.entryImOpenInTOC_UI = newIdx
 
         entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, newIdx, frame, self, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame()
         self.entryWidgetManagers[subsection + "_" + newIdx] = entryWidgetFactory.entryFrameManager
         etmNew = self.entryWidgetManagers[subsection + "_" + newIdx]
 
-        entryWidgetFactory.produceEntryWidgetsForFrame()
 
         def th(tocWidget, frame, subsection, newidx):
             tocWidget.shouldScroll = True
@@ -1227,8 +1227,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
                 
         entryWidgetFactory = _uuicom.EntryWidgetFactoryTOC(subsection, imIdx, frame, self, 0, 0)
-        self.entryWidgetManagers[subsection + "_" + imIdx] = entryWidgetFactory.entryFrameManager
         entryWidgetFactory.produceEntryWidgetsForFrame()
+        self.entryWidgetManagers[subsection + "_" + imIdx] = entryWidgetFactory.entryFrameManager
         return
 
     def receiveNotification(self, broadcasterType, data = None, entryClicked = None):

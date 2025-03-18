@@ -2284,21 +2284,10 @@ class EntryWidgetFactory:
         self.__nameIdPrefix = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
         self.EntryUIs = self.EntryUIs()
 
-        leadingEntry = fsf.Data.Sec.leadingEntry(subsection)
+        self.topPad = topPad
+        self.leftPad = leftPad
 
-        rowsPad = 0
-
-        if leadingEntry.get(imIdx) != None:
-            if str(leadingEntry[imIdx]) != _u.Token.NotDef.str_t:
-                rowsPad += 30
-
-                showSubentries = fsf.Data.Sec.showSubentries(subsection)
-                if showSubentries.get(imIdx) != None:
-                    if not showSubentries[imIdx]:
-                        self.entryFrameManager = None
-                        return
-
-        self.entryFrameManager = self.__produceEntryWidgetFrames(topPad = topPad, leftPad = leftPad, rowsPad = rowsPad)
+        self.entryFrameManager = None
 
     def produceShiftLabelWidget(self, parentWidget):
         def shiftEntryCmd(event, *args):
@@ -3441,7 +3430,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         bindChangeColorOnInAndOut(openEntryWikiUIEntry)
         return openEntryWikiUIEntry
 
-    def __produceEntryWidgetFrames(self, topPad, leftPad, rowsPad = 0):
+    def produceEntryWidgetFrames(self, topPad, leftPad, rowsPad = 0):
         nameId = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
 
         entryFrame = TOCFrame(self.frame,
@@ -3518,6 +3507,22 @@ class EntryWidgetFactoryTOC(EntryWidgetFactory):
             self.copyText = self.__EntryUIData("[Copy text]", 11, EntryWidgetFactory.produceCopyTextToMemWidget)
 
     def produceEntryWidgetsForFrame(self):
+        leadingEntry = fsf.Data.Sec.leadingEntry(self.subsection)
+
+        rowsPad = 0
+
+        if leadingEntry.get(self.imIdx) != None:
+            if str(leadingEntry[self.imIdx]) != _u.Token.NotDef.str_t:
+                rowsPad += 30
+
+                showSubentries = fsf.Data.Sec.showSubentries(self.subsection)
+                if showSubentries.get(self.imIdx) != None:
+                    if not showSubentries[self.imIdx]:
+                        self.entryFrameManager = None
+                        return
+
+        self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, leftPad = self.leftPad, rowsPad = rowsPad)
+
         if self.entryFrameManager == None:
             return
         
@@ -3600,6 +3605,8 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
             self.proof = self.__EntryUIData("[Show proof]", 7, EntryWidgetFactory.produceOpenProofMenu, row = 1)
 
     def produceEntryWidgetsForFrame(self):
+        self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, leftPad = self.leftPad)
+
         mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)
         mainImageWidget.render()
 
