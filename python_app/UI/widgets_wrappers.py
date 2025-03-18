@@ -317,6 +317,8 @@ class TkWidgets (DataTranslatable_Interface):
                 self.widget.rootWidget.removeChild(self.widget)
         
         def destroy(self):
+            self.widget.removeAllChildren()
+
             self.widget.widgetObj.destroy()
 
             if not issubclass(TkWidgets.RootWidget, type(self.widget)):

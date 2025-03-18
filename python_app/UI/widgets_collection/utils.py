@@ -1245,6 +1245,54 @@ def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, sho
     if shouldBeBrown:
         widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
+
+class SubsectionFrameManager:
+    def __init__(self, subsection, subsectionFrame, topFrame, entriesFrame, subsectionChildrenSectionsFrame, widgetFactory):
+        self.factory = widgetFactory
+        self.subsection = subsection
+
+        self.subsectionFrame = subsectionFrame
+        self.topFrame = topFrame
+        self.entriesFrame = entriesFrame
+        self.subsectionChildrenSectionsFrame = subsectionChildrenSectionsFrame
+
+        self.openContentWidget = None
+        self.entriesWidgetManagers = {}
+
+    def removeAllSubsections(self):
+        self.subsectionChildrenSectionsFrame.destroy()
+
+        self.subsectionChildrenSectionsFrame = \
+            self.factory.produceSectionChildrenSectionsFrame(self.subsectionFrame)
+
+    def addEntryWidget(self, imIdx):                
+        entryWidgetFactory = EntryWidgetFactoryTOC(self.subsection, imIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(self.entriesFrame)
+        self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
+
+    def addEntryWidgetsForSubsection(self):
+        entries = fsf.Data.Sec.imLinkDict(self.subsection)
+
+        for imIdx in entries.keys():
+            self.addEntryWidget(imIdx)
+
+    def openSubsection(self):
+        if self.openContentWidget != None:
+            self.openContentWidget.clicked = True
+            self.openContentWidget.changeColor("brown")
+            bindChangeColorOnInAndOut(self.openContentWidget, True)
+
+    def closeSubsection(self):
+        for ch in self.entriesFrame.getChildren().copy():
+            ch.destroy()
+        
+        if self.openContentWidget != None:
+            self.openContentWidget.clicked = False
+            self.openContentWidget.changeColor("white")
+            bindChangeColorOnInAndOut(self.openContentWidget, False)
+
+        self.entriesFrame.hide()
+
 class EntryFrameManager:
     def __init__(self, entryFrame, subsection, imIdx, widgetFactory):
         self.factory = widgetFactory
@@ -3124,6 +3172,17 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             entriesList = list(fsf.Data.Sec.imLinkDict(self.subsection).keys())
             entriesList.sort(key = int)
 
+            print(entriesList)
+            counter = 0
+
+            while str(self.imIdx) not in entriesList:
+                time.sleep(0.3)
+                entriesList = list(fsf.Data.Sec.imLinkDict(self.subsection).keys())
+                counter += 1
+                if counter > 50:
+                    _u.log.autolog("Something is wrong with the group list. Return")
+                    return
+
             entriesList.index(str(self.imIdx))
             idx = entriesList[entriesList.index(self.imIdx) - 1] #previous entry
 
@@ -3408,17 +3467,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     /Users/ashum048/books/utils/c++_modules/qt_KIK_Browser/build/Qt_6_8_0_macos-Debug/browser.app/Contents/MacOS/browser \
     http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
 
-        def hideLinksImagesFunc(event, *args):
-            self.linksOpenImage.clear()
-
-            for k in self.linksOpenImageWidgets.keys():
-                im = self.linksOpenImageWidgets[k]
-                im.hide()
-
-            self.linksOpenImageWidgets = {}
-
-            self.__renderWithScrollAfter()
-
         openEntryWikiUIEntry = TOCLabelWithClick(parentWidget, 
                                         text = self.EntryUIs.wikiNote.name, 
                                         prefix = "contentOpenEntryWikiUIEntry" + self.__nameIdPrefix,
@@ -3488,7 +3536,7 @@ class EntryWidgetFactoryTOC(EntryWidgetFactory):
     # row 1
     class EntryUIs(EntryWidgetFactory.EntryUIs):
         def __init__(self):
-            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
+            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactory.produceFullMoveEntriesWidget)
             self.im = self.__EntryUIData("[i]", 2, EntryWidgetFactory.produceOpenSecondaryImageWidget)
             self.copyLink = self.__EntryUIData("[cl]", 3, EntryWidgetFactory.produceCopyLinkWidget)
             self.pasteLink = self.__EntryUIData("[pl]", 4, EntryWidgetFactory.producePasteLinkEntryWidget)
@@ -3582,18 +3630,15 @@ class EntryWidgetFactoryTOC(EntryWidgetFactory):
         self.entryFrameManager.uiResizeEtr = changeImSize
 
 class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
-    # row 1
     class EntryUIs(EntryWidgetFactory.EntryUIs):
         def __init__(self):
-            # # row 2.5 
-            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
+            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactory.produceFullMoveEntriesWidget)
             self.copyLink = self.__EntryUIData("[cl]", 3, EntryWidgetFactory.produceCopyLinkWidget)
             self.pasteLink = self.__EntryUIData("[pl]", 4, EntryWidgetFactory.producePasteLinkEntryWidget)
             self.copy = self.__EntryUIData("[c]", 5, EntryWidgetFactory.produceCopyEntryWidget)
             self.pasteAfter = self.__EntryUIData("[p]", 6, EntryWidgetFactory.producePasteEntryWidget)
             self.excercises = self.__EntryUIData("[e]", 7, EntryWidgetFactory.produceOpenExcercisesWidget)
 
-            # row 2
             self.showLinks = self.__EntryUIData("[Links]", 1, EntryWidgetFactory.produceShowLinksForEntry)
             self.alwaysShow = self.__EntryUIData("", 2, EntryWidgetFactory.produceAlwaysShowChbxWidget)
             self.changeImSize = self.__EntryUIData("", 3, EntryWidgetFactory.produceChangeImSizeWidget)
@@ -3670,6 +3715,463 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
         proof = self.EntryUIs.proof.cmd(self, parentWidget = self.entryFrameManager.rowFrame2)
         proof.render()
 
+
+
+class SubsectionWidgetFactory:
+    class EntryUIs:
+        class __EntryUIData:
+            def __init__(self, name, column, cmd, row = 0) -> None:
+                self.name = name
+                self.column = column
+                self.row = row
+                self.cmd = cmd
+
+        def __init__(self):
+            raise NotImplementedError()
+
+    def __init__(self, subsection):
+        self.subsection = subsection
+        self.widgetManager = None
+        self.frame = None
+
+        self.EntryUIs = self.EntryUIs()
+
+    def __getPrefix(self):
+        nameId = "subsecLabel_" + self.subsection 
+        return nameId.replace(".", "")
+
+    def __bindOpenPdfOnStartOfTheSection(self, widget:TOCLabelWithClick):
+        def __cmd(event = None, *args):
+            # open orig material on page
+            origMatNameDict = fsf.Data.Sec.origMatNameDict(self.subsection)
+            omName = origMatNameDict[list(origMatNameDict.keys())[-1]]
+
+            if str(omName) == _u.Token.NotDef.str_t:
+                # when there is no entries yet we use the current origMaterial name
+                omName = fsf.Data.Book.currOrigMatName
+
+            subsectionStartPage = fsf.Data.Sec.start(self.subsection)
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, subsectionStartPage)
+
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.show(page = int(subsectionStartPage))
+
+            event.widget.changeColor("white")
+        
+        widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+
+    def __bindUpdateSubsection(event, *args):
+        widget = event.widget
+        subsection = widget.subsection
+
+        def __bringImageWidgetBack(event, imageWidget):
+            newText = event.widget.getData()
+
+            if subsection in list(fsf.Data.Book.sections.keys()):
+                sections = fsf.Data.Book.sections
+                sections[subsection]["name"] = newText
+                fsf.Data.Book.sections = sections
+                fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(event.widget.subsection,
+                                                                _upan.Names.Subsection.getTopSectionPretty)
+            else:
+                fsf.Data.Sec.text(event.widget.subsection, newText)
+                fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(event.widget.subsection,
+                                                                _upan.Names.Subsection.getSubsectionPretty)
+            
+            event.widget.hide()
+            imageWidget.updateSubsectionImage()
+            imageWidget.render()
+
+        sectionName = ""
+        if subsection in list(fsf.Data.Book.sections.keys()):
+            sectionName = fsf.Data.Book.sections[subsection]["name"]
+        else:
+            sectionName = fsf.Data.Sec.text(subsection)
+
+        subsectionLabel = MultilineText_ETR(self.frame, 
+                                                    "subsectionETR" + subsection, 
+                                                    0, 0, 
+                                                    "", # NOTE: not used anywhere  
+                                                    sectionName)
+        subsectionLabel.subsection = subsection
+        subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                                [lambda e, *args: __bringImageWidgetBack(e, widget)])
+        subsectionLabel.forceFocus()
+        subsectionLabel.render()
+
+    def produceTopSectionLatexImage(self):
+        topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(),
+                                                            self.subsection)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
+            result = Image.open(topSectionImgPath)
+        else:
+            result = fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
+                                                                        _upan.Names.Subsection.getTopSectionPretty)
+
+        shrink = 0.8
+        result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+        result = ww.currUIImpl.UIImage(result)
+
+        subsectionLabel = TOCLabelWithClick(root = self.widgetManager.topFrame,
+                                                    image = result,
+                                                    prefix = "_topSection" + self.__getPrefix(), 
+                                                    padding = [0, 0, 0, 0],
+                                                    row = 0, column= 0)
+        subsectionLabel.image = result
+        subsectionLabel.subsection = self.subsection
+        subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                [self.__bindUpdateSubsection])
+        self.__bindOpenPdfOnStartOfTheSection(subsectionLabel)
+        return subsectionLabel
+
+    def produceTopSectionExtraWidgets(self):
+        openContentLabel = self.produceOpenContentWidget()
+        openContentLabel.render()
+
+    def produceOpenContentWidget(self):
+        def openContentOfSubsection(e):
+            widget = e.widget
+            isTopSection = len(widget.subsection.split(".")) == 1
+
+            if not widget.clicked:
+                if isTopSection:
+                    fsf.Data.Book.currTopSection = widget.subsection
+                else:
+                    fsf.Data.Book.subsectionOpenInTOC_UI = widget.subsection
+                    fsf.Data.Book.currSection = widget.subsection
+
+                for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                    if isTopSection:
+                        if "onTopSectionOpen" in dir(w):
+                            w.onTopSectionOpen(widget.subsection)
+                    else:
+                        if "onSubsectionOpen" in dir(w):
+                            w.onSubsectionOpen(widget.subsection)
+                
+                widget.changeColor("brown")
+                bindChangeColorOnInAndOut(widget, shouldBeBrown = True)
+                widget.clicked = True
+            else:
+                if isTopSection:
+                    fsf.Data.Book.currTopSection = _u.Token.NotDef.str_t
+                else:
+                    fsf.Data.Book.subsectionOpenInTOC_UI = _u.Token.NotDef.str_t
+                    fsf.Data.Book.currSection = _u.Token.NotDef.str_t
+
+                for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                    if isTopSection:
+                        if "onTopSectionClose" in dir(w):
+                            w.onTopSectionClose(widget.subsection)
+                    else:
+                        if "onSubsectionClose" in dir(w):
+                            w.onSubsectionClose(widget.subsection)
+
+                widget.changeColor("white")
+                bindChangeColorOnInAndOut(widget, shouldBeBrown = False)
+                widget.clicked = False
+
+        openContentLabel = TOCLabelWithClick(self.widgetManager.topFrame, text = "[content]", 
+                                            prefix = "subsecContent" + self.__getPrefix(),
+                                            row = 0, column= 1)
+        openContentLabel.subsection = self.subsection
+
+        self.widgetManager.openContentWidget = openContentLabel
+
+        openContentLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                    [lambda e, *args: openContentOfSubsection(e)])
+        bindChangeColorOnInAndOut(openContentLabel)
+        return openContentLabel
+
+    def produceSubsectionRebuildLatex(self):
+        def rebuildSubsectionLatexWrapper(subsection):
+            fsf.Wr.SectionInfoStructure.rebuildSubsectionLatex(subsection,
+                                                            _upan.Names.Group.formatGroupText,
+                                                            _upan.Names.Subsection.getSubsectionPretty,
+                                                            _upan.Names.Subsection.getTopSectionPretty)
+
+            for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                if "onRebuildSubsectionLatex" in dir(w):
+                    w.onRebuildSubsectionLatex(subsection)
+
+        rebuildLatex = TOCLabelWithClick(self.widgetManager.topFrame, text = "[rebuild latex]",
+                                        prefix = "subsecRebuild" + self.__getPrefix(),
+                                        row = 0, column = 4)
+        rebuildLatex.subsection = self.subsection
+
+        bindChangeColorOnInAndOut(rebuildLatex)
+        rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
+        return rebuildLatex
+
+    def produceShowVideoLabel(self):
+        def showSubsectiionVideoWrapper(subsection):  
+            videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+            videoPlayerManager.show(subsection, "0")
+
+            for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                if "onShowVideo" in dir(w):
+                    w.onShowVideo(subsection)
+
+        showVideo = TOCLabelWithClick(self.widgetManager.topFrame, text = "[show video]",
+                                            prefix = "showVideo" + self.subsection.replace(".", ""),
+                                            row = 0, column = 6)
+        showVideo.subsection = self.subsection
+
+        bindChangeColorOnInAndOut(showVideo)
+        showVideo.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, *args: showSubsectiionVideoWrapper(e.widget.subsection)])
+
+        return showVideo
+
+    def produceChangeStartPageETR(self):
+        def __updateStartPage(e, *args):
+            newStartPage = e.widget.getData()
+            subsection = e.widget.subsection
+            fsf.Data.Sec.start(subsection, newStartPage)
+            omName = fsf.Data.Book.currOrigMatName
+            
+            fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(omName, newStartPage)
+
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.show(page = int(newStartPage))
+
+            for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                if "onUpdateSubsectionStartPage" in dir(w):
+                    w.onUpdateSubsectionStartPage(subsection)
+
+        startPage = fsf.Data.Sec.start(self.subsection)
+        changeStartPage = ImageSize_ETR(self.widgetManager.topFrame,
+                                        prefix = "updateStartPageEntryText" + self.subsection.replace(".", ""),
+                                        row = 0, 
+                                        column = 3,
+                                        imIdx = -1,
+                                        text = startPage)
+        changeStartPage.subsection = self.subsection
+        changeStartPage.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                [lambda e, *args:__updateStartPage(e, changeStartPage.subsection, *args)])
+        
+        return changeStartPage
+
+    def produceUpdateSubsectionPathETR(self):
+        def __updateSubsectionPath(e, *args):
+            targetSubsection = e.widget.getData()
+            subsection = e.widget.subsection
+            sourceSubsection = subsection
+
+            # ask the user if we wnat to proceed.
+            msg = "Do you want to move \n\n subsection\n'{0}' \n\nto \n'{1}'?".format(sourceSubsection, targetSubsection)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            gm.GeneralManger.moveSubsection(sourceSubsection,
+                                            targetSubsection)
+            
+            for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                if "onUpdateSubsectionPath" in dir(w):
+                    w.onUpdateSubsectionPath(subsection)
+
+        updateSubsectionPath = ImageSize_ETR(self.widgetManager.topFrame,
+                                                prefix = "updateSubsectionPosEntryText" + self.subsection.replace(".", ""),
+                                                row = 0, 
+                                                column = 5,
+                                                imIdx = -1,
+                                                text = self.subsection,
+                                                width = 20)
+        updateSubsectionPath.subsection = self.subsection
+        updateSubsectionPath.rebind([ww.currUIImpl.Data.BindID.Keys.enter],
+                                [lambda e, *args:__updateSubsectionPath(e, updateSubsectionPath.subsection, *args)])
+
+        return updateSubsectionPath
+
+    def produceRemoveSubsectionLabel(self):
+        def __removeSubsection(e, subsection, *args):
+            sourceSubsection = subsection
+
+            # ask the user if we wnat to proceed.
+            msg = "Do you want to \n\nREMOVE \n\n subsection:\n'{0}'?".format(sourceSubsection)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            gm.GeneralManger.deleteSubsection(sourceSubsection)
+
+            for w in wd.Data.Reactors.subsectionChangeReactors:
+                if "onSubsectionRemove" in dir(w):
+                    w.onSubsectionRemove(subsection)
+
+        removeSubsection = TOCLabelWithClick(self.widgetManager.topFrame,
+                                                prefix = "removeSubsectionPosEntryText" + self.subsection.replace(".", ""),
+                                                row = 0, 
+                                                column = 7,
+                                                text = "[delete]")
+        removeSubsection.subsection = self.subsection
+
+        bindChangeColorOnInAndOut(removeSubsection)
+        removeSubsection.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [lambda e, *args:__removeSubsection(e, removeSubsection.subsection, *args)])
+
+        return removeSubsection
+
+    def produceShowHideSubsectionLabel(self):
+        def showHideSubsectionsWrapper(subsection):
+            subsectionsHidden:list = fsf.Data.Book.subsectionsHiddenInTOC_UI
+
+            if subsection in subsectionsHidden:
+                subsectionsHidden.remove(subsection)
+            else:
+                subsectionsHidden.append(subsection)
+            
+            fsf.Data.Book.subsectionsHiddenInTOC_UI =  subsectionsHidden
+
+            for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                if "onSubsectionShowHide" in dir(w):
+                    w.onSubsectionShowHide(subsection)
+
+        hideSubsections = TOCLabelWithClick(self.widgetManager.topFrame, 
+                                            text = "[show/hide]",
+                                            prefix = "subsecShowHide" + self.subsection.replace(".", ""),
+                                            row = 0, column = 2)
+        subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(self.subsection)
+
+        if subsectionsList != []:
+            hideSubsections.changeColor("brown")
+
+        hideSubsections.subsection = self.subsection
+
+        if subsectionsList != []:
+            bindChangeColorOnInAndOut(hideSubsections, shouldBeBrown = True)
+        else:
+            bindChangeColorOnInAndOut(hideSubsections)
+
+        hideSubsections.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [lambda e, *args: showHideSubsectionsWrapper(e.widget.subsection)])
+        
+        return hideSubsections
+
+    def produceSubsectionExtraWidgets(self):
+        openContentLabel = self.produceOpenContentWidget()
+        openContentLabel.render()
+
+        rebuildLatexLabel = self.produceSubsectionRebuildLatex()
+        rebuildLatexLabel.render()
+
+        if fsf.Data.Sec.isVideo(self.subsection):
+            showVideoLabel = self.produceShowVideoLabel()
+            showVideoLabel.render()
+        
+        changeStartPageEtr = self.produceChangeStartPageETR()
+        changeStartPageEtr.render()
+
+        updateSubsectionPathETR = self.produceUpdateSubsectionPathETR()
+        updateSubsectionPathETR.render()
+
+        removeSubsectionLabel = self.produceRemoveSubsectionLabel()
+        removeSubsectionLabel.render()
+
+        showHideSubsectionLabel = self.produceShowHideSubsectionLabel()
+        showHideSubsectionLabel.render()
+
+    def produceSubsectionLatexImage(self):
+        subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(), 
+                                                            self.subsection)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+            result = Image.open(subsectionImgPath)
+        else:
+            result = \
+                fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsection, 
+                                                                        _upan.Names.Subsection.getSubsectionPretty)
+
+        shrink = 0.8
+        result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+        result = ww.currUIImpl.UIImage(result)
+
+        subsectionLabel = TOCLabelWithClick(self.widgetManager.topFrame, 
+                                            image = result, 
+                                            prefix = "_subsecion" + self.__getPrefix(),
+                                            row = 0, column= 0)
+        subsectionLabel.image = result
+        subsectionLabel.subsection = self.subsection
+        subsectionLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                [self.__bindUpdateSubsection])
+        self.__bindOpenPdfOnStartOfTheSection(subsectionLabel)
+        return subsectionLabel
+
+    def produceSectionChildrenSectionsFrame(self, parentWidget):
+        subsectionChildrenSectionsFrame = TOCFrame(parentWidget, 
+                                                   "subsectionChildrenSectionsFrame" + self.__getPrefix(), 
+                                                   row = 2, 
+                                                   column = 0, 
+                                                   columnspan = 1, 
+                                                   padding = [0, 0, 0, 0])
+        subsectionChildrenSectionsFrame.render()
+
+        return subsectionChildrenSectionsFrame
+
+    def produceSubsectionFrame(self, row):
+        topPad = 0 if (len(self.subsection.split(".")) != 1) or (row == 0) else 20
+
+        subsectionFrame = TOCFrame(self.frame, "subsectionFrame" + self.__getPrefix(), row, 
+                         column = 0, columnspan = 1, padding = [0, topPad, 0, 0])
+        topFrame = TOCFrame(subsectionFrame, "subsectionTopFrame" + self.__getPrefix(), row = 0, 
+                         column = 0, columnspan = 1, padding = [0, 0, 0, 0])
+        topFrame.render()
+        entriesFrame = TOCFrame(subsectionFrame, "subsectionEntriesFrame" + self.__getPrefix(), row = 1, 
+                         column = 0, columnspan = 1, padding = [0, 0, 0, 0])
+        entriesFrame.render()
+        
+        subsectionChildrenSectionsFrame = self.produceSectionChildrenSectionsFrame(subsectionFrame)
+
+        self.widgetManager = SubsectionFrameManager(self.subsection, 
+                                                    subsectionFrame, 
+                                                    topFrame, 
+                                                    entriesFrame, 
+                                                    subsectionChildrenSectionsFrame,
+                                                    self)
+        subsectionFrame.render()
+
+class SubsectionWidgetFactoryTOC(SubsectionWidgetFactory):
+    class EntryUIs(EntryWidgetFactory.EntryUIs):
+        def __init__(self):
+            # # row 2.5 
+            # self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
+            pass
+
+    def produceSubsectionWidgets(self, parentFrame, row):
+        self.frame = parentFrame
+
+        self.produceSubsectionFrame(row)
+        
+        if len(self.subsection.split(".")) == 1:
+            subsectionImageLabel = self.produceTopSectionLatexImage()
+        else:
+            subsectionImageLabel = self.produceSubsectionLatexImage()
+        
+        subsectionImageLabel.render()
+
+        if len(self.subsection.split(".")) == 1:
+            self.produceTopSectionExtraWidgets()
+        else:
+            self.produceSubsectionExtraWidgets()
+ 
 def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
     extraImIdx = _u.Token.NotDef.str_t
     extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)

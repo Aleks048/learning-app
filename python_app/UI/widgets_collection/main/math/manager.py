@@ -32,7 +32,7 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
-            tocBox_BOX = comw.TOC_BOX(winRoot, self.prefix)
+            tocBox_BOX = ml.MainTOCBox(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX

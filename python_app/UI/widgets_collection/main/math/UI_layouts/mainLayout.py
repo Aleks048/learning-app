@@ -157,6 +157,18 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
 
         return super().render(self.renderData)
 
+class MainTOCBox(comw.TOC_BOX):
+    def onFullEntryMove(self):
+        super().onFullEntryMove()
+        self.notify(ScreenshotLocation_LBL)
+
+    def populateTOC(self):
+        super().populateTOC()
+        self.notify(ScreenshotLocation_LBL)
+
+    def render(self, shouldScroll=False):
+        super().render(shouldScroll)
+
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
@@ -177,7 +189,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
                         text = text_curr)
     
     def receiveNotification(self, broadcasterName, data = None):
-        if broadcasterName == comw.TOC_BOX:
+        if (broadcasterName == comw.TOC_BOX) or (comw.TOC_BOX in broadcasterName.__bases__):
             text = _upan.Paths.Screenshot.getRel_formatted()
             self.changeText(text)
     
@@ -697,6 +709,7 @@ class MainEntryBox(comw.EntryWindow_BOX):
 
     def render(self, scrollTOC=True):
         wd.Data.Reactors.entryChangeReactors[self.name] = self
+        wd.Data.Reactors.subsectionChangeReactors[self.name] = self
         return super().render(scrollTOC)
 
 class ImageCreation:
