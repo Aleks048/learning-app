@@ -4,6 +4,8 @@ import data.constants as dc
 import data.temp as dt
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.common as comw
+import UI.widgets_collection.utils as _uuicom
+import file_system.file_system_facade as fsf
 
 
 class Hide_BTN(ww.currUIImpl.Button,
@@ -75,6 +77,63 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
                [lambda *args: self.notify(comw.TOC_BOX, 
                                           [self.getData(), 
                                            self.notify(SearchInSubsectionsText_CHB)])]
+
+class SearchTOC_BOX(comw.TOC_BOX):
+    def onOpenImageInTocWidget(self, subsection, imIdx):
+        efm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
+
+        if not efm.imagesShown:
+            efm.showImages()
+        else:
+            efm.hideImages()
+
+    def populateTOC(self):
+        text_curr = fsf.Wr.BookInfoStructure.getSubsectionsAsTOC()
+
+        text_curr_filtered = []
+
+        if self.filterToken != "":
+            for i in range(len(text_curr)):
+                subsection = text_curr[i][0]
+
+                if "." not in subsection:
+                    continue
+
+                imLinkDict = fsf.Data.Sec.imLinkDict(subsection)
+                extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)
+
+                for k,v in imLinkDict.items():
+                    entryImText = fsf.Wr.SectionInfoStructure.getEntryImText(subsection, k)
+
+                    if k in list(extraImagesDict.keys()):
+                        for t in extraImagesDict[k]:
+                            entryImText += t
+
+                    if (self.filterToken.lower() in v.lower()) \
+                        or (self.filterToken.lower() in entryImText.lower()):
+                        text_curr_filtered.append(text_curr[i])
+                        break
+        else:
+            text_curr_filtered = text_curr
+
+        if self.filterToken != "":
+            for i in range(len(text_curr_filtered)):
+                subsection = text_curr_filtered[i][0]
+
+                subsectionFactory = _uuicom.SubsectionWidgetFactorySearchTOC(subsection)
+                super().addSubsectionWidgetsManager(subsection, i,
+                                                    self.scrollable_frame, subsectionFactory)
+                super().openSubsection(subsection)
+                super().openEntries(subsection, self.filterToken)
+
+    def receiveNotification(self, broadcasterType, data):
+        if broadcasterType == Filter_ETR:
+            self.showAll = True
+            self.filterToken = data[0]
+            self.searchSubsectionsText = data[1]
+            self.hide()
+            self.showSubsectionsForTopSection = {}
+            self.render()
 
 
 class TOCRoot(ww.currUIImpl.RootWidget):

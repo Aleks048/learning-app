@@ -239,7 +239,7 @@ class TkWidgets (DataTranslatable_Interface):
             return self.widget.children
         
         def removeAllChildren(self):
-            for ch in self.widget.widgetObj.winfo_children():
+            for ch in self.widget.widgetObj.winfo_children().copy():
                 ch.destroy()
             self.children = set()
 

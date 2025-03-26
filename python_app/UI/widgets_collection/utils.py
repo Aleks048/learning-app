@@ -1265,16 +1265,12 @@ class SubsectionFrameManager:
         self.subsectionChildrenSectionsFrame = \
             self.factory.produceSectionChildrenSectionsFrame(self.subsectionFrame)
 
-    def addEntryWidget(self, imIdx):                
-        entryWidgetFactory = EntryWidgetFactoryTOC(self.subsection, imIdx, 0, 0)
-        entryWidgetFactory.produceEntryWidgetsForFrame(self.entriesFrame)
-        self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
-
-    def addEntryWidgetsForSubsection(self):
+    def addEntryWidgetsForSubsection(self, filter = ""):
         entries = fsf.Data.Sec.imLinkDict(self.subsection)
 
-        for imIdx in entries.keys():
-            self.addEntryWidget(imIdx)
+        for imIdx, imText in entries.items():
+            if filter in imText:
+                self.addEntryWidget(imIdx)
 
     def openSubsection(self):
         if self.openContentWidget != None:
@@ -1292,6 +1288,21 @@ class SubsectionFrameManager:
             bindChangeColorOnInAndOut(self.openContentWidget, False)
 
         self.entriesFrame.hide()
+
+
+class SubsectionFrameManagerMainTOC(SubsectionFrameManager):
+    def addEntryWidget(self, imIdx):                
+        entryWidgetFactory = EntryWidgetFactoryTOC(self.subsection, imIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(self.entriesFrame)
+        self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
+
+
+class SubsectionFrameManagerSearchTOC(SubsectionFrameManager):
+    def addEntryWidget(self, imIdx):                
+        entryWidgetFactory = EntryWidgetFactorySearchTOC(self.subsection, imIdx, 0, 0)
+        entryWidgetFactory.produceEntryWidgetsForFrame(self.entriesFrame)
+        self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
+
 
 class EntryFrameManager:
     def __init__(self, entryFrame, subsection, imIdx, widgetFactory):
@@ -2337,6 +2348,9 @@ class EntryWidgetFactory:
         self.leftPad = leftPad
 
         self.entryFrameManager = None
+
+    def getPrefixID(self):
+        return self.__nameIdPrefix
 
     def produceShiftLabelWidget(self, parentWidget):
         def shiftEntryCmd(event, *args):
@@ -3715,6 +3729,94 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
         proof = self.EntryUIs.proof.cmd(self, parentWidget = self.entryFrameManager.rowFrame2)
         proof.render()
 
+class EntryWidgetFactorySearchTOC(EntryWidgetFactory):
+    # row 1
+    class EntryUIs(EntryWidgetFactory.EntryUIs):
+        def __init__(self):
+            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactory.produceFullMoveEntriesWidget)
+            self.im = self.__EntryUIData("[i]", 2, EntryWidgetFactorySearchTOC.produceOpenImageInTocWidget)
+            self.copyLink = self.__EntryUIData("[cl]", 3, EntryWidgetFactory.produceCopyLinkWidget)
+            self.pasteLink = self.__EntryUIData("[pl]", 4, EntryWidgetFactory.producePasteLinkEntryWidget)
+            self.copy = self.__EntryUIData("[c]", 5, EntryWidgetFactory.produceCopyEntryWidget)
+            self.pasteAfter = self.__EntryUIData("[p]", 6, EntryWidgetFactory.producePasteEntryWidget)
+
+    def produceOpenImageInTocWidget(self, parentWidget):
+        def openImageInPlace(widget):
+            def __cmd(event = None, *args):
+                widget = event.widget
+                imIdx = widget.imIdx
+                subsection = widget.subsection
+
+                widget.clicked = not widget.clicked
+
+                if widget.clicked:
+                    widget.changeColor("brown")
+                else:
+                    widget.changeColor("white")
+
+                bindChangeColorOnInAndOut(textLabelFull, shouldBeBrown = widget.clicked)
+
+                for w in wd.Data.Reactors.entryChangeReactors.copy().values():
+                    if "onOpenImageInTocWidget" in dir(w):
+                        w.onOpenImageInTocWidget(subsection, imIdx)
+            
+            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+
+        textLabelFull = TOCLabelWithClick(parentWidget, 
+                                        text = self.EntryUIs.im.name, 
+                                        prefix = "contentFull_" + super().getPrefixID(),
+                                        row = 0, 
+                                        column = self.EntryUIs.im.column)
+        textLabelFull.subsection = self.subsection
+        textLabelFull.imIdx = self.imIdx
+
+        openImageInPlace(textLabelFull)
+        bindChangeColorOnInAndOut(textLabelFull)
+        return textLabelFull
+
+    def produceEntryWidgetsForFrame(self, parentWidget):
+        self.frame = parentWidget
+
+        leadingEntry = fsf.Data.Sec.leadingEntry(self.subsection)
+
+        rowsPad = 0
+
+        if leadingEntry.get(self.imIdx) != None:
+            if str(leadingEntry[self.imIdx]) != _u.Token.NotDef.str_t:
+                rowsPad += 30
+
+                showSubentries = fsf.Data.Sec.showSubentries(self.subsection)
+                if showSubentries.get(self.imIdx) != None:
+                    if not showSubentries[self.imIdx]:
+                        self.entryFrameManager = None
+                        return
+
+        self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, leftPad = self.leftPad, rowsPad = rowsPad)
+
+        if self.entryFrameManager == None:
+            return
+        
+        self.entryFrameManager.groupFrame.render()
+
+        mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)
+        mainImageWidget.render()
+
+        if fsf.Data.Sec.tocWImageDict(self.subsection)[self.imIdx] == "1":
+            self.entryFrameManager.showImages()
+
+        full = self.EntryUIs.full.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        self.entryFrameManager.fullMoveWidget = full
+        full.render()
+        im = self.EntryUIs.im.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        im.render()
+        copy = self.EntryUIs.copy.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        copy.render()
+        pasteAfter = self.EntryUIs.pasteAfter.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        pasteAfter.render()
+        copyLink = self.EntryUIs.copyLink.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        copyLink.render()
+        pasteLink = self.EntryUIs.pasteLink.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        pasteLink.render()
 
 
 class SubsectionWidgetFactory:
@@ -4131,24 +4233,24 @@ class SubsectionWidgetFactory:
 
         subsectionFrame = TOCFrame(self.frame, "subsectionFrame" + self.__getPrefix(), row, 
                          column = 0, columnspan = 1, padding = [0, topPad, 0, 0])
+        subsectionFrame.render()
+
         topFrame = TOCFrame(subsectionFrame, "subsectionTopFrame" + self.__getPrefix(), row = 0, 
                          column = 0, columnspan = 1, padding = [0, 0, 0, 0])
         topFrame.render()
+
         entriesFrame = TOCFrame(subsectionFrame, "subsectionEntriesFrame" + self.__getPrefix(), row = 1, 
                          column = 0, columnspan = 1, padding = [0, 0, 0, 0])
         entriesFrame.render()
         
         subsectionChildrenSectionsFrame = self.produceSectionChildrenSectionsFrame(subsectionFrame)
 
-        self.widgetManager = SubsectionFrameManager(self.subsection, 
-                                                    subsectionFrame, 
-                                                    topFrame, 
-                                                    entriesFrame, 
-                                                    subsectionChildrenSectionsFrame,
-                                                    self)
-        subsectionFrame.render()
+        return subsectionFrame, \
+               topFrame, \
+               entriesFrame, \
+               subsectionChildrenSectionsFrame
 
-class SubsectionWidgetFactoryTOC(SubsectionWidgetFactory):
+class SubsectionWidgetFactoryMainTOC(SubsectionWidgetFactory):
     class EntryUIs(EntryWidgetFactory.EntryUIs):
         def __init__(self):
             # # row 2.5 
@@ -4158,7 +4260,15 @@ class SubsectionWidgetFactoryTOC(SubsectionWidgetFactory):
     def produceSubsectionWidgets(self, parentFrame, row):
         self.frame = parentFrame
 
-        self.produceSubsectionFrame(row)
+        subsectionFrame, topFrame, entriesFrame, subsectionChildrenSectionsFrame = \
+                                                         self.produceSubsectionFrame(row)
+
+        self.widgetManager = SubsectionFrameManagerMainTOC(self.subsection, 
+                                                    subsectionFrame, 
+                                                    topFrame, 
+                                                    entriesFrame, 
+                                                    subsectionChildrenSectionsFrame,
+                                                    self)
         
         if len(self.subsection.split(".")) == 1:
             subsectionImageLabel = self.produceTopSectionLatexImage()
@@ -4171,7 +4281,39 @@ class SubsectionWidgetFactoryTOC(SubsectionWidgetFactory):
             self.produceTopSectionExtraWidgets()
         else:
             self.produceSubsectionExtraWidgets()
- 
+
+class SubsectionWidgetFactorySearchTOC(SubsectionWidgetFactory):
+    class EntryUIs(EntryWidgetFactory.EntryUIs):
+        def __init__(self):
+            # # row 2.5 
+            # self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
+            pass
+
+    def produceSubsectionWidgets(self, parentFrame, row):
+        self.frame = parentFrame
+
+        subsectionFrame, topFrame, entriesFrame, subsectionChildrenSectionsFrame = \
+                                                         self.produceSubsectionFrame(row)
+
+        self.widgetManager = SubsectionFrameManagerSearchTOC(self.subsection, 
+                                                    subsectionFrame, 
+                                                    topFrame, 
+                                                    entriesFrame, 
+                                                    subsectionChildrenSectionsFrame,
+                                                    self)
+        
+        if len(self.subsection.split(".")) == 1:
+            subsectionImageLabel = self.produceTopSectionLatexImage()
+        else:
+            subsectionImageLabel = self.produceSubsectionLatexImage()
+        
+        subsectionImageLabel.render()
+
+        if len(self.subsection.split(".")) == 1:
+            self.produceTopSectionExtraWidgets()
+        else:
+            self.produceSubsectionExtraWidgets()
+
 def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
     extraImIdx = _u.Token.NotDef.str_t
     extraImagesDict = fsf.Data.Sec.extraImagesDict(subsection)

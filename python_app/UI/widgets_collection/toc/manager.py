@@ -1,9 +1,6 @@
 import UI.widgets_collection.toc.toc as tocw
 
 import UI.widgets_manager as wm
-import UI.widgets_collection.common as comw
-
-import UI.widgets_collection.main.math.UI_layouts.common as commw
 
 class LayoutManagers:
     class TOCLayout(wm.MenuLayout_Interface):
@@ -13,7 +10,7 @@ class LayoutManagers:
             appDimensions = [850, 720, 300, 100]
             super().__init__(winRoot, appDimensions)
 
-            tocBox = comw.TOC_BOX(winRoot, self.prefix, 
+            tocBox = tocw.SearchTOC_BOX(winRoot, self.prefix, 
                                   windth = 800, height = 650, 
                                   showAll = True, makeScrollable = False, 
                                   shouldScroll = False)

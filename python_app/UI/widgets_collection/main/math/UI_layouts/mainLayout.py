@@ -16,6 +16,7 @@ import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
 import UI.widgets_manager as wm
+import UI.widgets_collection.utils as _uuicom
 
 import data.constants as dc
 import data.temp as dt
@@ -158,12 +159,124 @@ class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
         return super().render(self.renderData)
 
 class MainTOCBox(comw.TOC_BOX):
-    def onFullEntryMove(self):
-        super().onFullEntryMove()
-        self.notify(ScreenshotLocation_LBL)
+    def addTopSectionEntry(self, topSection, row):
+        self.addSectionWidgets(topSection, row, self.scrollable_frame)
+
+
+        if (topSection == fsf.Data.Book.currTopSection):
+            subsections:list = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
+            
+            for i in range(len(subsections)):
+                self.addSubsectionEntry(subsections[i], i)
+
+    def __isSubsectionHidden(self, subsection):
+        subsectionsHidden:list = fsf.Data.Book.subsectionsHiddenInTOC_UI
+        for subsecHidden in subsectionsHidden:
+            if len(subsection) > len(subsecHidden):
+                if subsection[:len(subsecHidden)] == subsecHidden:
+                    return True
+
+        return False
+
+    def addSubsectionEntry(self, subsection, row):
+        if self.__isSubsectionHidden(subsection):
+            return
+
+        parentSection = ".".join(subsection.split(".")[:-1])
+        
+        if self.subsectionWidgetManagers.get(parentSection) == None:
+            return
+
+        parentManager = self.subsectionWidgetManagers[parentSection]
+
+        self.addSectionWidgets(subsection, row, parentManager.subsectionChildrenSectionsFrame)
+
+        subsections:list = fsf.Wr.BookInfoStructure.getSubsectionsList(subsection)
+            
+        for i in range(len(subsections)):
+            self.addSubsectionEntry(subsections[i], i)
+
+
+    def addSectionWidgets(self, subsection, row, parentWidget):
+        subsectionFactory = _uuicom.SubsectionWidgetFactoryMainTOC(subsection)
+        super().addSubsectionWidgetsManager(subsection, row, parentWidget, subsectionFactory)
+
+        if subsection == fsf.Data.Book.subsectionOpenInTOC_UI:
+            super().openSubsection(subsection)
+            super().openEntries(subsection)
+        elif subsection == fsf.Data.Book.currTopSection:
+            super().openSubsection(subsection)
 
     def populateTOC(self):
-        super().populateTOC()
+        topSections = fsf.Wr.BookInfoStructure.getTopSectionsList()
+
+        text_curr_filtered = topSections
+
+        for i in range(len(text_curr_filtered)):
+            subsection = text_curr_filtered[i]
+            self.addTopSectionEntry(subsection, i)
+        
+        self.notify(ScreenshotLocation_LBL)
+
+    def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
+        import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
+        if (comw.EntryWindow_BOX in broadcasterType.__bases__) or (comw.EntryWindow_BOX == broadcasterType):
+            if data.get(comw.EntryWindow_BOX.Notifyers.IDs.changeHeight) != None:
+                data = data.get(comw.EntryWindow_BOX.Notifyers.IDs.changeHeight)
+
+                entryWidgetHeight = data[0]
+                self.setCanvasHeight(680 - entryWidgetHeight)
+                if data[1] != None:
+                    if data[3]:
+                        self.shouldScroll = True
+                        # self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
+                        self.shouldScroll = False
+            elif data.get(comw.EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain) != None:
+                data = data.get(comw.EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain)
+                if data[2]:
+                    self.render()
+                    # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+            elif data.get(comw.EntryWindow_BOX.Notifyers.IDs.setMain) != None:
+                data = data.get(comw.EntryWindow_BOX.Notifyers.IDs.setMain)
+                # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
+        elif broadcasterType == mui.ExitApp_BTN:
+            tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
+
+            sections = fsf.Data.Book.sections
+
+            for ts in tsList:
+                if ts == _u.Token.NotDef.str_t:
+                    return
+
+                sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
+
+            fsf.Data.Book.sections = sections
+        elif broadcasterType == mui.ImageGeneration_BTN:
+            subsection = data[0]
+            imIdx = data[1]
+            self.entryClicked = entryClicked
+
+            fsf.Data.Book.subsectionOpenInTOC_UI = subsection
+            fsf.Data.Book.entryImOpenInTOC_UI = imIdx
+
+            self.AddEntryWidget(imIdx, subsection, self.subsectionWidgetManagers[subsection].entriesFrame)
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onFullEntryMove" in dir(w):
+                    w.onFullEntryMove()
+        elif broadcasterType == mui.ImageGroupAdd_BTN:
+            self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowAllSubsections_BTN:
+            self.__renderWithScrollAfter()
+        elif broadcasterType == mui.ShowHideLinks_BTN:
+            self.showLinks = not self.showLinks
+            self.showLinksForSubsections = []
+            self.__renderWithScrollAfter()
+        else:
+            self.__renderWithScrollAfter()
+
+    def onFullEntryMove(self):
+        super().onFullEntryMove()
         self.notify(ScreenshotLocation_LBL)
 
     def render(self, shouldScroll=False):

@@ -1193,7 +1193,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsections:list = fsm.Wr.BookInfoStructure.getSubsectionsList(subsection)
             
             for i in range(len(subsections)):
-                self.__addSubsectionEntry(subsections[i], i)
+                self.addSubsectionEntry(subsections[i], i)
             return
 
         # hide subsection
@@ -1260,148 +1260,15 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.subsectionWidgetManagers[subsection].addEntryWidget(imIdx)
         return
 
-    def receiveNotification(self, broadcasterType, data = None, entryClicked = None):
-        import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
-        if (EntryWindow_BOX in broadcasterType.__bases__) or (EntryWindow_BOX == broadcasterType):
-            if data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight) != None:
-                data = data.get(EntryWindow_BOX.Notifyers.IDs.changeHeight)
-
-                entryWidgetHeight = data[0]
-                self.setCanvasHeight(680 - entryWidgetHeight)
-                if data[1] != None:
-                    if data[3]:
-                        self.shouldScroll = True
-                        # self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
-                        self.shouldScroll = False
-            elif data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain) != None:
-                data = data.get(EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain)
-                if data[2]:
-                    self.render()
-                    # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-            elif data.get(EntryWindow_BOX.Notifyers.IDs.setMain) != None:
-                data = data.get(EntryWindow_BOX.Notifyers.IDs.setMain)
-                # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-        elif broadcasterType == mui.ExitApp_BTN:
-            tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
-
-            sections = fsm.Data.Book.sections
-
-            for ts in tsList:
-                if ts == _u.Token.NotDef.str_t:
-                    return
-
-                sections[ts]["showSubsections"] = str(int(self.showSubsectionsForTopSection[ts]))
-
-            fsm.Data.Book.sections = sections
-        elif broadcasterType == mui.ImageGeneration_BTN:
-            subsection = data[0]
-            imIdx = data[1]
-            self.entryClicked = entryClicked
-
-            fsm.Data.Book.subsectionOpenInTOC_UI = subsection
-            fsm.Data.Book.entryImOpenInTOC_UI = imIdx
-
-            self.AddEntryWidget(imIdx, subsection, self.subsectionWidgetManagers[subsection].entriesFrame)
-
-            for w in wd.Data.Reactors.entryChangeReactors.values():
-                if "onFullEntryMove" in dir(w):
-                    w.onFullEntryMove()
-        elif broadcasterType == mui.ImageGroupAdd_BTN:
-            self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ShowAllSubsections_BTN:
-            self.__renderWithScrollAfter()
-        elif broadcasterType == mui.ShowHideLinks_BTN:
-            self.showLinks = not self.showLinks
-            self.showLinksForSubsections = []
-            self.__renderWithScrollAfter()
-        elif broadcasterType == tocw.Filter_ETR:
-            self.showAll = True
-            self.filterToken = data[0]
-            self.searchSubsectionsText = data[1]
-            self.hide()
-            self.showSubsectionsForTopSection = {}
-            self.__renderWithoutScroll()
-        else:
-            self.__renderWithScrollAfter()
-
-    def __addTopSectionEntry(self, topSection, row):
-        self.__addSectionWidgets(topSection, row, self.scrollable_frame)
-
-
-        if (topSection == fsm.Data.Book.currTopSection):
-            subsections:list = fsm.Wr.BookInfoStructure.getSubsectionsList(topSection)
-            
-            for i in range(len(subsections)):
-                self.__addSubsectionEntry(subsections[i], i)
-
-    def __isSubsectionHidden(self, subsection):
-        subsectionsHidden:list = fsm.Data.Book.subsectionsHiddenInTOC_UI
-        for subsecHidden in subsectionsHidden:
-            if len(subsection) > len(subsecHidden):
-                if subsection[:len(subsecHidden)] == subsecHidden:
-                    return True
-
-        return False
-
-    def __addSubsectionEntry(self, subsection, row):
-        if self.__isSubsectionHidden(subsection):
-            return
-
-        parentSection = ".".join(subsection.split(".")[:-1])
-        parentManager = self.subsectionWidgetManagers[parentSection]
-
-        self.__addSectionWidgets(subsection, row, parentManager.subsectionChildrenSectionsFrame)
-
-        subsections:list = fsm.Wr.BookInfoStructure.getSubsectionsList(subsection)
-            
-        for i in range(len(subsections)):
-            self.__addSubsectionEntry(subsections[i], i)
-
-    def __addSectionWidgets(self, subsection, row, parentWidget):
-        subsectionFactory = _uuicom.SubsectionWidgetFactoryTOC(subsection)
+    def addSubsectionWidgetsManager(self, subsection, row, parentWidget, subsectionFactory):
         subsectionFactory.produceSubsectionWidgets(parentWidget, row)
         self.subsectionWidgetManagers[subsection] = subsectionFactory.widgetManager
 
-        if subsection == fsm.Data.Book.subsectionOpenInTOC_UI:
-            self.subsectionWidgetManagers[subsection].openSubsection()
-            self.subsectionWidgetManagers[subsection].addEntryWidgetsForSubsection()
-        if subsection == fsm.Data.Book.currTopSection:
-            self.subsectionWidgetManagers[subsection].openSubsection()
-
-    def populateTOC(self):
-        # text_curr = fsm.Wr.BookInfoStructure.getSubsectionsAsTOC()
-        topSections = fsm.Wr.BookInfoStructure.getTopSectionsList()
-
-        text_curr_filtered = topSections
-
-        # if self.filterToken != "":
-        #     for i in range(len(text_curr)):
-        #         subsection = text_curr[i][0]
-
-        #         if "." not in subsection:
-        #             continue
-
-        #         imLinkDict = fsm.Data.Sec.imLinkDict(subsection)
-        #         extraImagesDict = fsm.Data.Sec.extraImagesDict(subsection)
-
-        #         for k,v in imLinkDict.items():
-        #             entryImText = fsm.Wr.SectionInfoStructure.getEntryImText(subsection, k)
-
-        #             if k in list(extraImagesDict.keys()):
-        #                 for t in extraImagesDict[k]:
-        #                     entryImText += t
-
-        #             if (self.filterToken.lower() in v.lower()) \
-        #                 or (self.filterToken.lower() in entryImText.lower()):
-        #                 text_curr_filtered.append(text_curr[i])
-        #                 break
-        # else:
-        #     text_curr_filtered = text_curr
-
-        if (not self.showAll) or (self.filterToken != ""):
-            for i in range(len(text_curr_filtered)):
-                subsection = text_curr_filtered[i]
-                self.__addTopSectionEntry(subsection, i)
+    def openSubsection(self, subsection):
+        self.subsectionWidgetManagers[subsection].openSubsection()
+    
+    def openEntries(self, subsection, filterText = ""):
+        self.subsectionWidgetManagers[subsection].addEntryWidgetsForSubsection(filterText)
 
     def render(self, shouldScroll = False):
         for sm in self.subsectionWidgetManagers.values():
