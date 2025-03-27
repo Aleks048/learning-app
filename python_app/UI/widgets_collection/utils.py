@@ -1269,6 +1269,8 @@ class SubsectionFrameManager:
         entries = fsf.Data.Sec.imLinkDict(self.subsection)
 
         for imIdx, imText in entries.items():
+            if imIdx == _u.Token.NotDef.str_t:
+                continue
             if filter in imText:
                 self.addEntryWidget(imIdx)
 

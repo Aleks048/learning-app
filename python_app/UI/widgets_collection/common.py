@@ -1100,7 +1100,13 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def onAddExtraImage(self, subsection, mainImIdx, extraImIdx):
         etm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[mainImIdx]
-        eImFrame = etm.addExtraImIdx(extraImIdx)
+
+        def th(tocWidget, frame):
+            tocWidget.shouldScroll = True
+            tocWidget.scrollIntoView(None, frame)
+
+        t = Thread(target = th, args = [self, etm.entryFrame])
+        t.start()
         # if eImFrame != None:
         #     self.scrollIntoView(None, eImFrame)
 
