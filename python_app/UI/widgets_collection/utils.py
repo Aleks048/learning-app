@@ -3866,7 +3866,7 @@ class SubsectionWidgetFactory:
         widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
 
-    def __bindUpdateSubsection(event, *args):
+    def __bindUpdateSubsection(self, event, *args):
         widget = event.widget
         subsection = widget.subsection
 
@@ -3894,16 +3894,17 @@ class SubsectionWidgetFactory:
         else:
             sectionName = fsf.Data.Sec.text(subsection)
 
-        subsectionLabel = MultilineText_ETR(self.frame, 
-                                                    "subsectionETR" + subsection, 
-                                                    0, 0, 
-                                                    "", # NOTE: not used anywhere  
-                                                    sectionName)
+        subsectionLabel = MultilineText_ETR(widget.rootWidget, 
+                                            "subsectionETR" + subsection, 
+                                            widget.row, widget.column, 
+                                            "", # NOTE: not used anywhere  
+                                            sectionName)
         subsectionLabel.subsection = subsection
         subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                                 [lambda e, *args: __bringImageWidgetBack(e, widget)])
         subsectionLabel.forceFocus()
         subsectionLabel.render()
+        widget.hide()
 
     def produceTopSectionLatexImage(self):
         topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
