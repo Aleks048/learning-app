@@ -218,39 +218,46 @@ class TOCFrame(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, root, renderData, padding = padding)
 
+def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, updateImageFunc):
+    widget = event.widget
+
+    def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc):
+        newText = event.widget.getData()
+
+        setTextFunc(newText, imageWidget)
+        updateImageFunc(imageWidget)
+        
+        event.widget.hide()
+        imageWidget.updateImage()
+        imageWidget.render()
+
+    subsectionLabel = MultilineText_ETR(widget.rootWidget, 
+                                        "subsectionETR_" + widget.name, 
+                                        widget.row, widget.column, 
+                                        "", # NOTE: not used anywhere  
+                                        getTextFunc(widget))
+    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                            [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, 
+                             *args: __bringImageWidgetBack(e, w, sf, uf )])
+    subsectionLabel.forceFocus()
+    subsectionLabel.render()
+    widget.hide()
+
+
 class TOCTextWithClick(ww.currUIImpl.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
     '''
 
-    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, text = "", *args, **kwargs) -> None:
+    def __init__(self, root, prefix, row, column, columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, text = ""):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, "columnspan": columnspan},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : sticky}
+            ww.TkWidgets.__name__ : {"padx" : 10, "pady" : 10, "sticky" : sticky}
         }
 
         name = "_TOCTextWithClick_"
-        
-        self.clicked = False
-        self.imIdx = ""
-        self.subsection = ""
-        self.imagePath = ""
-        self.group = ""
-        self.image = None
-        self.alwaysShow = None
-        self.shouldShowExMenu = False
-        self.lineImIdx = _u.Token.NotDef.str_t
-        self.etrWidget = _u.Token.NotDef.str_t
-        self.sticky = None
-        self.tocFrame = None
-        self.eImIdx = None
-        self.targetSubssection = None
-        self.targetImIdx = None
-        self.sourceSubssection = None
-        self.sourceImIdx= None
-        self.sourceWebLinkName = None
 
-        self.root = root
+        self.clicked = False
         self.text = text
         
         self.row = row
@@ -265,6 +272,18 @@ class TOCTextWithClick(ww.currUIImpl.Label):
 
     def hide(self, **kwargs):
         return super().hide(**kwargs)
+
+    # def __getattr__(self, name: str):
+    #     return self.__dict__[f"_{name}"]
+
+    # def __setattr__(self, name, value):
+    #     self.__dict__[f"_{name}"] = value
+
+
+class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
+    def __init__(self, root, prefix, row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, text=""):
+        super().__init__(root, prefix, row, column, columnspan, sticky, text)
+
 
 class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     class Label:
@@ -1169,7 +1188,19 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
                             image = self.image,
                             text = self.text,
                             padding = padding)
-    
+
+    def updateImage(self, image):
+        super().updateImage(image)
+
+    def changePermamentColor(self, newColor):
+        super().changeColor(newColor)
+        if newColor == "brown":
+            bindChangeColorOnInAndOut(self, shouldBeBrown = True)
+        else:
+            bindChangeColorOnInAndOut(self, shouldBeBrown = False)
+
+
+class TOCLabelWithClickEntry(TOCLabelWithClick):
     def updateImage(self):
         pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
 
@@ -1177,12 +1208,16 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
         self.image = ww.currUIImpl.UIImage(pilIm)
         super().updateImage(self.image)
-    
-    def updateGroupImage(self):
+
+
+class TOCLabelWithClickGroup(TOCLabelWithClick):
+    def updateImage(self):
         self.image = comw.getGroupImg(self.subsection, self.group)
         super().updateImage(self.image)
-    
-    def updateSubsectionImage(self):
+
+
+class TOCLabeWithClickSubsection(TOCLabelWithClick):   
+    def updateImage(self):
         if self.subsection in list(fsf.Data.Book.sections.keys()):
             topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
                                                             sf.Wr.Manager.Book.getCurrBookName(),
@@ -1214,13 +1249,6 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
             self.image = ww.currUIImpl.UIImage(result)
             super().updateImage(self.image)
-
-    def changePermamentColor(self, newColor):
-        super().changeColor(newColor)
-        if newColor == "brown":
-            bindChangeColorOnInAndOut(self, shouldBeBrown = True)
-        else:
-            bindChangeColorOnInAndOut(self, shouldBeBrown = False)
 
 
 def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
@@ -1755,12 +1783,10 @@ class EntryImagesFactory:
                 imLabel.render()
             else:
                 text = fsf.Data.Sec.imageText(self.subsection)[self.imIdx]
-                imLabel = TOCTextWithClick(tempLabel, 
+                imLabel = TOCTextWithClickTextOnlyEntry(tempLabel, 
                                             mainWidgetName,
                                             row = 0, column = 1, columnspan = 1,
                                             text = text,
-                                            padx = 10,
-                                            pady = 10
                                             )
                 imLabel.subsection = self.subsection
                 imLabel.imIdx = self.imIdx
@@ -2835,45 +2861,32 @@ class EntryWidgetFactory:
 
     def produceMainImageWidget(self, parentWidget):
         def updateEntry(event, *args):
-            widget = event.widget
+            def __getText(widget):
+                imLinkDict = fsf.Data.Sec.imLinkDict(widget.subsection)
+                text = imLinkDict[widget.imIdx]
+                return text
 
-            imLinkDict = fsf.Data.Sec.imLinkDict(widget.subsection)
-            text = imLinkDict[widget.imIdx]
-
-            textLabelPage = MultilineText_ETR(widget.root, 
-                                                        "contentP_" + widget.imIdx + widget.subsection, 
-                                                        0,
-                                                        0, 
-                                                        widget.imageLineIdx, 
-                                                        text)
-            textLabelPage.imIdx = widget.imIdx
-            textLabelPage.subsection = widget.subsection
-            #textLabelPage.etrWidget = textLabelPage
-
-            def __getWidgetBack(textEntry:MultilineText_ETR, widget):
-                newText = textEntry.getData()
-                imLinkDict = fsf.Data.Sec.imLinkDict(textEntry.subsection)
-                textOnly = fsf.Data.Sec.textOnly(textEntry.subsection)[textEntry.imIdx]
-                imLinkDict[textEntry.imIdx] = newText
-                fsf.Data.Sec.imLinkDict(textEntry.subsection, imLinkDict)
-                fsf.Wr.SectionInfoStructure.rebuildEntryLatex(textEntry.subsection,
-                                                            textEntry.imIdx,
-                                                            newText,
+            def __setText(newText, widget):
+                imLinkDict = fsf.Data.Sec.imLinkDict(widget.subsection)
+                imLinkDict[widget.imIdx] = newText
+                fsf.Data.Sec.imLinkDict(widget.subsection, imLinkDict)
+            
+            def __updateImage(widget):
+                textOnly = fsf.Data.Sec.textOnly(widget.subsection)[widget.imIdx]
+                imLinkDict = fsf.Data.Sec.imLinkDict(widget.subsection)
+                text = imLinkDict[widget.imIdx]
+                fsf.Wr.SectionInfoStructure.rebuildEntryLatex(widget.subsection,
+                                                            widget.imIdx,
+                                                            text,
                                                             textOnly
                                                             )
-                
-                widget.render()
-                widget.updateImage()
-                textEntry.hide()
+
                 for w in wd.Data.Reactors.entryChangeReactors.values():
                     if "onMainLatexImageUpdate" in dir(w):
-                        w.onMainLatexImageUpdate(textEntry.subsection, textEntry.imIdx)
+                        w.onMainLatexImageUpdate(widget.subsection, widget.imIdx)
+            
+            bindWidgetTextUpdatable(event, __getText, __setText, __updateImage)
 
-            textLabelPage.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                    [lambda *args: __getWidgetBack(textLabelPage, widget)])
-            widget.hide()
-            textLabelPage.render()
-            textLabelPage.forceFocus()
 
         if fsf.Data.Sec.imLinkDict(self.subsection).get(self.imIdx) != None:
             v = fsf.Data.Sec.imLinkDict(self.subsection)[self.imIdx]
@@ -2885,7 +2898,7 @@ class EntryWidgetFactory:
             pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
             img = ww.currUIImpl.UIImage(pilIm)
 
-            textLabelPage = TOCLabelWithClick(parentWidget,
+            textLabelPage = TOCLabelWithClickEntry(parentWidget,
                                             image = img, 
                                             prefix = "contentP_" + self.__nameIdPrefix, 
                                             padding= [60, 0, 0, 0],
@@ -2904,7 +2917,7 @@ class EntryWidgetFactory:
             bindOpenOMOnThePageOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
             textLabelPage.image = img
         else:
-            textLabelPage = TOCLabelWithClick(parentWidget,
+            textLabelPage = TOCLabelWithClickEntry(parentWidget,
                                                 text = _u.Token.NotDef.str_t, 
                                                 prefix = "contentP_" + self.__nameIdPrefix, 
                                                 padding= [60, 0, 0, 0],
@@ -3242,37 +3255,29 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                 if widget.group == "No group":
                     return
 
-                imageGroupLabel = MultilineText_ETR(widget.root, 
-                                        "contentGroupP_" + widget.subsection + widget.group, 
-                                        widget.row, widget.column, 
-                                        "", # NOTE: not used anywhere  
-                                        widget.group)
-                imageGroupLabel.subsection = widget.subsection
-
-                def __getImageBack(event, oldGroupName, imageWidget, *args):
-                    etr = event.widget
-                    newText = etr.getData()
+                def __getText(widget):
+                    return widget.group
+                                 
+                def __setText(newText, widget):
+                    oldGroupName = widget.group
+    
                     imagesGroupsList = \
-                        fsf.Data.Sec.imagesGroupsList(etr.subsection).copy()
+                        fsf.Data.Sec.imagesGroupsList(widget.subsection).copy()
                     imagesGroupsList = \
                         {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
-                    fsf.Data.Sec.imagesGroupsList(etr.subsection,
+                    fsf.Data.Sec.imagesGroupsList(widget.subsection,
                                                     imagesGroupsList)
-                    fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(self.subsection,
-                                                                            newText)
-                    etr.hide()
-                    imageWidget.group = newText
-                    imageWidget.updateGroupImage()
-                    imageWidget.render()
+                    widget.group = newText
+                
+                def __updateImage(widget):
+                    fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(widget.subsection,
+                                                                            widget.group)
+                    #TODO: we need to update the other widgets as well
 
-                imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                        [lambda e, *args: __getImageBack(e, widget.group, widget)])
-                widget.hide()
-                imageGroupLabel.forceFocus()
-                imageGroupLabel.render()
+                bindWidgetTextUpdatable(event, __getText, __setText, __updateImage)
 
             img = comw.getGroupImg(self.subsection, currImGroupName)
-            imageGroupLabel = TOCLabelWithClick(imageGroupFrame, 
+            imageGroupLabel = TOCLabelWithClickGroup(imageGroupFrame, 
                                         image = img, 
                                         prefix = "contentGroupP_" + self.__nameIdPrefix,
                                         padding = [30, 0, 0, 0], 
@@ -3867,44 +3872,36 @@ class SubsectionWidgetFactory:
 
 
     def __bindUpdateSubsection(self, event, *args):
-        widget = event.widget
-        subsection = widget.subsection
-
-        def __bringImageWidgetBack(event, imageWidget):
-            newText = event.widget.getData()
-
+        def __setTextFunc(newText, widget):
+            subsection = widget.subsection
             if subsection in list(fsf.Data.Book.sections.keys()):
                 sections = fsf.Data.Book.sections
                 sections[subsection]["name"] = newText
                 fsf.Data.Book.sections = sections
-                fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(event.widget.subsection,
-                                                                _upan.Names.Subsection.getTopSectionPretty)
             else:
                 fsf.Data.Sec.text(event.widget.subsection, newText)
-                fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(event.widget.subsection,
+
+        def __getTextFunc(widget):
+            subsection = widget.subsection
+            sectionName = ""
+            if subsection in list(fsf.Data.Book.sections.keys()):
+                # Top section
+                sectionName = fsf.Data.Book.sections[subsection]["name"]
+            else:
+                sectionName = fsf.Data.Sec.text(subsection)
+
+            return sectionName
+        
+        def __updateImageFunc(widget):
+            subsection = widget.subsection
+            if subsection in list(fsf.Data.Book.sections.keys()):
+                fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(widget.subsection,
+                                                                _upan.Names.Subsection.getTopSectionPretty)
+            else:
+                fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(widget.subsection,
                                                                 _upan.Names.Subsection.getSubsectionPretty)
-            
-            event.widget.hide()
-            imageWidget.updateSubsectionImage()
-            imageWidget.render()
 
-        sectionName = ""
-        if subsection in list(fsf.Data.Book.sections.keys()):
-            sectionName = fsf.Data.Book.sections[subsection]["name"]
-        else:
-            sectionName = fsf.Data.Sec.text(subsection)
-
-        subsectionLabel = MultilineText_ETR(widget.rootWidget, 
-                                            "subsectionETR" + subsection, 
-                                            widget.row, widget.column, 
-                                            "", # NOTE: not used anywhere  
-                                            sectionName)
-        subsectionLabel.subsection = subsection
-        subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                                [lambda e, *args: __bringImageWidgetBack(e, widget)])
-        subsectionLabel.forceFocus()
-        subsectionLabel.render()
-        widget.hide()
+        bindWidgetTextUpdatable(event, __getTextFunc, __setTextFunc, __updateImageFunc)
 
     def produceTopSectionLatexImage(self):
         topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
@@ -3921,7 +3918,7 @@ class SubsectionWidgetFactory:
         result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
         result = ww.currUIImpl.UIImage(result)
 
-        subsectionLabel = TOCLabelWithClick(root = self.widgetManager.topFrame,
+        subsectionLabel = TOCLabeWithClickSubsection(root = self.widgetManager.topFrame,
                                                     image = result,
                                                     prefix = "_topSection" + self.__getPrefix(), 
                                                     padding = [0, 0, 0, 0],
@@ -4209,7 +4206,7 @@ class SubsectionWidgetFactory:
         result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
         result = ww.currUIImpl.UIImage(result)
 
-        subsectionLabel = TOCLabelWithClick(self.widgetManager.topFrame, 
+        subsectionLabel = TOCLabeWithClickSubsection(self.widgetManager.topFrame, 
                                             image = result, 
                                             prefix = "_subsecion" + self.__getPrefix(),
                                             row = 0, column= 0)

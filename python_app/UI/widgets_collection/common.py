@@ -102,6 +102,7 @@ class ImageGroupOM(ww.currUIImpl.OptionMenu):
             if "onGroupChange" in dir(w):
                 w.onGroupChange(self.subsection, self.imIdx)
 
+
 class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
     def __init__(self, parent, subsection, imIdx, prefix, row, column):
         renderData = {
@@ -492,28 +493,6 @@ class LinksFrame(ww.currUIImpl.Frame):
         return super().hide()
 
 
-def pasteGlLinkCmd(event, *args):
-    widget = event.widget
-    sourceSubsection = widget.subsection
-    sourceTopSection = sourceSubsection.split(".")[0]
-    sourceImIdx = widget.imIdx
-    targetSubsection = dt.UITemp.Link.subsection
-    targetImIdx = dt.UITemp.Link.imIdx
-
-    excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ExcerciseManager)
-    excerciseWidgetShown = excerciseManager.shown
-
-    if targetSubsection != _u.Token.NotDef.str_t\
-        and targetImIdx != _u.Token.NotDef.str_t:
-        gm.GeneralManger.AddLink(f"{targetSubsection}.{targetImIdx}",
-                                sourceSubsection,
-                                sourceImIdx,
-                                sourceTopSection)
-
-    if excerciseWidgetShown:
-        excerciseManager.show()
-
 class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                       dc.AppCurrDataAccessToken):
     class __EntryUIs:
@@ -686,11 +665,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(self.renderData)
         self.updateHeight(scrollTOC)
-
-    def pasteGlLinkCmd(self, event, *args):
-        pasteGlLinkCmd(event, *args)
-        
-        self.render()
 
     def __AddEntryImages(self, rootFrame, padding):
         nameId =_upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
@@ -1110,10 +1084,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         # if eImFrame != None:
         #     self.scrollIntoView(None, eImFrame)
 
-    def pasteGlLinkCmd(self, event, *args):
-        pasteGlLinkCmd(event, *args)
-        self.notify(EntryWindow_BOX)
-
     def onSetLeadingEntry(self, subsection, imIdx):
         fsm.Data.Book.subsectionOpenInTOC_UI = subsection
         fsm.Data.Book.entryImOpenInTOC_UI = imIdx
@@ -1323,6 +1293,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if "onFullEntryMove" in dir(w):
                     w.onFullEntryMove()
         return
+
 
 class MainRoot(ww.currUIImpl.RootWidget):
 

@@ -265,15 +265,15 @@ class MainTOCBox(comw.TOC_BOX):
                 if "onFullEntryMove" in dir(w):
                     w.onFullEntryMove()
         elif broadcasterType == mui.ImageGroupAdd_BTN:
-            self.__renderWithScrollAfter()
+            self.renderWithScrollAfter()
         elif broadcasterType == mui.ShowAllSubsections_BTN:
-            self.__renderWithScrollAfter()
+            self.renderWithScrollAfter()
         elif broadcasterType == mui.ShowHideLinks_BTN:
             self.showLinks = not self.showLinks
             self.showLinksForSubsections = []
-            self.__renderWithScrollAfter()
+            self.renderWithScrollAfter()
         else:
-            self.__renderWithScrollAfter()
+            self.renderWithScrollAfter()
 
     def onFullEntryMove(self):
         super().onFullEntryMove()
