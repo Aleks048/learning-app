@@ -843,6 +843,9 @@ class TkWidgets (DataTranslatable_Interface):
         def getHeight(self):
             return self.widgetObj.winfo_height()
         
+        def setWidth(self, newWidth):
+            self.widgetObj.configure(width = newWidth)
+
         def setWrapLength(self, wraplength):
             self.widgetObj.configure(wraplength = wraplength)
 

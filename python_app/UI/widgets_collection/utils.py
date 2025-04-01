@@ -228,7 +228,7 @@ def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, updateImageFunc):
         updateImageFunc(imageWidget)
         
         event.widget.hide()
-        imageWidget.updateImage()
+        imageWidget.updateLabel()
         imageWidget.render()
 
     subsectionLabel = MultilineText_ETR(widget.rootWidget, 
@@ -267,7 +267,6 @@ class TOCTextWithClick(ww.currUIImpl.Label):
 
         super().__init__(prefix, name, root, renderData, text = self.text)
 
-        self.setWrapLength(730)
         self.setStyle(ww.currUIImpl.Data.Styles.entryText)
 
     def hide(self, **kwargs):
@@ -281,8 +280,16 @@ class TOCTextWithClick(ww.currUIImpl.Label):
 
 
 class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
+    width = 60
+
     def __init__(self, root, prefix, row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, text=""):
         super().__init__(root, prefix, row, column, columnspan, sticky, text)
+        self.setWrapLength(self.width * 9)
+        self.setWidth(self.width)
+
+    def updateLabel(self):
+        self.changeText(fsf.Data.Sec.imageText(self.subsection)[self.imIdx])
+        self.setWidth(self.width)
 
 
 class TOCCanvasWithclick(ww.currUIImpl.Canvas):
@@ -1201,7 +1208,7 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
 
 
 class TOCLabelWithClickEntry(TOCLabelWithClick):
-    def updateImage(self):
+    def updateLabel(self):
         pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
 
         shrink = 0.7
@@ -1211,13 +1218,13 @@ class TOCLabelWithClickEntry(TOCLabelWithClick):
 
 
 class TOCLabelWithClickGroup(TOCLabelWithClick):
-    def updateImage(self):
+    def updateLabel(self):
         self.image = comw.getGroupImg(self.subsection, self.group)
         super().updateImage(self.image)
 
 
 class TOCLabeWithClickSubsection(TOCLabelWithClick):   
-    def updateImage(self):
+    def updateLabel(self):
         if self.subsection in list(fsf.Data.Book.sections.keys()):
             topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
                                                             sf.Wr.Manager.Book.getCurrBookName(),
@@ -1389,7 +1396,7 @@ class EntryFrameManager:
     
     def updateEntryImage(self):
         if self.latexEntryImage != None:
-            self.latexEntryImage.updateImage()
+            self.latexEntryImage.updateLabel()
 
     def __getExtraImageFrame(self, eImIdx):
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)
@@ -1791,6 +1798,20 @@ class EntryImagesFactory:
                 imLabel.subsection = self.subsection
                 imLabel.imIdx = self.imIdx
                 imLabel.render()
+
+                def __getText(widget):
+                    return fsf.Data.Sec.imageText(widget.subsection)[widget.imIdx]
+
+                def __setText(newText, widget):
+                    imageText = fsf.Data.Sec.imageText(widget.subsection)
+                    imageText[widget.imIdx] = newText
+                    fsf.Data.Sec.imageText(widget.subsection, imageText)
+                def __updateImage(widget):
+                    pass
+
+                imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                               [lambda e, g = __getText, s = __setText, u = __updateImage, *args:
+                                    bindWidgetTextUpdatable(e, g, s, u)])
 
             if not fsf.Data.Sec.isVideo(self.subsection):
                 bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
