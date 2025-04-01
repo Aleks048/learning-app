@@ -229,7 +229,8 @@ class LinksFrame(ww.currUIImpl.Frame):
 
         exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = frame,
                                                                         imPadLeft = 120,
-                                                                        skippConditionFn = skipProofs)
+                                                                        skippConditionFn = skipProofs,
+                                                                        createExtraWidgets = False)
         for l in exImLabels:
             l.render()
         
