@@ -218,10 +218,13 @@ class TOCFrame(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, root, renderData, padding = padding)
 
-def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, updateImageFunc):
+def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, 
+                                   updateImageFunc = lambda *args: None,
+                                   changeOnEtrFunc = lambda *args: None,
+                                   changeOnLabelBackFunc = lambda *args: None,):
     widget = event.widget
 
-    def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc):
+    def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc, changeOnLabelBackFunc):
         newText = event.widget.getData()
 
         setTextFunc(newText, imageWidget)
@@ -231,17 +234,20 @@ def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, updateImageFunc):
         imageWidget.updateLabel()
         imageWidget.render()
 
+        changeOnLabelBackFunc(widget)
+
     subsectionLabel = MultilineText_ETR(widget.rootWidget, 
                                         "subsectionETR_" + widget.name, 
                                         widget.row, widget.column, 
                                         "", # NOTE: not used anywhere  
                                         getTextFunc(widget))
     subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                            [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, 
-                             *args: __bringImageWidgetBack(e, w, sf, uf )])
+                            [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, bf = changeOnLabelBackFunc,
+                             *args: __bringImageWidgetBack(e, w, sf, uf, bf)])
     subsectionLabel.forceFocus()
     subsectionLabel.render()
     widget.hide()
+    changeOnEtrFunc(widget)
 
 
 class TOCTextWithClick(ww.currUIImpl.Label):
@@ -1806,12 +1812,25 @@ class EntryImagesFactory:
                     imageText = fsf.Data.Sec.imageText(widget.subsection)
                     imageText[widget.imIdx] = newText
                     fsf.Data.Sec.imageText(widget.subsection, imageText)
-                def __updateImage(widget):
-                    pass
+                
+                def __changeOnEtrFunc(widget):
+                    for w in wd.Data.Reactors.entryChangeReactors.values():
+                        if "onTextOnlyTextUpdate" in dir(w):
+                            w.onTextOnlyTextUpdate()
+                
+                def __changeOnLabelBackFunc(widget):
+                    for w in wd.Data.Reactors.entryChangeReactors.values():
+                        if "onTextOnlyTextUpdate" in dir(w):
+                            w.onTextOnlyTextUpdate()
 
                 imLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                               [lambda e, g = __getText, s = __setText, u = __updateImage, *args:
-                                    bindWidgetTextUpdatable(e, g, s, u)])
+                               [lambda e, g = __getText, 
+                                          s = __setText, 
+                                          c = __changeOnEtrFunc, 
+                                          b = __changeOnLabelBackFunc, *args:
+                                                            bindWidgetTextUpdatable(e, g, s, 
+                                                                changeOnEtrFunc = c,
+                                                                changeOnLabelBackFunc = b)])
 
             if not fsf.Data.Sec.isVideo(self.subsection):
                 bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
@@ -2905,8 +2924,19 @@ class EntryWidgetFactory:
                 for w in wd.Data.Reactors.entryChangeReactors.values():
                     if "onMainLatexImageUpdate" in dir(w):
                         w.onMainLatexImageUpdate(widget.subsection, widget.imIdx)
+
+            def __changeOnEtrFunc(widget):
+                for w in wd.Data.Reactors.entryChangeReactors.values():
+                    if "onEntryTextUpdate" in dir(w):
+                        w.onEntryTextUpdate()
             
-            bindWidgetTextUpdatable(event, __getText, __setText, __updateImage)
+            def __changeOnLabelBackFunc(widget):
+                for w in wd.Data.Reactors.entryChangeReactors.values():
+                    if "onEntryTextUpdate" in dir(w):
+                        w.onEntryTextUpdate()
+            
+            bindWidgetTextUpdatable(event, __getText, __setText, __updateImage, 
+                                                      __changeOnEtrFunc, __changeOnLabelBackFunc)
 
 
         if fsf.Data.Sec.imLinkDict(self.subsection).get(self.imIdx) != None:

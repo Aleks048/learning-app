@@ -764,6 +764,12 @@ class MainEntryBox(comw.EntryWindow_BOX):
                 self.scrollIntoView(None, eImFrame)
                 self.updateHeight()
 
+    def onTextOnlyTextUpdate(self):
+        self.updateHeight()
+
+    def onEntryTextUpdate(self):
+        self.updateHeight()
+
     def onFullEntryMove(self):
         if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
             self.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
