@@ -3561,9 +3561,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     def produceEntryWidgetFrames(self, topPad, row, leftPad, rowsPad = 0):
         nameId = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
 
-        if row == None:
-            row = int(self.imIdx) + 2
-
         entryFrame = TOCFrame(self.frame,
                                 prefix = "contentFr_" + nameId,
                                 padding=[leftPad, topPad, 0, 0],
