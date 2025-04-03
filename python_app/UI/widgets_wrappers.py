@@ -324,10 +324,12 @@ class TkWidgets (DataTranslatable_Interface):
             if not issubclass(TkWidgets.RootWidget, type(self.widget)):
                 if "rootWidget" in dir(self.widget):
                     self.widget.rootWidget.removeChild(self.widget)
+                    if self.widget.rootWidget.getChildren() == set():
+                        self.widget.rootWidget.widgetObj.configure(height = 1)
 
         def update(self):
-            self.widget.widgetObj.update_idletasks()
             self.widget.widgetObj.update()
+            self.widget.widgetObj.update_idletasks()
 
         def getYCoord(self):
             return self.widget.widgetObj.winfo_y()

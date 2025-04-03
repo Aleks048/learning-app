@@ -9,7 +9,6 @@ import copy
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
 import UI.widgets_facade as wf
-import UI.widgets_collection.common as comw
 
 import file_system.file_system_facade as fsf
 import data.constants as dc
@@ -21,6 +20,187 @@ import outside_calls.outside_calls_facade as ocf
 import generalManger.generalManger as gm
 import tex_file.tex_file_facade as tff
 
+
+def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, 
+                                   updateImageFunc = lambda *args: None,
+                                   changeOnEtrFunc = lambda *args: None,
+                                   changeOnLabelBackFunc = lambda *args: None,):
+    widget = event.widget
+
+    def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc, changeOnLabelBackFunc):
+        newText = event.widget.getData()
+
+        setTextFunc(newText, imageWidget)
+        updateImageFunc(imageWidget)
+        
+        event.widget.hide()
+        imageWidget.updateLabel()
+        imageWidget.render()
+
+        changeOnLabelBackFunc(widget)
+
+    subsectionLabel = MultilineText_ETR(widget.rootWidget, 
+                                        "subsectionETR_" + widget.name, 
+                                        widget.row, widget.column, 
+                                        "", # NOTE: not used anywhere  
+                                        getTextFunc(widget))
+    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                            [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, bf = changeOnLabelBackFunc,
+                             *args: __bringImageWidgetBack(e, w, sf, uf, bf)])
+    subsectionLabel.forceFocus()
+    subsectionLabel.render()
+    widget.hide()
+    changeOnEtrFunc(widget)
+
+
+
+def bindChangeColorOnInAndOut(widget, shouldBeRed = False, shouldBeBrown = False):
+    def __changeTextColorBlue(event = None, *args):
+        event.widget.changeColor("blue")
+
+    def __changeTextColorBrown(event = None, *args):
+        event.widget.changeColor("brown")
+
+    def __changeTextColorRed(event = None, *args):
+        event.widget.changeColor("red")
+
+    def __changeTextColorWhite(event = None, *args):
+        event.widget.changeColor("white")
+    
+    widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
+    if not shouldBeRed:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
+    else:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
+    
+    if shouldBeBrown:
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
+
+
+def getGroupImg(subsection, currImGroupName):
+    gi = str(list(fsf.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
+    groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
+                                            subsection,
+                                            gi)
+
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(groupImgPath):
+        result = Image.open(groupImgPath)
+    else:
+        result = \
+            fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
+                                                                    currImGroupName)
+
+    shrink = 0.8
+    result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+    result = ww.currUIImpl.UIImage(result)
+
+    return result
+
+
+def getEntryImg(tex, subsection, imIdx):
+    currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+    entryImgPath = _upan.Paths.Screenshot.Images.getMainEntryTexImageAbs(currBookPath, 
+                                                                        subsection, 
+                                                                        imIdx)
+
+    if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(entryImgPath):
+        result = Image.open(entryImgPath)
+    else:
+        result = tff.Wr.TexFileUtils.fromTexToImage(tex, 
+                                                    entryImgPath,
+                                                    fixedWidth = 700)
+
+    return result
+
+
+class ImageGroupOM(ww.currUIImpl.OptionMenu):
+    def __init__(self,
+                 listOfOptions, 
+                 rootWidget, 
+                 subsection,
+                 imIdx,
+                 tocBox,
+                 column,
+                 currImGroupName = None):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, 
+                                            "row" : 0,
+                                            "columnspan" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, 
+                                     "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "GroupOM_"
+
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.tocBox = tocBox
+
+        prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
+
+        super().__init__(prefix, 
+                         name,
+                         listOfOptions,
+                         rootWidget,
+                         data,
+                         defaultOption = currImGroupName,
+                         cmd = self.chooseGroupCmd)
+                        
+    def chooseGroupCmd(self):
+        imagesGroupList:list = list(fsf.Data.Sec.imagesGroupsList(self.subsection).keys())
+        imagesGroupDict = fsf.Data.Sec.imagesGroupDict(self.subsection)
+        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
+        fsf.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
+
+        
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onGroupChange" in dir(w):
+                w.onGroupChange(self.subsection, self.imIdx)
+
+
+class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
+    def __init__(self, parent, subsection, imIdx, prefix, row, column):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_EntryShowPermamentlyCheckbox_"
+
+        self.subsection = subsection
+        self.imIdx = str(imIdx)
+
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        if tocWImageDict == _u.Token.NotDef.dict_t:
+            alwaysShow = "0"
+        else:
+            alwaysShow = tocWImageDict[self.imIdx]
+
+        super().__init__(prefix,
+                         name,
+                         parent, 
+                         renderData,
+                         command = lambda *args: self.__cmd())
+        self.setData(int(alwaysShow))
+
+    def __cmd(self):
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        tocWImageDict[self.imIdx] = str(self.getData())
+        fsf.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
+
+
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onAlwaysShowChange" in dir(w):
+                w.onAlwaysShowChange(self.subsection, self.imIdx)
+    
+    def render(self):
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        newData = _u.Token.NotDef.str_t
+
+        if tocWImageDict.get(self.imIdx) != None:
+            newData = tocWImageDict[self.imIdx]
+
+        self.setData(newData)
+        return super().render(self.renderData)
 
 
 class MultilineText_ETR(ww.currUIImpl.MultilineText):
@@ -217,37 +397,6 @@ class TOCFrame(ww.currUIImpl.Frame):
         self.columnspan = columnspan
 
         super().__init__(prefix, name, root, renderData, padding = padding)
-
-def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, 
-                                   updateImageFunc = lambda *args: None,
-                                   changeOnEtrFunc = lambda *args: None,
-                                   changeOnLabelBackFunc = lambda *args: None,):
-    widget = event.widget
-
-    def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc, changeOnLabelBackFunc):
-        newText = event.widget.getData()
-
-        setTextFunc(newText, imageWidget)
-        updateImageFunc(imageWidget)
-        
-        event.widget.hide()
-        imageWidget.updateLabel()
-        imageWidget.render()
-
-        changeOnLabelBackFunc(widget)
-
-    subsectionLabel = MultilineText_ETR(widget.rootWidget, 
-                                        "subsectionETR_" + widget.name, 
-                                        widget.row, widget.column, 
-                                        "", # NOTE: not used anywhere  
-                                        getTextFunc(widget))
-    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                            [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, bf = changeOnLabelBackFunc,
-                             *args: __bringImageWidgetBack(e, w, sf, uf, bf)])
-    subsectionLabel.forceFocus()
-    subsectionLabel.render()
-    widget.hide()
-    changeOnEtrFunc(widget)
 
 
 class TOCTextWithClick(ww.currUIImpl.Label):
@@ -1212,22 +1361,19 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         else:
             bindChangeColorOnInAndOut(self, shouldBeBrown = False)
 
-
 class TOCLabelWithClickEntry(TOCLabelWithClick):
     def updateLabel(self):
-        pilIm = comw.getEntryImg("no", self.subsection, self.imIdx)
+        pilIm = getEntryImg("no", self.subsection, self.imIdx)
 
         shrink = 0.7
         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
         self.image = ww.currUIImpl.UIImage(pilIm)
         super().updateImage(self.image)
 
-
 class TOCLabelWithClickGroup(TOCLabelWithClick):
     def updateLabel(self):
-        self.image = comw.getGroupImg(self.subsection, self.group)
+        self.image = getGroupImg(self.subsection, self.group)
         super().updateImage(self.image)
-
 
 class TOCLabeWithClickSubsection(TOCLabelWithClick):   
     def updateLabel(self):
@@ -1262,29 +1408,6 @@ class TOCLabeWithClickSubsection(TOCLabelWithClick):
             result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
             self.image = ww.currUIImpl.UIImage(result)
             super().updateImage(self.image)
-
-
-def bindChangeColorOnInAndOut(widget:TOCLabelWithClick, shouldBeRed = False, shouldBeBrown = False):
-    def __changeTextColorBlue(event = None, *args):
-        event.widget.changeColor("blue")
-
-    def __changeTextColorBrown(event = None, *args):
-        event.widget.changeColor("brown")
-
-    def __changeTextColorRed(event = None, *args):
-        event.widget.changeColor("red")
-
-    def __changeTextColorWhite(event = None, *args):
-        event.widget.changeColor("white")
-    
-    widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
-    if not shouldBeRed:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
-    else:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
-    
-    if shouldBeBrown:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
 
 
 class SubsectionFrameManager:
@@ -1369,19 +1492,13 @@ class EntryFrameManager:
         self.latexEntryImage = None
 
         self.rowFrame2 = None
-        self.linkFrame = None
+        self.linksFrameManager = None
         self.imagesFrame = None
 
         self.imagesShown = False
 
         self.mainImLabel = None
         self.extraImLabels = None
-
-    def clearImages(self):
-        if self.linkFrame != None:
-            for ch in self.linkFrame.getChildren().copy():
-                ch.destroy()
-            self.linkFrame.hide()
 
     def changeFullMoveColor(self, default):
         if self.fullMoveWidget == None:
@@ -1514,17 +1631,17 @@ class EntryFrameManager:
         return resizeFactor
 
 
-    def __setMainImage(self):
+    def __setMainImage(self, imPadLeft = 120):
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)  
         imLabel = entryImagesFactory.produceEntryMainImageWidget(self.imagesFrame,
-                                                            imPadLeft = 120,
+                                                            imPadLeft = imPadLeft,
                                                             resizeFactor = 1.0)
 
         imLabel.render()
         self.mainImLabel = imLabel
 
 
-    def __setExtraImages(self):
+    def __setExtraImages(self, createExtraWidgets, imPadLeft = 0):
         def skipProofAndExtra(subsection, imIdx, exImIdx):
             extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
             eImText = extraImages[exImIdx]
@@ -1535,7 +1652,8 @@ class EntryFrameManager:
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)   
         exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self.imagesFrame,
                                                         skippConditionFn = skipProofAndExtra,
-                                                        createExtraWidgets = True)
+                                                        createExtraWidgets = createExtraWidgets,
+                                                        imPadLeft = imPadLeft)
         self.extraImLabels = exImLabels
 
         for l in exImLabels:
@@ -1558,19 +1676,23 @@ class EntryFrameManager:
         self.rowFrame2.hide()
         self.imagesShown = False   
 
-    def showImages(self):
+    def showImages(self, mainImPadLeft = 120, eImPadLeft = 0, createExtraImagesExtraWidgets = True):
         self.imagesShown = True   
 
         # if self.fullMoveWidget != None:
         #     self.fullMoveWidget.clicked = True 
 
-        self.__setMainImage()
-        self.__setExtraImages()
+        self.__setMainImage(imPadLeft = mainImPadLeft)
+        self.__setExtraImages(createExtraWidgets = createExtraImagesExtraWidgets,
+                              imPadLeft = eImPadLeft)
         self.imagesFrame.render()
 
     def setFullImageLabelNotClicked(self):
         if self.fullMoveWidget != None:
             self.fullMoveWidget.clicked = False 
+
+    def remove(self):
+        self.entryFrame.destroy()
 
     def hideImages(self):
         self.imagesShown = False
@@ -1578,7 +1700,6 @@ class EntryFrameManager:
             ch.destroy()
         self.imagesFrame.hide()
         self.setFullImageLabelNotClicked()
-
 
 class EntryImagesFactory:
     class __ImageFrame(ww.currUIImpl.Frame):
@@ -1604,6 +1725,8 @@ class EntryImagesFactory:
                             extraOptions,
                             bindCmd,
                             padding)
+
+
     class __MainImageFrame(__ImageFrame):
         def __init__(self, imagePath, subsection, imIdx, 
                     row, column, columnspan,
@@ -2399,6 +2522,131 @@ class EntryImagesFactory:
         return outLabels
 
 
+class LinksFrameManager:
+    def __init__(self, subsection, imIdx, linksFrame, linksFactory):
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.linksFrame = linksFrame
+        self.factory = linksFactory
+
+        self.linksShown = False
+
+        self.entriesFrame = None
+
+    def processChangeLinksViewStatusChange(self):
+        if not self.linksShown:
+            self.factory.produceLinksEntryFrames()
+            self.linksFrame.render()
+        else:
+            self.linksFrame.hide()
+        
+        self.linksShown = not self.linksShown
+
+    def showLinks(self):
+        self.factory.produceLinksEntryFrames()
+        self.linksFrame.render()
+        self.linksShown = True
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onShowLinks" in dir(w):
+                w.onShowLinks()
+
+class LinksFrameFactory:
+    def __init__(self, subsection, imIdx):
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.manager = None
+    
+    def produceMainFrame(self, parentWidget, row, leftPad):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : row, "columnspan" : 100},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_LinksFrame_"
+        self.prefix =  _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
+
+        return ww.currUIImpl.Frame(prefix = self.prefix,
+                                   name = name, 
+                                   rootWidget = parentWidget,
+                                   renderData = renderData,
+                                   padding = [leftPad, 0, 0, 0])
+    def produceLinksMainWidgets(self, haveLinks):
+        linksPrefixLabel = TOCLabelWithClick(root = self.manager.linksFrame, 
+                                text =  "Links: " if haveLinks else "No links", 
+                                prefix = "contentLinksIntroFr_" + self.prefix,
+                                padding = [60, 0, 0, 0],
+                                row = 0, column = 0)
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        linksEntriesFrame = ww.currUIImpl.Frame(prefix = self.prefix,
+                                               name = "contentLinksEntriesFr_",
+                                               rootWidget = self.manager.linksFrame,
+                                               renderData = renderData,
+                                               padding = [60, 0, 0, 0])
+        return linksPrefixLabel, linksEntriesFrame
+
+    def __produceLinksEntryFrame(self, parentWidget, linkSubsection, linksImIdx, row):
+        entryFrameFactory = EntryWidgetFactoryLink(linkSubsection, linksImIdx, 0, 0, 
+                                                   sourceSubsection = self.subsection, 
+                                                   sourceImIdx = self.imIdx)
+        entryFrameFactory.produceEntryWidgetsForFrame(parentWidget, row)
+        entryWidgetManager = entryFrameFactory.entryFrameManager
+        return entryWidgetManager
+    
+    def __produceLinksWebLinkFrame(self, parentWidget, subsection, imIdx, webLinkName, row):
+        entryFrameFactory = EntryWidgetFactoryWebLink(subsection = subsection, 
+                                                      imIdx = imIdx,
+                                                      topPad = 0,
+                                                      leftPad = 0,
+                                                      webLinkName = webLinkName)
+        entryFrameFactory.produceEntryWidgetsForFrame(parentWidget, row)
+        entryWidgetManager = entryFrameFactory.entryFrameManager
+        return entryWidgetManager
+       
+
+    def produceLinksEntryFrames(self):
+        if fsf.Data.Sec.imGlobalLinksDict(self.subsection).get(self.imIdx) == None:
+            return
+
+        glLinks:dict = fsf.Data.Sec.imGlobalLinksDict(self.subsection)[self.imIdx].copy()
+
+        # NOTE: should put all the links into 
+        # one frame. This way they will be aligned correctly
+        if type(glLinks) == dict:
+            row = 0
+            for ln, lk in glLinks.items():
+                if "KIK" in lk:
+                    targetSubsection = ln.split("_")[0]
+                    targetImIdx = ln.split("_")[1]
+                    self.__produceLinksEntryFrame(self.manager.entriesFrame, 
+                                                  targetSubsection, 
+                                                  targetImIdx,
+                                                  row)
+                elif "http" in lk:
+                    self.__produceLinksWebLinkFrame(self.manager.entriesFrame, 
+                                                  self.subsection, 
+                                                  self.imIdx, 
+                                                  ln,
+                                                  row)
+                    
+                row += 1
+
+    def produceLinksFrame(self, parentWidget, row, leftPad):
+        linksFrame = self.produceMainFrame(parentWidget = parentWidget,
+                                           row = row, 
+                                           leftPad = leftPad)
+        self.manager = LinksFrameManager(self.subsection, self.imIdx, linksFrame, self)
+
+        imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(self.subsection)
+        haveLinks = self.imIdx in imGlobalLinksDict.keys()
+
+        linksPrefixLabel, linksEntriesFrame = self.produceLinksMainWidgets(haveLinks)
+        linksPrefixLabel.render()
+        linksEntriesFrame.render()
+        self.manager.entriesFrame = linksEntriesFrame
+
+
 class EntryWidgetFactory:
     class EntryUIs:
         class __EntryUIData:
@@ -2633,11 +2881,8 @@ class EntryWidgetFactory:
 
     def produceShowLinksForEntry(self, parentWidget):
         def showLinksForEntryCmd(e, manager):
-            linksFrame = manager.linkFrame
-            if linksFrame.wasRendered:
-                linksFrame.hide()
-            else:
-                linksFrame.render()
+            linksFrmaeManger = manager.linksFrameManager
+            linksFrmaeManger.processChangeLinksViewStatusChange()        
 
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onLinksShow" in dir(w):
@@ -2905,7 +3150,7 @@ class EntryWidgetFactory:
         bindChangeColorOnInAndOut(openExUIEntry, shouldBeBrown = excerciseExists)
         return openExUIEntry
 
-    def produceMainImageWidget(self, parentWidget):
+    def produceMainImageWidget(self, parentWidget, leftPad = 60, column = 0):
         def updateEntry(event, *args):
             def __getText(widget):
                 imLinkDict = fsf.Data.Sec.imLinkDict(widget.subsection)
@@ -2949,7 +3194,7 @@ class EntryWidgetFactory:
             v = fsf.Data.Sec.imLinkDict(self.subsection)[self.imIdx]
 
             latexTxt = tff.Wr.TexFileUtils.fromEntryToLatexTxt(self.imIdx, v)
-            pilIm = comw.getEntryImg(latexTxt, self.subsection, self.imIdx)
+            pilIm = getEntryImg(latexTxt, self.subsection, self.imIdx)
 
             shrink = 0.7
             pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
@@ -2958,9 +3203,9 @@ class EntryWidgetFactory:
             textLabelPage = TOCLabelWithClickEntry(parentWidget,
                                             image = img, 
                                             prefix = "contentP_" + self.__nameIdPrefix, 
-                                            padding= [60, 0, 0, 0],
+                                            padding= [leftPad, 0, 0, 0],
                                             row = 0, 
-                                            column = 0)
+                                            column = column)
             textLabelPage.imIdx = self.imIdx
             textLabelPage.subsection = self.subsection
             textLabelPage.etrWidget = textLabelPage
@@ -2977,9 +3222,9 @@ class EntryWidgetFactory:
             textLabelPage = TOCLabelWithClickEntry(parentWidget,
                                                 text = _u.Token.NotDef.str_t, 
                                                 prefix = "contentP_" + self.__nameIdPrefix, 
-                                                padding= [60, 0, 0, 0],
+                                                padding= [leftPad, 0, 0, 0],
                                                 row = 0, 
-                                                column = 0)
+                                                column = column)
 
         self.entryFrameManager.latexEntryImage = textLabelPage
         return textLabelPage
@@ -3039,7 +3284,7 @@ class EntryWidgetFactory:
         return showImages
 
     def produceAlwaysShowChbxWidget(self, parentWidget):
-        chkbtnShowPermamently = comw.EntryShowPermamentlyCheckbox(parentWidget, 
+        chkbtnShowPermamently = EntryShowPermamentlyCheckbox(parentWidget, 
                                                              self.subsection, self.imIdx, 
                                                              "contentShowAlways_" + self.__nameIdPrefix,
                                                              row = 0, 
@@ -3333,7 +3578,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                 bindWidgetTextUpdatable(event, __getText, __setText, __updateImage)
 
-            img = comw.getGroupImg(self.subsection, currImGroupName)
+            img = getGroupImg(self.subsection, currImGroupName)
             imageGroupLabel = TOCLabelWithClickGroup(imageGroupFrame, 
                                         image = img, 
                                         prefix = "contentGroupP_" + self.__nameIdPrefix,
@@ -3367,7 +3612,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         currImGroupName = list(imagesGroups.keys())[currImGroupidx]
 
-        imageGroupOM = comw.ImageGroupOM(imagesGroups,
+        imageGroupOM = ImageGroupOM(imagesGroups,
                                    parentWidget, 
                                    self.subsection,
                                    self.imIdx,
@@ -3591,14 +3836,12 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         entryFrameManager.rowFrame2.subsection = self.subsection
         entryFrameManager.rowFrame2.imIdx = self.imIdx
 
-        entryFrameManager.linkFrame = comw.LinksFrame(entryFrame,
-                               self.subsection,
-                               self.imIdx,
-                               row = 3, 
-                               column = 0,
-                               entryFrame = self,
-                               padding = [rowsPad, 0, 0, 0])
-        # entryFrame.linkFrame.render()
+        linksFrameFactory = LinksFrameFactory(self.subsection,
+                                              self.imIdx)
+        linksFrameFactory.produceLinksFrame(parentWidget = entryFrame,
+                                            row = 3,
+                                            leftPad = rowsPad)
+        entryFrameManager.linksFrameManager = linksFrameFactory.manager
         
         entryFrameManager.imagesFrame = TOCFrame(entryFrame,
                             prefix = "ImagesFrame" + nameId,
@@ -3796,6 +4039,242 @@ class EntryWidgetFactoryEntryWindow(EntryWidgetFactory):
         copyText = self.EntryUIs.copyText.cmd(self, parentWidget = self.entryFrameManager.rowFrame2)
         copyText.render()
         proof = self.EntryUIs.proof.cmd(self, parentWidget = self.entryFrameManager.rowFrame2)
+        proof.render()
+
+class EntryWidgetFactoryWebLink(EntryWidgetFactory):
+    class EntryUIs(EntryWidgetFactory.EntryUIs):
+        def __init__(self):
+            self.delete = self.__EntryUIData("[del]", 1, EntryWidgetFactoryLink.produceDeleteLinkLabel)
+    
+    def __init__(self, subsection, imIdx, topPad, leftPad, webLinkName):
+        self.webLinkName = webLinkName
+
+        super().__init__(subsection, imIdx, topPad, leftPad)
+    
+    def produceDeleteWebLink(self, parentWidget):
+        def __delWebLinkCmd(event, efm):
+            widget = event.widget
+            gm.GeneralManger.RemoveWebLink(widget.subsection,
+                                            widget.imIdx,
+                                            widget.sourceWebLinkName)
+
+            efm.remove()
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onRemoveLink" in dir(w):
+                    w.onRemoveLink()
+            
+        linkLabelDelete = TOCLabelWithClick(parentWidget, 
+                                            text = self.EntryUIs.delete.name, 
+                                            prefix = "contentGlLinksTSubsectionDel_" + self.getPrefixID(),
+                                            row = self.EntryUIs.delete.row, 
+                                            column = 2)
+
+        linkLabelDelete.subsection = self.subsection
+        linkLabelDelete.imIdx = self.imIdx
+        linkLabelDelete.sourceWebLinkName = self.webLinkName
+
+        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                               [lambda e, m = self.entryFrameManager, *args: __delWebLinkCmd(e, m)])
+
+        bindChangeColorOnInAndOut(linkLabelDelete)
+        return linkLabelDelete
+
+    def __produceEntryPrefixLabel(self, parentWidget):
+        glLinkPrefixLbl = TOCLabelWithClick(parentWidget, 
+                                                text = "web: ", 
+                                                padding = [0, 0, 0, 0],
+                                                prefix = "contentGlLinksTSubsection_" + self.getPrefixID(),
+                                                row = 0, column = 0)
+        return glLinkPrefixLbl
+
+    def __produceMainImageLabel(self, parentWidget):
+        def __openWebOfTheImageCmd(webLink):
+            cmd = "open -na 'Google Chrome' --args --new-window \"" + webLink + "\""
+            _u.runCmdAndWait(cmd)
+
+        latexTxt = tff.Wr.TexFileUtils.formatEntrytext(self.webLinkName)
+        currBookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+        linkFilepath = _upan.Paths.Screenshot.Images.getWebLinkImageAbs(currBookPath,
+                                                        self.subsection,
+                                                        self.imIdx,
+                                                        self.webLinkName)
+
+        if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(linkFilepath):
+            pilIm = Image.open(linkFilepath)
+        else:
+            pilIm = tff.Wr.TexFileUtils.fromTexToImage(latexTxt, linkFilepath) 
+
+        shrink = 0.7
+        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+        img = ww.currUIImpl.UIImage(pilIm)
+
+        glLinkLablel = TOCLabelWithClick(parentWidget,
+                                    image = img,
+                                    text = self.webLinkName, 
+                                    prefix = "contentGlLinks_" + self.getPrefixID(),
+                                    row = 0, column = 1)
+        glLinkLablel.subsection = self.subsection
+        glLinkLablel.imIdx = self.imIdx
+        glLinkLablel.image = img
+
+        glLinks:dict = fsf.Data.Sec.imGlobalLinksDict(self.subsection)[self.imIdx]
+
+        glLinkLablel.rebind([ww.currUIImpl.Data.BindID.mouse1], \
+                            [lambda e, wl = glLinks[self.webLinkName], *args: __openWebOfTheImageCmd(wl)])
+        return glLinkLablel
+
+    def produceEntryMainFrame(self, parentWidget):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_LinksMainImageFrame_"
+
+        mainImageFrame = ww.currUIImpl.Frame(prefix = self.getPrefixID(),
+                                             name = name, 
+                                             rootWidget = parentWidget,
+                                             renderData = renderData,
+                                             padding = [0, 0, 0, 0])
+
+        glLinkPrefixLbl = self.__produceEntryPrefixLabel(mainImageFrame)
+        glLinkPrefixLbl.render()
+
+        glLinkMainImLbl = self.__produceMainImageLabel(mainImageFrame)
+        glLinkMainImLbl.render()
+
+        return mainImageFrame
+
+    def produceEntryWidgetsForFrame(self, parentWidget, row):
+        self.frame = parentWidget
+        self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, 
+                                                               leftPad = self.leftPad,
+                                                               row = row)
+
+        mainImageWidget = self.produceEntryMainFrame(parentWidget = self.entryFrameManager.rowFrame1)
+        mainImageWidget.render()
+
+        deleteLabelWidget = self.produceDeleteWebLink(parentWidget = self.entryFrameManager.rowFrame1)
+        deleteLabelWidget.render()
+
+class EntryWidgetFactoryLink(EntryWidgetFactory):
+    class EntryUIs(EntryWidgetFactory.EntryUIs):
+        def __init__(self):
+            self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactory.produceFullMoveEntriesWidget)
+            self.im = self.__EntryUIData("[i]", 2, EntryWidgetFactoryLink.produceOpenLinkImages)
+            self.delete = self.__EntryUIData("[del]", 3, EntryWidgetFactoryLink.produceDeleteLinkLabel)
+            self.excercises = self.__EntryUIData("[e]", 4, EntryWidgetFactory.produceOpenExcercisesWidget)
+            self.proof = self.__EntryUIData("[pr]", 5, EntryWidgetFactory.produceOpenProofMenu, row = 0)
+
+    def __init__(self, subsection, imIdx, topPad, leftPad, sourceSubsection, sourceImIdx):
+        self.sourceSubsection = sourceSubsection
+        self.sourceImIdx = sourceImIdx
+
+        super().__init__(subsection, imIdx, topPad, leftPad)
+
+    def produceOpenLinkImages(self, parentWidget):
+        def showImagesCmd(e, efm):
+            if not e.widget.clicked:
+                efm.showImages(mainImPadLeft = 60, eImPadLeft = 60, createExtraImagesExtraWidgets = False)
+            else:
+                efm.hideImages()
+            
+            e.widget.clicked = not e.widget.clicked
+
+        showImages = TOCLabelWithClick(parentWidget, 
+                                    text = self.EntryUIs.im.name,
+                                    prefix = "showImages_" + self.getPrefixID(),
+                                    row = 0,
+                                    column = self.EntryUIs.im.column)
+        showImages.imIdx = self.imIdx
+        showImages.subsection = self.subsection
+        showImages.clicked = False
+        showImages.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, efm = self.entryFrameManager, *args: showImagesCmd(e, efm, *args)])
+        bindChangeColorOnInAndOut(showImages)
+        return showImages
+
+    def produceDeleteLinkLabel(self, parentWidget):
+        def __delGlLinkCmd(event, efm):
+            widget = event.widget
+
+            gm.GeneralManger.RemoveGlLink(widget.targetSubssection,
+                                            widget.sourceSubssection,
+                                            widget.sourceImIdx,
+                                            widget.targetImIdx)
+            efm.remove()
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onRemoveLink" in dir(w):
+                    w.onRemoveLink()
+
+        linkLabelDelete = TOCLabelWithClick(parentWidget, 
+                                                    text = self.EntryUIs.delete.name, 
+                                                    prefix = "contentGlLinksTSubsectionDel_" + self.getPrefixID(),
+                                                    row = 0,
+                                                    column = self.EntryUIs.delete.column)
+        
+        linkLabelDelete.targetSubssection = self.subsection
+        linkLabelDelete.sourceSubssection = self.sourceSubsection
+        linkLabelDelete.targetImIdx = self.imIdx
+        linkLabelDelete.sourceImIdx = self.sourceImIdx
+
+        linkLabelDelete.rebind([ww.currUIImpl.Data.BindID.mouse1], 
+                               [lambda e, efm = self.entryFrameManager, *args: __delGlLinkCmd(e, efm)])
+        bindChangeColorOnInAndOut(linkLabelDelete)
+        return linkLabelDelete
+
+    def __produceLinkPathLabel(self, parentWidget):
+        glLinkSubsectioLbl = TOCLabelWithClick(parentWidget, 
+                                               prefix = "contentGlLinksTSubsection_" + self.getPrefixID(),
+                                               text = self.subsection + ": ", 
+                                               padding = [0, 0, 0, 0],
+                                               row = 0, column = 0)
+        return glLinkSubsectioLbl
+
+    def produceMainImageWidget(self, parentWidget):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_LinksMainImageFrame_"
+
+        mainImageFrame = ww.currUIImpl.Frame(prefix = self.getPrefixID(),
+                                             name = name, 
+                                             rootWidget = parentWidget,
+                                             renderData = renderData,
+                                             padding = [0, 0, 0, 0])
+
+        linkPathLabel = self.__produceLinkPathLabel(mainImageFrame)
+        linkPathLabel.render()
+        mainImageWidget = super().produceMainImageWidget(parentWidget = mainImageFrame,
+                                                      leftPad = 0, column = 1)
+        mainImageWidget.render()
+        return mainImageFrame
+
+    def produceEntryWidgetsForFrame(self, parentWidget, row):
+        self.frame = parentWidget
+
+        self.entryFrameManager = self.produceEntryWidgetFrames(topPad = self.topPad, 
+                                                               leftPad = self.leftPad,
+                                                               row = row)
+
+        mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)
+        mainImageWidget.render()
+
+        # self.entryFrameManager.showImages(mainImPadLeft = 0, createExtraImagesExtraWidgets = False)
+
+        full = self.EntryUIs.full.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        self.entryFrameManager.fullMoveWidget = full
+        full.render()
+        im = self.EntryUIs.im.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        im.render()
+        delete = self.EntryUIs.delete.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        delete.render()
+        excercises = self.EntryUIs.excercises.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
+        excercises.render()
+
+        proof = self.EntryUIs.proof.cmd(self, parentWidget = self.entryFrameManager.rowFrame1)
         proof.render()
 
 class EntryWidgetFactorySearchTOC(EntryWidgetFactory):

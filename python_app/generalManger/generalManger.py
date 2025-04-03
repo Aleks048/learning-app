@@ -490,6 +490,12 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     @classmethod
     def RemoveGlLink(cls, targetSubsection, sourceSubsection, sourceIDX, targetIDX):
+        if sourceSubsection == targetSubsection:
+            if int(sourceIDX) < int(targetIDX):
+                temp = sourceIDX
+                sourceIDX = targetIDX
+                targetIDX = temp
+        
         # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
         sourceLinks = sourseSectionGlobalLinksDict[sourceIDX]

@@ -259,7 +259,9 @@ class MainTOCBox(comw.TOC_BOX):
             fsf.Data.Book.subsectionOpenInTOC_UI = subsection
             fsf.Data.Book.entryImOpenInTOC_UI = imIdx
 
-            self.AddEntryWidget(imIdx, subsection, self.subsectionWidgetManagers[subsection].entriesFrame)
+            self.AddEntryWidget(imIdx, 
+                                subsection, 
+                                self.subsectionWidgetManagers[subsection].entriesFrame)
 
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onFullEntryMove" in dir(w):
@@ -770,6 +772,12 @@ class MainEntryBox(comw.EntryWindow_BOX):
     def onEntryTextUpdate(self):
         self.updateHeight()
 
+    def onShowLinks(self):
+        self.updateHeight()
+
+    def onRemoveLink(self):
+        self.updateHeight()
+
     def onFullEntryMove(self):
         if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
             self.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
@@ -829,7 +837,10 @@ class MainEntryBox(comw.EntryWindow_BOX):
     def render(self, scrollTOC=True):
         wd.Data.Reactors.entryChangeReactors[self.name] = self
         wd.Data.Reactors.subsectionChangeReactors[self.name] = self
-        return super().render(scrollTOC)
+        super().render(scrollTOC)
+
+        if self.linkFrameShown:
+            self.entryManager.linksFrameManager.showLinks()
 
 class ImageCreation:
     pass
