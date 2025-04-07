@@ -4,7 +4,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
-from UI.widgets_collection.factories.entriesWidgetsFactories import EntryWidgetFactoryTOC, EntryWidgetFactorySearchTOC, EntryWidgetFactory
+from UI.factories.entriesWidgetsFactories import EntryWidgetFactoryTOC, EntryWidgetFactorySearchTOC, EntryWidgetFactory
 from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabeWithClickSubsection, TOCFrame
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindChangeColorOnInAndOut
 

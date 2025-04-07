@@ -17,7 +17,7 @@ import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
 import UI.widgets_manager as wm
 import UI.widgets_collection.utils as _uuicom
-import UI.widgets_collection.factories.factoriesFacade as wff
+import UI.factories.factoriesFacade as wff
 
 import data.constants as dc
 import data.temp as dt

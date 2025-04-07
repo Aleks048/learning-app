@@ -6,7 +6,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
 import UI.widgets_collection.common as comw
-import UI.widgets_collection.factories.factoriesFacade as wff
+import UI.factories.factoriesFacade as wff
 
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan

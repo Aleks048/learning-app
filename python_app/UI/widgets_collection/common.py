@@ -461,7 +461,7 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             return
 
         #NOTE: we should try to have the imports at the top
-        from UI.widgets_collection.factories.factoriesFacade import EntryWidgetFactoryEntryWindow
+        from UI.factories.factoriesFacade import EntryWidgetFactoryEntryWindow
 
         if fsm.Data.Sec.leadingEntry(subsection).get(imIdx) != None:
             leadingEntry = fsm.Data.Sec.leadingEntry(subsection)[imIdx]
@@ -887,7 +887,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def onEntryShift(self, subsection, imIdx):
         #NOTE: we should try to have the imports at the top
-        from UI.widgets_collection.factories.factoriesFacade import EntryWidgetFactoryTOC
+        from UI.factories.factoriesFacade import EntryWidgetFactoryTOC
 
         row = list(self.subsectionWidgetManagers[subsection].entriesWidgetManagers.keys()).index(imIdx)
 

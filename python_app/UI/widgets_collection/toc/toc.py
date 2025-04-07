@@ -5,7 +5,7 @@ import data.temp as dt
 
 import UI.widgets_collection.toc.manager as tocm
 from UI.widgets_collection.common import TOC_BOX
-from UI.widgets_collection.factories.factoriesFacade import SubsectionWidgetFactorySearchTOC
+from UI.factories.factoriesFacade import SubsectionWidgetFactorySearchTOC
 
 import file_system.file_system_facade as fsf
 

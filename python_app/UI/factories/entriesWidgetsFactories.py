@@ -8,7 +8,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
-from UI.widgets_collection.factories.entryImageWidgetsFactories import EntryImagesFactory
+from UI.factories.entryImageWidgetsFactories import EntryImagesFactory
 from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabelWithClickEntry, EntryShowPermamentlyCheckbox, TOCLabelWithClickGroup, TOCFrame, ImageGroupOM
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
 
