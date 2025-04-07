@@ -109,7 +109,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
                       Image.LANCZOS)
         img = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = _ucomw.TOCCanvasWithclick(root = self, imIdx =  None, subsection = None,
+        self.imLabel = wcom.TOCCanvasWithclick(root = self, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
                                         image = img, padding = [0, 0, 0, 0],
                                         row = 1, column = 1, columnspan = 1,
@@ -199,10 +199,10 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
 
     def render(self, **kwargs):
         if self.increaseLabel == None:
-            self.increaseLabel = _ucomw.TOCLabelWithClick(self, "_ResizePDF_BTNincreaseSize", 
+            self.increaseLabel = wcom.TOCLabelWithClick(self, "_ResizePDF_BTNincreaseSize", 
                                     row = 0, column = 0, text = "+")
         if self.decreaseLabel == None:
-            self.decreaseLabel = _ucomw.TOCLabelWithClick(self, "_ResizePDF_BTNDecreaseSize", 
+            self.decreaseLabel = wcom.TOCLabelWithClick(self, "_ResizePDF_BTNDecreaseSize", 
                                     row = 0, column = 1, text = "-")
         _ucomw.bindChangeColorOnInAndOut(self.increaseLabel)
         _ucomw.bindChangeColorOnInAndOut(self.decreaseLabel)
@@ -294,10 +294,10 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         self.setData(self.currPage)
 
         if self.increasePage == None:
-            self.increasePage = _ucomw.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNNextIm", 
+            self.increasePage = wcom.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNNextIm", 
                                     row = self.row, column = self.column + 1, text = ">")
         if self.decreasePage == None:
-            self.decreasePage = _ucomw.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNPrevIm", 
+            self.decreasePage = wcom.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNPrevIm", 
                                     row = self.row, column = self.column - 1, text = "<")
         _ucomw.bindChangeColorOnInAndOut(self.increasePage)
         _ucomw.bindChangeColorOnInAndOut(self.decreasePage)
@@ -707,7 +707,7 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
 
         column = 0
         for k in self.secondImFrames:
-            label = _ucomw.TOCLabelWithClick(seclectorFrame, 
+            label = wcom.TOCLabelWithClick(seclectorFrame, 
                                      k.replace(".", "") + "selectorLabel",
                                      0,
                                      column,

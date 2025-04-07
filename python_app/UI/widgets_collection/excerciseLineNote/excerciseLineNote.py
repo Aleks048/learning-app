@@ -4,6 +4,8 @@ from threading import Thread
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as comw
+
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -165,7 +167,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList)
             text = notes[str(self.lineIdx)]
 
-            labETR = _ucomw.MultilineText_ETR(label, "lineNotesImageETR_", 0, 0, 0, text)
+            labETR = comw.MultilineText_ETR(label, "lineNotesImageETR_", 0, 0, 0, text)
             self.currEtr = labETR
 
             def rebuildETRImage(event, *args):

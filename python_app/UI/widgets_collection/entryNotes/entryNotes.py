@@ -4,6 +4,9 @@ from PIL import Image
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as comw
+import UI.widgets_collection.factories.factoriesFacade as wff
+
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -207,7 +210,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                               )
 
         imageLables = []
-        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.imIdx)
+        entryImagesFactory = wff.EntryImagesFactory(self.subsection, self.imIdx)
         imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = mainLabels[0],
                                                                 imPadLeft = 0,
                                                                 row = 0,
@@ -309,7 +312,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 else:
                     text = notes[str(i)]
 
-                labETR = _ucomw.MultilineText_ETR(label, "notesImageETR_", 1, 1, i, text)
+                labETR = comw.MultilineText_ETR(label, "notesImageETR_", 1, 1, i, text)
                 self.currEtr[str(i)] = labETR
 
                 labRebuild = _ucomw.TOCLabelWithClick(label, "notesImageRebuild_" + str(i), 

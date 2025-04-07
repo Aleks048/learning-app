@@ -2,9 +2,11 @@ import UI.widgets_wrappers as ww
 
 import data.constants as dc
 import data.temp as dt
+
 import UI.widgets_collection.toc.manager as tocm
-import UI.widgets_collection.common as comw
-import UI.widgets_collection.utils as _uuicom
+from UI.widgets_collection.common import TOC_BOX
+from UI.widgets_collection.factories.factoriesFacade import SubsectionWidgetFactorySearchTOC
+
 import file_system.file_system_facade as fsf
 
 
@@ -74,11 +76,11 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
 
     def bindCmd(self):
         return [ww.currUIImpl.Data.BindID.Keys.shenter], \
-               [lambda *args: self.notify(comw.TOC_BOX, 
+               [lambda *args: self.notify(TOC_BOX, 
                                           [self.getData(), 
                                            self.notify(SearchInSubsectionsText_CHB)])]
 
-class SearchTOC_BOX(comw.TOC_BOX):
+class SearchTOC_BOX(TOC_BOX):
     def onOpenImageInTocWidget(self, subsection, imIdx):
         efm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
 
@@ -120,7 +122,7 @@ class SearchTOC_BOX(comw.TOC_BOX):
             for i in range(len(text_curr_filtered)):
                 subsection = text_curr_filtered[i][0]
 
-                subsectionFactory = _uuicom.SubsectionWidgetFactorySearchTOC(subsection)
+                subsectionFactory = SubsectionWidgetFactorySearchTOC(subsection)
                 super().addSubsectionWidgetsManager(subsection, i,
                                                     self.scrollable_frame, subsectionFactory)
                 super().openSubsection(subsection)

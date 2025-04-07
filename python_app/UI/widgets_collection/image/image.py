@@ -7,6 +7,9 @@ import time
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as comw
+import UI.widgets_collection.factories.factoriesFacade as wff
+
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -193,7 +196,7 @@ class NotesLabel(ww.currUIImpl.Label,
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryNotesList)
             text = notes[str(noteImIdx)]
 
-            labETR = _ucomw.MultilineText_ETR(label, "notesImageETR_", 0, 0, 0, text)
+            labETR = comw.MultilineText_ETR(label, "notesImageETR_", 0, 0, 0, text)
             self.currEtr = labETR
 
             def rebuildETRImage(event, *args):
@@ -300,7 +303,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
-        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.entryIdx)
+        entryImagesFactory = wff.EntryImagesFactory(self.subsection, self.entryIdx)
         
         if self.extraWidgetIdx == _u.Token.NotDef.int_t:
             self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,

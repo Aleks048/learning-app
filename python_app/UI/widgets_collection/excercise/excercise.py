@@ -5,6 +5,9 @@ from threading import Thread
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as comw
+import UI.widgets_collection.factories.factoriesFacade as wff
+
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -119,7 +122,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
-        entryImagesFactory = _ucomw.EntryImagesFactory(self.subsection, self.entryIdx)
+        entryImagesFactory = wff.EntryImagesFactory(self.subsection, self.entryIdx)
         self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,
                                                                         imPadLeft = 120)
         self.imLabel.render()
@@ -543,7 +546,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                 else:
                     text = lines[i]
 
-                labETR = _ucomw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, text)
+                labETR = comw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, text)
                 if self.lineIdxShownInTextPosition.get(str(i)) != None:
                     labETR.setPosition(self.lineIdxShownInTextPosition[str(i)].split(".")[0], 
                                        self.lineIdxShownInTextPosition[str(i)].split(".")[1])
