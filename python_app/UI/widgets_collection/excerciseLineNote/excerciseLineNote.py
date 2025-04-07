@@ -102,7 +102,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
         # '''
         # add
         # '''
-        addLabel = _ucomw.TOCLabelWithClick(self, "_addExcerciseLineNote_", 0, 0, text = "Add")
+        addLabel = comw.TOCLabelWithClick(self, "_addExcerciseLineNote_", 0, 0, text = "Add")
 
         def addLabelNoteIdx(event, *args):
             text = _u.Token.NotDef.str_t
@@ -157,7 +157,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
                 self.imLabel.hide()
                 self.imLabel = None
 
-            label = _ucomw.TOCFrame(self, 
+            label = comw.TOCFrame(self, 
                             "lineNotesImageFRM_",
                             0, 2, 1
                             )
@@ -204,7 +204,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
         # '''
         # delete
         # '''
-        deleteLabel = _ucomw.TOCLabelWithClick(self, "_deleteNote_", 
+        deleteLabel = comw.TOCLabelWithClick(self, "_deleteNote_", 
                                                 0, 1, text = "Del")
 
         def deleteNoteIdx(event, *args):
@@ -253,7 +253,7 @@ class ExcerciseLineNoteLineImage(ww.currUIImpl.Frame):
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([530, 1000], Image.LANCZOS)
         self.image = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = _ucomw.TOCLabelWithClick(self,
+        self.imLabel = comw.TOCLabelWithClick(self,
                                                 "_lineMainImage_",
                                                 0, 0, 1,
                                                 image = self.image)

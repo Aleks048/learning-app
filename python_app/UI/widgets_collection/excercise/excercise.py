@@ -531,7 +531,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                               [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
-                label = _ucomw.TOCFrame(self.scrollable_frame, 
+                label = comw.TOCFrame(self.scrollable_frame, 
                                 "linesImageFRM_" + self.subsection.replace(".", "_") + self.imIdx + str(i),
                                 i + numRowsPre + 1, 6, 1
                                 )
@@ -552,7 +552,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                                        self.lineIdxShownInTextPosition[str(i)].split(".")[1])
                 self.currEtr[str(i)] = labETR
 
-                labRebuild = _ucomw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
+                labRebuild = comw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
                                                 2, 0, text = "Rebuild")
                 labRebuild.lineImIdx = str(i)
 
@@ -592,7 +592,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             '''
             copy
             '''
-            copyLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_copyLine_" + str(i), 
+            copyLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_copyLine_" + str(i), 
                                                     i + numRowsPre + 1, 1, text = "Copy")
             copyLabel.lineImIdx = i
 
@@ -606,7 +606,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             '''
             paste
             '''
-            pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
+            pasteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
                                                     i + numRowsPre + 1, 2, text = "PB")
             pasteLabel.lineImIdx = i
 
@@ -639,7 +639,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             _ucomw.bindChangeColorOnInAndOut(pasteLabel)
             pasteLabel.render()
 
-            pasteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
+            pasteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
                                                     i + numRowsPre + 1, 3, text = "PA")
             pasteLabel.lineImIdx = i
 
@@ -675,7 +675,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             '''
             delete
             '''
-            deleteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
+            deleteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
                                                     i + numRowsPre + 1, 4, text = "Del")
             deleteLabel.lineImIdx = i
 
@@ -704,7 +704,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             '''
             note
             '''
-            noteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, "_notesForLine_" + str(i), 
+            noteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_notesForLine_" + str(i), 
                                                     i + numRowsPre + 1, 5, text = "N")
             noteLabel.lineImIdx = i
             noteLabel.subsection = self.subsection

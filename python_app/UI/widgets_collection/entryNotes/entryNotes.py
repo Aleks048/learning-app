@@ -204,7 +204,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
 
         mainLabels = []
         for i in range(numOrigImages):
-            mainLabels.append(_ucomw.TOCFrame(self.scrollable_frame, 
+            mainLabels.append(comw.TOCFrame(self.scrollable_frame, 
                                             "notesMainNoteImageFRM_" + str(i),
                                             i, 0, 1)
                               )
@@ -237,7 +237,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             '''
             add
             '''
-            addLabel = _ucomw.TOCLabelWithClick(mainLabels[i], "_addNote_" + str(i), 
+            addLabel = comw.TOCLabelWithClick(mainLabels[i], "_addNote_" + str(i), 
                                                     0, 0, text = "Add")
             addLabel.noteImIdx = i
 
@@ -298,7 +298,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                            [lambda e, idx = str(i), *args: __showTextOrImage(idx), self.__scrollIntoView])
                 labelToScrollTo = label
             else:
-                label = _ucomw.TOCFrame(mainLabels[i], 
+                label = comw.TOCFrame(mainLabels[i], 
                                 "notesImageFRM_" + str(i),
                                 1, 1, 1
                                 )
@@ -315,7 +315,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 labETR = comw.MultilineText_ETR(label, "notesImageETR_", 1, 1, i, text)
                 self.currEtr[str(i)] = labETR
 
-                labRebuild = _ucomw.TOCLabelWithClick(label, "notesImageRebuild_" + str(i), 
+                labRebuild = comw.TOCLabelWithClick(label, "notesImageRebuild_" + str(i), 
                                                 2, 0, text = "Rebuild")
                 labRebuild.noteImIdx = str(i)
 
@@ -354,7 +354,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             '''
             delete
             '''
-            deleteLabel = _ucomw.TOCLabelWithClick(mainLabels[i], "_deleteNote_" + str(i), 
+            deleteLabel = comw.TOCLabelWithClick(mainLabels[i], "_deleteNote_" + str(i), 
                                                     1, 0, text = "Del")
             deleteLabel.noteImIdx = i
 

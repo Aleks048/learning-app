@@ -112,7 +112,7 @@ class NotesLabel(ww.currUIImpl.Label,
         return super().render(self.renderData)
 
     def addNotesWidgets(self):
-        addLabel = _ucomw.TOCLabelWithClick(self, "_addNote_", 0, 0, text = "Add")
+        addLabel = comw.TOCLabelWithClick(self, "_addNote_", 0, 0, text = "Add")
         
         noteImIdx = str(int(self.eImIdx) + 1) if self.eImIdx != _u.Token.NotDef.int_t else 0
 
@@ -187,7 +187,7 @@ class NotesLabel(ww.currUIImpl.Label,
                 self.imLabel.hide()
                 self.imLabel = None
 
-            label = _ucomw.TOCFrame(self, 
+            label = comw.TOCFrame(self, 
                             "notesImageFRM_",
                             0, 2, 1
                             )
@@ -251,7 +251,7 @@ class NotesLabel(ww.currUIImpl.Label,
         # '''
         # delete
         # '''
-        deleteLabel = _ucomw.TOCLabelWithClick(self, "_deleteNote_", 
+        deleteLabel = comw.TOCLabelWithClick(self, "_deleteNote_", 
                                                 0, 1, text = "Del")
         deleteLabel.noteImIdx = noteImIdx
 
@@ -292,7 +292,7 @@ class ImageMainImage(ww.currUIImpl.Frame):
     def hide(self):
         if self.imLabel != None:
             for l in self.imLabel.getChildren().copy():
-                if type(l) == _ucomw.TOCCanvasWithclick:
+                if type(l) == comw.TOCCanvasWithclick:
                     l.saveFigures()
                     self.imLabel.destroy()
         super().hide()

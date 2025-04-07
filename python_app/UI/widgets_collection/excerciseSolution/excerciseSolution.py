@@ -5,6 +5,8 @@ import os
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
+import UI.widgets_collection.common as comw
+
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import data.constants as dc
@@ -115,7 +117,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                 # '''
                 # delete
                 # '''
-                deleteLabel = _ucomw.TOCLabelWithClick(self.scrollable_frame, f"_deleteNote_{solIdx}", 
+                deleteLabel = comw.TOCLabelWithClick(self.scrollable_frame, f"_deleteNote_{solIdx}", 
                                                         i + 2, 1, text = "Del")
                 deleteLabel.subsection = self.subsection
                 deleteLabel.imIdx = self.imIdx
