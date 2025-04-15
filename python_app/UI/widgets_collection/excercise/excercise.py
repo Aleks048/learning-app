@@ -4,9 +4,8 @@ from threading import Thread
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
-import UI.widgets_collection.utils as _ucomw
-import UI.widgets_collection.common as comw
 import UI.factories.factoriesFacade as wff
+import UI.widgets_collection.utils as wcu
 
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
@@ -96,8 +95,7 @@ class ExcerciseImageLabel(ww.currUIImpl.Label):
         return super().updateImage(self.image)
 
 
-class ExcerciseImage(ww.currUIImpl.Frame):
-    displayedImages = []
+class ExcerciseImage(ww.currUIImpl.ScrollableBox):
     subsection = None
     entryIdx = None
 
@@ -111,7 +109,8 @@ class ExcerciseImage(ww.currUIImpl.Frame):
         super().__init__(prefix, 
                         name,
                         parentWidget, 
-                        renderData = data)
+                        renderData = data,
+                        height = 300)
     
     def hide(self, **kwargs):
         for child in self.getChildren().copy():
@@ -123,7 +122,7 @@ class ExcerciseImage(ww.currUIImpl.Frame):
             child.destroy()
 
         entryImagesFactory = wff.EntryImagesFactory(self.subsection, self.entryIdx)
-        self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self,
+        self.imLabel = entryImagesFactory.produceEntryMainImageWidget(rootLabel = self.scrollable_frame,
                                                                         imPadLeft = 120)
         self.imLabel.render()
         self.imLabel.forceFocus()
@@ -132,9 +131,10 @@ class ExcerciseImage(ww.currUIImpl.Frame):
            return "proof" in fsf.Data.Sec.extraImagesDict(subsection)[imIdx][i].lower()
 
 
-        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self,
+        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self.scrollable_frame,
                                                                         imPadLeft = 120,
-                                                                        skippConditionFn = skipProofs)
+                                                                        skippConditionFn = skipProofs,
+                                                                        createExtraWidgets = False)
         for l in exImLabels:
             l.render()
 
@@ -401,19 +401,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         self.currLineCopyIdx = _u.Token.NotDef.int_t
 
-        self.lineIdxShownInText = []
-        self.lineIdxShownInTextPosition = {}
-        self.currEtr = _u.Token.NotDef.dict_t.copy()
-        self.etrTexts = _u.Token.NotDef.dict_t.copy()
+        self.lineManagers = {}
 
-        self.displayedImages = []
-
-        self.latestWidgetToscrollTo = None
-        self.latestLineIdxToscrollTo = None
-
-        name = "_showExcerciseCurr_text"
-
-        self.parent = parentWidget
+        name = "_Excercise_BOX"
 
         super().__init__(prefix,
                         name,
@@ -428,332 +418,44 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
-    def __renderAfterRebuild(self, *args, **kwargs):
-        def __internal(*args, **kwargs):
-            labIm = kwargs["labIm"]
-            t = _rebuildLine(*args, **kwargs)
-            t.join()
-            labIm.updateImage()
-            labIm.render()
-        Thread(target = __internal,
-               args = args, 
-               kwargs = kwargs).start()
-
-    def __scrollIntoView(self, event, widget = None):
-        # NOTE: this is a hack to make opening different excercise windows
-        # without it we get a crash
-        self.scrollable_frame.update()
-
-        posy = 0
-
-        if widget == None:
-            pwidget = event.widget
-        else:
-            pwidget = widget
-
-        shouldScrollToRebuild = False
-
-        if "linesImageFRM_" in str(pwidget):
-            for ch in pwidget.getChildren():
-                if "linesImageRebuild_" in str(ch):
-                    pwidget = ch
-                    shouldScrollToRebuild = True
-                    break
-
-        while (pwidget != self.parent):
-            if (pwidget == None):
-                break
-            posy += pwidget.getYCoord()
-            pwidget = pwidget.getParent()
-
-        pos = posy - self.yPosition()
-        height = self.getFrameHeight()
-
-        if widget == None:
-            pwidget = event.widget
-        else:
-            pwidget = widget
-
-        preScaceRegular = float(self.getHeight() - 100 - pwidget.getHeight()) / height
-
-        preScaceEntry =int( self.getHeight() - 100) / height
-
-        if not shouldScrollToRebuild:
-            self.moveY((pos / height) - preScaceRegular)
-        else:
-            self.moveY((pos / height) - preScaceEntry)
+    def __addExcerciseLine(self, lineIdx, row):
+        factory = wff.ExcerciseLineFactory(self.subsection, self.imIdx, 
+                                           lineIdx = lineIdx, 
+                                           row = row)
+        self.lineManagers[str(lineIdx)] = factory.produce(self.scrollable_frame)
 
     def addExcerciseLines(self):
         lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
                                                        self.imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
-        '''
-        for each line add widgets:
-        '''
-        if self.currEtr == _u.Token.NotDef.dict_t:
-            self.currEtr = {}           
 
-        numRowsPre = 1
-
-        for i in range(len(lines)):
-            def __showTextOrImage(lineImIdx, *args):
-                self.latestLineIdxToscrollTo = lineImIdx
-                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                widgetlineImIdx = str(lineImIdx)
-
-                if widgetlineImIdx in self.lineIdxShownInText:
-                    self.lineIdxShownInText.remove(widgetlineImIdx)
-                    if self.lineIdxShownInTextPosition.get(widgetlineImIdx) != None:
-                        self.lineIdxShownInTextPosition.pop(widgetlineImIdx)
-
-                    text = self.currEtr[widgetlineImIdx].getData()
-
-                    if text != self.currEtr[widgetlineImIdx].defaultText:
-                        _rebuildLine(self.subsection,
-                                            self.imIdx,
-                                            lineImIdx,
-                                            text,
-                                            bookPath)
-
-                    self.currEtr.pop(widgetlineImIdx)
-                else:
-                    self.lineIdxShownInText.append(str(lineImIdx))
-
-                self.render()
-
-            # image / text
-            if str(i) not in self.lineIdxShownInText:
-                label = ExcerciseImageLabel(self.scrollable_frame, "linesImageIMG_" + str(i), 
-                                            self.subsection, self.imIdx, i, 
-                                            row = i + numRowsPre + 1, column = 6)
-                label.render()
-                label.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1],
-                              [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
-                labelToScrollTo = label
-            else:
-                label = comw.TOCFrame(self.scrollable_frame, 
-                                "linesImageFRM_" + self.subsection.replace(".", "_") + self.imIdx + str(i),
-                                i + numRowsPre + 1, 6, 1
-                                )
-                labIm = ExcerciseImageLabel(label, "linesImageIMG_" + self.subsection.replace(".", "_") + self.imIdx + str(i), 
-                                            self.subsection, self.imIdx, i,
-                                            row = 0, column = 0)
-                labIm.render()
-
-                text = ""
-                if str(i) in list(self.etrTexts.keys()):
-                    text = self.etrTexts[str(i)][0]
-                else:
-                    text = lines[i]
-
-                labETR = comw.MultilineText_ETR(label, "linesImageETR_", 1, 0, i, text)
-                if self.lineIdxShownInTextPosition.get(str(i)) != None:
-                    labETR.setPosition(self.lineIdxShownInTextPosition[str(i)].split(".")[0], 
-                                       self.lineIdxShownInTextPosition[str(i)].split(".")[1])
-                self.currEtr[str(i)] = labETR
-
-                labRebuild = comw.TOCLabelWithClick(label, "linesImageRebuild_" + str(i), 
-                                                2, 0, text = "Rebuild")
-                labRebuild.lineImIdx = str(i)
-
-                def rebuildETRImage(event, labIm, *args):
-                    widgetlineImIdx = event.widget.lineImIdx
-                    self.lineIdxShownInTextPosition[widgetlineImIdx] = event.widget.getPosition()
-                    text = self.currEtr[widgetlineImIdx].getData()
-
-                    bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                    self.__renderAfterRebuild(self.subsection,
-                                              self.imIdx,
-                                              event.widget.lineImIdx,
-                                              text,
-                                              bookPath,
-                                              labIm = labIm)
-
-                    return "break"
-
-                labETR.lineImIdx = str(i)
-                labETR.rebind([ww.currUIImpl.Data.BindID.Keys.shenter], 
-                              [lambda e, l = labIm, *args:rebuildETRImage(e, l)])
-                labRebuild.rebind([ww.currUIImpl.Data.BindID.mouse1],
-                                  [lambda e, l = labIm, *args:rebuildETRImage(e, l)])
-                labIm.rebind([ww.currUIImpl.Data.BindID.mouse2, ww.currUIImpl.Data.BindID.mouse1], 
-                             [lambda e, idx = i, *args: __showTextOrImage(idx), self.__scrollIntoView])
-                _ucomw.bindChangeColorOnInAndOut(labRebuild)
-
-                labETR.render()
-                labRebuild.render()
-                label.render()
-                
-                labelToScrollTo = label
-
-            if (str(i) == str(self.latestLineIdxToscrollTo)) and (labelToScrollTo != None):
-                self.latestWidgetToscrollTo = labelToScrollTo
-
-            '''
-            copy
-            '''
-            copyLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_copyLine_" + str(i), 
-                                                    i + numRowsPre + 1, 1, text = "Copy")
-            copyLabel.lineImIdx = i
-
-            def setCopyLineIdx(event, *args):
-                self.currLineCopyIdx = event.widget.lineImIdx
-
-            copyLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [setCopyLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(copyLabel)
-            copyLabel.render()
-
-            '''
-            paste
-            '''
-            pasteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_pasteBLine_" + str(i), 
-                                                    i + numRowsPre + 1, 2, text = "PB")
-            pasteLabel.lineImIdx = i
-
-            def pasteLineIdx(event, *args):
-                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                linesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
-                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList,
-                                                        bookPath)
-                fsf.Wr.EntryInfoStructure.addLine(self.subsection, 
-                                                  self.imIdx,
-                                                  linesList[self.currLineCopyIdx],
-                                                  bookPath, 
-                                                  event.widget.lineImIdx)
-                entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
-                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
-                                    bookPath)
-
-                if int(self.currLineCopyIdx) <= int(event.widget.lineImIdx):
-                    self.currLineCopyIdx = str(int(self.currLineCopyIdx) + 1)
-
-                if entryLinesNotesList.get(str(self.currLineCopyIdx)) != None:
-                     fsf.Wr.EntryInfoStructure.addLineNote(self.subsection, 
-                                                  self.imIdx,
-                                                  entryLinesNotesList[str(self.currLineCopyIdx)],
-                                                  bookPath, 
-                                                  str(int(event.widget.lineImIdx) - 1))
-                self.render()
-
-            pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [pasteLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(pasteLabel)
-            pasteLabel.render()
-
-            pasteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_pasteALine_" + str(i), 
-                                                    i + numRowsPre + 1, 3, text = "PA")
-            pasteLabel.lineImIdx = i
-
-            def pasteLineIdx(event, *args):
-                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                linesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
-                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList,
-                                                        bookPath)
-                fsf.Wr.EntryInfoStructure.addLine(self.subsection, 
-                                                  self.imIdx,
-                                                  linesList[self.currLineCopyIdx],
-                                                  bookPath, 
-                                                  event.widget.lineImIdx + 1)
-                entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
-                                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
-                                                    bookPath)
-
-                if int(self.currLineCopyIdx) <= int(event.widget.lineImIdx):
-                    self.currLineCopyIdx = str(int(self.currLineCopyIdx) + 1)
-
-                if entryLinesNotesList.get(str(self.currLineCopyIdx)) != None:
-                     fsf.Wr.EntryInfoStructure.addLineNote(self.subsection, 
-                                                  self.imIdx,
-                                                  entryLinesNotesList[str(self.currLineCopyIdx)],
-                                                  bookPath, 
-                                                  str(event.widget.lineImIdx + 1))
-                self.render()
-
-            pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [pasteLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(pasteLabel)
-            pasteLabel.render()
-
-            '''
-            delete
-            '''
-            deleteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_deleteLine_" + str(i), 
-                                                    i + numRowsPre + 1, 4, text = "Del")
-            deleteLabel.lineImIdx = i
-
-            def deleteLineIdx(event, *args):
-                bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-                deletedStructure = fsf.Wr.EntryInfoStructure.deleteLine(bookPath,
-                                                                        self.subsection,
-                                                                        self.imIdx,
-                                                                        event.widget.lineImIdx)
-                if deletedStructure:
-                    mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
-                    mainManager.renderWithoutScroll()
-                    mainManager.moveTocToEntry(self.subsection, self.imIdx)
-
-                try:
-                    self.currEtr.pop(str(event.widget.lineImIdx))
-                except:
-                    pass
-                self.render()
-
-            deleteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [deleteLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(deleteLabel)
-            deleteLabel.render()
-
-            '''
-            note
-            '''
-            noteLabel = comw.TOCLabelWithClick(self.scrollable_frame, "_notesForLine_" + str(i), 
-                                                    i + numRowsPre + 1, 5, text = "N")
-            noteLabel.lineImIdx = i
-            noteLabel.subsection = self.subsection
-            noteLabel.imIdx = self.imIdx
-
-            def noteForLineIdx(event, *args):
-                widget = event.widget
-                excerciseLineNoteManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                            wf.Wr.MenuManagers.ExcerciseLineNoteManager)
-                excerciseLineNoteManager.show(widget.subsection, widget.imIdx, widget.lineImIdx)
-
-            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-            entryLinesNotesList = fsf.Wr.EntryInfoStructure.readProperty(self.subsection, self.imIdx,
-                                    fsf.Wr.EntryInfoStructure.PubProp.entryLinesNotesList,
-                                    bookPath)
-            shouldBeBrown = False
-
-            if entryLinesNotesList.get(str(i)) != None:
-                noteLabel.changeColor("brown")
-                shouldBeBrown = True
-
-            noteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [noteForLineIdx])
-            _ucomw.bindChangeColorOnInAndOut(noteLabel, shouldBeBrown)
-            noteLabel.render()
+        for lineIdx in range(len(lines)):
+           row = lineIdx
+           self.__addExcerciseLine(lineIdx, row)
 
     def receiveNotification(self, broadcasterType) -> None:
         if broadcasterType == AddExcerciseLine_BTN:
             lines = fsf.Wr.EntryInfoStructure.readProperty(self.subsection,
                                                        self.imIdx, 
                                                        fsf.Wr.EntryInfoStructure.PubProp.entryLinesList)
-            self.lineIdxShownInText = [(str(len(lines) - 1))]
-            self.latestLineIdxToscrollTo = str(len(lines) - 1)
-            self.currEtr = _u.Token.NotDef.dict_t.copy()
-            self.etrTexts = _u.Token.NotDef.dict_t.copy()
-            self.render()
+            lineIdx = len(lines) - 1
+            row = lineIdx
+            self.__addExcerciseLine(lineIdx, row)
+            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
         if broadcasterType == HideAllETRsWindow_BTN:
-            self.lineIdxShownInText = _u.Token.NotDef.list_t.copy()
-            self.currEtr = _u.Token.NotDef.dict_t.copy()
-            self.render()
+            for m in self.lineManagers.values():
+                m.lineEtr.hide()
+
+    def onTextUpdateEtrHide(self, lineIdx):
+        if self.lineManagers.get(str(lineIdx)) != None:
+            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
+
+    def onTextUpdateEtrShow(self, lineIdx):
+        if self.lineManagers.get(str(lineIdx)) != None:
+            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].lineEtr)
 
     def render(self, shouldScroll = True):
-        self.etrTexts =  _u.Token.NotDef.dict_t.copy()
-
-        self.etrTexts = _u.Token.NotDef.dict_t.copy()
-
-        if self.currEtr != _u.Token.NotDef.dict_t.copy():
-            for k,v in self.currEtr.items():
-                self.etrTexts[k] = [self.currEtr[k].getData(),
-                                    self.currEtr[k].getCurrCursorPosition()]
+        wd.Data.Reactors.excerciseLineChangeReactors[self.name] = self
 
         for w in self.getChildren().copy():
             w.destroy()
@@ -790,9 +492,6 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
 
         super().render(self.renderData)
-
-        if (self.latestWidgetToscrollTo != None) and (shouldScroll):
-            self.__scrollIntoView(None, self.latestWidgetToscrollTo)
 
 class ExcerciseRoot(ww.currUIImpl.RootWidget):
     ExcerciseBox:Excercise_BOX = None

@@ -53,6 +53,52 @@ def getEntryImg(tex, subsection, imIdx):
 
     return result
 
+
+def scrollIntoView(scrollableFrame, event, widget = None):
+    # NOTE: this is a hack to make opening different excercise windows
+    # without it we get a crash
+    scrollableFrame.scrollable_frame.update()
+
+    posy = 0
+
+    if widget == None:
+        pwidget = event.widget
+    else:
+        pwidget = widget
+
+    shouldScrollToRebuild = False
+
+    if "linesImageFRM_" in str(pwidget):
+        for ch in pwidget.getChildren():
+            if "linesImageRebuild_" in str(ch):
+                pwidget = ch
+                shouldScrollToRebuild = True
+                break
+
+    while (pwidget != scrollableFrame.rootWidget):
+        if (pwidget == None):
+            break
+        posy += pwidget.getYCoord()
+        pwidget = pwidget.getParent()
+
+    pos = posy - scrollableFrame.yPosition()
+    height = scrollableFrame.getFrameHeight()
+
+    if widget == None:
+        pwidget = event.widget
+    else:
+        pwidget = widget
+
+    preScaceRegular = float(scrollableFrame.getHeight() - 100 - pwidget.getHeight()) / height
+
+    preScaceEntry =int( scrollableFrame.getHeight() - 100) / height
+
+    if not shouldScrollToRebuild:
+        scrollableFrame.moveY((pos / height) - preScaceRegular)
+    else:
+        scrollableFrame.moveY((pos / height) - preScaceEntry)
+
+
 def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, 
                                    updateImageFunc = lambda *args: None,
                                    changeOnEtrFunc = lambda *args: None,

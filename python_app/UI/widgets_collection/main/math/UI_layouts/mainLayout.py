@@ -200,6 +200,10 @@ class MainTOCBox(comw.TOC_BOX):
 
     def addSectionWidgets(self, subsection, row, parentWidget):
         subsectionFactory = wff.SubsectionWidgetFactoryMainTOC(subsection)
+
+        if subsection == _u.Token.NotDef.str_t:
+            return
+
         super().addSubsectionWidgetsManager(subsection, row, parentWidget, subsectionFactory)
 
         if subsection == fsf.Data.Book.subsectionOpenInTOC_UI:

@@ -1035,6 +1035,10 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.setData(text)
 
+        def getHeight(self):
+            self.widgetObj.update()
+            return self.widgetObj.winfo_reqheight()
+
         def getData(self):
             newData = self.widgetObj.get('1.0', TkWidgets.TextInsertPosition.END).rstrip()
             self.setData(newData)

@@ -229,16 +229,17 @@ at position '{2}'.".format(subsection, imIdx, position)
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryNotesList, entryNotesList, bookPath)
 
     @classmethod
-    def rebuildLine(cls, subsection, imIdx, lineIdx, text, bookPath):
-        log.autolog(f"Rebuild line '{lineIdx}' for '{subsection}' '{imIdx}'")
-
+    def updateExerciseImage(cls, subsection, imIdx, lineIdx, bookPath):
         entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
-        entryLinesList[int(lineIdx)] = text
+        text = entryLinesList[int(lineIdx)]
 
         text = tff.Wr.TexFileUtils.formatEntrytext(text)
         savePath = _upan.Paths.Entry.getAbs(bookPath, subsection, imIdx)
         filename = _upan.Names.Entry.Line.name(imIdx, lineIdx)
         savePath = os.path.join(savePath, filename)
+
+        ocf.Wr.FsAppCalls.deleteFile(savePath)
+
         tff.Wr.TexFileUtils.fromTexToImage(text,
                                            savePath,
                                            fixedWidth = cls.fixedWidth,
@@ -248,7 +249,19 @@ at position '{2}'.".format(subsection, imIdx, position)
                                            numSymPerLine = cls.numSymbolsPerLine,
                                            imSize = 500)
 
+    @classmethod
+    def updateExerciseLine(cls, subsection, imIdx, lineIdx, text, bookPath):
+        log.autolog(f"Update Exercise line '{lineIdx}' for '{subsection}' '{imIdx}'")
+        entryLinesList = cls.readProperty(subsection, imIdx, cls.PubProp.entryLinesList, bookPath)
+        entryLinesList[int(lineIdx)] = text
         cls.updateProperty(subsection, imIdx, cls.PubProp.entryLinesList, entryLinesList, bookPath)
+
+    @classmethod
+    def rebuildLine(cls, subsection, imIdx, lineIdx, text, bookPath):
+        log.autolog(f"Rebuild line '{lineIdx}' for '{subsection}' '{imIdx}'")
+
+        cls.updateExerciseLine(subsection, imIdx, lineIdx, text, bookPath)
+        cls.updateExerciseImage(subsection, imIdx, lineIdx, bookPath)
 
     @classmethod
     def rebuildLineNote(cls, subsection, imIdx, lineIdx, text, bookPath):
