@@ -5,13 +5,34 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/filewritestream.h" 
 
-#include "json.h"
 #include "utils.h"
 
-namespace data{
+#include "json.h"
 
-data::JSON_file::JSON_file(const std::string_view filepath):
+namespace data {
+
+data::JSON_file::JSON_file(const std::string filepath):
     filepath(filepath), document()
+{
+    std::string jsonAsString = fileUtils::readFile(filepath);
+    document.Parse(jsonAsString.c_str());
+}
+data::JSON_file::JSON_file(const std::string filepath,
+                           const std::string json_template):
+    filepath(filepath), document()
+{
+    document.Parse(json_template.c_str());
+}
+
+data::JSON_file::JSON_file(const JSON_file& file):
+    filepath(file.filepath), document()
+{
+    std::string jsonAsString = fileUtils::readFile(filepath);
+    document.Parse(jsonAsString.c_str());
+}
+
+data::JSON_file::JSON_file(JSON_file&& file):
+    filepath(file.filepath), document()
 {
     std::string jsonAsString = fileUtils::readFile(filepath);
     document.Parse(jsonAsString.c_str());
@@ -45,7 +66,7 @@ std::ostream& operator<<(std::ostream &os, const data::JSON_file& jf)
 }
 
 
-std::map<std::string, data::JSON_file> JSON::templates; 
+std::map<std::string, data::JSON_file> data::JSON::templates; 
 
 void data::JSON::reloadFilesFromDisk()
 {
@@ -56,8 +77,28 @@ void data::JSON::reloadFilesFromDisk()
 
 void data::JSON::saveFilesToDisk()
 {
-    // for (auto it: JSON::templates) {
-    // }
+    for (auto &[key, value]: JSON::templates) {
+        value.writeToFile();
+    }
+}
+
+void data::JSON::createFromTemplate(const std::string path, 
+                                    const std::string json_template)
+{
+    data::JSON_file file(path, json_template);
+    file.writeToFile();
+}
+
+data::JSON_file& data::JSON::readFile(const std::string filePath)
+{
+    if (JSON::templates.find(filePath) != JSON::templates.end()) {
+        data::JSON_file jf {filePath};
+        auto p = std::make_pair(filePath, jf);
+        //TODO: not ideal should change later to use the [] operator
+        data::JSON::templates.insert(p);
+    }
+
+    return data::JSON::templates.at(filePath);
 }
 
 }
