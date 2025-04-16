@@ -925,6 +925,24 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
     def onRebuildSubsectionLatex(self, subsection):
         self.render()
 
+    def _isSubsectionHidden(self, subsection):
+        subsectionsHidden:list = fsm.Data.Book.subsectionsHiddenInTOC_UI
+        for subsecHidden in subsectionsHidden:
+            subsectionList = subsection.split(".")
+            subsectionHiddenList = subsecHidden.split(".")
+
+            subsectionIsHidden = True
+
+            for i in range(len(subsectionHiddenList)):
+                if subsectionHiddenList[i] != subsectionList[i]:
+                    subsectionIsHidden = False
+                    break
+
+            if subsectionIsHidden and (len(subsection) > len(subsecHidden)):
+                return True
+
+        return False
+
     def onSubsectionShowHide(self, subsection):
         subsectionsHidden:list = fsm.Data.Book.subsectionsHiddenInTOC_UI
 
@@ -937,11 +955,8 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             return
 
         # hide subsection
-        for subsec, m in self.subsectionWidgetManagers.copy().items():
-            for subsecHidden in subsectionsHidden:
-                if len(subsec) > len(subsecHidden):
-                    if subsec[:len(subsecHidden)] == subsecHidden:
-                        self.__removeSubsection(subsec)
+        if self._isSubsectionHidden(subsection):
+            self.__removeSubsection(subsection)
 
         self.subsectionWidgetManagers[subsection].removeAllSubsections()
 

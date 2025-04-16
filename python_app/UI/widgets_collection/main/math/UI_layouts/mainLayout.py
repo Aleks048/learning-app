@@ -166,21 +166,13 @@ class MainTOCBox(comw.TOC_BOX):
 
         if (topSection == fsf.Data.Book.currTopSection):
             subsections:list = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
-            
+
             for i in range(len(subsections)):
                 self.addSubsectionEntry(subsections[i], i)
 
-    def __isSubsectionHidden(self, subsection):
-        subsectionsHidden:list = fsf.Data.Book.subsectionsHiddenInTOC_UI
-        for subsecHidden in subsectionsHidden:
-            if len(subsection) > len(subsecHidden):
-                if subsection[:len(subsecHidden)] == subsecHidden:
-                    return True
-
-        return False
 
     def addSubsectionEntry(self, subsection, row):
-        if self.__isSubsectionHidden(subsection):
+        if self._isSubsectionHidden(subsection):
             return
 
         parentSection = ".".join(subsection.split(".")[:-1])
