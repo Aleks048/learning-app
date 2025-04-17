@@ -2,12 +2,14 @@ import UI.widgets_collection.excercise.excercise as exw
 
 import UI.widgets_manager as wm
 import UI.widgets_facade as wf
+import UI.widgets_collection.excercise.excercise as exw
+import UI.widgets_data as wd
+
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 import outside_calls.outside_calls_facade as ocf
-import UI.widgets_collection.excercise.excercise as exw
 import data.temp as dt
 
 
@@ -85,10 +87,12 @@ class LayoutManagers:
             self.excerciseImage.update()
 
             if self.showExcerciseIm:
-                self.excercise_BOX.setCanvasHeight(730 - 20 - self.excerciseImage.getHeight())
+                canvasHeight = 730 - 20 - self.excerciseImage.getHeight()
             else:
-                self.excercise_BOX.setCanvasHeight(730 - 20)
+                canvasHeight = 730 - 20
 
+            self.excercise_BOX.setCanvasHeight(canvasHeight)
+            self.excercise_BOX.originalHeight = canvasHeight
             self.excercise_BOX.update()
 
             currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -109,6 +113,9 @@ class LayoutManagers:
 
             self.excercise_BOX.render()
 
+        def changeHeight(self):
+            self.excercise_BOX.setCanvasHeight(self.excercise_BOX.originalHeight - wd.Data.ExcerciseLayout.currSize)
+            self.excerciseImage.setCanvasHeight(self.excerciseImage.originalHeight + wd.Data.ExcerciseLayout.currSize)
     @classmethod
     def listOfLayouts(cls):
         results = []
@@ -141,6 +148,9 @@ class ExcerciseManager(wm.MenuManager_Interface):
         winRoot.ExcerciseBox = self.layouts[0].excercise_BOX
         winRoot.AddExcerciseBTN = self.layouts[0].addExcerciseLine_BTN
         winRoot.hide()
+
+    def changeLayoutHeight(self):
+        self.layouts[0].changeHeight()
 
     def show(self, showManinExcerciseIm = None):
         self.layouts[0].subsection = self.subsection

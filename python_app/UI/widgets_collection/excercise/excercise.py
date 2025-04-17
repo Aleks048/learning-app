@@ -1,4 +1,3 @@
-import Pmw
 from PIL import Image
 from threading import Thread
 
@@ -105,6 +104,8 @@ class ExcerciseImage(ww.currUIImpl.ScrollableBox):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
         }
         name = "_excerciseImage_LBL"
+
+        self.originalHeight = 300
 
         super().__init__(prefix, 
                         name,
@@ -391,7 +392,7 @@ def _rebuildLine(*args, **kwargs):
 class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
 
-    def __init__(self, parentWidget, prefix, windth = 700, height = 500):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 300):
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 7, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
@@ -403,6 +404,9 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         self.lineManagers = {}
 
+        #NOTE: this is overriden each time the manager calls show
+        self.originalHeight = height
+
         name = "_Excercise_BOX"
 
         super().__init__(prefix,
@@ -411,7 +415,7 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
                         renderData = data,
                         height = height,
                         width = windth,
-                        makeScrollable = False)
+                        makeScrollable = True)
 
         def on_vertical(event):
             self.scrollY(-1 * event.delta)
@@ -511,7 +515,27 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
         def __addLine(*args):
             if self.AddExcerciseBTN != None:
                 self.AddExcerciseBTN.cmd()
+        
+        def __updateHeight():
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                          wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseManager.changeLayoutHeight()
+        def __layoutSmallMainImage(*args):
+            wd.Data.ExcerciseLayout.currSize = wd.Data.ExcerciseLayout.small
+            __updateHeight()
+        def __layoutRegularMainImage(*args):
+            wd.Data.ExcerciseLayout.currSize = wd.Data.ExcerciseLayout.normal
+            __updateHeight()
+        def __layoutLargeMainImage(*args):
+            wd.Data.ExcerciseLayout.currSize = wd.Data.ExcerciseLayout.large
+            __updateHeight()
+
         return [ww.currUIImpl.Data.BindID.Keys.shdown, 
                 ww.currUIImpl.Data.BindID.Keys.shup,
-                ww.currUIImpl.Data.BindID.Keys.cmdshs], \
-               [__scrollUp, __scrollDown, __addLine]
+                ww.currUIImpl.Data.BindID.Keys.cmdshs,
+                ww.currUIImpl.Data.BindID.Keys.cmdeight,
+                ww.currUIImpl.Data.BindID.Keys.cmdnine,
+                ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                ], \
+               [__scrollUp, __scrollDown, __addLine, 
+                __layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage]
