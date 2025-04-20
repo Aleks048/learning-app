@@ -2250,10 +2250,10 @@ class MainRoot(ww.currUIImpl.RootWidget):
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = True
             mainMenuManager.changeLowerSubframeHeight(0)
-        return [ww.currUIImpl.Data.BindID.Keys.cmdone, 
-                ww.currUIImpl.Data.BindID.Keys.cmdsix,
-                ww.currUIImpl.Data.BindID.Keys.cmdseven,
-                ww.currUIImpl.Data.BindID.Keys.cmdshh], \
+        return [ww.currUIImpl.Data.BindID.Keys.cmdseven, 
+                ww.currUIImpl.Data.BindID.Keys.cmdeight,
+                ww.currUIImpl.Data.BindID.Keys.cmdnine,
+                ww.currUIImpl.Data.BindID.Keys.cmdsix], \
                [lambda *args: __largerEntry(), 
                 lambda *args: __normalEntry(),
                 lambda *args: __smallerEntry(),

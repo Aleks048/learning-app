@@ -533,9 +533,9 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
         return [ww.currUIImpl.Data.BindID.Keys.shdown, 
                 ww.currUIImpl.Data.BindID.Keys.shup,
                 ww.currUIImpl.Data.BindID.Keys.cmdshs,
-                ww.currUIImpl.Data.BindID.Keys.cmdeight,
-                ww.currUIImpl.Data.BindID.Keys.cmdnine,
                 ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                ww.currUIImpl.Data.BindID.Keys.cmdplus,
                 ], \
                [__scrollUp, __scrollDown, __addLine, 
                 __layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage]
