@@ -181,6 +181,8 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdd = "<Mod1-d>"
                 cmdone = "<Mod1-!>"
                 cmdtwo = "<Mod1-@>"
+                cmdsix = "<Mod1-^>"
+                cmdseven = "<Mod1-&>"
                 cmdeight = "<Mod1-*>"
                 cmdnine = "<Mod1-(>"
                 cmdzero = "<Mod1-)>"

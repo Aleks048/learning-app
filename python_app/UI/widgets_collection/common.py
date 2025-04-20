@@ -2234,19 +2234,27 @@ class MainRoot(ww.currUIImpl.RootWidget):
             dt.UITemp.Layout.noMainEntryShown = False
             mainMenuManager.changeLowerSubframeHeight(600)
         
-        def __smallerEntry():
+        def __normalEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = False
             mainMenuManager.changeLowerSubframeHeight(375)
+        
+        def __smallerEntry():
+            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+            dt.UITemp.Layout.noMainEntryShown = False
+            mainMenuManager.changeLowerSubframeHeight(175)
         def __noEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = True
             mainMenuManager.changeLowerSubframeHeight(0)
         return [ww.currUIImpl.Data.BindID.Keys.cmdone, 
-                ww.currUIImpl.Data.BindID.Keys.cmdtwo,
+                ww.currUIImpl.Data.BindID.Keys.cmdsix,
+                ww.currUIImpl.Data.BindID.Keys.cmdseven,
                 ww.currUIImpl.Data.BindID.Keys.cmdshh], \
                [lambda *args: __largerEntry(), 
+                lambda *args: __normalEntry(),
                 lambda *args: __smallerEntry(),
                 lambda *args: __noEntry()]
