@@ -43,10 +43,11 @@ public:
     static void saveFilesToDisk();
     static void createFromTemplate(std::string path, 
                                    std::string json_template);
-    data::JSON_file& readFile(const std::string filePath);
+    static data::JSON_file& readFile(const std::string filePath);
     // void writeFile(std::string_view filePath,);// what is the data that we bring?
-    // void readProperty(std::string_view jsonFilepath, 
-    //                   std::string_view propertyName);
+    // template<typename T>
+    // T readProperty(std::string jsonFilepath, 
+    //                std::string propertyName);
     // template<typename T>
     // void updateProperty(std::string_view jsonFilepath, 
     //                     std::string_view propertyName,
