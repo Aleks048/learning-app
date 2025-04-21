@@ -934,6 +934,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             subsectionIsHidden = True
 
             for i in range(len(subsectionHiddenList)):
+                if i >= len(subsectionList):
+                    return False
+
                 if subsectionHiddenList[i] != subsectionList[i]:
                     subsectionIsHidden = False
                     break
