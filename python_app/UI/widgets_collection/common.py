@@ -964,9 +964,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.subsectionWidgetManagers[subsection].removeAllSubsections()
 
     def onSubsectionOpen(self, subsection):
-        for subsec, m in self.subsectionWidgetManagers.items():
-            if len(subsec.split(".")) != 1:
-                m.closeSubsection()
+        if wd.Data.General.singleSubsection:
+            for subsec, m in self.subsectionWidgetManagers.items():
+                if len(subsec.split(".")) != 1:
+                    m.closeSubsection()
 
         manager = self.subsectionWidgetManagers[subsection]
         manager.entriesFrame.render()
@@ -2248,16 +2249,23 @@ class MainRoot(ww.currUIImpl.RootWidget):
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = False
             mainMenuManager.changeLowerSubframeHeight(175)
+        
         def __noEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = True
-            mainMenuManager.changeLowerSubframeHeight(0)
+            mainMenuManager.changeLowerSubframeHeight(0) 
+        
+        def __changeOpeningSingleSubsection(*args):
+            wd.Data.General.singleSubsection = not wd.Data.General.singleSubsection
+
         return [ww.currUIImpl.Data.BindID.Keys.cmdseven, 
                 ww.currUIImpl.Data.BindID.Keys.cmdeight,
                 ww.currUIImpl.Data.BindID.Keys.cmdnine,
-                ww.currUIImpl.Data.BindID.Keys.cmdsix], \
+                ww.currUIImpl.Data.BindID.Keys.cmdsix,
+                ww.currUIImpl.Data.BindID.Keys.cmdshh], \
                [lambda *args: __largerEntry(), 
                 lambda *args: __normalEntry(),
                 lambda *args: __smallerEntry(),
-                lambda *args: __noEntry()]
+                lambda *args: __noEntry(),
+                __changeOpeningSingleSubsection]

@@ -14,6 +14,9 @@ class Data:
 
         currSize = normal
 
+    class General:
+        singleSubsection = True
+
     class Reactors:
         entryChangeReactors = {}
         subsectionChangeReactors = {}
