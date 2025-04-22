@@ -799,10 +799,31 @@ class EntryImagesFactory:
         
 
         if createExtraWidgets:
+            def __showExtraWidgets(extraWidgetsFrame, dummyWidget):
+                dummyWidget.hide()
+                extraWidgetsFrame.render()
+
+            def __hideExtraWidgets(extraWidgetsFrame, dummyWidget):
+                extraWidgetsFrame.hide()
+                dummyWidget.render()
+
             extraImExtraWidgets = self.__produceEntryExtraImageExtraLabels(eImIdx = eImIdx, 
                                                                     parentLabel = extraImFrame,
                                                                     resizeFactor = resizeFactor)
-            extraImExtraWidgets.render()
+
+            dummyWidget = TOCLabelWithClick(extraImFrame,
+                                        text = "",
+                                        prefix = "dummy_" + eImWidgetName,
+                                        row =  0, 
+                                        column = 0,
+                                        sticky = ww.currUIImpl.Orientation.NW,
+                                        padding = [120, 0, 0, 0])          
+            dummyWidget.render()
+
+            extraImFrame.rebind([ww.currUIImpl.Data.BindID.enterWidget,
+                                 ww.currUIImpl.Data.BindID.leaveWidget],
+                                 [lambda e, w = extraImExtraWidgets, dw = dummyWidget, *args: __showExtraWidgets(w, dw),
+                                  lambda e, w = extraImExtraWidgets, dw = dummyWidget, *args: __hideExtraWidgets(w, dw)])
 
         if shouldResetResizeFactor:
             resizeFactor = None
