@@ -291,11 +291,14 @@ class EntryImagesFactory:
                                                             self.imIdx,
                                                             eImIdx)
 
-        tempEImLabel = TOCLabelWithClick(parentLabel, 
-                                                text = "",
-                                                prefix = "tempLabel_" + eImWidgetName,
-                                                row = 0,
-                                                column = 0)
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        tempEImLabel = ww.currUIImpl.Frame(prefix = eImWidgetName,
+                                           name = "_eImFrame_" ,
+                                           rootWidget = parentLabel,
+                                           renderData = renderData)
 
         removeEntry = TOCLabelWithClick(tempEImLabel,
                                         text = "[d]",
