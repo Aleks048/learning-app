@@ -1,6 +1,7 @@
 import UI.widgets_collection.proofs.proofs as prw
 
 import UI.widgets_manager as wm
+import UI.widgets_data as wd
 import file_system.file_system_facade as fsf
 import settings.facade as sf
 import _utils._utils_main as _u
@@ -38,8 +39,12 @@ class LayoutManagers:
 
             # resize the solution box in respect to the size of the main image
             self.proofMainImage.update()
-            self.proof_BOX.setCanvasHeight(800 - 20 - self.proofMainImage.getHeight())
+            # self.proof_BOX.setCanvasHeight(800 - 20 - self.proofMainImage.getHeight())
             self.proof_BOX.update()
+
+        def changeHeight(self):
+            self.proof_BOX.setCanvasHeight(self.proof_BOX.originalHeight - wd.Data.ProofsLayout.currSize)
+            self.proofMainImage.setCanvasHeight(self.proofMainImage.originalHeight + wd.Data.ProofsLayout.currSize)
 
     @classmethod
     def listOfLayouts(cls):
@@ -53,10 +58,14 @@ class LayoutManagers:
 class ProofsManager(wm.MenuManager_Interface):
     def __init__(self):
         self.__winRoots = {}
+        self.layout = None
         
         super().__init__(None,
                         None,
                         None)
+
+    def changeLayoutHeight(self):
+        self.layout.changeHeight()
 
     def __addWinRoot(self, subsection, imIdx):
         winRoot = prw.ProofsRoot(width = 50, 
@@ -67,6 +76,7 @@ class ProofsManager(wm.MenuManager_Interface):
         layout = LayoutManagers.listOfLayouts()[0](winRoot)
         winRoot.changeTitle(f"proofs for {subsection} {imIdx}")
         self.__winRoots[str(subsection) + str(imIdx)] = layout
+        self.layout = layout
 
     def show(self, subsection, imIdx):
         if self.__winRoots.get(str(subsection) + str(imIdx)) == None:
