@@ -2,6 +2,7 @@
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.factories.factoriesFacade as wff
+import UI.widgets_data as wd
 
 import _utils._utils_main as _u
 import data.constants as dc
@@ -102,6 +103,8 @@ class EntryImages_BOX(ww.currUIImpl.ScrollableBox,
         self.subsection = None
         self.imIdx = None
 
+        self.originalHeight = height
+
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan" : 6, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
@@ -114,7 +117,7 @@ class EntryImages_BOX(ww.currUIImpl.ScrollableBox,
                         renderData = data,
                         height = height,
                         width = windth,
-                        makeScrollable = False)
+                        makeScrollable = True)
         
         self.imagesFrame = ProofMainImage(self.scrollable_frame, prefix)
 
@@ -168,6 +171,8 @@ class Proof_BOX(ww.currUIImpl.ScrollableBox,
 
         self.lineIdxShownInText = []
         self.displayedImages = []
+
+        self.originalHeight = height
 
         data = {
             ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 1, "columnspan" : 6, "rowspan": 1},
@@ -223,8 +228,29 @@ class ProofsRoot(ww.currUIImpl.RootWidget,
     def __init__(self, width, height, subsection, imIdx):
         self.subsection = subsection
         self.imIdx = imIdx
-        super().__init__(width, height)
+        super().__init__(width, height, bindCmd = self.__bindCmd)
         self.bindClosing(self.__onClosing)
+    
+    def __bindCmd(self):
+        def __updateHeight():
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                          wf.Wr.MenuManagers.ProofsManager)
+            excerciseManager.changeLayoutHeight()
+        def __layoutSmallMainImage(*args):
+            wd.Data.ProofsLayout.currSize = wd.Data.ProofsLayout.small
+            __updateHeight()
+        def __layoutRegularMainImage(*args):
+            wd.Data.ProofsLayout.currSize = wd.Data.ProofsLayout.normal
+            __updateHeight()
+        def __layoutLargeMainImage(*args):
+            wd.Data.ProofsLayout.currSize = wd.Data.ProofsLayout.large
+            __updateHeight()
+
+        return [ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                ww.currUIImpl.Data.BindID.Keys.cmdplus,
+                ], \
+               [__layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage]
 
     def __onClosing(self):
         proofsManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,

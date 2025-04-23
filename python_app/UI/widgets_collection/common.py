@@ -2259,9 +2259,9 @@ class MainRoot(ww.currUIImpl.RootWidget):
         def __changeOpeningSingleSubsection(*args):
             wd.Data.General.singleSubsection = not wd.Data.General.singleSubsection
 
-        return [ww.currUIImpl.Data.BindID.Keys.cmdseven, 
+        return [ww.currUIImpl.Data.BindID.Keys.cmdnine, 
                 ww.currUIImpl.Data.BindID.Keys.cmdeight,
-                ww.currUIImpl.Data.BindID.Keys.cmdnine,
+                ww.currUIImpl.Data.BindID.Keys.cmdseven,
                 ww.currUIImpl.Data.BindID.Keys.cmdsix,
                 ww.currUIImpl.Data.BindID.Keys.cmdshh], \
                [lambda *args: __largerEntry(), 
