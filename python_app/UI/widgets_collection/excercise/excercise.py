@@ -475,7 +475,6 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
         self.bindClosing(self.__onClosing)  
 
     def bindCmd(self):
-        
         def __scrollUp(*args):
             if self.ExcerciseBox != None:
                 self.ExcerciseBox.scrollY(1)
