@@ -354,6 +354,11 @@ class MathMenuManager(wm.MenuManager_Interface):
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
 
+    def scrollToCurrSubsecrtionWidget(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.tocBox.scrollToCurrSubsecrtionWidget()
+
     def changeLowerSubframeHeight(self, newHeight):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:

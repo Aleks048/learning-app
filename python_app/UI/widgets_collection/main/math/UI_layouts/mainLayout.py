@@ -278,6 +278,10 @@ class MainTOCBox(comw.TOC_BOX):
         super().onFullEntryMove()
         self.notify(ScreenshotLocation_LBL)
 
+    def scrollToCurrSubsecrtionWidget(self):
+        self.scrollIntoView(None, 
+                            self.subsectionWidgetManagers[fsf.Data.Book.currSection].subsectionFrame)
+
     def render(self, shouldScroll=False):
         super().render(shouldScroll)
 

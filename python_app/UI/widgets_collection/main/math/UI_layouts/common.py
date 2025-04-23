@@ -59,6 +59,7 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
 
             # lm.Wr.MainLayout.set(withPdfChange = False)
             mathMenuManager.moveTocToCurrEntry()
+            mathMenuManager.scrollToCurrSubsecrtionWidget()
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):
