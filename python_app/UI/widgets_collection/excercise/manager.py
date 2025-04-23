@@ -31,8 +31,6 @@ class LayoutManagers:
             self.addWidget(self.excercise_BOX)
             self.addExcerciseLine_BTN = exw.AddExcerciseLine_BTN(winRoot, self.prefix)
             self.addWidget(self.addExcerciseLine_BTN)
-            self.hideExcerciseWindow_BTN = exw.HideExcerciseWindow_BTN(winRoot, self.prefix)
-            self.addWidget(self.hideExcerciseWindow_BTN)
             self.hideExcerciseImage = exw.HideExcerciseImage(winRoot, self.prefix)
             self.addWidget(self.hideExcerciseImage)
             addExcerciseLine_ETR = exw.AddExcerciseLine_ETR(winRoot, self.prefix)
@@ -63,9 +61,6 @@ class LayoutManagers:
 
             self.hideExcerciseImage.subsection = self.subsection
             self.hideExcerciseImage.imIdx = self.imIdx
-
-            self.hideExcerciseWindow_BTN.subsection = self.subsection
-            self.hideExcerciseWindow_BTN.imIdx = self.imIdx
 
             self.moveTOCtoExcerciseEntry_BTN.subsection = self.subsection
             self.moveTOCtoExcerciseEntry_BTN.imIdx = self.imIdx

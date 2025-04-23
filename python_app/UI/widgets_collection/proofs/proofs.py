@@ -246,11 +246,21 @@ class ProofsRoot(ww.currUIImpl.RootWidget,
             wd.Data.ProofsLayout.currSize = wd.Data.ProofsLayout.large
             __updateHeight()
 
-        return [ww.currUIImpl.Data.BindID.Keys.cmdzero,
-                ww.currUIImpl.Data.BindID.Keys.cmdminus,
-                ww.currUIImpl.Data.BindID.Keys.cmdplus,
-                ], \
-               [__layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage]
+        def __bindCmd(*args):
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                         ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                         ww.currUIImpl.Data.BindID.Keys.cmdplus,
+                         ], \
+                         [__layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage])
+
+        def __unbindCmd(*args):
+            self.unbind([ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                         ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                         ww.currUIImpl.Data.BindID.Keys.cmdplus,
+                         ])
+
+        return [[ww.currUIImpl.Data.BindID.enterWidget, ww.currUIImpl.Data.BindID.leaveWidget],
+                [__bindCmd, __unbindCmd]]
 
     def __onClosing(self):
         proofsManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,

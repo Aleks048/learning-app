@@ -309,37 +309,6 @@ class MoveTOCtoExcerciseEntry_BTN(ww.currUIImpl.Button,
                                                           wf.Wr.MenuManagers.MathMenuManager)
         excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
 
-class HideExcerciseWindow_BTN(ww.currUIImpl.Button,
-                              dc.AppCurrDataAccessToken):
-    subsection = None
-    imIdx = None
-
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-        text = "Hide"
-        name = "_HideExcerciseWindow_BTN"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.ExcerciseManager)
-        excerciseManager.hide()
-
-        msg = "\
-After updating the excercises for \n\
-'{0}':'{1}'.".format(self.subsection, self.imIdx)
-        _u.log.autolog(msg)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-
-
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):
         name = "_getExcerciseNewLineText_ETR"
@@ -502,7 +471,8 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
     AddExcerciseBTN:AddExcerciseLine_BTN = None
 
     def __init__(self, width, height, bindCmd=...):
-        super().__init__(width, height, self.bindCmd)    
+        super().__init__(width, height, self.bindCmd)  
+        self.bindClosing(self.__onClosing)  
 
     def bindCmd(self):
         
@@ -530,12 +500,34 @@ class ExcerciseRoot(ww.currUIImpl.RootWidget):
             wd.Data.ExcerciseLayout.currSize = wd.Data.ExcerciseLayout.large
             __updateHeight()
 
-        return [ww.currUIImpl.Data.BindID.Keys.shdown, 
-                ww.currUIImpl.Data.BindID.Keys.shup,
-                ww.currUIImpl.Data.BindID.Keys.cmdshs,
-                ww.currUIImpl.Data.BindID.Keys.cmdzero,
-                ww.currUIImpl.Data.BindID.Keys.cmdminus,
-                ww.currUIImpl.Data.BindID.Keys.cmdplus,
-                ], \
-               [__scrollUp, __scrollDown, __addLine, 
-                __layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage]
+        def __bind(*args):
+            self.rebind([ww.currUIImpl.Data.BindID.Keys.shdown, 
+                        ww.currUIImpl.Data.BindID.Keys.shup,
+                        ww.currUIImpl.Data.BindID.Keys.cmdshs,
+                        ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                        ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                        ww.currUIImpl.Data.BindID.Keys.cmdplus,
+                        ], \
+                        [__scrollUp, __scrollDown, __addLine, 
+                        __layoutSmallMainImage, __layoutRegularMainImage, __layoutLargeMainImage])
+        def __unbind(*args):
+            self.unbind([ww.currUIImpl.Data.BindID.Keys.shdown, 
+                        ww.currUIImpl.Data.BindID.Keys.shup,
+                        ww.currUIImpl.Data.BindID.Keys.cmdshs,
+                        ww.currUIImpl.Data.BindID.Keys.cmdzero,
+                        ww.currUIImpl.Data.BindID.Keys.cmdminus,
+                        ww.currUIImpl.Data.BindID.Keys.cmdplus,
+                        ])
+        
+        return [ww.currUIImpl.Data.BindID.enterWidget, ww.currUIImpl.Data.BindID.leaveWidget],\
+               [__bind, __unbind]
+
+    def __onClosing(self):
+        excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                          wf.Wr.MenuManagers.ExcerciseManager)
+        excerciseManager.hide()
+
+        msg = "\
+After updating the excercises.".format()
+        _u.log.autolog(msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
