@@ -1511,6 +1511,9 @@ class EntryWidgetFactoryTOC(EntryWidgetFactory):
         mainImageWidget = self.produceMainImageWidget(parentWidget = self.entryFrameManager.rowFrame1)
         mainImageWidget.render()
 
+        if fsf.Data.Sec.tocWImageDict(self.subsection).get(self.imIdx) == None:
+            return
+
         if fsf.Data.Sec.tocWImageDict(self.subsection)[self.imIdx] == "1":
             self.entryFrameManager.showImages()
 

@@ -67,6 +67,8 @@ class SubsectionFrameManager:
 
         self.entriesFrame.hide()
 
+        self.entriesWidgetManagers = {}
+
 class SubsectionFrameManagerMainTOC(SubsectionFrameManager):
     def addEntryWidget(self, imIdx):                
         entryWidgetFactory = EntryWidgetFactoryTOC(self.subsection, imIdx, 0, 0)

@@ -963,6 +963,11 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         self.subsectionWidgetManagers[subsection].removeAllSubsections()
 
+        for k in list(self.subsectionWidgetManagers.keys()).copy():
+            if len(k) > len(subsection):
+                if k[:len(subsection) + 1] == (subsection + "."):
+                    self.subsectionWidgetManagers.pop(k)
+
     def onSubsectionOpen(self, subsection):
         if wd.Data.General.singleSubsection:
             for subsec, m in self.subsectionWidgetManagers.items():
