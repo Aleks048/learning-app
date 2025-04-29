@@ -1076,12 +1076,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(self.renderData)
 
-        if fsm.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
-            for w in wd.Data.Reactors.entryChangeReactors.values():
-                if "onFullEntryMove" in dir(w):
-                    w.onFullEntryMove()
-        return
-
 class ImageGroupOM(ww.currUIImpl.OptionMenu):
     def __init__(self,
                  listOfOptions, 

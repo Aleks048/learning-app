@@ -285,6 +285,11 @@ class MainTOCBox(comw.TOC_BOX):
     def render(self, shouldScroll=False):
         super().render(shouldScroll)
 
+        if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onFullEntryMove" in dir(w):
+                    w.onFullEntryMove()
+
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
