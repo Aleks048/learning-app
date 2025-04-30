@@ -21,6 +21,14 @@ class Data:
 
         currSize = normal
 
+    class MainEntryLayout:
+        no = None
+        small = -300
+        normal = 0
+        large = 300
+
+        currSize = normal
+
     class General:
         singleSubsection = True
 

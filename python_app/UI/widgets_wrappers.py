@@ -1232,7 +1232,10 @@ class TkWidgets (DataTranslatable_Interface):
                     height = 150,
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
-                    makeScrollable = True):
+                    makeScrollable = True,
+                    createTopScroll = True):
+            self.originalHeight = height
+
             self.canvas = None
             self.container = None
             self.scrollbar_top = None
@@ -1251,9 +1254,16 @@ class TkWidgets (DataTranslatable_Interface):
                                       height = height, width = width, renderData = {})
 
             scrollbar = ttk.Scrollbar(self.container.widgetObj, orient="vertical", command = self.canvas.widgetObj.yview)
-            scrollbar2 = ttk.Scrollbar(self.container.widgetObj, orient="horizontal", command = self.canvas.widgetObj.xview)
             self.scrollbar_top = scrollbar
-            self.scrollbar_right = scrollbar2
+            self.canvas.widgetObj.configure(yscrollcommand=scrollbar.set)
+            scrollbar.pack(side="right", fill="y")
+
+            if createTopScroll:
+                scrollbar2 = ttk.Scrollbar(self.container.widgetObj, orient="horizontal", command = self.canvas.widgetObj.xview)
+                self.scrollbar_right = scrollbar2
+                self.canvas.widgetObj.configure(xscrollcommand=scrollbar2.set)
+                scrollbar2.pack(side="top", fill="x")
+
             scrollable_frame = TkWidgets.Frame(self.name, "_scrollableFrame", self.canvas, {})
             scrollable_frame2 = TkWidgets.Frame(self.name, "_scrollableFrame2", self.canvas, {})
             self.scrollable_frame = scrollable_frame
@@ -1274,12 +1284,8 @@ class TkWidgets (DataTranslatable_Interface):
             self.canvas.widgetObj.create_window((0, 0), window = scrollable_frame.widgetObj, anchor="nw")
             self.canvas.widgetObj.create_window((0, 0), window = scrollable_frame2.widgetObj, anchor="se")
 
-            self.canvas.widgetObj.configure(yscrollcommand=scrollbar.set)
-            self.canvas.widgetObj.configure(xscrollcommand=scrollbar2.set)
-
             self.container.render()
-            scrollbar.pack(side="right", fill="y")
-            scrollbar2.pack(side="top", fill="x")
+
             self.canvas.widgetObj.pack(side="top", fill="both", expand = True)
 
             def on_vertical(event):

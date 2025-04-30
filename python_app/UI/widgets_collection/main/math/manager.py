@@ -1,5 +1,6 @@
 import UI.widgets_manager as wm
 import UI.widgets_wrappers as ww
+import UI.widgets_data as wd
 
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as ml
@@ -146,8 +147,17 @@ class LayoutManagers:
             return super().show()
         
         def changeEntryBoxMaxHeight(self, newHeight):
-            self.entryWindow_BOX.maxHeight = newHeight
-
+            if type(newHeight) == int:
+                self.tocBox.maxHeight = self.tocBox.originalHeight - newHeight
+                self.tocBox.setCanvasHeight(self.tocBox.maxHeight)
+                self.entryWindow_BOX.maxHeight = self.entryWindow_BOX.origHeight + newHeight
+                self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
+            else:
+                # The case of no main entry
+                self.tocBox.maxHeight = self.tocBox.originalHeight + self.entryWindow_BOX.origHeight
+                self.tocBox.setCanvasHeight(self.tocBox.maxHeight)
+                self.entryWindow_BOX.maxHeight = 0
+                self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
 
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
@@ -359,11 +369,11 @@ class MathMenuManager(wm.MenuManager_Interface):
             if type(layout) == LayoutManagers._Main:
                 layout.tocBox.scrollToCurrSubsecrtionWidget()
 
-    def changeLowerSubframeHeight(self, newHeight):
+    def changeLowerSubframeHeight(self):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
-                layout.changeEntryBoxMaxHeight(newHeight)
-                self.show()
+                layout.changeEntryBoxMaxHeight(wd.Data.MainEntryLayout.currSize)
+
     # def renderTocWidget(self):
     #     for layout in self.layouts:
     #         if type(layout) == LayoutManagers._Main:

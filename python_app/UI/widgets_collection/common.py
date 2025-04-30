@@ -542,7 +542,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
     def __init__(self, parentWidget, prefix, windth = 700, height = 300, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
-                 showLinks = False):
+                 showLinks = False): 
+        self.maxHeight = height
+        self.originalHeight = height
+
         self.subsectionWidgetManagers = {}
 
         # used to filter toc data when the search is performed
@@ -602,7 +605,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                         name,
                         parentWidget,
                         renderData = data,
-                        height = height,
+                        height = self.maxHeight,
                         width = windth,
                         makeScrollable = makeScrollable)
 
@@ -2236,25 +2239,29 @@ class MainRoot(ww.currUIImpl.RootWidget):
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = False
-            mainMenuManager.changeLowerSubframeHeight(600)
+            wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.large
+            mainMenuManager.changeLowerSubframeHeight()
         
         def __normalEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = False
-            mainMenuManager.changeLowerSubframeHeight(375)
+            wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.normal
+            mainMenuManager.changeLowerSubframeHeight()
         
         def __smallerEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = False
-            mainMenuManager.changeLowerSubframeHeight(175)
+            wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.small
+            mainMenuManager.changeLowerSubframeHeight()
         
         def __noEntry():
             mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
                                                             wf.Wr.MenuManagers.MathMenuManager)
             dt.UITemp.Layout.noMainEntryShown = True
-            mainMenuManager.changeLowerSubframeHeight(0) 
+            wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.no
+            mainMenuManager.changeLowerSubframeHeight() 
         
         def __changeOpeningSingleSubsection(*args):
             wd.Data.General.singleSubsection = not wd.Data.General.singleSubsection
