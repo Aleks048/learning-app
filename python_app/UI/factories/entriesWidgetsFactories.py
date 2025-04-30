@@ -192,8 +192,7 @@ class EntryFrameManager:
         def skipProofAndExtra(subsection, imIdx, exImIdx):
             extraImages = fsf.Data.Sec.extraImagesDict(subsection)[imIdx]
             eImText = extraImages[exImIdx]
-            return (("proof" in eImText.lower())\
-                    or (("proof" in eImText.lower()) and self.showAll))\
+            return (("proof" in eImText.lower()) and (not dt.AppState.ShowProofs.getData("fakeToken")))\
                     or (("extra") in eImText.lower())
 
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)   
@@ -1752,7 +1751,7 @@ class LinksFrameManager:
         delta = 0
 
         if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
-            delta = 150
+            delta = 50
 
         self.factory.scrollableBox.setCanvasHeight(self.factory.scrollableBox.originalHeight + delta)
 
@@ -1798,7 +1797,7 @@ class LinksFrameFactory:
         delta = 0
 
         if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
-            delta = 150
+            delta = 50
 
         renderDataScroll = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
