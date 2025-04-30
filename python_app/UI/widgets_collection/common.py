@@ -745,8 +745,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.scrollToEntry(subsection, imIdx)
 
     def onMainLatexImageUpdate(self, subsection, imIdx):
-        etm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
-        etm.updateEntryImage()
+        if self.subsectionWidgetManagers.get(subsection) != None:
+            etm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
+            etm.updateEntryImage()
 
     def onRetakeAfter(self, subsection, imIdx, eImidx = _u.Token.NotDef.str_t):
         etm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
