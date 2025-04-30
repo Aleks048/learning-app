@@ -487,7 +487,7 @@ class EntryWidgetFactory:
 
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onLinksShow" in dir(w):
-                    w.onLinksShow(e.widget.subsection, e.widget.imIdx)
+                    w.onLinksShow(e.widget.subsection, e.widget.imIdx, linksFrmaeManger.linksShown)
 
         showLinksForEntry = TOCLabelWithClick(parentWidget,
                                                 text = self.EntryUIs.showLinks.name,

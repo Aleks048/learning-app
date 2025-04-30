@@ -761,7 +761,8 @@ class MainEntryBox(comw.EntryWindow_BOX):
     def notificationAfterImageWasCreated(self, subsection, imIdx):
         super().setMain(subsection, imIdx)
 
-    def onLinksShow(self, subsection, imIdx):
+    def onLinksShow(self, subsection, imIdx, showLinks):
+        self.linkFrameShown = showLinks
         super().updateHeight()
 
     def onAddExtraImage(self, subsection, mainImIdx, extraImIdx):
@@ -779,6 +780,7 @@ class MainEntryBox(comw.EntryWindow_BOX):
         self.updateHeight()
 
     def onShowLinks(self):
+        self.linkFrameShown = True
         self.updateHeight()
 
     def onRemoveLink(self):
