@@ -749,6 +749,15 @@ to subsection: '{1}'?".format(groupName, currSubsection)
 
 
 class MainEntryBox(comw.EntryWindow_BOX): 
+
+    def __init__(self, parentWidget, prefix):
+        super().__init__(parentWidget, prefix)
+        self.origHeight = self.maxHeight
+
+    def setCanvasHeight(self, newHeight):
+        self.entryManager.linksFrameManager.updateLinksHeight()
+        return super().setCanvasHeight(newHeight)
+
     def notificationRetakeImage(self, subsection, imIdx):
         super().setMain(subsection, imIdx)
 
