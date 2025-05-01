@@ -756,6 +756,13 @@ class MainEntryBox(comw.EntryWindow_BOX):
 
     def setCanvasHeight(self, newHeight):
         self.entryManager.linksFrameManager.updateLinksHeight()
+
+        if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
+            if self.linkFrameShown:
+                self.entryManager.imagesFrameScroll.setCanvasHeight(300)
+            else:
+                self.entryManager.imagesFrameScroll.setCanvasHeight(600)
+
         return super().setCanvasHeight(newHeight)
 
     def notificationRetakeImage(self, subsection, imIdx):
@@ -772,6 +779,9 @@ class MainEntryBox(comw.EntryWindow_BOX):
 
     def onLinksShow(self, subsection, imIdx, showLinks):
         self.linkFrameShown = showLinks
+
+        linksHeight = self.entryManager.linksFrameManager.linksFrame.getHeight()
+        self.entryManager.imagesFrameScroll.setCanvasHeight(350 - linksHeight)
         super().updateHeight()
 
     def onAddExtraImage(self, subsection, mainImIdx, extraImIdx):

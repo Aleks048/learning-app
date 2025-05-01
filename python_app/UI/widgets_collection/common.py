@@ -396,15 +396,21 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         for ch in self.scrollable_frame.getChildren():
            newHeight += ch.getHeight()
 
-        newHeight = min(newHeight, self.maxHeight)
-        self.setCanvasHeight(min(newHeight, self.maxHeight))
+        if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
+            newHeight = self.maxHeight + wd.Data.MainEntryLayout.large
+        else:
+            newHeight = min(newHeight, self.maxHeight)
+
+        self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
         if scrollTOC:
             self.notify(TOC_BOX, 
-                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: [newHeight, self.subsection, self.imIdx, True]})
+                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: \
+                                    [newHeight, self.subsection, self.imIdx, True]})
         else:
             self.notify(TOC_BOX, 
-                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: [newHeight, self.subsection, self.imIdx, False]})
+                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: \
+                                    [newHeight, self.subsection, self.imIdx, False]})
 
         import UI.widgets_collection.pdfReader.pdfReader as pdfw
         if updateSecondaryFrame:

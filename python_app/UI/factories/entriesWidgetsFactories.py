@@ -41,6 +41,7 @@ class EntryFrameManager:
         self.rowFrame2 = None
         self.linksFrameManager = None
         self.imagesFrame = None
+        self.imagesFrameScroll = None
 
         self.imagesShown = False
 
@@ -76,7 +77,7 @@ class EntryFrameManager:
 
     def __getExtraImageFrame(self, eImIdx):
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)
-        extraImFrame = entryImagesFactory.produceEntryExtraImageFrame(rootLabel = self.imagesFrame,
+        extraImFrame = entryImagesFactory.produceEntryExtraImageFrame(rootLabel = self.imagesFrameScroll.scrollable_frame,
                                                                       eImIdx = int(eImIdx),
                                                                       imPadLeft = 0,
                                                                       leftMove = 0,
@@ -180,7 +181,7 @@ class EntryFrameManager:
 
     def __setMainImage(self, imPadLeft = 120):
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)  
-        imLabel = entryImagesFactory.produceEntryMainImageWidget(self.imagesFrame,
+        imLabel = entryImagesFactory.produceEntryMainImageWidget(self.imagesFrameScroll.scrollable_frame,
                                                             imPadLeft = imPadLeft,
                                                             resizeFactor = 1.0)
 
@@ -196,7 +197,7 @@ class EntryFrameManager:
                     or (("extra") in eImText.lower())
 
         entryImagesFactory = EntryImagesFactory(self.subsection, self.imIdx)   
-        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self.imagesFrame,
+        exImLabels = entryImagesFactory.produceEntryExtraImagesWidgets(rootLabel = self.imagesFrameScroll.scrollable_frame,
                                                         skippConditionFn = skipProofAndExtra,
                                                         createExtraWidgets = createExtraWidgets,
                                                         imPadLeft = imPadLeft)
@@ -231,6 +232,16 @@ class EntryFrameManager:
         self.__setMainImage(imPadLeft = mainImPadLeft)
         self.__setExtraImages(createExtraWidgets = createExtraImagesExtraWidgets,
                               imPadLeft = eImPadLeft)
+
+        scrollHeight = 0
+        for ch in self.imagesFrameScroll.scrollable_frame.getChildren():
+            scrollHeight += ch.getHeight()
+
+        maxHeight = 300
+
+        self.imagesFrameScroll.maxHeight = scrollHeight
+        self.imagesFrameScroll.setCanvasHeight(min(scrollHeight, maxHeight))
+        self.imagesFrameScroll.render()
         self.imagesFrame.render()
 
     def setFullImageLabelNotClicked(self):
@@ -1451,6 +1462,21 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         entryFrameManager.imagesFrame.subsection = self.subsection
         entryFrameManager.imagesFrame.imIdx = self.imIdx
         entryFrameManager.imagesFrame.render()
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : row, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        entryFrameManager.imagesFrameScroll = \
+                                        ww.currUIImpl.ScrollableBox(prefix = "ImagesFrameScroll",
+                                                                    name = nameId,
+                                                                    rootWidget = entryFrameManager.imagesFrame,
+                                                                    renderData = renderData,
+                                                                    width = 660,
+                                                                    height = 1,
+                                                                    createTopScroll = False)
+
         return entryFrameManager
 
 class EntryWidgetFactoryTOC(EntryWidgetFactory):
@@ -1808,8 +1834,8 @@ class LinksFrameFactory:
                                                     name = name, 
                                                     rootWidget = frame,
                                                     renderData = renderDataScroll,
-                                                    width = 700,
-                                                    height = 200 + delta,
+                                                    width = 680,
+                                                    height = 150 + delta,
                                                     createTopScroll = False)
         self.scrollableBox = scrollableBox
         scrollableBox.render()

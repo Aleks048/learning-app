@@ -246,8 +246,12 @@ class TkWidgets (DataTranslatable_Interface):
             return self.widget.children
         
         def removeAllChildren(self):
-            for ch in self.widget.widgetObj.winfo_children().copy():
-                ch.destroy()
+            #NOTE: this started happening when I did put the main entry window into a scrollable frame
+            try:
+                for ch in self.widget.widgetObj.winfo_children().copy():
+                    ch.destroy()
+            except:
+                pass
             self.children = set()
 
         def addChild(self, child):
@@ -1297,10 +1301,14 @@ class TkWidgets (DataTranslatable_Interface):
             if makeScrollable:
                 def __bindScroll(*args):
                     self.container.widgetObj.bind_all('<MouseWheel>', on_vertical)
-                    self.container.widgetObj.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
+
+                    if False:
+                        self.container.widgetObj.bind_all('<Shift-MouseWheel>', on_horizontal) # scroll left-right
                 def __unbindScroll(*args):
                     self.container.widgetObj.unbind_all('<MouseWheel>')
-                    self.container.widgetObj.unbind_all('<Shift-MouseWheel>') # scroll left-right
+
+                    if False:
+                        self.container.widgetObj.unbind_all('<Shift-MouseWheel>') # scroll left-right
 
                 self.canvas.widgetObj.bind("<Enter>", __bindScroll, add = True)
                 self.canvas.widgetObj.bind("<Leave>", __unbindScroll, add = True)
