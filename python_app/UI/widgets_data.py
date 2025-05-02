@@ -29,6 +29,10 @@ class Data:
 
         currSize = normal
 
+        largeLinks = False
+        largeLinksSize = 600
+        regularLinksSize = 300
+
     class General:
         singleSubsection = True
 

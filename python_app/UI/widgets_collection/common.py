@@ -2268,7 +2268,13 @@ class MainRoot(ww.currUIImpl.RootWidget):
             dt.UITemp.Layout.noMainEntryShown = True
             wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.no
             mainMenuManager.changeLowerSubframeHeight() 
-        
+
+        def __changeLinksSize():
+            wd.Data.MainEntryLayout.largeLinks = not wd.Data.MainEntryLayout.largeLinks
+            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainMenuManager.changeLinksSize() 
+
         def __changeOpeningSingleSubsection(*args):
             wd.Data.General.singleSubsection = not wd.Data.General.singleSubsection
 
@@ -2276,9 +2282,11 @@ class MainRoot(ww.currUIImpl.RootWidget):
                 ww.currUIImpl.Data.BindID.Keys.cmdeight,
                 ww.currUIImpl.Data.BindID.Keys.cmdseven,
                 ww.currUIImpl.Data.BindID.Keys.cmdsix,
+                ww.currUIImpl.Data.BindID.Keys.cmdsho,
                 ww.currUIImpl.Data.BindID.Keys.cmdshh], \
                [lambda *args: __largerEntry(), 
                 lambda *args: __normalEntry(),
                 lambda *args: __smallerEntry(),
                 lambda *args: __noEntry(),
+                lambda *args: __changeLinksSize(),
                 __changeOpeningSingleSubsection]

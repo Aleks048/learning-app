@@ -1773,6 +1773,13 @@ class LinksFrameManager:
 
         self.entriesFrame = None
 
+    def makeLinksLarge(self):
+        if wd.Data.MainEntryLayout.largeLinks:
+            size = wd.Data.MainEntryLayout.largeLinksSize
+            self.factory.scrollableBox.setCanvasHeight(size)
+        else:
+            self.updateLinksHeight()
+
     def updateLinksHeight(self):
         delta = 0
 

@@ -171,6 +171,7 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdshs = "<Mod1-S>"
                 cmdb = "<Mod1-b>"
                 cmdl = "<Mod1-l>"
+                cmdsho = "<Mod1-O>"
                 cmdshc = "<Mod1-C>"
                 cmddc = "<Mod1-c><Mod1-c>"
                 cmdshi = "<Mod1-I>"

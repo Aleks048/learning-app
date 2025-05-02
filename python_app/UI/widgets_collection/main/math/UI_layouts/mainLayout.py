@@ -754,6 +754,9 @@ class MainEntryBox(comw.EntryWindow_BOX):
         super().__init__(parentWidget, prefix)
         self.origHeight = self.maxHeight
 
+    def changeLinksSize(self):
+        self.entryManager.linksFrameManager.makeLinksLarge()
+
     def setCanvasHeight(self, newHeight):
         self.entryManager.linksFrameManager.updateLinksHeight()
 

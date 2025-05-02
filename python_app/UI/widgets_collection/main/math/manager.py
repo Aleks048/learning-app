@@ -146,6 +146,9 @@ class LayoutManagers:
             # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
         
+        def changeLinksSize(self):
+            self.entryWindow_BOX.changeLinksSize()
+
         def changeEntryBoxMaxHeight(self, newHeight):
             if type(newHeight) == int:
                 self.tocBox.maxHeight = self.tocBox.originalHeight - newHeight
@@ -368,6 +371,11 @@ class MathMenuManager(wm.MenuManager_Interface):
         for layout in self.layouts:
             if type(layout) == LayoutManagers._Main:
                 layout.tocBox.scrollToCurrSubsecrtionWidget()
+
+    def changeLinksSize(self):
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._Main:
+                layout.changeLinksSize()
 
     def changeLowerSubframeHeight(self):
         for layout in self.layouts:
