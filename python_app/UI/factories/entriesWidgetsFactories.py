@@ -226,6 +226,22 @@ class EntryFrameManager:
     def showImages(self, mainImPadLeft = 120, eImPadLeft = 0, createExtraImagesExtraWidgets = True):
         self.imagesShown = True   
 
+        nameId = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        self.imagesFrameScroll = ww.currUIImpl.ScrollableBox(prefix = "ImagesFrameScroll",
+                                                             name = nameId,
+                                                             rootWidget = self.imagesFrame,
+                                                             renderData = renderData,
+                                                             width = 660,
+                                                             height = 1,
+                                                             createTopScroll = False)
+
+
         # if self.fullMoveWidget != None:
         #     self.fullMoveWidget.clicked = True 
 
@@ -253,8 +269,7 @@ class EntryFrameManager:
 
     def hideImages(self):
         self.imagesShown = False
-        for ch in self.imagesFrame.getChildren().copy():
-            ch.destroy()
+        self.imagesFrame.removeAllChildren()
         self.imagesFrame.hide()
         self.setFullImageLabelNotClicked()
 
@@ -1462,20 +1477,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         entryFrameManager.imagesFrame.subsection = self.subsection
         entryFrameManager.imagesFrame.imIdx = self.imIdx
         entryFrameManager.imagesFrame.render()
-
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : row, "columnspan" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-
-        entryFrameManager.imagesFrameScroll = \
-                                        ww.currUIImpl.ScrollableBox(prefix = "ImagesFrameScroll",
-                                                                    name = nameId,
-                                                                    rootWidget = entryFrameManager.imagesFrame,
-                                                                    renderData = renderData,
-                                                                    width = 660,
-                                                                    height = 1,
-                                                                    createTopScroll = False)
 
         return entryFrameManager
 

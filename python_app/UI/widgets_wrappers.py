@@ -248,11 +248,10 @@ class TkWidgets (DataTranslatable_Interface):
         
         def removeAllChildren(self):
             #NOTE: this started happening when I did put the main entry window into a scrollable frame
-            try:
-                for ch in self.widget.widgetObj.winfo_children().copy():
-                    ch.destroy()
-            except:
-                pass
+            children = self.widget.widgetObj.winfo_children().copy()
+
+            for ch in children:
+                ch.destroy()
             self.children = set()
 
         def addChild(self, child):
