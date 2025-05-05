@@ -99,9 +99,6 @@ class NotesLabel(ww.currUIImpl.Label,
             t = _rebuildNote(*args, **kwargs)
             t.join()
             self.render()
-
-            self.currEtr.forceFocus()
-            self.currEtr.setPosition(0, 0)
         Thread(target = __internal,
                args = args, 
                kwargs = kwargs).start()

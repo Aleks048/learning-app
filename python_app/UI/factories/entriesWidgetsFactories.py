@@ -48,6 +48,13 @@ class EntryFrameManager:
         self.mainImLabel = None
         self.extraImLabels = None
 
+    def updateImagesScroll(self):
+        newHeight = 0
+        for ch in self.imagesFrameScroll.scrollable_frame.getChildren():
+           newHeight += ch.getHeight()
+
+        self.imagesFrameScroll.setCanvasHeight(min(newHeight, 200))
+
     def changeFullMoveColor(self, default):
         if self.fullMoveWidget == None:
             return

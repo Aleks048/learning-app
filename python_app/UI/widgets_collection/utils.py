@@ -218,22 +218,6 @@ The correct extra image was not created for \n\
                 w.onAddExtraImage(subsection, mainImIdx, extraImageIdx)
         
         return
-        if entryLabel != None:
-            if entryLabel != None:
-                if type(entryLabel) == TOCLabelWithClick:
-                    #this comes from the main TOC menu
-                    entryLabel.generateEvent(ww.currUIImpl.Data.BindID.mouse1)
-                else:
-                    # this comes from the Entry menu
-                    entryLabel.notificationAfterImageWasCreated(entryLabel.subsection, entryLabel.imIdx)
-                    updateSecondaryFrame = str(mainImIdx) != str(fsf.Data.Book.entryImOpenInTOC_UI)
-                    entryLabel.updateHeight(scrollTOC = True, updateSecondaryFrame = updateSecondaryFrame)
-                    entryLabel.scrollToImage(entryLabel.imIdx, extraImageIdx)
-
-        if event != None:
-            mathMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mathMenuManager.scrollToWidget(event, None)
 
     t = Thread(target = __afterEImagecreated, 
             args = [mainImIdx, subsection, extraImIdx, extraImText, event, entryLabel])
