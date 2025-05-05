@@ -396,6 +396,9 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                     data = {EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain: [self.subsection, self.imIdx, shouldScroll]})
 
     def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
+        if self.imIdx == _u.Token.NotDef.str_t:
+            return
+
         newHeight = 10
         for ch in self.scrollable_frame.getChildren():
            newHeight += ch.getHeight()
