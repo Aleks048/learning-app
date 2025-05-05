@@ -196,6 +196,7 @@ class TkWidgets (DataTranslatable_Interface):
                 cmdr = "<Mod1-r>"
                 cmdshp = "<Mod1-P>"
                 cmdu = "<Mod1-u>"
+                cmdshv = "<Mod1-V>"
                 ctrlv = "<Control-v>"
                 escape = "<Escape>"
                 shup = "<Shift-Up>"
@@ -1007,6 +1008,8 @@ class TkWidgets (DataTranslatable_Interface):
                     bindCmd = lambda *args: (None, None),
                     padding = [0, 0, 0, 0],
                     data = {}):
+            self.isLocked = False
+
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
@@ -1046,6 +1049,44 @@ class TkWidgets (DataTranslatable_Interface):
 
             self.setData(text)
 
+        def findTextStartLocation(self, text):
+            return self.widgetObj.search(text, "1.0", stopindex = tk.END)
+
+        def makeUneditable(self):
+            self.widgetObj.config(state=tk.DISABLED)
+            self.widgetObj.config(bg = '#394d43')
+            self.isLocked = True
+        
+        def makeLink(self, text, linkCmd):
+            # add link
+            startLoacation = self.findTextStartLocation(text)
+            stopLocation = startLoacation.split(".")[0] + "." + \
+                           str(int(startLoacation.split(".")[1]) + len(text))
+
+            self.widgetObj.tag_add("link", startLoacation, stopLocation)
+            self.widgetObj.tag_config("link", foreground="blue", underline=True)
+
+            # link click
+            self.widgetObj.tag_bind(
+                "link", 
+                "<Button-1>", 
+                lambda e: linkCmd()
+            )
+
+            # link hover
+            self.widgetObj.tag_bind(
+                "link", 
+                "<Enter>", 
+                lambda e: self.widgetObj.config(cursor="hand2")
+            )
+
+            # link leave
+            self.widgetObj.tag_bind(
+                "link", 
+                "<Leave>", 
+                lambda e: self.widgetObj.config(cursor="")
+            )
+
         def getHeight(self):
             self.widgetObj.update()
             return self.widgetObj.winfo_reqheight()
@@ -1059,12 +1100,18 @@ class TkWidgets (DataTranslatable_Interface):
             return self.widgetObj.index(TkWidgets.TextInsertPosition.CURRENT)
         
         def pasteTextFromClipboard(self, *args):
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+
             pb = NSPasteboard.generalPasteboard()
             text:str = pb.stringForType_(NSStringPboardType)
 
             text = text.replace("\u0000", "fi")
 
             self.insert(TkWidgets.TextInsertPosition.CURRENT, text)
+
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
 
         def wrapSelectedText(self, txtBefore, txtAfter):
             startSelIDX = self.widgetObj.index("sel.first")
@@ -1073,11 +1120,42 @@ class TkWidgets (DataTranslatable_Interface):
             boldSelText = f"{txtBefore}{selText}{txtAfter}"
             self.widgetObj.replace(startSelIDX, endSelIDX, boldSelText)
         
+        def updateText(self, newText):
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+
+            self.clearText()
+            self.addTextAtStart(newText)
+
+            if self.isLocked:
+                self.widgetObj.config(state=tk.DISABLED)
+
+        def clearText(self):
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+
+            self.widgetObj.delete("0.0", TkWidgets.TextInsertPosition.END)
+
+            if self.isLocked:
+                self.widgetObj.config(state=tk.DISABLED)
+
         def addTextAtStart(self, text):
-            self.widgetObj.insert("0.0", text)
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+
+            self.widgetObj.insert("1.0", text)
+    
+            if self.isLocked:
+                self.widgetObj.config(state=tk.DISABLED)
         
         def addTextAtCurrent(self, text):
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+            
             self.widgetObj.insert(TkWidgets.TextInsertPosition.CURRENT, text)
+
+            if self.isLocked:
+                self.widgetObj.config(state=tk.DISABLED)
 
         def setPads(self, padx, pady):
             self.widgetObj.config(padx = padx, pady = pady)
@@ -1086,7 +1164,13 @@ class TkWidgets (DataTranslatable_Interface):
             return self.widgetObj.index("insert")
 
         def setPosition(self, line, column):
+            if self.isLocked:
+                self.widgetObj.config(state=tk.NORMAL)
+
             self.widgetObj.mark_set("insert", "%d.%d" % (int(line), int(column)))
+
+            if self.isLocked:
+                self.widgetObj.config(state=tk.DISABLED)
 
 
     class Canvas(Notifyable_Interface,

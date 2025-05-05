@@ -102,7 +102,10 @@ def scrollIntoView(scrollableFrame, event, widget = None):
 def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc, 
                                    updateImageFunc = lambda *args: None,
                                    changeOnEtrFunc = lambda *args: None,
-                                   changeOnLabelBackFunc = lambda *args: None,):
+                                   changeOnLabelBackFunc = lambda *args: None,
+                                   etrWidth = None,
+                                   etrHeight = None,
+                                   pasteLambda = lambda *args: None):
     widget = event.widget
 
     def __bringImageWidgetBack(event, imageWidget, setTextFunc, updateImageFunc, changeOnLabelBackFunc):
@@ -117,11 +120,23 @@ def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc,
 
         changeOnLabelBackFunc(widget)
 
+    kwargs = {}
+
+    if etrWidth != None:
+        kwargs["width"] = etrWidth
+    if etrHeight != None:
+        kwargs["fixedHeight"] = etrHeight
+
     subsectionLabel = comw.MultilineText_ETR(widget.rootWidget, 
                                         "subsectionETR_" + widget.name, 
                                         widget.row, widget.column, 
                                         "", # NOTE: not used anywhere  
-                                        getTextFunc(widget))
+                                        getTextFunc(widget),
+                                        **kwargs)
+
+    subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshv],
+                           [lambda e, w = subsectionLabel, *args: pasteLambda(w)])    
+
     subsectionLabel.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
                             [lambda e, w = widget, sf = setTextFunc,  uf = updateImageFunc, bf = changeOnLabelBackFunc,
                              *args: __bringImageWidgetBack(e, w, sf, uf, bf)])

@@ -56,7 +56,7 @@ class ImageText_ETR(ww.currUIImpl.TextEntry):
         pass
 
 class MultilineText_ETR(ww.currUIImpl.MultilineText):
-    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, width = 70, *args, **kwargs):
+    def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, width = 70, fixedHeight = None, *args, **kwargs):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
@@ -79,22 +79,26 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
 
         text = text.rstrip()
 
-        txt = ""
-        lineLength = 0
+        if fixedHeight == None:
+            txt = ""
+            lineLength = 0
 
-        txtList = text.split(" ")
+            txtList = text.split(" ")
 
-        for w in txtList:
-            lineLength += len(w.replace("\n", "")) + 1
-            txt += w + " "
+            for w in txtList:
+                lineLength += len(w.replace("\n", "")) + 1
+                txt += w + " "
 
-            if ("\n" in w) or (lineLength > 70):
-                if not("\n" in w):
-                    txt += "\n"
+                if ("\n" in w) or (lineLength > 70):
+                    if not("\n" in w):
+                        txt += "\n"
 
-                lineLength = 0
+                    lineLength = 0
 
-        newHeight = int(len(txt.split("\n"))) + 1
+            newHeight = int(len(txt.split("\n"))) + 1
+        else:
+            newHeight = fixedHeight
+
         self.row = row
         self.column = column
      
@@ -1145,7 +1149,10 @@ class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
         if tocWImageDict == _u.Token.NotDef.dict_t:
             alwaysShow = "0"
         else:
-            alwaysShow = tocWImageDict[self.imIdx]
+            if tocWImageDict.get(self.imIdx) != None:
+                alwaysShow = tocWImageDict[self.imIdx]
+            else:
+                alwaysShow = "0"
 
         super().__init__(prefix,
                          name,

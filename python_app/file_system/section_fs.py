@@ -31,6 +31,9 @@ class SectionInfoStructure:
         latestSubchapter = "_latestSubchapter"
         subSections = "_subSections"
 
+        #subsection summary
+        subsectionSummaryText = "_subsectionSummary"
+
         #imagesProperties
         imageProp = "_imageProp"
         imageContentFileMoveLinesNumber = "_imageContentFileMoveLinesNumber"
@@ -91,6 +94,7 @@ class SectionInfoStructure:
             cls.PubProp.name: _u.Token.NotDef.str_t,
             cls.PubProp.latestSubchapter: _u.Token.NotDef.str_t,
             cls.PubProp.notesAppLink: _u.Token.NotDef.str_t,
+            cls.PubProp.subsectionSummaryText: _u.Token.NotDef.str_t,
             cls.PubProp.isVideo: False,
             cls.PubProp.imagesGroupsList: {"No group": True},
             cls.PubProp.levelData: {

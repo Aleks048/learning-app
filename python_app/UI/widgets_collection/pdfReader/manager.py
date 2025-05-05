@@ -17,13 +17,13 @@ class LayoutManagers:
         getTextOfSelector = False
 
         def __init__(self, winRoot):
+            self.originalPdfHeight = None
+
             self.winRoot = winRoot
             self.defaultAppDimensions = [720, 850]
             super().__init__(winRoot, self.defaultAppDimensions)
             self.pfdReader_BOX = imw.PfdReader_BOX(winRoot.topSubframe, self.prefix)
             self.addWidget(self.pfdReader_BOX)
-            self.hidePdfReadersWindow_BTN = imw.HidePdfReaderWindow_BTN(winRoot.topSubframe, self.prefix)
-            self.addWidget(self.hidePdfReadersWindow_BTN)
             self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(winRoot.topSubframe, self.prefix)
             self.addWidget(self.resizePdfReaderWindow_BTN)
             self.changePagePdfReaderWindow_ETR = imw.ChangePagePdfReaderWindow_ETR(winRoot.topSubframe, self.prefix)
@@ -32,6 +32,8 @@ class LayoutManagers:
             self.secondaryEntry = imw.SecondaryImagesFrame(winRoot.bottomSubframe)
             self.addWidget(self.secondaryEntry)
             self.secondaryEntry.addListenerWidget(self.pfdReader_BOX)
+
+            self.subsectionSummary = imw.SubsectionSummaryText(winRoot.bottomSubframe)
 
             self.resizePdfReaderWindow_BTN.addListenerWidget(self.pfdReader_BOX)
             self.changePagePdfReaderWindow_ETR.addListenerWidget(self.pfdReader_BOX)
@@ -60,9 +62,6 @@ class LayoutManagers:
 
                 self.currPage = None
 
-            self.hidePdfReadersWindow_BTN.subsection = self.subsection
-            self.hidePdfReadersWindow_BTN.imIdx = self.imIdx
-
             self.resizePdfReaderWindow_BTN.subsection = self.subsection
             self.resizePdfReaderWindow_BTN.imIdx = self.imIdx
 
@@ -70,7 +69,18 @@ class LayoutManagers:
             self.changePagePdfReaderWindow_ETR.imIdx = self.imIdx
 
             super().show()
-        
+
+        def showSummary(self, subsection):
+            if not self.subsectionSummary.wasRendered:
+                self.originalPdfHeight = self.pfdReader_BOX.getHeight()
+                self.pfdReader_BOX.setCanvasHeight(500)
+                self.subsectionSummary.subsection = subsection
+                self.subsectionSummary.render()
+            else:
+                self.pfdReader_BOX.setCanvasHeight(self.originalPdfHeight)
+                self.subsectionSummary.subsection = subsection
+                self.subsectionSummary.hide()
+
         def hide(self):
             self.pfdReader_BOX.changePrevPos = self.changePrevPos
             return super().hide()
@@ -109,6 +119,9 @@ class PdfReadersManager(wm.MenuManager_Interface):
         super().__init__(winRoot,
                         layouts,
                         currLayout)
+
+    def showSummary(self, subsection):
+        self.layouts[0].showSummary(subsection)
 
     def forceUpdate(self):
         self.layouts[0].forceUpdate()

@@ -94,7 +94,14 @@ class SubsectionWidgetFactory:
                 self.cmd = cmd
 
         def __init__(self):
-            raise NotImplementedError()
+            self.content = self.__EntryUIData("[content]", 1, SubsectionWidgetFactory.produceOpenContentWidget)
+            self.hideSubsections = self.__EntryUIData("[show/hide]", 2, SubsectionWidgetFactory.produceShowHideSubsectionLabel)
+            self.startPage = self.__EntryUIData("", 3, SubsectionWidgetFactory.produceChangeStartPageETR)
+            self.summary = self.__EntryUIData("[summary]", 4, SubsectionWidgetFactory.produceSubsectionSummary)
+            self.path = self.__EntryUIData("", 5, SubsectionWidgetFactory.produceUpdateSubsectionPathETR)
+            self.showVideo = self.__EntryUIData("[show video]", 6, SubsectionWidgetFactory.produceShowVideoLabel)
+            self.remove = self.__EntryUIData("[delete]", 7, SubsectionWidgetFactory.produceRemoveSubsectionLabel)
+            self.rebuild = self.__EntryUIData("[rebuild latex]", 8, SubsectionWidgetFactory.produceSubsectionRebuildLatex)
 
     def __init__(self, subsection):
         self.subsection = subsection
@@ -234,9 +241,9 @@ class SubsectionWidgetFactory:
                 bindChangeColorOnInAndOut(widget, shouldBeBrown = False)
                 widget.clicked = False
 
-        openContentLabel = TOCLabelWithClick(self.widgetManager.topFrame, text = "[content]", 
+        openContentLabel = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.content.name, 
                                             prefix = "subsecContent" + self.__getPrefix(),
-                                            row = 0, column= 1)
+                                            row = 0, column= self.EntryUIs.content.column)
         openContentLabel.subsection = self.subsection
 
         self.widgetManager.openContentWidget = openContentLabel
@@ -257,15 +264,32 @@ class SubsectionWidgetFactory:
                 if "onRebuildSubsectionLatex" in dir(w):
                     w.onRebuildSubsectionLatex(subsection)
 
-        rebuildLatex = TOCLabelWithClick(self.widgetManager.topFrame, text = "[rebuild latex]",
+        rebuildLatex = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.rebuild.name,
                                         prefix = "subsecRebuild" + self.__getPrefix(),
-                                        row = 0, column = 4)
+                                        row = 0, column = self.EntryUIs.rebuild.column)
         rebuildLatex.subsection = self.subsection
 
         bindChangeColorOnInAndOut(rebuildLatex)
         rebuildLatex.rebind([ww.currUIImpl.Data.BindID.mouse1],
                             [lambda e, *args: rebuildSubsectionLatexWrapper(e.widget.subsection)])
         return rebuildLatex
+
+    def produceSubsectionSummary(self):
+        def cmd(subsection):
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+            mainManager.showSummary(subsection)
+        
+        showSummary = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.summary.name,
+                                            prefix = "summary" + self.subsection.replace(".", ""),
+                                            row = 0, column = self.EntryUIs.summary.column)
+        showSummary.subsection = self.subsection
+
+        bindChangeColorOnInAndOut(showSummary)
+        showSummary.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                            [lambda e, *args: cmd(e.widget.subsection)])
+
+        return showSummary
 
     def produceShowVideoLabel(self):
         def showSubsectiionVideoWrapper(subsection):  
@@ -277,9 +301,9 @@ class SubsectionWidgetFactory:
                 if "onShowVideo" in dir(w):
                     w.onShowVideo(subsection)
 
-        showVideo = TOCLabelWithClick(self.widgetManager.topFrame, text = "[show video]",
+        showVideo = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.showVideo.name,
                                             prefix = "showVideo" + self.subsection.replace(".", ""),
-                                            row = 0, column = 6)
+                                            row = 0, column = self.EntryUIs.showVideo.column)
         showVideo.subsection = self.subsection
 
         bindChangeColorOnInAndOut(showVideo)
@@ -309,7 +333,7 @@ class SubsectionWidgetFactory:
         changeStartPage = ImageSize_ETR(self.widgetManager.topFrame,
                                         prefix = "updateStartPageEntryText" + self.subsection.replace(".", ""),
                                         row = 0, 
-                                        column = 3,
+                                        column = self.EntryUIs.startPage.column,
                                         imIdx = -1,
                                         text = startPage)
         changeStartPage.subsection = self.subsection
@@ -345,7 +369,7 @@ class SubsectionWidgetFactory:
         updateSubsectionPath = ImageSize_ETR(self.widgetManager.topFrame,
                                                 prefix = "updateSubsectionPosEntryText" + self.subsection.replace(".", ""),
                                                 row = 0, 
-                                                column = 5,
+                                                column = self.EntryUIs.path.column,
                                                 imIdx = -1,
                                                 text = self.subsection,
                                                 width = 20)
@@ -379,8 +403,8 @@ class SubsectionWidgetFactory:
         removeSubsection = TOCLabelWithClick(self.widgetManager.topFrame,
                                                 prefix = "removeSubsectionPosEntryText" + self.subsection.replace(".", ""),
                                                 row = 0, 
-                                                column = 7,
-                                                text = "[delete]")
+                                                column = self.EntryUIs.remove.column,
+                                                text = self.EntryUIs.remove.name)
         removeSubsection.subsection = self.subsection
 
         bindChangeColorOnInAndOut(removeSubsection)
@@ -405,9 +429,10 @@ class SubsectionWidgetFactory:
                     w.onSubsectionShowHide(subsection)
 
         hideSubsections = TOCLabelWithClick(self.widgetManager.topFrame, 
-                                            text = "[show/hide]",
+                                            text = self.EntryUIs.hideSubsections.name,
                                             prefix = "subsecShowHide" + self.subsection.replace(".", ""),
-                                            row = 0, column = 2)
+                                            row = 0, 
+                                            column = self.EntryUIs.hideSubsections.column)
         subsectionsList = fsf.Wr.BookInfoStructure.getSubsectionsList(self.subsection)
 
         if subsectionsList != []:
@@ -426,27 +451,30 @@ class SubsectionWidgetFactory:
         return hideSubsections
 
     def produceSubsectionExtraWidgets(self):
-        openContentLabel = self.produceOpenContentWidget()
+        openContentLabel = self.EntryUIs.content.cmd(self)
         openContentLabel.render()
 
-        rebuildLatexLabel = self.produceSubsectionRebuildLatex()
+        rebuildLatexLabel = self.EntryUIs.rebuild.cmd(self)
         rebuildLatexLabel.render()
 
         if fsf.Data.Sec.isVideo(self.subsection):
-            showVideoLabel = self.produceShowVideoLabel()
+            showVideoLabel =  self.EntryUIs.showVideo.cmd(self)
             showVideoLabel.render()
         
-        changeStartPageEtr = self.produceChangeStartPageETR()
+        changeStartPageEtr =  self.EntryUIs.startPage.cmd(self)
         changeStartPageEtr.render()
 
-        updateSubsectionPathETR = self.produceUpdateSubsectionPathETR()
+        updateSubsectionPathETR = self.EntryUIs.path.cmd(self)
         updateSubsectionPathETR.render()
 
-        removeSubsectionLabel = self.produceRemoveSubsectionLabel()
+        removeSubsectionLabel = self.EntryUIs.remove.cmd(self)
         removeSubsectionLabel.render()
 
-        showHideSubsectionLabel = self.produceShowHideSubsectionLabel()
+        showHideSubsectionLabel = self.EntryUIs.hideSubsections.cmd(self)
         showHideSubsectionLabel.render()
+
+        showSummaryLabel = self.EntryUIs.summary.cmd(self)
+        showSummaryLabel.render()
 
     def produceSubsectionLatexImage(self):
         subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
@@ -509,12 +537,6 @@ class SubsectionWidgetFactory:
                subsectionChildrenSectionsFrame
 
 class SubsectionWidgetFactoryMainTOC(SubsectionWidgetFactory):
-    class EntryUIs(EntryWidgetFactory.EntryUIs):
-        def __init__(self):
-            # # row 2.5 
-            # self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
-            pass
-
     def produceSubsectionWidgets(self, parentFrame, row):
         self.frame = parentFrame
 
@@ -541,12 +563,6 @@ class SubsectionWidgetFactoryMainTOC(SubsectionWidgetFactory):
             self.produceSubsectionExtraWidgets()
 
 class SubsectionWidgetFactorySearchTOC(SubsectionWidgetFactory):
-    class EntryUIs(EntryWidgetFactory.EntryUIs):
-        def __init__(self):
-            # # row 2.5 
-            # self.full = self.__EntryUIData("[f]", 1, EntryWidgetFactoryTOC.produceFullMoveEntriesWidget)
-            pass
-
     def produceSubsectionWidgets(self, parentFrame, row):
         self.frame = parentFrame
 

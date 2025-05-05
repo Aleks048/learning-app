@@ -4,8 +4,10 @@ from PIL import Image
 from threading import Thread
 import time
 import io
+import re
 
 import UI.widgets_wrappers as ww
+import UI.widgets_collection.utils as uw
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
 import UI.widgets_collection.common as wcom
@@ -152,30 +154,6 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                           wf.Wr.MenuManagers.MathMenuManager)
         mainManager.moveTocToEntry(self.subsection, self.imIdx)
-
-class HidePdfReaderWindow_BTN(ww.currUIImpl.Button,
-                              dc.AppCurrDataAccessToken):
-    def __init__(self, patentWidget, prefix):
-        self.subsection = None
-        self.imIdx = None
-
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-        text = "Hide"
-        name = "_HidePdfReaderWindow_BTN"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        pdfReaderManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.PdfReadersManager)
-        pdfReaderManager.hide()
 
 class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
                               dc.AppCurrDataAccessToken):
@@ -664,6 +642,115 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                                                                         removePrevLabel = True,
                                                                         withoutRender = True)
 
+
+class SubsectionSummaryLink:
+    def __init__(self, text, subsection, imIdx):
+        self.text = text
+        self.subsection = subsection
+        self.imIdx = imIdx
+
+
+class SubsectionSummaryText(ww.currUIImpl.MultilineText):
+    def __init__(self, rootWidget):
+        self.row = 1
+        self.column = 0
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : self.column, "row" : self.row, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        extraOptions = {
+            ww.Data.GeneralProperties_ID :{"width" : 300, "height" : 300},
+            ww.TkWidgets.__name__ : {}
+        }
+        
+        self.subsection = None
+        self.name = "_subsectionSummary_"
+
+        super().__init__(prefix = "", 
+                         name = self.name, 
+                         rootWidget = rootWidget, 
+                         renderData = renderData,
+                         extraOptions = extraOptions,
+                         text = "",
+                         width = 100,
+                         height = 8)
+
+        self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdshv],
+                    [self.__pasteLink])
+
+
+    def __pasteLink(self, widget):
+        link = f"[{dt.UITemp.Link.imIdx}|{dt.UITemp.Link.subsection}:{dt.UITemp.Link.imIdx}]"
+        widget.addTextAtCurrent(link)
+
+    def changeText(self, newText):
+        self.updateText(newText)
+        self.setData(newText)
+
+    def updateLabel(self):
+        newText = fsf.Data.Sec.subsectionSummaryText(self.subsection)
+
+        newTextList = re.split(r"(\[[^\|]*\|[^\]]*\])", newText)
+
+        links = []
+
+        for i in range(len(newTextList)):
+            if newTextList[i][0] == "[":
+                links.append(newTextList[i])
+                newTextList[i] = newTextList[i].split("|")[0] + "]"
+
+        newText = "".join(newTextList)
+
+        self.changeText(newText)
+
+        def moveToEntry(path):
+            imIdx = path.split(":")[-1]
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onFullEntryMove" in dir(w):
+                    fsf.Data.Book.entryImOpenInTOC_UI = imIdx
+                    w.onFullEntryMove()
+
+
+        for l in links:
+            text = l.split("|")[0] + "]"
+            path = l.split("|")[1][:-1]
+            self.makeLink(text, lambda p = path, *args: moveToEntry(p))
+
+    def __makeLockable(self):
+        def __getText(widget):
+            return fsf.Data.Sec.subsectionSummaryText(self.subsection)
+
+        def __setText(newText, widget):
+            fsf.Data.Sec.subsectionSummaryText(self.subsection, newText)
+        
+        def __changeOnEtrFunc(widget):
+            pass
+        
+        def __changeOnLabelBackFunc(widget):
+            pass
+
+        self.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                        [lambda e, g = __getText, 
+                                    s = __setText, 
+                                    c = __changeOnEtrFunc, 
+                                    b = __changeOnLabelBackFunc, 
+                                    pl = self.__pasteLink, *args:
+                                                    uw.bindWidgetTextUpdatable(e, g, s, 
+                                                        changeOnEtrFunc = c,
+                                                        changeOnLabelBackFunc = b,
+                                                        etrWidth = 100,
+                                                        etrHeight = 8,
+                                                        pasteLambda = self.__pasteLink)])
+
+    def render(self):
+        super().render(self.renderData)
+
+        self.updateLabel()
+        self.makeUneditable()
+        self.__makeLockable()
 
 class SecondaryImagesFrame(ww.currUIImpl.Frame):
     def __init__(self, rootWidget):
