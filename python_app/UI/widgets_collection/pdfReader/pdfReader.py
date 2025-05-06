@@ -571,6 +571,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                 zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(origMatName))
                 self.pageWidth = zoomLevel
 
+                self.displayedPdfPages = []
+
                 self.update()
                 self.render()
 
