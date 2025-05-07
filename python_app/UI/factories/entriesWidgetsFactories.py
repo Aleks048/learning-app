@@ -1782,11 +1782,19 @@ class LinksFrameManager:
         self.entriesFrame = None
 
     def makeLinksLarge(self):
+        if self.factory.scrollableBox == None:
+            return
+
         if wd.Data.MainEntryLayout.largeLinks:
             size = wd.Data.MainEntryLayout.largeLinksSize
-            self.factory.scrollableBox.setCanvasHeight(size)
+            wd.Data.MainEntryLayout.largeLinks = True
+            self.factory.scrollableBox.maxHeight = size
         else:
-            self.updateLinksHeight()
+            size = wd.Data.MainEntryLayout.regularLinksSize
+            wd.Data.MainEntryLayout.largeLinks = False
+            self.factory.scrollableBox.maxHeight = size
+
+        self.updateLinksHeight()
 
     def updateLinksHeight(self):
         delta = 0
@@ -1794,7 +1802,16 @@ class LinksFrameManager:
         if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
             delta = 50
 
-        self.factory.scrollableBox.setCanvasHeight(self.factory.scrollableBox.originalHeight + delta)
+        if (self.factory.scrollableBox == None):
+            return
+
+        newHeight = 0
+
+        for ch in self.factory.scrollableBox.scrollable_frame.getChildren():
+            newHeight += ch.getHeight()
+
+        newHeight = min(newHeight,  self.factory.scrollableBox.maxHeight + delta)
+        self.factory.scrollableBox.setCanvasHeight(newHeight)
 
     def processChangeLinksViewStatusChange(self):
         if not self.linksShown:
@@ -1834,26 +1851,6 @@ class LinksFrameFactory:
                                    rootWidget = parentWidget,
                                    renderData = renderData,
                                    padding = [leftPad, 0, 0, 10])
-
-        delta = 0
-
-        if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
-            delta = 50
-
-        renderDataScroll = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-
-        scrollableBox = ww.currUIImpl.ScrollableBox(prefix = self.prefix,
-                                                    name = name, 
-                                                    rootWidget = frame,
-                                                    renderData = renderDataScroll,
-                                                    width = 680,
-                                                    height = 150 + delta,
-                                                    createTopScroll = False)
-        self.scrollableBox = scrollableBox
-        scrollableBox.render()
         
         return frame
 
@@ -1863,16 +1860,8 @@ class LinksFrameFactory:
                                 prefix = "contentLinksIntroFr_" + self.prefix,
                                 padding = [60, 0, 0, 0],
                                 row = 0, column = 0)
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-        linksEntriesFrame = ww.currUIImpl.Frame(prefix = self.prefix,
-                                               name = "contentLinksEntriesFr_",
-                                               rootWidget = self.scrollableBox.scrollable_frame,
-                                               renderData = renderData,
-                                               padding = [60, 0, 0, 0])
-        return linksPrefixLabel, linksEntriesFrame
+
+        return linksPrefixLabel
 
     def __produceLinksEntryFrame(self, parentWidget, linkSubsection, linksImIdx, row):
         entryFrameFactory = EntryWidgetFactoryLink(linkSubsection, linksImIdx, 0, 0, 
@@ -1894,6 +1883,38 @@ class LinksFrameFactory:
        
 
     def produceLinksEntryFrames(self):
+        delta = 0
+
+        if wd.Data.MainEntryLayout.currSize == wd.Data.MainEntryLayout.large:
+            delta = 50
+
+        renderDataScroll = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        scrollableBox = ww.currUIImpl.ScrollableBox(prefix = self.prefix,
+                                                    name = "_LinksScrollFrame_", 
+                                                    rootWidget = self.manager.linksFrame,
+                                                    renderData = renderDataScroll,
+                                                    width = 680,
+                                                    height = 150 + delta,
+                                                    createTopScroll = False)
+        self.scrollableBox = scrollableBox
+        scrollableBox.render()
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        linksEntriesFrame = ww.currUIImpl.Frame(prefix = self.prefix,
+                                               name = "contentLinksEntriesFr_",
+                                               rootWidget = self.scrollableBox.scrollable_frame,
+                                               renderData = renderData,
+                                               padding = [60, 0, 0, 0])
+        linksEntriesFrame.render()
+        self.manager.entriesFrame = linksEntriesFrame
+
         if fsf.Data.Sec.imGlobalLinksDict(self.subsection).get(self.imIdx) == None:
             return
 
@@ -1929,10 +1950,8 @@ class LinksFrameFactory:
         imGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(self.subsection)
         haveLinks = self.imIdx in imGlobalLinksDict.keys()
 
-        linksPrefixLabel, linksEntriesFrame = self.produceLinksMainWidgets(haveLinks)
+        linksPrefixLabel = self.produceLinksMainWidgets(haveLinks)
         linksPrefixLabel.render()
-        linksEntriesFrame.render()
-        self.manager.entriesFrame = linksEntriesFrame
 
 class EntryWidgetFactoryWebLink(EntryWidgetFactory):
     class EntryUIs(EntryWidgetFactory.EntryUIs):
@@ -2071,6 +2090,10 @@ class EntryWidgetFactoryLink(EntryWidgetFactory):
                 efm.showImages(mainImPadLeft = 60, eImPadLeft = 60, createExtraImagesExtraWidgets = False)
             else:
                 efm.hideImages()
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onShowLinks" in dir(w):
+                    w.onShowLinks()
             
             e.widget.clicked = not e.widget.clicked
 
@@ -2100,6 +2123,10 @@ class EntryWidgetFactoryLink(EntryWidgetFactory):
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onRemoveLink" in dir(w):
                     w.onRemoveLink()
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onShowLinks" in dir(w):
+                    w.onShowLinks()
 
         linkLabelDelete = TOCLabelWithClick(parentWidget, 
                                                     text = self.EntryUIs.delete.name, 

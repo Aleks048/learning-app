@@ -1323,6 +1323,7 @@ class TkWidgets (DataTranslatable_Interface):
                     makeScrollable = True,
                     createTopScroll = True):
             self.originalHeight = height
+            self.maxHeight = height
 
             self.canvas = None
             self.container = None
