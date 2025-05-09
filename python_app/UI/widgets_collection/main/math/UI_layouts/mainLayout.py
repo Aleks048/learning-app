@@ -392,6 +392,7 @@ class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def receiveNotification(self, broadcasterName, data = None):
         if (broadcasterName == comw.TOC_BOX) or (comw.TOC_BOX in broadcasterName.__bases__):
             text = _upan.Paths.Screenshot.getRel_formatted()
+            text = text.replace("\n", "") 
             self.changeText(text)
     
     def render(self):
