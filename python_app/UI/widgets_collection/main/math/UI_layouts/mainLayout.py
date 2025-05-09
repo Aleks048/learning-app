@@ -276,6 +276,27 @@ class MainTOCBox(comw.TOC_BOX):
         else:
             self.renderWithScrollAfter()
 
+    def onSubsectionOpen(self, subsection):
+        if wd.Data.General.singleSubsection:
+            for subsec, m in self.subsectionWidgetManagers.items():
+                if len(subsec.split(".")) != 1:
+                    m.closeSubsection()
+
+        manager = self.subsectionWidgetManagers[subsection]
+        manager.entriesFrame.render()
+
+        self.subsectionWidgetManagers[subsection].addEntryWidgetsForSubsection()
+        
+        self.shouldScroll = True
+        self.scrollIntoView(None, manager.subsectionFrame)
+
+    def onTopSectionOpen(self, topSection):
+        self.render(withFullMove = False)
+
+        manager = self.subsectionWidgetManagers[topSection]
+        self.shouldScroll = True
+        self.scrollIntoView(None, manager.subsectionFrame)
+
     def onFullEntryMove(self):
         currSubsection = fsf.Data.Book.subsectionOpenInTOC_UI
         currEntryIdx = fsf.Data.Book.entryImOpenInTOC_UI
@@ -295,7 +316,8 @@ class MainTOCBox(comw.TOC_BOX):
                     if "onTopSectionOpen" in dir(w):
                         w.onTopSectionOpen(currSubsection)
             self.notify(ScreenshotLocation_LBL)
-            return
+
+        self.onSubsectionOpen(currSubsection)
 
         for imIdx, efm in self.subsectionWidgetManagers[currSubsection].entriesWidgetManagers.items():
             if imIdx != currEntryIdx:
@@ -339,13 +361,14 @@ class MainTOCBox(comw.TOC_BOX):
         self.scrollIntoView(None, 
                             self.subsectionWidgetManagers[fsf.Data.Book.currSection].subsectionFrame)
 
-    def render(self, shouldScroll=False):
+    def render(self, shouldScroll=False, withFullMove = True):
         super().render(shouldScroll)
 
-        if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
-            for w in wd.Data.Reactors.entryChangeReactors.values():
-                if "onFullEntryMove" in dir(w):
-                    w.onFullEntryMove()
+        if withFullMove:
+            if fsf.Data.Book.entryImOpenInTOC_UI != _u.Token.NotDef.str_t:
+                for w in wd.Data.Reactors.entryChangeReactors.values():
+                    if "onFullEntryMove" in dir(w):
+                        w.onFullEntryMove()
 
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):

@@ -944,26 +944,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
                 if k[:len(subsection) + 1] == (subsection + "."):
                     self.subsectionWidgetManagers.pop(k)
 
-    def onSubsectionOpen(self, subsection):
-        if wd.Data.General.singleSubsection:
-            for subsec, m in self.subsectionWidgetManagers.items():
-                if len(subsec.split(".")) != 1:
-                    m.closeSubsection()
-
-        manager = self.subsectionWidgetManagers[subsection]
-        manager.entriesFrame.render()
-
-        self.subsectionWidgetManagers[subsection].addEntryWidgetsForSubsection()
-        
-        self.shouldScroll = True
-        self.scrollIntoView(None, manager.subsectionFrame)
-
-    def onTopSectionOpen(self, topSection):
-        self.render()
-        manager = self.subsectionWidgetManagers[topSection]
-        self.shouldScroll = True
-        self.scrollIntoView(None, manager.subsectionFrame)
-
     def __removeSubsection(self, subsection):
         manager = self.subsectionWidgetManagers.pop(subsection)
         manager.subsectionFrame.hide()
