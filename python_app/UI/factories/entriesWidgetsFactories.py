@@ -891,6 +891,8 @@ class EntryWidgetFactory:
         def fullMove(event, entryFrameManager:EntryFrameManager,
                                 *args):
             if not event.widget.clicked:
+                fsf.Data.Book.currTopSection = self.subsection.split(".")[0]
+                fsf.Data.Book.currSection = self.subsection
                 fsf.Data.Book.subsectionOpenInTOC_UI = self.subsection
                 fsf.Data.Book.entryImOpenInTOC_UI = self.imIdx
             else:
@@ -1136,7 +1138,6 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             entriesList = list(fsf.Data.Sec.imLinkDict(self.subsection).keys())
             entriesList.sort(key = int)
 
-            print(entriesList)
             counter = 0
 
             while str(self.imIdx) not in entriesList:

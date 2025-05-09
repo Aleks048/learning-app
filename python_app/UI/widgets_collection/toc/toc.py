@@ -9,28 +9,6 @@ from UI.factories.factoriesFacade import SubsectionWidgetFactorySearchTOC
 
 import file_system.file_system_facade as fsf
 
-
-class Hide_BTN(ww.currUIImpl.Button,
-                         dc.AppCurrDataAccessToken):
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 5, "row" : 0},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0,  "sticky": ww.currUIImpl.Orientation.W}
-        }
-        text = "Hide"
-        name = "_decline_BTN"
-        super().__init__(prefix, 
-                        name, 
-                        text, 
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-
-    def cmd(self):
-        tocManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                            tocm.TOCManager)
-        tocManager.hide()
-
 class SearchInSubsectionsText_CHB(ww.currUIImpl.Checkbox):
     etenriesTextOnlyDefault = 0
 
@@ -49,8 +27,7 @@ class SearchInSubsectionsText_CHB(ww.currUIImpl.Checkbox):
         self.setData(self.etenriesTextOnlyDefault)
 
     def receiveNotification(self, broadcasterName):
-        outData =  True if self.getData() == 1 else False
-        return outData
+        return True if self.getData() == 1 else False
 
 
 class Filter_ETR(ww.currUIImpl.TextEntry):
@@ -72,7 +49,15 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
                         data,
                         extraBuildOptions,
                         bindCmd=self.bindCmd,
-                        defaultText = defaultText)        
+                        defaultText = defaultText)     
+
+        self.rebind([ww.currUIImpl.Data.BindID.focusIn],
+                    [self.defaultTextChange])   
+
+    def defaultTextChange(self, *args, **kwargs):
+        text = super().getData(**kwargs)
+        if text == "Filter token":
+            return self.setData("")
 
     def bindCmd(self):
         return [ww.currUIImpl.Data.BindID.Keys.shenter], \
@@ -139,4 +124,11 @@ class SearchTOC_BOX(TOC_BOX):
 
 
 class TOCRoot(ww.currUIImpl.RootWidget):
-    pass
+    def __init__(self, width, height):
+        super().__init__(width, height)
+        self.bindClosing(self.__onClosing)
+
+    def __onClosing(self):
+        tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                            tocm.TOCManager)
+        tocManager.hide()

@@ -254,6 +254,8 @@ class MainTOCBox(comw.TOC_BOX):
             self.entryClicked = entryClicked
 
             fsf.Data.Book.subsectionOpenInTOC_UI = subsection
+            fsf.Data.Book.currSection = self.subsection
+            fsf.Data.Book.currTopSection = subsection.split(".")[0]
             fsf.Data.Book.entryImOpenInTOC_UI = imIdx
 
             self.AddEntryWidget(imIdx, 
@@ -275,7 +277,62 @@ class MainTOCBox(comw.TOC_BOX):
             self.renderWithScrollAfter()
 
     def onFullEntryMove(self):
-        super().onFullEntryMove()
+        currSubsection = fsf.Data.Book.subsectionOpenInTOC_UI
+        currEntryIdx = fsf.Data.Book.entryImOpenInTOC_UI
+
+        shownEntryFrame = None
+
+        if currSubsection == _u.Token.NotDef.str_t:
+            self.notify(ScreenshotLocation_LBL)
+            return
+
+        if self.subsectionWidgetManagers.get(currSubsection) == None:
+            topSection = fsf.Data.Book.currTopSection
+
+            if self.subsectionWidgetManagers.get(topSection) != None:
+                self.subsectionWidgetManagers[topSection].openSubsection()
+                for w in wd.Data.Reactors.subsectionChangeReactors.values():
+                    if "onTopSectionOpen" in dir(w):
+                        w.onTopSectionOpen(currSubsection)
+            self.notify(ScreenshotLocation_LBL)
+            return
+
+        for imIdx, efm in self.subsectionWidgetManagers[currSubsection].entriesWidgetManagers.items():
+            if imIdx != currEntryIdx:
+                if (fsf.Data.Sec.tocWImageDict(currSubsection)[imIdx] == "1"):
+                    efm.changeFullMoveColor(True)
+
+                    if not efm.imagesShown:
+                        efm.showImages()
+
+                    efm.hideRow2()
+                    efm.setFullImageLabelNotClicked()
+                else:
+                    if efm.imagesShown:
+                        efm.hideImages()
+                    efm.changeFullMoveColor(True)
+                    efm.hideRow2()
+            else:
+                efm.showRow2()
+
+                if dt.UITemp.Layout.noMainEntryShown:
+                    efm.showImages()
+                else:
+                    if efm.imagesShown:
+                        efm.hideImages()
+
+                efm.changeFullMoveColor(False)
+                shownEntryFrame = efm.entryFrame
+
+        if shownEntryFrame != None:
+            #NOTE: this seems to fix an issue when the scrolling happens before
+            #      canvas update and the widget is not seen
+            def th(tocWidget, frame):
+                tocWidget.shouldScroll = True
+                tocWidget.scrollIntoView(None, frame)
+            t = Thread(target = th, args = [self, shownEntryFrame])
+            t.start()
+
         self.notify(ScreenshotLocation_LBL)
 
     def scrollToCurrSubsecrtionWidget(self):

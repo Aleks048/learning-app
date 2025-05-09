@@ -37,18 +37,6 @@ class SubsectionFrameManager:
         self.subsectionChildrenSectionsFrame = \
             self.factory.produceSectionChildrenSectionsFrame(self.subsectionFrame)
 
-    def addEntryWidgetsForSubsection(self, filter = ""):
-        entries = fsf.Data.Sec.imLinkDict(self.subsection)
-
-        row = 0
-
-        for imIdx, imText in entries.items():
-            if imIdx == _u.Token.NotDef.str_t:
-                continue
-            if filter in imText:
-                self.addEntryWidget(imIdx)
-
-            row += 1
 
     def openSubsection(self):
         if self.openContentWidget != None:
@@ -77,12 +65,55 @@ class SubsectionFrameManagerMainTOC(SubsectionFrameManager):
 
         self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
 
+    def addEntryWidgetsForSubsection(self, filter = ""):
+        entries = fsf.Data.Sec.imLinkDict(self.subsection)
+
+        row = 0
+
+        for imIdx in entries.keys():
+            if imIdx == _u.Token.NotDef.str_t:
+                continue
+
+            self.addEntryWidget(imIdx)
+
+            row += 1
+
 class SubsectionFrameManagerSearchTOC(SubsectionFrameManager):
     def addEntryWidget(self, imIdx):                
         entryWidgetFactory = EntryWidgetFactorySearchTOC(self.subsection, imIdx, 0, 0)
         row = len(list(self.entriesWidgetManagers.keys()))
         entryWidgetFactory.produceEntryWidgetsForFrame(self.entriesFrame, row)
         self.entriesWidgetManagers[imIdx] = entryWidgetFactory.entryFrameManager
+
+    def addEntryWidgetsForSubsection(self, filter = ""):
+        entries = fsf.Data.Sec.imLinkDict(self.subsection)
+        extraImTexts = fsf.Data.Sec.extraImText(self.subsection)
+
+        row = 0
+
+        for imIdx, imText in entries.items():
+            if imIdx == _u.Token.NotDef.str_t:
+                continue
+
+            filterInImageText = False
+
+            entryImText = fsf.Wr.SectionInfoStructure.getEntryImText(self.subsection, imIdx)
+            filterInImageText = filter.lower() in entryImText.lower()
+            
+            if not filterInImageText:
+                if extraImTexts.get(imIdx) != None:
+                    extraImText = extraImTexts[imIdx]
+                    for t in extraImText:
+                        if filter.lower() in t.lower():
+                            filterInImageText = True
+                            break
+                
+
+            if (filter.lower() in imText.lower()) \
+                or filterInImageText:
+                self.addEntryWidget(imIdx)
+
+            row += 1
 
 class SubsectionWidgetFactory:
     class EntryUIs:
@@ -134,7 +165,6 @@ class SubsectionWidgetFactory:
             event.widget.changeColor("white")
         
         widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
-
 
     def __bindUpdateSubsection(self, event, *args):
         def __setTextFunc(newText, widget):
@@ -587,3 +617,17 @@ class SubsectionWidgetFactorySearchTOC(SubsectionWidgetFactory):
             self.produceTopSectionExtraWidgets()
         else:
             self.produceSubsectionExtraWidgets()
+
+    def produceSubsectionExtraWidgets(self):
+        if fsf.Data.Sec.isVideo(self.subsection):
+            showVideoLabel =  self.EntryUIs.showVideo.cmd(self)
+            showVideoLabel.render()
+
+        updateSubsectionPathETR = self.EntryUIs.path.cmd(self)
+        updateSubsectionPathETR.render()
+
+        removeSubsectionLabel = self.EntryUIs.remove.cmd(self)
+        removeSubsectionLabel.render()
+
+        showSummaryLabel = self.EntryUIs.summary.cmd(self)
+        showSummaryLabel.render()

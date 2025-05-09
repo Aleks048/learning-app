@@ -17,9 +17,6 @@ class LayoutManagers:
             tocBox.populateTOC()
             self.addWidget(tocBox)
 
-            hide_BTN = tocw.Hide_BTN(winRoot, self.prefix)
-            self.addWidget(hide_BTN)
-
             searchInSubsectionsText_CHB = tocw.SearchInSubsectionsText_CHB(winRoot, self.prefix)
             self.addWidget(searchInSubsectionsText_CHB)
 

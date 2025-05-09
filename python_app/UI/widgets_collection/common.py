@@ -807,53 +807,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.shouldScroll = True
         self.scrollIntoView(None, etmMain.entryFrame)
 
-    def onFullEntryMove(self):
-        currSubsection = fsm.Data.Book.subsectionOpenInTOC_UI
-        currEntryIdx = fsm.Data.Book.entryImOpenInTOC_UI
-
-        shownEntryFrame = None
-
-        if currSubsection == _u.Token.NotDef.str_t:
-            return
-        if self.subsectionWidgetManagers.get(currSubsection) == None:
-            return
-
-        for imIdx, efm in self.subsectionWidgetManagers[currSubsection].entriesWidgetManagers.items():
-            if imIdx != currEntryIdx:
-                if (fsm.Data.Sec.tocWImageDict(currSubsection)[imIdx] == "1"):
-                    efm.changeFullMoveColor(True)
-
-                    if not efm.imagesShown:
-                        efm.showImages()
-
-                    efm.hideRow2()
-                    efm.setFullImageLabelNotClicked()
-                else:
-                    if efm.imagesShown:
-                        efm.hideImages()
-                    efm.changeFullMoveColor(True)
-                    efm.hideRow2()
-            else:
-                efm.showRow2()
-
-                if dt.UITemp.Layout.noMainEntryShown:
-                    efm.showImages()
-                else:
-                    if efm.imagesShown:
-                        efm.hideImages()
-
-                efm.changeFullMoveColor(False)
-                shownEntryFrame = efm.entryFrame
-
-        if shownEntryFrame != None:
-            #NOTE: this seems to fix an issue when the scrolling happens before
-            #      canvas update and the widget is not seen
-            def th(tocWidget, frame):
-                tocWidget.shouldScroll = True
-                tocWidget.scrollIntoView(None, frame)
-            t = Thread(target = th, args = [self, shownEntryFrame])
-            t.start()
-
     def onAddExtraImage(self, subsection, mainImIdx, extraImIdx):
         etm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[mainImIdx]
 
