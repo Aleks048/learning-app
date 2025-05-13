@@ -644,7 +644,6 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                                                                         removePrevLabel = True,
                                                                         withoutRender = True)
 
-
 class SubsectionSummaryLink:
     def __init__(self, text, subsection, imIdx):
         self.text = text
@@ -953,8 +952,18 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
         self.topSubframe = ww.currUIImpl.Frame("leftTopSubframe", self.name, self, 
                                                topSubframeRenderData)
         self.topSubframe.render()
-        bottomSubframeRenderData = {
+
+        middleSubframeRenderData = {
             ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "rowspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        self.middleSubframe = ww.currUIImpl.Frame("leftMiddleSubframe", self.name, self, 
+                                               middleSubframeRenderData)
+        self.middleSubframe.render()
+
+        bottomSubframeRenderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
 
@@ -1011,28 +1020,33 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
         def __changePositionUp(*args):
             self.pageLbl.changePage(False, None, True)
             self.forceFocus()
+
         def __changePositionDown(*args):
             self.pageLbl.changePage(True, None, True)
             self.forceFocus()
 
+        def runCmdAndForce(cmd, *args):
+            cmd(*args)
+            self.middleSubframe.forceFocus()
+
         def __bind(*args):
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
-                        [lambda e, *args: __changePositionUp()])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.right], 
-                        [lambda e, *args: __changePositionDown()])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], 
-                        [lambda *args: __changePage(False)])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.shright], 
-                        [lambda *args: __changePage(True)])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.up],
-                        [lambda *args: self.pdfBox.scrollY(-1)])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.down],
-                        [lambda *args: self.pdfBox.scrollY(1)])
-            self.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                        [lambda *args: __atsrAddingCmd()])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
+                        [lambda e, *args:runCmdAndForce(__changePositionUp)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.right], 
+                        [lambda e, *args: runCmdAndForce(__changePositionDown)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.shleft], 
+                        [lambda *args: runCmdAndForce(__changePage, False)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.shright], 
+                        [lambda *args: runCmdAndForce(__changePage, True)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.up],
+                        [lambda *args: runCmdAndForce(self.pdfBox.scrollY, -1)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.down],
+                        [lambda *args: runCmdAndForce(self.pdfBox.scrollY, 1)])
+            self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
+                        [lambda *args: runCmdAndForce(__atsrAddingCmd)])
 
         def __nunbind(*args):
-            self.unbind([ww.currUIImpl.Data.BindID.Keys.left,
+            self.middleSubframe.unbind([ww.currUIImpl.Data.BindID.Keys.left,
                             ww.currUIImpl.Data.BindID.Keys.shleft,
                             ww.currUIImpl.Data.BindID.Keys.up,
                             ww.currUIImpl.Data.BindID.Keys.down,
@@ -1041,14 +1055,16 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                             ww.currUIImpl.Data.BindID.Keys.shenter,
                         ])
 
-        self.rebind([ww.currUIImpl.Data.BindID.focusIn,
+        self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.focusIn,
                      ww.currUIImpl.Data.BindID.focusOut],
                     [__bind,
                      __nunbind])
-        self.rebind([ww.currUIImpl.Data.BindID.enterWidget],
-                    [lambda *args: self.forceFocus()])
+
+        self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.enterWidget],
+                    [lambda *args: self.middleSubframe.forceFocus()])
 
         self.render()
+
     def __nunbind(self, *args):
         self.unbind([ww.currUIImpl.Data.BindID.Keys.left,
                         ww.currUIImpl.Data.BindID.Keys.shleft,

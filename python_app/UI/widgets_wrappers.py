@@ -4,13 +4,18 @@ from tkinter import ttk
 from PIL import ImageTk
 import inspect
 
-import os
-from ctypes import c_void_p, cdll
-import vlc
+import moviepy.editor as mpe
+from imageio import imwrite,RETURN_BYTES
+from pydub import AudioSegment
+from just_playback import Playback
+from PIL import Image
+import tkinter as tk
+import threading
 
 from AppKit import NSPasteboard, NSStringPboardType
 
 import _utils.logging as log
+import _utils.pathsAndNames as _upan
 import _utils._utils_main as _u
 import UI.widgets_data as wd
 import outside_calls.outside_calls_facade as ocf
@@ -107,6 +112,7 @@ class Data:
     GeneralProperties_ID = "general"
     args = "args"
     widgetsWidth = "width"
+
 
 class TkWidgets (DataTranslatable_Interface):
     tkinterVersion = tk.TkVersion
@@ -919,75 +925,142 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.update()
             return self.widgetObj.winfo_height()
         
+        def setHeight(self, height):
+            self.widgetObj.configure(height = height)
+
         def setGeometry(self, width, height):
             self.widgetObj.configure(width = width, height = height)
 
-    class VideoPayer(Frame):
-        def render(self, videoPath, **kwargs):
-            # Creating VLC player
-            self.instance = vlc.Instance()
-            self.player = self.instance.media_player_new()
+    class VideoPayer(Label):
+        def __init__(self, 
+                     prefix, 
+                     name, 
+                     rootWidget, 
+                     renderData,
+                     extraOptions={}, 
+                     bindCmd=lambda *args: (None, None), 
+                     padding=[0, 0, 0, 0]):
+            super().__init__(prefix, name, rootWidget, renderData, extraOptions, bindCmd, padding)
+            
+            self.frameImage = tk.PhotoImage()
+            self.widgetObj.config(image=self.frameImage)
+        
+            self.filepathVideo = None
+            self.filepathAudio = None
 
-             # Function to start player from given source
-            self.media = self.instance.media_new(videoPath)
-            self.media.get_mrl()
-            self.player.set_media(self.media)
+            self.playbackH = 0
+            self.playbackW = 0
+            self.aspectRatio = 0
+            self._currentFrameSize = (0, 0)
 
-            # libtk = cdll.LoadLibrary(ctypes.util.find_library('tk'))
-            # returns the tk library /usr/lib/libtk.dylib from macOS,
-            # but we need the tkX.Y library bundled with Python 3+
-            # and matching the version of tkinter, _tkinter, etc.
-            libtk = 'libtk%s.dylib' % (TkWidgets.tkinterVersion)
-            #NOTE: we keep the lib in the same dir as the python file
-            libtk = os.path.join(os.path.dirname(os.path.realpath(__file__)), "tk_specific", libtk)
-            libtk = cdll.LoadLibrary(libtk)
-            # getNSView = libtk.TkMacOSXDrawableView  # XXX not found?
-            getNSView = libtk.TkMacOSXGetRootControl
-            getNSView.restype = c_void_p
-            getNSView.argtypes = c_void_p,
-            self.player.set_nsobject(getNSView(self.widgetObj.winfo_id()))
+            self._keepAspectRatio = True
+            self.playing = False
+            self.paused = False
+
+        def load(self, videoPath, audioPath):
+            self.filepathVideo = videoPath
+            self.filepathAudio = audioPath
+
+            self.video = mpe.VideoFileClip(videoPath)
+            self.audio = AudioSegment.from_file(videoPath)
+
+            if not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(audioPath):
+                self.audio.export(audioPath, format='mp3')
+
+            # SET PROPERTIES
+            self.videoDuration = self.video.duration
+            self.videoFPS = self.video.fps
+            self.videoFrames = self.videoDuration * self.videoFPS
+            
+            self.audioRate = self.audio.frame_rate
+            self.videoSize = self.video.size
+
+            self.videoW = self.video.w
+            self.videoH = self.video.h
+            self.playbackW = self.videoW
+            self.playbackH = self.videoH
+
+            self.playPosition = 0
+
+            self.aspectRatio = self.videoW/self.videoH
+
+            new_width = 700
+            new_height = int(new_width / self.video.w * self.video.h)
+
+            self._currentFrameSize = (new_width, new_height)
+
+            self.playback = Playback()
+            self.playback.load_file(self.filepathAudio)
+
+        def play(self, playPosition = None):
+            if not self.playing:
+                if playPosition != None:
+                    self.playPosition = float(self.video.duration * playPosition)
+
+                self.play_thread = threading.Thread(target=self._play)
+                self.play_thread.start()
+
+                self.playing = True
+            else:
+                self.pause()
+
+        def __addFrame(self):
+            numpyArray = self.video.get_frame(self.playback.curr_pos)
+                
+            self.frameImage.config(data=imwrite(RETURN_BYTES,Image.fromarray(numpyArray).resize(self._currentFrameSize), format='PPM'))
+            self.playPosition = self.playback.curr_pos
+            self.widgetObj.event_generate("<<Duration>>", when="tail")
+
+        def _play(self):
+            # SET PROPERTY
+            """
+            USE OF:
+                - self.playback.active   : return True if player is active(playing or paused) and false if inactive.
+                - self.playback.playing  : return True if player is playing and false if inactive.
+                - self.playback.volume   : return the volume
+                - self.playback.duration : return the duration(an alternative approach,based on `just_playback`)
+                - self.playback.curr_pos : return the current time its playing(alternative approach for `self.duration`)
+
+            ALTERNATIVE OF:
+                - self.playback.play()   : plays loaded audio file from the beginning.[AUDIO ONLY - NOT IMPLEMENTED use `self.play()` instead]
+                - self.playback.pause()  : pauses playback. Has no effect if playback is already paused.
+                - self.playback.resume() : resumes playback. Has no effect if playback is playing.
+                - self.playback.stop()   : stops playback. Has no effect if playback is not active.[AUDIO ONLY - NOT IMPLEMENTED use `self.stop()` instead]
+
+                - self.playback.seek(second)         : positions playback at `second` from the start of the file
+                - self.playback.set_volume(0.5)      : sets the playback volume to 50% of the audio file's original value(value from 0 to 1)
+            """
+
+            self.playback.play()
+            self.playback.seek(self.playPosition)
+
+            while self.playback.active and self.playing:
+                self.__addFrame()
+
+        def render(self, videoPath, audioPath, **kwargs):
+            if videoPath != self.filepathVideo:
+                self.load(videoPath, audioPath)
 
             super().render(**kwargs)
-        
-        def GetHandle(self):
-            # Getting frame ID
-            return self.canvas.winfo_id()
-        
+
+            self.playback.pause()
+
         def pause(self):
-            if self.player.is_playing():
-                self.playing = True
-                self.play()
+            self.playing = False
+            self.playback.pause()
 
-        def play(self, playPosition = None, videoName = ""):
-            self.rootWidget.widgetObj.title(f"Video for: {videoName} at " + "{:.2f}".format(self.player.get_position()))
-            if not self.playing:
-                self.player.play()
-                if playPosition != None:
-                    self.player.set_position(playPosition)
-            else:
-                self.player.pause()
-
-            self.playing = not self.playing
-        
         def scroll(self, numSeconds):
-            secondAsPercentage = 1.0 / (float(self.player.get_length()) / 1000.0)
-            self.player.set_position(self.player.get_position() + (numSeconds * secondAsPercentage))
+            self.playPosition = self.playback.curr_pos + float(numSeconds)
+            self.playback.play()
+            self.playback.seek(self.playPosition)
+            self.playback.pause()
+            self.__addFrame()
 
         def getVideoPosition(self):
-            return self.player.get_position()
+            return self.playback.curr_pos / self.videoDuration
         
         def isPlaying(self):
-            return self.player.is_playing()
-
-        def close(self):
-            self.player.stop()
-            self.media = None
-            self.player = None
-            self.widgetObj.grid_forget()
-            self.widgetObj.grid_forget()
-
-        def forceFocus(self):
-            self.rootWidget.widgetObj.focus_force()
+            return self.playing
         
 
     class MultilineText(Notifyable_Interface,

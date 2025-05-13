@@ -238,10 +238,7 @@ def openVideoOnThePlaceOfTheImage(widget, targetSubsection, targetImIdx, eImidx 
                                                     wf.Wr.MenuManagers.PdfReadersManager)
         
         pdfReadersManager.changeSize([720, 517, 0, 352])
-        videoManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.VideoPlayerManager)
-        
-        videoManager.show(targetSubsection, targetImIdx)
+        pdfReadersManager.showVideo(targetSubsection, targetImIdx)
 
     widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])
 

@@ -254,7 +254,7 @@ class MainTOCBox(comw.TOC_BOX):
             self.entryClicked = entryClicked
 
             fsf.Data.Book.subsectionOpenInTOC_UI = subsection
-            fsf.Data.Book.currSection = self.subsection
+            fsf.Data.Book.currSection = subsection
             fsf.Data.Book.currTopSection = subsection.split(".")[0]
             fsf.Data.Book.entryImOpenInTOC_UI = imIdx
 
@@ -317,7 +317,8 @@ class MainTOCBox(comw.TOC_BOX):
                         w.onTopSectionOpen(currSubsection)
             self.notify(ScreenshotLocation_LBL)
 
-        self.onSubsectionOpen(currSubsection)
+        if not self.subsectionWidgetManagers[currSubsection].opened:
+            self.onSubsectionOpen(currSubsection)
 
         for imIdx, efm in self.subsectionWidgetManagers[currSubsection].entriesWidgetManagers.items():
             if imIdx != currEntryIdx:
@@ -808,12 +809,12 @@ to subsection: '{1}'?".format(groupName, currSubsection)
         mainManager.show()
 
         if fsf.Data.Sec.isVideo(currSubsection):
-            videoPlayerManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+            pdfReadersManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
             entriesList = list(fsf.Data.Sec.imLinkDict(currSubsection).keys())
             entriesList.sort(key = int)
             imIdx = entriesList[-1]
-            videoPlayerManager.show(currSubsection, str(imIdx))    
+            pdfReadersManager.showVideo(currSubsection, str(imIdx))    
         
         if not response:
             return

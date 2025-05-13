@@ -10,7 +10,7 @@ import UI.widgets_facade as wf
 import UI.widgets_collection.common as comw
 
 from UI.widgets_collection.common import TOCCanvasWithclick, TOCLabelWithClick, TOCTextWithClickTextOnlyEntry, ImageSize_ETR
-from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, openVideoOnThePlaceOfTheImage, bindChangeColorOnInAndOut, addExtraIm
+from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, bindChangeColorOnInAndOut, addExtraIm
 
 import file_system.file_system_facade as fsf
 import data.constants as dc
@@ -235,7 +235,7 @@ class EntryImagesFactory:
         if fsf.Data.Sec.textOnly(self.subsection).get(self.imIdx) != None:
             textOnly = fsf.Data.Sec.textOnly(self.subsection)[self.imIdx]
 
-            if not textOnly:
+            if (not textOnly) or (fsf.Data.Sec.isVideo(self.subsection)):
                 imLabel = self.__getImageWidget(tempLabel, imagePath, mainWidgetName, 
                                             self.imIdx, self.subsection, imPad = 0,
                                             row = 0, column = 1, columnspan = 1,
@@ -280,10 +280,7 @@ class EntryImagesFactory:
                                                                 changeOnEtrFunc = c,
                                                                 changeOnLabelBackFunc = b)])
 
-            if not fsf.Data.Sec.isVideo(self.subsection):
-                bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
-            else:
-                openVideoOnThePlaceOfTheImage(imLabel, self.subsection, self.imIdx)
+            bindOpenOMOnThePageOfTheImage(imLabel, self.subsection, self.imIdx)
         return tempLabel
 
     def __produceEntryExtraImageExtraLabels(self, eImIdx, parentLabel, resizeFactor):

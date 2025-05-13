@@ -20,6 +20,8 @@ import generalManger.generalManger as gm
 
 class SubsectionFrameManager:
     def __init__(self, subsection, subsectionFrame, topFrame, entriesFrame, subsectionChildrenSectionsFrame, widgetFactory):
+        self.opened = False
+        
         self.factory = widgetFactory
         self.subsection = subsection
 
@@ -39,12 +41,16 @@ class SubsectionFrameManager:
 
 
     def openSubsection(self):
+        self.opened = True
+
         if self.openContentWidget != None:
             self.openContentWidget.clicked = True
             self.openContentWidget.changeColor("brown")
             bindChangeColorOnInAndOut(self.openContentWidget, True)
 
     def closeSubsection(self):
+        self.opened = False
+
         for ch in self.entriesFrame.getChildren().copy():
             ch.destroy()
         
@@ -306,9 +312,9 @@ class SubsectionWidgetFactory:
 
     def produceSubsectionSummary(self):
         def cmd(subsection):
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+            pdfManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.PdfReadersManager)
-            mainManager.showSummary(subsection)
+            pdfManager.showSummary(subsection)
         
         showSummary = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.summary.name,
                                             prefix = "summary" + self.subsection.replace(".", ""),
@@ -323,9 +329,9 @@ class SubsectionWidgetFactory:
 
     def produceShowVideoLabel(self):
         def showSubsectiionVideoWrapper(subsection):  
-            videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.VideoPlayerManager)
-            videoPlayerManager.show(subsection, "0")
+            pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
+            pdfReadersManager.showVideo(subsection, "0")
 
             for w in wd.Data.Reactors.subsectionChangeReactors.values():
                 if "onShowVideo" in dir(w):

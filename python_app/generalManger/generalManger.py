@@ -67,8 +67,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("excercise solution menu"))
         excerciseExtraManager = wf.Wr.MenuManagers.ExcerciseExtraManager()
         log.autolog("Started '{0}' UI manager".format("excercise extra menu"))
-        videoPlayerManager = wf.Wr.MenuManagers.VideoPlayerManager()
-        log.autolog("Started '{0}' UI manager".format("video player menu"))
 
         log.autolog("-- Srartup  of other menus ended.")
 
@@ -160,11 +158,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         # entry notes
         entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                 wf.Wr.MenuManagers.EntryNotesManager)
-        entryNotesManager.winRoot.exitApp()
-
-        # video player
-        entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.VideoPlayerManager)
         entryNotesManager.winRoot.exitApp()
 
         cls.winRoot.exitApp()
@@ -410,10 +403,10 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 fsf.Data.Sec.imLinkOMPageDict(subsection, pagesDict)
             else:
                 #Get the position of the video
-                videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.VideoPlayerManager)
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.PdfReadersManager)
                 videoPositionDict = fsf.Data.Sec.videoPosition(subsection)
-                videoPositionDict[imIdx] = videoPlayerManager.getVideoPosition()
+                videoPositionDict[imIdx] = pdfReadersManager.getVideoPosition()
                 fsf.Data.Sec.videoPosition(subsection, videoPositionDict)
 
             # toc w image
@@ -477,9 +470,9 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             dt.AppState.UseLatestGroup.setData(cls.appCurrDataAccessToken, False)
 
             if fsf.Data.Sec.isVideo(subsection):
-                videoPlayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                        wf.Wr.MenuManagers.VideoPlayerManager)
-                videoPlayerManager.show(subsection, imIdx)
+                pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                                        wf.Wr.MenuManagers.PdfReadersManager)
+                pdfReadersManager.showVideo(subsection, imIdx)
 
         t = Thread(target = __afterImageCreated, args = [cls, subsection, imIdx, imText,\
                                                           addToTOCwIm, textOnly])

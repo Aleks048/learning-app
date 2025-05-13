@@ -10,7 +10,7 @@ import UI.widgets_facade as wf
 
 from UI.factories.entryImageWidgetsFactories import EntryImagesFactory
 from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabelWithClickEntry, EntryShowPermamentlyCheckbox, TOCLabelWithClickGroup, TOCFrame, ImageGroupOM
-from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
+from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, openVideoOnThePlaceOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
 
 import file_system.file_system_facade as fsf
 import data.temp as dt
@@ -848,8 +848,11 @@ class EntryWidgetFactory:
 
             textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
                                     [updateEntry])
-            
-            bindOpenOMOnThePageOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
+
+            if not fsf.Data.Sec.isVideo(self.subsection):
+                bindOpenOMOnThePageOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
+            else:
+                openVideoOnThePlaceOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
             textLabelPage.image = img
         else:
             textLabelPage = TOCLabelWithClickEntry(parentWidget,

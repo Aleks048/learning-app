@@ -113,6 +113,9 @@ class Paths:
             def getAbs(subsection):
                 return os.path.join(fsf.Data.Book.videoDataLocation,
                                     Names.Subsection.sectionVideoName(subsection))   
+            def getAbsAudio(subsection):
+                return os.path.join(fsf.Data.Book.videoDataLocation,
+                                    Names.Subsection.sectionAudioName(subsection))   
 
     class Entry:
         @bookNameArg_dec
@@ -384,6 +387,9 @@ class Names:
         def getTopSectionPretty(topSsection):
             secText = fsf.Data.Book.sections[topSsection]["name"]
             return  topSsection + ": " + secText
+
+        def sectionAudioName(subsection):
+            return subsection.replace(".", "_") + ".mp3"
 
         def sectionVideoName(subsection):
             return subsection.replace(".", "_") + ".mp4"
