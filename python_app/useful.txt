@@ -1,0 +1,2 @@
+property decorator
+https://stackoverflow.com/questions/2627002/whats-the-pythonic-way-to-use-getters-and-setters/36943813#36943813
