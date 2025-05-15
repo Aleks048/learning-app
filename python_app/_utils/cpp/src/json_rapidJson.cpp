@@ -11,9 +11,23 @@
 
 namespace data {
 
+
+/*
+Implementation of specialization of Json_file template class for rapijson
+*/
 template<>
-rapidjson::Value& data::JSON_file<rapidjson::Document>::readProperty() {
-    return document["_tocData"];
+std::variant<float, bool, std::string> data::JSON_file<rapidjson::Document>::readProperty(const std::string propertyName) {
+    assert(document.HasMember(propertyName.c_str()));
+
+    if (document[propertyName.c_str()].IsString()){
+        return document[propertyName.c_str()].GetString();
+    }
+    else if (document[propertyName.c_str()].IsBool()){
+        return document[propertyName.c_str()].GetBool();
+    }
+    else {
+        return document[propertyName.c_str()].GetFloat();
+    }
 };
 
 template<>
