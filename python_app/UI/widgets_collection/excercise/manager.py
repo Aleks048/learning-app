@@ -111,6 +111,13 @@ class LayoutManagers:
         def changeHeight(self):
             self.excercise_BOX.setCanvasHeight(self.excercise_BOX.originalHeight - wd.Data.ExcerciseLayout.currSize)
             self.excerciseImage.setCanvasHeight(self.excerciseImage.originalHeight + wd.Data.ExcerciseLayout.currSize)
+
+        def deleteLine(self, lineIdx):
+            self.excercise_BOX.deleteLine(lineIdx)
+
+        def updateExcerciseBox(self):
+            self.excercise_BOX.render()
+
     @classmethod
     def listOfLayouts(cls):
         results = []
@@ -146,6 +153,12 @@ class ExcerciseManager(wm.MenuManager_Interface):
 
     def changeLayoutHeight(self):
         self.layouts[0].changeHeight()
+
+    def deleteLine(self, lineIdx):
+        self.layouts[0].deleteLine(lineIdx)
+
+    def updateExcerciseBox(self):
+        self.layouts[0].updateExcerciseBox()
 
     def show(self, showManinExcerciseIm = None):
         self.layouts[0].subsection = self.subsection

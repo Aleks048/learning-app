@@ -391,6 +391,10 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
         self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
 
+    def deleteLine(self, lineIdx):
+        manager = self.lineManagers.pop(str(lineIdx))
+        manager.frame.destroy()
+
     def __addExcerciseLine(self, lineIdx, row):
         factory = wff.ExcerciseLineFactory(self.subsection, self.imIdx, 
                                            lineIdx = lineIdx, 
@@ -452,15 +456,15 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
 
 
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 1 + numLines + 1, "row" : 1 + numLines + 1},
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1000},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
-        dummyPostLabel = ww.currUIImpl.Label(str(1 + numLines + 1),
-                                             "_excersiePostDummy_",
-                                             self.scrollable_frame,
-                                             renderData,
-                                             text= "\n" * 1000)
+        dummyPostLabel = ww.currUIImpl.Label(prefix = "line" + str(1000),
+                                             name = "_excersiePostDummy_",
+                                             rootWidget = self.scrollable_frame,
+                                             renderData = renderData,
+                                             text = "\n" * 1000)
         dummyPostLabel.render()
 
 

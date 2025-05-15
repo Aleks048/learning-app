@@ -227,7 +227,10 @@ class ExcerciseLineFactory:
                                                 entryLinesNotesList[str(manager.copyInx)],
                                                 bookPath, 
                                                 str(int(event.widget.lineImIdx) - 1))
-            self.render()
+            
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseManager.updateExcerciseBox()
 
         pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1],
                           [lambda e, m = self.manager, *args: pasteLineIdx(e, m)])
@@ -265,7 +268,10 @@ class ExcerciseLineFactory:
                                                 entryLinesNotesList[str(manager.copyInx)],
                                                 bookPath, 
                                                 str(event.widget.lineImIdx + 1))
-            self.render()
+    
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseManager.updateExcerciseBox()
 
         pasteLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], 
                           [lambda e, m = self.manager, *args: pasteLineIdx(e, m)])
@@ -281,13 +287,19 @@ class ExcerciseLineFactory:
         deleteLabel.lineImIdx = self.lineIdx
 
         def deleteLineIdx(event, *args):
+            lineIdx = event.widget.lineImIdx
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
             deletedStructure = fsf.Wr.EntryInfoStructure.deleteLine(bookPath,
                                                                     self.subsection,
                                                                     self.imIdx,
                                                                     event.widget.lineImIdx)
+            
+            excerciseManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ExcerciseManager)
+            excerciseManager.deleteLine(lineIdx)
+
             if deletedStructure:
-                mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                         wf.Wr.MenuManagers.MathMenuManager)
                 mainManager.renderWithoutScroll()
                 mainManager.moveTocToEntry(self.subsection, self.imIdx)
@@ -339,8 +351,7 @@ class ExcerciseLineFactory:
         copyLabel.lineImIdx = self.lineIdx
 
         def setCopyLineIdx(event, *args):
-            pass
-            # self.currLineCopyIdx = event.widget.lineImIdx
+            self.manager.copyInx = event.widget.lineImIdx
 
         copyLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [setCopyLineIdx])
         _ucomw.bindChangeColorOnInAndOut(copyLabel)
