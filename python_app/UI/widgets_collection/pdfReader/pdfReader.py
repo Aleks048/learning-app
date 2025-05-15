@@ -999,7 +999,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                     keys = list(fsf.Data.Sec.imLinkDict(subsection).copy().keys())
 
 
-                self.forceFocus()
+                self.middleSubframe.forceFocus()
             
             t = Thread(target = __cmdAfterImageCreated, args = [self])
             t.start()
@@ -1043,7 +1043,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
             self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.down],
                         [lambda *args: runCmdAndForce(self.pdfBox.scrollY, 1)])
             self.middleSubframe.rebind([ww.currUIImpl.Data.BindID.Keys.shenter],
-                        [lambda *args: runCmdAndForce(__atsrAddingCmd)])
+                        [lambda *args: __atsrAddingCmd()])
 
         def __nunbind(*args):
             self.middleSubframe.unbind([ww.currUIImpl.Data.BindID.Keys.left,

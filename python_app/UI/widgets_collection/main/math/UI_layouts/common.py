@@ -237,6 +237,9 @@ class MainMenuRoot(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, rootWidget, renderData, extraOptions)
 
+        self.rebind([ww.currUIImpl.Data.BindID.enterWidget],
+                    [lambda *args: self.forceFocus()])
+
     def render(self, changePdfReader = True):
         # origMatName = fsm.Data.Book.currOrigMatName
         # fsm.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName)
