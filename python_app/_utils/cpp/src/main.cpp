@@ -5,11 +5,11 @@
 
 using namespace rapidjson;
 
-#include "json.h"
+#include "json_rapidJson.hpp"
 
 int main() {
-    data::JSON_file jf ("/Users/ashum048/books/utils/python_app/_utils/cpp/test_data/sectionInfo.json");
-    std::cout << jf;
+    data::JSON_file<rapidjson::Document> jf ("/Users/ashum048/books/utils/python_app/_utils/cpp/test_data/sectionInfo.json");
+    // std::cout << jf.readProperty().GetObject();
     // // 1. Parse a JSON string into DOM.
     // const char* json = "{\"project\":\"rapidjson\",\"stars\":10}";
     // Document d;
