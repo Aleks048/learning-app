@@ -83,5 +83,8 @@ class UITemp:
     class Layout:
         noMainEntryShown = False
     
+    class Groups:
+        copyGroupIdx = None
+    
 class CodeTemp:
     currCodeFullLink = _u.Token.NotDef.str_t

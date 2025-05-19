@@ -40,3 +40,4 @@ class Data:
         entryChangeReactors = {}
         subsectionChangeReactors = {}
         excerciseLineChangeReactors = {}
+        groupChangeReactors = {}

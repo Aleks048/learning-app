@@ -1868,11 +1868,15 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
     @classmethod
     def rebuildGroupOnlyImOnlyLatex(cls, subsection,
-                                        groupName):
+                                        groupName,
+                                        gi = None):
         currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-        gi = str(list(cls.readProperty(subsection,
-                                       cls.PubProp.imagesGroupsList,
-                                       currBookpath).keys()).index(groupName))
+
+        if gi == None:
+            gi = str(list(cls.readProperty(subsection,
+                                        cls.PubProp.imagesGroupsList,
+                                        currBookpath).keys()).index(groupName))
+
         groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                                                     subsection,
                                                                     gi)

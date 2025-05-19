@@ -1176,6 +1176,17 @@ class TOCFrame(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, root, renderData, padding = padding)
 
+
+class TOCGroupFrame(TOCFrame):
+    def __init__(self, root, prefix, row, column, 
+                 subsection, groupName, groupIdx, factory,
+                 columnspan=1, padding=[0, 0, 0, 0]):
+        self.subsection = subsection
+        self.groupName = groupName
+        self.groupIdx = groupIdx
+        self.factory = factory
+        super().__init__(root, prefix, row, column, columnspan, padding)
+
 class TOCTextWithClick(ww.currUIImpl.Label):
     '''
     this is used to run different commands on whether the label was clicked even or odd times
@@ -2088,7 +2099,6 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         self.eImIdx = ""
         self.subsection = ""
         self.imagePath = ""
-        self.group = ""
         self.image = image
         self.text = text
         self.alwaysShow = None
@@ -2145,8 +2155,23 @@ class TOCLabelWithClickEntry(TOCLabelWithClick):
         super().updateImage(self.image)
 
 class TOCLabelWithClickGroup(TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, columnspan=1, 
+                 sticky=ww.currUIImpl.Orientation.NW, padding=[0, 0, 0, 0], image=None, text=None):
+        self.group = _u.Token.NotDef.str_t
+        self.groupIdx = None
+        self.fixedWidth = None
+        self.groupFrame = None
+
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+        wd.Data.Reactors.groupChangeReactors[self.name] = self
+
+        self.rebind([ww.currUIImpl.Data.BindID.destroy], [lambda e, w = self, *args: 
+                                                          wd.Data.Reactors.groupChangeReactors.pop(w.name)])
+
     def updateLabel(self):
-        self.image = getGroupImg(self.subsection, self.group)
+        self.image = getGroupImg(self.subsection, self.group, 
+                                 fixedWidth = self.fixedWidth, gi = self.groupIdx)
         super().updateImage(self.image)
 
 class TOCLabeWithClickSubsection(TOCLabelWithClick):   

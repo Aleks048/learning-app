@@ -19,8 +19,10 @@ import generalManger.generalManger as gm
 import tex_file.tex_file_facade as tff
 
 
-def getGroupImg(subsection, currImGroupName):
-    gi = str(list(fsf.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
+def getGroupImg(subsection, currImGroupName, fixedWidth = None, gi = None):
+    if gi == None:
+        gi = str(list(fsf.Data.Sec.imagesGroupsList(subsection).keys()).index(currImGroupName))
+
     groupImgPath = _upan.Paths.Screenshot.Images.getGroupImageAbs(sf.Wr.Manager.Book.getCurrBookName(), 
                                             subsection,
                                             gi)
@@ -30,10 +32,16 @@ def getGroupImg(subsection, currImGroupName):
     else:
         result = \
             fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(subsection,
-                                                                    currImGroupName)
+                                                                    currImGroupName,
+                                                                    gi = gi)
 
     shrink = 0.8
     result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+
+    if fixedWidth != None:
+        _, height = result.size
+        result = result.crop((0, 0, fixedWidth, height))
+
     result = ww.currUIImpl.UIImage(result)
 
     return result

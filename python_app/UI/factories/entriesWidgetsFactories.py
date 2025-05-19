@@ -9,7 +9,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
 from UI.factories.entryImageWidgetsFactories import EntryImagesFactory
-from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabelWithClickEntry, EntryShowPermamentlyCheckbox, TOCLabelWithClickGroup, TOCFrame, ImageGroupOM
+from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabelWithClickEntry, EntryShowPermamentlyCheckbox, TOCLabelWithClickGroup, TOCFrame, TOCGroupFrame, ImageGroupOM
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, openVideoOnThePlaceOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
 
 import file_system.file_system_facade as fsf
@@ -1056,17 +1056,6 @@ class EntryWidgetFactory:
 
         hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        newGroup = ImageSize_ETR(parentWidget,
-                prefix = "contentNewGroupImageGroupLabel_" + self.__nameIdPrefix,
-                row = 0, 
-                column = 3,
-                imIdx = self.imIdx,
-                text = groupName,
-                width = 10)
-        newGroup.subsection = self.subsection
-        newGroup.render()
-        newGroup.setData(groupName)
-
         moveGroup = ImageSize_ETR(parentWidget,
                 prefix = "contentMoveImageGroupLabel_" + self.__nameIdPrefix,
                 row = 0, 
@@ -1127,6 +1116,146 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                 [__moveGroup])
         moveGroup.render()
 
+    def produceGroupFrameChildren(self, imageGroupFrame, currImGroupName, currImGroupidx):
+        def __updateGroup(event, *args):
+            widget = event.widget
+
+            if widget.group == "No group":
+                return
+
+            def __getText(widget):
+                return widget.group
+                                
+            def __setText(newText, widget):
+                oldGroupName = widget.group
+
+                imagesGroupsList = \
+                    fsf.Data.Sec.imagesGroupsList(widget.subsection).copy()
+                imagesGroupsList = \
+                    {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
+
+                fsf.Data.Sec.imagesGroupsList(widget.subsection,
+                                                imagesGroupsList)
+                widget.group = newText
+            
+            def __updateImage(widget):
+                imagesGroupsList = fsf.Data.Sec.imagesGroupsList(widget.subsection)
+                gi = str(list(imagesGroupsList.keys()).index(widget.group))
+                fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(widget.subsection,
+                                                                        widget.group.split("::")[0],
+                                                                        gi = gi)
+            
+            def __changeOnLabelBackFunc(widget):
+                #NOTE: we are rebuildding all group frames which can be costly, but too tired to differentiate atm
+                imagesGroupsList = \
+                    list(fsf.Data.Sec.imagesGroupsList(widget.subsection).keys())
+
+                groupFrames = set()
+                for w in wd.Data.Reactors.groupChangeReactors.values():
+                    groupFrames.add(w.groupFrame)
+
+                for gf in groupFrames:
+                    gf.groupName = imagesGroupsList[int(gf.groupIdx)]
+
+                    for ch in gf.getChildren().copy():
+                        ch.destroy()
+                    gf.factory.produceGroupFrameChildren(gf, gf.groupName, gf.groupIdx)
+
+            def __pasteLambda(widget):
+                groupIdx = f"::{dt.UITemp.Groups.copyGroupIdx}"
+                widget.addTextAtCurrent(groupIdx)
+
+            bindWidgetTextUpdatable(event, __getText, __setText, 
+                                          __updateImage, 
+                                          changeOnLabelBackFunc = __changeOnLabelBackFunc,
+                                          pasteLambda = __pasteLambda)
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        groupFrame = ww.currUIImpl.Frame(prefix = self.__nameIdPrefix, 
+                            name = "contentGroupFP_",
+                            rootWidget = imageGroupFrame,
+                            renderData = renderData,
+                            padding = [30, 0, 0, 0])
+        groupFrame.render()
+
+        currImGroupNameList = currImGroupName.split("::")
+
+        imagesGroupsWShouldShow:list = fsf.Data.Sec.imagesGroupsList(self.subsection)
+        imagesGroups:list = list(imagesGroupsWShouldShow.keys())
+
+        column = 0
+
+        if len(currImGroupNameList) > 1:
+            for gi in currImGroupNameList[1:]:
+                g = imagesGroups[int(gi)]
+                img = getGroupImg(self.subsection, g, gi = gi, fixedWidth = 20)
+                imageGroupLabel = TOCLabelWithClickGroup(groupFrame, 
+                                            image = img, 
+                                            prefix = "contentGroupP_" + self.__nameIdPrefix + "_" + str(column),
+                                            padding = [0, 0, 0, 0], 
+                                            row = 0, column = column)
+                imageGroupLabel.image = img
+                imageGroupLabel.subsection = self.subsection
+                imageGroupLabel.group = g
+                imageGroupLabel.groupIdx = str(gi)
+                imageGroupLabel.fixedWidth = 20
+                imageGroupLabel.groupFrame = imageGroupFrame
+
+                imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                        [__updateGroup])
+
+                def shrinkImage(widget, subsection, groupName):
+                    img = getGroupImg(widget.subsection, 
+                                        widget.group, 
+                                        widget.fixedWidth,
+                                        gi = widget.groupIdx)
+                    widget.updateImage(img)
+
+                def originalWidthImage(widget, subsection, groupName):
+                    img = getGroupImg(widget.subsection, 
+                                        widget.group,
+                                        gi = widget.groupIdx)
+                    widget.updateImage(img)
+
+                imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.enterWidget],
+                                [lambda e, w = imageGroupLabel, s = self.subsection, g = g, *args: 
+                                originalWidthImage(w, s, g)])
+                imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.leaveWidget],
+                                [lambda e, w = imageGroupLabel, s = self.subsection, g = g, *args: 
+                                shrinkImage(w, s, g)])
+
+                imageGroupLabel.render()
+                column += 1
+
+        img = getGroupImg(self.subsection, currImGroupNameList[0], gi = str(currImGroupidx))
+        imageGroupLabel = TOCLabelWithClickGroup(groupFrame, 
+                                    image = img, 
+                                    prefix = "contentGroupP_" + self.__nameIdPrefix,
+                                    padding = [0, 0, 0, 0], 
+                                    row = 0, column = column)
+        imageGroupLabel.image = img
+        imageGroupLabel.subsection = self.subsection
+        imageGroupLabel.group = currImGroupName
+        imageGroupLabel.groupIdx = str(currImGroupidx)
+        imageGroupLabel.groupFrame = imageGroupFrame
+
+        imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
+                                [__updateGroup])
+        
+        def __copyGroupIdx(e, *args):
+            dt.UITemp.Groups.copyGroupIdx = e.widget.groupIdx
+
+        imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                [__copyGroupIdx])
+
+        imageGroupLabel.render()
+
+        if currImGroupName != "No group":
+            self.__produceGroupExtraWidgets(imageGroupFrame, currImGroupName)
+
     def produceGroupWidget(self, parentWidget):
         imagesGroupDict:dict = fsf.Data.Sec.imagesGroupDict(self.subsection)
         imagesGroupsWShouldShow:list = fsf.Data.Sec.imagesGroupsList(self.subsection)
@@ -1135,7 +1264,19 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         if imagesGroupDict.get(self.imIdx) != None:
             currImGroupidx = imagesGroupDict[self.imIdx]
         else:
-            currImGroupidx = 0
+            counter = 0
+
+            while imagesGroupDict.get(self.imIdx) == None:
+                time.sleep(0.3)
+                counter += 1
+                imagesGroupDict:dict = fsf.Data.Sec.imagesGroupDict(self.subsection)
+                if counter > 30:
+                    _u.log.autolog("Something is wrong with the group list. Return")
+                    currImGroupidx = 0
+                    break
+
+        if imagesGroupDict.get(self.imIdx) != None:
+            currImGroupidx = imagesGroupDict[self.imIdx]
 
         if int(self.imIdx) > 0 :
             entriesList = list(fsf.Data.Sec.imLinkDict(self.subsection).keys())
@@ -1182,57 +1323,18 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             elif (self.imIdx != "0"):
                 topPad = 5
 
-        imageGroupFrame = TOCFrame(parentWidget,
+        imageGroupFrame = TOCGroupFrame(parentWidget,
                                     prefix = "contentImageGroupFr_" + self.__nameIdPrefix,
-                                    padding=[0, topPad, 0, 0], 
+                                    padding=[0, topPad, 0, 0],
+                                    subsection = self.subsection,
+                                    groupName = currImGroupName,
+                                    groupIdx = currImGroupidx,
+                                    factory = self,
                                     row = 0, column = 0, columnspan = 100)
 
         if (currImGroupName != prevImGroupName) or (self.imIdx == "0"):
-            def __updateGroup(event, *args):
-                widget = event.widget
+            self.produceGroupFrameChildren(imageGroupFrame, currImGroupName, currImGroupidx)
 
-                if widget.group == "No group":
-                    return
-
-                def __getText(widget):
-                    return widget.group
-                                 
-                def __setText(newText, widget):
-                    oldGroupName = widget.group
-    
-                    imagesGroupsList = \
-                        fsf.Data.Sec.imagesGroupsList(widget.subsection).copy()
-                    imagesGroupsList = \
-                        {k if k != oldGroupName else newText: v for k,v in imagesGroupsList.items()}
-                    fsf.Data.Sec.imagesGroupsList(widget.subsection,
-                                                    imagesGroupsList)
-                    widget.group = newText
-                
-                def __updateImage(widget):
-                    fsf.Wr.SectionInfoStructure.rebuildGroupOnlyImOnlyLatex(widget.subsection,
-                                                                            widget.group)
-                    #TODO: we need to update the other widgets as well
-
-                bindWidgetTextUpdatable(event, __getText, __setText, __updateImage)
-
-            img = getGroupImg(self.subsection, currImGroupName)
-            imageGroupLabel = TOCLabelWithClickGroup(imageGroupFrame, 
-                                        image = img, 
-                                        prefix = "contentGroupP_" + self.__nameIdPrefix,
-                                        padding = [30, 0, 0, 0], 
-                                        row = 0, column = 0)
-            imageGroupLabel.image = img
-            imageGroupLabel.subsection = self.subsection
-            imageGroupLabel.group = currImGroupName
-
-            # NOTE: without rebind groups sometimes not shoing up #FIXME
-            imageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse2],
-                                    [__updateGroup])
-
-            imageGroupLabel.render()
-
-            if currImGroupName != "No group":
-                self.__produceGroupExtraWidgets(imageGroupFrame, currImGroupName)
 
         return imageGroupFrame 
 

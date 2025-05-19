@@ -167,6 +167,8 @@ class TkWidgets (DataTranslatable_Interface):
 
             render = "<Map>"
 
+            destroy = "<Destroy>"
+
             customTOCMove = "<<TOCMove>>"
 
             class Keys:
@@ -851,6 +853,7 @@ class TkWidgets (DataTranslatable_Interface):
             return super().bind()
 
         def updateImage(self, image):
+            self.image = image
             self.widgetObj.configure(image = image.data)
             return image
         
