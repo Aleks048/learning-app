@@ -1138,27 +1138,29 @@ class TkWidgets (DataTranslatable_Interface):
             startLoacation = self.findTextStartLocation(text)
             stopLocation = startLoacation.split(".")[0] + "." + \
                            str(int(startLoacation.split(".")[1]) + len(text))
+            
+            linkHash = str(startLoacation) + str(stopLocation)
 
-            self.widgetObj.tag_add("link", startLoacation, stopLocation)
-            self.widgetObj.tag_config("link", foreground="blue", underline=True)
+            self.widgetObj.tag_add("link" + linkHash, startLoacation, stopLocation)
+            self.widgetObj.tag_config("link" + linkHash, foreground="blue", underline=True)
 
             # link click
             self.widgetObj.tag_bind(
-                "link", 
+                "link" + linkHash, 
                 "<Button-1>", 
                 lambda e: linkCmd()
             )
 
             # link hover
             self.widgetObj.tag_bind(
-                "link", 
+                "link" + linkHash, 
                 "<Enter>", 
                 lambda e: self.widgetObj.config(cursor="hand2")
             )
 
             # link leave
             self.widgetObj.tag_bind(
-                "link", 
+                "link" + linkHash, 
                 "<Leave>", 
                 lambda e: self.widgetObj.config(cursor="")
             )

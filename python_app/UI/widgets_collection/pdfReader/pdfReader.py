@@ -698,25 +698,35 @@ class SubsectionSummaryText(ww.currUIImpl.MultilineText):
         links = []
 
         for i in range(len(newTextList)):
-            if newTextList[i][0] == "[":
-                links.append(newTextList[i])
-                newTextList[i] = newTextList[i].split("|")[0] + "]"
+            if len (newTextList[i]) > 0:
+                if newTextList[i][0] == "[":
+                    links.append(newTextList[i])
+                    newTextList[i] = "[" + newTextList[i].split("|")[1][:-1] + "]"
 
         newText = "".join(newTextList)
 
         self.changeText(newText)
 
-        def moveToEntry(path):
-            imIdx = path.split(":")[-1]
+        def moveToEntry(ppath):
+            imIdx = ppath.split(":")[-1]
+            subsection = ppath.split(":")[0]
+
+            if subsection != fsf.Data.Book.subsectionOpenInTOC_UI:
+                fsf.Data.Book.subsectionOpenInTOC_UI = subsection
+
+                for w in wd.Data.Reactors.entryChangeReactors.values():
+                    if "onSubsectionOpen" in dir(w):
+                        w.onSubsectionOpen(subsection)
+
+            fsf.Data.Book.entryImOpenInTOC_UI = imIdx
 
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onFullEntryMove" in dir(w):
-                    fsf.Data.Book.entryImOpenInTOC_UI = imIdx
                     w.onFullEntryMove()
 
 
         for l in links:
-            text = l.split("|")[0] + "]"
+            text = "[" + l.split("|")[1][:-1] + "]"
             path = l.split("|")[1][:-1]
             self.makeLink(text, lambda p = path, *args: moveToEntry(p))
 

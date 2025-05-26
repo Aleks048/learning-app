@@ -2166,8 +2166,12 @@ class TOCLabelWithClickGroup(TOCLabelWithClick):
 
         wd.Data.Reactors.groupChangeReactors[self.name] = self
 
+        def removeListener(w):
+            if wd.Data.Reactors.groupChangeReactors.get(w.name) != None:
+                wd.Data.Reactors.groupChangeReactors.pop(w.name)
+
         self.rebind([ww.currUIImpl.Data.BindID.destroy], [lambda e, w = self, *args: 
-                                                          wd.Data.Reactors.groupChangeReactors.pop(w.name)])
+                                                          removeListener(w)])
 
     def updateLabel(self):
         self.image = getGroupImg(self.subsection, self.group, 
