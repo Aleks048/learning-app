@@ -27,7 +27,7 @@ class StartupConfirm_BTN(ww.currUIImpl.Button,
         # show UI main layout
         import generalManger.generalManger as gm
         
-        gm.GeneralManger.startNonStartMenus()
+        gm.GeneralManger.StartNonStartMenus()
 
 
 class AddBook_BTN(ww.currUIImpl.Button,

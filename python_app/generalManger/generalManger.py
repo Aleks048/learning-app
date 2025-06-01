@@ -2,7 +2,6 @@ import os
 import sys
 import re
 import time
-from AppKit import NSPasteboard, NSStringPboardType
 from threading import Thread
 
 import file_system.file_system_facade as fsf
@@ -19,158 +18,36 @@ import outside_calls.outside_calls_facade as ocf
 
 import daemon_service.daemon_service as ds
 
-import scripts.osascripts as oscr
 import outside_calls.outside_calls_facade as oscf
 
 import UI.widgets_facade as wf
-
 
 class GeneralManger(dc.AppCurrDataAccessToken):
     daemonThread = None
     dserver = None
 
     @classmethod
-    def startNonStartMenus(cls):
-        import UI.widgets_facade as wf
-        import UI.widgets_collection.common as comw
+    def StartNonStartMenus(cls):
         # start the daemon to process client calls
         cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
 
-        cls.winRoot = comw.MainRoot(1400, 700)
-        cls.winRoot.setGeometry(1500, 850, 0, 0)
-        cls.winRoot.configureColumn(0, weight=1)
-        cls.winRoot.configureColumn(1, weight=1)
-
-        # create startup menu
-        log.autolog("-- Srartup of other menus started: ")
-        messageMenuManager = wf.Wr.MenuManagers.MessageMenuManager()
-        log.autolog("Started '{0}' UI manager".format("message menu"))
-        mainMenuManager = wf.Wr.MenuManagers.MathMenuManager(cls.winRoot)
-        log.autolog("Started '{0}' UI manager".format("main menu"))
-        tocMenuManager = wf.Wr.MenuManagers.TOCManager()
-        log.autolog("Started '{0}' UI manager".format("toc menu"))
-        exMenuManager = wf.Wr.MenuManagers.ExcerciseManager()
-        log.autolog("Started '{0}' UI manager".format("excercise menu"))
-        notesMenuManager = wf.Wr.MenuManagers.NotesManager()
-        log.autolog("Started '{0}' UI manager".format("dictionary menu"))
-        entryNotesMenuManager = wf.Wr.MenuManagers.EntryNotesManager()
-        log.autolog("Started '{0}' UI manager".format("entry notes menu"))
-        proofsMenuManager = wf.Wr.MenuManagers.ProofsManager()
-        log.autolog("Started '{0}' UI manager".format("proofs menu"))
-        imagagesMenuManager = wf.Wr.MenuManagers.ImagesManager()
-        log.autolog("Started '{0}' UI manager".format("image menu"))
-        pdfReadersMenuManager = wf.Wr.MenuManagers.PdfReadersManager(cls.winRoot)
-        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
-        excerciseLineNoteManager = wf.Wr.MenuManagers.ExcerciseLineNoteManager()
-        log.autolog("Started '{0}' UI manager".format("excercise note menu"))
-        excerciseSolutionManager = wf.Wr.MenuManagers.ExcerciseSolutionManager()
-        log.autolog("Started '{0}' UI manager".format("excercise solution menu"))
-        excerciseExtraManager = wf.Wr.MenuManagers.ExcerciseExtraManager()
-        log.autolog("Started '{0}' UI manager".format("excercise extra menu"))
-
-        log.autolog("-- Srartup  of other menus ended.")
-
-        pdfReadersMenuManager.show()
-        mainMenuManager.show()
+        wf.Wr.UI_generalManager.startNonStartMenus()
 
 
     @classmethod
-    def startApp(cls):
-        import UI.widgets_facade as wf
-        # start the daemon to process client calls 
-
-        log.autolog("-- Srartup startup menu started: ")
-        startupMenuManager = wf.Wr.MenuManagers.StartupMenuManager()
-        log.autolog("Started '{0}' UI manager".format("startup menu"))
-
-        startupMenuManager.show()
-        log.autolog("-- Srartup of startup menu ended.")
-
-        wf.Wr.WidgetWrappers.startLoop()
+    def StartApp(cls):
+        wf.Wr.UI_generalManager.startup()
+        
 
     @classmethod
-    def exitApp(cls):
-        import UI.widgets_facade as wf
-        log.autolog("- Starting exiting the app")
-
-
-        # Updating the remote
-        msg = "Closing the book."
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-
-        # main
-        # mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-        #                                         wf.Wr.MenuManagers.MathMenuManager)
-        # mainManager.winRoot.exitApp()
-
-        # message
-        mesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.MessageMenuManager)
-        mesManager.winRoot.exitApp()
-        
-        
-        # toc
-        tocManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.TOCManager)
-        tocManager.winRoot.exitApp()
-        
-        # ex
-        exManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ExcerciseManager)
-        exManager.winRoot.exitApp()
-
-        # proof
-        proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ProofsManager)
-        proofsManager.hideAll()
-
-        # images
-        imagesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ImagesManager)
-        imagesManager.winRoot.exitApp()
-
-        # pdfReader
-        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.PdfReadersManager)
-        pdfReadersManager.updateOMpage()
-        # pdfReadersManager.winRoot.exitApp()
-
-        # excerciseLineNoteManager
-        excerciseLineNoteManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ExcerciseLineNoteManager)
-        excerciseLineNoteManager.winRoot.exitApp()
-
-        # excerciseSolutionManager
-        excerciseSolutionManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ExcerciseSolutionManager)
-        excerciseSolutionManager.winRoot.exitApp()
-
-        # excerciseExtraManager
-        excerciseExtraManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.ExcerciseExtraManager)
-        excerciseExtraManager.winRoot.exitApp()
-
-        # notes
-        notesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.NotesManager)
-        notesManager.winRoot.exitApp()
-
-        # entry notes
-        entryNotesManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.EntryNotesManager)
-        entryNotesManager.winRoot.exitApp()
-
-        cls.winRoot.exitApp()
-
-        # startup
-        stManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.StartupMenuManager)
-        stManager.winRoot.exitApp()
+    def ExitApp(cls):
+        wf.Wr.UI_generalManager.exit()
 
         cls.dserver.close()
         cls.daemonThread.join()
         log.autolog("- Ended Exiting the app")
         sys.exit(0)
+
 
     def AddNewBook(bookName, bookPath, 
                    originalMaterialLocation, originalMaterialRelPath,
@@ -276,6 +153,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         t = Thread(\
             target = lambda s = subsection, mi = mainImIdx, ip = imPath, eii = eImIdx, to =textOnly:__executeAfterImageCreated(s, mi, ip, eii, to))
         t.start()
+
+
     @classmethod
     def AddExtraImageForEntry(cls, mainImIdx, subsection, extraImageIdx, extraImText):
         # update the content file
@@ -309,6 +188,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         if "proof" in extraImText.lower():
             dt.AppState.ShowProofs.setData(cls.appCurrDataAccessToken,
                                            True) 
+
 
     @classmethod
     def AddEntry(cls, subsection, imIdx:str, imText:str, 
@@ -508,6 +388,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
         fsf.Data.Sec.imGlobalLinksDict(targetSubsection, targetSectionGlobalLinksDict)        
 
+
     @classmethod
     def CopyGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
          # add target to the source links
@@ -523,6 +404,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                             targetSubsection, targetIDX, targetTopSection, False)
             else:
                 cls.AddWebLink(sl, slfull, targetSubsection, targetIDX, targetTopSection, False)
+
 
     @classmethod
     def RetargetGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
@@ -553,6 +435,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
             else:
                 cls.AddWebLink(sl, slfull, targetSubsection, targetIDX, targetTopSection, False)
 
+
     @classmethod
     def RemoveWebLink(cls, sourceSubsection, sourceIDX, webLinkName):
         # add target to the source links
@@ -567,6 +450,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 sourseSectionGlobalLinksDict = _u.Token.NotDef.dict_t.copy()
 
         fsf.Data.Sec.imGlobalLinksDict(sourceSubsection, sourseSectionGlobalLinksDict)
+
 
     @classmethod
     def AddLink(cls, wholeLinkPathStr, sourceSubsection, sourceIDX, sourceTopSection, shouldConfirm = True):
@@ -687,6 +571,7 @@ Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_
                                                                         targetSubsection, targetIDX)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
+
     @classmethod
     def AddWebLink(cls, linkeName, wholeLinkPathStr, 
                    sourceSubsection, sourceIDX, sourceTopSection,
@@ -757,6 +642,7 @@ Do you want to add link \n\nFrom: '{0}_{1}', \nwith text:\n '{4}'\n\n\nTo: '{2}_
         # Updating the remote
         msg = "Adding web link: '{0}' from: '{1}_{2}'".format(wholeLinkPathStr, sourceSubsection, sourceIDX)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
 
     @classmethod
     def AddSubsection(cls, secPath, newSecName, newSecStartPage, newSecEndPage, isVideo = False, shouldAsk = True):
@@ -831,16 +717,8 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             msg = "Adding the subsection: '{0}'".format(secPath)
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-    def AddOM(origMatFilepath, origMatDestRelPath, origMatName):
-        fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
-                                                            origMatDestRelPath,
-                                                            origMatName)
 
-        # Updating the remote
-        msg = "Adding the OM with name: '{0}'".format(origMatName)
-        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-
-    def deleteSubsection(sourceSubsection):            
+    def DeleteSubsection(sourceSubsection):            
         # Updating the remote
         msg = f"Before the subsection '{sourceSubsection}'."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
@@ -851,8 +729,9 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
         msg = f"After the subsection '{sourceSubsection}'."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
+
     @classmethod
-    def moveSubsection(cls, sourceSubsection, targetSubsection):
+    def MoveSubsection(cls, sourceSubsection, targetSubsection):
         # Updating the remote
         msg = f"Before Moving the subsection '{sourceSubsection}' to '{targetSubsection}'."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
@@ -871,7 +750,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             fsf.Wr.BookInfoStructure.moveSection(sourceSubsection, tempSubsection)
 
             if targetSubsection in sourceSubsection:
-                cls.deleteSubsection(targetSubsection)
+                cls.DeleteSubsection(targetSubsection)
 
             fsf.Wr.SectionInfoStructure.moveSection(currBookpath,
                                                     tempSubsection, 
@@ -889,8 +768,9 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
         msg = f"After Moving the subsection '{sourceSubsection}' to '{targetSubsection}'."
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
+
     @classmethod
-    def moveGroupToSubsection(cls, 
+    def MoveGroupToSubsection(cls, 
                               sourceSubsection, sourceGroupName, 
                               targetSubsection, targetGroupName, targetEntryDestIdx):
         sourceGroupIdx = list(fsf.Data.Sec.imagesGroupsList(sourceSubsection).keys()).index(sourceGroupName)
@@ -956,31 +836,3 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
 
         fsf.Wr.SectionInfoStructure.rebuildEntriesBatch(sourceSubsection, "0")
         fsf.Wr.SectionInfoStructure.rebuildEntriesBatch(targetSubsection, "0")
-
-    def readdNotesToPage(currPage):
-        return
-        omName = fsf.Data.Book.currOrigMatName
-        fileName = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsFilename(omName)
-        
-        time.sleep(0.3)
-
-        cmd = oscr.deleteAllNotesFromThePage(fileName, currPage)
-        _u.runCmdAndWait(cmd)
-
-        time.sleep(0.3)
-        bookName = sf.Wr.Manager.Book.getCurrBookName()
-        noteIdx = 1
-        sections = fsf.Data.Book.sections
-        for topSection in sections:
-            subsections = fsf.Wr.BookInfoStructure.getSubsectionsList(topSection)
-            for subSec in subsections:
-                imPages:dict = fsf.Data.Sec.imLinkOMPageDict(subSec)
-                imTexts:dict = fsf.Data.Sec.imLinkDict(subSec)
-                for imIdx,imPage in imPages.items():
-                    if imPage == currPage:
-                        imText = imTexts[imIdx]
-                        url = tff.Wr.TexFileUtils.getUrl(bookName, topSection, subSec, 
-                                                        imIdx, "full", notLatex=True)
-                        fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(omName, currPage, 
-                                                                                    url + " " + imText, noteIdx)
-                        noteIdx += 1

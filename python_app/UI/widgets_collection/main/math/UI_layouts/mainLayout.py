@@ -104,7 +104,7 @@ class ExitApp_BTN(ww.currUIImpl.Button,
 
         self.notify(comw.TOC_BOX)
 
-        gm.GeneralManger.exitApp()
+        gm.GeneralManger.ExitApp()
         
 
 class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):

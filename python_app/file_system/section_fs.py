@@ -418,9 +418,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         targetGroupsDict[targetImIdx] = groupIdx
         cls.updateProperty(targetSubsection, cls.PubProp.imagesGroupDict, targetGroupsDict)
 
-        for page in set(imLinkOMPageDict):
-            gm.GeneralManger.readdNotesToPage(page)
-
         msg = "\
 After {4} entry from \n\
 '{0}':'{1}'\n\
@@ -860,9 +857,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         if shouldConfirm:
             # update the links on the OM file
-            for page in set(list(imLinkOMPageDict.values())):
-                gm.GeneralManger.readdNotesToPage(page)
-
 
             efs.EntryInfoStructure.removeEntry(subsection, imIdx, currBookName)
 
@@ -1200,9 +1194,6 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
             # update the links on the OM file
             imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
-
-            for page in set(list(imLinkOMPageDict.values())):
-                gm.GeneralManger.readdNotesToPage(page)
 
             # track all the changes after removal
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)

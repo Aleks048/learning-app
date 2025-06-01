@@ -1622,7 +1622,7 @@ class TkWidgets (DataTranslatable_Interface):
         def stopWait(self, response = False):
             self.setData(response)
         
-        def exitApp(self):
+        def ExitApp(self):
             self.widgetObj.destroy()
         
         def changeTitle(self, newTitle):

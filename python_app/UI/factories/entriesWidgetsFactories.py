@@ -1103,7 +1103,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                                             wf.Wr.MenuManagers.PdfReadersManager)
             pdfMenuManager.saveFigures()
 
-            gm.GeneralManger.moveGroupToSubsection(sourceSubsection, sourceGroupName,
+            gm.GeneralManger.MoveGroupToSubsection(sourceSubsection, sourceGroupName,
                                                     targetSubsection, targetGroupName, targetEntryIdx)
 
             self.widgetToScrollTo = None

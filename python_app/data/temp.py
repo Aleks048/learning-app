@@ -24,11 +24,17 @@ class ClassAttNotAccessibleType(type):
             data = self.data
             dpType = str(dpType).split(".")[-1]
             for dp in data:
+                dpTypeNameFormatted = str(dp.__class__).split(".")[-1]
+
+                if dpType == dpTypeNameFormatted:
+                    return dp
+
                 baseClasses = dp.__class__.__bases__
                 for bc in baseClasses:
                     dpTypeNameFormatted = str(bc).split(".")[-1]
                     if dpType == dpTypeNameFormatted:
                         return dp
+
             raise KeyError
 
     def setData(self, token, newValue):

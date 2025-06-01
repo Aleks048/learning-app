@@ -395,7 +395,7 @@ class SubsectionWidgetFactory:
             if not response:
                 return
 
-            gm.GeneralManger.moveSubsection(sourceSubsection,
+            gm.GeneralManger.MoveSubsection(sourceSubsection,
                                             targetSubsection)
             
             for w in wd.Data.Reactors.subsectionChangeReactors.values():
@@ -430,7 +430,7 @@ class SubsectionWidgetFactory:
             if not response:
                 return
 
-            gm.GeneralManger.deleteSubsection(sourceSubsection)
+            gm.GeneralManger.DeleteSubsection(sourceSubsection)
 
             for w in wd.Data.Reactors.subsectionChangeReactors:
                 if "onSubsectionRemove" in dir(w):

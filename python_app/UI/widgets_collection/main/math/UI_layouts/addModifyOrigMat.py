@@ -1,3 +1,7 @@
+import file_system.file_system_facade as fsf
+import outside_calls.outside_calls_facade as ocf
+import settings.facade as sf
+
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.UI_layouts.common as cl
 
@@ -36,13 +40,17 @@ class AddOrigMaterial_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
-        import generalManger.generalManger as gm
+        fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
+                                                            origMatDestRelPath,
+                                                            origMatName)
+
+        # Updating the remote
+        msg = "Adding the OM with name: '{0}'".format(origMatName)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         origMatFilepath = self.notify(GetOrigMatPath_ETR)
         origMatDestRelPath = self.notify(GetOrigMatDestRelPath_ETR)
         origMatName = self.notify(GetOrigMatName_ETR)
-
-        gm.GeneralManger.AddOM(origMatFilepath, origMatDestRelPath, origMatName)
 
 
 class GetOrigMatPath_ETR(ww.currUIImpl.TextEntry):
