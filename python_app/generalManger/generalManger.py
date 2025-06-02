@@ -76,83 +76,15 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
     
-    def AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
-        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                wf.Wr.MenuManagers.PdfReadersManager)
-        pdfReadersManager.show(subsection = subsection,
+    def __AddNewImageData(subsection, mainImIdx, imPath, eImIdx = None, textOnly = False):
+        wf.Wr.UI_generalManager.addImage(subsection = subsection,
                                imIdx = mainImIdx,
-                               selector = True,
                                extraImIdx = eImIdx,
+                               selector = True,
                                changePrevPos = True,
-                               withoutRender = True)            
+                               withoutRender = True)        
 
-        def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
-            timer = 0
-
-            isVideo = fsf.Data.Sec.isVideo(subsection)
-
-            if (not isVideo) or (eImIdx != None):
-                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
-                    time.sleep(0.3)
-                    timer += 1
-
-                    if timer > 50: 
-                        _u.log.autolog(f"The image at path '{imPath}' was not created.")
-                        return
-
-            if eImIdx == None:
-                if not isVideo:
-                    imText = _u.getTextFromImage(imPath)
-                else:
-                    imText = None
-
-                if textOnly:
-                    if imText == None:
-                        imText = _u.Token.NotDef.str_t
-                    else:
-                        imText = imText.replace("_", "\_")
-
-                        imText = re.sub(r"([^\\]){", r"\1\\{", imText)
-                        imText = re.sub(r"([^\\])}", r"\1\\}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
-                        imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
-
-                        imText = imText.replace("[", "(")
-                        imText = imText.replace("]", ")")
-                        imText = imText.replace("\u201c", "\"")
-                        imText = imText.replace("\u201d", "\"")
-                        imText = imText.replace("\u2014", "-")
-                        imText = imText.replace("\ufffd", "")
-                        imText = imText.replace("\n", "")
-                        imText = imText.replace("\u0000", "fi")
-                        imText = imText.replace("\u0394", "\\Delta ")
-
-                imageTextsDict = fsf.Data.Sec.imageText(subsection)
-                imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
-                imageTextsDict[mainImIdx] = imText
-                fsf.Data.Sec.imageText(subsection, imageTextsDict)
-            else:
-                eImText = _u.getTextFromImage(imPath)
-                eImageTextsDict = fsf.Data.Sec.extraImText(subsection)
-                eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
-
-                if mainImIdx not in list(eImageTextsDict.keys()):
-                    eImageTextsList = []
-                else:
-                    eImageTextsList = eImageTextsDict[mainImIdx]
-
-                if int(eImIdx) >= len(eImageTextsList):
-                    eImageTextsList.append(eImText)
-                else:
-                    eImageTextsList[int(eImIdx)] = eImText
-
-                eImageTextsDict[mainImIdx] = eImageTextsList
-                fsf.Data.Sec.extraImText(subsection, eImageTextsDict)
-
-        t = Thread(\
-            target = lambda s = subsection, mi = mainImIdx, ip = imPath, eii = eImIdx, to =textOnly:__executeAfterImageCreated(s, mi, ip, eii, to))
-        t.start()
+        fsf.Wr.SectionInfoStructure.addNewImage(subsection, mainImIdx, imPath, eImIdx, textOnly)
 
 
     @classmethod
@@ -179,7 +111,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
         extraImageName = _upan.Names.getExtraImageFilename(mainImIdx, subsection, extraImageIdx)
         extraImagePathFull = os.path.join(extraImagePath_curr, extraImageName + ".png")
 
-        cls.AddNewImageData(subsection, mainImIdx, extraImagePathFull, extraImageIdx)
+        cls.__AddNewImageData(subsection, mainImIdx, extraImagePathFull, extraImageIdx)
 
 
         extraImagesDict[mainImIdx] = extraImagesList
@@ -210,12 +142,12 @@ class GeneralManger(dc.AppCurrDataAccessToken):
                 if response:
                     ocf.Wr.FsAppCalls.deleteFile(imagePath)
 
-                    cls.AddNewImageData(subsection, imIdx, imagePath)
+                    cls.__AddNewImageData(subsection, imIdx, imagePath)
 
                 if not response:
                     return
             else:
-                cls.AddNewImageData(subsection, imIdx, imagePath)
+                cls.__AddNewImageData(subsection, imIdx, imagePath)
 
         def __afterImageCreated(cls, subsection, imIdx:str, imText:str, 
                                  addToTOCwIm:bool, textOnly:bool = False):

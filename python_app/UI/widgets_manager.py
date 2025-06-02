@@ -138,6 +138,20 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
 
         return winRoot
 
+    def addImage(subsection, imIdx, extraImIdx,
+                selector = True,
+                changePrevPos = True,
+                withoutRender = True):
+        import UI.widgets_collection.pdfReader.manager as pdfm
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                           pdfm.PdfReadersManager)
+        pdfReadersManager.show(subsection = subsection,
+                               imIdx = imIdx,
+                               selector = selector,
+                               extraImIdx = extraImIdx,
+                               changePrevPos = changePrevPos,
+                               withoutRender = withoutRender)
+
     @classmethod
     def startup(cls):
         import UI.widgets_collection.startup.manager as sm

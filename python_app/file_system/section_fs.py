@@ -1,4 +1,7 @@
 import os
+from threading import Thread
+import time
+import re
 
 import file_system.book_fs as bfs
 import file_system.entry_fs as efs
@@ -288,6 +291,80 @@ class SectionInfoStructure:
         #NOTE: need to update the markers
 
         cls.__deleteSectionFiles(bookpath, sourceSectionPath)
+
+    @classmethod
+    def addNewImage(cls, subsection, mainImIdx, imPath, eImIdx, textOnly):
+        def __executeAfterImageCreated(subsection, mainImIdx, imPath, eImIdx, textOnly):
+            timer = 0
+
+            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+            isVideo = cls.readProperty(subsection, cls.PubProp.isVideo, currBookpath)
+
+            if (not isVideo) or (eImIdx != None):
+                while not ocf.Wr.FsAppCalls.checkIfFileOrDirExists(imPath):
+                    time.sleep(0.3)
+                    timer += 1
+
+                    if timer > 50: 
+                        _u.log.autolog(f"The image at path '{imPath}' was not created.")
+                        return
+
+            if eImIdx == None:
+                if not isVideo:
+                    imText = _u.getTextFromImage(imPath)
+                else:
+                    imText = None
+
+                if textOnly:
+                    if imText == None:
+                        imText = _u.Token.NotDef.str_t
+                    else:
+                        imText = imText.replace("_", "\_")
+
+                        imText = re.sub(r"([^\\]){", r"\1\\{", imText)
+                        imText = re.sub(r"([^\\])}", r"\1\\}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0308", r"\\ddot{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0300", r"\\grave{\1}", imText)
+                        imText = re.sub(r"([a-z]|[A-Z])\u0301", r"\\acute{\1}", imText)
+
+                        imText = imText.replace("[", "(")
+                        imText = imText.replace("]", ")")
+                        imText = imText.replace("\u201c", "\"")
+                        imText = imText.replace("\u201d", "\"")
+                        imText = imText.replace("\u2014", "-")
+                        imText = imText.replace("\ufffd", "")
+                        imText = imText.replace("\n", "")
+                        imText = imText.replace("\u0000", "fi")
+                        imText = imText.replace("\u0394", "\\Delta ")
+
+                imageTextsDict = cls.readProperty(subsection, cls.PubProp.imageText, currBookpath)
+                imageTextsDict = {} if imageTextsDict == _u.Token.NotDef.dict_t else imageTextsDict
+                imageTextsDict[mainImIdx] = imText
+                cls.updateProperty(subsection, cls.PubProp.imageText, imageTextsDict, currBookpath)
+            else:
+                eImText = _u.getTextFromImage(imPath)
+                eImageTextsDict = cls.readProperty(subsection, cls.PubProp.extraImText)
+                eImageTextsDict = {} if eImageTextsDict == _u.Token.NotDef.dict_t else eImageTextsDict
+
+                if mainImIdx not in list(eImageTextsDict.keys()):
+                    eImageTextsList = []
+                else:
+                    eImageTextsList = eImageTextsDict[mainImIdx]
+
+                if int(eImIdx) >= len(eImageTextsList):
+                    eImageTextsList.append(eImText)
+                else:
+                    eImageTextsList[int(eImIdx)] = eImText
+
+                eImageTextsDict[mainImIdx] = eImageTextsList
+                cls.updateProperty(subsection, cls.PubProp.extraImText, eImageTextsDict, currBookpath)
+
+        t = Thread(\
+            target = \
+                lambda s = subsection, mi = mainImIdx, ip = imPath, eii = eImIdx, to = textOnly:__executeAfterImageCreated(s, mi, ip, eii, to))
+        t.start()
+
 
     @classmethod
     def addSection(cls, bookpath, sectionPath):
