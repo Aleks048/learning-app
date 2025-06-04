@@ -829,14 +829,10 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         super().render(self.renderData)
 
 
-class ImageSize_ETR(ww.currUIImpl.TextEntry):
+class GeneralPurpose_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imIdx, text, width = 3):
-        self.subsection = None
-        self.imIdx = None
-        self.eImIdx = None
-        self.textETR = None
-
-        name = "_imageSizeTOC_ETR" + str(imIdx) + "_" + str(self.eImIdx)
+        uid = str(uuid.uuid4())
+        name = "_imageSizeTOC_ETR" + uid
         self.defaultText = text
 
         renderData = {

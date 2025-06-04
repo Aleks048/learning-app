@@ -11,7 +11,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 import UI.widgets_collection.common as comw
 
-from UI.widgets_collection.common import TOCCanvasWithclick, TOCLabelWithClick, TOCTextWithClick, ImageSize_ETR
+from UI.widgets_collection.common import TOCCanvasWithclick, TOCLabelWithClick, TOCTextWithClick, GeneralPurpose_ETR
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, bindChangeColorOnInAndOut, addExtraIm
 
 import file_system.file_system_facade as fsf
@@ -22,6 +22,13 @@ import settings.facade as sf
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
 
+
+class ChangeExtraImageSize_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        self.imIdx = None
+        self.eImIdx = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
 
 class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
     width = 60
@@ -638,12 +645,13 @@ class EntryImagesFactory:
             if excerciseManager.shown:
                 excerciseManager.show()
 
-        changeImSize = ImageSize_ETR(tempEImLabel,
+        changeImSize = ChangeExtraImageSize_ETR(tempEImLabel,
                                     prefix =  "imSize_" + eImWidgetName,
                                     row = eImIdx + 5, 
                                     column = 4,
                                     imIdx = self.imIdx,
                                     text = resizeFactor)
+
         changeImSize.imIdx = self.imIdx
         changeImSize.eImIdx = eImIdx
         changeImSize.subsection = self.subsection

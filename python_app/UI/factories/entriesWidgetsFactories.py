@@ -9,7 +9,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
 from UI.factories.entryImageWidgetsFactories import EntryImagesFactory
-from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCFrame
+from UI.widgets_collection.common import TOCLabelWithClick, GeneralPurpose_ETR, TOCFrame
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, openVideoOnThePlaceOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
 from UI.widgets_collection.utils import getGroupImg, getEntryImg
 
@@ -21,6 +21,27 @@ import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
 import generalManger.generalManger as gm
 import tex_file.tex_file_facade as tff
+
+
+class LeadingEntry_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        self.imIdx = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
+
+
+class ChangeImSize_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        self.imIdx = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
+
+
+class MoveGroup_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        self.imIdx = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
 
 
 class ImageGroupOM(ww.currUIImpl.OptionMenu):
@@ -505,7 +526,7 @@ class EntryWidgetFactory:
 
             leadingEntryText = leadingEntryIdx
 
-        leadingEntry = ImageSize_ETR(parentWidget,
+        leadingEntry = LeadingEntry_ETR(parentWidget,
                                             prefix = "leadingEntry_" + self.__nameIdPrefix,
                                             row = 0, 
                                             column = self.EntryUIs.leadingEntry.column,
@@ -554,7 +575,7 @@ class EntryWidgetFactory:
         else:
             resizeFactor = 1.0
 
-        changeImSize = ImageSize_ETR(parentWidget,
+        changeImSize = ChangeImSize_ETR(parentWidget,
                                         prefix = "contentUpdateEntryText" + self.__nameIdPrefix,
                                         row = 0, 
                                         column = self.EntryUIs.changeImSize.column,
@@ -1194,13 +1215,14 @@ class EntryWidgetFactory:
 
         hideImageGroupLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        moveGroup = ImageSize_ETR(parentWidget,
+        moveGroup = MoveGroup_ETR(parentWidget,
                 prefix = "contentMoveImageGroupLabel_" + self.__nameIdPrefix,
                 row = 0, 
                 column = 2,
                 imIdx = self.imIdx,
                 text = self.subsection + ":" + self.imIdx,
                 width = 10)
+
         moveGroup.subsection = self.subsection
         moveGroup.imIdx = self.imIdx
 

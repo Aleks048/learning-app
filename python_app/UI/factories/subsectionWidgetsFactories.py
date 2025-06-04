@@ -5,7 +5,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
 from UI.factories.entriesWidgetsFactories import EntryWidgetFactoryTOC, EntryWidgetFactorySearchTOC, EntryWidgetFactory
-from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCFrame
+from UI.widgets_collection.common import TOCLabelWithClick, GeneralPurpose_ETR, TOCFrame
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindChangeColorOnInAndOut
 
 
@@ -17,6 +17,17 @@ import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
 import generalManger.generalManger as gm
 
+
+class SubsectionStartPage_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
+
+
+class SubsectionPath_ETR(GeneralPurpose_ETR):
+    def __init__(self, patentWidget, prefix, row, column, imIdx, text, width=3):
+        self.subsection = None
+        super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
 
 class TOCLabeWithClickSubsection(TOCLabelWithClick):   
     def updateLabel(self):
@@ -401,7 +412,7 @@ class SubsectionWidgetFactory:
                     w.onUpdateSubsectionStartPage(subsection)
 
         startPage = fsf.Data.Sec.start(self.subsection)
-        changeStartPage = ImageSize_ETR(self.widgetManager.topFrame,
+        changeStartPage = SubsectionStartPage_ETR(self.widgetManager.topFrame,
                                         prefix = "updateStartPageEntryText" + self.subsection.replace(".", ""),
                                         row = 0, 
                                         column = self.EntryUIs.startPage.column,
@@ -437,7 +448,7 @@ class SubsectionWidgetFactory:
                 if "onUpdateSubsectionPath" in dir(w):
                     w.onUpdateSubsectionPath(subsection)
 
-        updateSubsectionPath = ImageSize_ETR(self.widgetManager.topFrame,
+        updateSubsectionPath = SubsectionPath_ETR(self.widgetManager.topFrame,
                                                 prefix = "updateSubsectionPosEntryText" + self.subsection.replace(".", ""),
                                                 row = 0, 
                                                 column = self.EntryUIs.path.column,
