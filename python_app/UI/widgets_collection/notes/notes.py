@@ -15,37 +15,6 @@ import UI.widgets_data as wd
 import data.temp as dt
 import wordDict.wordDict as wordd
 
-class ImageText_ETR(ww.currUIImpl.TextEntry):
-    def __init__(self, patentWidget, prefix, row, column, imNoteIdx, text):
-        name = "_textImage_ETR" + str(imNoteIdx)
-        self.defaultText = text
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-
-
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
-                                            "font": ('Georgia 14')},
-            ww.TkWidgets.__name__ : {"width": 60, "fg": "white"}
-        }
-
-        super().__init__(prefix, 
-                        name, 
-                        patentWidget, 
-                        renderData,
-                        extraBuildOptions,
-                        defaultText = self.defaultText)
-        super().setData(self.defaultText)
-        self.setTextColor("white")
-    
-    def receiveNotification(self, _):
-        return self.getData()
-    
-    def defaultTextCMD(self):
-        pass
-
 class NotesImage(ww.currUIImpl.Frame):
     displayedImages = []
     subsection = None

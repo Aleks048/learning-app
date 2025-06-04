@@ -17,42 +17,6 @@ import _utils.pathsAndNames as _upan
 import UI.widgets_data as wd
 
 
-class ImageText_ETR(ww.currUIImpl.TextEntry):
-    subsection = None
-    imIdx = None
-    textETR = None
-    etrWidget = None # note this is set top the object so the <ENTER> bind workss
-
-    def __init__(self, patentWidget, prefix, row, column, imIdx, text):
-        name = "_textImageTOC_ETR" + str(imIdx)
-        self.defaultText = text
-
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-
-
-        extraBuildOptions = {
-            ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
-                                            "font": ('Georgia 14')},
-            ww.TkWidgets.__name__ : {"width": 40}
-        }
-
-        super().__init__(prefix, 
-                        name, 
-                        patentWidget, 
-                        renderData,
-                        extraBuildOptions,
-                        defaultText = self.defaultText)
-        super().setData(self.defaultText)
-    
-    def receiveNotification(self, _):
-        return self.getData()
-    
-    def defaultTextCMD(self):
-        pass
-
 class MultilineText_ETR(ww.currUIImpl.MultilineText):
     def __init__(self, parentWidget, prefix, row, column, imLineIdx, text:str, width = 70, fixedHeight = None, *args, **kwargs):
         renderData = {
