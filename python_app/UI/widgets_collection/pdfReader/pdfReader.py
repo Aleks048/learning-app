@@ -5,6 +5,8 @@ from threading import Thread
 import time
 import io
 import re
+import copy
+import subprocess
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.utils as uw
@@ -54,6 +56,286 @@ class NotesImageLabel(ttk.Label):
             return super().__init__(root, name = name, image = self.image, padding = padding)
         else:
             return super().__init__(root, name = name, text = text, padding = padding)
+
+class PdfReaderImageCanvas(wcom.TOCCanvasWithclick):
+    class Label(wcom.TOCCanvasWithclick.Label):
+        def __init__(self, subsection, imIdx, canvas, 
+                     startX, startY, endX, endY, 
+                     extraDataToSave, labelStartX=None, labelStartY=None):
+            self.subsection = subsection
+            self.imIdx = imIdx
+            self.eImIdx = None
+            labelText = f"{subsection}:{self.imIdx}"
+            super().__init__(labelText, canvas, 
+                             startX, startY, endX, endY, 
+                             extraDataToSave, labelStartX, labelStartY,
+                             labelCmd = self.__labelCmd)
+
+        def __labelCmd(self, *args):
+            fsf.Data.Book.subsectionOpenInTOC_UI = self.subsection
+            fsf.Data.Book.entryImOpenInTOC_UI = self.imIdx
+
+            for w in wd.Data.Reactors.entryChangeReactors.values():
+                if "onFullEntryMove" in dir(w):
+                    w.onFullEntryMove()
+
+    def __init__(self, root, prefix, row, column, imIdx, subsection,
+                  columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                  image=None, extraImIdx = None, makeDrawable=True,
+                  page=None, resizeFactor=1, imagePath="", *args, **kwargs):
+        self.selectingSone = False
+        self.omPage = page
+
+        self.getTextOfSelector = False
+        
+        self.subsection = subsection
+        self.imIdx = imIdx
+        self.eImIdx = extraImIdx
+        
+        super().__init__(root = root, prefix = prefix, 
+                         row = row, column = column,
+                         columnspan = columnspan, sticky = sticky, 
+                         image = image, 
+                         makeDrawable = makeDrawable, resizeFactor = resizeFactor, 
+                         imagePath = imagePath, *args, **kwargs)
+    
+        if makeDrawable:
+            keys = ["<Enter>", "<Leave>"]
+
+            def __b(*args):
+                keys, cmds = self._bindCmd()
+                self.rebind(keys, cmds)
+            def __ub(*args):
+                keys = self._unbindCmd()
+                self.unbind(keys)
+
+            cmds = [__b, __ub]
+            self.rebind(keys, cmds)
+
+    def getEntryWidget(self, subsection, imIdx , eImIdx = None):
+        for l in self.labels:
+            if (l.subsection == subsection) and (str(l.imIdx) == str(imIdx)):
+                if eImIdx == None:
+                    return l
+                else:
+                    if str(l.eImIdx) == str(eImIdx):
+                        return l
+
+        return None
+
+    def release(self, event):
+        super().release(event)
+
+        if self.selectingZone \
+            and self.lastRecrangle != None:
+            x = self.lastRecrangle.startX
+            y =  self.lastRecrangle.startY
+            x1 = self.lastRecrangle.endX
+            y1 = self.lastRecrangle.endY
+            self.lastRecrangle.deleteRectangle()
+
+            if "image" in dir(self.image):
+                im = self.image.image
+            else:
+                im = self.image
+            im = im.crop([x - 1, y - 1, x1 + 1, y1 + 1])
+
+            if self.getTextOfSelector:
+                text = _u.getTextFromImage(None, im)
+
+                subprocess.run("pbcopy", text=True, input=text)
+                self.selectingZone = False
+                self.getTextOfSelector = False
+                self.lastRecrangle = None
+                self.startCoord = []
+                return
+
+            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
+
+            imPath = ""
+
+            if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
+                imPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookpath, 
+                                                                            self.subsection, 
+                                                                            self.imIdx)
+            else:
+                imPath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookpath, 
+                                                                             self.subsection,
+                                                                             self.imIdx,
+                                                                             self.eImIdx)
+
+            if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
+                OMName = fsf.Data.Book.currOrigMatName
+                fsf.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, self.omPage)
+                imLinkOMPageDict = fsf.Data.Sec.imLinkOMPageDict(self.subsection)
+                imLinkOMPageDict[self.imIdx] = str(self.omPage)
+                fsf.Data.Sec.imLinkOMPageDict(self.subsection, imLinkOMPageDict)
+
+                self.labels.append(PdfReaderImageCanvas.Label(self.subsection,
+                                                              self.imIdx,
+                                                            self,
+                                                            x, y, x1, y1,
+                                                            {"page": self.omPage},
+                                                            x - 85, y))
+            else:
+                self.labels.append(PdfReaderImageCanvas.Label(self.subsection,
+                                                            f"{self.imIdx}_{self.eImIdx}",
+                                                            self,
+                                                            x, y, x1, y1,
+                                                            {"page": self.omPage},
+                                                            x - 85, y))
+            self.saveFigures()
+
+            im.save(imPath)
+
+            self.selectingZone = False
+            self.getTextOfSelector = False
+            self.lastRecrangle = None
+            self.startCoord = []
+            return
+        else:
+            if self.drawing:
+                self.rectangles.append(self.lastRecrangle)
+                self.drawing = False
+
+            self.saveFigures()
+
+            self.lastRecrangle = None
+            self.startCoord = []
+
+    def refreshImage(self, addBrownBorder = True):
+        super().refreshImage(addBrownBorder = True)
+
+        if self.makeDrawable:
+            keys = ["<Enter>", "<Leave>"]
+
+            def __b(*args):
+                keys, cmds = self._bindCmd()
+                self.rebind(keys, cmds)
+            def __ub(*args):
+                keys = self._unbindCmd()
+                self.unbind(keys)
+
+            cmds = [__b, __ub]
+            self.rebind(keys, cmds)
+
+    def readFigures(self, *args):
+        omBookName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
+        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
+        pageSize = [int(i) for i in pageSize]
+        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
+        widthScale = pageSizeZoomAffected[0] / pageSize[0]
+        heightScale = pageSizeZoomAffected[1] / pageSize[1]
+
+        figuresList = \
+            fsf.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
+
+        if type(figuresList) != str:
+            figuresList = copy.copy(figuresList)
+
+        # NOTE: inafficient and need to be optimised
+        subsections = [i for i in fsf.Wr.BookInfoStructure.getSubsectionsList() if "." in i]
+
+        for i in range(len(subsections) - 1, -1, -1):
+            subsection = subsections[i]
+            subsectionStartPage = int(fsf.Data.Sec.start(subsection))
+
+            if subsectionStartPage > int(self.omPage) + 10:
+                continue
+
+            figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
+            
+            for k, l in figuresLabelsData.items():
+                if type(l) == dict:
+                    if l["page"] == self.omPage:
+                        labelToAdd = PdfReaderImageCanvas.Label(subsection, k,
+                                                            self,
+                                                            l["coords"][0] * widthScale,
+                                                            l["coords"][1] * heightScale,
+                                                            l["coords"][2] * widthScale,
+                                                            l["coords"][3] * heightScale,
+                                                            {"page": self.omPage},
+                                                            l["labelCoords"][0] * widthScale,
+                                                            l["labelCoords"][1] * heightScale)
+                        self.labels.append(labelToAdd)
+
+        self.rectangles = []
+
+        for f in figuresList:
+            if type(f) != str:
+                if f.get("type") != None:
+                    f.pop("type")
+
+                f["endX"] = f["endX"] * widthScale
+                f["endY"] = f["endY"] * heightScale
+                f["startX"] = f["startX"] * widthScale
+                f["startY"] = f["startY"] * heightScale
+
+            rect = wcom.TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
+            self.rectangles.append(rect)
+    
+
+    def saveFigures(self, stampChanges = False, *args):
+        figuresList = []
+
+        omBookName = fsf.Data.Book.currOrigMatName
+        zoomLevel = int(fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
+        pageSize = fsf.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
+        pageSize = [int(i) for i in pageSize]
+        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
+        widthScale = pageSize[0] / pageSizeZoomAffected[0]
+        heightScale = pageSize[1] / pageSizeZoomAffected[1]
+
+        for i in range(len(self.rectangles)):
+            if self.rectangles[i] != None:
+                f= self.rectangles[i].toDict()
+
+                f["endX"] = f["endX"] * widthScale
+                f["endY"] = f["endY"] * heightScale
+                f["startX"] = f["startX"] * widthScale
+                f["startY"] = f["startY"] * heightScale
+
+                figuresList.append(f)
+            else:
+                self.rectangles.pop(i)
+
+        omBookName = fsf.Data.Book.currOrigMatName
+        fsf.Wr.OriginalMaterialStructure.setMaterialPageFigures(omBookName, self.omPage, figuresList)
+
+        for l in self.labels:
+            f = l.toDict()
+
+            coords = []
+            coords.append(f["coords"][0] * widthScale)
+            coords.append(f["coords"][1] * heightScale)
+            coords.append(f["coords"][2] * widthScale)
+            coords.append(f["coords"][3] * heightScale)
+            f["coords"] = coords
+
+            labelCoords = []
+            labelCoords.append(f["labelCoords"][0] * widthScale)
+            labelCoords.append(f["labelCoords"][1] * heightScale)
+            f["labelCoords"] = labelCoords
+
+            figuresLabelsData = fsf.Data.Sec.figuresLabelsData(l.subsection)
+
+            if l.eImIdx == None:
+                figuresLabelsData[l.imIdx] = f
+            else:
+                figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = f
+
+            fsf.Data.Sec.figuresLabelsData(l.subsection, figuresLabelsData)
+
+        if stampChanges:
+            msg = "\
+        After saving the figures'."
+            _u.log.autolog(msg)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+            proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ProofsManager)
+            proofsManager.refresh(self.subsection, self.imIdx)
 
 class PdfReaderImage(ww.currUIImpl.Frame):
     def __init__(self, parentWidget, prefix, row, pdfDoc, pageNum, pageWidth):
@@ -111,12 +393,12 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         pilIm = pilIm.resize([self.pageWidth, int((self.pageWidth / width) * height)],
                       Image.LANCZOS)
         img = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = wcom.TOCCanvasWithclick(root = self, imIdx =  None, subsection = None,
+        self.imLabel = PdfReaderImageCanvas(root = self, imIdx =  None, subsection = None,
                                         prefix = f"_PdfImage_LBLim_{self.row}", 
                                         image = img, padding = [0, 0, 0, 0],
                                         row = 1, column = 1, columnspan = 1,
                                         extraImIdx = _u.Token.NotDef.int_t,
-                                        makeDrawable = True, isPdfPage = True, page = self.pageNum, 
+                                        makeDrawable = True, page = self.pageNum, 
                                         pilIm = pilIm)
         self.imLabel.selectingZone = self.selectingZone
         self.imLabel.getTextOfSelector = self.getTextOfSelector
@@ -313,6 +595,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.subsection = None
         self.imIdx = None
         self.eImIdx = None
+
         self.currNoteCopyIdx = _u.Token.NotDef.int_t
         self.displayedPdfPages = []
         self.currPage = None

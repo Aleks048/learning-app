@@ -41,3 +41,4 @@ class Data:
         subsectionChangeReactors = {}
         excerciseLineChangeReactors = {}
         groupChangeReactors = {}
+        imageReactors = {}

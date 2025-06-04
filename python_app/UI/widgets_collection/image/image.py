@@ -289,7 +289,8 @@ class ImageMainImage(ww.currUIImpl.Frame):
     def hide(self):
         if self.imLabel != None:
             for l in self.imLabel.getChildren().copy():
-                if type(l) == comw.TOCCanvasWithclick:
+                if (type(l) == comw.TOCCanvasWithclick) \
+                    or (type(l).__base__ == comw.TOCCanvasWithclick):
                     l.saveFigures()
                     self.imLabel.destroy()
         super().hide()

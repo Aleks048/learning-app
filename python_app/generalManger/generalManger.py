@@ -323,7 +323,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
     @classmethod
     def CopyGlLink(cls, targetSubsection, targetIDX, sourceSubsection, sourceIDX):
-         # add target to the source links
+        # add target to the source links
         sourseSectionGlobalLinksDict = fsf.Data.Sec.imGlobalLinksDict(sourceSubsection)
         sourceLinks = sourseSectionGlobalLinksDict[sourceIDX].copy()
         targetTopSection = targetSubsection.split(".")[0]
@@ -702,8 +702,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
 
 
     @classmethod
-    def MoveGroupToSubsection(cls, 
-                              sourceSubsection, sourceGroupName, 
+    def MoveGroupToSubsection(cls, sourceSubsection, sourceGroupName, 
                               targetSubsection, targetGroupName, targetEntryDestIdx):
         sourceGroupIdx = list(fsf.Data.Sec.imagesGroupsList(sourceSubsection).keys()).index(sourceGroupName)
         firstGroupEntry = list({k:v for k,v in fsf.Data.Sec.imagesGroupDict(sourceSubsection).items() \

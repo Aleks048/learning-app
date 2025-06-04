@@ -1,7 +1,6 @@
 from PIL import Image, ImageOps
 from threading import Thread
-import subprocess
-import copy
+import uuid
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -15,7 +14,6 @@ import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
-import UI.widgets_collection.utils as _uuicom
 import UI.widgets_data as wd
 
 
@@ -1235,30 +1233,27 @@ class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
 
 class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     class Label:
-        def __init__(self, subsection, imIdx, canvas, 
+        def __init__(self, labelText, canvas, 
                      startX, startY, endX, endY,
-                     omPage, 
-                     labelStartX = None, labelStartY = None):
+                     extraDataToSave, 
+                     labelStartX = None, labelStartY = None,
+                     labelCmd = lambda *args: None):
             self.canvas = canvas
-            self.subsection = subsection
+            self.labelText = labelText
 
             self.id = None
             self.handleId = None
             self.handleId2 = None
             self.tag = None
 
-            self.eImIdx = None
-
             self.label = None
             self.line = None
 
+            self.labelCmd = labelCmd
+
             self.movingHandle2 = False
 
-            if len(imIdx.split("_")) == 1:
-                self.imIdx = imIdx
-            else:
-                self.imIdx = imIdx.split("_")[0]
-                self.eImIdx = imIdx.split("_")[1]
+            self.uid = str(uuid.uuid4())
 
             self.startX = startX
 
@@ -1277,39 +1272,25 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             self.endX = endX
             self.endY = endY
 
-            self.omPage = omPage
+            # this is used to save some extra data with the label
+            self.extraDataToSave = extraDataToSave
 
             self.draw()
 
-        def __labelCmd(self, *args):
-            mainMathManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-            mainMathManager.moveTocToEntry(self.subsection, self.imIdx)
-
-
         def draw(self):
-            text = f"{self.subsection}:{self.imIdx}"
-
-            if self.eImIdx != None:
-                text += f"_{self.eImIdx}"
-
-            subsecId = self.subsection.replace(".", "_")
-            prefix = f"{subsecId}_{self.imIdx}"
-
-            if self.eImIdx != None:
-                prefix += f"_{self.eImIdx}"
+            text = self.labelText
 
             name = "_CanvasButton_"
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
             }
-            self.label = ww.currUIImpl.Button(prefix = prefix,
+            self.label = ww.currUIImpl.Button(prefix = self.uid,
                                  name = name,
                                  text = text,
                                  rootWidget = self.canvas,
                                  renderData = renderData,
-                                 cmd = self.__labelCmd
+                                 cmd = self.labelCmd
                                  )
 
             self.label.setStyle("Canvas.TMenubutton")
@@ -1317,25 +1298,25 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                                self.labelStartY, 
                                                anchor = ww.currUIImpl.Orientation.NW, 
                                                buttonWidget = self.label,
-                                               tags = f"button:{self.subsection}:{self.imIdx}")
+                                               tags = f"button:{self.uid}")
             self.handleId = self.canvas.createRectangle(self.labelStartX, 
                                         self.labelStartY,
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "green",
-                                        tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                        tags = f"buttonRect:{self.uid}")
             self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70, 
                                         self.labelStartY,
                                         self.labelStartX + 80,
                                         self.labelStartY - 10,
                                         fill = "green",
-                                        tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                        tags = f"buttonRect:{self.uid}")
 
             def __drawLine(self):
                 self.line = self.canvas.createRectangle(self.startX - 5, self.startY,
                                                     self.startX + 1, self.endY,
                                                     fill = "red",
-                                                    tags = f"entryLineRect:{self.subsection}:{self.imIdx}")
+                                                    tags = f"entryLineRect:{self.uid}")
 
             def __deleteLine(self):
                 if self.line != None:
@@ -1375,13 +1356,13 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "yellow",
-                                        tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                        tags = f"buttonRect:{self.uid}")
                 self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70, 
                                         self.labelStartY,
                                         self.labelStartX + 80,
                                         self.labelStartY - 10,
                                         fill = "yellow",
-                                        tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                        tags = f"buttonRect:{self.uid}")
 
         def unselect(self):
             self.canvas.deleteByTag(self.handleId) 
@@ -1392,13 +1373,13 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                         self.labelStartX + 10,
                                         self.labelStartY + 40,
                                         fill = "green",
-                                        tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                        tags = f"buttonRect:{self.uid}")
                 self.handleId2 = self.canvas.createRectangle(self.labelStartX + 70,
                                             self.labelStartY,
                                             self.labelStartX + 80,
                                             self.labelStartY - 10,
                                             fill = "green",
-                                            tags = f"buttonRect:{self.subsection}:{self.imIdx}")
+                                            tags = f"buttonRect:{self.uid}")
 
         def deleteLabel(self):
             if self.id != None:
@@ -1414,12 +1395,12 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
 
         def toDict(self):
-            return {
-                        "page" : self.omPage,
+            defaultData = {
                         "coords" : [self.startX, self.startY,
                                     self.endX, self.endY],
                         "labelCoords" : [self.labelStartX, self.labelStartY]
-                    }
+                        }
+            return defaultData | self.extraDataToSave
 
     class Rectangle:
         alpha = 0.3
@@ -1558,16 +1539,22 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             image = Image.new('RGBA', (abs(int(x2-x1)), abs(int(y2-y1))), fill)
             self.imageContainer = ww.currUIImpl.UIImage(image)
 
-            if not self.canvas.selectingZone:
+            if "selectingZone" not in dir(self.canvas):
                 self.id =  self.canvas.createImage(x1, y1, 
                                                    image = self.imageContainer, 
                                                    anchor=ww.currUIImpl.Orientation.NW, 
                                                    tag = self.tag)
             else:
-                self.id =  self.canvas.createPolygon([x1, y1, x2, y1, x2, y2, x1, y2], 
-                                                    fill = '',
-                                                    outline = "black",
-                                                    tags = self.tag)
+                if not self.canvas.selectingZone:
+                    self.id =  self.canvas.createImage(x1, y1, 
+                                                    image = self.imageContainer, 
+                                                    anchor=ww.currUIImpl.Orientation.NW, 
+                                                    tag = self.tag)
+                else:
+                    self.id =  self.canvas.createPolygon([x1, y1, x2, y1, x2, y2, x1, y2], 
+                                                        fill = '',
+                                                        outline = "black",
+                                                        tags = self.tag)
 
         def deleteCornerWidgets(self):      
             for w in self.cornerWidgetsIds:
@@ -1585,9 +1572,57 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                     self.canvas.rectangles = [i for i in self.canvas.rectangles if i != None]
                     self.canvas.rectangles = [i for i in self.canvas.rectangles if i.id != self.id]
 
+    def __init__(self, root, prefix, row, column, 
+                 columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
+                 image = None,
+                 makeDrawable = True,
+                 resizeFactor = 1.0,
+                 imagePath = "",
+                 *args, **kwargs) -> None:
+        self.root = root
+
+        self.row = row
+        self.column = column
+        self.columnspan = columnspan
+        self.sticky = sticky
+
+        self.image = image
+        
+        self.imagePath = imagePath
+        self.makeDrawable = makeDrawable
+
+        self.imageResize = None
+        self.startCoord = []
+
+        self.rectangles = []
+        self.labels = []
+
+        self.drawing = False
+        
+        self.lastRecrangle = None
+        self.selectedRectangle = None
+
+        self.movingFigure = None
+        self.resizingFigure = None
+
+        self.resizeFactor = resizeFactor
+
+        self.width = self.image.getWidth()
+        self.height = self.image.getHeight()
+
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
+        }
+        name = "_Canvas_"
+
+        super().__init__(prefix, name, root, renderData, image, self.width, self.height)
+        self.readFigures()
+
+
     def release(self, event):
         if self.movingFigure != None:
-            if type(self.movingFigure) == TOCCanvasWithclick.Label:
+            if type(self.movingFigure).__base__ == TOCCanvasWithclick.Label:
                 self.labels.append(self.movingFigure)
                 self.movingFigure.movingHandle2 = False
 
@@ -1598,115 +1633,6 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         cmds = [lambda *args: self.saveFigures(stampChanges = True),
                 lambda *args: self.deleteSelectedRectangle()]
         self.rebind(keys, cmds)
-
-        if self.selectingZone \
-            and self.lastRecrangle != None:
-            x = self.lastRecrangle.startX
-            y =  self.lastRecrangle.startY
-            x1 = self.lastRecrangle.endX
-            y1 = self.lastRecrangle.endY
-            self.lastRecrangle.deleteRectangle()
-
-            if "image" in dir(self.image):
-                im = self.image.image
-            else:
-                im = self.image
-            im = im.crop([x - 1, y - 1, x1 + 1, y1 + 1])
-
-            if self.getTextOfSelector:
-                text = _u.getTextFromImage(None, im)
-
-                subprocess.run("pbcopy", text=True, input=text)
-                self.selectingZone = False
-                self.getTextOfSelector = False
-                self.lastRecrangle = None
-                self.startCoord = []
-                return
-
-            currBookpath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-
-            imPath = ""
-
-            if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
-                imPath = _upan.Paths.Screenshot.Images.getMainEntryImageAbs(currBookpath, 
-                                                                            self.subsection, 
-                                                                            self.imIdx)
-            else:
-                imPath = _upan.Paths.Screenshot.Images.getExtraEntryImageAbs(currBookpath, 
-                                                                             self.subsection,
-                                                                             self.imIdx,
-                                                                             self.eImIdx)
-
-            if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
-                OMName = fsm.Data.Book.currOrigMatName
-                fsm.Wr.OriginalMaterialStructure.setMaterialCurrPage(OMName, self.omPage)
-                imLinkOMPageDict = fsm.Data.Sec.imLinkOMPageDict(self.subsection)
-                imLinkOMPageDict[self.imIdx] = str(self.omPage)
-                fsm.Data.Sec.imLinkOMPageDict(self.subsection, imLinkOMPageDict)
-
-                self.labels.append(TOCCanvasWithclick.Label(self.subsection,
-                                                            self.imIdx,
-                                                            self,
-                                                            x, y, x1, y1,
-                                                            self.omPage,
-                                                            x - 85, y))
-            else:
-                self.labels.append(TOCCanvasWithclick.Label(self.subsection,
-                                                            f"{self.imIdx}_{self.eImIdx}",
-                                                            self,
-                                                            x, y, x1, y1,
-                                                            self.omPage,
-                                                            x - 85, y))
-            self.saveFigures()
-
-            im.save(imPath)
-
-            self.selectingZone = False
-            self.getTextOfSelector = False
-            self.lastRecrangle = None
-            self.startCoord = []
-            return
-
-        else:
-            if self.drawing:
-                self.rectangles.append(self.lastRecrangle)
-                self.drawing = False
-
-            self.saveFigures()
-
-            self.lastRecrangle = None
-            self.startCoord = []
-
-    def clickOnFigure(self, event):
-        if self.drawing:
-            return
-
-        x1 = event.x
-        y1 = event.y
-
-        overlapIds = self.findOverlapping(x1, y1, x1, y1)
-        if len(overlapIds) != 0:
-            overlapId = overlapIds[-1]
-
-            for l in self.labels:
-                if (overlapId == l.handleId) or (overlapId == l.handleId2):
-                    l.select()
-                else:
-                    l.unselect()
-
-            for r in self.rectangles:
-                if r != None:
-                    for i in range(len(r.cornerWidgetsIds)):
-                        if r.cornerWidgetsIds[i] == overlapId:
-                            self.draw(event)
-                            return
-
-                    if (overlapId == r.id):
-                        if (r.cornerWidgetsIds == [None, None, None, None]):
-                            self.selectedRectangle = r
-                            r.showCornerWidgets()
-                    else:
-                        r.deleteCornerWidgets()
 
     def draw(self, event):
         x1 = event.x
@@ -1774,164 +1700,36 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
             self.lastRecrangle = TOCCanvasWithclick.Rectangle(startx, starty, endx, endy, 
                                                             self)
 
-    def readFigures(self, *args):
-        figuresList = []
+    def clickOnFigure(self, event):
+        if self.drawing:
+            return
 
-        omBookName = fsm.Data.Book.currOrigMatName
-        zoomLevel = int(fsm.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
-        pageSize = fsm.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
-        pageSize = [int(i) for i in pageSize]
-        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
-        widthScale = pageSizeZoomAffected[0] / pageSize[0]
-        heightScale = pageSizeZoomAffected[1] / pageSize[1]
+        x1 = event.x
+        y1 = event.y
 
-        if not self.isPdfPage:
-            figuresData = fsm.Data.Sec.figuresData(self.subsection)
-
-            if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
-                if figuresData.get(self.imIdx) != None:
-                    figuresList = copy.deepcopy(figuresData[str(self.imIdx)])
-            else:
-                if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
-                    figuresList = copy.deepcopy(figuresData[f"{self.imIdx}_{self.eImIdx}"])
-                else:
-                    return
-        else:
-            figuresList = \
-                fsm.Wr.OriginalMaterialStructure.getMaterialPageFigures(omBookName, self.omPage)
-
-            if type(figuresList) != str:
-                figuresList = copy.copy(figuresList)
-
-            # NOTE: inafficient and need to be optimised
-            subsections = [i for i in fsm.Wr.BookInfoStructure.getSubsectionsList() if "." in i]
-
-            for i in range(len(subsections) - 1, -1, -1):
-                subsection = subsections[i]
-                subsectionStartPage = int(fsm.Data.Sec.start(subsection))
-
-                if subsectionStartPage > int(self.omPage) + 10:
-                    continue
-
-                figuresLabelsData = fsm.Data.Sec.figuresLabelsData(subsection).copy()
-               
-                for k, l in figuresLabelsData.items():
-                    if type(l) == dict:
-                        if l["page"] == self.omPage:
-                            labelToAdd = TOCCanvasWithclick.Label(subsection,
-                                                                k,
-                                                                self,
-                                                                l["coords"][0] * widthScale,
-                                                                l["coords"][1] * heightScale,
-                                                                l["coords"][2] * widthScale,
-                                                                l["coords"][3] * heightScale,
-                                                                self.omPage,
-                                                                l["labelCoords"][0] * widthScale,
-                                                                l["labelCoords"][1] * heightScale)
-                            self.labels.append(labelToAdd)
-
-        self.rectangles = []
-
-        for f in figuresList:
-            if type(f) != str:
-                if f.get("type") != None:
-                    f.pop("type")
-
-                if self.isPdfPage:
-                    f["endX"] = f["endX"] * widthScale
-                    f["endY"] = f["endY"] * heightScale
-                    f["startX"] = f["startX"] * widthScale
-                    f["startY"] = f["startY"] * heightScale
-                elif (self.resizeFactor != 1.0):
-                    f["endX"] = float(f["endX"]) *  (1.0 / self.resizeFactor)
-                    f["endY"] = float(f["endY"]) *  (1.0 / self.resizeFactor)
-                    f["startX"] = float(f["startX"]) *  (1.0 / self.resizeFactor)
-                    f["startY"] = float(f["startY"]) *  (1.0 / self.resizeFactor)
-
-            rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
-            self.rectangles.append(rect)
-
-    def saveFigures(self, stampChanges = False, *args):
-        figuresList = []
-
-        omBookName = fsm.Data.Book.currOrigMatName
-        zoomLevel = int(fsm.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omBookName))
-        pageSize = fsm.Wr.OriginalMaterialStructure.getMaterialPageSize(omBookName)
-        pageSize = [int(i) for i in pageSize]
-        pageSizeZoomAffected = [zoomLevel, int((zoomLevel / pageSize[0]) * pageSize[1])]
-        widthScale = pageSize[0] / pageSizeZoomAffected[0]
-        heightScale = pageSize[1] / pageSizeZoomAffected[1]
-
-        for i in range(len(self.rectangles)):
-            if self.rectangles[i] != None:
-                f= self.rectangles[i].toDict()
-
-                if self.isPdfPage:
-                    f["endX"] = f["endX"] * widthScale
-                    f["endY"] = f["endY"] * heightScale
-                    f["startX"] = f["startX"] * widthScale
-                    f["startY"] = f["startY"] * heightScale
-                elif self.resizeFactor != 1.0:
-                    f["endX"] = float(f["endX"]) *  self.resizeFactor
-                    f["endY"] = float(f["endY"]) *  self.resizeFactor
-                    f["startX"] = float(f["startX"]) *  self.resizeFactor
-                    f["startY"] = float(f["startY"]) *  self.resizeFactor
-
-                figuresList.append(f)
-            else:
-                self.rectangles.pop(i)
-
-        if not self.isPdfPage:
-            figuresData = fsm.Data.Sec.figuresData(self.subsection)
-
-            if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
-                figuresData[self.imIdx] = figuresList
-            else:
-                figuresData[f"{self.imIdx}_{self.eImIdx}"] = figuresList
-
-            fsm.Data.Sec.figuresData(self.subsection, figuresData)
-            
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.scrollToLatestClickedWidget()
-        else:
-            omBookName = fsm.Data.Book.currOrigMatName
-            fsm.Wr.OriginalMaterialStructure.setMaterialPageFigures(omBookName, self.omPage, figuresList)
+        overlapIds = self.findOverlapping(x1, y1, x1, y1)
+        if len(overlapIds) != 0:
+            overlapId = overlapIds[-1]
 
             for l in self.labels:
-                f = l.toDict()
-
-                coords = []
-                coords.append(f["coords"][0] * widthScale)
-                coords.append(f["coords"][1] * heightScale)
-                coords.append(f["coords"][2] * widthScale)
-                coords.append(f["coords"][3] * heightScale)
-                f["coords"] = coords
-
-                labelCoords = []
-                labelCoords.append(f["labelCoords"][0] * widthScale)
-                labelCoords.append(f["labelCoords"][1] * heightScale)
-                f["labelCoords"] = labelCoords
-
-                figuresLabelsData = fsm.Data.Sec.figuresLabelsData(l.subsection)
-
-                if l.eImIdx == None:
-                    figuresLabelsData[l.imIdx] = f
+                if (overlapId == l.handleId) or (overlapId == l.handleId2):
+                    l.select()
                 else:
-                    figuresLabelsData[f"{l.imIdx}_{l.eImIdx}"] = f
+                    l.unselect()
 
-                fsm.Data.Sec.figuresLabelsData(l.subsection, figuresLabelsData)
+            for r in self.rectangles:
+                if r != None:
+                    for i in range(len(r.cornerWidgetsIds)):
+                        if r.cornerWidgetsIds[i] == overlapId:
+                            self.draw(event)
+                            return
 
-        if stampChanges:
-            msg = "\
-        After saving the figures'."
-            _u.log.autolog(msg)
-            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
-
-            proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.ProofsManager)
-            proofsManager.refresh(self.subsection, self.imIdx)
-
+                    if (overlapId == r.id):
+                        if (r.cornerWidgetsIds == [None, None, None, None]):
+                            self.selectedRectangle = r
+                            r.showCornerWidgets()
+                    else:
+                        r.deleteCornerWidgets()
 
     def deleteSelectedRectangle(self, *args):
         if self.selectedRectangle != None:
@@ -1947,85 +1745,6 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                                                 wf.Wr.MenuManagers.MathMenuManager)
                     mainManager.scrollToLatestClickedWidget()
                     break
-
-    def __init__(self, root, prefix, row, column, imIdx, subsection, 
-                 columnspan = 1, sticky = ww.currUIImpl.Orientation.NW, 
-                 image = None, extraImIdx = None,
-                 makeDrawable = True, 
-                 isPdfPage = False, page = None,
-                 resizeFactor = 1.0,
-                 imagePath = "",
-                 *args, **kwargs) -> None:
-        self.root = root
-
-        self.row = row
-        self.column = column
-        self.columnspan = columnspan
-        self.sticky = sticky
-        self.image = image
-        self.imIdx = imIdx
-        self.subsection = subsection
-        self.eImIdx = extraImIdx
-        self.isPdfPage = isPdfPage
-        self.omPage = page
-        self.imagePath  = _u.Token.NotDef.str_t
-        self.etrWidget = _u.Token.NotDef.no_t
-        
-        self.imagePath = imagePath
-        self.makeDrawable = makeDrawable
-
-        self.imageResize = None
-        self.startCoord = []
-
-        self.rectangles = []
-        self.labels = []
-        self.drawing = False
-        self.lastRecrangle = None
-        
-        self.selectedRectangle = None
-
-        self.selectingZone = False
-        self.getTextOfSelector = False
-
-        self.movingFigure = None
-        self.resizingFigure = None
-
-        self.__btnClickFuncId = None
-
-        self.resizeFactor = resizeFactor
-
-        if "width" in dir(self.image):
-            self.width = self.image.width()
-            self.height = self.image.height()
-        else:
-            self.width = self.image.getWidth()
-            self.height = self.image.getHeight()
-
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
-        }
-        name = "_Canvas_"
-
-        super().__init__(prefix, name, root, renderData, image, self.width, self.height)
-        self.readFigures()
-
-        if makeDrawable:
-            if not self.isPdfPage:
-                keys, cmds = self.__bindCmd()
-                self.rebind(keys, cmds)
-            else:
-                keys = ["<Enter>", "<Leave>"]
-
-                def __b(*args):
-                    keys, cmds = self.__bindCmd()
-                    self.rebind(keys, cmds)
-                def __ub(*args):
-                    keys = self.__unbindCmd()
-                    self.unbind(keys)
-
-                cmds = [__b, __ub]
-                self.rebind(keys, cmds)
 
     def refreshImage(self, addBrownBorder = True):
         self.pilIm = Image.open(self.imagePath)
@@ -2045,39 +1764,11 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
         self.readFigures()
 
-        if self.makeDrawable:
-            if not self.isPdfPage:
-                keys, cmds = self.__bindCmd()
-                self.rebind(keys, cmds)
-            else:
-                keys = ["<Enter>", "<Leave>"]
-
-                def __b(*args):
-                    keys, cmds = self.__bindCmd()
-                    self.rebind(keys, cmds)
-                def __ub(*args):
-                    keys = self.__unbindCmd()
-                    self.unbind(keys)
-
-                cmds = [__b, __ub]
-                self.rebind(keys, cmds)
-
-    def getEntryWidget(self, subsection, imIdx , eImIdx = None):
-        for l in self.labels:
-            if (l.subsection == subsection) and (str(l.imIdx) == str(imIdx)):
-                if eImIdx == None:
-                    return l
-                else:
-                    if str(l.eImIdx) == str(eImIdx):
-                        return l
-
-        return None
-
-    def __bindCmd(self, *args):
+    def _bindCmd(self, *args):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", "<ButtonRelease-1>"],\
                [self.draw, self.draw, self.clickOnFigure, self.release]
 
-    def __unbindCmd(self, *args):
+    def _unbindCmd(self, *args):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
                 "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
 

@@ -3,6 +3,8 @@ import time
 import re
 from threading import Thread
 import os
+import copy
+import uuid
 
 import UI.widgets_wrappers as ww
 import UI.widgets_data as wd
@@ -19,6 +21,127 @@ import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
+
+
+class EntryImagecanvas(TOCCanvasWithclick):
+    def __init__(self, root, prefix, row, column, imIdx, subsection, 
+                 columnspan = 1, sticky=ww.currUIImpl.Orientation.NW, image=None, 
+                 extraImIdx = None, makeDrawable = True, 
+                 resizeFactor=1, imagePath="", *args, **kwargs):
+        self.subsection = subsection
+        self.imIdx = imIdx
+        self.eImIdx = extraImIdx
+        self.uid = str(uuid.uuid4())
+
+        super().__init__(root = root, prefix = prefix, 
+                         row = row, column = column,
+                         columnspan = columnspan, sticky = sticky, 
+                         image = image,
+                         makeDrawable = makeDrawable, 
+                         resizeFactor = resizeFactor, 
+                         imagePath = imagePath, *args, **kwargs)
+        
+        wd.Data.Reactors.imageReactors[f"{self.subsection}_{self.imIdx}_{self.eImIdx}_{self.uid}"] = self
+
+        if makeDrawable:
+            keys, cmds = super()._bindCmd()
+            self.rebind(keys, cmds)
+    
+    def hide(self, **kwargs):
+        wd.Data.Reactors.imageReactors.pop(f"{self.subsection}_{self.imIdx}_{self.eImIdx}_{self.uid}")
+        return super().hide(**kwargs)
+
+    def refreshImage(self, addBrownBorder = True):
+        super().refreshImage(addBrownBorder = True)
+
+        if self.makeDrawable:
+            keys, cmds = self._bindCmd()
+            self.rebind(keys, cmds)
+
+    def readFigures(self, *args):
+        figuresList = []
+
+        figuresData = fsf.Data.Sec.figuresData(self.subsection)
+
+        if (self.eImIdx == None) or (str(self.eImIdx) == _u.Token.NotDef.str_t):
+            if figuresData.get(self.imIdx) != None:
+                figuresList = copy.deepcopy(figuresData[str(self.imIdx)])
+        else:
+            if figuresData.get(f"{self.imIdx}_{self.eImIdx}") != None:
+                figuresList = copy.deepcopy(figuresData[f"{self.imIdx}_{self.eImIdx}"])
+            else:
+                return
+
+        self.rectangles = []
+
+        for f in figuresList:
+            if type(f) != str:
+                if f.get("type") != None:
+                    f.pop("type")
+
+                f["endX"] = float(f["endX"]) *  (1.0 / self.resizeFactor)
+                f["endY"] = float(f["endY"]) *  (1.0 / self.resizeFactor)
+                f["startX"] = float(f["startX"]) *  (1.0 / self.resizeFactor)
+                f["startY"] = float(f["startY"]) *  (1.0 / self.resizeFactor)
+
+            rect = TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
+            self.rectangles.append(rect)
+    
+
+    def release(self, event):
+        super().release(event)
+
+        if self.drawing:
+            self.rectangles.append(self.lastRecrangle)
+            self.drawing = False
+
+        self.saveFigures()
+
+        self.lastRecrangle = None
+        self.startCoord = []
+
+    def saveFigures(self, stampChanges = False, *args):
+        figuresList = []
+
+        for i in range(len(self.rectangles)):
+            if self.rectangles[i] != None:
+                f= self.rectangles[i].toDict()
+
+                if self.resizeFactor != 1.0:
+                    f["endX"] = float(f["endX"]) *  self.resizeFactor
+                    f["endY"] = float(f["endY"]) *  self.resizeFactor
+                    f["startX"] = float(f["startX"]) *  self.resizeFactor
+                    f["startY"] = float(f["startY"]) *  self.resizeFactor
+
+                figuresList.append(f)
+            else:
+                self.rectangles.pop(i)
+
+        figuresData = fsf.Data.Sec.figuresData(self.subsection)
+
+        if (self.eImIdx == None) or (self.eImIdx == _u.Token.NotDef.int_t):
+            figuresData[self.imIdx] = figuresList
+        else:
+            figuresData[f"{self.imIdx}_{self.eImIdx}"] = figuresList
+
+        fsf.Data.Sec.figuresData(self.subsection, figuresData)
+
+        for k, w in wd.Data.Reactors.imageReactors.items():
+            id = "_".join(k.split("_")[:-1])
+            uid = k.split("_")[-1]
+            if (id == f"{self.subsection}_{self.imIdx}_{self.eImIdx}")\
+                and (uid != self.uid):
+                w.readFigures()
+
+        if stampChanges:
+            msg = "\
+        After saving the figures'."
+            _u.log.autolog(msg)
+            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+
+            proofsManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.ProofsManager)
+            proofsManager.refresh(self.subsection, self.imIdx)
 
 class EntryImagesFactory:
     class __ImageFrame(ww.currUIImpl.Frame):
@@ -173,7 +296,7 @@ class EntryImagesFactory:
             img = ww.currUIImpl.UIImage(pilIm)
 
             if bindOpenWindow:
-                imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
+                imLabel = EntryImagecanvas(root, imIdx = imIdx, subsection = subsection,
                                             prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                             row = row, column = column, columnspan = columnspan,
                                             extraImIdx = extraImIdx, 
@@ -181,7 +304,7 @@ class EntryImagesFactory:
                                             imagePath = imagePath,
                                             makeDrawable = False)
             else:
-                imLabel = TOCCanvasWithclick(root, imIdx = imIdx, subsection = subsection,
+                imLabel = EntryImagecanvas(root, imIdx = imIdx, subsection = subsection,
                                             prefix = widgetName, image = img, padding = [imPad, 0, 0, 0],
                                             row = row, column = column, columnspan = columnspan,
                                             extraImIdx = extraImIdx,
