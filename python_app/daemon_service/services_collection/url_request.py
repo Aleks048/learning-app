@@ -9,8 +9,6 @@ import data.temp as dt
 
 import UI.widgets_facade as wf
 
-import outside_calls.outside_calls_facade as oscf
-
 import _utils._utils_main as _u
 
 
@@ -32,13 +30,6 @@ def processCall(url):
 
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
-    
-    if "pdf" in linktType.lower():
-        log.autolog("Will only open pdf of '{0}'".format(subsecPath))
-        oscf.Wr.PdfApp.openSubsectionPDF(positionIDX,
-                                        subsecPath,
-                                        bookName)
-        return    
 
     # switch section
     if not (subsecPath == fsf.Data.Book.currSection):
