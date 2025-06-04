@@ -226,16 +226,13 @@ class MainTOCBox(comw.TOC_BOX):
                 if data[1] != None:
                     if data[3]:
                         self.shouldScroll = True
-                        # self.scrollIntoView(None, self.showImagesLabels[str(data[1]) + str(data[2])])
                         self.shouldScroll = False
             elif data.get(comw.EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain) != None:
                 data = data.get(comw.EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain)
                 if data[2]:
                     self.render()
-                    # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
             elif data.get(comw.EntryWindow_BOX.Notifyers.IDs.setMain) != None:
                 data = data.get(comw.EntryWindow_BOX.Notifyers.IDs.setMain)
-                # self.showImagesLabels[str(data[0]) + str(data[1])].generateEvent(ww.currUIImpl.Data.BindID.mouse1)
         elif broadcasterType == mui.ExitApp_BTN:
             tsList = fsf.Wr.BookInfoStructure.getTopSectionsList()
 

@@ -11,7 +11,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 import UI.widgets_collection.common as comw
 
-from UI.widgets_collection.common import TOCCanvasWithclick, TOCLabelWithClick, TOCTextWithClickTextOnlyEntry, ImageSize_ETR
+from UI.widgets_collection.common import TOCCanvasWithclick, TOCLabelWithClick, TOCTextWithClick, ImageSize_ETR
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, bindChangeColorOnInAndOut, addExtraIm
 
 import file_system.file_system_facade as fsf
@@ -21,6 +21,21 @@ import _utils.pathsAndNames as _upan
 import settings.facade as sf
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
+
+
+class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
+    width = 60
+
+    def __init__(self, root, prefix, row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, text=""):
+        self.subsection = None
+        self.imIdx = None
+        super().__init__(root, prefix, row, column, columnspan, sticky, text)
+        self.setWrapLength(self.width * 9)
+        self.setWidth(self.width)
+
+    def updateLabel(self):
+        self.changeText(fsf.Data.Sec.imageText(self.subsection)[self.imIdx])
+        self.setWidth(self.width)
 
 
 class EntryImagecanvas(TOCCanvasWithclick):

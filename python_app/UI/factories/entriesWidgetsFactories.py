@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import time
 import re
 from threading import Thread
@@ -9,8 +9,9 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
 from UI.factories.entryImageWidgetsFactories import EntryImagesFactory
-from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabelWithClickEntry, EntryShowPermamentlyCheckbox, TOCLabelWithClickGroup, TOCFrame, TOCGroupFrame, ImageGroupOM
+from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCFrame
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindOpenOMOnThePageOfTheImage, openVideoOnThePlaceOfTheImage, bindChangeColorOnInAndOut, addExtraIm, getEntryImg, getGroupImg
+from UI.widgets_collection.utils import getGroupImg, getEntryImg
 
 import file_system.file_system_facade as fsf
 import data.temp as dt
@@ -21,6 +22,143 @@ import outside_calls.outside_calls_facade as ocf
 import generalManger.generalManger as gm
 import tex_file.tex_file_facade as tff
 
+
+class ImageGroupOM(ww.currUIImpl.OptionMenu):
+    def __init__(self,
+                 listOfOptions, 
+                 rootWidget, 
+                 subsection,
+                 imIdx,
+                 tocBox,
+                 column,
+                 currImGroupName = None):
+        data = {
+            ww.Data.GeneralProperties_ID : {"column" : column, 
+                                            "row" : 0,
+                                            "columnspan" : 3},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, 
+                                     "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+
+        name = "GroupOM_"
+
+        self.imIdx = imIdx
+        self.subsection = subsection
+        self.tocBox = tocBox
+
+        prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
+
+        super().__init__(prefix, 
+                         name,
+                         listOfOptions,
+                         rootWidget,
+                         data,
+                         defaultOption = currImGroupName,
+                         cmd = self.chooseGroupCmd)
+                        
+    def chooseGroupCmd(self):
+        imagesGroupList:list = list(fsf.Data.Sec.imagesGroupsList(self.subsection).keys())
+        imagesGroupDict = fsf.Data.Sec.imagesGroupDict(self.subsection)
+        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
+        fsf.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
+
+        
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onGroupChange" in dir(w):
+                w.onGroupChange(self.subsection, self.imIdx)
+
+
+class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
+    def __init__(self, parent, subsection, imIdx, prefix, row, column):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+        }
+        name = "_EntryShowPermamentlyCheckbox_"
+
+        self.subsection = subsection
+        self.imIdx = str(imIdx)
+
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        if tocWImageDict == _u.Token.NotDef.dict_t:
+            alwaysShow = "0"
+        else:
+            if tocWImageDict.get(self.imIdx) != None:
+                alwaysShow = tocWImageDict[self.imIdx]
+            else:
+                alwaysShow = "0"
+
+        super().__init__(prefix,
+                         name,
+                         parent, 
+                         renderData,
+                         command = lambda *args: self.__cmd())
+        self.setData(int(alwaysShow))
+
+    def __cmd(self):
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        tocWImageDict[self.imIdx] = str(self.getData())
+        fsf.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
+
+
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onAlwaysShowChange" in dir(w):
+                w.onAlwaysShowChange(self.subsection, self.imIdx)
+    
+    def render(self):
+        tocWImageDict = fsf.Data.Sec.tocWImageDict(self.subsection)
+        newData = _u.Token.NotDef.str_t
+
+        if tocWImageDict.get(self.imIdx) != None:
+            newData = tocWImageDict[self.imIdx]
+
+        self.setData(newData)
+        return super().render(self.renderData)
+
+class TOCLabelWithClickGroup(TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, columnspan=1, 
+                 sticky=ww.currUIImpl.Orientation.NW, padding=[0, 0, 0, 0], image=None, text=None):
+        self.group = _u.Token.NotDef.str_t
+        self.groupIdx = None
+        self.fixedWidth = None
+        self.groupFrame = None
+
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+        wd.Data.Reactors.groupChangeReactors[self.name] = self
+
+        def removeListener(w):
+            if wd.Data.Reactors.groupChangeReactors.get(w.name) != None:
+                wd.Data.Reactors.groupChangeReactors.pop(w.name)
+
+        self.rebind([ww.currUIImpl.Data.BindID.destroy], [lambda e, w = self, *args: 
+                                                          removeListener(w)])
+
+    def updateLabel(self):
+        self.image = getGroupImg(self.subsection, self.group, 
+                                 fixedWidth = self.fixedWidth, gi = self.groupIdx)
+        super().updateImage(self.image)
+
+
+class TOCLabelWithClickEntry(TOCLabelWithClick):
+    def updateLabel(self):
+        pilIm = getEntryImg("no", self.subsection, self.imIdx)
+
+        shrink = 0.7
+        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
+        self.image = ww.currUIImpl.UIImage(pilIm)
+        super().updateImage(self.image)
+
+
+class TOCGroupFrame(TOCFrame):
+    def __init__(self, root, prefix, row, column, 
+                 subsection, groupName, groupIdx, factory,
+                 columnspan=1, padding=[0, 0, 0, 0]):
+        self.subsection = subsection
+        self.groupName = groupName
+        self.groupIdx = groupIdx
+        self.factory = factory
+        super().__init__(root, prefix, row, column, columnspan, padding)
 
 
 class EntryFrameManager:

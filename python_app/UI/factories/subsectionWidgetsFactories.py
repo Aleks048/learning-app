@@ -5,7 +5,7 @@ import UI.widgets_data as wd
 import UI.widgets_facade as wf
 
 from UI.factories.entriesWidgetsFactories import EntryWidgetFactoryTOC, EntryWidgetFactorySearchTOC, EntryWidgetFactory
-from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCLabeWithClickSubsection, TOCFrame
+from UI.widgets_collection.common import TOCLabelWithClick, ImageSize_ETR, TOCFrame
 from UI.widgets_collection.utils import bindWidgetTextUpdatable, bindChangeColorOnInAndOut
 
 
@@ -16,6 +16,41 @@ import settings.facade as sf
 import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
 import generalManger.generalManger as gm
+
+
+class TOCLabeWithClickSubsection(TOCLabelWithClick):   
+    def updateLabel(self):
+        if self.subsection in list(fsf.Data.Book.sections.keys()):
+            topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(),
+                                                            self.subsection)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
+                self.result = Image.open(topSectionImgPath)
+            else:
+                self.result = fsf.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
+                                                                            _upan.Names.Subsection.getTopSectionPretty)
+            result = self.result
+            shrink = 0.8
+            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+            self.image = ww.currUIImpl.UIImage(result)
+            super().updateImage(self.image)
+        else:
+            subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
+                                                            sf.Wr.Manager.Book.getCurrBookName(), 
+                                                            self.subsection)
+
+            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
+                self.result = Image.open(subsectionImgPath)
+            else:
+                self.result = \
+                    fsf.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsection, 
+                                                                            _upan.Names.Subsection.getSubsectionPretty)
+            result = self.result
+            shrink = 0.8
+            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
+            self.image = ww.currUIImpl.UIImage(result)
+            super().updateImage(self.image)
 
 
 class SubsectionFrameManager:

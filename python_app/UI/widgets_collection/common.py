@@ -197,93 +197,6 @@ class MultilineText_ETR(ww.currUIImpl.MultilineText):
         self.rebind([ww.currUIImpl.Data.BindID.Keys.cmdp],
                   [lambda *args: __addProof(*args)])
 
-class ImageGroupOM(ww.currUIImpl.OptionMenu):
-    def __init__(self,
-                 listOfOptions, 
-                 rootWidget, 
-                 subsection,
-                 imIdx,
-                 tocBox,
-                 column,
-                 currImGroupName = None):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : column, 
-                                            "row" : 0,
-                                            "columnspan" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, 
-                                     "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-
-        name = "GroupOM_"
-
-        self.imIdx = imIdx
-        self.subsection = subsection
-        self.tocBox = tocBox
-
-        prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
-
-        super().__init__(prefix, 
-                         name,
-                         listOfOptions,
-                         rootWidget,
-                         data,
-                         defaultOption = currImGroupName,
-                         cmd = self.chooseGroupCmd)
-                        
-    def chooseGroupCmd(self):
-        imagesGroupList:list = list(fsm.Data.Sec.imagesGroupsList(self.subsection).keys())
-        imagesGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsection)
-        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
-        fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
-
-        
-        for w in wd.Data.Reactors.entryChangeReactors.values():
-            if "onGroupChange" in dir(w):
-                w.onGroupChange(self.subsection, self.imIdx)
-
-class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
-    def __init__(self, parent, subsection, imIdx, prefix, row, column):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-        name = "_EntryShowPermamentlyCheckbox_"
-
-        self.subsection = subsection
-        self.imIdx = str(imIdx)
-
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        if tocWImageDict == _u.Token.NotDef.dict_t:
-            alwaysShow = "0"
-        else:
-            alwaysShow = tocWImageDict[self.imIdx]
-
-        super().__init__(prefix,
-                         name,
-                         parent, 
-                         renderData,
-                         command = lambda *args: self.__cmd())
-        self.setData(int(alwaysShow))
-
-    def __cmd(self):
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        tocWImageDict[self.imIdx] = str(self.getData())
-        fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
-
-
-        for w in wd.Data.Reactors.entryChangeReactors.values():
-            if "onAlwaysShowChange" in dir(w):
-                w.onAlwaysShowChange(self.subsection, self.imIdx)
-    
-    def render(self):
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        newData = _u.Token.NotDef.str_t
-
-        if tocWImageDict.get(self.imIdx) != None:
-            newData = tocWImageDict[self.imIdx]
-
-        self.setData(newData)
-        return super().render(self.renderData)
 
 class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
                       dc.AppCurrDataAccessToken):
@@ -496,67 +409,9 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         self.entryManager = entryWidgetFactory.entryFrameManager
         return
 
+
 class TOC_BOX(ww.currUIImpl.ScrollableBox,
               dc.AppCurrDataAccessToken):
-    # this data structure is used to store the
-    # entry image widget that is turned into ETR for update
-    class entryAsETR:
-        subsection = _u.Token.NotDef.str_t
-        imIdx = _u.Token.NotDef.str_t
-        widget = None
-
-        upddatedTextSubsection = _u.Token.NotDef.str_t
-        upddatedTextImIdx = _u.Token.NotDef.str_t
-
-        def reset(self):
-            self.subsection = _u.Token.NotDef.str_t
-            self.imIdx = _u.Token.NotDef.str_t
-            self.widget = None
-
-    class extraImAsETR:
-        subsection = _u.Token.NotDef.str_t
-        imIdx = _u.Token.NotDef.str_t
-        eImIdx = _u.Token.NotDef.str_t
-        widget = None
-
-        upddatedText = _u.Token.NotDef.str_t
-        upddatedTextExtraImIdx = _u.Token.NotDef.str_t
-
-        def reset(self):
-            self.subsection = _u.Token.NotDef.str_t
-            self.imIdx = _u.Token.NotDef.str_t
-            self.eImIdx = _u.Token.NotDef.str_t
-            self.widget = None
-
-    class entryTextOnlyAsETR:
-        subsection = _u.Token.NotDef.str_t
-        imIdx = _u.Token.NotDef.str_t
-        widget = None
-
-        def reset(self):
-            self.subsection = _u.Token.NotDef.str_t
-            self.imIdx = _u.Token.NotDef.str_t
-            self.widget = None
-
-    class subsectionAsETR:
-        subsection = _u.Token.NotDef.str_t
-        widget = None
-
-        def reset(self):
-            self.subsection = _u.Token.NotDef.str_t
-            self.widget = None
-
-    class groupAsETR:
-        subsection = _u.Token.NotDef.str_t
-        group = _u.Token.NotDef.str_t
-        widget = None
-
-        def reset(self):
-            self.subsection = _u.Token.NotDef.str_t
-            self.group = _u.Token.NotDef.str_t
-            self.widget = None
-
-
     def __init__(self, parentWidget, prefix, windth = 700, height = 300, 
                  showAll = False, makeScrollable = True, shouldScroll = True,
                  showLinks = False): 
@@ -570,23 +425,12 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         self.searchSubsectionsText = False
         self.showAll = None
         self.shouldScroll = None
-        self.subsectionClicked = _u.Token.NotDef.str_t
-        self.entryClicked = _u.Token.NotDef.str_t
 
         self.showSubsectionsForTopSection = {}
-        self.parent = None
-        self.showLinks = None
+
         self.showLinksForSubsections = []
         self.linksOpenImage = set()
         self.linksOpenImageWidgets = {}
-
-        self.entryCopySubsection = None
-        self.showImagesLabels = {}
-
-        self.currentEntrySubsection = None
-        self.currentEntryImIdx = None
-
-        self.updatedWidget = None
 
         self.showLinksForCurrWidget = True
 
@@ -596,17 +440,9 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         }
         name = "_showCurrScreenshotLocation_text"
 
-        self.parent = parentWidget
         self.showAll = showAll
         self.showLinks = showLinks
 
-        self.entryAsETR = TOC_BOX.entryAsETR()
-        self.extraImAsETR = TOC_BOX.extraImAsETR()
-        self.entryTextOnlyAsETR = TOC_BOX.entryTextOnlyAsETR()
-        self.subsectionAsETR = TOC_BOX.entryAsETR()
-
-        self.subsectionClicked = fsm.Data.Book.subsectionOpenInTOC_UI
-        self.entryClicked = fsm.Data.Book.entryImOpenInTOC_UI
         self.shouldScroll = shouldScroll
 
         tsList = fsm.Wr.BookInfoStructure.getTopSectionsList()
@@ -637,24 +473,22 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             return
 
         # move toc to
-        self.subsectionClicked = subsection
         self.showSubsectionsForTopSection[subsection.split(".")[0]] = True
-        self.entryClicked = imIdx
 
         # update to show the group when we show the entry
-        groupsList = fsm.Data.Sec.imagesGroupsList(self.subsectionClicked)
-        imGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsectionClicked)
+        groupsList = fsm.Data.Sec.imagesGroupsList(subsection)
+        imGroupDict = fsm.Data.Sec.imagesGroupDict(subsection)
         groupsListKeys = groupsList.keys()
 
-        if self.entryClicked in list(imGroupDict.keys()):
-            idx = imGroupDict[self.entryClicked]
+        if imIdx in list(imGroupDict.keys()):
+            idx = imGroupDict[imIdx]
         else:
             return
 
         if idx != _u.Token.NotDef.str_t:
             groupName = list(groupsListKeys)[idx]
             groupsList[groupName] = True
-            fsm.Data.Sec.imagesGroupsList(self.subsectionClicked, groupsList)
+            fsm.Data.Sec.imagesGroupsList(subsection, groupsList)
 
     def scrollIntoView(self, event, widget = None):
         if not self.shouldScroll:
@@ -677,7 +511,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         widget.update()
 
-        while pwidget != self.parent:
+        while pwidget != self.rootWidget:
             if pwidget == None:
                 break
             posy += pwidget.getYCoord()
@@ -691,7 +525,7 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
         else:
             pwidget = widget
 
-        while pwidget != self.parent:
+        while pwidget != self.rootWidget:
             if pwidget == None:
                 break
             posy += pwidget.getYCoord()
@@ -1030,96 +864,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         super().render(self.renderData)
 
-class ImageGroupOM(ww.currUIImpl.OptionMenu):
-    def __init__(self,
-                 listOfOptions, 
-                 rootWidget, 
-                 subsection,
-                 imIdx,
-                 tocBox,
-                 column,
-                 currImGroupName = None):
-        data = {
-            ww.Data.GeneralProperties_ID : {"column" : column, 
-                                            "row" : 0,
-                                            "columnspan" : 3},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, 
-                                     "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-
-        name = "GroupOM_"
-
-        self.imIdx = imIdx
-        self.subsection = subsection
-        self.tocBox = tocBox
-
-        prefix = "_Group_" + subsection.replace(".", "_") + "_" + imIdx
-
-        super().__init__(prefix, 
-                         name,
-                         listOfOptions,
-                         rootWidget,
-                         data,
-                         defaultOption = currImGroupName,
-                         cmd = self.chooseGroupCmd)
-                        
-    def chooseGroupCmd(self):
-        imagesGroupList:list = list(fsm.Data.Sec.imagesGroupsList(self.subsection).keys())
-        imagesGroupDict = fsm.Data.Sec.imagesGroupDict(self.subsection)
-        imagesGroupDict[self.imIdx] =  imagesGroupList.index(self.getData())
-        fsm.Data.Sec.imagesGroupDict(self.subsection, imagesGroupDict)
-
-        
-        for w in wd.Data.Reactors.entryChangeReactors.values():
-            if "onGroupChange" in dir(w):
-                w.onGroupChange(self.subsection, self.imIdx)
-
-class EntryShowPermamentlyCheckbox(ww.currUIImpl.Checkbox):
-    def __init__(self, parent, subsection, imIdx, prefix, row, column):
-        renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-        }
-        name = "_EntryShowPermamentlyCheckbox_"
-
-        self.subsection = subsection
-        self.imIdx = str(imIdx)
-
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        if tocWImageDict == _u.Token.NotDef.dict_t:
-            alwaysShow = "0"
-        else:
-            if tocWImageDict.get(self.imIdx) != None:
-                alwaysShow = tocWImageDict[self.imIdx]
-            else:
-                alwaysShow = "0"
-
-        super().__init__(prefix,
-                         name,
-                         parent, 
-                         renderData,
-                         command = lambda *args: self.__cmd())
-        self.setData(int(alwaysShow))
-
-    def __cmd(self):
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        tocWImageDict[self.imIdx] = str(self.getData())
-        fsm.Data.Sec.tocWImageDict(self.subsection, tocWImageDict)
-
-
-        for w in wd.Data.Reactors.entryChangeReactors.values():
-            if "onAlwaysShowChange" in dir(w):
-                w.onAlwaysShowChange(self.subsection, self.imIdx)
-    
-    def render(self):
-        tocWImageDict = fsm.Data.Sec.tocWImageDict(self.subsection)
-        newData = _u.Token.NotDef.str_t
-
-        if tocWImageDict.get(self.imIdx) != None:
-            newData = tocWImageDict[self.imIdx]
-
-        self.setData(newData)
-        return super().render(self.renderData)
 
 class ImageSize_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix, row, column, imIdx, text, width = 3):
@@ -1157,6 +901,7 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
     def defaultTextCMD(self):
         pass
 
+
 class TOCFrame(ww.currUIImpl.Frame):
     def __init__(self, root, prefix, row, column, columnspan = 1, padding = [0, 0, 0, 0]) -> None:
         renderData = {
@@ -1174,16 +919,6 @@ class TOCFrame(ww.currUIImpl.Frame):
 
         super().__init__(prefix, name, root, renderData, padding = padding)
 
-
-class TOCGroupFrame(TOCFrame):
-    def __init__(self, root, prefix, row, column, 
-                 subsection, groupName, groupIdx, factory,
-                 columnspan=1, padding=[0, 0, 0, 0]):
-        self.subsection = subsection
-        self.groupName = groupName
-        self.groupIdx = groupIdx
-        self.factory = factory
-        super().__init__(root, prefix, row, column, columnspan, padding)
 
 class TOCTextWithClick(ww.currUIImpl.Label):
     '''
@@ -1219,17 +954,6 @@ class TOCTextWithClick(ww.currUIImpl.Label):
     # def __setattr__(self, name, value):
     #     self.__dict__[f"_{name}"] = value
 
-class TOCTextWithClickTextOnlyEntry(TOCTextWithClick):
-    width = 60
-
-    def __init__(self, root, prefix, row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, text=""):
-        super().__init__(root, prefix, row, column, columnspan, sticky, text)
-        self.setWrapLength(self.width * 9)
-        self.setWidth(self.width)
-
-    def updateLabel(self):
-        self.changeText(fsm.Data.Sec.imageText(self.subsection)[self.imIdx])
-        self.setWidth(self.width)
 
 class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     class Label:
@@ -1835,73 +1559,6 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
             bindChangeColorOnInAndOut(self, shouldBeBrown = True)
         else:
             bindChangeColorOnInAndOut(self, shouldBeBrown = False)
-
-class TOCLabelWithClickEntry(TOCLabelWithClick):
-    def updateLabel(self):
-        pilIm = getEntryImg("no", self.subsection, self.imIdx)
-
-        shrink = 0.7
-        pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
-        self.image = ww.currUIImpl.UIImage(pilIm)
-        super().updateImage(self.image)
-
-class TOCLabelWithClickGroup(TOCLabelWithClick):
-    def __init__(self, root, prefix, row, column, columnspan=1, 
-                 sticky=ww.currUIImpl.Orientation.NW, padding=[0, 0, 0, 0], image=None, text=None):
-        self.group = _u.Token.NotDef.str_t
-        self.groupIdx = None
-        self.fixedWidth = None
-        self.groupFrame = None
-
-        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
-
-        wd.Data.Reactors.groupChangeReactors[self.name] = self
-
-        def removeListener(w):
-            if wd.Data.Reactors.groupChangeReactors.get(w.name) != None:
-                wd.Data.Reactors.groupChangeReactors.pop(w.name)
-
-        self.rebind([ww.currUIImpl.Data.BindID.destroy], [lambda e, w = self, *args: 
-                                                          removeListener(w)])
-
-    def updateLabel(self):
-        self.image = getGroupImg(self.subsection, self.group, 
-                                 fixedWidth = self.fixedWidth, gi = self.groupIdx)
-        super().updateImage(self.image)
-
-class TOCLabeWithClickSubsection(TOCLabelWithClick):   
-    def updateLabel(self):
-        if self.subsection in list(fsm.Data.Book.sections.keys()):
-            topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
-                                                            sf.Wr.Manager.Book.getCurrBookName(),
-                                                            self.subsection)
-
-            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(topSectionImgPath):
-                self.result = Image.open(topSectionImgPath)
-            else:
-                self.result = fsm.Wr.SectionInfoStructure.rebuildTopSectionLatex(self.subsection,
-                                                                            _upan.Names.Subsection.getTopSectionPretty)
-            result = self.result
-            shrink = 0.8
-            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-            self.image = ww.currUIImpl.UIImage(result)
-            super().updateImage(self.image)
-        else:
-            subsectionImgPath = _upan.Paths.Screenshot.Images.getSubsectionEntryImageAbs(
-                                                            sf.Wr.Manager.Book.getCurrBookName(), 
-                                                            self.subsection)
-
-            if ocf.Wr.FsAppCalls.checkIfFileOrDirExists(subsectionImgPath):
-                self.result = Image.open(subsectionImgPath)
-            else:
-                self.result = \
-                    fsm.Wr.SectionInfoStructure.rebuildSubsectionImOnlyLatex(self.subsection, 
-                                                                            _upan.Names.Subsection.getSubsectionPretty)
-            result = self.result
-            shrink = 0.8
-            result.thumbnail([int(result.size[0] * shrink),int(result.size[1] * shrink)], Image.LANCZOS)
-            self.image = ww.currUIImpl.UIImage(result)
-            super().updateImage(self.image)
 
 
 class MainRoot(ww.currUIImpl.RootWidget):
