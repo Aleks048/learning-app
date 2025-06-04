@@ -844,7 +844,6 @@ class ImageSize_ETR(ww.currUIImpl.TextEntry):
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.N}
         }
 
-
         extraBuildOptions = {
             ww.Data.GeneralProperties_ID : {ww.Data.CommonTextColor_ID: wd.Data.ENT.defaultTextColor,
                                             "font": ('Georgia 14')},
@@ -1459,6 +1458,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
     def _unbindCmd(self, *args):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
                 "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
+
 
 class TOCLabelWithClick(ww.currUIImpl.Label):
     '''
