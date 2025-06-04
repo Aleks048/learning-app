@@ -181,6 +181,14 @@ class TOCGroupFrame(TOCFrame):
         self.factory = factory
         super().__init__(root, prefix, row, column, columnspan, padding)
 
+class EntryFrame(TOCFrame):
+    def __init__(self, root, prefix, row, column, 
+                 subsection, imIdx,
+                 columnspan=1, padding=[0, 0, 0, 0]):
+        self.subsection = subsection
+        self.imIdx = imIdx
+        super().__init__(root, prefix, row, column, columnspan, padding)
+
 
 class EntryFrameManager:
     def __init__(self, entryFrame, subsection, imIdx, widgetFactory):
@@ -1705,7 +1713,9 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     def produceEntryWidgetFrames(self, topPad, row, leftPad, rowsPad = 0):
         nameId = _upan.Names.Entry.getEntryNameID(self.subsection, self.imIdx)
 
-        entryFrame = TOCFrame(self.frame,
+        entryFrame = EntryFrame(self.frame,
+                                subsection = self.subsection,
+                                imIdx = self.imIdx,
                                 prefix = "contentFr_" + nameId,
                                 padding=[leftPad, topPad, 0, 0],
                                 row = row, column = 0, columnspan = 100)
@@ -1718,22 +1728,22 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         entryFrameManager.groupFrame = self.produceGroupWidget(entryFrame)
 
-        entryFrameManager.rowFrame1 = TOCFrame(entryFrame,
+        entryFrameManager.rowFrame1 = EntryFrame(entryFrame,
+                            subsection = self.subsection,
+                            imIdx = self.imIdx 
                             prefix = "contentRow1Fr_" + nameId,
                             padding=[rowsPad, 0, 0, 0],
                             row = 1, 
                             column = 0, columnspan = 100)
-        entryFrameManager.rowFrame1.subsection = self.subsection
-        entryFrameManager.rowFrame1.imIdx = self.imIdx
         entryFrameManager.rowFrame1.render()
 
-        entryFrameManager.rowFrame2 = TOCFrame(entryFrame,
+        entryFrameManager.rowFrame2 = EntryFrame(entryFrame,
+                            subsection = self.subsection,
+                            imIdx = self.imIdx 
                             prefix = "contentRow2Fr_" + nameId,
                             padding=[60 + rowsPad, 0, 0, 0],
                             row = 2, 
                             column = 0, columnspan = 100)
-        entryFrameManager.rowFrame2.subsection = self.subsection
-        entryFrameManager.rowFrame2.imIdx = self.imIdx
 
         linksFrameFactory = LinksFrameFactory(self.subsection,
                                               self.imIdx)
@@ -1742,13 +1752,13 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
                                             leftPad = rowsPad)
         entryFrameManager.linksFrameManager = linksFrameFactory.manager
         
-        entryFrameManager.imagesFrame = TOCFrame(entryFrame,
+        entryFrameManager.imagesFrame = EntryFrame(entryFrame,
+                            subsection = self.subsection,
+                            imIdx = self.imIdx
                             prefix = "ImagesFrame" + nameId,
                             padding=[0, 0, 0, 0],
                             row = 4, 
                             column = 0, columnspan = 100)
-        entryFrameManager.imagesFrame.subsection = self.subsection
-        entryFrameManager.imagesFrame.imIdx = self.imIdx
         entryFrameManager.imagesFrame.render()
 
         return entryFrameManager
