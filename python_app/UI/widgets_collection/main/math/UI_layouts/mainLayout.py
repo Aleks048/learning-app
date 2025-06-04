@@ -16,20 +16,12 @@ import UI.widgets_collection.main.math.manager as mmm
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
 import UI.widgets_manager as wm
-import UI.widgets_collection.utils as _uuicom
 import UI.factories.factoriesFacade as wff
 
 import data.constants as dc
 import data.temp as dt
 
-import _utils.logging as log
-
 import settings.facade as sf
-
-import scripts.osascripts as oscr
-import outside_calls.outside_calls_facade as oscf
-
-import generalManger.generalManger as gm
 
 
 class ShowAllSubsections_BTN(ww.currUIImpl.Button):

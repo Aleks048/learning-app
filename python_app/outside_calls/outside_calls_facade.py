@@ -3,7 +3,6 @@ import outside_calls.pdfApp_calls as sc
 import outside_calls.fsApp_calls as fc
 import outside_calls.ide_calls as idec
 import outside_calls.screenshot_app as scrc
-import outside_calls.noteApp_calls as nac
 import outside_calls.tracker_calls as tac
 
 class Wr:
@@ -20,9 +19,6 @@ class Wr:
         pass
     
     class ScreenshotCalls(scrc.currScreenshotApp):
-        pass
-    
-    class NoteAppCalls(nac.currNoteApp):
         pass
     
     class TrackerAppCalls(tac.currrtrackerApp):

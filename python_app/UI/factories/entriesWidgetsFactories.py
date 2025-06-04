@@ -1730,7 +1730,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         entryFrameManager.rowFrame1 = EntryFrame(entryFrame,
                             subsection = self.subsection,
-                            imIdx = self.imIdx 
+                            imIdx = self.imIdx,
                             prefix = "contentRow1Fr_" + nameId,
                             padding=[rowsPad, 0, 0, 0],
                             row = 1, 
@@ -1739,7 +1739,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
         entryFrameManager.rowFrame2 = EntryFrame(entryFrame,
                             subsection = self.subsection,
-                            imIdx = self.imIdx 
+                            imIdx = self.imIdx,
                             prefix = "contentRow2Fr_" + nameId,
                             padding=[60 + rowsPad, 0, 0, 0],
                             row = 2, 
@@ -1754,7 +1754,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
         
         entryFrameManager.imagesFrame = EntryFrame(entryFrame,
                             subsection = self.subsection,
-                            imIdx = self.imIdx
+                            imIdx = self.imIdx,
                             prefix = "ImagesFrame" + nameId,
                             padding=[0, 0, 0, 0],
                             row = 4, 

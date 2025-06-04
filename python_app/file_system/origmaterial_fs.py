@@ -1,15 +1,13 @@
 import os
-import subprocess
-import math
 
 import _utils._utils_main as _u
 import _utils.logging as log
 import file_system.book_fs as bfs
 import _utils.pathsAndNames as _upan
+import settings.facade as sf
 
 import outside_calls.outside_calls_facade as ocf
-import settings.facade as sf
-import scripts.osascripts as oscr
+
 
 class OriginalMaterialStructure:
     '''
@@ -95,48 +93,6 @@ class OriginalMaterialStructure:
         
         log.autolog("Copying file '{0}' to '{1}'".format(filePath, originnalMaterialDestinationPath))
         ocf.Wr.FsAppCalls.copyFile(filePath, originnalMaterialDestinationPath)
-
-    @classmethod
-    def addNoteToOriginalMaterial(cls, omName, page, noteText, idx):
-        return
-        idx = int(idx) - 1
-
-        leftPad = 20
-
-        noteSize:list = cls.getMaterialNoteSize(omName)
-        nWidth = int(noteSize[0])
-        nHeight = int(noteSize[1])
-        pageSize = cls.getMaterialPageSize(omName)
-        pWidth = int(pageSize[0])
-        pHeight = int(pageSize[1])
-
-        numCols = (pWidth - leftPad) // nWidth
-        # NOTE: we hardwire 5 rows of notes per page
-        numRowsBorttom = 5
-
-        col = idx % numCols
-        row = idx // numCols
-        leftW = col * nWidth + leftPad
-        rightW = (col + 1) * nWidth + leftPad
-
-        if row < 2:
-            bounds = [leftW,
-                        pHeight - row * nHeight,
-                        rightW,
-                        pHeight - (row + 1) * nHeight,
-                        ]
-        else:
-            bounds = [leftW,
-                        (numRowsBorttom - row) * nHeight,
-                        rightW,
-                        (numRowsBorttom - row - 1) * nHeight,
-                        ]
-
-        filepath = cls.getMaterialPath(omName)
-        fileName = cls.__fromMatPathToFilename(filepath)
-
-        cmd = oscr.addNoteTheToThePage(fileName, page, noteText, bounds)
-        _u.runCmdAndWait(cmd)
 
     @classmethod
     def getOriginalMaterialsNames(cls):
@@ -245,17 +201,6 @@ class OriginalMaterialStructure:
 
     @classmethod
     def setMaterialPageSize(cls, materialName, pageSize = None):
-        if pageSize == None:
-            filepath = cls.getMaterialPath(materialName)
-            origMatFilename = cls.__fromMatPathToFilename(filepath)
-
-            # set the page size
-            cmd = oscr.get_BoundsOfThePage(origMatFilename)
-            firstPageSize, _ = _u.runCmdAndGetResult(cmd)
-            firstPageSize = firstPageSize.replace("\n", "").split(", ")
-            cls.setMaterialPageSize(materialName, [firstPageSize[2], firstPageSize[1]])
-            return
-
         materials = cls.__getMaterailsDict() 
 
         if materialName not in materials.keys():

@@ -12,10 +12,6 @@ import UI.widgets_facade as wf
 import outside_calls.outside_calls_facade as oscf
 
 import _utils._utils_main as _u
-import _utils.pathsAndNames as _upan
-
-import settings.facade as sf
-import scripts.osascripts as oscr
 
 
 def processCall(url):
@@ -33,27 +29,6 @@ def processCall(url):
 
     if len(url) > 4:
         linktType:str = url[4]
-
-    if "om" in linktType.lower():
-        pagesDict:dict = fsf.Data.Sec.imLinkOMPageDict(subsecPath)
-        
-        if positionIDX not in pagesDict.keys():
-            log.autolog("Can't open original material for '{0}'.".format("/".join(url)))
-
-        omNameDict = fsf.Data.Sec.origMatNameDict(subsecPath)
-        omName = omNameDict[positionIDX]
-
-        omPath = fsf.Wr.OriginalMaterialStructure.getMaterialPath(omName)
-        page = pagesDict[positionIDX]
-        
-        oscf.Wr.PdfApp.openPDF(omPath, page)
-
-        zoomLevel = fsf.Wr.OriginalMaterialStructure.getMaterialZoomLevel(omName)
-        pdfToken:str = omPath.split("/")[-1].replace(".pdf", "")
-        cmd = oscr.setDocumentScale(pdfToken, zoomLevel)
-        _u.runCmdAndWait(cmd)
-
-        return
 
     if positionIDX == _u.Token.NotDef.str_t:
         positionIDX = fsf.Wr.Links.ImIDX.get(subsecPath)
