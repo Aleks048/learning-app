@@ -5,10 +5,6 @@ import _utils.logging as log
 
 import file_system.file_system_facade as fsf
 
-import data.temp as dt
-
-import UI.widgets_facade as wf
-
 import _utils._utils_main as _u
 
 
@@ -33,12 +29,10 @@ def processCall(url):
 
     # switch section
     if not (subsecPath == fsf.Data.Book.currSection):
-        time.sleep(0.3)
-
         fsf.Data.Book.currSection = subsecPath
         fsf.Data.Book.currTopSection = topSection
 
         # UI
-        mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                        wf.Wr.MenuManagers.MathMenuManager.__base__)
-        mainMenuManager.switchToSectionLayout()
+        # mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
+        #                                                 wf.Wr.MenuManagers.MathMenuManager.__base__)
+        # mainMenuManager.switchToSectionLayout()

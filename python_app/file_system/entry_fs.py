@@ -7,8 +7,6 @@ import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
-import UI.widgets_facade as wf
-import UI.widgets_collection.common as wcom
 import data.constants as dc
 import data.temp as dt
 import tex_file.tex_file_facade as tff
