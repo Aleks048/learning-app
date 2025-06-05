@@ -5,15 +5,12 @@ import uuid
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 
-from UI.widgets_collection.utils import getGroupImg, getEntryImg, bindChangeColorOnInAndOut
+from UI.widgets_collection.utils import bindChangeColorOnInAndOut
 
-import settings.facade as sf
 import data.constants as dc
 import data.temp as dt
-import outside_calls.outside_calls_facade as ocf
 import file_system.file_system_facade as fsm
 import _utils._utils_main as _u
-import _utils.pathsAndNames as _upan
 import UI.widgets_data as wd
 
 

@@ -15,7 +15,18 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import data.temp as dt
 
-images = []
+
+class SolutionsLabel(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, 
+                 columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.subsection = None
+        self.imIdx = None
+        self.solImIdx = None
+
+        super().__init__(root, prefix, 
+                         row, column, columnspan, 
+                         sticky, padding, image, text)
 
 class ExcerciseSolutionImageLabel(ww.currUIImpl.Label):
     def __init__(self, root, prefix, subsection, imIdx, solutionIdx,
@@ -117,7 +128,7 @@ class ExcerciseSolutionLabel(ww.currUIImpl.ScrollableBox,
                 # '''
                 # delete
                 # '''
-                deleteLabel = comw.TOCLabelWithClick(self.scrollable_frame, f"_deleteNote_{solIdx}", 
+                deleteLabel = SolutionsLabel(self.scrollable_frame, f"_deleteNote_{solIdx}", 
                                                         i + 2, 1, text = "Del")
                 deleteLabel.subsection = self.subsection
                 deleteLabel.imIdx = self.imIdx

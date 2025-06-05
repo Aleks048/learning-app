@@ -15,6 +15,19 @@ import UI.widgets_data as wd
 import data.temp as dt
 import wordDict.wordDict as wordd
 
+
+
+class DictLabel(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, 
+                 columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.dictWord = None
+        self.dictText = None
+        
+        super().__init__(root, prefix, 
+                         row, column, columnspan, 
+                         sticky, padding, image, text)
+
 class NotesImage(ww.currUIImpl.Frame):
     displayedImages = []
     subsection = None
@@ -309,8 +322,8 @@ class DictText_LBL(ww.currUIImpl.Label):
         column = 0
 
         for k,v in entryWordDictDict.items():
-            textWidget = comw.TOCLabelWithClick(self, "_DictTextLabelText_" + str(column), 
-                                                    row = 0, column = column, text = "[" + k)
+            textWidget = DictLabel(self, "_DictTextLabelText_" + str(column), 
+                                    row = 0, column = column, text = "[" + k)
             textWidget.dictWord = k
             textWidget.dictText = v
             textWidget.rebind([ww.currUIImpl.Data.BindID.mouse1], [self.__showWord])
@@ -318,8 +331,8 @@ class DictText_LBL(ww.currUIImpl.Label):
             textWidget.render()
             self.textWidgets.append(textWidget)
 
-            textDelWidget = comw.TOCLabelWithClick(self, "_DictTextdelLabelText_" + str(column), 
-                                                    row = 0, column = column + 1, text = "d]")
+            textDelWidget = DictLabel(self, "_DictTextdelLabelText_" + str(column), 
+                                        row = 0, column = column + 1, text = "d]")
             textDelWidget.dictWord = k
             _ucomw.bindChangeColorOnInAndOut(textDelWidget)
             textDelWidget.rebind([ww.currUIImpl.Data.BindID.mouse1], [self.__delWord])

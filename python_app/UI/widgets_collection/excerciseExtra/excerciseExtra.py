@@ -14,7 +14,9 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import data.temp as dt
 
-images = []
+
+class ExcerciseExtraLabelWithClick(comw.ExcerciseLabel):
+    pass
 
 class ExcerciseExtraImageLabel(ww.currUIImpl.Label):
     def __init__(self, root, prefix, subsection, imIdx, extraIdx,
@@ -125,7 +127,7 @@ class ExcerciseExtraLabel(ww.currUIImpl.ScrollableBox,
                 # '''
                 # delete
                 # '''
-                deleteLabel = comw.TOCLabelWithClick(self.scrollable_frame, f"_deleteNote_{solIdx}", 
+                deleteLabel = ExcerciseExtraLabelWithClick(self.scrollable_frame, f"_deleteNote_{solIdx}", 
                                                         i + 2, 1, text = "Del")
                 deleteLabel.subsection = self.subsection
                 deleteLabel.imIdx = self.imIdx

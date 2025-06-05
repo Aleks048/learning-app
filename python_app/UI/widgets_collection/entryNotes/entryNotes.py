@@ -19,6 +19,14 @@ import generalManger.generalManger as gm
 import wordDict.wordDict as wordd
 
 
+class EntryNotesLabel(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, 
+                 sticky=ww.currUIImpl.Orientation.NW,
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.noteImIdx = None
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
 
 def _rebuildNote(*args, **kwargs):
     '''
@@ -236,7 +244,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             '''
             add
             '''
-            addLabel = comw.TOCLabelWithClick(mainLabels[i], "_addNote_" + str(i), 
+            addLabel = EntryNotesLabel(mainLabels[i], "_addNote_" + str(i), 
                                                     0, 0, text = "Add")
             addLabel.noteImIdx = i
 
@@ -314,7 +322,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 labETR = comw.MultilineText_ETR(label, "notesImageETR_", 1, 1, i, text)
                 self.currEtr[str(i)] = labETR
 
-                labRebuild = comw.TOCLabelWithClick(label, "notesImageRebuild_" + str(i), 
+                labRebuild = EntryNotesLabel(label, "notesImageRebuild_" + str(i), 
                                                 2, 0, text = "Rebuild")
                 labRebuild.noteImIdx = str(i)
 
@@ -353,7 +361,7 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
             '''
             delete
             '''
-            deleteLabel = comw.TOCLabelWithClick(mainLabels[i], "_deleteNote_" + str(i), 
+            deleteLabel = EntryNotesLabel(mainLabels[i], "_deleteNote_" + str(i), 
                                                     1, 0, text = "Del")
             deleteLabel.noteImIdx = i
 

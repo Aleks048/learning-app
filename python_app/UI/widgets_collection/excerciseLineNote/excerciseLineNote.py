@@ -14,7 +14,8 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import data.temp as dt
 
-images = []
+class ExcerciseNotesLabel(comw.TOCLabelWithClick):
+    pass
 
 class ExcerciseLineNoteImageLabel(ww.currUIImpl.Label):
     def __init__(self, root, prefix, subsection, imIdx, 
@@ -102,7 +103,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
         # '''
         # add
         # '''
-        addLabel = comw.TOCLabelWithClick(self, "_addExcerciseLineNote_", 0, 0, text = "Add")
+        addLabel = ExcerciseNotesLabel(self, "_addExcerciseLineNote_", 0, 0, text = "Add")
 
         def addLabelNoteIdx(event, *args):
             text = _u.Token.NotDef.str_t
@@ -204,8 +205,7 @@ class ExcerciseLineNoteLabel(ww.currUIImpl.Label,
         # '''
         # delete
         # '''
-        deleteLabel = comw.TOCLabelWithClick(self, "_deleteNote_", 
-                                                0, 1, text = "Del")
+        deleteLabel = ExcerciseNotesLabel(self, "_deleteNote_", 0, 1, text = "Del")
 
         def deleteNoteIdx(event, *args):
             bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
@@ -253,10 +253,8 @@ class ExcerciseLineNoteLineImage(ww.currUIImpl.Frame):
         pilIm = Image.open(imagePath)
         pilIm.thumbnail([530, 1000], Image.LANCZOS)
         self.image = ww.currUIImpl.UIImage(pilIm)
-        self.imLabel = comw.TOCLabelWithClick(self,
-                                                "_lineMainImage_",
-                                                0, 0, 1,
-                                                image = self.image)
+        self.imLabel = ExcerciseNotesLabel(self, "_lineMainImage_", 
+                                      0, 0, 1, image = self.image)
 
         self.imLabel.render()
         self.imLabel.forceFocus()

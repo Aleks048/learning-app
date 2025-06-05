@@ -18,7 +18,16 @@ import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 import data.temp as dt
 
-images = []
+
+class ImagesLabel(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, 
+                 columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.noteImIdx = None
+
+        super().__init__(root, prefix, 
+                         row, column, columnspan, 
+                         sticky, padding, image, text)
 
 
 def _rebuildNote(*args, **kwargs):
@@ -109,20 +118,13 @@ class NotesLabel(ww.currUIImpl.Label,
         return super().render(self.renderData)
 
     def addNotesWidgets(self):
-        addLabel = comw.TOCLabelWithClick(self, "_addNote_", 0, 0, text = "Add")
+        addLabel = ImagesLabel(self, "_addNote_", 0, 0, text = "Add")
         
         noteImIdx = str(int(self.eImIdx) + 1) if self.eImIdx != _u.Token.NotDef.int_t else 0
 
         addLabel.noteImIdx = noteImIdx
 
         def addLabelNoteIdx(event, *args):
-            text = _u.Token.NotDef.str_t
-            bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-            structureCreated = fsf.Wr.EntryInfoStructure.addNote(self.subsection, self.imIdx, 
-                                                                    text, bookPath, 
-                                                                    position = event.widget.noteImIdx)
-
-            # if structureCreated:
             mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                         wf.Wr.MenuManagers.MathMenuManager)
             mainMathManager.scrollToLatestClickedWidget(addBrownBorder = True)
@@ -248,7 +250,7 @@ class NotesLabel(ww.currUIImpl.Label,
         # '''
         # delete
         # '''
-        deleteLabel = comw.TOCLabelWithClick(self, "_deleteNote_", 
+        deleteLabel = ImagesLabel(self, "_deleteNote_", 
                                                 0, 1, text = "Del")
         deleteLabel.noteImIdx = noteImIdx
 

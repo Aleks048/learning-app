@@ -12,7 +12,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_collection.utils as uw
 import UI.widgets_facade as wf
 import UI.widgets_collection.utils as _ucomw
-import UI.widgets_collection.common as wcom
+import UI.widgets_collection.common as comw
 import UI.widgets_data as wd
 import _utils._utils_main as _u
 import data.temp as dt
@@ -22,14 +22,21 @@ import file_system.file_system_facade as fsf
 import settings.facade as sf
 import outside_calls.outside_calls_facade as ocf
 
-def _rebuildNote(*args, **kwargs):
-    '''
-        used for multithreaded note rebuild
-    '''
-    t = Thread(target= fsf.Wr.EntryInfoStructure.rebuildNote, 
-            args = (args))
-    t.start()
-    return t
+
+class PdfReaderLebelWithClick(comw.TOCLabelWithClick):
+    pass
+
+
+class SecondaryImageFrameNameLabel(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, row, column, 
+                 columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.subsection = None
+        self.imIdx = None
+        
+        super().__init__(root, prefix, 
+                         row, column, columnspan, 
+                         sticky, padding, image, text)
 
 
 class NotesImageLabel(ttk.Label):
@@ -459,10 +466,10 @@ class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,
 
     def render(self, **kwargs):
         if self.increaseLabel == None:
-            self.increaseLabel = wcom.TOCLabelWithClick(self, "_ResizePDF_BTNincreaseSize", 
+            self.increaseLabel = PdfReaderLebelWithClick(self, "_ResizePDF_BTNincreaseSize", 
                                     row = 0, column = 0, text = "+")
         if self.decreaseLabel == None:
-            self.decreaseLabel = wcom.TOCLabelWithClick(self, "_ResizePDF_BTNDecreaseSize", 
+            self.decreaseLabel = PdfReaderLebelWithClick(self, "_ResizePDF_BTNDecreaseSize", 
                                     row = 0, column = 1, text = "-")
         _ucomw.bindChangeColorOnInAndOut(self.increaseLabel)
         _ucomw.bindChangeColorOnInAndOut(self.decreaseLabel)
@@ -554,10 +561,10 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
         self.setData(self.currPage)
 
         if self.increasePage == None:
-            self.increasePage = wcom.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNNextIm", 
+            self.increasePage = PdfReaderLebelWithClick(self.rootWidget, "_ResizePDF_BTNNextIm", 
                                     row = self.row, column = self.column + 1, text = ">")
         if self.decreasePage == None:
-            self.decreasePage = wcom.TOCLabelWithClick(self.rootWidget, "_ResizePDF_BTNPrevIm", 
+            self.decreasePage = PdfReaderLebelWithClick(self.rootWidget, "_ResizePDF_BTNPrevIm", 
                                     row = self.row, column = self.column - 1, text = "<")
         _ucomw.bindChangeColorOnInAndOut(self.increasePage)
         _ucomw.bindChangeColorOnInAndOut(self.decreasePage)
@@ -1088,7 +1095,7 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
 
         column = 0
         for k in self.secondImFrames:
-            label = wcom.TOCLabelWithClick(seclectorFrame, 
+            label = SecondaryImageFrameNameLabel(seclectorFrame, 
                                      k.replace(".", "") + "selectorLabel",
                                      0,
                                      column,
