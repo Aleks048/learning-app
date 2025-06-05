@@ -477,14 +477,40 @@ class EntryWidgetFactory:
     def produceShiftLabelWidget(self, parentWidget):
         def shiftEntryCmd(event, *args):
             widget = event.widget
-            fsf.Wr.SectionInfoStructure.shiftEntryUp(widget.subsection,
-                                                        widget.imIdx)
+
+            subsection = widget.subsection,
+            imIdx = widget.imIdx
+
+            # ask the user if we wnat to proceed.
+            msg = "Do you want to shift entry for \n\n'{0}'\n\n starting from \n'{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            # NOTE: ask twice if the user is sure.
+            msg = "Do you want to shift entries for \n\n'{0}'\n\n starting from \n\n'{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            fsf.Wr.SectionInfoStructure.shiftEntryUp(subsection, imIdx)
             
             fsf.Data.Book.subsectionOpenInTOC_UI = self.subsection
-            fsf.Data.Book.entryImOpenInTOC_UI = str(int(widget.imIdx) + 1)
+            fsf.Data.Book.entryImOpenInTOC_UI = str(int(imIdx) + 1)
+
             for w in wd.Data.Reactors.entryChangeReactors.values():
                 if "onEntryShift" in dir(w):
-                    w.onEntryShift(widget.subsection, widget.imIdx)
+                    w.onEntryShift(subsection, imIdx)
 
         shiftEntry = TOCLabelWithClick(parentWidget,
                                                 text = self.EntryUIs.shift.name,
@@ -598,7 +624,33 @@ class EntryWidgetFactory:
     def produceRemoveEntryWidget(self, parentWidget):
         def removeEntryCmd(event, *args):
             widget = event.widget
-            fsf.Wr.SectionInfoStructure.removeEntry(widget.subsection, widget.imIdx)
+
+            # ask the user if we wnat to proceed.
+            subsection = widget.subsection
+            imIdx = widget.imIdx
+
+            msg = "Do you want to remove \n\n'{0}_{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            # NOTE: ask twice if the user is sure.
+            msg = "Still sure you want to remove '{0}_{1}'?".format(subsection, imIdx)
+            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.MathMenuManager)
+            mainManager.show()
+
+            if not response:
+                return
+
+            fsf.Wr.SectionInfoStructure.removeEntry(subsection, imIdx)
 
             def __afterDeletion(subsection, imIdx, *args):
                 timer = 0
@@ -612,7 +664,7 @@ class EntryWidgetFactory:
                     if "onEntryDelete" in dir(w):
                         w.onEntryDelete(subsection, imIdx)
 
-            t = Thread(target = __afterDeletion, args = [widget.subsection, widget.imIdx])
+            t = Thread(target = __afterDeletion, args = [subsection, imIdx])
             t.start()
 
         removeEntry = TOCLabelWithClick(parentWidget,

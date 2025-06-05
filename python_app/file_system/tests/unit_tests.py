@@ -2,7 +2,6 @@
 # import os
 # import shutil
 
-# # from UI.widgets_collection import *
 # # import _utils._utils_main as _u
 # # import layouts.layouts_manager as lm
 # # import layouts.layouts_main as lmain

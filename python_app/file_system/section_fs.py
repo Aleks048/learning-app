@@ -11,7 +11,6 @@ import _utils.pathsAndNames as _upan
 import _utils.logging as log
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
-import UI.widgets_facade as wf
 import data.temp as dt
 import tex_file.tex_file_facade as tff
 import generalManger.generalManger as gm
@@ -418,39 +417,13 @@ class SectionInfoStructure:
     def insertEntryAfterIdx(cls,
                             sourceSubsection, sourceImIdx, 
                             targetSubsection, targetImIdx,
-                            cutEntry,
-                            shouldAsk = True):
+                            cutEntry):
         # CORE OPERATIONS
         if (sourceSubsection == targetSubsection) and (sourceImIdx == targetImIdx):
             targetImIdx = str(int(targetImIdx) + 1)
 
          # ask the user if we wnat to proceed.
         cutEntryStr = "CUT" if cutEntry else "COPY"
-        if shouldAsk:
-            msg = "\
-    Do you want to {4} entry from \n\n\
-    '{0}':'{1}'\n\n\
-    to \n\n'{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
-                            targetSubsection, targetImIdx,
-                            cutEntryStr)
-
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
-
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
 
         msg = "\
 Before {4} entry from \n\
@@ -462,7 +435,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
 
-        cls.shiftEntryUp(targetSubsection, targetImIdx, False)
+        cls.shiftEntryUp(targetSubsection, targetImIdx)
 
         if (sourceSubsection == targetSubsection) and (int(sourceImIdx) > int(targetImIdx)):
             sourceImIdx = str(int(sourceImIdx) + 1)
@@ -471,7 +444,7 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
 
         if cutEntry:
             log.autolog("Cutting the entry.")
-            cls.removeEntry(sourceSubsection, sourceImIdx, False)
+            cls.removeEntry(sourceSubsection, sourceImIdx)
 
         # update the links on the OM file
         oldImLinkOMPageDict = cls.readProperty(sourceSubsection, cls.PubProp.imLinkOMPageDict).values()
@@ -613,31 +586,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFiles)
 
     @classmethod
-    def removeEntry(cls, subsection, imIdx, shouldConfirm = True):
-        import generalManger.generalManger as gm
-
-        if shouldConfirm:
-            # ask the user if we wnat to proceed.
-            msg = "Do you want to remove \n\n'{0}_{1}'?".format(subsection, imIdx)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
-
-            # NOTE: ask twice if the user is sure.
-            msg = "Still sure you want to remove '{0}_{1}'?".format(subsection, imIdx)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
+    def removeEntry(cls, subsection, imIdx):
+        import generalManger.generalManger as gm            
         
         # track all the changes berore and after removal
         msg = "Before removing the subsection: '{0}_{1}'.".format(subsection, imIdx)
@@ -1014,31 +964,8 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
             cls.updateProperty(subsection, cls.PubProp.subsectionCodeFile, subsectionCodeFiles)
 
     @classmethod
-    def shiftEntryUp(cls, subsection, imIdx, shouldConfirm = True):
+    def shiftEntryUp(cls, subsection, imIdx):
         import generalManger.generalManger as gm
-
-        if shouldConfirm:
-            # ask the user if we wnat to proceed.
-            msg = "Do you want to shift entry for \n\n'{0}'\n\n starting from \n'{1}'?".format(subsection, imIdx)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
-
-            # NOTE: ask twice if the user is sure.
-            msg = "Do you want to shift entries for \n\n'{0}'\n\n starting from \n\n'{1}'?".format(subsection, imIdx)
-            response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-            mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainManager.show()
-
-            if not response:
-                return
 
         # track all the changes berore and after removal
         msg = "Before shifting the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)

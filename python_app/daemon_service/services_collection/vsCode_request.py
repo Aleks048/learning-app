@@ -4,12 +4,10 @@ import file_system.file_system_facade as fsf
 
 import data.temp as dt
 
-import UI.widgets_facade as wf
-
-import _utils._utils_main as _u
 import _utils.pathsAndNames as _upan
 
 import settings.facade as sf
+import generalManger.generalManger as gm
 
 
 def processCall(vsCodeFilePath:str, shouldDelete:str):
@@ -19,7 +17,6 @@ def processCall(vsCodeFilePath:str, shouldDelete:str):
 
     subsection = fsf.Data.Book.currSection
     imIdx = dt.CodeTemp.currCodeFullLink
-    relFilepath = ""
 
     bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
 
@@ -27,95 +24,18 @@ def processCall(vsCodeFilePath:str, shouldDelete:str):
 
     bookCodeFilesRoot = _upan.Paths.Book.Code.getAbs(bookPath)
 
+
     if bookCodeFilesRoot in vsCodeFilePath:
-         # ask the user if we wnat to proceed.
-        if not shouldDelete:
-            msg = "Do you want to add marker for book code project \n\n'{0}_{1}'?".format(subsection, imIdx)
-        else:
-            msg = "Do you want to delete marker for book code project \n\n'{0}_{1}'?".format(subsection, imIdx)
-        
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
-        mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
-
-        if not response:
-            return
-
-        bookPath = sf.Wr.Manager.Book.getCurrBookFolderPath()
-
-        bookCodeFilesRoot = _upan.Paths.Book.Code.getAbs(bookPath)
-
-        relFilepath = vsCodeFilePath.replace(bookCodeFilesRoot + "/", "")
-
-        log.autolog(f"\
-Add marker to VsCode for book project for file '{relFilepath}'\n\
-for '{subsection}':'{imIdx}'")
-
-        bookCodeFile:dict = fsf.Data.Sec.bookCodeFile(fsf.Data.Book.currSection)
-
-        if not shouldDelete:
-            if bookCodeFile.get(imIdx) == None:
-                bookCodeFile[imIdx] = relFilepath
-                fsf.Data.Sec.bookCodeFile(fsf.Data.Book.currSection, bookCodeFile)
-
-                return _upan.Names.codeLineMarkerBook(subsection, imIdx)
-            else:
-                return "CODE_MARKER: marker is already present. Please remove before adding."
-        else:
-            if bookCodeFile.get(imIdx) == None:
-                _u.log.autolog("Deleting the marker for book code project for {subsection}_{imIdx}.\n Marker not present.")
-                return "CODE_MARKER: delete marker is not present. "
-            else:
-                _u.log.autolog("Deleting the marker for book code project for {subsection}_{imIdx}")
-                bookCodeFile.pop(imIdx)
-                fsf.Data.Sec.bookCodeFile(fsf.Data.Book.currSection, bookCodeFile)
-
-                return _upan.Names.codeLineMarkerBook(subsection, imIdx)
-
+        gm.GeneralManger.AddAddMarkerToCode(subsection=subsection, imIdx = imIdx,
+                                            vsCodeFilePath = vsCodeFilePath,
+                                            subsectionCodeprojectPath = subsectionCodeprojectPath,
+                                            shouldDelete = shouldDelete,
+                                            bookcCodeMarker = True)
     elif subsectionCodeprojectPath in vsCodeFilePath:
-         # ask the user if we wnat to proceed.
-        if not shouldDelete:
-            msg = "Do you want to add marker for subsection code project \n\n'{0}_{1}'?".format(subsection, imIdx)
-        else:
-            msg = "Do you want to delete marker for subsection code project \n\n'{0}_{1}'?".format(subsection, imIdx)
-
-        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
-
-        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.MathMenuManager)
-        mainManager.show()
-        mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
-
-        if not response:
-            return
-
-        relFilepath = vsCodeFilePath.replace(subsectionCodeprojectPath + "/", "")
-
-        log.autolog(f"\
-Add marker to VsCode for subsection project for file '{relFilepath}'\n\
-for '{subsection}':'{imIdx}'")
-        subsectionCodeFile:dict = fsf.Data.Sec.subsectionCodeFile(fsf.Data.Book.currSection)
-
-        if not shouldDelete:
-            if subsectionCodeFile.get(imIdx) == None:
-                subsectionCodeFile[imIdx] = relFilepath
-                fsf.Data.Sec.subsectionCodeFile(fsf.Data.Book.currSection, subsectionCodeFile)
-
-                return _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
-            else:
-                return "CODE_MARKER: marker is already present. Please remove before adding" 
-        else:
-            if subsectionCodeFile.get(imIdx) == None:
-                _u.log.autolog("Deleting the marker for subsection code project for {subsection}_{imIdx}.\n Marker not present.")
-                return "CODE_MARKER: delete marker is not present."
-            else:
-                _u.log.autolog("Deleting the marker for subsection code roject for {subsection}_{imIdx}")
-                subsectionCodeFile.pop(imIdx)
-                fsf.Data.Sec.subsectionCodeFile(fsf.Data.Book.currSection, subsectionCodeFile)
-
-                return _upan.Names.codeLineMarkerSubsection(subsection, imIdx)
+        gm.GeneralManger.AddAddMarkerToCode(subsection=subsection, imIdx = imIdx,
+                                            vsCodeFilePath = vsCodeFilePath,
+                                            subsectionCodeprojectPath = subsectionCodeprojectPath,
+                                            shouldDelete = shouldDelete,
+                                            bookcCodeMarker = False)
 
     return "CODE_MARKER: marker is already present. Please remove before adding" 

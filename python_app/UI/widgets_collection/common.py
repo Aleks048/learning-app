@@ -635,13 +635,48 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
             _u.Token.NotDef.str_t in [dt.UITemp.Copy.subsection, dt.UITemp.Copy.imIdx]:
             _u.log.autolog("Did not paste entry. The copy data is not correct.")
             return
+        
+        sourceSubsection = dt.UITemp.Copy.subsection
+        sourceImIdx = dt.UITemp.Copy.imIdx
+        targetSubsection = subsection
+        targetImIdx = imIdx
+    
+        # CORE OPERATIONS
+        if (sourceSubsection == targetSubsection) and (sourceImIdx == targetImIdx):
+            targetImIdx = str(int(targetImIdx) + 1)
+
+         # ask the user if we wnat to proceed.
+        cutEntryStr = "CUT" if dt.UITemp.Copy.cut else "COPY"
+        msg = "\
+Do you want to {4} entry from \n\n\
+'{0}':'{1}'\n\n\
+to \n\n'{2}':'{3}'?".format(sourceSubsection, sourceImIdx, 
+                        targetSubsection, targetImIdx,
+                        cutEntryStr)
+
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
+
+        response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
+
+        mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MathMenuManager)
+        mainManager.show()
+
+        if not response:
+            return
 
         fsm.Wr.SectionInfoStructure.insertEntryAfterIdx(dt.UITemp.Copy.subsection,
                                                         dt.UITemp.Copy.imIdx,
                                                         subsection,
                                                         imIdx,
-                                                        dt.UITemp.Copy.cut,
-                                                        shouldAsk = True)
+                                                        dt.UITemp.Copy.cut)
         #TODO: we should optimise this
         self.render()
 
