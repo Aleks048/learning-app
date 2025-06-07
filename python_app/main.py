@@ -5,4 +5,4 @@ dc.StartupConsts.WITH_TRACKING = True
 # not used at the moment. TODO: change the startup ETR defaults when DEBUG
 dc.StartupConsts.DEBUG = False
 
-gm.GeneralManger.startApp()
+gm.GeneralManger.StartApp()
