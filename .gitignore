@@ -20,3 +20,4 @@ test_book.py
 /python_app/_utils/cpp/.deps
 /python_app/_utils/cpp/.bin
 *.so
+/_python_local

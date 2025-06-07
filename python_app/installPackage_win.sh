@@ -1,0 +1,1 @@
+"C:\\Users\\ashum\\dev\\learning-app\\_python_local\\Scripts\\pip.exe" install --upgrade --target "C:\\Users\\ashum\\dev\\learning-app\\_python_local\\Lib\\site-packages" ${1}
