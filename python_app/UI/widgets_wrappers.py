@@ -3,6 +3,7 @@ from tkinter import scrolledtext
 from tkinter import ttk
 from PIL import ImageTk
 import inspect
+import platform
 
 import moviepy.editor as mpe
 from imageio import imwrite,RETURN_BYTES
@@ -12,7 +13,10 @@ from PIL import Image
 import tkinter as tk
 import threading
 
-from AppKit import NSPasteboard, NSStringPboardType
+if platform.system() == "Darwin":
+    from AppKit import NSPasteboard, NSStringPboardType
+elif platform.system() == "Windows":
+    import win32clipboard
 
 import _utils.logging as log
 import _utils.pathsAndNames as _upan
@@ -1181,8 +1185,15 @@ class TkWidgets (DataTranslatable_Interface):
             if self.isLocked:
                 self.widgetObj.config(state=tk.NORMAL)
 
-            pb = NSPasteboard.generalPasteboard()
-            text:str = pb.stringForType_(NSStringPboardType)
+
+            if platform.system() == "Darwin":
+                pb = NSPasteboard.generalPasteboard()
+                text:str = pb.stringForType_(NSStringPboardType)
+            elif platform.system() == "Windows":
+                win32clipboard.OpenClipboard()
+                data = win32clipboard.GetClipboardData()
+                win32clipboard.CloseClipboard()
+                text:str = data
 
             text = text.replace("\u0000", "fi")
 

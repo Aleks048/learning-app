@@ -35,7 +35,7 @@ class Settings:
     
     @classmethod
     def __getSettingsFileFilepath(cls):
-        return os.environ['BOOKS_SETTINGS_PATH'] + cls.booksSettingsName
+        return os.path.join(os.environ['BOOKS_SETTINGS_PATH'], cls.booksSettingsName)
 
     @classmethod 
     def readProperty(cls, propertyName):
