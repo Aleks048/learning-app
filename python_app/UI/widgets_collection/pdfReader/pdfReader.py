@@ -64,8 +64,8 @@ class NotesImageLabel(ttk.Label):
         else:
             return super().__init__(root, name = name, text = text, padding = padding)
 
-class PdfReaderImageCanvas(wcom.TOCCanvasWithclick):
-    class Label(wcom.TOCCanvasWithclick.Label):
+class PdfReaderImageCanvas(comw.TOCCanvasWithclick):
+    class Label(comw.TOCCanvasWithclick.Label):
         def __init__(self, subsection, imIdx, canvas, 
                      startX, startY, endX, endY, 
                      extraDataToSave, labelStartX=None, labelStartY=None):
@@ -279,7 +279,7 @@ class PdfReaderImageCanvas(wcom.TOCCanvasWithclick):
                 f["startX"] = f["startX"] * widthScale
                 f["startY"] = f["startY"] * heightScale
 
-            rect = wcom.TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
+            rect = comw.TOCCanvasWithclick.Rectangle.rectangleFromDict(f, self)
             self.rectangles.append(rect)
     
 
@@ -1175,7 +1175,7 @@ class SecondaryImagesFrame(ww.currUIImpl.Frame):
                                                                 wf.Wr.MenuManagers.PdfReadersManager)
         pdfMenuManager.addSecondaryFrame(subsection, imIdx)
 
-class SecondaryEntryBox(wcom.EntryWindow_BOX):
+class SecondaryEntryBox(comw.EntryWindow_BOX):
     def onExtraImDelete(self, subsection, imIdx, eImIdx):
         if (subsection == self.subsection) and (imIdx == self.imIdx):
             if self.entryManager != None:

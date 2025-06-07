@@ -15,7 +15,7 @@ import outside_calls.outside_calls_facade as ocf
 import data.temp as dt
 
 
-class ExcerciseExtraLabelWithClick(comw.ExcerciseLabel):
+class ExcerciseExtraLabelWithClick(comw.TOCLabelWithClick):
     pass
 
 class ExcerciseExtraImageLabel(ww.currUIImpl.Label):
