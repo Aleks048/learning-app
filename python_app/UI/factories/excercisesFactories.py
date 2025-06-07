@@ -18,6 +18,15 @@ import outside_calls.outside_calls_facade as ocf
 
 import data.temp as dt
 
+class ExcerciseLabelWithAClick(comw.TOCLabelWithClick):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.subsection = None
+        self.imIdx = None
+        self.lineImIdx = None
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
 class ExcerciseLineManager():
     def __init__(self, imIdx, subsection, excerciseWidgetFrame):
         self.copyInx = None
@@ -200,7 +209,8 @@ class ExcerciseLineFactory:
         '''
         produce paste before excercise line widget
         '''
-        pasteLabel = comw.TOCLabelWithClick(parentWidget, self.getPrefix() + "_pasteBLine_", 
+        pasteLabel = ExcerciseLabelWithAClick(parentWidget, 
+                                              self.getPrefix() + "_pasteBLine_", 
                                             0, 2, text = "PB")
         pasteLabel.lineImIdx = self.lineIdx
 
@@ -241,7 +251,8 @@ class ExcerciseLineFactory:
         '''
         produce paste after excercise line widget
         '''
-        pasteLabel = comw.TOCLabelWithClick(parentWidget, self.getPrefix() + "_pasteALine_", 
+        pasteLabel = ExcerciseLabelWithAClick(parentWidget, 
+                                                self.getPrefix() + "_pasteALine_", 
                                                 0, 3, text = "PA")
         pasteLabel.lineImIdx = self.lineIdx
 
@@ -282,8 +293,9 @@ class ExcerciseLineFactory:
         '''
         delete
         '''
-        deleteLabel = comw.TOCLabelWithClick(parentWidget, self.getPrefix() + "_deleteLine_", 
-                                             0, 4, text = "Del")
+        deleteLabel = ExcerciseLabelWithAClick(parentWidget, 
+                                               self.getPrefix() + "_deleteLine_", 
+                                               0, 4, text = "Del")
         deleteLabel.lineImIdx = self.lineIdx
 
         def deleteLineIdx(event, *args):
@@ -313,8 +325,9 @@ class ExcerciseLineFactory:
         '''
         note
         '''
-        noteLabel = comw.TOCLabelWithClick(parentWidget, self.getPrefix() + "_notesForLine_", 
-                                            0, 5, text = "N")
+        noteLabel = ExcerciseLabelWithAClick(parentWidget, 
+                                             self.getPrefix() + "_notesForLine_", 
+                                             0, 5, text = "N")
         noteLabel.lineImIdx = self.lineIdx
         noteLabel.subsection = self.subsection
         noteLabel.imIdx = self.imIdx
@@ -345,9 +358,9 @@ class ExcerciseLineFactory:
         produce copy excercise line widget
         '''
 
-        copyLabel = comw.TOCLabelWithClick(parentWidget, 
-                                           self.getPrefix() + "copyLine_", 
-                                           row = 0, column = 0, text = "Copy")
+        copyLabel = ExcerciseLabelWithAClick(parentWidget, 
+                                             self.getPrefix() + "copyLine_", 
+                                             row = 0, column = 0, text = "Copy")
         copyLabel.lineImIdx = self.lineIdx
 
         def setCopyLineIdx(event, *args):

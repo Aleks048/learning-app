@@ -161,7 +161,35 @@ class TOCLabelWithClickGroup(TOCLabelWithClick):
         super().updateImage(self.image)
 
 
-class TOCLabelWithClickEntry(TOCLabelWithClick):
+class TOCTextLabelWithClickEntry(TOCLabelWithClick):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.subsection = None
+        self.imIdx = None
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+class TOCLabelWithClickLink(TOCLabelWithClick):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.targetSubssection = None
+        self.sourceSubssection = None
+        self.targetImIdx = None
+        self.sourceImIdx = None
+
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+class TOCLabelWithClickWebLink(TOCTextLabelWithClickEntry):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+
+        self.sourceWebLinkName = None
+
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+class TOCLabelWithClickEntry(TOCTextLabelWithClickEntry):
     def updateLabel(self):
         pilIm = getEntryImg("no", self.subsection, self.imIdx)
 
@@ -512,7 +540,7 @@ class EntryWidgetFactory:
                 if "onEntryShift" in dir(w):
                     w.onEntryShift(subsection, imIdx)
 
-        shiftEntry = TOCLabelWithClick(parentWidget,
+        shiftEntry = TOCTextLabelWithClickEntry(parentWidget,
                                                 text = self.EntryUIs.shift.name,
                                                 prefix = "contentShiftEntry" + self.__nameIdPrefix,
                                                 row = self.EntryUIs.shift.row, 
@@ -667,7 +695,7 @@ class EntryWidgetFactory:
             t = Thread(target = __afterDeletion, args = [subsection, imIdx])
             t.start()
 
-        removeEntry = TOCLabelWithClick(parentWidget,
+        removeEntry = TOCTextLabelWithClickEntry(parentWidget,
                                         text = self.EntryUIs.delete.name,
                                         prefix = "contentRemoveEntry" + self.__nameIdPrefix,
                                         row = 0, 
@@ -694,7 +722,7 @@ class EntryWidgetFactory:
             dt.UITemp.Copy.imIdx = widget.imIdx
             dt.UITemp.Copy.cut = True
 
-        copyEntry = TOCLabelWithClick(parentWidget,
+        copyEntry = TOCTextLabelWithClickEntry(parentWidget,
                                                 text = self.EntryUIs.copy.name,
                                                 prefix = "contentCopyEntry" + self.__nameIdPrefix,
                                                 row = 0, 
@@ -717,7 +745,7 @@ class EntryWidgetFactory:
                 if "onPaste" in dir(w):
                     w.onPaste(widget.subsection, widget.imIdx)
 
-        pasteAfterEntry = TOCLabelWithClick(parentWidget,
+        pasteAfterEntry = TOCTextLabelWithClickEntry(parentWidget,
                                                 text = self.EntryUIs.pasteAfter.name,
                                                 prefix = "contentPasteAfterEntry" + self.__nameIdPrefix,
                                                 row = 0, 
@@ -740,7 +768,7 @@ class EntryWidgetFactory:
                 if "onLinksShow" in dir(w):
                     w.onLinksShow(e.widget.subsection, e.widget.imIdx, linksFrmaeManger.linksShown)
 
-        showLinksForEntry = TOCLabelWithClick(parentWidget,
+        showLinksForEntry = TOCTextLabelWithClickEntry(parentWidget,
                                                 text = self.EntryUIs.showLinks.name,
                                                 prefix = "contentShowLinksForEntry" + self.__nameIdPrefix,
                                                 row = 0, 
@@ -771,7 +799,7 @@ class EntryWidgetFactory:
             else:
                 prMenuManger.hide(subsection =  event.widget.subsection, imIdx = event.widget.imIdx)
 
-        tarOpenProofsUIEntry = TOCLabelWithClick(parentWidget, 
+        tarOpenProofsUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                     text = self.EntryUIs.proof.name, 
                                     prefix = "contentGlLinksTSubsectionProof_" + self.__nameIdPrefix,
                                     row = 0, 
@@ -791,7 +819,7 @@ class EntryWidgetFactory:
                 if "onCopyTextToMem" in dir(w):
                     w.onCopyTextToMem(event.widget.subsection, event.widget.imIdx)
 
-        copyTextToMem = TOCLabelWithClick(parentWidget, 
+        copyTextToMem = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.copyText.name, 
                                         prefix = "contentCopyTextToMem" + self.__nameIdPrefix,
                                         row = self.EntryUIs.copyText.row, 
@@ -857,7 +885,7 @@ class EntryWidgetFactory:
             t = Thread(target = __cmdAfterImageCreated, args = [subsection, imIdx])
             t.start()
 
-        retakeImageForEntry = TOCLabelWithClick(parentWidget,
+        retakeImageForEntry = TOCTextLabelWithClickEntry(parentWidget,
                                                 text =  self.EntryUIs.retake.name,
                                                 prefix = "contentRetakeImageForEntry" + self.__nameIdPrefix,
                                                 row = 0, 
@@ -874,7 +902,7 @@ class EntryWidgetFactory:
             widget = event.widget
             addExtraIm(widget.subsection, widget.imIdx, False)
 
-        addExtraImage = TOCLabelWithClick(parentWidget, 
+        addExtraImage = TOCTextLabelWithClickEntry(parentWidget, 
                                             text = self.EntryUIs.addExtra.name,
                                             prefix = "contentAddExtraImageEntry" + self.__nameIdPrefix,
                                             row = 0, 
@@ -891,7 +919,7 @@ class EntryWidgetFactory:
             widget = event.widget
             addExtraIm(widget.subsection, widget.imIdx, True)
 
-        addProofImage = TOCLabelWithClick(parentWidget, 
+        addProofImage = TOCTextLabelWithClickEntry(parentWidget, 
                                             text = self.EntryUIs.addProof.name,
                                             prefix = "contentAddExtraProofEntry" + self.__nameIdPrefix,
                                             row = 0, 
@@ -909,7 +937,7 @@ class EntryWidgetFactory:
             dt.UITemp.Link.subsection = widget.subsection
             dt.UITemp.Link.imIdx = widget.imIdx
         
-        copyLinkEntry = TOCLabelWithClick(parentWidget, 
+        copyLinkEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                             text = self.EntryUIs.copyLink.name,
                                             prefix = "contentCopyGlLinkEntry" + self.__nameIdPrefix,
                                             row = 0, 
@@ -949,7 +977,7 @@ class EntryWidgetFactory:
                     w.onPasteLink()
 
 
-        pasteLinkEntry = TOCLabelWithClick(parentWidget,
+        pasteLinkEntry = TOCTextLabelWithClickEntry(parentWidget,
                                             text = self.EntryUIs.pasteLink.name,
                                             prefix = "contentPasteGlLinkEntry" + self.__nameIdPrefix,
                                             row = 0, 
@@ -975,7 +1003,7 @@ class EntryWidgetFactory:
             else:
                 exMenuManger.hide()
 
-        openExUIEntry = TOCLabelWithClick(parentWidget, 
+        openExUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.excercises.name, 
                                         prefix = "contentOpenExcerciseUIEntry" + self.__nameIdPrefix,
                                         row = 0, 
@@ -1060,9 +1088,6 @@ class EntryWidgetFactory:
                                             column = column)
             textLabelPage.imIdx = self.imIdx
             textLabelPage.subsection = self.subsection
-            textLabelPage.etrWidget = textLabelPage
-            textLabelPage.imageLineIdx = int(self.imIdx)
-            textLabelPage.entryText = v
             textLabelPage.imagePath = v
 
             textLabelPage.rebind([ww.currUIImpl.Data.BindID.mouse2],
@@ -1074,7 +1099,7 @@ class EntryWidgetFactory:
                 openVideoOnThePlaceOfTheImage(textLabelPage, textLabelPage.subsection, textLabelPage.imIdx)
             textLabelPage.image = img
         else:
-            textLabelPage = TOCLabelWithClickEntry(parentWidget,
+            textLabelPage = TOCTextLabelWithClickEntry(parentWidget,
                                                 text = _u.Token.NotDef.str_t, 
                                                 prefix = "contentP_" + self.__nameIdPrefix, 
                                                 padding= [leftPad, 0, 0, 0],
@@ -1097,7 +1122,7 @@ class EntryWidgetFactory:
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        textLabelFull = TOCLabelWithClick(parentWidget, 
+        textLabelFull = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.im.name, 
                                         prefix = "contentFull_" + self.__nameIdPrefix,
                                         row = 0, 
@@ -1127,7 +1152,7 @@ class EntryWidgetFactory:
                     w.onFullEntryMove()
             
 
-        showImages = TOCLabelWithClick(parentWidget, 
+        showImages = TOCTextLabelWithClickEntry(parentWidget, 
                                     text = self.EntryUIs.full.name,
                                     prefix = "contentOfImages_" + self.__nameIdPrefix,
                                     row = 0,
@@ -1160,7 +1185,7 @@ class EntryWidgetFactory:
                 notesMenuManger.show()
             else:
                 notesMenuManger.hide()
-        openNoteUIEntry = TOCLabelWithClick(parentWidget, 
+        openNoteUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.dict.name, 
                                         prefix = "contentOpenDictUIEntry" + self.__nameIdPrefix,
                                         row = self.EntryUIs.dict.row, 
@@ -1186,7 +1211,7 @@ class EntryWidgetFactory:
             else:
                 notesMenuManger.hide()
     
-        openNoteUIEntry = TOCLabelWithClick(parentWidget, 
+        openNoteUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.entryNote.name, 
                                         prefix = "contentOpenNoteUIEntry" + self.__nameIdPrefix,
                                         row = self.EntryUIs.entryNote.row, 
@@ -1235,7 +1260,7 @@ class EntryWidgetFactory:
                 if "onShowSubentries" in dir(w):
                     w.onShowSubentries(widget.subsection, widget.imIdx)
 
-        showSubentries = TOCLabelWithClick(parentWidget,
+        showSubentries = TOCTextLabelWithClickEntry(parentWidget,
                                         text = self.EntryUIs.showSubentries.name,
                                         prefix = "contentShowSubentriesEntry" + self.__nameIdPrefix,
                                         row = 0, 
@@ -1255,7 +1280,7 @@ class EntryWidgetFactory:
         return showSubentries
 
     def __produceGroupExtraWidgets(self, parentWidget, groupName):
-        hideImageGroupLabel = TOCLabelWithClick(parentWidget, 
+        hideImageGroupLabel = TOCLabelWithClickGroup(parentWidget, 
                                                 text = "[show/hide]",
                                                 prefix = "contentHideImageGroupLabel_" + self.__nameIdPrefix,
                                                 row = 0, column = 1)
@@ -1618,7 +1643,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                 ocf.Wr.IdeCalls.openNewTab(filepath)
 
-        openBookCodeProject = TOCLabelWithClick(parentWidget, 
+        openBookCodeProject = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.openBookCodeProject.name, 
                                         prefix = "openBookCodeProject" + self.__nameIdPrefix,
                                         row = 1, 
@@ -1671,7 +1696,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
                 ocf.Wr.IdeCalls.openNewTab(filepath)
 
-        openSubsectionCodeProject = TOCLabelWithClick(parentWidget, 
+        openSubsectionCodeProject = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.openSubsectionCodeProject.name, 
                                         prefix = "openSubsectionCodeProject" + self.__nameIdPrefix,
                                         row = 1, 
@@ -1704,7 +1729,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
 
             ocf.Wr.IdeCalls.openNewWindow(_upan.Paths.Entry.getCodeProjAbs(bookPath, subsection, imIdx))
 
-        openEntryCodeProject = TOCLabelWithClick(parentWidget, 
+        openEntryCodeProject = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.openEntryCodeProject.name, 
                                         prefix = "openEntryCodeProject" + self.__nameIdPrefix,
                                         row = 1, 
@@ -1730,7 +1755,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
             else:
                 prMenuManger.hide(subsection =  event.widget.subsection, imIdx = event.widget.imIdx)
 
-        openProofsUIEntry = TOCLabelWithClick(parentWidget, 
+        openProofsUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.proof.name, 
                                         prefix = "contentOpenProofsUIEntry" + self.__nameIdPrefix,
                                         row = self.EntryUIs.proof.row, 
@@ -1749,7 +1774,7 @@ Do you want to move group \n\nto subsection\n'{0}' \n\nand entry: \n'{1}'\n\n wi
     /Users/ashum048/books/utils/c++_modules/qt_KIK_Browser/build/Qt_6_8_0_macos-Debug/browser.app/Contents/MacOS/browser \
     http://localhost/wiki/A/User:The_other_Kiwix_guy/Landing")
 
-        openEntryWikiUIEntry = TOCLabelWithClick(parentWidget, 
+        openEntryWikiUIEntry = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.wikiNote.name, 
                                         prefix = "contentOpenEntryWikiUIEntry" + self.__nameIdPrefix,
                                         row = 1, 
@@ -2039,7 +2064,7 @@ class EntryWidgetFactorySearchTOC(EntryWidgetFactory):
             
             widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
 
-        textLabelFull = TOCLabelWithClick(parentWidget, 
+        textLabelFull = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.im.name, 
                                         prefix = "contentFull_" + super().getPrefixID(),
                                         row = 0, 
@@ -2304,7 +2329,7 @@ class EntryWidgetFactoryWebLink(EntryWidgetFactory):
                 if "onRemoveLink" in dir(w):
                     w.onRemoveLink()
             
-        linkLabelDelete = TOCLabelWithClick(parentWidget, 
+        linkLabelDelete = TOCLabelWithClickWebLink(parentWidget, 
                                             text = self.EntryUIs.delete.name, 
                                             prefix = "contentGlLinksTSubsectionDel_" + self.getPrefixID(),
                                             row = self.EntryUIs.delete.row, 
@@ -2349,7 +2374,7 @@ class EntryWidgetFactoryWebLink(EntryWidgetFactory):
         pilIm.thumbnail([int(pilIm.size[0] * shrink),int(pilIm.size[1] * shrink)], Image.LANCZOS)
         img = ww.currUIImpl.UIImage(pilIm)
 
-        glLinkLablel = TOCLabelWithClick(parentWidget,
+        glLinkLablel = TOCTextLabelWithClickEntry(parentWidget,
                                     image = img,
                                     text = self.webLinkName, 
                                     prefix = "contentGlLinks_" + self.getPrefixID(),
@@ -2425,7 +2450,7 @@ class EntryWidgetFactoryLink(EntryWidgetFactory):
             
             e.widget.clicked = not e.widget.clicked
 
-        showImages = TOCLabelWithClick(parentWidget, 
+        showImages = TOCTextLabelWithClickEntry(parentWidget, 
                                     text = self.EntryUIs.im.name,
                                     prefix = "showImages_" + self.getPrefixID(),
                                     row = 0,
@@ -2456,12 +2481,12 @@ class EntryWidgetFactoryLink(EntryWidgetFactory):
                 if "onShowLinks" in dir(w):
                     w.onShowLinks()
 
-        linkLabelDelete = TOCLabelWithClick(parentWidget, 
+        linkLabelDelete = TOCLabelWithClickLink(parentWidget, 
                                                     text = self.EntryUIs.delete.name, 
                                                     prefix = "contentGlLinksTSubsectionDel_" + self.getPrefixID(),
                                                     row = 0,
                                                     column = self.EntryUIs.delete.column)
-        
+
         linkLabelDelete.targetSubssection = self.subsection
         linkLabelDelete.sourceSubssection = self.sourceSubsection
         linkLabelDelete.targetImIdx = self.imIdx
