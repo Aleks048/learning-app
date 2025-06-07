@@ -1,6 +1,13 @@
 import os, json, subprocess
 from threading import Thread
-from AppKit import NSScreen, NSWorkspace
+
+import platform
+
+if platform.system() == "Darwin":
+    from AppKit import NSScreen
+elif platform.system() == "Windows":
+    import ctypes
+
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -83,9 +90,15 @@ def replaceMarkerInFile(filepath, marker, value, lineToken = ""):
 
 
 def getMonitorSize():
-    # NOTE: this is an alternative way to get screen size. Might be better?
-    return [(screen.frame().size.width, screen.frame().size.height)
-            for screen in NSScreen.screens()][0]
+    if platform.system() == "Darwin":
+        # NOTE: this is an alternative way to get screen size. Might be better?
+        return [(screen.frame().size.width, screen.frame().size.height)
+                for screen in NSScreen.screens()][0]
+    elif platform.system() == "Windows":
+        user32 = ctypes.windll.user32
+        return user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+    else:
+        return None
 
 def readFile(fp):
     '''
