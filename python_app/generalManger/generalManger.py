@@ -249,29 +249,6 @@ class GeneralManger(dc.AppCurrDataAccessToken):
 
             fsf.Data.Sec.imagesGroupDict(subsection, imagesGroupDict)
 
-            # ADD LINK TO THE ORIGINAL MATERIAL
-            if not isVideo:
-                subsectionsList = fsf.Wr.SectionCurrent.getSubsectionsListForCurrTopSection()
-                numNotesOnThePage = 0
-                
-                for subsec in subsectionsList:
-                    origMatNameDict = fsf.Data.Sec.origMatNameDict(subsec)
-                    
-                    for tempImIdx in list(fsf.Data.Sec.origMatNameDict(subsec).keys()):
-                        subsecPagesDict = fsf.Data.Sec.imLinkOMPageDict(subsec)
-
-                        if origMatNameDict[tempImIdx] == origMatName and subsecPagesDict[tempImIdx] == page:
-                            numNotesOnThePage += 1
-
-                numNotesOnThePage = str(numNotesOnThePage)
-                
-                currOMName = fsf.Data.Book.currOrigMatName
-                bookName = sf.Wr.Manager.Book.getCurrBookName()
-                currTopSection = fsf.Data.Book.currTopSection
-                noteUrl = tff.Wr.TexFileUtils.getUrl(bookName, currTopSection, subsection, imIdx, "full")
-                noteText = noteUrl + " " + imText
-                fsf.Wr.OriginalMaterialStructure.addNoteToOriginalMaterial(currOMName, page, noteText, numNotesOnThePage)
-
             # Updating the remote
             msg = "Adding entry: " + subsection + "_" + imIdx
             ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
