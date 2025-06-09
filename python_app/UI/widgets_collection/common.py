@@ -1,6 +1,7 @@
 from PIL import Image, ImageOps
 from threading import Thread
 import uuid
+import platform
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -1008,7 +1009,11 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                                  cmd = self.labelCmd
                                  )
 
-            self.label.setStyle("Canvas.TMenubutton")
+            if platform.system() == "Darwin":
+                self.label.setStyle("Canvas.TMenubutton")
+            else:
+                self.label.setStyle("can.TMenubutton")
+
             self.id = self.canvas.createButton(self.labelStartX, 
                                                self.labelStartY, 
                                                anchor = ww.currUIImpl.Orientation.NW, 

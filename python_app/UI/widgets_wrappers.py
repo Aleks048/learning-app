@@ -1,6 +1,12 @@
 import tkinter as tk
 from tkinter import scrolledtext
-from tkinter import ttk
+import platform
+
+if platform.system() == "Darwin":
+    from tkinter import ttk
+elif platform.system() == "Windows":
+    import ttkbootstrap as ttk
+
 from PIL import ImageTk
 import inspect
 import platform
@@ -126,7 +132,10 @@ class TkWidgets (DataTranslatable_Interface):
         textColor_ID = "fg"
         app = tk.Tk()
         s = ttk.Style()
-        s.theme_use("default")
+        if platform.system() == "Darwin":
+            s.theme_use("default")
+        elif platform.system() == "Windows":
+            s.theme_use("darkly")
         # Create style used by default for all Frames
         s.configure('Dict.TLabel', background = "#394d43")
         s.configure('DictLoc.TLabel', background = "#7c3b3b")
@@ -134,10 +143,16 @@ class TkWidgets (DataTranslatable_Interface):
         s.configure('TLabel', foreground = "#ffffff", background = "#323232")
         s.configure('TFrame', background = "#323232")
         s.configure("TMenubutton", background="#323232")
-        s.configure("Canvas.TMenubutton", width = 5, 
-                                        background = "#3E4742", 
-                                        activebackground = "#33B5E5", 
-                                        relief = tk.FLAT)
+        if platform.system() == "Darwin":
+            s.configure("Canvas.TMenubutton", width = 5, 
+                                            background = "#3E4742", 
+                                            activebackground = "#33B5E5", 
+                                            relief = tk.FLAT)
+        elif platform.system() == "Windows":
+            s.configure("can.TMenubutton", width = 5, 
+                                            background = "#3E4742", 
+                                            activebackground = "#33B5E5", 
+                                            relief = tk.FLAT)
         s.configure('TCheckbutton', background = '#323232')
         s.configure("Horizontal.TScrollbar", gripcount=0, borderwidth = 0.1, arrowsize = 0.1,
                         background="#323262", darkcolor="#323232", lightcolor="#323232",
@@ -485,11 +500,19 @@ class TkWidgets (DataTranslatable_Interface):
 
             if "_CanvasButton_".lower() in name.lower():
                 # this is needed since ttk button does not provide the y coordinates correctly
-                self.widgetObj = tk.Button(self.rootWidget.widgetObj, 
+                if platform.system() == "Darwin":
+                    self.widgetObj = tk.Button(self.rootWidget.widgetObj, 
+                                        name = self.name,
+                                        text= self.text,
+                                        **extraOptions
+                                        )
+                elif platform.system() == "Windows":
+                    self.widgetObj = ttk.Button(self.rootWidget.widgetObj, 
                                     name = self.name,
                                     text= self.text,
                                     **extraOptions
                                     )
+                    
             else:
                 self.widgetObj = ttk.Button(self.rootWidget.widgetObj, 
                                     name = self.name,
