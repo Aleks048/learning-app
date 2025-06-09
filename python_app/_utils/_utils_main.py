@@ -12,6 +12,9 @@ from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import pytesseract
+if platform.system() == "Windows":
+    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"  # your path may be different
+
 from oslo_concurrency import lockutils
 
 import _utils.logging as log
