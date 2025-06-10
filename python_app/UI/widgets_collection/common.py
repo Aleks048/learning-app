@@ -1531,7 +1531,6 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
         self.dictWord = None
         self.dictText = None
 
-        self.imageLineIdx = None
         self.entryText = None
 
         self.imagePath = None

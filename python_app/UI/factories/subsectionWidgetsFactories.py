@@ -29,7 +29,15 @@ class SubsectionPath_ETR(GeneralPurpose_ETR):
         self.subsection = None
         super().__init__(patentWidget, prefix, row, column, imIdx, text, width)
 
-class TOCLabeWithClickSubsection(TOCLabelWithClick):   
+
+class SubsectionLabelWithClick(TOCLabelWithClick):
+    def __init__(self, root, prefix, 
+                 row, column, columnspan=1, sticky=ww.currUIImpl.Orientation.NW, 
+                 padding=[0, 0, 0, 0], image=None, text=None):
+        self.subsection = None
+        super().__init__(root, prefix, row, column, columnspan, sticky, padding, image, text)
+
+class TOCLabeWithClickSubsection(SubsectionLabelWithClick):   
     def updateLabel(self):
         if self.subsection in list(fsf.Data.Book.sections.keys()):
             topSectionImgPath = _upan.Paths.Screenshot.Images.getTopSectionEntryImageAbs(
@@ -197,7 +205,7 @@ class SubsectionWidgetFactory:
         nameId = "subsecLabel_" + self.subsection 
         return nameId.replace(".", "")
 
-    def __bindOpenPdfOnStartOfTheSection(self, widget:TOCLabelWithClick):
+    def __bindOpenPdfOnStartOfTheSection(self, widget):
         def __cmd(event = None, *args):
             # open orig material on page
             origMatNameDict = fsf.Data.Sec.origMatNameDict(self.subsection)
@@ -323,7 +331,7 @@ class SubsectionWidgetFactory:
                 bindChangeColorOnInAndOut(widget, shouldBeBrown = False)
                 widget.clicked = False
 
-        openContentLabel = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.content.name, 
+        openContentLabel = SubsectionLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.content.name, 
                                             prefix = "subsecContent" + self.__getPrefix(),
                                             row = 0, column= self.EntryUIs.content.column)
         openContentLabel.subsection = self.subsection
@@ -346,7 +354,7 @@ class SubsectionWidgetFactory:
                 if "onRebuildSubsectionLatex" in dir(w):
                     w.onRebuildSubsectionLatex(subsection)
 
-        rebuildLatex = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.rebuild.name,
+        rebuildLatex = SubsectionLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.rebuild.name,
                                         prefix = "subsecRebuild" + self.__getPrefix(),
                                         row = 0, column = self.EntryUIs.rebuild.column)
         rebuildLatex.subsection = self.subsection
@@ -362,7 +370,7 @@ class SubsectionWidgetFactory:
                                                         wf.Wr.MenuManagers.PdfReadersManager)
             pdfManager.showSummary(subsection)
         
-        showSummary = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.summary.name,
+        showSummary = SubsectionLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.summary.name,
                                             prefix = "summary" + self.subsection.replace(".", ""),
                                             row = 0, column = self.EntryUIs.summary.column)
         showSummary.subsection = self.subsection
@@ -383,7 +391,7 @@ class SubsectionWidgetFactory:
                 if "onShowVideo" in dir(w):
                     w.onShowVideo(subsection)
 
-        showVideo = TOCLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.showVideo.name,
+        showVideo = SubsectionLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.showVideo.name,
                                             prefix = "showVideo" + self.subsection.replace(".", ""),
                                             row = 0, column = self.EntryUIs.showVideo.column)
         showVideo.subsection = self.subsection
@@ -482,7 +490,7 @@ class SubsectionWidgetFactory:
                 if "onSubsectionRemove" in dir(w):
                     w.onSubsectionRemove(subsection)
 
-        removeSubsection = TOCLabelWithClick(self.widgetManager.topFrame,
+        removeSubsection = SubsectionLabelWithClick(self.widgetManager.topFrame,
                                                 prefix = "removeSubsectionPosEntryText" + self.subsection.replace(".", ""),
                                                 row = 0, 
                                                 column = self.EntryUIs.remove.column,
@@ -510,7 +518,7 @@ class SubsectionWidgetFactory:
                 if "onSubsectionShowHide" in dir(w):
                     w.onSubsectionShowHide(subsection)
 
-        hideSubsections = TOCLabelWithClick(self.widgetManager.topFrame, 
+        hideSubsections = SubsectionLabelWithClick(self.widgetManager.topFrame, 
                                             text = self.EntryUIs.hideSubsections.name,
                                             prefix = "subsecShowHide" + self.subsection.replace(".", ""),
                                             row = 0, 
