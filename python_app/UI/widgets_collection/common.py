@@ -1556,6 +1556,49 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
             bindChangeColorOnInAndOut(self, shouldBeBrown = False)
 
 
+class TopLevelFrame(ww.currUIImpl.Frame):
+    class HatFrame(ww.currUIImpl.Frame):
+        def __init__(self, rootWidget):
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+            }
+            name = "_HatFrameFrame_"
+            prefix = rootWidget.name
+
+            super().__init__(prefix, name, rootWidget, renderData)
+
+
+    class ContentFrame(ww.currUIImpl.Frame):
+        def __init__(self, rootWidget):
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+            }
+            name = "_HatFrameFrame_"
+            prefix = rootWidget.name
+
+            super().__init__(prefix, name, rootWidget, renderData)
+
+    def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300):
+        renderData = {
+            ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, 
+                                           "rowspan": rowSpan, "columnspan": columnSpan},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+        }
+
+        extraOptions = {
+            ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+            ww.TkWidgets.__name__ : {}
+        }
+
+        name = "_TopLevelFrame_"
+        prefix = f"{row}_{column}"
+
+        super().__init__(prefix, name, rootWidget, renderData, extraOptions)
+        
+        self.hatFrame = TopLevelFrame.HatFrame(self)
+
 class MainRoot(ww.currUIImpl.RootWidget):
 
     def __init__(self, width, height):
