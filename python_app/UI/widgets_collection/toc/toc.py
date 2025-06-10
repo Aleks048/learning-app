@@ -66,6 +66,12 @@ class Filter_ETR(ww.currUIImpl.TextEntry):
                                            self.notify(SearchInSubsectionsText_CHB)])]
 
 class SearchTOC_BOX(TOC_BOX):
+    def __init__(self, parentWidget, prefix, windth=700, height=300, 
+                 showAll=False, makeScrollable=True, shouldScroll=True, showLinks=False):    
+        self.searchSubsectionsText = False
+        super().__init__(parentWidget, prefix, windth, height, showAll, 
+                         makeScrollable, shouldScroll, showLinks)
+
     def onOpenImageInTocWidget(self, subsection, imIdx):
         efm = self.subsectionWidgetManagers[subsection].entriesWidgetManagers[imIdx]
 

@@ -384,7 +384,6 @@ class TOC_BOX(ww.currUIImpl.ScrollableBox,
 
         # used to filter toc data when the search is performed
         self.filterToken = ""
-        self.searchSubsectionsText = False
         self.showAll = None
         self.shouldScroll = None
 
