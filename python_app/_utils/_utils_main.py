@@ -72,7 +72,13 @@ def getMonitorsAreas():
         return retval
 
     def __getMonitorsAreas_mac():
-        return [(screen.frame().size.width, screen.frame().size.height) for screen in NSScreen.screens()]
+        monitors = [[0, 0, int(screen.frame().size.width), int(screen.frame().size.height)] for screen in NSScreen.screens()]
+        sum = 0
+        for m in monitors:
+            m[1] = sum
+            sum += m[3]
+        
+        return monitors
 
     if platform.system() == "Darwin":
        return __getMonitorsAreas_mac()
