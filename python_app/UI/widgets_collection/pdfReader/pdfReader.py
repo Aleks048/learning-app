@@ -647,7 +647,7 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         def on_vertical(event):
             self.scrollY(-1 * event.delta)
 
-        self.rebind(['<Mod1-MouseWheel>'], [on_vertical])
+        self.rebind([ww.currUIImpl.Data.BindID.cmdModwheel], [on_vertical])
 
     def __scrollIntoView(self, event, widget = None):
         posy = 0

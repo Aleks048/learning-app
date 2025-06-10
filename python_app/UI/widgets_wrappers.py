@@ -172,11 +172,16 @@ class TkWidgets (DataTranslatable_Interface):
                     focusthickness = 1)
 
         class BindID:
+            if platform.system() == "Darwin":
+                bindPrefix = "Mod1"
+            elif platform.system() == "Windows":
+                bindPrefix = "Control"
+
             focusIn = "<FocusIn>"
             focusOut = "<FocusOut>"
-            allKeys = "<Key>"
+            allKeys= "<Key>"
             mouse1 = "<Button-1>"
-            cmdMouse1 = "<Mod1-Button-1>"
+            cmdMouse1 = f"<{bindPrefix}-Button-1>"
             shmouse1 = "<Shift-Button-1>"
             mouse2 = "<Button-2>"
             mouse3 = "<Button-3>"
@@ -187,43 +192,52 @@ class TkWidgets (DataTranslatable_Interface):
             render = "<Map>"
 
             destroy = "<Destroy>"
+            
+            cmdModwheel = f"<{bindPrefix}-MouseWheel>"
 
             customTOCMove = "<<TOCMove>>"
 
             class Keys:
+                #TODO: this a duplication and should be optimized
+                if platform.system() == "Darwin":
+                    bindPrefix = "Mod1"
+                elif platform.system() == "Windows":
+                    bindPrefix = "Control"
+
                 shspace = "<Shift-space>"
                 enter = "<Return>"
                 shenter = "<Shift-Return>"
-                cmdenter = "<Mod1-Return>"
-                cmdshs = "<Mod1-S>"
-                cmdb = "<Mod1-b>"
-                cmdl = "<Mod1-l>"
-                cmdsho = "<Mod1-O>"
-                cmdshc = "<Mod1-C>"
-                cmddc = "<Mod1-c><Mod1-c>"
-                cmdshi = "<Mod1-I>"
-                cmdsht = "<Mod1-T>"
-                cmdt = "<Mod1-t>"
-                cmdn = "<Mod1-n>"
-                cmdshn = "<Mod1-N>"
-                cmdd = "<Mod1-d>"
-                cmdone = "<Mod1-!>"
-                cmdtwo = "<Mod1-@>"
-                cmdsix = "<Mod1-^>"
-                cmdseven = "<Mod1-&>"
-                cmdeight = "<Mod1-*>"
-                cmdnine = "<Mod1-(>"
-                cmdzero = "<Mod1-)>"
-                cmdshh = "<Mod1-H>"
-                cmdminus = "<Mod1-_>"
-                cmdplus = "<Mod1-+>"
-                cmde = "<Mod1-e>"
-                cmdshe = "<Mod1-E>"
-                cmdp = "<Mod1-p>"
-                cmdr = "<Mod1-r>"
-                cmdshp = "<Mod1-P>"
-                cmdu = "<Mod1-u>"
-                cmdshv = "<Mod1-V>"
+                cmdenter = f"<{bindPrefix}-Return>"
+                cmdshs = f"<{bindPrefix}-S>"
+                cmds = f"<{bindPrefix}-s>"
+                cmdb = f"<{bindPrefix}-b>"
+                cmdl = f"<{bindPrefix}-l>"
+                cmdsho = f"<{bindPrefix}-O>"
+                cmdshc = f"<{bindPrefix}-C>"
+                cmddc = f"<{bindPrefix}-c><{bindPrefix}-c>"
+                cmdshi = f"<{bindPrefix}-I>"
+                cmdsht = f"<{bindPrefix}-T>"
+                cmdt = f"<{bindPrefix}-t>"
+                cmdn = f"<{bindPrefix}-n>"
+                cmdshn = f"<{bindPrefix}-N>"
+                cmdd = f"<{bindPrefix}-d>"
+                cmdone = f"<{bindPrefix}-!>"
+                cmdtwo = f"<{bindPrefix}-@>"
+                cmdsix = f"<{bindPrefix}-^>"
+                cmdseven = f"<{bindPrefix}-&>"
+                cmdeight = f"<{bindPrefix}-*>"
+                cmdnine = f"<{bindPrefix}-(>"
+                cmdzero = f"<{bindPrefix}-)>"
+                cmdshh = f"<{bindPrefix}-H>"
+                cmdminus = f"<{bindPrefix}-_>"
+                cmdplus = f"<{bindPrefix}-+>"
+                cmde = f"<{bindPrefix}-e>"
+                cmdshe = f"<{bindPrefix}-E>"
+                cmdp = f"<{bindPrefix}-p>"
+                cmdr = f"<{bindPrefix}-r>"
+                cmdshp = f"<{bindPrefix}-P>"
+                cmdu = f"<{bindPrefix}-u>"
+                cmdshv = f"<{bindPrefix}-V>"
                 ctrlv = "<Control-v>"
                 escape = "<Escape>"
                 shup = "<Shift-Up>"
@@ -406,8 +420,8 @@ class TkWidgets (DataTranslatable_Interface):
             self.bindCmd = bindCmd
             self.callingObject = callingObject
             self.bind_all_keys = ["<Delete>", 
-                                  "<Mod1-s>",
-                                  '<Mod1-MouseWheel>',
+                                  TkWidgets.Data.BindID.Keys.cmds,
+                                  TkWidgets.Data.BindID.cmdModwheel,
                                   ]
 
             self.root_bind_all_keys = [TkWidgets.Data.BindID.Keys.left,

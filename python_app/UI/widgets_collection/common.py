@@ -1349,7 +1349,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
         self.movingFigure = None
         self.resizingFigure = None
 
-        keys = ["<Mod1-s>", "<Delete>"]
+        keys = [ww.currUIImpl.Data.BindID.cmdModwheel, "<Delete>"]
         cmds = [lambda *args: self.saveFigures(stampChanges = True),
                 lambda *args: self.deleteSelectedRectangle()]
         self.rebind(keys, cmds)
@@ -1490,7 +1490,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
 
     def _unbindCmd(self, *args):
         return ["<Shift-B1-Motion>", "<B1-Motion>", "<Button-1>", 
-                "<ButtonRelease-1>", "<Mod1-s>", "<Delete>"]
+                "<ButtonRelease-1>", ww.currUIImpl.Data.BindID.Keys.cmds, "<Delete>"]
 
 
 class TOCLabelWithClick(ww.currUIImpl.Label):
