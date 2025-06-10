@@ -29,7 +29,7 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     @classmethod
     def StartNonStartMenus(cls):
         # start the daemon to process client calls
-        cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
+        # cls.daemonThread, cls.dserver = ds.startMainServerDaemon()
 
         wf.Wr.UI_generalManager.startNonStartMenus()
 
@@ -43,8 +43,8 @@ class GeneralManger(dc.AppCurrDataAccessToken):
     def ExitApp(cls):
         wf.Wr.UI_generalManager.exit()
 
-        cls.dserver.close()
-        cls.daemonThread.join()
+        # cls.dserver.close()
+        # cls.daemonThread.join()
         log.autolog("- Ended Exiting the app")
         sys.exit(0)
 
