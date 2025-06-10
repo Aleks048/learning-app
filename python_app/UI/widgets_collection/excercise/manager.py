@@ -23,7 +23,15 @@ class LayoutManagers:
         showExcerciseIm = True
 
         def __init__(self, winRoot):
-            appDimensions = [720, 800, 0, 0]
+            monitors = _u.getMonitorsAreas()
+            deltaY = sum([i[1] for i in monitors])
+
+            deltaX = 0
+            if deltaY != 0:
+                deltaX = 300
+
+            appDimensions = [720, 800, deltaX, deltaY]
+
             super().__init__(winRoot, appDimensions)
             self.excerciseImage = exw.ExcerciseImage(winRoot, self.prefix)
             self.addWidget(self.excerciseImage)
