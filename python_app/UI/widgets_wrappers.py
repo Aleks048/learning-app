@@ -183,8 +183,11 @@ class TkWidgets (DataTranslatable_Interface):
             mouse1 = "<Button-1>"
             cmdMouse1 = f"<{bindPrefix}-Button-1>"
             shmouse1 = "<Shift-Button-1>"
-            mouse2 = "<Button-2>"
-            mouse3 = "<Button-3>"
+
+            if platform.system() == "Darwin":
+                mouse2 = "<Button-2>"
+            elif platform.system() == "Windows":
+                mouse2 = "<Button-3>"
 
             enterWidget = "<Enter>"
             leaveWidget = "<Leave>"
