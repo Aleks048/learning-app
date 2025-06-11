@@ -33,6 +33,11 @@ class LayoutManagers:
 
             super().__init__(winRoot, appDimensions)
 
+            topFrame = wm.UI_generalManager.topLevelFrames["0100"]
+            secondFrame = wm.UI_generalManager.topLevelFrames["0110"]
+            thirdFrame = wm.UI_generalManager.topLevelFrames["0120"]
+            bottomFrame = wm.UI_generalManager.topLevelFrames["0130"]
+
             tocBox_BOX = ml.MainTOCBox(winRoot, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
@@ -72,11 +77,13 @@ class LayoutManagers:
             imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
             imageGenration_ERT.addListenerWidget(textOnly_CHB)
 
+            imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
+            self.addWidget(imageGroupAdd_BTN)
+
+            # bottom frame
+
             switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
             self.addWidget(switchLayout_BTN)
-
-            # switchToCurrSectionLayout_BTN = ml.SwitchToCurrSectionLayout_BTN(winRoot, self.prefix)
-            # self.addWidget(switchToCurrSectionLayout_BTN)
 
             chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
             self.addWidget(chooseOriginalMaterial_OM)
@@ -91,14 +98,8 @@ class LayoutManagers:
             showTocWindow_BTN = commw.ShowTocWindow_BTN(winRoot, self.prefix)
             self.addWidget(showTocWindow_BTN)
             
-            # reAddAllNotesFromTheOMPage_BTN = ml.ReAddAllNotesFromTheOMPage_BTN(winRoot, self.prefix)
-            # self.addWidget(reAddAllNotesFromTheOMPage_BTN)
-
             showAllSubsections_BTN = ml.ShowAllSubsections_BTN(winRoot, self.prefix)
             self.addWidget(showAllSubsections_BTN)
-
-            # showFirstEntryOfTheCurrPage = ml.ShowFirstEntryOfTheCurrPage(winRoot, self.prefix)
-            # self.addWidget(showFirstEntryOfTheCurrPage)
 
             addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
@@ -110,8 +111,6 @@ class LayoutManagers:
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
-            imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
-            self.addWidget(imageGroupAdd_BTN)
 
             showHideLinks_BTN = ml.ShowHideLinks_BTN(winRoot, self.prefix)
             self.addWidget(showHideLinks_BTN)
@@ -139,11 +138,6 @@ class LayoutManagers:
 
             self.entryWindow_BOX.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
             self.entryWindow_BOX.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
-            # self.winRoot.configureColumn(0, weight = 1)
-            # self.winRoot.configureColumn(1, weight = 1)
-            # self.winRoot.configureColumn(2, weight = 3)
-            # self.winRoot.configureColumn(3, weight = 1)
-            # self.winRoot.configureColumn(4, weight = 1)
             return super().show()
         
         def changeLinksSize(self):
@@ -337,7 +331,7 @@ class MathMenuManager(wm.MenuManager_Interface):
         self.layouts = []
         self.isShown = False
     
-        self.winRoot = commw.MainMenuRoot(rootWidget, 1300, 700)
+        self.winRoot = commw.MainMenuRoot(rootWidget)
         layouts = self.layouts
 
         for lm in LayoutManagers.listOfLayouts():

@@ -932,27 +932,24 @@ class TkWidgets (DataTranslatable_Interface):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
-            self.name:str = prefix.lower() + name
-            self.name = "_Frame_" + self.name.replace(".", "_")
             self.rootWidget = rootWidget
             self.padding = padding
-            
-            if (type(self.rootWidget) == ttk.Frame):
-                self.widgetObj = ttk.Frame(self.rootWidget, 
-                                           padding = self.padding,
-                                           name = self.name)
+
+            self.name:str = prefix.lower() + name
+            self.name = "_Frame_" + self.name.replace(".", "_")
+
+            if "widgetObj" in dir(self.rootWidget):
+                self.widgetObj = ttk.Frame(self.rootWidget.widgetObj, 
+                                    padding = self.padding,
+                                    name = self.name)
             else:
-                if "widgetObj" in dir(self.rootWidget):
-                    self.widgetObj = ttk.Frame(self.rootWidget.widgetObj, 
-                                        padding = self.padding,
-                                        name = self.name)
-                else:
-                    self.widgetObj = ttk.Frame(self.rootWidget, 
-                                        padding = self.padding,
-                                        name = self.name)
+                self.widgetObj = ttk.Frame(self.rootWidget, 
+                                    padding = self.padding,
+                                    name = self.name)
 
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
+
             if localvars.get("self") != None:
                 if "widget" not in dir(caller):
                     child = self

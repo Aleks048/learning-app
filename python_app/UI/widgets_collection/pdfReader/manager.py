@@ -23,32 +23,35 @@ class LayoutManagers:
         pdfRegularSize = 790
 
         def __init__(self, winRoot):
-            self.winRoot = winRoot
-            self.defaultAppDimensions = [720, 850]
-            super().__init__(winRoot, self.defaultAppDimensions)
-            self.pfdReader_BOX = imw.PfdReader_BOX(winRoot.middleSubframe, self.prefix)
+            super().__init__(winRoot)
+
+            topFrame = wm.UI_generalManager.topLevelFrames["0000"]
+            middleFrame = wm.UI_generalManager.topLevelFrames["0010"]
+            bottomFrame = wm.UI_generalManager.topLevelFrames["0020"]
+
+            self.pfdReader_BOX = imw.PfdReader_BOX(middleFrame, self.prefix)
             self.addWidget(self.pfdReader_BOX)
-            self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(winRoot.middleSubframe, self.prefix)
+            self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(middleFrame, self.prefix)
             self.addWidget(self.resizePdfReaderWindow_BTN)
-            self.changePagePdfReaderWindow_ETR = imw.ChangePagePdfReaderWindow_ETR(winRoot.middleSubframe, self.prefix)
+            self.changePagePdfReaderWindow_ETR = imw.ChangePagePdfReaderWindow_ETR(middleFrame, self.prefix)
             self.addWidget(self.changePagePdfReaderWindow_ETR)
 
-            self.secondaryEntry = imw.SecondaryImagesFrame(winRoot.bottomSubframe)
+            self.secondaryEntry = imw.SecondaryImagesFrame(bottomFrame)
             self.addWidget(self.secondaryEntry)
             self.secondaryEntry.addListenerWidget(self.pfdReader_BOX)
 
-            self.subsectionSummary = imw.SubsectionSummaryText(winRoot.bottomSubframe)
-            self.videoPlayerFrame = viplmw.VideoPlayerRoot(winRoot.topSubframe)
+            self.subsectionSummary = imw.SubsectionSummaryText(bottomFrame)
+            self.videoPlayerFrame = viplmw.VideoPlayerRoot(topFrame)
 
             self.resizePdfReaderWindow_BTN.addListenerWidget(self.pfdReader_BOX)
             self.changePagePdfReaderWindow_ETR.addListenerWidget(self.pfdReader_BOX)
 
-            winRoot.setGeometry(*self.appDimensions)
+            # winRoot.setGeometry(*self.appDimensions)
 
         def show(self, dimensions = None):
             self.pfdReader_BOX.subsection = self.subsection
             if dimensions == None:
-                self.appDimensions = self.defaultAppDimensions
+                self.appDimensions = [0, 0]
             else:
                 self.appDimensions = dimensions
 
@@ -99,16 +102,18 @@ class LayoutManagers:
             currSubsection  = self.videoPlayerFrame.videoLabel.subsection
             currImIdx = self.videoPlayerFrame.videoLabel.imIdx
 
+            topFrame = wm.UI_generalManager.topLevelFrames["0000"]
+
             if (not self.videoPlayerFrame.wasRendered) \
                 or (subsection != currSubsection) or (imIdx != currImIdx):
                 self.pfdReader_BOX.setCanvasHeight(self.pdfReaderSizeWhenVideo)
-                self.winRoot.topSubframe.render()
+                topFrame.render()
                 self.videoPlayerFrame.render()
                 self.videoPlayerFrame.showVideo(subsection, imIdx)
             else:
                 self.pfdReader_BOX.setCanvasHeight(self.pdfRegularSize)
                 self.videoPlayerFrame.hide()
-                self.winRoot.topSubframe.hide()
+                topFrame.hide()
 
         def hide(self):
             self.pfdReader_BOX.changePrevPos = self.changePrevPos
@@ -136,7 +141,8 @@ class PdfReadersManager(wm.MenuManager_Interface):
     def __init__(self, rootWidget):
         winRoot = imw.PdfReadersRoot(rootWidget, 
                                      width = 0, 
-                                     height = 0)
+                                     height = 0,
+                                     topLevelFrameId = rootWidget.prefix)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))

@@ -12,12 +12,13 @@ menuManagers = []
 
 class MenuLayout_Interface(dc.AppCurrDataAccessToken):
     name = None
-    def __init__(self, winRoot, appDimensions):
+    def __init__(self, winRoot, appDimensions = None):
         self.widgets = set()
-        self.appDimensions = []
         self.winRoot = winRoot
         self.appDimensions = appDimensions
-        self.setAppDimensions()        
+
+        if self.appDimensions != None:
+            self.setAppDimensions()        
 
     def addWidget(self, widget):
         self.widgets.add(widget)
@@ -108,6 +109,8 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
 
 
 class UI_generalManager(dc.AppCurrDataAccessToken):
+    topLevelFrames = {}
+
     @classmethod
     def showNotification(cls, msg, shouldWait):
         import UI.widgets_facade as wf
@@ -153,6 +156,19 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
                                withoutRender = withoutRender)
 
     @classmethod
+    def addTopLevelFrame(cls, rootWidget, row, column, rowspan, columnspan, width, height):
+        frame = comw.TopLevelFrame(rootWidget = rootWidget, 
+                                   row = row, column = column, 
+                                   columnSpan = columnspan, rowSpan = rowspan,
+                                   width = width,
+                                   height = height)
+
+
+        cls.topLevelFrames[frame.prefix] = frame
+
+        return frame
+
+    @classmethod
     def startup(cls):
         import UI.widgets_collection.startup.manager as sm
         log.autolog("-- Srartup startup menu started: ")
@@ -181,12 +197,52 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
 
         cls.winRoot = cls.__createMainRoot(1500, 850, 0, 0)
 
+        rightFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
+                                          row = 0, column = 1, 
+                                          rowspan = 1, columnspan = 1,
+                                          width = 1300, height = 700)
+        rightTopFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
+                                          row = 0, column = 0, 
+                                          rowspan = 1, columnspan = 1,
+                                          width = 10, height = 10)
+        rightSecondFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
+                                          row = 1, column = 0, 
+                                          rowspan = 1, columnspan = 1,
+                                          width = 10, height = 10)
+        rightThirdFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
+                                          row = 2, column = 0, 
+                                          rowspan = 1, columnspan = 1,
+                                          width = 10, height = 10)
+        rightBottomFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
+                                          row = 3, column = 0, 
+                                          rowspan = 1, columnspan = 1,
+                                          width = 10, height = 10)
+
+        leftFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
+                                         row = 0, column = 0, 
+                                         rowspan = 1, columnspan = 1,
+                                         width = 10, height = 10)
+        leftTopFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
+                                         row = 0, column = 0, 
+                                         rowspan = 1, columnspan = 1,
+                                         width = 10, height = 10)
+        leftMiddleFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
+                                         row = 1, column = 0, 
+                                         rowspan = 1, columnspan = 1,
+                                         width = 10, height = 10)
+        leftBottomFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
+                                         row = 2, column = 0, 
+                                         rowspan = 1, columnspan = 1,
+                                         width = 10, height = 10)
+
         # create startup menu
         log.autolog("-- Srartup of other menus started: ")
+        mainMenuManager = mm.MathMenuManager(rightFrame)
+        log.autolog("Started '{0}' UI manager".format("main menu"))
+        pdfReadersMenuManager = pdfrm.PdfReadersManager(leftMiddleFrame)
+        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
         messageMenuManager = mesm.MessageMenuManager()
         log.autolog("Started '{0}' UI manager".format("message menu"))
-        mainMenuManager = mm.MathMenuManager(cls.winRoot)
-        log.autolog("Started '{0}' UI manager".format("main menu"))
         tocMenuManager = tocm.TOCManager()
         log.autolog("Started '{0}' UI manager".format("toc menu"))
         exMenuManager = exm.ExcerciseManager()
@@ -199,8 +255,6 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("proofs menu"))
         imagagesMenuManager = imm.ImagesManager()
         log.autolog("Started '{0}' UI manager".format("image menu"))
-        pdfReadersMenuManager = pdfrm.PdfReadersManager(cls.winRoot)
-        log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
         excerciseLineNoteManager = enm.ExcerciseLineNoteManager()
         log.autolog("Started '{0}' UI manager".format("excercise note menu"))
         excerciseSolutionManager = eslnm.ExcerciseSolutionManager()
@@ -212,6 +266,16 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
 
         pdfReadersMenuManager.show()
         mainMenuManager.show()
+
+        # rightTopFrame.render()
+        # rightSecondFrame.render()
+        # rightThirdFrame.render()
+        # rightBottomFrame.render()
+        rightFrame.render()
+
+        leftMiddleFrame.render()
+        leftBottomFrame.render()
+        leftFrame.render()
 
     @classmethod
     def exit(cls):

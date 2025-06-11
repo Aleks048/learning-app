@@ -1563,8 +1563,8 @@ class TopLevelFrame(ww.currUIImpl.Frame):
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
-            name = "_HatFrameFrame_"
-            prefix = rootWidget.name
+            name = "_HatFrame_"
+            prefix = rootWidget.name.replace("_", "")
 
             super().__init__(prefix, name, rootWidget, renderData)
 
@@ -1575,8 +1575,8 @@ class TopLevelFrame(ww.currUIImpl.Frame):
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
-            name = "_HatFrameFrame_"
-            prefix = rootWidget.name
+            name = "_ContentFrame_"
+            prefix = rootWidget.name.replace("_", "")
 
             super().__init__(prefix, name, rootWidget, renderData)
 
@@ -1592,12 +1592,22 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             ww.TkWidgets.__name__ : {}
         }
 
-        name = "_TopLevelFrame_"
-        prefix = f"{row}_{column}"
+        self.prefix = ""
 
-        super().__init__(prefix, name, rootWidget, renderData, extraOptions)
+        if "prefix" in dir(rootWidget):
+            self.prefix += rootWidget.prefix
+
+        self.prefix += f"{row}{column}"
+
+        name = "_TopLevelFrame_"
+
+        super().__init__(prefix = self.prefix, 
+                         name = name, 
+                         rootWidget = rootWidget, 
+                         renderData = renderData, 
+                         extraOptions = extraOptions)
         
-        self.hatFrame = TopLevelFrame.HatFrame(self)
+        # self.hatFrame = TopLevelFrame.HatFrame(self)
 
 class MainRoot(ww.currUIImpl.RootWidget):
 

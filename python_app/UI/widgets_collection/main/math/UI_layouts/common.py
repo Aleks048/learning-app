@@ -223,19 +223,15 @@ class AddWebLink_BTN(ww.currUIImpl.Button,
         self.notify(comw.TOC_BOX)
 
 class MainMenuRoot(ww.currUIImpl.Frame):
-    def __init__(self, rootWidget, width, height):
-        name = "_MainMenuRoot_"
+    def __init__(self, rootWidget):
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 0, "columnspan": 1},
+            ww.Data.GeneralProperties_ID :{"column" : 1, "row" : 0, "columnspan": 1},#
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
-        extraOptions = {
-            ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
-            ww.TkWidgets.__name__ : {}
-        }
+        name = "MainMenuRoot"
         prefix = ""
 
-        super().__init__(prefix, name, rootWidget, renderData, extraOptions)
+        super().__init__(prefix, name, rootWidget, renderData)
 
         self.rebind([ww.currUIImpl.Data.BindID.enterWidget],
                     [lambda *args: self.forceFocus()])
