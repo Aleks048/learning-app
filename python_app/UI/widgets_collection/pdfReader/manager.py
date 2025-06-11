@@ -50,14 +50,10 @@ class LayoutManagers:
 
         def show(self, dimensions = None):
             self.pfdReader_BOX.subsection = self.subsection
-            if dimensions == None:
-                self.appDimensions = [0, 0]
-            else:
-                self.appDimensions = dimensions
 
             if self.subsection != _u.Token.NotDef.str_t:
                 if fsf.Data.Sec.isVideo(self.subsection):
-                    self.appDimensions = [720, 517]
+                    self.appDimensions = [720, 117]
 
             self.pfdReader_BOX.imIdx = self.imIdx
             self.pfdReader_BOX.eImIdx = self.extraImIdx

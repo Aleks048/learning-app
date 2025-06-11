@@ -2,6 +2,7 @@ import data.constants as dc
 import data.temp as dt
 
 import _utils.logging as log
+import _utils._utils_main as _u
 import outside_calls.outside_calls_facade as ocf
 import settings.facade as sf
 
@@ -24,10 +25,13 @@ class MenuLayout_Interface(dc.AppCurrDataAccessToken):
         self.widgets.add(widget)
     
     def setAppDimensions(self):
-        self.winRoot.setGeometry(*self.appDimensions)
+        if self.appDimensions != None:
+            self.winRoot.setGeometry(*self.appDimensions)
 
     def show(self):
-        self.setAppDimensions()
+        if self.appDimensions != None:
+            self.setAppDimensions()
+
         for w in self.widgets:
             w.render()
     
@@ -53,18 +57,14 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
         dt.AppState.UIManagers.setData(self.appCurrDataAccessToken, UIManagers)
 
     def switchUILayout(self, toLayoutType, hideWidgets = True):
-        if hideWidgets:
-            self.hideAllWidgets(changePdfWidget = False)
 
         for layout in self.layouts:
             if type(layout) == toLayoutType:
                 self.currLayout = layout
                 layout.show()
                 self.winRoot.render()
-                return
             else:
                 layout.hide()
-        raise KeyError
 
     def startMainLoop(self):
         self.winRoot.startMainLoop()
@@ -163,7 +163,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
                                    width = width,
                                    height = height)
 
-
+        frame.forceFixedDimentions(width, height)
         cls.topLevelFrames[frame.prefix] = frame
 
         return frame
@@ -195,49 +195,55 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         import UI.widgets_collection.excerciseSolution.manager as eslnm
         import UI.widgets_collection.excerciseExtra.manager as eextm
 
-        cls.winRoot = cls.__createMainRoot(1500, 850, 0, 0)
+        dimensions = _u.getMonitorsAreas()[0]
+        width = dimensions[2] # 1500
+        height = dimensions[3] - 50 # 850
+
+        halfWidth = int(width / 2)
+
+        cls.winRoot = cls.__createMainRoot(width, height, 0, 0)
 
         rightFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
                                           row = 0, column = 1, 
                                           rowspan = 1, columnspan = 1,
-                                          width = 1300, height = 700)
+                                          width = halfWidth, height = height)
         rightTopFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 0, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = 10, height = 10)
+                                          width = halfWidth, height = 50)
         rightSecondFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 1, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = 10, height = 10)
+                                          width = halfWidth, height = 10)
         rightThirdFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 2, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = 10, height = 10)
+                                          width = halfWidth, height = 100)
         rightBottomFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 3, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = 10, height = 10)
+                                          width = halfWidth, height = 10)
 
         leftFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
                                          row = 0, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = 10, height = 10)
+                                         width = halfWidth, height = height)
         leftTopFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 0, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = 10, height = 10)
+                                         width = halfWidth, height = 100)
         leftMiddleFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 1, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = 10, height = 10)
+                                         width = halfWidth, height = height - 100)
         leftBottomFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 2, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = 10, height = 10)
+                                         width = halfWidth, height = 100)
 
         # create startup menu
         log.autolog("-- Srartup of other menus started: ")
-        mainMenuManager = mm.MathMenuManager(rightFrame)
+        mainMenuManager = mm.MathMenuManager(rightBottomFrame)
         log.autolog("Started '{0}' UI manager".format("main menu"))
         pdfReadersMenuManager = pdfrm.PdfReadersManager(leftMiddleFrame)
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
@@ -267,12 +273,14 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         pdfReadersMenuManager.show()
         mainMenuManager.show()
 
-        # rightTopFrame.render()
-        # rightSecondFrame.render()
-        # rightThirdFrame.render()
+        rightTopFrame.render()
+        rightSecondFrame.render()
+        rightThirdFrame.render()
         # rightBottomFrame.render()
+
         rightFrame.render()
 
+        leftTopFrame.render()
         leftMiddleFrame.render()
         leftBottomFrame.render()
         leftFrame.render()

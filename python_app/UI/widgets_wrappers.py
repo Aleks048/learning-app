@@ -973,7 +973,14 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.configure(height = height)
 
         def setGeometry(self, width, height):
-            self.widgetObj.configure(width = width, height = height)
+            if width != _u.Token.NotDef.int_t:
+                self.widgetObj.configure(width = width)
+            if height != _u.Token.NotDef.int_t:
+                self.widgetObj.configure(height = height)
+        
+        def forceFixedDimentions(self, width, height):
+            self.setGeometry(width, height)
+            self.widgetObj.grid_propagate(False)
 
     class VideoPayer(Label):
         def __init__(self, 

@@ -54,7 +54,6 @@ def getMonitorsAreas():
                 return 1
             cbfunc = CBFUNC(cb)
             temp = user.EnumDisplayMonitors(0, 0, cbfunc, 0)
-            #print(temp)
             return retval
 
         retval = []

@@ -8,6 +8,7 @@ import UI.widgets_collection.main.math.UI_layouts.sectionLayout as sl
 import UI.widgets_collection.main.math.UI_layouts.addModifySections as amsl
 import UI.widgets_collection.main.math.UI_layouts.addModifyOrigMat as amom
 import UI.widgets_collection.common as comw
+
 import data.constants as dc
 import file_system.file_system_facade as fsf
 
@@ -29,47 +30,57 @@ class LayoutManagers:
             #
             # monitorSize = dc.MonitorSize.getData()
             # monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [300, 850]
 
-            super().__init__(winRoot, appDimensions)
+            super().__init__(winRoot, None)
 
-            topFrame = wm.UI_generalManager.topLevelFrames["0100"]
-            secondFrame = wm.UI_generalManager.topLevelFrames["0110"]
-            thirdFrame = wm.UI_generalManager.topLevelFrames["0120"]
-            bottomFrame = wm.UI_generalManager.topLevelFrames["0130"]
+            primaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0000"]
+            defaultTOCFrame = wm.UI_generalManager.topLevelFrames["0110"]
+            defaultCurrentEntryFrame = wm.UI_generalManager.topLevelFrames["0120"]
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
 
-            tocBox_BOX = ml.MainTOCBox(winRoot, self.prefix)
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+            }
+
+            self.secondaryMainMenuMainLayoutFrame = \
+                                ww.currUIImpl.Frame(prefix = "", name = "_secoandaryManusMainLayout", 
+                                rootWidget = secondaryMainMenuFrame, 
+                                renderData = renderData)
+            self.secondaryMainMenuMainLayoutFrame.render()
+
+            tocBox_BOX = ml.MainTOCBox(defaultTOCFrame, self.prefix)
             tocBox_BOX.populateTOC()
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
     
-            self.entryWindow_BOX = ml.MainEntryBox(winRoot, self.prefix)
+            self.entryWindow_BOX = ml.MainEntryBox(defaultCurrentEntryFrame, self.prefix)
             self.addWidget(self.entryWindow_BOX)
             tocBox_BOX.addListenerWidget(self.entryWindow_BOX)
             self.entryWindow_BOX.addListenerWidget(tocBox_BOX)
             
-            addToTOCwImage_CHB = ml.addToTOCwImage_CHB(winRoot, self.prefix)
+            addToTOCwImage_CHB = ml.addToTOCwImage_CHB(primaryMainMenuFrame, self.prefix)
             self.addWidget(addToTOCwImage_CHB)
-            textOnly_CHB = ml.TextOnly_CHB(winRoot, self.prefix)
+            textOnly_CHB = ml.TextOnly_CHB(primaryMainMenuFrame, self.prefix)
             self.addWidget(textOnly_CHB)
 
-            imageGenration_ERT = ml.ImageGeneration_ETR(winRoot, self.prefix)
+            imageGenration_ERT = ml.ImageGeneration_ETR(primaryMainMenuFrame, self.prefix)
             self.addEntryETR = imageGenration_ERT
             self.addWidget(imageGenration_ERT)
             
-            imageGeneration_BTN = ml.ImageGeneration_BTN(winRoot, self.prefix)
+            imageGeneration_BTN = ml.ImageGeneration_BTN(primaryMainMenuFrame, self.prefix)
             imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
             imageGeneration_BTN.addListenerWidget(textOnly_CHB)
             imageGeneration_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(imageGeneration_BTN)
 
-            imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(winRoot, self.prefix)
+            imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(primaryMainMenuFrame, self.prefix)
             imageGenerationRestart_BTN.addListenerWidget(imageGenration_ERT)
             imageGenerationRestart_BTN.addListenerWidget(imageGeneration_BTN)
             self.addWidget(imageGenerationRestart_BTN)
 
-            screenshotLocation_LBL = ml.ScreenshotLocation_LBL(winRoot, self.prefix)
+            screenshotLocation_LBL = ml.ScreenshotLocation_LBL(primaryMainMenuFrame, self.prefix)
             self.addWidget(screenshotLocation_LBL)
             
             imageGenration_ERT.addListenerWidget(imageGeneration_BTN)
@@ -77,42 +88,41 @@ class LayoutManagers:
             imageGenration_ERT.addListenerWidget(addToTOCwImage_CHB)
             imageGenration_ERT.addListenerWidget(textOnly_CHB)
 
-            imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(winRoot, self.prefix)
+            imageGroupAdd_BTN = ml.ImageGroupAdd_BTN(primaryMainMenuFrame, self.prefix)
             self.addWidget(imageGroupAdd_BTN)
 
             # bottom frame
 
-            switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(winRoot, self.prefix)
+            switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(switchLayout_BTN)
 
-            chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(winRoot, self.prefix)
+            chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(chooseOriginalMaterial_OM)
 
-            layoutsSwitchOrigMatVSMain_BTN = commw.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
+            layoutsSwitchOrigMatVSMain_BTN = commw.LayoutsSwitchOrigMatVSMain_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 
-            exitApp_BTN = ml.ExitApp_BTN(winRoot, self.prefix)
+            exitApp_BTN = ml.ExitApp_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(exitApp_BTN)
             exitApp_BTN.addListenerWidget(tocBox_BOX)
  
-            showTocWindow_BTN = commw.ShowTocWindow_BTN(winRoot, self.prefix)
+            showTocWindow_BTN = commw.ShowTocWindow_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(showTocWindow_BTN)
             
-            showAllSubsections_BTN = ml.ShowAllSubsections_BTN(winRoot, self.prefix)
+            showAllSubsections_BTN = ml.ShowAllSubsections_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(showAllSubsections_BTN)
 
-            addGlobalLink_ETR = commw.AddGlobalLink_ETR(winRoot, self.prefix, column = 0, row = 14)
+            addGlobalLink_ETR = commw.AddGlobalLink_ETR(self.secondaryMainMenuMainLayoutFrame, self.prefix, column = 0, row = 14)
             self.addWidget(addGlobalLink_ETR)
 
-            addWebLink_BTN = commw.AddWebLink_BTN(winRoot, self.prefix, column = 2, row = 14)
+            addWebLink_BTN = commw.AddWebLink_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix, column = 2, row = 14)
             self.addWidget(addWebLink_BTN)
 
-            showProof_BTN = commw.ShowProofs_BTN(winRoot, self.prefix, column = 5, row = 14)
+            showProof_BTN = commw.ShowProofs_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix, column = 5, row = 14)
             self.addWidget(showProof_BTN)
             showProof_BTN.addListenerWidget(tocBox_BOX)
 
-
-            showHideLinks_BTN = ml.ShowHideLinks_BTN(winRoot, self.prefix)
+            showHideLinks_BTN = ml.ShowHideLinks_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(showHideLinks_BTN)
 
             tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
@@ -133,11 +143,21 @@ class LayoutManagers:
             # post init
             #
 
+        def hide(self):
+            self.secondaryMainMenuMainLayoutFrame.hide()
+            return
+
         def show(self):
             self.tocBox.widgetToScrollTo = None
 
             self.entryWindow_BOX.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
             self.entryWindow_BOX.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
+            defaultTOCFrame = wm.UI_generalManager.topLevelFrames["0110"]
+            defaultTOCFrame.widgetObj.grid_propagate(True)
+            defaultCurrentEntryFrame = wm.UI_generalManager.topLevelFrames["0120"]
+            defaultCurrentEntryFrame.widgetObj.grid_propagate(True)
+
+            self.secondaryMainMenuMainLayoutFrame.render()
             return super().show()
         
         def changeLinksSize(self):
@@ -208,35 +228,45 @@ class LayoutManagers:
             #
             # pre init
             #
-            monitorSize = dc.MonitorSize.getData()
-            monHalfWidth = int(monitorSize[0] / 2)
-            appDimensions = [monHalfWidth, 120]
 
             #
             # init
             #
 
-            super().__init__(winRoot, appDimensions)
+            super().__init__(winRoot, None)
 
-            switchLayout_BTN = amsl.SwitchLayoutSectionVSMain_amsl_BTN(winRoot, self.prefix)
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
+
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+            }
+
+            self.secondaryMainMenuModifySectionLayoutFrame = \
+                                ww.currUIImpl.Frame(prefix = "", name = "_secoandaryManusModifySectionLayout", 
+                                rootWidget = secondaryMainMenuFrame, 
+                                renderData = renderData)
+            self.secondaryMainMenuModifySectionLayoutFrame.render()
+
+            switchLayout_BTN = amsl.SwitchLayoutSectionVSMain_amsl_BTN(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(switchLayout_BTN)
 
-            setSectionStartPage_ETR = amsl.SetSectionStartPage_ETR(winRoot, self.prefix)
+            setSectionStartPage_ETR = amsl.SetSectionStartPage_ETR(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(setSectionStartPage_ETR)
 
-            setSectionName_ETR = amsl.SetSectionName_ETR(winRoot, self.prefix)
+            setSectionName_ETR = amsl.SetSectionName_ETR(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(setSectionName_ETR)
 
-            currSectionPath_LBL = amsl.CurrSectionPath_LBL(winRoot, self.prefix)
+            currSectionPath_LBL = amsl.CurrSectionPath_LBL(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(currSectionPath_LBL)
             
-            newSectionPath_ETR = amsl.NewSectionPath_ETR(winRoot, self.prefix)
+            newSectionPath_ETR = amsl.NewSectionPath_ETR(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(newSectionPath_ETR)
             
-            createNewSubsection_BTN = amsl.CreateNewSubsection_BTN(winRoot, self.prefix)
+            createNewSubsection_BTN = amsl.CreateNewSubsection_BTN(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(createNewSubsection_BTN)
 
-            createVideoSubsection_CHBX = amsl.CreateVideoSubsection_CHBX(winRoot, self.prefix)
+            createVideoSubsection_CHBX = amsl.CreateVideoSubsection_CHBX(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(createVideoSubsection_CHBX)
             
             createNewSubsection_BTN.addListenerWidget(newSectionPath_ETR)
@@ -245,24 +275,27 @@ class LayoutManagers:
             createNewSubsection_BTN.addListenerWidget(createVideoSubsection_CHBX)
 
 
-            modifySubsection_BTN = amsl.ModifySubsection_BTN(winRoot, self.prefix)
+            modifySubsection_BTN = amsl.ModifySubsection_BTN(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(modifySubsection_BTN)
 
             modifySubsection_BTN.addListenerWidget(currSectionPath_LBL)
             modifySubsection_BTN.addListenerWidget(setSectionStartPage_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionName_ETR)
 
-            setSectionNoteAppLink_ETR = amsl.SetSectionNoteAppLink_ETR(winRoot, self.prefix)
+            setSectionNoteAppLink_ETR = amsl.SetSectionNoteAppLink_ETR(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(setSectionNoteAppLink_ETR)
             modifySubsection_BTN.addListenerWidget(setSectionNoteAppLink_ETR)
 
-            modifyNotesAppLink_BTN = amsl.ModifyNotesAppLink_BTN(winRoot, self.prefix)
+            modifyNotesAppLink_BTN = amsl.ModifyNotesAppLink_BTN(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(modifyNotesAppLink_BTN)
             modifyNotesAppLink_BTN.addListenerWidget(setSectionNoteAppLink_ETR)
 
-            moveToTOC_BTN = amsl.MoveToTOC_BTN(winRoot, self.prefix)
+            moveToTOC_BTN = amsl.MoveToTOC_BTN(self.secondaryMainMenuModifySectionLayoutFrame, self.prefix)
             self.addWidget(moveToTOC_BTN)
 
+
+        def hide(self):
+            self.secondaryMainMenuModifySectionLayoutFrame.hide()
 
         def show(self):
             # self.winRoot.configureColumn(0, weight = 1)
@@ -270,8 +303,8 @@ class LayoutManagers:
             # self.winRoot.configureColumn(2, weight = 1)
             # self.winRoot.configureColumn(3, weight = 1)
             # self.winRoot.configureColumn(4, weight = 1)
+            self.secondaryMainMenuModifySectionLayoutFrame.render()
             return super().show()
-    
 
     class _AddModifyOrigMat(wm.MenuLayout_Interface):
         prefix = "_AddModifyOrigMatLayout"

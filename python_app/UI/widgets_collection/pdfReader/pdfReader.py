@@ -598,7 +598,7 @@ class ChangePagePdfReaderWindow_ETR(ww.currUIImpl.TextEntry,
 
 class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                     dc.AppCurrDataAccessToken):
-    def __init__(self, parentWidget, prefix, windth = 700, height = 800):
+    def __init__(self, parentWidget, prefix, windth = 700, height = 700):
         self.doc = None
         self.subsection = None
         self.imIdx = None
@@ -851,8 +851,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.saveFigures()
         if broadcasterType == SecondaryImagesFrame:
             newHeight = 820 -  data[0] - 20
-            if self.getHeight() != newHeight:
-                self.setCanvasHeight(newHeight = newHeight)
+            # if self.getHeight() != newHeight:
+            #     self.setCanvasHeight(newHeight = newHeight)
         elif broadcasterType == ResizePdfReaderWindow_BTN:
             if data != None:
                 for p in self.displayedPdfPages:
