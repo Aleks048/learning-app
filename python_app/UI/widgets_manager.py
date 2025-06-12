@@ -235,7 +235,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         leftMiddleFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 1, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = halfWidth, height = height - 100)
+                                         width = halfWidth, height = height - 105)
         leftBottomFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 2, column = 0, 
                                          rowspan = 1, columnspan = 1,

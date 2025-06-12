@@ -29,7 +29,11 @@ class LayoutManagers:
             middleFrame = wm.UI_generalManager.topLevelFrames["0010"]
             bottomFrame = wm.UI_generalManager.topLevelFrames["0020"]
 
-            self.pfdReader_BOX = imw.PfdReader_BOX(middleFrame, self.prefix)
+
+            self.pfdReader_BOX = imw.PfdReader_BOX(middleFrame, 
+                                                   self.prefix,
+                                                   width = middleFrame.width,
+                                                   height = middleFrame.height - 45)
             self.addWidget(self.pfdReader_BOX)
             self.resizePdfReaderWindow_BTN = imw.ResizePdfReaderWindow_BTN(middleFrame, self.prefix)
             self.addWidget(self.resizePdfReaderWindow_BTN)

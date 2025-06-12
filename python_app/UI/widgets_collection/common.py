@@ -1592,6 +1592,9 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             ww.TkWidgets.__name__ : {}
         }
 
+        self.width = width
+        self.height = height
+
         self.prefix = ""
 
         if "prefix" in dir(rootWidget):
