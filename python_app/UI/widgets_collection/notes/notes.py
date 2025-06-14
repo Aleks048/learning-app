@@ -87,9 +87,9 @@ class MoveTOCtoNotesEntry_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        notesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
-        notesManager.moveTocToEntry(self.subsection, self.imIdx)
+        mainTOCManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.MainTOCManager)
+        mainTOCManager.moveTocToEntry(self.subsection, self.imIdx)
 
 class AddDictHitToEntry_BTN(ww.currUIImpl.Button,
                               dc.AppCurrDataAccessToken):

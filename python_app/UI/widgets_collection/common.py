@@ -198,7 +198,6 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
     class Notifyers:
         class IDs:
-            rerenderAndSetMain = "_rerenderAndSetMain"
             changeHeight = "_changeHeight"
             setMain = "_setMain"
 
@@ -261,22 +260,15 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         if subsection != None:
             self.subsection = subsection
         if imIdx != None:
-            self.imIdx = imIdx 
-        self.notify(TOC_BOX, data = {EntryWindow_BOX.Notifyers.IDs.setMain: [self.subsection, self.imIdx]})
-  
-    def rerenderAndSetMainTOC(self, shouldScroll = True):
-        self.notify(TOC_BOX, 
-                    data = {EntryWindow_BOX.Notifyers.IDs.rerenderAndSetMain: [self.subsection, self.imIdx, shouldScroll]})
-
+            self.imIdx = imIdx
+        
     def updateHeight(self, scrollTOC = True, updateSecondaryFrame = False):
         if self.imIdx == _u.Token.NotDef.str_t:
             self.hide()
-            self.notify(TOC_BOX, 
-                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: \
-                                    [0, self.subsection, self.imIdx, False]})
             return
 
-        self.entryManager.updateImagesScroll()
+        if self.entryManager != None:
+            self.entryManager.updateImagesScroll()
 
         newHeight = 10
         for ch in self.scrollable_frame.getChildren():
@@ -286,17 +278,13 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             newHeight = self.maxHeight + wd.Data.MainEntryLayout.large
         else:
             newHeight = min(newHeight, self.maxHeight)
-
         self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
-        if scrollTOC:
-            self.notify(TOC_BOX, 
-                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: \
-                                    [newHeight, self.subsection, self.imIdx, True]})
-        else:
-            self.notify(TOC_BOX, 
-                        data = {EntryWindow_BOX.Notifyers.IDs.changeHeight: \
-                                    [newHeight, self.subsection, self.imIdx, False]})
+
+        mainTOCManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.MainTOCManager)
+
+        mainTOCManager.changeLowerSubframeHeight(newHeight)
 
         import UI.widgets_collection.pdfReader.pdfReader as pdfw
         if updateSecondaryFrame:
@@ -1461,7 +1449,7 @@ class TOCCanvasWithclick(ww.currUIImpl.Canvas):
                     self.saveFigures()
 
                     mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                                wf.Wr.MenuManagers.MathMenuManager)
+                                                                wf.Wr.MenuManagers.MainTOCManager)
                     mainManager.scrollToLatestClickedWidget()
                     break
 
@@ -1619,38 +1607,55 @@ class MainRoot(ww.currUIImpl.RootWidget):
     
     def __bindCmd(self):
         def __largerEntry():
-            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainTOCManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainTOCManager)
+            mainEntryManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainEntryManager)
             dt.UITemp.Layout.noMainEntryShown = False
             wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.large
-            mainMenuManager.changeLowerSubframeHeight()
+
+            mainTOCManager.changeLowerSubframeHeight()
+            mainEntryManager.changeLowerSubframeHeight()
         
         def __normalEntry():
-            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainTOCManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainTOCManager)
+            mainEntryManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainEntryManager)
             dt.UITemp.Layout.noMainEntryShown = False
             wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.normal
-            mainMenuManager.changeLowerSubframeHeight()
+                        
+            mainTOCManager.changeLowerSubframeHeight()
+            mainEntryManager.changeLowerSubframeHeight()
         
         def __smallerEntry():
-            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainTOCManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainTOCManager)
+            mainEntryManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainEntryManager)
             dt.UITemp.Layout.noMainEntryShown = False
             wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.small
-            mainMenuManager.changeLowerSubframeHeight()
+                        
+            mainTOCManager.changeLowerSubframeHeight()
+            mainEntryManager.changeLowerSubframeHeight()
         
         def __noEntry():
-            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                            wf.Wr.MenuManagers.MathMenuManager)
+            mainTOCManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainTOCManager)
+            mainEntryManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainEntryManager)
             dt.UITemp.Layout.noMainEntryShown = True
             wd.Data.MainEntryLayout.currSize = wd.Data.MainEntryLayout.no
-            mainMenuManager.changeLowerSubframeHeight() 
+                        
+            mainTOCManager.changeLowerSubframeHeight()
+            mainEntryManager.changeLowerSubframeHeight()
 
         def __changeLinksSize():
             wd.Data.MainEntryLayout.largeLinks = not wd.Data.MainEntryLayout.largeLinks
-            mainMenuManager = dt.AppState.UIManagers.getData("fake data access token", 
-                                                            wf.Wr.MenuManagers.MathMenuManager)
-            mainMenuManager.changeLinksSize() 
+
+            mainEntryManager = dt.AppState.UIManagers.getData("fake data access token", 
+                                                            wf.Wr.MenuManagers.MainEntryManager)
+            mainEntryManager.changeLinksSize() 
 
         def __changeOpeningSingleSubsection(*args):
             wd.Data.General.singleSubsection = not wd.Data.General.singleSubsection

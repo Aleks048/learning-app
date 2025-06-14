@@ -183,6 +183,8 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
     @classmethod
     def startNonStartMenus(cls):
         import UI.widgets_collection.main.math.manager as mm
+        import UI.widgets_collection.mainTOC.manager as mtocm
+        import UI.widgets_collection.mainEntry.manager as mem
         import UI.widgets_collection.message.manager as mesm
         import UI.widgets_collection.toc.manager as tocm
         import UI.widgets_collection.excercise.manager as exm
@@ -214,11 +216,11 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         rightSecondFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 1, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = halfWidth, height = 10)
+                                          width = 10, height = 10)
         rightThirdFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 2, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = halfWidth, height = 100)
+                                          width = 10, height = 10)
         rightBottomFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 3, column = 0, 
                                           rowspan = 1, columnspan = 1,
@@ -235,7 +237,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         leftMiddleFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 1, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = halfWidth, height = height - 105)
+                                         width = 100, height = 100)
         leftBottomFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 2, column = 0, 
                                          rowspan = 1, columnspan = 1,
@@ -245,6 +247,10 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         log.autolog("-- Srartup of other menus started: ")
         mainMenuManager = mm.MathMenuManager(rightBottomFrame)
         log.autolog("Started '{0}' UI manager".format("main menu"))
+        mainTOCmanager = mtocm.MainTOCManager(rightSecondFrame)
+        log.autolog("Started '{0}' UI manager".format("mainTOC menu"))
+        mainEntryManager = mem.MainEntryMenuManager(rightThirdFrame)
+        log.autolog("Started '{0}' UI manager".format("mainEntry menu"))
         pdfReadersMenuManager = pdfrm.PdfReadersManager(leftMiddleFrame)
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
         messageMenuManager = mesm.MessageMenuManager()
@@ -271,6 +277,8 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         log.autolog("-- Srartup  of other menus ended.")
 
         pdfReadersMenuManager.show()
+        mainTOCmanager.show()
+        mainEntryManager.show()
         mainMenuManager.show()
 
         rightTopFrame.render()

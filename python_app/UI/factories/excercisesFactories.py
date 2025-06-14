@@ -312,7 +312,7 @@ class ExcerciseLineFactory:
 
             if deletedStructure:
                 mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
+                                                        wf.Wr.MenuManagers.MainTOCManager)
                 mainManager.renderWithoutScroll()
                 mainManager.moveTocToEntry(self.subsection, self.imIdx)
 

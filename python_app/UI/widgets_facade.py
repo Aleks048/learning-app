@@ -1,5 +1,7 @@
 import UI.widgets_collection.startup.manager as sm
 import UI.widgets_collection.main.math.manager as mm
+import UI.widgets_collection.mainTOC.manager as mtocm
+import UI.widgets_collection.mainEntry.manager as mem
 import UI.widgets_collection.message.manager as mesm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.excercise.manager as exm
@@ -21,6 +23,12 @@ class Wr:
             pass
 
         class MathMenuManager(mm.MathMenuManager):
+            pass
+
+        class MainTOCManager(mtocm.MainTOCManager):
+            pass
+
+        class MainEntryManager(mem.MainEntryMenuManager):
             pass
         
         class StartupMenuManager(sm.StartupMenuManager):

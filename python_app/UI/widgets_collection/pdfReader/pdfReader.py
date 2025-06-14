@@ -442,7 +442,7 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
+                                                          wf.Wr.MenuManagers.MainTOCManager)
         mainManager.moveTocToEntry(self.subsection, self.imIdx)
 
 class ResizePdfReaderWindow_BTN(ww.currUIImpl.Label,

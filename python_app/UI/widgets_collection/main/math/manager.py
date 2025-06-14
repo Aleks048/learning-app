@@ -34,8 +34,6 @@ class LayoutManagers:
             super().__init__(winRoot, None)
 
             primaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0000"]
-            defaultTOCFrame = wm.UI_generalManager.topLevelFrames["0110"]
-            defaultCurrentEntryFrame = wm.UI_generalManager.topLevelFrames["0120"]
             secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
 
             renderData = {
@@ -49,15 +47,6 @@ class LayoutManagers:
                                 renderData = renderData)
             self.secondaryMainMenuMainLayoutFrame.render()
 
-            tocBox_BOX = ml.MainTOCBox(defaultTOCFrame, self.prefix)
-            tocBox_BOX.populateTOC()
-            self.addWidget(tocBox_BOX)
-            self.tocBox = tocBox_BOX
-    
-            self.entryWindow_BOX = ml.MainEntryBox(defaultCurrentEntryFrame, self.prefix)
-            self.addWidget(self.entryWindow_BOX)
-            tocBox_BOX.addListenerWidget(self.entryWindow_BOX)
-            self.entryWindow_BOX.addListenerWidget(tocBox_BOX)
             
             addToTOCwImage_CHB = ml.addToTOCwImage_CHB(primaryMainMenuFrame, self.prefix)
             self.addWidget(addToTOCwImage_CHB)
@@ -72,7 +61,6 @@ class LayoutManagers:
             imageGeneration_BTN.addListenerWidget(imageGenration_ERT)
             imageGeneration_BTN.addListenerWidget(addToTOCwImage_CHB)
             imageGeneration_BTN.addListenerWidget(textOnly_CHB)
-            imageGeneration_BTN.addListenerWidget(tocBox_BOX)
             self.addWidget(imageGeneration_BTN)
 
             imageGenerationRestart_BTN =ml.ImageGenerationRestart_BTN(primaryMainMenuFrame, self.prefix)
@@ -104,7 +92,6 @@ class LayoutManagers:
 
             exitApp_BTN = ml.ExitApp_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(exitApp_BTN)
-            exitApp_BTN.addListenerWidget(tocBox_BOX)
  
             showTocWindow_BTN = commw.ShowTocWindow_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(showTocWindow_BTN)
@@ -120,24 +107,18 @@ class LayoutManagers:
 
             showProof_BTN = commw.ShowProofs_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix, column = 5, row = 14)
             self.addWidget(showProof_BTN)
-            showProof_BTN.addListenerWidget(tocBox_BOX)
 
             showHideLinks_BTN = ml.ShowHideLinks_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(showHideLinks_BTN)
 
-            tocBox_BOX.addListenerWidget(screenshotLocation_LBL)
 
             imageGroupAdd_BTN.addListenerWidget(imageGenration_ERT)
             imageGroupAdd_BTN.addListenerWidget(imageGenerationRestart_BTN)
-            imageGroupAdd_BTN.addListenerWidget(tocBox_BOX)
 
-            showHideLinks_BTN.addListenerWidget(tocBox_BOX)
-            showAllSubsections_BTN.addListenerWidget(tocBox_BOX)
             # showFirstEntryOfTheCurrPage.addListenerWidget(tocBox_BOX)
 
             addWebLink_BTN.addListenerWidget(addGlobalLink_ETR)
             addWebLink_BTN.addListenerWidget(imageGenration_ERT)
-            addWebLink_BTN.addListenerWidget(tocBox_BOX)
 
             #
             # post init
@@ -148,33 +129,9 @@ class LayoutManagers:
             return
 
         def show(self):
-            self.tocBox.widgetToScrollTo = None
-
-            self.entryWindow_BOX.subsection = fsf.Data.Book.subsectionOpenInTOC_UI
-            self.entryWindow_BOX.imIdx = fsf.Data.Book.entryImOpenInTOC_UI
-            defaultTOCFrame = wm.UI_generalManager.topLevelFrames["0110"]
-            defaultTOCFrame.widgetObj.grid_propagate(True)
-            defaultCurrentEntryFrame = wm.UI_generalManager.topLevelFrames["0120"]
-            defaultCurrentEntryFrame.widgetObj.grid_propagate(True)
 
             self.secondaryMainMenuMainLayoutFrame.render()
             return super().show()
-        
-        def changeLinksSize(self):
-            self.entryWindow_BOX.changeLinksSize()
-
-        def changeEntryBoxMaxHeight(self, newHeight):
-            if type(newHeight) == int:
-                self.tocBox.maxHeight = self.tocBox.originalHeight - newHeight
-                self.tocBox.setCanvasHeight(self.tocBox.maxHeight)
-                self.entryWindow_BOX.maxHeight = self.entryWindow_BOX.origHeight + newHeight
-                self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
-            else:
-                # The case of no main entry
-                self.tocBox.maxHeight = self.tocBox.originalHeight + self.entryWindow_BOX.origHeight
-                self.tocBox.setCanvasHeight(self.tocBox.maxHeight)
-                self.entryWindow_BOX.maxHeight = 0
-                self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
 
     class _Section(wm.MenuLayout_Interface):
         prefix = "_sectionLayout"
@@ -394,93 +351,12 @@ class MathMenuManager(wm.MenuManager_Interface):
     def switchToMainLayout(self):
         self.switchUILayout(LayoutManagers._Main)
 
-    def scrollToCurrSubsecrtionWidget(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.scrollToCurrSubsecrtionWidget()
-
-    def changeLinksSize(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.changeLinksSize()
-
-    def changeLowerSubframeHeight(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.changeEntryBoxMaxHeight(wd.Data.MainEntryLayout.currSize)
-
-    # def renderTocWidget(self):
-    #     for layout in self.layouts:
-    #         if type(layout) == LayoutManagers._Main:
-    #             layout.tocBox.render()
-    #             return
 
     def startAddingTheEntry(self):
         for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
+            if type(layout) == LayoutManagers._MainTOC:
                 layout.addEntryETR.notify(ml.ImageGeneration_BTN)
                 break
-
-    def moveTocToEntry(self, subsection, imIdx, fromTOCWindow = False):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                fsf.Data.Book.currTopSection = subsection.split(".")[0]
-                fsf.Data.Book.subsectionOpenInTOC_UI = subsection
-
-                layout.tocBox.renderFromTOCWindow = fromTOCWindow
-                layout.tocBox.scrollToEntry(subsection, imIdx)
-                layout.tocBox.renderFromTOCWindow = False
-                return
-
-    def addTOCListener(self, widget):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                widget.addListenerWidget(layout.tocBox)
-                return
-
-    def moveTocToCurrEntry(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.render(shouldScroll = True)
-                return
-
-    def scrollTocToEntry(self, subsection, imIdx):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.scrollToEntry(subsection, imIdx)
-                return
-
-    def renderWithoutScroll(self):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.render(shouldScroll = False)
-                return
-
-    def scrollToLatestClickedWidget(self, refreshImage = False, addBrownBorder = False):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                if layout.tocBox.widgetToScrollTo != None:
-                    layout.tocBox.scrollIntoView(None, layout.tocBox.widgetToScrollTo)
-                    try:
-                        layout.tocBox.widgetToScrollTo.readFigures()
-                        if refreshImage or addBrownBorder:
-                            layout.tocBox.widgetToScrollTo.refreshImage(addBrownBorder)
-                    except:
-                        pass
-                return
-
-    def scrollToWidget(self, event, widget):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                if layout.tocBox.widgetToScrollTo != None:
-                    layout.tocBox.scrollIntoView(event, widget)
-
-    def showLinksForEntry(self, subsection, imIdx):
-        for layout in self.layouts:
-            if type(layout) == LayoutManagers._Main:
-                layout.tocBox.showLinksForSubsections = []
-                layout.tocBox.showLinksForEntryCmd(None, subsection, imIdx)
-                return
         
 
     def switchToSectionLayout(self):

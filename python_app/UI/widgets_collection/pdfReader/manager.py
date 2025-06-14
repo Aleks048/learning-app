@@ -139,6 +139,18 @@ class PdfReadersManager(wm.MenuManager_Interface):
     shown = False
 
     def __init__(self, rootWidget):
+        dimensions = _u.getMonitorsAreas()[0]
+        width = dimensions[2] # 1500
+        height = dimensions[3] - 50 # 850
+
+        halfWidth = int(width / 2)
+
+        width = halfWidth, 
+        height = height - 105
+        rootWidget.width = width
+        rootWidget.height = height
+        rootWidget.setGeometry(width, height)
+
         winRoot = imw.PdfReadersRoot(rootWidget, 
                                      width = 0, 
                                      height = 0,

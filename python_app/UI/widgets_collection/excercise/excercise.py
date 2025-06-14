@@ -139,7 +139,7 @@ class AddExcerciseLine_BTN(ww.currUIImpl.Button,
 
         if structureCreated:
             mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
+                                                          wf.Wr.MenuManagers.MainTOCManager)
             mainManager.moveTocToEntry(self.subsection, self.imIdx)
 
 
@@ -273,9 +273,9 @@ class MoveTOCtoExcerciseEntry_BTN(ww.currUIImpl.Button,
                         self.cmd)
 
     def cmd(self):
-        excerciseManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
-        excerciseManager.moveTocToEntry(self.subsection, self.imIdx)
+        mainTOCManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                          wf.Wr.MenuManagers.MainTOCManager)
+        mainTOCManager.moveTocToEntry(self.subsection, self.imIdx)
 
 class AddExcerciseLine_ETR(ww.currUIImpl.TextEntry):
     def __init__(self, patentWidget, prefix):

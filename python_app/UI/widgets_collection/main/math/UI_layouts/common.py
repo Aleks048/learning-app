@@ -2,6 +2,7 @@ from threading import Thread
 
 import UI.widgets_wrappers as ww
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.mainTOC.manager as mtocm
 import UI.widgets_collection.toc.manager as tocm
 import UI.widgets_collection.main.math.UI_layouts.mainLayout as mui
 import UI.widgets_collection.common as comw
@@ -51,15 +52,20 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
         else:
             secPath = fsm.Data.Book.subsectionOpenInTOC_UI
             currIdx = fsm.Data.Book.entryImOpenInTOC_UI
-            mathMenuManager.moveTocToEntry(secPath, currIdx)
+
+            mainTOCManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mtocm.MainTOCManager)
+
+            mainTOCManager.moveTocToEntry(secPath, currIdx)
 
             mathMenuManager.switchUILayout(mmm.LayoutManagers._Main)
 
             self.updateLabel(self.labelOptions[1])
 
             # lm.Wr.MainLayout.set(withPdfChange = False)
-            mathMenuManager.moveTocToCurrEntry()
-            mathMenuManager.scrollToCurrSubsecrtionWidget()
+
+            mainTOCManager.moveTocToCurrEntry()
+            mainTOCManager.scrollToCurrSubsecrtionWidget()
 
 class LayoutsSwitchOrigMatVSMain_BTN(ww.currUIImpl.Button,
                                     dc.AppCurrDataAccessToken):

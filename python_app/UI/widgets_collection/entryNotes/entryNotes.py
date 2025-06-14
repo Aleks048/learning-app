@@ -259,9 +259,9 @@ class Notes_BOX(ww.currUIImpl.ScrollableBox,
                 self.notify(Notes_BOX)
 
                 if structureCreated:
-                    notesManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                                wf.Wr.MenuManagers.MathMenuManager)
-                    notesManager.moveTocToEntry(self.subsection, self.imIdx)
+                    mainTOCManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                                wf.Wr.MenuManagers.MainTOCManager)
+                    mainTOCManager.moveTocToEntry(self.subsection, self.imIdx)
                 
                 self.render()
 

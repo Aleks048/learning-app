@@ -761,7 +761,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
+                                                        wf.Wr.MenuManagers.MainTOCManager)
             mainManager.show()
             mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
 
@@ -811,7 +811,7 @@ Can't create section.".format(secPath, newSecName, newSecStartPage, newSecEndPag
             response = wf.Wr.MenuManagers.UI_GeneralManager.showNotification(msg, True)
 
             mainManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.MathMenuManager)
+                                                        wf.Wr.MenuManagers.MainTOCManager)
             mainManager.show()
             mainManager.moveTocToEntry(subsection, imIdx.split("_")[0])
 

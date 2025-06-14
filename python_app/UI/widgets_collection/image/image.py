@@ -125,9 +125,9 @@ class NotesLabel(ww.currUIImpl.Label,
         addLabel.noteImIdx = noteImIdx
 
         def addLabelNoteIdx(event, *args):
-            mainMathManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                        wf.Wr.MenuManagers.MathMenuManager)
-            mainMathManager.scrollToLatestClickedWidget(addBrownBorder = True)
+            mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                        wf.Wr.MenuManagers.MainTOCManager)
+            mainManager.scrollToLatestClickedWidget(addBrownBorder = True)
             self.render()
 
         addLabel.rebind([ww.currUIImpl.Data.BindID.mouse1], [addLabelNoteIdx])
@@ -345,7 +345,7 @@ class MoveTOCtoImageEntry_BTN(ww.currUIImpl.Button,
 
     def cmd(self):
         mainManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
-                                                          wf.Wr.MenuManagers.MathMenuManager)
+                                                          wf.Wr.MenuManagers.MainTOCManager)
         mainManager.moveTocToEntry(self.subsection, self.imIdx)
 
 class HideImagesWindow_BTN(ww.currUIImpl.Button,
