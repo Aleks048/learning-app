@@ -286,11 +286,11 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
 
         mainTOCManager.changeLowerSubframeHeight(newHeight)
 
-        import UI.widgets_collection.pdfReader.pdfReader as pdfw
-        if updateSecondaryFrame:
-            self.notify(pdfw.SecondaryImagesFrame, data = [True])
-        else:
-            self.notify(pdfw.SecondaryImagesFrame)
+        # import UI.widgets_collection.pdfReader.pdfReader as pdfw
+        # if updateSecondaryFrame:
+        #     self.notify(pdfw.SecondaryImagesFrame, data = [True])
+        # else:
+        #     self.notify(pdfw.SecondaryImagesFrame)
 
 
     def scrollToImage(self, imIdx, eImIdx = None):

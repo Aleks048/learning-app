@@ -366,9 +366,12 @@ class SubsectionWidgetFactory:
 
     def produceSubsectionSummary(self):
         def cmd(subsection):
-            pdfManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.PdfReadersManager)
-            pdfManager.showSummary(subsection)
+            summaryManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                        wf.Wr.MenuManagers.SummaryManager)
+            summaryManager.showSummary(subsection)
+            if not summaryManager.shown:
+                summaryManager.show()
+
         
         showSummary = SubsectionLabelWithClick(self.widgetManager.topFrame, text = self.EntryUIs.summary.name,
                                             prefix = "summary" + self.subsection.replace(".", ""),

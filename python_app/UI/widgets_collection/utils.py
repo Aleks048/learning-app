@@ -242,11 +242,13 @@ def bindOpenOMOnThePageOfTheImage(widget, targetSubsection, targetImIdx, eImidx 
 
 def openVideoOnThePlaceOfTheImage(widget, targetSubsection, targetImIdx, eImidx = None):
     def __cmd(event = None, *args): 
-        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                    wf.Wr.MenuManagers.PdfReadersManager)
+        videoPLayerManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                    wf.Wr.MenuManagers.VideoPLayerManager)
         
-        pdfReadersManager.changeSize([720, 517, 0, 352])
-        pdfReadersManager.showVideo(targetSubsection, targetImIdx)
+        # videoPLayerManager.changeSize([720, 517, 0, 352])
+        videoPLayerManager.showVideo(targetSubsection, targetImIdx)
+        if not videoPLayerManager.shown:
+            videoPLayerManager.show()
 
     widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])
 

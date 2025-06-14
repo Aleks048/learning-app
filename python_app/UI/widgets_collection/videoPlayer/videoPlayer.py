@@ -147,13 +147,19 @@ class VideoPlayerLabel(ww.currUIImpl.VideoPayer):
             self.forceFocus()
 
 class VideoPlayerRoot(ww.currUIImpl.Frame):
-    def __init__(self, rootWidget):
+    def __init__(self, rootWidget, width, height):
         name = "_VideoPlayerRoot_"
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : 100, "row" : 1, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
-        super().__init__("", name, rootWidget, renderData = renderData)
+
+        extraOptions = {
+            ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+            ww.TkWidgets.__name__ : {}
+        }
+        super().__init__("", name, rootWidget, 
+                         renderData = renderData, extraOptions = extraOptions)
 
         self.videoLabel = VideoPlayerLabel(self, "_video_")
         self.videoInfo = VideoInfoLabel(self, "_video_")

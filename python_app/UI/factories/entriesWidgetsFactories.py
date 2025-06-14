@@ -1110,26 +1110,24 @@ class EntryWidgetFactory:
         return textLabelPage
 
     def produceOpenSecondaryImageWidget(self, parentWidget):
-        def openSecondaryImage(widget):
-            def __cmd(event = None, *args):
-                widget = event.widget
-                imIdx = widget.imIdx
-                subsection = widget.subsection
+        def openSecondaryImage(event):
+            widget = event.widget
+            imIdx = widget.imIdx
+            subsection = widget.subsection
 
-                for w in wd.Data.Reactors.entryChangeReactors.copy().values():
-                    if "onSecondaryImageOpen" in dir(w):
-                        w.onSecondaryImageOpen(subsection, imIdx)
-            
-            widget.rebind([ww.currUIImpl.Data.BindID.mouse1], [__cmd])
+            for w in wd.Data.Reactors.entryChangeReactors.copy().values():
+                if "onSecondaryImageOpen" in dir(w):
+                    w.onSecondaryImageOpen(subsection, imIdx)
 
         textLabelFull = TOCTextLabelWithClickEntry(parentWidget, 
                                         text = self.EntryUIs.im.name, 
-                                        prefix = "contentFull_" + self.__nameIdPrefix,
+                                        prefix = "contentSecondary_" + self.__nameIdPrefix,
                                         row = 0, 
                                         column = self.EntryUIs.im.column)
         textLabelFull.subsection = self.subsection
         textLabelFull.imIdx = self.imIdx
-        openSecondaryImage(textLabelFull)
+
+        textLabelFull.rebind([ww.currUIImpl.Data.BindID.mouse1], [openSecondaryImage])
         bindChangeColorOnInAndOut(textLabelFull)
         return textLabelFull
         

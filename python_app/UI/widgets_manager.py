@@ -185,6 +185,9 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         import UI.widgets_collection.main.math.manager as mm
         import UI.widgets_collection.mainTOC.manager as mtocm
         import UI.widgets_collection.mainEntry.manager as mem
+        import UI.widgets_collection.secondaryImages.manager as secim
+        import UI.widgets_collection.summary.manager as summ
+        import UI.widgets_collection.videoPlayer.manager as vipm
         import UI.widgets_collection.message.manager as mesm
         import UI.widgets_collection.toc.manager as tocm
         import UI.widgets_collection.excercise.manager as exm
@@ -253,6 +256,12 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         log.autolog("Started '{0}' UI manager".format("mainEntry menu"))
         pdfReadersMenuManager = pdfrm.PdfReadersManager(leftMiddleFrame)
         log.autolog("Started '{0}' UI manager".format("pdfReader menu"))
+        secondaryImagesManager = secim.SecondaryImagesManager(leftBottomFrame)
+        log.autolog("Started '{0}' UI manager".format("secondary images menu"))
+        summaryManager = summ.SummaryManager(leftBottomFrame)
+        log.autolog("Started '{0}' UI manager".format("summary menu"))
+        videoPlayerManager = vipm.VideoPLayerManager(leftBottomFrame)
+        log.autolog("Started '{0}' UI manager".format("video player manager menu"))
         messageMenuManager = mesm.MessageMenuManager()
         log.autolog("Started '{0}' UI manager".format("message menu"))
         tocMenuManager = tocm.TOCManager()
