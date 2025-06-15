@@ -270,41 +270,61 @@ class LayoutManagers:
             #
             # pre init
             #
-            appDimensions = [1300, 90]
 
             #
             # init
             #
 
-            super().__init__(winRoot, appDimensions)
+            super().__init__(winRoot, None)
+
+            
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
+
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2, "columnspan" : 1},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+            }
+
+            self.secondaryMainMenuAddOrigMaterialFrame = \
+                                ww.currUIImpl.Frame(prefix = "", name = "_secoandaryManusAddOrigMaterialLayout", 
+                                rootWidget = secondaryMainMenuFrame, 
+                                renderData = renderData)
 
 
-            addOrigMaterial_BTN = amom.AddOrigMaterial_BTN(winRoot, self.prefix)
+            addOrigMaterial_BTN = \
+                amom.AddOrigMaterial_BTN(self.secondaryMainMenuAddOrigMaterialFrame, self.prefix)
             self.addWidget(addOrigMaterial_BTN)
 
-            fetOrigMatPath_ETR = amom.GetOrigMatPath_ETR(winRoot, self.prefix)
+            fetOrigMatPath_ETR = \
+                amom.GetOrigMatPath_ETR(self.secondaryMainMenuAddOrigMaterialFrame, self.prefix)
             self.addWidget(fetOrigMatPath_ETR)
 
-            getOrigMatDestRelPath_ETR = amom.GetOrigMatDestRelPath_ETR(winRoot, self.prefix)
+            getOrigMatDestRelPath_ETR = \
+                amom.GetOrigMatDestRelPath_ETR(self.secondaryMainMenuAddOrigMaterialFrame, self.prefix)
             self.addWidget(getOrigMatDestRelPath_ETR)
 
-            getOrigMatName_ETR = amom.GetOrigMatName_ETR(winRoot, self.prefix)
+            getOrigMatName_ETR = \
+                amom.GetOrigMatName_ETR(self.secondaryMainMenuAddOrigMaterialFrame, self.prefix)
             self.addWidget(getOrigMatName_ETR)
 
             addOrigMaterial_BTN.addListenerWidget(fetOrigMatPath_ETR)
             addOrigMaterial_BTN.addListenerWidget(getOrigMatDestRelPath_ETR)
             addOrigMaterial_BTN.addListenerWidget(getOrigMatName_ETR)
 
-            layoutsSwitchOrigMatVSMain_BTN = amom.LayoutsSwitchOrigMatVSMain_BTN(winRoot, self.prefix)
+            layoutsSwitchOrigMatVSMain_BTN = \
+                amom.LayoutsSwitchOrigMatVSMain_BTN(self.secondaryMainMenuAddOrigMaterialFrame, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
-            
-
 
         def show(self):
+            self.secondaryMainMenuAddOrigMaterialFrame.render()
             # self.winRoot.configureColumn(0, weight = 1)
             # self.winRoot.configureColumn(1, weight = 1)
             # self.winRoot.configureColumn(2, weight = 1)
             return super().show()
+    
+        def hide(self):
+            self.secondaryMainMenuAddOrigMaterialFrame.hide()
+            return super().hide()
     
 
     @classmethod
