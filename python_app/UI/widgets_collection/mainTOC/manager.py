@@ -102,6 +102,22 @@ class MainTOCManager(wm.MenuManager_Interface):
                 else:
                     layout.changeEntryBoxMaxHeight(newHeight)
 
+    def addEntry(self, subsection, imIdx):
+        fsf.Data.Book.subsectionOpenInTOC_UI = subsection
+        fsf.Data.Book.currSection = subsection
+        fsf.Data.Book.currTopSection = subsection.split(".")[0]
+        fsf.Data.Book.entryImOpenInTOC_UI = imIdx
+
+        for layout in self.layouts:
+            if type(layout) == LayoutManagers._MainTOC:
+                layout.tocBox.AddEntryWidget(imIdx, 
+                                    subsection, 
+                                    layout.tocBox.subsectionWidgetManagers[subsection].entriesFrame)
+
+        for w in wd.Data.Reactors.entryChangeReactors.values():
+            if "onFullEntryMove" in dir(w):
+                w.onFullEntryMove()
+
     # def renderTocWidget(self):
     #     for layout in self.layouts:
     #         if type(layout) == LayoutManagers._Main:

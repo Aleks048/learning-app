@@ -354,7 +354,7 @@ class MathMenuManager(wm.MenuManager_Interface):
 
     def startAddingTheEntry(self):
         for layout in self.layouts:
-            if type(layout) == LayoutManagers._MainTOC:
+            if type(layout) == LayoutManagers._Main:
                 layout.addEntryETR.notify(ml.ImageGeneration_BTN)
                 break
         

@@ -13,6 +13,7 @@ import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
 import UI.widgets_data as wd
 import UI.widgets_collection.main.math.manager as mmm
+import UI.widgets_collection.mainTOC.manager as mtocm
 import UI.widgets_collection.main.math.UI_layouts.common as commw
 import UI.widgets_collection.common as comw
 import UI.widgets_manager as wm
@@ -321,7 +322,9 @@ Do you want to create entry with \n\nId: '{0}',\n\n Name: '{1}'".format(self.dat
                 self.rootWidget.render()
                 self.notify(ImageGeneration_ETR, nextImNum)
                 self.updateLabel(self.labelOptions[0])
-                self.notify(comw.TOC_BOX, entryClicked = self.dataFromUser[0], data = [currSubsection, currImNum])
+                mainTOCManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
+                                                            mtocm.MainTOCManager)
+                mainTOCManager.addEntry(currSubsection, currImNum)
 
             t = Thread(target = __afterImageCreated, args = [self])
             t.start()
