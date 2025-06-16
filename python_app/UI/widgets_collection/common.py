@@ -278,8 +278,8 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             newHeight = self.maxHeight + wd.Data.MainEntryLayout.large
         else:
             newHeight = min(newHeight, self.maxHeight)
-        self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
+        self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
         mainTOCManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.MainTOCManager)
@@ -1558,17 +1558,23 @@ class TopLevelFrame(ww.currUIImpl.Frame):
 
 
     class ContentFrame(ww.currUIImpl.Frame):
-        def __init__(self, rootWidget):
+        def __init__(self, rootWidget, width, height):
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
+
+            extraOptions = {
+                ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+                ww.TkWidgets.__name__ : {}
+            }
+
             name = "_ContentFrame_"
-            prefix = rootWidget.name.replace("_", "")
+            self.prefix = rootWidget.prefix
 
-            super().__init__(prefix, name, rootWidget, renderData)
+            super().__init__(self.prefix, name, rootWidget, renderData)
 
-    def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300):
+    def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300, withHat = True):
         renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, 
                                            "rowspan": rowSpan, "columnspan": columnSpan},
@@ -1592,13 +1598,23 @@ class TopLevelFrame(ww.currUIImpl.Frame):
 
         name = "_TopLevelFrame_"
 
+        self.withHat = withHat
+
         super().__init__(prefix = self.prefix, 
                          name = name, 
                          rootWidget = rootWidget, 
                          renderData = renderData, 
                          extraOptions = extraOptions)
         
-        # self.hatFrame = TopLevelFrame.HatFrame(self)
+        if withHat:
+            self.hatFrame = TopLevelFrame.HatFrame(self)
+            self.contentFrame = TopLevelFrame.ContentFrame(self, width, height)
+            self.contentFrame.render()
+
+    def setGeometry(self, width, height):
+        if self.withHat:
+            self.contentFrame.setGeometry(width, height)
+        return super().setGeometry(width, height)
 
 class MainRoot(ww.currUIImpl.RootWidget):
 

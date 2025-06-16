@@ -156,12 +156,13 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
                                withoutRender = withoutRender)
 
     @classmethod
-    def addTopLevelFrame(cls, rootWidget, row, column, rowspan, columnspan, width, height):
+    def addTopLevelFrame(cls, rootWidget, row, column, rowspan, columnspan, width, height, withHat = True):
         frame = comw.TopLevelFrame(rootWidget = rootWidget, 
                                    row = row, column = column, 
                                    columnSpan = columnspan, rowSpan = rowspan,
                                    width = width,
-                                   height = height)
+                                   height = height,
+                                   withHat = withHat)
 
         frame.forceFixedDimentions(width, height)
         cls.topLevelFrames[frame.prefix] = frame
@@ -211,7 +212,8 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         rightFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
                                           row = 0, column = 1, 
                                           rowspan = 1, columnspan = 1,
-                                          width = halfWidth, height = height)
+                                          width = halfWidth, height = height,
+                                          withHat = False)
         rightTopFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 0, column = 0, 
                                           rowspan = 1, columnspan = 1,
@@ -232,7 +234,8 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         leftFrame = cls.addTopLevelFrame(rootWidget = cls.winRoot,
                                          row = 0, column = 0, 
                                          rowspan = 1, columnspan = 1,
-                                         width = halfWidth, height = height)
+                                         width = halfWidth, height = height,
+                                         withHat = False)
         leftTopFrame = cls.addTopLevelFrame(rootWidget = leftFrame,
                                          row = 0, column = 0, 
                                          rowspan = 1, columnspan = 1,

@@ -945,7 +945,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
 
                     keys = list(fsf.Data.Sec.imLinkDict(subsection).copy().keys())
 
-                topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId]
+                topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
                 topFrame.forceFocus()
             
             t = Thread(target = __cmdAfterImageCreated, args = [self])
@@ -975,11 +975,11 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
         def runCmdAndForce(cmd, *args):
             cmd(*args)
 
-            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId]
+            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
             topFrame.forceFocus()
 
         def __bind(*args):
-            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId]
+            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
             
             topFrame.rebind([ww.currUIImpl.Data.BindID.Keys.left], 
                         [lambda e, *args:runCmdAndForce(__changePositionUp)])
@@ -997,7 +997,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                         [lambda *args: __atsrAddingCmd()])
 
         def __nunbind(*args):
-            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId]
+            topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
             
             topFrame.unbind([ww.currUIImpl.Data.BindID.Keys.left,
                             ww.currUIImpl.Data.BindID.Keys.shleft,
@@ -1008,7 +1008,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                             ww.currUIImpl.Data.BindID.Keys.shenter,
                         ])
 
-        topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId]
+        topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
         
         topFrame.rebind([ww.currUIImpl.Data.BindID.focusIn,
                      ww.currUIImpl.Data.BindID.focusOut],

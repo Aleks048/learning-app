@@ -12,19 +12,21 @@ class LayoutManagers:
 
         addEntryETR = None
 
-        def __init__(self, winRoot):
+        def __init__(self, topFrame):
             #
             # pre init
             #
 
+            self.topFrame = topFrame
+            self.rootWidget = topFrame.contentFrame
 
             #
             # init
             #
 
-            super().__init__(winRoot, None)
+            super().__init__(self.rootWidget, None)
     
-            self.entryWindow_BOX = me.MainEntryBox(winRoot, self.prefix)
+            self.entryWindow_BOX = me.MainEntryBox(self.rootWidget, self.prefix)
             self.entryWindow_BOX.setCanvasHeight(300)
             self.addWidget(self.entryWindow_BOX)
 
@@ -41,8 +43,8 @@ class LayoutManagers:
                 self.entryWindow_BOX.maxHeight = 0
                 self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
             
-            self.winRoot.height = self.entryWindow_BOX.maxHeight
-            self.winRoot.setGeometry(self.winRoot.width, self.winRoot.height)
+            self.topFrame.height = self.entryWindow_BOX.maxHeight
+            self.topFrame.setGeometry(self.topFrame.width, self.topFrame.height)
         
         def changeLinksSize(self):
             self.entryWindow_BOX.changeLinksSize()
@@ -62,7 +64,7 @@ class LayoutManagers:
         return results
 
 class MainEntryMenuManager(wm.MenuManager_Interface):
-    def __init__(self, rootWidget):
+    def __init__(self, topFrame):
         dimensions = _u.getMonitorsAreas()[0]
         width = dimensions[2] # 1500
 
@@ -70,14 +72,14 @@ class MainEntryMenuManager(wm.MenuManager_Interface):
 
         width = halfWidth
         height = 300
-        rootWidget.width = width
-        rootWidget.height = height
-        rootWidget.setGeometry(width, height)
+        topFrame.width = width
+        topFrame.height = height
+        topFrame.setGeometry(width, height)
 
         self.layouts = []
         self.isShown = False
     
-        self.winRoot = rootWidget
+        self.winRoot = topFrame
         layouts = self.layouts
 
         for lm in LayoutManagers.listOfLayouts():

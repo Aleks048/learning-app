@@ -33,8 +33,8 @@ class LayoutManagers:
 
             super().__init__(winRoot, None)
 
-            primaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0000"]
-            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
+            primaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0000"].contentFrame
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"].contentFrame
 
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "columnspan" : 1},
@@ -192,7 +192,7 @@ class LayoutManagers:
 
             super().__init__(winRoot, None)
 
-            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"].contentFrame
 
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1, "columnspan" : 1},
@@ -278,7 +278,7 @@ class LayoutManagers:
             super().__init__(winRoot, None)
 
             
-            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"]
+            secondaryMainMenuFrame = wm.UI_generalManager.topLevelFrames["0100"].contentFrame
 
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 2, "columnspan" : 1},
