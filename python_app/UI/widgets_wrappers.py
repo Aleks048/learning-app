@@ -141,7 +141,9 @@ class TkWidgets (DataTranslatable_Interface):
         s.configure('DictLoc.TLabel', background = "#7c3b3b")
         s.configure('EntryText.TLabel', background = "#394d43")
         s.configure('TLabel', foreground = "#ffffff", background = "#323232")
-        s.configure('TFrame', background = "#323232")
+        s.configure('Main.TFrame', background = "#323232")
+        s.configure('TopLevelHat.TFrame', background = "#7c3b3b")
+        s.configure('TopLavelHat.TLabel', background = "#7c3b3b")
         s.configure("TMenubutton", background="#323232")
         if platform.system() == "Darwin":
             s.configure("Canvas.TMenubutton", width = 5, 
@@ -928,7 +930,8 @@ class TkWidgets (DataTranslatable_Interface):
                     renderData : dict,
                     extraOptions = {},
                     bindCmd = lambda *args: (None, None),
-                    padding = [0, 0, 0, 0]):
+                    padding = [0, 0, 0, 0],
+                    style = _u.Token.NotDef.str_t):
             self.renderData = currUIImpl.translateRenderOptions(renderData)
             extraOptions = currUIImpl.translateExtraBuildOptions(extraOptions)
 
@@ -938,14 +941,20 @@ class TkWidgets (DataTranslatable_Interface):
             self.name:str = prefix.lower() + name
             self.name = "_Frame_" + self.name.replace(".", "_")
 
+
+            if style == _u.Token.NotDef.str_t:
+                style = "Main.TFrame"
+
             if "widgetObj" in dir(self.rootWidget):
                 self.widgetObj = ttk.Frame(self.rootWidget.widgetObj, 
                                     padding = self.padding,
-                                    name = self.name)
+                                    name = self.name,
+                                    style = style)
             else:
                 self.widgetObj = ttk.Frame(self.rootWidget, 
                                     padding = self.padding,
-                                    name = self.name)
+                                    name = self.name,
+                                    style = style)
 
             caller = inspect.stack()[1].frame
             localvars = caller.f_locals
@@ -969,6 +978,9 @@ class TkWidgets (DataTranslatable_Interface):
             self.widgetObj.update()
             return self.widgetObj.winfo_height()
         
+        def setStyle(self, style):
+            self.widgetObj.configure(style = style)
+
         def setHeight(self, height):
             self.widgetObj.configure(height = height)
 

@@ -88,17 +88,18 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
         halfWidth = int(width / 2)
 
-        width = halfWidth, 
+        width = halfWidth
         height = height - 105
-        self.topFrame.width = width
-        self.topFrame.height = height
 
-        self.topFrame.setGeometry(width, height)
+        topFrame.width = width
+        topFrame.height = height
+
+        topFrame.setGeometry(width, height)
 
         winRoot = imw.PdfReadersRoot(rootWidget, 
-                                     width = self.topFrame.width, 
-                                     height = self.topFrame.height,
-                                     topLevelFrameId = self.topFrame.prefix)
+                                     width = topFrame.width, 
+                                     height = topFrame.height,
+                                     topLevelFrameId = topFrame.prefix)
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))

@@ -154,26 +154,30 @@ def bindWidgetTextUpdatable(event, getTextFunc, setTextFunc,
     changeOnEtrFunc(widget)
 
 def bindChangeColorOnInAndOut(widget, shouldBeRed = False, shouldBeBrown = False):
-    def __changeTextColorBlue(event = None, *args):
-        event.widget.changeColor("blue")
+    def __changeTextColorBlue(widget):
+        widget.changeColor("blue")
 
-    def __changeTextColorBrown(event = None, *args):
-        event.widget.changeColor("brown")
+    def __changeTextColorBrown(widget):
+        widget.changeColor("brown")
 
-    def __changeTextColorRed(event = None, *args):
-        event.widget.changeColor("red")
+    def __changeTextColorRed(widget):
+        widget.changeColor("red")
 
-    def __changeTextColorWhite(event = None, *args):
-        event.widget.changeColor("white")
+    def __changeTextColorWhite(widget):
+        widget.changeColor("white")
     
-    widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], [__changeTextColorBlue])
+    widget.rebind([ww.currUIImpl.Data.BindID.enterWidget], 
+                  [lambda e, w = widget, *args: __changeTextColorBlue(w)])
     if not shouldBeRed:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorWhite])
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], 
+                      [lambda e, w = widget, *args: __changeTextColorWhite(w)])
     else:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorRed])
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], 
+                      [lambda e, w = widget, *args: __changeTextColorRed(w)])
     
     if shouldBeBrown:
-        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], [__changeTextColorBrown])
+        widget.rebind([ww.currUIImpl.Data.BindID.leaveWidget], 
+                      [lambda e, w = widget, *args: __changeTextColorBrown(w)])
 
 def addExtraIm(subsection, mainImIdx, isProof, entryLabel = None, event = None):
     extraImIdx = _u.Token.NotDef.str_t

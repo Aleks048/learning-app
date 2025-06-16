@@ -217,7 +217,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         rightTopFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 0, column = 0, 
                                           rowspan = 1, columnspan = 1,
-                                          width = halfWidth, height = 50)
+                                          width = halfWidth, height = 60)
         rightSecondFrame = cls.addTopLevelFrame(rootWidget = rightFrame,
                                           row = 1, column = 0, 
                                           rowspan = 1, columnspan = 1,
@@ -302,7 +302,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
 
         leftTopFrame.render()
         leftMiddleFrame.render()
-        leftBottomFrame.render()
+        # leftBottomFrame.render()
         leftFrame.render()
 
     @classmethod

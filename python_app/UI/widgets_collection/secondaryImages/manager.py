@@ -41,7 +41,7 @@ class SecondaryImagesManager(wm.MenuManager_Interface):
 
         halfWidth = int(width / 2)
 
-        width = halfWidth, 
+        width = halfWidth
         height = height - 105
         topFrame.width = width
         topFrame.height = height

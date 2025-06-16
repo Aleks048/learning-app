@@ -1009,6 +1009,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                         ])
 
         topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
+        topFrame.sizeChangeReactors.append(self)
         
         topFrame.rebind([ww.currUIImpl.Data.BindID.focusIn,
                      ww.currUIImpl.Data.BindID.focusOut],
@@ -1019,6 +1020,9 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                     [lambda *args: topFrame.forceFocus()])
 
         self.render()
+
+    def onTopSizeChange(self, width, height):
+        self.pdfBox.setCanvasHeight(height - 50)
 
     def __nunbind(self, *args):
         self.unbind([ww.currUIImpl.Data.BindID.Keys.left,

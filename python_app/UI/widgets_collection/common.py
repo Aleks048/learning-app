@@ -1547,35 +1547,76 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
 class TopLevelFrame(ww.currUIImpl.Frame):
     class HatFrame(ww.currUIImpl.Frame):
         def __init__(self, rootWidget):
-            renderData = {
+            self.renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
-            name = "_HatFrame_"
-            prefix = rootWidget.name.replace("_", "")
 
-            super().__init__(prefix, name, rootWidget, renderData)
+            extraOptions = {
+                ww.Data.GeneralProperties_ID :{"width": rootWidget.width, "height" : 40},
+                ww.TkWidgets.__name__ : {}
+            }
+
+            name = "_HatFrame_"
+            prefix = rootWidget.prefix
+
+            super().__init__(prefix, name, rootWidget, self.renderData, extraOptions, 
+                             style = 'TopLevelHat.TFrame')
+
+            self.forceFixedDimentions(width = 10, height = 10)
+
+
+            renderDataLabel = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+            }
+
+            self.addHatLabel = ww.currUIImpl.Label(prefix, "_HatLabel_", 
+                                                   self, 
+                                                   renderDataLabel, 
+                                                   text = "+")
+            self.addHatLabel.setStyle("TopLavelHat.TLabel")
+            bindChangeColorOnInAndOut(self.addHatLabel)
+
+            self.rebind([ww.currUIImpl.Data.BindID.mouse1,
+                         ww.currUIImpl.Data.BindID.mouse2],
+                        [lambda e, w = self, *args: w.onClick(True),
+                         lambda e, w = self, *args: w.onClick(False)])
+        
+        def render(self):
+            self.setGeometry(self.rootWidget.width, 5)
+            return super().render(self.renderData)
+        
+        def onClick(self, renderLabels):
+            self.rootWidget.onHatChange(renderLabels)
 
 
     class ContentFrame(ww.currUIImpl.Frame):
-        def __init__(self, rootWidget, width, height):
+        def __init__(self, rootWidget):
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
 
-            extraOptions = {
-                ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
-                ww.TkWidgets.__name__ : {}
-            }
+            self.sizeChangeReactors = []
 
             name = "_ContentFrame_"
             self.prefix = rootWidget.prefix
 
             super().__init__(self.prefix, name, rootWidget, renderData)
+            self.forceFixedDimentions(width = 10, height = 10)
+                
+        def render(self):
+            self.setGeometry(self.rootWidget.width - 20, self.rootWidget.height)
+            return super().render(self.renderData)
+    
+        def setGeometry(self, width, height):
+            for r in self.sizeChangeReactors:
+                r.onTopSizeChange(width, height)
+            return super().setGeometry(width, height)
 
     def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300, withHat = True):
-        renderData = {
+        self.renderData = {
             ww.Data.GeneralProperties_ID :{"column" : column, "row" : row, 
                                            "rowspan": rowSpan, "columnspan": columnSpan},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
@@ -1603,13 +1644,34 @@ class TopLevelFrame(ww.currUIImpl.Frame):
         super().__init__(prefix = self.prefix, 
                          name = name, 
                          rootWidget = rootWidget, 
-                         renderData = renderData, 
+                         renderData = self.renderData, 
                          extraOptions = extraOptions)
         
         if withHat:
             self.hatFrame = TopLevelFrame.HatFrame(self)
-            self.contentFrame = TopLevelFrame.ContentFrame(self, width, height)
+            self.contentFrame = TopLevelFrame.ContentFrame(self)
+
+
+    def render(self):
+        if self.withHat:
+            self.hatFrame.render()
             self.contentFrame.render()
+        return super().render(self.renderData)
+
+    def onHatChange(self, showLabels):
+        if not self.withHat:
+            return
+
+        if showLabels:
+            self.hatFrame.setGeometry(self.width, 20)
+            self.hatFrame.addHatLabel.render()
+            
+            self.contentFrame.setGeometry(self.width, self.height - 40)
+        else:
+            self.hatFrame.setGeometry(self.width, 5)
+            self.hatFrame.addHatLabel.hide()   
+    
+            self.contentFrame.setGeometry(self.width, self.height - 20)
 
     def setGeometry(self, width, height):
         if self.withHat:
@@ -1620,7 +1682,7 @@ class MainRoot(ww.currUIImpl.RootWidget):
 
     def __init__(self, width, height):
         super().__init__(width, height, self.__bindCmd)
-    
+     
     def __bindCmd(self):
         def __largerEntry():
             mainTOCManager = dt.AppState.UIManagers.getData("fake data access token", 

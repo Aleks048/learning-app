@@ -57,7 +57,7 @@ class SummaryManager(wm.MenuManager_Interface):
 
         halfWidth = int(width / 2)
 
-        width = halfWidth, 
+        width = halfWidth
         height = 300
         topFrame.width = width
         topFrame.height = height
