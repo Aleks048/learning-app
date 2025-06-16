@@ -1537,7 +1537,6 @@ class TkWidgets (DataTranslatable_Interface):
             localvars = caller.f_locals
             child = localvars['self']
 
-
             TkWidgets.HasChildren_Interface_Impl.__init__(self, widget = self)
             TkWidgets.RenderableWidget_Interface_Impl.__init__(self, widget = self, renderData = self.renderData)
             TkWidgets.HasListenersWidget_Interface_Impl.__init__(self, widgetObj = self.widgetObj, bindCmd = bindCmd)
@@ -1545,7 +1544,6 @@ class TkWidgets (DataTranslatable_Interface):
             Notifyable_Interface.__init__(self)
 
             self.bind()
-
 
         def bind(self):
             return super().bind()

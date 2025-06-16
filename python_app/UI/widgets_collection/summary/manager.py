@@ -50,7 +50,7 @@ class SummaryManager(wm.MenuManager_Interface):
     imIdx = 0
     shown = False
 
-    def __init__(self, topFrame):
+    def __init__(self, rootWidget):
         dimensions = _u.getMonitorsAreas()[0]
         width = dimensions[2] # 1500
         height = dimensions[3] - 50 # 850
@@ -59,11 +59,11 @@ class SummaryManager(wm.MenuManager_Interface):
 
         width = halfWidth, 
         height = 300
-        topFrame.width = width
-        topFrame.height = height
-        topFrame.setGeometry(width, height)
+        rootWidget.width = width
+        rootWidget.height = height
+        rootWidget.setGeometry(width, height)
 
-        winRoot = summ.SummaryRoot(topFrame.contentFrame, 
+        winRoot = summ.SummaryRoot(rootWidget, 
                                      width = 0, 
                                      height = 0)
         layouts = []

@@ -291,8 +291,7 @@ class UI_generalManager(dc.AppCurrDataAccessToken):
         mainMenuManager.show()
 
         rightTopFrame.render()
-        rightSecondFrame.hide()
-        # rightSecondFrame.render()
+        rightSecondFrame.render()
         rightThirdFrame.render()
         # rightBottomFrame.render()
 

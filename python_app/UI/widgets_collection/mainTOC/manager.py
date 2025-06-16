@@ -13,11 +13,7 @@ class LayoutManagers:
 
         addEntryETR = None
 
-        def __init__(self, topFrame):
-            self.topFrame = topFrame
-
-            rootWidget = self.topFrame.contentFrame
-
+        def __init__(self, rootWidget):
             #
             # pre init
             #
@@ -29,8 +25,8 @@ class LayoutManagers:
             super().__init__(rootWidget, None)
 
             tocBox_BOX = ml.MainTOCBox(rootWidget, self.prefix, 
-                                       windth =  self.topFrame.width - 20, #TODO: why we need this border
-                                       height =  self.topFrame.height)
+                                       windth = rootWidget.width - 20, #TODO: why we need this border
+                                       height = rootWidget.height)
             self.addWidget(tocBox_BOX)
             self.tocBox = tocBox_BOX
 
@@ -44,8 +40,8 @@ class LayoutManagers:
                 self.tocBox.setCanvasHeight(self.tocBox.maxHeight)
 
 
-            self.topFrame.height = self.tocBox.maxHeight
-            self.topFrame.setGeometry(self.topFrame.width, self.topFrame.height)
+            self.winRoot.height = self.tocBox.maxHeight
+            self.winRoot.setGeometry(self.winRoot.width, self.winRoot.height)
         
         def show(self):
             self.tocBox.widgetToScrollTo = None

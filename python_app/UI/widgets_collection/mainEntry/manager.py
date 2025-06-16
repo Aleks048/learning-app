@@ -7,41 +7,26 @@ import file_system.file_system_facade as fsf
 
 class LayoutManagers:
     class _Main(wm.MenuLayout_Interface):
-        prefix = "_Main"
+        prefix = "_mainLayout"
         tocBox = None
 
         addEntryETR = None
 
-        def __init__(self, topFrame):
+        def __init__(self, winRoot):
             #
             # pre init
             #
 
-            self.topFrame = topFrame
-            rootWidget = self.topFrame.contentFrame
+
             #
             # init
             #
 
-            super().__init__(rootWidget, None)
-
-            print("hi")
-            print([i.name for i in rootWidget.children])
+            super().__init__(winRoot, None)
     
-
-            
-            self.entryWindow_BOX = me.MainEntryBox(rootWidget, self.prefix)
+            self.entryWindow_BOX = me.MainEntryBox(winRoot, self.prefix)
             self.entryWindow_BOX.setCanvasHeight(300)
             self.addWidget(self.entryWindow_BOX)
-
-            self.topFrame.setGeometry(300, 300)
-
-            print("ho")
-            print([i.name for i in rootWidget.children])
-            print([type(i) for i in rootWidget.children])
-            list(rootWidget.children)[1].hide()
-            # print([i.render() for i in rootWidget.children])
-            print([i.name for i in rootWidget.children])
 
             #
             # post init
@@ -56,8 +41,8 @@ class LayoutManagers:
                 self.entryWindow_BOX.maxHeight = 0
                 self.entryWindow_BOX.setCanvasHeight(self.entryWindow_BOX.maxHeight)
             
-            self.topFrame.height = self.entryWindow_BOX.maxHeight
-            self.topFrame.setGeometry(self.topFrame.width, self.topFrame.height)
+            self.winRoot.height = self.entryWindow_BOX.maxHeight
+            self.winRoot.setGeometry(self.winRoot.width, self.winRoot.height)
         
         def changeLinksSize(self):
             self.entryWindow_BOX.changeLinksSize()
@@ -77,7 +62,7 @@ class LayoutManagers:
         return results
 
 class MainEntryMenuManager(wm.MenuManager_Interface):
-    def __init__(self, topFrame):
+    def __init__(self, rootWidget):
         dimensions = _u.getMonitorsAreas()[0]
         width = dimensions[2] # 1500
 
@@ -85,19 +70,18 @@ class MainEntryMenuManager(wm.MenuManager_Interface):
 
         width = halfWidth
         height = 300
-        topFrame.width = width
-        topFrame.height = height
-        topFrame.setGeometry(width, height)
-
+        rootWidget.width = width
+        rootWidget.height = height
+        rootWidget.setGeometry(width, height)
 
         self.layouts = []
         self.isShown = False
     
-        self.winRoot = topFrame.contentFrame
+        self.winRoot = rootWidget
         layouts = self.layouts
 
         for lm in LayoutManagers.listOfLayouts():
-            layouts.append(lm(topFrame))
+            layouts.append(lm(self.winRoot))
         
         currLayout = None
         for layout in layouts:
