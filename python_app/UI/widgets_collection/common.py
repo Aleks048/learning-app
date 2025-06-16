@@ -222,13 +222,14 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
         self.entryManager = None
 
         renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 4, "columnspan": 6},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.W}
+            ww.Data.GeneralProperties_ID : {"column" : 0, "row" : 0, "columnspan": 1},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
         extraOptions = {
             ww.Data.GeneralProperties_ID :{"width" : 350, "height" : self.maxHeight},
             ww.TkWidgets.__name__ : {}
         }
+
         super().__init__(prefix, 
                         name,
                         parentWidget, 
@@ -278,8 +279,8 @@ class EntryWindow_BOX(ww.currUIImpl.ScrollableBox,
             newHeight = self.maxHeight + wd.Data.MainEntryLayout.large
         else:
             newHeight = min(newHeight, self.maxHeight)
-        self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
+        self.setCanvasHeight(min(newHeight, self.maxHeight)) #+ wd.Data.MainEntryLayout.currSize)
 
         mainTOCManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.MainTOCManager)
@@ -1558,15 +1559,24 @@ class TopLevelFrame(ww.currUIImpl.Frame):
 
 
     class ContentFrame(ww.currUIImpl.Frame):
-        def __init__(self, rootWidget):
+        def __init__(self, rootWidget, width, height):
             renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 1},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
             }
-            name = "_ContentFrame_"
-            prefix = rootWidget.name.replace("_", "")
 
-            super().__init__(prefix, name, rootWidget, renderData)
+            extraOptions = {
+                ww.Data.GeneralProperties_ID :{"width" : width, "height" : height},
+                ww.TkWidgets.__name__ : {}
+            }
+
+            name = "_ContentFrame_"
+            self.prefix = rootWidget.prefix
+
+            super().__init__(self.prefix, name, rootWidget, renderData, extraOptions)
+
+        def render(self):
+            return super().render(self.renderData)
 
     def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300):
         renderData = {
@@ -1598,7 +1608,20 @@ class TopLevelFrame(ww.currUIImpl.Frame):
                          renderData = renderData, 
                          extraOptions = extraOptions)
         
-        # self.hatFrame = TopLevelFrame.HatFrame(self)
+        self.hatFrame = TopLevelFrame.HatFrame(self)
+        self.contentFrame = TopLevelFrame.ContentFrame(self, width, height)
+
+        # self.hatFrame.render()
+        self.contentFrame.render()
+
+        # for ch in self.children:
+        #     if "scroll" in str(type(ch)):
+        #         ch.setCanvasHeight()
+
+
+    def setGeometry(self, width, height):
+        super().setGeometry(width, height)
+        self.contentFrame.setGeometry(width, height)
 
 class MainRoot(ww.currUIImpl.RootWidget):
 

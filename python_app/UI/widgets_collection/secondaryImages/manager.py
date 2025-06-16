@@ -34,7 +34,7 @@ class SecondaryImagesManager(wm.MenuManager_Interface):
     imIdx = 0
     shown = False
 
-    def __init__(self, rootWidget):
+    def __init__(self, topFrame):
         dimensions = _u.getMonitorsAreas()[0]
         width = dimensions[2] # 1500
         height = dimensions[3] - 50 # 850
@@ -43,11 +43,11 @@ class SecondaryImagesManager(wm.MenuManager_Interface):
 
         width = halfWidth, 
         height = height - 105
-        rootWidget.width = width
-        rootWidget.height = height
-        rootWidget.setGeometry(width, height)
+        topFrame.width = width
+        topFrame.height = height
+        topFrame.setGeometry(width, height)
 
-        winRoot = sim.SecondaryImagesRoot(rootWidget, 
+        winRoot = sim.SecondaryImagesRoot(topFrame.contentFrame, 
                                      width = 0, 
                                      height = 0)
         layouts = []
