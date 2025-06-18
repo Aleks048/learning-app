@@ -85,20 +85,31 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
         topFrame.setGeometry(width, height)
 
+        self.winRoots = []
+
+        super().__init__(rootWidget = None,
+                        layouts = [],
+                        currLayout = None)
+
+        self.addTopFrame(topFrame, rootWidget, 0)
+
+    def addTopFrame(self, topFrame, rootWidget, row):
         winRoot = imw.PdfReadersRoot(rootWidget, 
                                      width = topFrame.width, 
                                      height = topFrame.height,
-                                     topLevelFrameId = topFrame.prefix)
+                                     topFrame = topFrame,
+                                     row = row)
+
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))
 
+        self.winRoots.append(winRoot)
+
         winRoot.subsection = fsf.Data.Book.currSection
-        
-        currLayout = None
-        super().__init__(winRoot,
-                        layouts,
-                        currLayout)
+
+        self.winRoot = winRoot
+        self.layouts.extend(layouts)
 
     def forceUpdate(self):
         self.layouts[0].forceUpdate(self.winRoot)

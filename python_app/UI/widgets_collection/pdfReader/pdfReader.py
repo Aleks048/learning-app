@@ -898,7 +898,11 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
 
 class PdfReadersRoot(ww.currUIImpl.Frame):
-    def __init__(self, rootWidget, width, height, topLevelFrameId):
+    def __init__(self, rootWidget, width, height, topFrame, row):
+        self.topFrame = topFrame
+
+        topLevelFrameId = self.topFrame.prefix
+
         self.subsection = _u.Token.NotDef.str_t
         self.imIdx = _u.Token.NotDef.str_t
         self.extraImIdx = _u.Token.NotDef.int_t
@@ -923,7 +927,7 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
 
         name = "_PdfReadersRoot_"
         renderData = {
-            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0, "rowspan": 1},
+            ww.Data.GeneralProperties_ID :{"column" : 0, "row" : row, "rowspan": 1},
             ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
         }
         extraOptions = {
