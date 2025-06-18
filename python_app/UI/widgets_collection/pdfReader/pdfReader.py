@@ -899,6 +899,20 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
 
 class PdfReadersRoot(ww.currUIImpl.Frame):
     def __init__(self, rootWidget, width, height, topLevelFrameId):
+        self.subsection = _u.Token.NotDef.str_t
+        self.imIdx = _u.Token.NotDef.str_t
+        self.extraImIdx = _u.Token.NotDef.int_t
+        self.currPage = None
+        self.selector = False
+        self.changePrevPos = True
+        self.getTextOfSelector = False
+
+        self.pfdReader_BOX:PfdReader_BOX = None
+        self.resizePdfReaderWindow_BTN:ResizePdfReaderWindow_BTN = None
+        self.changePagePdfReaderWindow_ETR:ChangePagePdfReaderWindow_ETR = None
+
+        self.widgets = []
+
         self.width = width
         self.height = height
 
