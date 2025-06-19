@@ -84,9 +84,6 @@ class LayoutManagers:
             switchLayout_BTN = commw.SwitchLayoutSectionVSMain_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(switchLayout_BTN)
 
-            chooseOriginalMaterial_OM = ml.ChooseOriginalMaterial_OM(self.secondaryMainMenuMainLayoutFrame, self.prefix)
-            self.addWidget(chooseOriginalMaterial_OM)
-
             layoutsSwitchOrigMatVSMain_BTN = commw.LayoutsSwitchOrigMatVSMain_BTN(self.secondaryMainMenuMainLayoutFrame, self.prefix)
             self.addWidget(layoutsSwitchOrigMatVSMain_BTN)
 

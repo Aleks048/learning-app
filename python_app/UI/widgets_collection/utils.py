@@ -239,7 +239,7 @@ def bindOpenOMOnThePageOfTheImage(widget, targetSubsection, targetImIdx, eImidx 
     def __cmd(event = None, *args): 
         pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
                                                     wf.Wr.MenuManagers.PdfReadersManager)
-        
+
         pdfReadersManager.moveToEntry(targetSubsection, targetImIdx, eImidx, forcePageChange = True)
 
     widget.rebind([ww.currUIImpl.Data.BindID.cmdMouse1], [__cmd])

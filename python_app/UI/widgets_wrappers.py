@@ -914,6 +914,11 @@ class TkWidgets (DataTranslatable_Interface):
         
         def setWidth(self, newWidth):
             self.widgetObj.configure(width = newWidth)
+        
+                
+        def forceFixedDimentions(self, width):
+            self.widgetObj.configure(width = width)
+            self.widgetObj.grid_propagate(False)
 
         def setWrapLength(self, wraplength):
             self.widgetObj.configure(wraplength = wraplength)

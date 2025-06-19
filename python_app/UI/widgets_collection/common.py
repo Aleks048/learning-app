@@ -1545,8 +1545,86 @@ class TOCLabelWithClick(ww.currUIImpl.Label):
 
 
 class TopLevelFrame(ww.currUIImpl.Frame):
+    class ContentType_OM(ww.currUIImpl.OptionMenu):
+        def __init__(self, rootWidget):
+            self.renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+            }
+
+            name = "_ContentType_OM_"
+            prefix = rootWidget.prefix
+
+            super().__init__(prefix, name, 
+                             ["1", "2"],
+                             rootWidget, 
+                             self.renderData,
+                             cmd = self.cmd)
+        
+        def cmd(self):
+            pass
+            # print(self.getData())
+
+    class AddViewLabel(ww.currUIImpl.Label):
+        def __init__(self, rootWidget):
+            renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : 100, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
+            }
+
+            name = "_AddHatLabel_"
+            self.prefix = rootWidget.prefix
+
+
+            super().__init__(self.prefix, name, rootWidget, 
+                             renderData, text = "+")
+
+            self.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                    [lambda e, w = self, *args: self.onHatAddLabelClick()])
+                
+        def onHatAddLabelClick(self):
+            self.rootWidget.rootWidget.onHatAddLabel()
+
+    class ViewHatFrame(ww.currUIImpl.Frame):
+        def __init__(self, rootWidget, column):
+            self.viewHatFrames = {}
+
+            self.extraHatWidget = None
+
+            self.renderData = {
+                ww.Data.GeneralProperties_ID :{"column" : column, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+            }
+
+            name = "_viewHatFrame_"
+            self.prefix = rootWidget.prefix + "_" + str(column)
+
+            super().__init__(self.prefix, name, rootWidget, self.renderData, padding=[5, 5, 0, 0])
+
+            self.viewType = TopLevelFrame.ContentType_OM(self)
+            self.viewType.render()
+            
+            self.renderDataL = {
+                ww.Data.GeneralProperties_ID :{"column" : 2, "row" : 0},
+                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
+            }
+            self.changeView = ww.currUIImpl.Label(self.prefix, "_HatTestLabel_", 
+                                                   self, 
+                                                   self.renderDataL, 
+                                                   text = "o")
+            self.changeView.setStyle("TopLavelHat.TLabel")
+            bindChangeColorOnInAndOut(self.changeView, shouldBeBrown = True)
+            self.changeView.rebind([ww.currUIImpl.Data.BindID.mouse1],
+                                   [lambda e, i = column, w = self, *args: w.switchViewerCmd(i)])
+            self.changeView.render()
+        
+        def switchViewerCmd(self, idx):
+            self.rootWidget.rootWidget.onChangeViewer(idx)
+
     class HatFrame(ww.currUIImpl.Frame):
         def __init__(self, rootWidget):
+            self.viewHatFrames = []
+
             self.renderData = {
                 ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
                 ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NE}
@@ -1558,25 +1636,22 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             }
 
             name = "_HatFrame_"
-            prefix = rootWidget.prefix
+            self.prefix = rootWidget.prefix
 
-            super().__init__(prefix, name, rootWidget, self.renderData, extraOptions, 
+            super().__init__(self.prefix, name, rootWidget, self.renderData, extraOptions, 
                              style = 'TopLevelHat.TFrame')
 
             self.forceFixedDimentions(width = 10, height = 10)
 
 
-            renderDataLabel = {
-                ww.Data.GeneralProperties_ID :{"column" : 0, "row" : 0},
-                ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0, "sticky" : ww.currUIImpl.Orientation.NW}
-            }
+            self.addView = TopLevelFrame.AddViewLabel(self)
+            self.addView.render()
 
-            self.addHatLabel = ww.currUIImpl.Label(prefix, "_HatLabel_", 
-                                                   self, 
-                                                   renderDataLabel, 
-                                                   text = "+")
-            self.addHatLabel.setStyle("TopLavelHat.TLabel")
-            bindChangeColorOnInAndOut(self.addHatLabel)
+            self.viewHatFrames.append(\
+                TopLevelFrame.ViewHatFrame(self, 0))
+            self.viewHatFrames[-1].render()
+
+            bindChangeColorOnInAndOut(self.addView)
 
             self.rebind([ww.currUIImpl.Data.BindID.mouse1,
                          ww.currUIImpl.Data.BindID.mouse2],
@@ -1586,7 +1661,7 @@ class TopLevelFrame(ww.currUIImpl.Frame):
         def render(self):
             self.setGeometry(self.rootWidget.width, 5)
             return super().render(self.renderData)
-        
+
         def onClick(self, renderLabels):
             self.rootWidget.onHatChange(renderLabels)
 
@@ -1614,6 +1689,7 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             for r in self.sizeChangeReactors:
                 r.onTopSizeChange(width, height)
             return super().setGeometry(width, height)
+
 
     def __init__(self, rootWidget, row, column, columnSpan, rowSpan, width = 300, height = 300, withHat = True):
         self.renderData = {
@@ -1648,9 +1724,10 @@ class TopLevelFrame(ww.currUIImpl.Frame):
                          extraOptions = extraOptions)
         
         if withHat:
-            self.hatFrame = TopLevelFrame.HatFrame(self)
             self.contentFrame = TopLevelFrame.ContentFrame(self)
-
+            self.hatFrame = TopLevelFrame.HatFrame(self)
+        else:
+            self.contentFrame = None
 
     def render(self):
         if self.withHat:
@@ -1658,18 +1735,48 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             self.contentFrame.render()
         return super().render(self.renderData)
 
+    def onChangeViewer(self, idx):
+        for r in self.contentFrame.sizeChangeReactors:
+            r.onViewerChange(idx)
+
+    def changeHatViewerSelectorColor(self, idx):
+        for i in range(len(self.hatFrame.viewHatFrames)):
+            v = self.hatFrame.viewHatFrames[i]
+            if i == idx:
+                v.changeView.changeColor("brown")
+                bindChangeColorOnInAndOut(v.changeView, shouldBeBrown = True)
+            else:
+                v.changeView.changeColor("white")
+                bindChangeColorOnInAndOut(v.changeView, shouldBeBrown = False)
+
+    def onHatAddLabel(self):
+        self.hatFrame.viewHatFrames.append(\
+                TopLevelFrame.ViewHatFrame(self.hatFrame, len(self.hatFrame.viewHatFrames)))
+        self.hatFrame.viewHatFrames[-1].render()
+
+        extraHatWidget = None
+        for r in self.contentFrame.sizeChangeReactors:
+            extraHatWidget = r.produceTopFrameHatExtraWidgets(self.hatFrame.viewHatFrames[-1])
+            extraHatWidget.render()
+        self.hatFrame.viewHatFrames[-1].extraWidget = extraHatWidget
+
+        for r in self.contentFrame.sizeChangeReactors:
+            r.onAddViewer(self, self.contentFrame, len(self.hatFrame.viewHatFrames) - 1)  
+
+        self.changeHatViewerSelectorColor(len(self.hatFrame.viewHatFrames) - 1)
+
     def onHatChange(self, showLabels):
         if not self.withHat:
             return
 
         if showLabels:
             self.hatFrame.setGeometry(self.width, 20)
-            self.hatFrame.addHatLabel.render()
-            
+            self.hatFrame.addView.render()
+
             self.contentFrame.setGeometry(self.width, self.height - 40)
         else:
             self.hatFrame.setGeometry(self.width, 5)
-            self.hatFrame.addHatLabel.hide()   
+            self.hatFrame.addView.hide()   
     
             self.contentFrame.setGeometry(self.width, self.height - 20)
 

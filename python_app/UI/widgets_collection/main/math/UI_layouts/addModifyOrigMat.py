@@ -40,6 +40,9 @@ class AddOrigMaterial_BTN(ww.currUIImpl.Button):
                         self.cmd)
 
     def cmd(self):
+        origMatFilepath = self.notify(GetOrigMatPath_ETR)
+        origMatDestRelPath = self.notify(GetOrigMatDestRelPath_ETR)
+        origMatName = self.notify(GetOrigMatName_ETR)
         fsf.Wr.OriginalMaterialStructure.addOriginalMaterial(origMatFilepath,
                                                             origMatDestRelPath,
                                                             origMatName)
@@ -48,9 +51,6 @@ class AddOrigMaterial_BTN(ww.currUIImpl.Button):
         msg = "Adding the OM with name: '{0}'".format(origMatName)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-        origMatFilepath = self.notify(GetOrigMatPath_ETR)
-        origMatDestRelPath = self.notify(GetOrigMatDestRelPath_ETR)
-        origMatName = self.notify(GetOrigMatName_ETR)
 
 
 class GetOrigMatPath_ETR(ww.currUIImpl.TextEntry):

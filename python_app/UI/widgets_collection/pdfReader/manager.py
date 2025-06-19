@@ -68,7 +68,7 @@ class PdfReadersManager(wm.MenuManager_Interface):
     shown = False
 
     def __init__(self, topFrame):
-        self.topFrame = topFrame
+        topFrame = topFrame
         rootWidget = topFrame.contentFrame
 
         dimensions = _u.getMonitorsAreas()[0]
@@ -85,26 +85,82 @@ class PdfReadersManager(wm.MenuManager_Interface):
 
         topFrame.setGeometry(width, height)
 
-        self.winRoots = []
+        self.winRoots = [None]
 
         super().__init__(rootWidget = None,
                         layouts = [],
                         currLayout = None)
 
-        self.addTopFrame(topFrame, rootWidget, 0)
+        self.__addTopFrame(topFrame, rootWidget, 0)
 
-    def addTopFrame(self, topFrame, rootWidget, row):
+        extraHatWidget = self.produceTopFrameHatExtraWidgets(topFrame.hatFrame.viewHatFrames[-1])
+        extraHatWidget.render()
+
+    def onTopSizeChange(self, width, height):
+        self.winRoot.pdfBox.setCanvasHeight(height - 50)
+
+    def onAddViewer(self, topFrame, rootWidget, row):
+        self.winRoot.hide()
+        self.winRoots.append(None)
+
+        self.__addTopFrame(topFrame, rootWidget, row)
+        self.show()
+    
+    def onViewerChange(self, idx, bookName = None):
+        origMatName = fsf.Data.Book.currOrigMatName
+
+        origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)      
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, origMatCurrPage)
+
+        self.winRoot.hide()        
+        self.winRoot = self.winRoots[idx]
+        if bookName != None:
+            self.winRoot.book = bookName
+
+        fsf.Data.Book.currOrigMatName = self.winRoot.book
+
+        if bookName != None:
+            self.winRoot.destroy()
+
+        self.rerender()
+
+        self.winRoot.topFrame.changeHatViewerSelectorColor(idx)
+
+        if bookName != None:
+            self.winRoot.topFrame.contentFrame.setGeometry(self.winRoot.topFrame.width, 
+                                                           self.winRoot.topFrame.height - 20)
+
+    def produceTopFrameHatExtraWidgets(self, rootWidget):
+        return imw.ChooseOriginalMaterial_OM(rootWidget, rootWidget.prefix)
+
+    def rerender(self):
+        row = self.winRoot.row
+        topFrame = self.winRoot.topFrame
+        rootWidget = self.winRoot.rootWidget
+
+        self.__addTopFrame(topFrame, rootWidget, row)
+
+        self.show()
+        self.onTopSizeChange(None, topFrame.height - 30)
+
+    def __addTopFrame(self, topFrame, rootWidget, row, bookName = None):
+        if self not in topFrame.contentFrame.sizeChangeReactors:
+            topFrame.contentFrame.sizeChangeReactors.append(self)
+
         winRoot = imw.PdfReadersRoot(rootWidget, 
                                      width = topFrame.width, 
                                      height = topFrame.height,
                                      topFrame = topFrame,
                                      row = row)
+        
+        if bookName != None:
+            winRoot.book = bookName
 
         layouts = []
         for lm in LayoutManagers.listOfLayouts():
             layouts.append(lm(winRoot))
 
-        self.winRoots.append(winRoot)
+        self.winRoots[row] = winRoot
 
         winRoot.subsection = fsf.Data.Book.currSection
 
@@ -168,9 +224,25 @@ class PdfReadersManager(wm.MenuManager_Interface):
     def reduceHeight(self, delta):
         pdfBox = self.winRoot.pfdReader_BOX
         pdfBox.setCanvasHeight(pdfBox.height - delta)    
-        self.topFrame.setGeometry(self.topFrame.width, self.topFrame.height - delta)    
+        self.winRoot.topFrame.setGeometry(self.winRoot.topFrame.width, self.winRoot.topFrame.height - delta)    
 
     def moveToEntry(self, subsection, imIdx, eImIdx, forcePageChange = False):
+        bookName = fsf.Data.Sec.origMatNameDict(subsection)[imIdx]
+
+        foundBook = False
+
+        if bookName != self.winRoot.book:
+            for i in range(len(self.winRoots)):
+                if self.winRoot.book == bookName:
+                    self.onViewerChange(i)
+                    foundBook = True
+                    break
+        else:
+            foundBook = True
+        
+        if not foundBook:
+            self.onViewerChange(len(self.winRoots) - 1, bookName)
+
         if eImIdx == None:
             currPage = int(fsf.Data.Sec.imLinkOMPageDict(subsection)[imIdx])
         else:

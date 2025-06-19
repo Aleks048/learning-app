@@ -75,7 +75,8 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     def show(self):
         self.winRoot.render()
         self.winRoot.forceFocus()
-        self.currLayout.show()
+        if self.currLayout != None:
+            self.currLayout.show()
         self.__isShown = True
     
     def showOnly(self):
@@ -85,8 +86,9 @@ class MenuManager_Interface(dc.AppCurrDataAccessToken):
     def hide(self):
         self.winRoot.hide()
 
-        for l in self.layouts:
-            l.hide()
+        if self.currLayout != None:        
+            for l in self.layouts:
+                l.hide()
 
         self.__isShown = False
 

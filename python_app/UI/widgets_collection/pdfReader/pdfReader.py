@@ -897,9 +897,61 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
                                                                         withoutRender = True)
 
 
+
+class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
+    prevChoice = ""
+
+    def __init__(self, patentWidget, prefix):
+        renderData = {
+            ww.Data.GeneralProperties_ID : {"column" : 1, "row" : 0},
+            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
+        }
+        name = "_chooseOriginalMaterial_OM"
+
+        origMatNames = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
+
+        super().__init__(prefix, 
+                        name, 
+                        origMatNames,
+                        patentWidget, 
+                        renderData, 
+                        self.cmd)
+        
+        #TODO: set the data to currOrigMaterialName
+        currOrigMatName = fsf.Data.Book.currOrigMatName
+        self.setData(currOrigMatName)
+        self.prevChoice = currOrigMatName
+    
+    def cmd(self):
+        #updatePrevious
+        origMatName = self.prevChoice
+        origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)      
+        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, origMatCurrPage)
+        
+        #set new
+        origMatName = self.getData()
+        origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
+        self.prevChoice = origMatName
+        fsf.Data.Book.currOrigMatName = origMatName
+
+        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+                                                wf.Wr.MenuManagers.PdfReadersManager)
+        pdfReadersManager.rerender()
+    
+    def render(self):
+        names = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
+        self.updateOptions(names)
+
+        currOrigMatName = fsf.Data.Book.currOrigMatName
+        self.setData(currOrigMatName)
+
+        return super().render(self.renderData)
+
 class PdfReadersRoot(ww.currUIImpl.Frame):
     def __init__(self, rootWidget, width, height, topFrame, row):
         self.topFrame = topFrame
+
+        self.row = row
 
         topLevelFrameId = self.topFrame.prefix
 
@@ -922,6 +974,8 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
 
         self.pageLbl = None
         self.pdfBox = None
+
+        self.book = fsf.Data.Book.currOrigMatName
 
         self.topLevelFrameId = topLevelFrameId
 
@@ -1027,7 +1081,6 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
                         ])
 
         topFrame = wm.UI_generalManager.topLevelFrames[self.topLevelFrameId].contentFrame
-        topFrame.sizeChangeReactors.append(self)
         
         topFrame.rebind([ww.currUIImpl.Data.BindID.focusIn,
                      ww.currUIImpl.Data.BindID.focusOut],
@@ -1039,8 +1092,9 @@ class PdfReadersRoot(ww.currUIImpl.Frame):
 
         self.render()
 
-    def onTopSizeChange(self, width, height):
-        self.pdfBox.setCanvasHeight(height - 50)
+    def render(self):
+        fsf.Data.Book.currOrigMatName = self.book
+        return super().render()
 
     def __nunbind(self, *args):
         self.unbind([ww.currUIImpl.Data.BindID.Keys.left,

@@ -100,57 +100,6 @@ class ExitApp_BTN(ww.currUIImpl.Button,
         gm.GeneralManger.ExitApp()
         
 
-class ChooseOriginalMaterial_OM(ww.currUIImpl.OptionMenu):
-    prevChoice = ""
-
-    def __init__(self, patentWidget, prefix):
-        renderData = {
-            ww.Data.GeneralProperties_ID : {"column" : 3, "row" : 14},
-            ww.TkWidgets.__name__ : {"padx" : 0, "pady" : 0}
-        }
-        name = "_chooseOriginalMaterial_OM"
-
-        origMatNames = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
-
-        super().__init__(prefix, 
-                        name, 
-                        origMatNames,
-                        patentWidget, 
-                        renderData, 
-                        self.cmd)
-        
-        #TODO: set the data to currOrigMaterialName
-        currOrigMatName = fsf.Data.Book.currOrigMatName
-        self.setData(currOrigMatName)
-        self.prevChoice = currOrigMatName
-    
-    def cmd(self):
-        origMatName = self.getData()
-        self.prevChoice = origMatName
-
-        origMatCurrPage = fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName)
-                    
-        fsf.Wr.OriginalMaterialStructure.updateOriginalMaterialPage(origMatName, origMatCurrPage)
-
-        pdfReadersManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                wf.Wr.MenuManagers.PdfReadersManager)
-        pdfReadersManager.show(page = int(origMatCurrPage))
-
-        '''
-        This was used when the pdf app was separate. need to see what is needed before deletion!
-        '''
-
-        # update book settings
-        fsf.Data.Book.currOrigMatName = origMatName
-    
-    def render(self):
-        names = fsf.Wr.OriginalMaterialStructure.getOriginalMaterialsNames()
-        self.updateOptions(names)
-
-        currOrigMatName = fsf.Data.Book.currOrigMatName
-        self.setData(currOrigMatName)
-
-        return super().render(self.renderData)
 class ScreenshotLocation_LBL(ww.currUIImpl.Label):
     def __init__(self, parentWidget, prefix):
         data = {
