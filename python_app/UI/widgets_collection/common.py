@@ -1639,7 +1639,7 @@ class TopLevelFrame(ww.currUIImpl.Frame):
             self.prefix = rootWidget.prefix
 
             super().__init__(self.prefix, name, rootWidget, self.renderData, extraOptions, 
-                             style = 'TopLevelHat.TFrame')
+                             style = 'tlh.TFrame')
 
             self.forceFixedDimentions(width = 10, height = 10)
 

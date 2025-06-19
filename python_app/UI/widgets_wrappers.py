@@ -142,7 +142,7 @@ class TkWidgets (DataTranslatable_Interface):
         s.configure('EntryText.TLabel', background = "#394d43")
         s.configure('TLabel', foreground = "#ffffff", background = "#323232")
         s.configure('Main.TFrame', background = "#323232")
-        s.configure('TopLevelHat.TFrame', background = "#7c3b3b")
+        s.configure('tlh.TFrame', background = "#7c3b3b")
         s.configure('TopLavelHat.TLabel', background = "#7c3b3b")
         s.configure("TMenubutton", background="#323232")
         if platform.system() == "Darwin":
