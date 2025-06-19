@@ -355,6 +355,12 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
+        if (int(self.pageNum) < 0):
+            self.pageNum = 0
+
+        if (int(self.pageNum) > self.pdfDoc.page_count):
+            self.pageNum = self.pdfDoc.page_count - 2
+
         page = self.pdfDoc.load_page(self.pageNum)
         pixmap = page.get_pixmap(dpi = 150)
         buf = io.BytesIO(pixmap.tobytes())
