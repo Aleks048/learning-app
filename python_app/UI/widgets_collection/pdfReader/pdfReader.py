@@ -7,6 +7,7 @@ import io
 import re
 import copy
 import subprocess
+import platform
 
 import UI.widgets_wrappers as ww
 import UI.widgets_manager as wm
@@ -334,10 +335,16 @@ class PdfReaderImage(ww.currUIImpl.Frame):
 
         name = "_PdfImage_LBL"
 
+        if platform.system() == "Darwin":
+            padding = [0, 0, 0, 0]
+        elif platform.system() == "Windows":
+            padding = [0, 5, 0, 0]
+
         super().__init__(prefix, 
                         name,
                         parentWidget,
-                        renderData = data)
+                        renderData = data,
+                        padding = padding)
     
     def toSelectingZone(self, subsection, imIdx, eImIdx, getTextOfSelector):
         self.subsection = subsection
@@ -604,6 +611,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         self.currPage = int(fsf.Wr.OriginalMaterialStructure.getMaterialCurrPage(origMatName))
 
         self.parent = parentWidget
+
+        width = width - 30
 
         super().__init__(prefix,
                          name,

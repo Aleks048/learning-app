@@ -37,9 +37,9 @@ class SwitchLayoutSectionVSMain_BTN(ww.currUIImpl.Button,
                         self.cmd)
     
     def cmd(self):
-        pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
-                                                        wf.Wr.MenuManagers.PdfReadersManager)
-        pdfMenuManager.layouts[0].pfdReader_BOX.updateScrollerPosition()
+        # pdfMenuManager = dt.AppState.UIManagers.getData("appCurrDataAccessToken",
+        #                                                 wf.Wr.MenuManagers.PdfReadersManager)
+        # pdfMenuManager.layouts[0].pfdReader_BOX.updateScrollerPosition()
 
         mathMenuManager = dt.AppState.UIManagers.getData(self.appCurrDataAccessToken,
                                                          mmm.MathMenuManager)

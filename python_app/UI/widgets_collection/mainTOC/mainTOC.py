@@ -194,6 +194,9 @@ class MainTOCBox(comw.TOC_BOX):
         # self.notify(ScreenshotLocation_LBL)
 
     def scrollToCurrSubsecrtionWidget(self):
+        if fsf.Data.Book.currSection == _u.Token.NotDef.str_t:
+            return
+
         self.scrollIntoView(None, 
                             self.subsectionWidgetManagers[fsf.Data.Book.currSection].subsectionFrame)
 
