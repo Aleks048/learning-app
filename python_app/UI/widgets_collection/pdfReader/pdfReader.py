@@ -217,8 +217,15 @@ class PdfReaderImageCanvas(comw.TOCCanvasWithclick):
                 continue
 
             figuresLabelsData = fsf.Data.Sec.figuresLabelsData(subsection).copy()
+            origMatNameDict = fsf.Data.Sec.origMatNameDict(subsection)
             
             for k, l in figuresLabelsData.items():
+                if  k == _u.Token.NotDef.str_t:
+                    continue
+
+                if origMatNameDict[k.split("_")[0]] != omBookName:
+                    continue
+
                 if type(l) == dict:
                     if l["page"] == self.omPage:
                         labelToAdd = PdfReaderImageCanvas.Label(subsection, k,
@@ -365,7 +372,7 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         if (int(self.pageNum) < 0):
             self.pageNum = 0
 
-        if (int(self.pageNum) > self.pdfDoc.page_count):
+        if (int(self.pageNum) >= self.pdfDoc.page_count):
             self.pageNum = self.pdfDoc.page_count - 2
 
         page = self.pdfDoc.load_page(self.pageNum)
@@ -393,9 +400,6 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             self.imLabel.eImIdx = self.extraImIdx
 
         self.imLabel.render()
-
-        if platform.system() == "Darwin":
-            self.imLabel.forceFocus()
 
         return super().render()
 
