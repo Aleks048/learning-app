@@ -393,7 +393,9 @@ class PdfReaderImage(ww.currUIImpl.Frame):
             self.imLabel.eImIdx = self.extraImIdx
 
         self.imLabel.render()
-        self.imLabel.forceFocus()
+
+        if platform.system() == "Darwin":
+            self.imLabel.forceFocus()
 
         return super().render()
 
