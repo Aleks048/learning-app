@@ -369,12 +369,6 @@ class PdfReaderImage(ww.currUIImpl.Frame):
         for child in self.getChildren().copy():
             child.destroy()
 
-        if (int(self.pageNum) < 0):
-            self.pageNum = 0
-
-        if (int(self.pageNum) >= self.pdfDoc.page_count):
-            self.pageNum = self.pdfDoc.page_count - 2
-
         page = self.pdfDoc.load_page(self.pageNum)
         pixmap = page.get_pixmap(dpi = 150)
         buf = io.BytesIO(pixmap.tobytes())
@@ -727,11 +721,14 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
         '''
         for page in the pdf:
         '''
-        if self.currPage < 2:
-            return
 
-        for i in range(self.currPage - 2, self.currPage + 3):
-            pageImage = PdfReaderImage(self.scrollable_frame, f"_pdfPageIm{i}", i, self.doc, i, self.pageWidth)    
+        row = 0
+
+        for i in range(self.currPage - 2, self.currPage + 3):  
+            if (i >= self.doc.page_count) or (i < 0):
+               continue
+
+            pageImage = PdfReaderImage(self.scrollable_frame, f"_pdfPageIm{i}", row, self.doc, i, self.pageWidth)    
             pageImage.selectingZone = self.selectingZone
             pageImage.getTextOfSelector = self.getTextOfSelector
             pageImage.pageNum = i
@@ -744,6 +741,8 @@ class PfdReader_BOX(ww.currUIImpl.ScrollableBox,
             pageImage.render()
 
             self.displayedPdfPages.append(pageImage)
+
+            row += 1
 
     def updateOMpage(self, force = False):
         if not force:
