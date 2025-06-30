@@ -1,1 +1,1 @@
-/Users/ashum048/books/_python_local/3.9.18/bin/pip install --upgrade --target "/Users/ashum048/books/_python_local/3.9.18/lib/python3.9/site-packages" ${1}
+/Users/ashum048/books/_python_local/3.13/bin/pip3 install --upgrade --target "/Users/ashum048/books/_python_local/3.13/lib/python3.13/site-packages" ${1}

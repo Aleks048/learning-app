@@ -1,1 +1,1 @@
-/Users/ashum048/books/_python_local/3.9.18/bin/pip uninstall ${1}
+/Users/ashum048/books/_python_local/3.13/bin/pip3 uninstall ${1}

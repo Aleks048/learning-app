@@ -223,6 +223,9 @@ class PdfReaderImageCanvas(comw.TOCCanvasWithclick):
                 if  k == _u.Token.NotDef.str_t:
                     continue
 
+                if origMatNameDict.get(k.split("_")[0]) == None:
+                    continue
+
                 if origMatNameDict[k.split("_")[0]] != omBookName:
                     continue
 
