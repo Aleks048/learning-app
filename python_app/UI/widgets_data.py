@@ -3,7 +3,7 @@ class Data:
         entryWidget_ID = "ETR"
 
         regularTextColor = "white"
-        defaultTextColor = "blue"
+        defaultTextColor = "white"
     class BTN:
         buttonWidget_ID = "BTN"
     
