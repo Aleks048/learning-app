@@ -480,11 +480,10 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         else:
             rebuildStartIdx = sourceImIdx
 
-        if shouldAsk:
-            cls.rebuildEntriesBatch(sourceSubsection, rebuildStartIdx)
+        cls.rebuildEntriesBatch(sourceSubsection, rebuildStartIdx)
 
-            if targetSubsection != sourceSubsection:
-                cls.rebuildEntriesBatch(targetSubsection, targetImIdx)
+        if targetSubsection != sourceSubsection:
+            cls.rebuildEntriesBatch(targetSubsection, targetImIdx)
 
         log.autolog(msg)
         ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
@@ -967,12 +966,14 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
     def shiftEntryUp(cls, subsection, imIdx):
         import generalManger.generalManger as gm
 
+        if type(subsection) == tuple:
+            subsection = subsection[0]
+
         # track all the changes berore and after removal
         msg = "Before shifting the subsection entries the subsection: '{0}_{1}'.".format(subsection, imIdx)
         log.autolog(msg)
 
-        if shouldConfirm:
-            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
         currBookName = sf.Wr.Manager.Book.getCurrBookName()
         imagesPath = _upan.Paths.Screenshot.getAbs(currBookName, subsection)
@@ -1191,18 +1192,17 @@ to '{2}':'{3}'.".format(sourceSubsection, sourceImIdx,
         msg = "After shifting the subsection: '{0}_{1}'.".format(subsection, imIdx)
         log.autolog(msg)
 
-        if shouldConfirm:
-            oldEntryImOpenInTOC_UI = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI)
-            bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI,
-                                                 str(int(oldEntryImOpenInTOC_UI) + 1))
+        oldEntryImOpenInTOC_UI = bfs.BookInfoStructure.readProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI)
+        bfs.BookInfoStructure.updateProperty(bfs.BookInfoStructure.PubProp.entryImOpenInTOC_UI,
+                                                str(int(oldEntryImOpenInTOC_UI) + 1))
 
-            # update the links on the OM file
-            imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
+        # update the links on the OM file
+        imLinkOMPageDict = cls.readProperty(subsection, cls.PubProp.imLinkOMPageDict)
 
-            # track all the changes after removal
-            ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
+        # track all the changes after removal
+        ocf.Wr.TrackerAppCalls.stampChanges(sf.Wr.Manager.Book.getCurrBookFolderPath(), msg)
 
-            cls.rebuildEntriesBatch(subsection, imIdx)
+        cls.rebuildEntriesBatch(subsection, imIdx)
 
     @classmethod
     def __copyEntry(cls, subsection, imIdx, targetSubsection, targetImIdx):
