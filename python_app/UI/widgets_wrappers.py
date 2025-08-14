@@ -1528,9 +1528,19 @@ class TkWidgets (DataTranslatable_Interface):
             self.canvas.widgetObj.pack(side="top", fill="both", expand = True)
 
             def on_vertical(event):
-                self.canvas.widgetObj.yview_scroll(-1 * event.delta, 'units')
+                if  platform.system() == "Windows":
+                    d = -1 * int(event.delta * 0.1)
+                else:
+                    d = event.delta
 
-            def on_horizontal(event):
+                self.canvas.widgetObj.yview_scroll(-1 * d, 'units')
+
+            def on_horizontal(event):                
+                if  platform.system() == "Windows":
+                    d = -1 * int(event.delta * 0.1)
+                else:
+                    d = event.delta
+
                 self.canvas.widgetObj.xview_scroll(-1 * event.delta, 'units')
 
             if makeScrollable:
