@@ -1,5 +1,6 @@
 from PIL import Image
 from threading import Thread
+import platform
 
 import UI.widgets_wrappers as ww
 import UI.widgets_facade as wf
@@ -386,18 +387,22 @@ class Excercise_BOX(ww.currUIImpl.ScrollableBox,
             lineIdx = len(lines) - 1
             row = lineIdx
             self.__addExcerciseLine(lineIdx, row)
-            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
+
+            if platform.system() != "Windows":
+                wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
         if broadcasterType == HideAllETRsWindow_BTN:
             for m in self.lineManagers.values():
                 m.lineEtr.hide()
 
     def onTextUpdateEtrHide(self, lineIdx):
-        if self.lineManagers.get(str(lineIdx)) != None:
-            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
+        if platform.system() != "Windows":
+            if self.lineManagers.get(str(lineIdx)) != None:
+                wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].frame)
 
     def onTextUpdateEtrShow(self, lineIdx):
-        if self.lineManagers.get(str(lineIdx)) != None:
-            wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].lineEtr)
+        if platform.system() != "Windows":
+            if self.lineManagers.get(str(lineIdx)) != None:
+                wcu.scrollIntoView(self, None, self.lineManagers[str(lineIdx)].lineEtr)
 
     def render(self, shouldScroll = True):
         wd.Data.Reactors.excerciseLineChangeReactors[self.name] = self

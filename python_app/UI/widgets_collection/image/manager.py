@@ -80,6 +80,7 @@ class ImagesManager(wm.MenuManager_Interface):
 
         self.layouts[0].subsection = self.subsection
         self.layouts[0].imIdx = self.imIdx
+        appDimensions = [appDimensions[0], appDimensions[1], 100, 100]
         self.layouts[0].appDimensions = appDimensions
         self.appDimensions = appDimensions
         self.notesImDimensions = notesImDimensions
