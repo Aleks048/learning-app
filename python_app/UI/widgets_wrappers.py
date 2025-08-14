@@ -1529,7 +1529,7 @@ class TkWidgets (DataTranslatable_Interface):
 
             def on_vertical(event):
                 if  platform.system() == "Windows":
-                    d = -1 * int(event.delta * 0.1)
+                    d = -1 * int(event.delta * 0.01)
                 else:
                     d = event.delta
 
@@ -1537,7 +1537,7 @@ class TkWidgets (DataTranslatable_Interface):
 
             def on_horizontal(event):                
                 if  platform.system() == "Windows":
-                    d = -1 * int(event.delta * 0.1)
+                    d = -1 * int(event.delta * 0.01)
                 else:
                     d = event.delta
 
