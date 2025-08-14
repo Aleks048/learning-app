@@ -105,8 +105,13 @@ class ExcerciseImage(ww.currUIImpl.ScrollableBox):
                                                                         imPadLeft = 120,
                                                                         skippConditionFn = skipProofs,
                                                                         createExtraWidgets = False)
+        height = 20 + self.imLabel.getHeight()
+        
         for l in exImLabels:
             l.render()
+            height += l.getHeight()
+
+        self.setCanvasHeight(height)
 
         return super().render(**kwargs)
 
